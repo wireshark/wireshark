@@ -1503,7 +1503,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
             bundles_per_entry = 1;
         }
 
-        /* Maybe also be affected by ext 21 */
+        /* Ext6 behaviour may also be affected by ext 21 */
         if (settings->ext21_set) {
             /* N.B., have already checked that numPrbc is not 0 */
 
@@ -1514,8 +1514,10 @@ static void ext11_work_out_bundles(unsigned startPrbc,
         }
 
         unsigned bundles_set = 0;
+        bool reached_orphan = false;
+        /* For each bit set in ext6 rbg mask.. */
         for (unsigned n=0;
-             n < (settings->ext6_num_bits_set * settings->ext6_rbg_size) / numBundPrb;
+             !reached_orphan && n < (settings->ext6_num_bits_set * settings->ext6_rbg_size) / numBundPrb;
              n++) {
 
             /* Watch out for array bound */
@@ -1530,7 +1532,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
             uint32_t prb_start = (settings->ext6_bits_set[n] * settings->ext6_rbg_size);
 
             /* For each bundle within identified rbgSize block */
-            for (unsigned m=0; m < bundles_per_entry; m++) {
+            for (unsigned m=0; !reached_orphan && m < bundles_per_entry; m++) {
                 settings->bundles[bundles_set].start = startPrbc+prb_start+(m*numBundPrb);
                 /* Start already beyond end, so doesn't count. */
                 if (settings->bundles[bundles_set].start > (startPrbc+numPrbc-1)) {
@@ -1541,8 +1543,9 @@ static void ext11_work_out_bundles(unsigned startPrbc,
                 settings->bundles[bundles_set].end = startPrbc+prb_start+((m+1)*numBundPrb)-1;
                 if (settings->bundles[bundles_set].end > (startPrbc+numPrbc-1)) {
                     /* Extends beyond end, so counts but is an orphan bundle */
-                    settings->bundles[bundles_set].end = numPrbc;
+                    settings->bundles[bundles_set].end = startPrbc+numPrbc-1;
                     settings->bundles[bundles_set].is_orphan = true;
+                    reached_orphan = true;
                 }
 
                 /* Get out if have reached array bound */
@@ -1567,7 +1570,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
             settings->bundles[n].end =   settings->bundles[n].start + numBundPrb-1;
             /* Does it go beyond the end? */
             if (settings->bundles[n].end > startPrbc+numPrbc) {
-                settings->bundles[n].end = numPrbc+numPrbc;
+                settings->bundles[n].end = startPrbc+numPrbc;
                 settings->bundles[n].is_orphan = true;
             }
         }
@@ -2101,7 +2104,7 @@ static int dissect_active_beamspace_coefficient_mask(tvbuff_t *tvb, proto_tree *
     /* activeBeamspaceCoefficientMask - ceil(K/8) octets */
     /* K is the number of elements in uncompressed beamforming weight vector.
      * Calculated from parameters describing tx-array or tx-array */
-    unsigned k_octets = (pref_data_plane_section_total_rbs + 7) / 8;
+    unsigned k_octets = (pref_num_bf_antennas + 7) / 8;
 
     static uint16_t trx_enabled[1024];
 
@@ -2129,7 +2132,7 @@ static int dissect_active_beamspace_coefficient_mask(tvbuff_t *tvb, proto_tree *
         /* Add up the set bits for this byte (but be careful not to count beyond last real K bit..) */
         for (unsigned b=0; b < 8; b++) {
             if ((1 << b) & (unsigned)val) {
-                if (((n*8)+b) < pref_data_plane_section_total_rbs) {
+                if (((n*8)+b) < pref_num_bf_antennas) {
                     if (*num_trx_entries < 1024-1) {   /* Don't write beyond array (which should be plenty big) */
                         trx_enabled[(*num_trx_entries)++] = (n*8) + b + 1;
                     }
@@ -2201,6 +2204,9 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
             offset = dissect_active_beamspace_coefficient_mask(tvb, bfwcompparam_tree, offset, num_trx_entries, trx_entries);
             *bfw_comp_method = COMP_BLOCK_SCALE;
             *supported = false;                  /* TODO: true once BLOCK SCALE is supported */
+            proto_tree_add_item(bfwcompparam_tree, hf_oran_blockScaler,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
             break;
         case 5:                 /* beamspace II (BLOCK FLOATING POINT) */
             /* activeBeamspaceCoefficientMask */
@@ -2217,6 +2223,8 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
             /* Not handled */
              break;
     }
+
+    proto_item_set_end(bfwcompparam_ti, tvb, offset);
 
     /* Can't go on if compression scheme not supported */
     if (!(*supported) && meth_ti) {
@@ -2385,16 +2393,9 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
                                   &bfwcomphdr_comp_meth, &exponent, &compression_method_supported,
                                   &num_trx_entries, &trx_entries);
 
-    /* Can't show details of unsupported compression method */
-    if (!compression_method_supported) {
-        /* Don't know how to show, so give up */
-        return offset;
-    }
-
     /* Create Bundle subtree */
     int bit_offset = offset*8;
     int bfw_offset;
-    int prb_offset = offset;
 
     /* contInd */
     proto_tree_add_item(bundle_tree, hf_oran_cont_ind,
@@ -2449,7 +2450,7 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
     }
 
     /* Set extent of bundle */
-    proto_item_set_len(bundle_ti, (bit_offset+7)/8 - prb_offset);
+    proto_item_set_end(bundle_ti, tvb, (bit_offset+7)/8);
 
     return (bit_offset+7)/8;
 }
@@ -3755,7 +3756,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                     /* Add (complete) bundles */
                     for (unsigned b=0; b < num_bundles; b++) {
-
                         offset = dissect_bfw_bundle(tvb, extension_tree, pinfo, offset,
                                                     comp_meth_ti, bfwcomphdr_comp_meth,
                                                     NULL /* no ModCompr */,
@@ -4812,7 +4812,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             proto_tree *mr_tree = proto_item_add_subtree(mr_ti, ett_oran_measurement_report);
             unsigned report_start_offset = offset;
 
-            /* more fragments (after this one) (1 bit) */
+            /* measurement flag (i.e., more reports after this one) (1 bit) */
             proto_tree_add_item_ret_boolean(mr_tree, hf_oran_mf, tvb, offset, 1, ENC_BIG_ENDIAN, &mf);
 
             /* measTypeId (7 bits) */
