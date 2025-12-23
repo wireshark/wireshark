@@ -3578,7 +3578,6 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packe
             tvb_current_offset = tvb_descriptors_end_offset;
         }
         tvb_previous_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset+1);
-        tvb_LBRKT = tvb_previous_offset;
         tvb_RBRKT = tvb_previous_offset;
 
     } while ( tvb_current_offset < tvb_descriptors_end_offset );
