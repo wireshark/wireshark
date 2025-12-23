@@ -38,7 +38,7 @@ typedef struct {
 	struct {
 		bool test;
 		ws_mempbrk_pattern pattern;
-		int offset;
+		unsigned offset;
 		unsigned char found_needle;
 	} mempbrk;
 } search_test_params;
@@ -54,9 +54,8 @@ test_searches(tvbuff_t *tvb, int offset, search_test_params *sp)
 			sp->g16.offset = tvb_find_uint16(tvb, offset, -1, sp->g16.needle);
 		}
 		if (sp->mempbrk.test) {
-			sp->mempbrk.offset =
-				tvb_ws_mempbrk_pattern_uint8(tvb, offset, -1,
-					&sp->mempbrk.pattern, &sp->mempbrk.found_needle);
+			tvb_ws_mempbrk_uint8_remaining(tvb, offset,
+				&sp->mempbrk.pattern, &sp->mempbrk.offset, &sp->mempbrk.found_needle);
 		}
 	}
 	CATCH_ALL {

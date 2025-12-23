@@ -77,22 +77,23 @@ subset_find_uint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t ne
 	return result;
 }
 
-static int
-subset_pbrk_uint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
+static bool
+subset_pbrk_uint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned *found_offset, unsigned char *found_needle)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
-	int result;
+	bool result;
 
-	result = tvb_ws_mempbrk_pattern_uint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, pattern, found_needle);
-	if (result == -1)
-		return result;
+	result = tvb_ws_mempbrk_uint8_length(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, pattern, found_offset, found_needle);
 
 	/*
 	 * Make the result relative to the beginning of the tvbuff we
 	 * were handed, *not* relative to the beginning of its parent
 	 * tvbuff.
 	 */
-	return result - subset_tvb->subset.offset;
+	if (found_offset) {
+		*found_offset -= subset_tvb->subset.offset;
+	}
+	return result;
 }
 
 static tvbuff_t *

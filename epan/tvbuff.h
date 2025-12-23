@@ -2329,6 +2329,60 @@ static inline int tvb_find_guint16(tvbuff_t* tvb, const int offset,
  * @brief Find the first occurrence of any needle from a pre-compiled pattern in a tvbuff.
  *
  * Searches the given tvbuff_t starting at `offset` for any of the bytes defined in the
+ * pre-compiled `pattern` (compiled using `ws_mempbrk_compile()`). The search starts
+ * at offset and searches the remaining captured bytes.
+ *
+ * This function will throw an exception if offset is not in the captured bytes
+ * in the buffer, but will not throw an exception if no needle is found.
+ * In such cases, found_offset (if not NULL) is set to the offset immediately
+ * after the last offset examined.
+ *
+ * @param tvb          The tvbuff_t to search.
+ * @param offset       The offset within the tvbuff to begin searching.
+ * @param pattern      The pre-compiled pattern of needles to search for.
+ * @param found_offset Pointer to an unsigned int that will be set to the found needle offset.
+ * @param found_needle Pointer to an unsigned char that will be set to the found needle value.
+ *
+ * @return true if a needle was found, false if not.
+ *
+ * @see tvb_ws_memprbk_uint8_length
+ */
+WS_DLL_PUBLIC bool tvb_ws_mempbrk_uint8_remaining(tvbuff_t *tvb, const unsigned offset,
+    const ws_mempbrk_pattern* pattern, unsigned *found_offset, unsigned char *found_needle);
+
+/**
+ * @brief Find the first occurrence of any needle from a pre-compiled pattern in a tvbuff
+ * up to a maximum search length.
+ *
+ * Searches the given tvbuff_t starting at `offset` for any of the bytes defined in the
+ * pre-compiled `pattern` (compiled using `ws_mempbrk_compile()`). The search starts
+ * at offset and searches up to maxlength bytes or the end of the captured bytes,
+ * whichever comes first.
+ *
+ * This function will throw an exception if offset is not in the captured bytes
+ * in the buffer, but will not throw an exception if no needle is found.
+ * In such cases, found_offset (if not NULL) is set to the offset immediately
+ * after the last offset examined.
+ *
+ * @param tvb          The tvbuff_t to search.
+ * @param offset       The offset within the tvbuff to begin searching.
+ * @param maxlength    The maximum number of bytes to search.
+ * @param pattern      The pre-compiled pattern of needles to search for.
+ * @param found_offset Pointer to an unsigned int that will be set to the found needle offset.
+ * @param found_needle Pointer to an unsigned char that will be set to the found needle value.
+ *
+ * @return true if a needle was found, false if not.
+ *
+ * @see tvb_ws_memprbk_uint8_remaining
+ */
+WS_DLL_PUBLIC bool tvb_ws_mempbrk_uint8_length(tvbuff_t *tvb, const unsigned offset,
+    const unsigned maxlength, const ws_mempbrk_pattern* pattern,
+    unsigned *found_offset, unsigned char *found_needle);
+
+/**
+ * @brief Find the first occurrence of any needle from a pre-compiled pattern in a tvbuff.
+ *
+ * Searches the given tvbuff_t starting at `offset` for any of the bytes defined in the
  * pre-compiled `pattern` (compiled using `ws_mempbrk_compile()`).
  * The search scans at most `maxlength` bytes.
  *

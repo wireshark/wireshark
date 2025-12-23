@@ -2546,7 +2546,7 @@ tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset, const int no_of_bits, con
 	return (uint32_t)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
 
-static unsigned
+static bool
 tvb_find_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle, unsigned *end_offset)
 {
 	const uint8_t *ptr;
@@ -2740,21 +2740,28 @@ tvb_find_uint16(tvbuff_t *tvb, const int offset, const int maxlength,
 	return -1;
 }
 
-static inline int
-tvb_ws_mempbrk_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
+static inline bool
+tvb_ws_mempbrk_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned *found_offset, unsigned char *found_needle)
 {
 	const uint8_t *ptr;
 	const uint8_t *result;
 
+	if (found_offset) {
+		*found_offset = abs_offset + limit;
+	}
+
 	ptr = ensure_contiguous_unsigned(tvb, abs_offset, limit); /* tvb_get_ptr */
 	if (!ptr)
-		return -1;
+		return false;
 
 	result = ws_mempbrk_exec(ptr, limit, pattern, found_needle);
 	if (!result)
-		return -1;
+		return false;
 
-	return (int) ((result - ptr) + abs_offset);
+	if (found_offset) {
+		*found_offset = (unsigned)((result - ptr) + abs_offset);
+	}
+	return true;
 }
 
 
@@ -2770,7 +2777,7 @@ tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const unsigned offset, const int max
 			const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
 	const uint8_t *result;
-	unsigned      limit = 0;
+	unsigned      limit = 0, found_offset;
 	int           exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -2797,10 +2804,82 @@ tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const unsigned offset, const int max
 		}
 	}
 
-	if (tvb->ops->tvb_ws_mempbrk_pattern_uint8)
-		return tvb->ops->tvb_ws_mempbrk_pattern_uint8(tvb, offset, limit, pattern, found_needle);
+	if (tvb->ops->tvb_ws_mempbrk_pattern_uint8) {
+		if (!tvb->ops->tvb_ws_mempbrk_pattern_uint8(tvb, offset, limit, pattern, &found_offset, found_needle)) {
+			return -1;
+		}
+	} else if (!tvb_ws_mempbrk_uint8_generic(tvb, offset, limit, pattern, &found_offset, found_needle)) {
+		return -1;
+	}
+	return (int)found_offset;
+}
 
-	return tvb_ws_mempbrk_uint8_generic(tvb, offset, limit, pattern, found_needle);
+static bool
+_tvb_ws_mempbrk_uint8_length(tvbuff_t *tvb, const unsigned offset, const unsigned limit,
+			const ws_mempbrk_pattern* pattern, unsigned *found_offset, unsigned char *found_needle)
+{
+	const uint8_t *result;
+
+	/* If we have real data, perform our search now. */
+	if (tvb->real_data) {
+		result = ws_mempbrk_exec(tvb->real_data + offset, limit, pattern, found_needle);
+		if (result == NULL) {
+			if (found_offset) {
+				*found_offset = offset + limit;
+			}
+			return false;
+		}
+		else {
+			if (found_offset) {
+				*found_offset = (unsigned)(result - tvb->real_data);
+			}
+			return true;
+		}
+	}
+
+	if (tvb->ops->tvb_ws_mempbrk_pattern_uint8)
+		return tvb->ops->tvb_ws_mempbrk_pattern_uint8(tvb, offset, limit, pattern, found_offset, found_needle);
+
+	return tvb_ws_mempbrk_uint8_generic(tvb, offset, limit, pattern, found_offset, found_needle);
+}
+
+bool
+tvb_ws_mempbrk_uint8_remaining(tvbuff_t *tvb, const unsigned offset,
+			const ws_mempbrk_pattern* pattern, unsigned *found_offset, unsigned char *found_needle)
+{
+	unsigned      limit = 0;
+	int           exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	return _tvb_ws_mempbrk_uint8_length(tvb, offset, limit, pattern, found_offset, found_needle);
+}
+
+bool
+tvb_ws_mempbrk_uint8_length(tvbuff_t *tvb, const unsigned offset, const unsigned maxlength,
+			const ws_mempbrk_pattern* pattern, unsigned *found_offset, unsigned char *found_needle)
+{
+	unsigned      limit = 0;
+	int           exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (limit > maxlength) {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
+		limit = maxlength;
+	}
+
+	return _tvb_ws_mempbrk_uint8_length(tvb, offset, limit, pattern, found_offset, found_needle);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
