@@ -148,7 +148,9 @@ static bool mplog_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                    ctr and last_ctr are in units of 10ns
                    at 106kbit/s, it takes approx 75us to send one byte */
                 if (ctr - last_ctr > 200*100) {
-                    file_seek(fh, -MPLOG_BLOCK_SIZE, SEEK_CUR, err);
+                    if (file_seek(fh, -MPLOG_BLOCK_SIZE, SEEK_CUR, err) == -1) {
+                        return false;
+                    }
                     break;
                 }
             }
@@ -158,7 +160,9 @@ static bool mplog_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
             last_ctr = ctr;
         }
         else if (KNOWN_TYPE(type)) {
-            file_seek(fh, -MPLOG_BLOCK_SIZE, SEEK_CUR, err);
+            if (file_seek(fh, -MPLOG_BLOCK_SIZE, SEEK_CUR, err) == -1) {
+                return false;
+            }
             break;
         }
     } while (pkt_bytes < ISO14443_MAX_PKT_LEN);

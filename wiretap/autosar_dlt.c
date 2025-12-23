@@ -288,7 +288,9 @@ autosar_dlt_open(wtap *wth, int *err, char **err_info) {
         return WTAP_OPEN_NOT_MINE;
     }
 
-    file_seek(wth->fh, 0, SEEK_SET, err);
+    if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+        return WTAP_OPEN_ERROR;
+    }
 
     dlt = g_new(autosar_dlt_t, 1);
     dlt->ecu_to_iface_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);

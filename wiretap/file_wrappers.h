@@ -28,7 +28,7 @@ extern void file_set_random_access(FILE_T stream, bool random_flag, GPtrArray *s
  * @param err Optional error code output.
  * @return New position or -1 on failure.
  */
-WS_DLL_PUBLIC int64_t file_seek(FILE_T stream, int64_t offset, int whence, int *err);
+WS_WARN_UNUSED WS_DLL_PUBLIC int64_t file_seek(FILE_T stream, int64_t offset, int whence, int *err);
 
 /**
  * @brief Get current position in the file.

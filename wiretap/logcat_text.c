@@ -219,7 +219,11 @@ static bool logcat_text_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
             return false;
         }
 
-        file_seek(fh,file_off,SEEK_SET,&err);
+        if (file_seek(fh, file_off, SEEK_SET, &err) == -1) {
+            g_free(cbuff);
+            g_free(lbuff);
+            return false;
+        }
         g_free(lbuff);
     }
 

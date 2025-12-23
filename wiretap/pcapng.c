@@ -3707,7 +3707,9 @@ pcapng_open(wtap *wth, int *err, char **err_info)
         }
 
         /* go back to where we were */
-        file_seek(wth->fh, saved_offset, SEEK_SET, err);
+        if (file_seek(wth->fh, saved_offset, SEEK_SET, err) == -1) {
+            return WTAP_OPEN_ERROR;
+        }
 
         /*
          * Get a pointer to the current section's section_info_t.
