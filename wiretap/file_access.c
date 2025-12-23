@@ -2203,6 +2203,8 @@ wtap_dump_init_dumper(int file_type_subtype, ws_compression_type compression_typ
 					descr_mand->wtap_encap = params->encap;
 				}
 				if (!wtap_dump_fix_idb(wdh, descr, err)) {
+					wtap_block_array_free(wdh->interface_data);
+					g_free(wdh);
 					return NULL;
 				}
 				g_array_append_val(wdh->interface_data, descr);
