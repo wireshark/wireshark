@@ -133,9 +133,7 @@ char* scs_subscribe(SCS_collection* c, const char* s) {
 	unsigned* ip = NULL;
 	size_t len = 0;
 
-	g_hash_table_lookup_extended(c->hash,(const void *)s,(void * *)&orig,(void * *)&ip);
-
-	if (ip) {
+	if (g_hash_table_lookup_extended(c->hash,(const void *)s,(void * *)&orig,(void * *)&ip)) {
 		(*ip)++;
 	} else {
 		ip = g_new0(unsigned, 1);

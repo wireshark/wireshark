@@ -457,9 +457,7 @@ static void analyze_pdu(mate_config* mc, mate_pdu* pdu) {
 	if ((gopkey_match = new_avpl_pairs_match("gop_key_match", pdu->avpl, cfg->key, true, true))) {
 		gop_key = avpl_to_str(gopkey_match);
 
-		g_hash_table_lookup_extended(gop_rd->gop_index,(const void *)gop_key,(void * *)&orig_gop_key,(void * *)&gop);
-
-		if ( gop ) {
+		if (g_hash_table_lookup_extended(gop_rd->gop_index,(const void *)gop_key,(void * *)&orig_gop_key,(void * *)&gop)) {
 			g_free(gop_key);
 
 			/* is the gop dead ? */
