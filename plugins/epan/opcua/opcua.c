@@ -450,9 +450,23 @@ static int decrypt_opcua(
     }
 
     gcry_cipher_hd_t handle;
-    gcry_cipher_open(&handle, cipher_mode, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_CBC_CTS);
-    gcry_cipher_setkey(handle, keydata, keylen);
-    gcry_cipher_setiv(handle, ivdata, ivlen);
+    res = gcry_cipher_open(&handle, cipher_mode, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_CBC_CTS);
+    if (res) {
+        ws_debug("opening cipher failed: %s %s.", gcry_strsource(res), gcry_strerror(res));
+        return -1;
+    }
+    res = gcry_cipher_setkey(handle, keydata, keylen);
+    if (res) {
+        ws_debug("setkey failed: %s %s.", gcry_strsource(res), gcry_strerror(res));
+        gcry_cipher_close(handle);
+        return -1;
+    }
+    res = gcry_cipher_setiv(handle, ivdata, ivlen);
+    if (res) {
+        ws_debug("setiv failed: %s %s.", gcry_strsource(res), gcry_strerror(res));
+        gcry_cipher_close(handle);
+        return -1;
+    }
 
     /* Decrypt the data in-place */
     res = gcry_cipher_decrypt(handle, plaintext, plaintext_len, cipher, cipher_len);
@@ -461,7 +475,7 @@ static int decrypt_opcua(
         ws_debug("decryption succeeded.");
     } else {
         /* col_append_fstr(pinfo->cinfo, COL_INFO, " (encrypted)"); */
-        ws_debug("decryption failed.");
+        ws_debug("decryption failed %s %s.", gcry_strsource(res), gcry_strerror(res));
         ret = -1;
     }
     gcry_cipher_close(handle);
