@@ -5449,40 +5449,28 @@ dissect_homeplug_av_st_iotecha_stp_cpstate_ind(ptvcursor_t *cursor, packet_info 
 static void
 dissect_homeplug_av_st_iotecha_stp_user_message_ind(ptvcursor_t *cursor, packet_info *pinfo) {
 
-    int null_offset;
-
+    unsigned null_offset;
 
     ptvcursor_advance(cursor, 4); // not used fields
     ptvcursor_advance(cursor, 4); // not used fields
 
-    null_offset = tvb_find_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, -1, 0);
-
-    if (null_offset > -1) {
+    if (tvb_find_uint8_remaining(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, 0, &null_offset)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
                         tvb_get_stringz_enc(pinfo->pool, ptvcursor_tvbuff(cursor),
                                               ptvcursor_current_offset(cursor),
                                               NULL, ENC_ASCII));
-    }
-
-    if (!ptvcursor_tree(cursor))
-        return;
-
-    if (null_offset > -1) {
         ptvcursor_add(cursor,
                       hf_homeplug_av_st_iotecha_user_message_info,
                       null_offset - ptvcursor_current_offset(cursor),
                       ENC_ASCII);
     }
 
-    null_offset = tvb_find_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, -1, 0);
-
-    if (null_offset > -1) {
+    if (tvb_find_uint8_remaining(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, 0, &null_offset)) {
         ptvcursor_add(cursor,
                       hf_homeplug_av_st_iotecha_user_message_details,
                       null_offset - ptvcursor_current_offset(cursor),
                       ENC_ASCII);
     }
-
 }
 
 static void

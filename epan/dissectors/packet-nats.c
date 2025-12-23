@@ -208,19 +208,19 @@ static void dissect_nats_header_version(tvbuff_t* tvb, int offset, int end_offse
      * https://github.com/nats-io/nats-architecture-and-design/blob/main/adr/ADR-4.md#version-header
      */
 
-    int slash_offset = tvb_find_uint8(tvb, offset, end_offset - offset, '/');
-    if (slash_offset == -1)
+    unsigned slash_offset, dot_offset;
+
+    if (!tvb_find_uint8_length(tvb, offset, end_offset - offset, '/', &slash_offset))
         return;
 
-    int dot_offset = tvb_find_uint8(tvb, slash_offset, end_offset - slash_offset, '.');
-    if (dot_offset == -1)
+    if (!tvb_find_uint8_length(tvb, slash_offset, end_offset - slash_offset, '.', &dot_offset))
         return;
 
-    const int major_offset = slash_offset + 1;
+    const unsigned major_offset = slash_offset + 1;
     const int minor_offset = dot_offset + 1;
 
-    const int major_length = dot_offset - slash_offset - 1;
-    const int minor_length = end_offset - dot_offset - 1;
+    const unsigned major_length = dot_offset - slash_offset - 1;
+    const unsigned minor_length = end_offset - dot_offset - 1;
 
     char *major_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, major_offset, major_length, ENC_ASCII);
     char *minor_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, minor_offset, minor_length, ENC_ASCII);

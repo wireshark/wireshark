@@ -836,7 +836,7 @@ static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_in
 	asn1_ctx_t asn1_ctx;
 	tvbuff_t *param_tvb = NULL;
 	proto_item *ti;
-	int offset, next_offset, tokenlen;
+	unsigned offset, next_offset, tokenlen;
 	char *port_str;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
@@ -845,11 +845,9 @@ static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_in
 		&param_tvb);
 
 	if (param_tvb){
-		offset = tvb_find_uint8(param_tvb, 0, -1, ' ');
-		if (offset != -1){
+		if (tvb_find_uint8_remaining(param_tvb, 0, ' ', &offset)) {
 			offset++;
-			next_offset = tvb_find_uint8(param_tvb, offset, -1, ' ');
-			if (next_offset > 0){
+			if (tvb_find_uint8_remaining(param_tvb, offset, ' ', &next_offset)) {
 				tokenlen = next_offset - offset;
 				port_str = (char*)tvb_get_string_enc(pinfo->pool, param_tvb, offset, tokenlen, ENC_UTF_8 | ENC_NA);
 				if (g_ascii_isdigit(port_str[0])) {

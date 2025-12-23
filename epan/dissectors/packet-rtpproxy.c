@@ -483,16 +483,15 @@ rtpproxy_add_tid(bool is_request, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void
 rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree, unsigned begin, unsigned end)
 {
-    int offset = 0;
-    int tmp;
+    unsigned offset = 0;
+    unsigned tmp;
     bool ipv6 = false;
     uint32_t ipaddr[4]; /* Enough room for IPv4 or IPv6 */
 
     /* Check for at least one colon */
-    offset = tvb_find_uint8(tvb, begin, end, ':');
-    if(offset != -1){
+    if (tvb_find_uint8_length(tvb, begin, end, ':', &offset)) {
         /* Find if it's the latest colon (not in case of a IPv6) */
-        while((tmp = tvb_find_uint8(tvb, offset+1, end, ':')) != -1){
+        while ((tvb_find_uint8_length(tvb, offset+1, end, ':', &tmp))) {
             ipv6 = true;
             offset = tmp;
         }
