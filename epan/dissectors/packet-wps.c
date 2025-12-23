@@ -1678,21 +1678,22 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
           /* make compiler happy */
           break;
         }
-      }
 
-      if ((hf_info != NULL) && hf_info->strings) {
-        /* item has value_string */
-        proto_item_append_text(tlv_item, fmt, val_to_str(pinfo->pool, value,
-                                                         (const value_string *)hf_info->strings,
-                                                         "Unknown: %d"), value);
-      } else if (valuep != NULL) {
-        /* the string-case */
-        proto_item_append_text(tlv_item, fmt, valuep);
-      } else if (fmt != NULL) {
-        /* field is FT_UINT(8|16|32) but has no value_string */
-        proto_item_append_text(tlv_item, fmt, value);
-      } else {
-        /* field is either FT_ETHER or FT_BYTES, don't do anything */
+        if (fmt != NULL) {
+          if (hf_info->strings) {
+            /* item has value_string */
+            proto_item_append_text(tlv_item, fmt, val_to_str(pinfo->pool, value,
+                                                             (const value_string *)hf_info->strings,
+                                                             "Unknown: %d"), value);
+          } else if (valuep != NULL) {
+            /* the string-case */
+            proto_item_append_text(tlv_item, fmt, valuep);
+          } else {
+            /* field is FT_UINT(8|16|32) but has no value_string */
+            proto_item_append_text(tlv_item, fmt, value);
+          }
+        } /* else field is either FT_ETHER or FT_BYTES (or something else?),
+             don't do anything */
       }
 
     }
