@@ -2593,9 +2593,8 @@ wtap_dump_close(wtap_dumper *wdh, bool *needs_reload,
 		if (ret) {
 			/* The per-format finish function succeeded,
 			   but the stream close didn't.  Save the
-			   reason why, if our caller asked for it. */
-			if (err != NULL)
-				*err = errno;
+			   reason why. */
+			*err = errno;
 		}
 		ret = false;
 	}
