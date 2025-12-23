@@ -230,6 +230,10 @@ dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 	char *error_message = NULL;
 	enum mk_result res;
 
+	if (ftype == FT_SCALAR) {
+		ftype = FT_INT64;
+	}
+
 	fv = fvalue_from_literal(ftype, s, allow_partial_value, &error_message);
 	if (fv != NULL) {
 		g_free(error_message); // error_message is expected to be null
@@ -271,6 +275,10 @@ dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 	char *error_message = NULL;
 	enum mk_result res;
 
+	if (ftype == FT_SCALAR) {
+		ftype = FT_INT64;
+	}
+
 	fv = fvalue_from_string(ftype, gs->str, gs->len, &error_message);
 	if (fv != NULL) {
 		g_free(error_message); // error_message is expected to be null
@@ -303,6 +311,10 @@ dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
 	fvalue_t *fv;
 	unsigned long *nump = stnode_data(st);
 	char *error_message = NULL;
+
+	if (ftype == FT_SCALAR) {
+		ftype = FT_INT64;
+	}
 
 	fv = fvalue_from_charconst(ftype, *nump, &error_message);
 	if (fv != NULL) {
