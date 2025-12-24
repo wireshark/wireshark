@@ -13,7 +13,8 @@
 #define __REQ_RESP_HDRS_H__
 
 #include "ws_symbol_export.h"
-#include "wsutil/strtoi.h"
+#include <epan/packet.h>
+#include <wsutil/strtoi.h>
 
 /**
  * Optionally do reassembly of the request/response line, headers, and body.
