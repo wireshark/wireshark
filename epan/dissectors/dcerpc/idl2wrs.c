@@ -2070,7 +2070,7 @@ static void parsetypedefbitmap(int pass)
 			Exit(10);
 		}
 
-		if( val&(val-1) ){
+		if((val == 0) || (val&(val-1))){
 			FPRINTF(stderr, "ERROR: typedefbitmap can only handle single bit fields\n");
 			Exit(10);
 		}
