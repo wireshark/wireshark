@@ -832,7 +832,7 @@ dissect_ses_std_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb, p
     };
     uint8_t     opcode = 0;
     unsigned    orig_offset = offset;
-    uint8_t     flags = 0;
+    uint64_t    flags = 0;
 
     /* 4.3.6 Header Parsing Guide */
     //    Non - Atomic Opcodes - Figure 6
@@ -856,7 +856,7 @@ dissect_ses_std_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb, p
     proto_tree_add_item(ses_tree, hf_uet_ses_std_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_bitmask(ses_tree, tvb, offset, hf_uet_ses_std_flags, ett_uet_ses_std_flags, flag_fields, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_ret_uint64(ses_tree, tvb, offset, hf_uet_ses_std_flags, ett_uet_ses_std_flags, flag_fields, ENC_BIG_ENDIAN, &flags);
     offset += 1;
 
     proto_tree_add_item(ses_tree, hf_uet_ses_std_message_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -951,6 +951,7 @@ dissect_ses_small_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb,
     offset += 1;
 
     proto_tree_add_bitmask(ses_tree, tvb, offset, hf_uet_ses_small_req_flags, ett_uet_ses_small_req_flags, flag_fields, ENC_BIG_ENDIAN);
+    /* XXX - ses.som and ses.eom must both be set (expert data?) */
     offset += 1;
 
     proto_tree_add_item(ses_tree, hf_uet_ses_small_req_flags_rsv2, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1002,7 +1003,7 @@ dissect_ses_medium_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb
     };
     uint8_t     opcode = 0;
     unsigned    orig_offset = offset;
-    bool        hd = false;
+    uint64_t    flags;
 
     //Figure 11
 
@@ -1019,7 +1020,8 @@ dissect_ses_medium_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb
     proto_tree_add_item(ses_tree, hf_uet_ses_std_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_bitmask(ses_tree, tvb, offset, hf_uet_ses_med_req_flags, ett_uet_ses_med_req_flags, flag_fields, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_ret_uint64(ses_tree, tvb, offset, hf_uet_ses_med_req_flags, ett_uet_ses_med_req_flags, flag_fields, ENC_BIG_ENDIAN, &flags);
+    /* XXX - ses.som and ses.eom must both be set (expert data?) */
     offset += 1;
 
     proto_tree_add_item(ses_tree, hf_uet_ses_med_req_flags_rsv2, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1036,7 +1038,7 @@ dissect_ses_medium_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb
     proto_tree_add_item(ses_tree, hf_uet_ses_med_req_rsv4, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ses_tree, hf_uet_ses_med_req_resource_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    if (hd) {
+    if (flags & UET_SES_REQ_FLAGS_HD) {
         proto_tree_add_item(ses_tree, hf_uet_ses_med_req_header_data, tvb, offset, 8, ENC_BIG_ENDIAN);
     } else {
         proto_tree_add_item(ses_tree, hf_uet_ses_med_req_buffer_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1279,7 +1281,7 @@ dissect_pds_rud_rod_req(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pds_tree,
 
         proto_tree_add_item_ret_uint(pds_tree, hf_uet_pds_psn_offset, tvb, offset, 2, ENC_BIG_ENDIAN, &psn_offset);
         start_psn = psn - psn_offset;
-        item = proto_tree_add_uint_format_value(pds_tree, hf_uet_pds_start_psn, tvb, offset, 2, start_psn, "%u", start_psn);
+        item = proto_tree_add_uint(pds_tree, hf_uet_pds_start_psn, tvb, offset, 2, start_psn);
         proto_item_set_generated(item);
     } else {
         proto_tree_add_item(pds_tree, hf_uet_pds_dpdcid, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2072,32 +2074,32 @@ proto_register_uet(void)
         },
         { &hf_uet_ses_std_dc,
             { "Delivery Complete (DC)", "uet.ses.std.dc",
-                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_DC,
                 NULL, HFILL }
         },
         { &hf_uet_ses_std_ie,
             { "Initiator Error (IE)", "uet.ses.std.ie",
-                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_IE,
                 NULL, HFILL }
         },
         { &hf_uet_ses_std_rel,
             { "Relative", "uet.ses.std.rel",
-                FT_BOOLEAN, 8, TFS(&uet_ses_std_rel_str), 0x08,
+                FT_BOOLEAN, 8, TFS(&uet_ses_std_rel_str), UET_SES_REQ_FLAGS_REL,
                 NULL, HFILL }
         },
         { &hf_uet_ses_std_hd,
             { "Header Data", "uet.ses.std.hd",
-                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), UET_SES_REQ_FLAGS_HD,
                 NULL, HFILL }
         },
         { &hf_uet_ses_std_eom,
             { "End of Msg(EOM)", "uet.ses.std.eom",
-                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_EOM,
                 NULL, HFILL }
         },
         { &hf_uet_ses_std_som,
             { "Start of Msg(SOM)", "uet.ses.std.som",
-                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_SOM,
                 NULL, HFILL }
         },
         { &hf_uet_ses_std_message_id,
@@ -2374,32 +2376,32 @@ proto_register_uet(void)
         },
         { &hf_uet_ses_small_req_flags_dc,
             { "Delivery Complete (DC)", "uet.ses.small_req.flags.dc",
-                FT_UINT8, BASE_DEC, NULL, 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_DC,
                 NULL, HFILL }
         },
         { &hf_uet_ses_small_req_flags_ie,
             { "Initiator Error (IE)", "uet.ses.small_req.flags.ie",
-                FT_UINT8, BASE_DEC, NULL, 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_IE,
                 NULL, HFILL }
         },
         { &hf_uet_ses_small_req_flags_rel,
             { "Relative", "uet.ses.small_req.flags.rel",
-                FT_BOOLEAN, 8, TFS(&uet_ses_std_rel_str), 0x08,
+                FT_BOOLEAN, 8, TFS(&uet_ses_std_rel_str), UET_SES_REQ_FLAGS_REL,
                 NULL, HFILL }
         },
         { &hf_uet_ses_small_req_flags_rsvd,
             { "Reserved", "uet.ses.small_req.flags.rsvd",
-                FT_UINT8, BASE_DEC, NULL, 0x04,
+                FT_UINT8, BASE_DEC, NULL, UET_SES_REQ_FLAGS_HD,
                 NULL, HFILL }
         },
         { &hf_uet_ses_small_req_flags_eom,
             { "End of Msg(EOM)", "uet.ses.small_req.eom",
-                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_EOM,
                 NULL, HFILL }
         },
         { &hf_uet_ses_small_req_flags_som,
             { "Start of Msg(SOM)", "uet.ses.small_req.som",
-                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_SOM,
                 NULL, HFILL }
         },
         { &hf_uet_ses_small_req_flags_rsv2,
@@ -2465,32 +2467,32 @@ proto_register_uet(void)
         },
         { &hf_uet_ses_med_req_flags_dc,
             { "Delivery Complete (DC)", "uet.ses.med_req.flags.dc",
-                FT_UINT8, BASE_DEC, NULL, 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_DC,
                 NULL, HFILL }
         },
         { &hf_uet_ses_med_req_flags_ie,
             { "Initiator Error (IE)", "uet.ses.med_req.flags.ie",
-                FT_UINT8, BASE_DEC, NULL, 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_IE,
                 NULL, HFILL }
         },
         { &hf_uet_ses_med_req_flags_rel,
             { "Relative", "uet.ses.med_req.flags.rel",
-                FT_BOOLEAN, 8, TFS(&uet_ses_std_rel_str), 0x08,
+                FT_BOOLEAN, 8, TFS(&uet_ses_std_rel_str), UET_SES_REQ_FLAGS_REL,
                 NULL, HFILL }
         },
         { &hf_uet_ses_med_req_flags_hd,
             { "HD", "uet.ses.med_req.flags.hd",
-                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), UET_SES_REQ_FLAGS_HD,
                 NULL, HFILL }
         },
         { &hf_uet_ses_med_req_flags_eom,
             { "End of Msg(EOM)", "uet.ses.med_req.eom",
-                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_EOM,
                 NULL, HFILL }
         },
         { &hf_uet_ses_med_req_flags_som,
             { "Start of Msg(SOM)", "uet.ses.med_req.som",
-                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), UET_SES_REQ_FLAGS_SOM,
                 NULL, HFILL }
         },
         { &hf_uet_ses_med_req_flags_rsv2,
