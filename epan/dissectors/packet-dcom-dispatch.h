@@ -13,6 +13,8 @@
 #ifndef __PACKET_DCERPC_DCOM_DISPATCH_H
 #define __PACKET_DCERPC_DCOM_DISPATCH_H
 
+#include <epan/dissectors/packet-dcerpc.h>
+
 WS_DLL_PUBLIC int
 dissect_IDispatch_GetTypeInfoCount_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);

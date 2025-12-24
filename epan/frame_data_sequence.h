@@ -11,6 +11,8 @@
 #ifndef __FRAME_DATA_SEQUENCE_H__
 #define __FRAME_DATA_SEQUENCE_H__
 
+#include <epan/frame_data.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

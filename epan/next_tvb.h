@@ -19,6 +19,7 @@
 #define __NEXT_TVB_H__
 
 #include "ws_symbol_export.h"
+#include <epan/packet.h>
 
 typedef enum {
   NTVB_HANDLE,
