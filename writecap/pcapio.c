@@ -438,7 +438,7 @@ write_to_file(pcapio_writer* pfile, const uint8_t* data, size_t data_length,
         default:
             nwritten = fwrite(data, data_length, 1, pfile->fh);
             if (nwritten != 1) {
-                if (ferror(pfile->fh)) {
+                if (ferror((FILE *)pfile->fh)) {
                     *err = errno;
                 } else {
                     *err = WTAP_ERR_SHORT_WRITE;
