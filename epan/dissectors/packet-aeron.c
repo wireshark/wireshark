@@ -2939,7 +2939,7 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         aeron_frame_info_t * finfo = NULL;
 
         /* Make sure superfluous padding is not identified as aeron frame */
-        if (tvb_skip_uint8(tvb, offset, tvb_captured_length_remaining(tvb, offset), 0) == (int)tvb_captured_length(tvb))
+        if (tvb_skip_uint8(tvb, offset, tvb_captured_length_remaining(tvb, offset), 0) == tvb_captured_length(tvb))
         {
             break;
         }

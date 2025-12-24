@@ -2932,34 +2932,53 @@ WS_DLL_PUBLIC int tvb_find_line_end_unquoted(tvbuff_t *tvb, const unsigned offse
  * and returns the offset of the first non-whitespace character found.
  * Whitespace characters include space (0x20), tab (0x09), carriage return (0x0D), and line feed (0x0A).
  *
- * The scan stops at `offset + maxlength - 1`, whichever comes first.
+ * This function will throw an exception if the start offset is outside
+ * the tvbuff captured bytes, but will not throw an exception while skipping,
+ * instead stopping at the end of the captured bytes if that is reached before
+ * `maxlength`.
  *
  * @param tvb        The tvbuff_t to scan.
  * @param offset     The offset in the tvbuff to begin skipping whitespace.
  * @param maxlength  The maximum number of bytes to scan from the offset.
  *
- * @return The offset of the first non-whitespace character, or `offset + maxlength` if none found.
+ * @return The offset of the first non-whitespace character, or the offset just
+ * past the last byte searched if none found, i.e., the minimum of
+ * `offset + maxlength` and `tvb_captured_length(tvb)`.
  *
  * @see tvb_skip_wsp_return
  */
-WS_DLL_PUBLIC int tvb_skip_wsp(tvbuff_t *tvb, const int offset,
-    const int maxlength);
+WS_DLL_PUBLIC unsigned tvb_skip_wsp(tvbuff_t *tvb, const unsigned offset,
+    const unsigned maxlength);
 
 /**
- * @brief Skip ASCII whitespace in a tvbuff and return the next non-whitespace offset.
+ * @brief Go backwards to find the offset after a token followed by optional ASCII whitespace.
  *
- * Scans the given tvbuff_t starting at `offset`, skipping over ASCII whitespace
- * characters (space, tab, carriage return, line feed) until a non-whitespace byte is found
- * or the end of the buffer is reached.
+ * Scans the given tvbuff_t starting at `offset` traveling backwards until the
+ * first non ASCII whitespace character (space, tab, carriage return, line feed)
+ * or the beginning of the buffer is reached, and then returns the offset after that character.
+ *
+ * This function will throw an exception if the start offset is outside the
+ * tvbuff captured bytes.
  *
  * @param tvb     The tvbuff_t to scan.
- * @param offset  The offset in the tvbuff to begin skipping.
+ * @param offset  The offset in the tvbuff to begin skipping backwards.
  *
- * @return The offset of the first non-whitespace character, or the end of the buffer.
+ * @return The offset immediate after the first non-whitespace character, or
+ * 1.
+ *
+ * @note The canonical use case is a text-based protocol like SIP (RFC 3261)
+ * where linear white space is optional between tokens and separators. If the
+ * start offsets of the token and separator are known, this function can be used
+ * to find the offset just past the end of the token and hence its length, e.g.:
+ *
+ * @code
+ * unsigned token_end_offset = tvb_skip_wsp_return(separator_offset - 1);
+ * unsigned token_len = token_end_offset - token_offset;
+ * @endcode
  *
  * @see tvb_skip_wsp
  */
-WS_DLL_PUBLIC int tvb_skip_wsp_return(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC unsigned tvb_skip_wsp_return(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Skip consecutive occurrences of a specific byte value in a tvbuff.
@@ -2978,7 +2997,7 @@ WS_DLL_PUBLIC int tvb_skip_wsp_return(tvbuff_t *tvb, const int offset);
  *
  * @return The offset of the first non-matching byte, or the end of the scan range.
  */
-WS_DLL_PUBLIC int tvb_skip_uint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch);
+WS_DLL_PUBLIC unsigned tvb_skip_uint8(tvbuff_t *tvb, unsigned offset, const unsigned maxlength, const uint8_t ch);
 
 /**
  * @brief Deprecated accessor for skipping consecutive bytes in a tvbuff.
@@ -3002,7 +3021,7 @@ WS_DLL_PUBLIC int tvb_skip_uint8(tvbuff_t *tvb, int offset, const int maxlength,
  * @see tvb_skip_uint8
  */
 WS_DEPRECATED_X("Use tvb_skip_uint8 instead")
-static inline int tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch) {
+static inline unsigned tvb_skip_guint8(tvbuff_t *tvb, unsigned offset, const unsigned maxlength, const uint8_t ch) {
 	return tvb_skip_uint8(tvb, offset, maxlength, ch);
 }
 
