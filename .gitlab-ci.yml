@@ -225,7 +225,8 @@ workflow:
     key: ${CI_JOB_NAME}-master
     paths:
       - ccache/
-      - $CI_PROJECT_DIR/../wireshark-third-party
+      - _download
+      # It might make sense to cache aqtinstall downloads using `--keep --archive-dest`.
   variables:
     HOMEBREW_NO_AUTO_UPDATE: "1"
     HOMEBREW_DISPLAY_INSTALL_TIMES: "1"
