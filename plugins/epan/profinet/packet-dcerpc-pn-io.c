@@ -68,6 +68,7 @@
 #include <epan/tfs.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-ber.h>
+#include <epan/exceptions.h>
 
 #include <wsutil/array.h>
 #include <wsutil/file_util.h>
@@ -15863,7 +15864,14 @@ dissect_block(tvbuff_t *tvb, int offset,
     uint16_t    u16BodyLength;
     proto_item *header_item;
     proto_tree *header_tree;
-    int         remainingBytes;
+    unsigned    remainingBytes;
+
+    if (tvb_get_ntohs(tvb, offset) == 0) {
+        /* XXX - Is this correct? This basic idea was added in commit
+         * 66124e4766dc1c66dce6f781d18ccb943aa84313 as a way to stop
+         * dissecting blocks. */
+        return tvb_reported_length(tvb);
+    }
 
     /* from here, we only have big endian (network byte ordering)!!! */
     drep[0] &= ~DREP_LITTLE_ENDIAN;
@@ -15880,24 +15888,15 @@ dissect_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, header_tree, drep,
                         hf_pn_io_block_length, &u16BlockLength);
 
-    if ((u16BlockType == 0x0000) && (u16BlockLength == 0x0000))
-    {
-        if (sub_item != NULL)
-            proto_item_set_hidden(sub_item);
-        return -1;
+    if (u16BlockLength < 2) {
+        /* The block length includes the version, which is mandatory. */
+        THROW(ReportedBoundsError);
     }
 
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, header_tree, drep,
                         hf_pn_io_block_version_high, &u8BlockVersionHigh);
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, header_tree, drep,
                         hf_pn_io_block_version_low, &u8BlockVersionLow);
-
-    if (try_val_to_str(u16BlockType, pn_io_block_type) == NULL)
-    {
-        if (sub_item != NULL)
-            proto_item_set_hidden(sub_item);
-        return -1;
-    }
 
     proto_item_append_text(header_item, ": Type=%s, Length=%u(+4), Version=%u.%u",
         val_to_str(pinfo->pool, u16BlockType, pn_io_block_type, "Unknown (0x%04x)"),
@@ -15913,9 +15912,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     /* as it's already dissected, remove it */
     u16BodyLength = u16BlockLength - 2;
     remainingBytes = tvb_reported_length_remaining(tvb, offset);
-    if (remainingBytes < 0)
-        remainingBytes = 0;
-    if (remainingBytes +2 < u16BlockLength)
+    if (remainingBytes < u16BodyLength)
     {
         proto_item_append_text(sub_item, " Block_Length: %d greater than remaining Bytes, trying with Blocklen = remaining (%d)", u16BlockLength, remainingBytes);
         u16BodyLength = remainingBytes;
@@ -16418,12 +16415,8 @@ dissect_blocks(tvbuff_t *tvb, int offset,
     pnio_ar_t *ar       = NULL;
 
 
-    while (tvb_captured_length(tvb) > (unsigned) offset) {
-        int result = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
-        if (result > 0)
-            offset = result;
-        else
-            return offset;
+    while (tvb_reported_length_remaining(tvb, offset)) {
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         u16Index++;
     }
 
