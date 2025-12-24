@@ -188,11 +188,11 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 				   after the first byte. */
 				uint16_t xsize = 0;
 
-				if (c-compr < comprlen) {
+				if ((unsigned)(c-compr) < comprlen) {
 					xsize += *c;
 					c++;
 				}
-				if (c-compr < comprlen) {
+				if ((unsigned)(c-compr) < comprlen) {
 					xsize += *c << 8;
 					c++;
 				}
@@ -203,7 +203,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 			if (flags & (1 << 3)) {
 				/* A null terminated filename */
 
-				while ((c - compr) < comprlen && *c != '\0') {
+				while ((unsigned)(c - compr) < comprlen && *c != '\0') {
 					c++;
 				}
 
@@ -213,7 +213,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 			if (flags & (1 << 4)) {
 				/* A null terminated comment */
 
-				while ((c - compr) < comprlen && *c != '\0') {
+				while ((unsigned)(c - compr) < comprlen && *c != '\0') {
 					c++;
 				}
 
@@ -221,7 +221,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 			}
 
 
-			if (c - compr > comprlen) {
+			if ((unsigned)(c - compr) > comprlen) {
 				ZLIB_PREFIX(inflateEnd)(strm);
 				g_free(strm);
 				wmem_free(NULL, compr);
@@ -229,7 +229,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 				return NULL;
 			}
 			/* Drop gzip header */
-			comprlen -= (int) (c - compr);
+			comprlen -= (unsigned)(c - compr);
 			next = c;
 
 			ZLIB_PREFIX(inflateReset)(strm);
