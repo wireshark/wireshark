@@ -3636,7 +3636,7 @@ detect_add_path_prefix46(tvbuff_t *tvb, int offset, int end, int max_bit_length)
     /* Must NOT be compatible with standard BGP */
     for (o = offset; o < end; ) {
         prefix_len = tvb_get_uint8(tvb, o);
-        if( prefix_len == 0 && end - offset > 1 ) {
+        if( prefix_len == 0 && end - o > 1 ) {
             return 1; /* prefix length is zero (i.e. matching all IP prefixes) and remaining bytes within the NLRI is greater than or equal to 1 - may be BGP add-path */
         }
         if( prefix_len > max_bit_length) {
