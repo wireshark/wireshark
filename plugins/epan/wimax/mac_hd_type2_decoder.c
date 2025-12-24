@@ -1080,7 +1080,7 @@ void wimax_proto_register_mac_header_type_2(void)
 		{
 			&hf_mac_header_type_2_lt_rsv,
 			{
-				"Reserved", "wmx.type2LtFbId",
+				"Reserved", "wmx.type2LtRsv",
 				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_RSV,
 				NULL, HFILL
 			}

@@ -5496,6 +5496,9 @@ proto_register_netlink_nl80211(void)
         &ett_nl80211,
         &ett_nl80211_frame,
         &ett_nl80211_tag,
+        &ett_nl80211_software_iftypes,
+        &ett_nl80211_bss_param,
+        &ett_nl80211_supported_commands,
         &ett_nl80211_mlo_links,
 /* Extracted using tools/generate-nl80211-fields.py */
 /* Definitions from linux/nl80211.h {{{ */

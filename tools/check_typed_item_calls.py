@@ -2232,7 +2232,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
 
     items_declared = {}
     if check_missing_items:
-        items_declared = find_item_declarations(filename)
+        items_declared = find_item_declarations(filename, lines)
         items_extern_declared = find_item_extern_declarations(filename, lines)
 
     fields = set()
