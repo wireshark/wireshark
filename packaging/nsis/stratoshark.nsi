@@ -945,19 +945,7 @@ File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\stats_tree.d
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
 
-;-------------------------------------------
-; This should be a function or macro
-SetOutPath '$INSTDIR\profiles\CloudTrail'
-File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\colorfilters"
-File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\dfilter_buttons"
-File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\preferences"
-File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\profile_settings"
-; File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\preferences"
-; SetOutPath '$INSTDIR\profiles\Classic'
-; File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\Classic\colorfilters"
-; SetOutPath '$INSTDIR\profiles\No Reassembly'
-; File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\No Reassembly\preferences"
-
+!include wireshark-profile-manifest.nsh
 
 !ifdef SMI_DIR
 ;-------------------------------------------

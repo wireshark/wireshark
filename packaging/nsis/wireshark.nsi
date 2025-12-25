@@ -1127,14 +1127,7 @@ File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\opus_dec.d
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\amrnb.dll"
 !endif
 
-; This should be a function or macro
-SetOutPath '$INSTDIR\profiles\Bluetooth'
-File "${STAGING_DIR}\profiles\Bluetooth\colorfilters"
-File "${STAGING_DIR}\profiles\Bluetooth\preferences"
-SetOutPath '$INSTDIR\profiles\Classic'
-File "${STAGING_DIR}\profiles\Classic\colorfilters"
-SetOutPath '$INSTDIR\profiles\No Reassembly'
-File "${STAGING_DIR}\profiles\No Reassembly\preferences"
+!include wireshark-profile-manifest.nsh
 
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\ethercat.dll"

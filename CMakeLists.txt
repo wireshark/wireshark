@@ -2730,11 +2730,11 @@ add_custom_command(
 	WORKING_DIRECTORY ${_protocol_data_dir}
 )
 
-set(_profiles_src_dir ${CMAKE_SOURCE_DIR}/resources/share/wireshark)
-file(GLOB _profiles_src_files RELATIVE ${_profiles_src_dir} ${_profiles_src_dir}/profiles/*/*)
+set(_profiles_src_dir ${CMAKE_SOURCE_DIR}/resources/share/wireshark/profiles)
+file(GLOB WIRESHARK_PROFILE_FILES RELATIVE ${_profiles_src_dir} ${_profiles_src_dir}/*/*)
 set (_profiles_data_files)
-foreach(_data_file ${_profiles_src_files})
-	list(APPEND _profiles_data_files "${DATAFILE_DIR}/${_data_file}")
+foreach(_data_file ${WIRESHARK_PROFILE_FILES})
+	list(APPEND _profiles_data_files "${DATAFILE_DIR}/profiles/${_data_file}")
 endforeach()
 
 add_custom_command(
@@ -2743,14 +2743,17 @@ add_custom_command(
 		"${CMAKE_SOURCE_DIR}/resources/share/wireshark/profiles" "${DATAFILE_DIR}/profiles"
 )
 
+
+if (BUILD_stratoshark)
+	set(_profiles_src_dir ${CMAKE_SOURCE_DIR}/resources/share/stratoshark/profiles)
+	file(GLOB STRATOSHARK_PROFILE_FILES RELATIVE ${_profiles_src_dir} ${_profiles_src_dir}/*/*)
+endif()
+
 set (_stratoshark_profiles_data_files)
 if (BUILD_stratoshark AND ENABLE_APPLICATION_BUNDLE)
-	set(_profiles_src_dir ${CMAKE_SOURCE_DIR}/resources/share/stratoshark)
-	file(GLOB _profiles_src_files RELATIVE ${_profiles_src_dir} ${_profiles_src_dir}/profiles/*/*)
-	foreach(_data_file ${_profiles_src_files})
-		list(APPEND _stratoshark_profiles_data_files "${STRATOSHARK_DATAFILE_DIR}/${_data_file}")
+	foreach(_data_file ${STRATOSHARK_PROFILE_FILES})
+		list(APPEND _stratoshark_profiles_data_files "${STRATOSHARK_DATAFILE_DIR}/profiles/${_data_file}")
 	endforeach()
-
 	add_custom_command(
 		OUTPUT ${_stratoshark_profiles_data_files}
 		COMMAND ${CMAKE_COMMAND} -E copy_directory
