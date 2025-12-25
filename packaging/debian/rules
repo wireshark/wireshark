@@ -72,24 +72,31 @@ override_dh_auto_install:
 	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp -C $(CURDIR)/obj-* install-headers
 	rm -rf $(CURDIR)/debian/tmp/usr/share/wireshark/COPYING
 
-HEADER_CHECK_FLAGS = $(shell pkg-config --cflags glib-2.0) \
+
+# wsutil headers must not require anything from libwireshark or libwiretap headers
+HEADER_CHECK_FLAGS_WSUTIL = $(shell pkg-config --cflags glib-2.0) \
 	$(shell dpkg-buildflags --get CPPFLAGS) \
 	$(shell dpkg-buildflags --get CFLAGS) \
+	-Idebian/libwsutil-dev/usr/include/wireshark
+
+HEADER_CHECK_FLAGS = $(HEADER_CHECK_FLAGS_WSUTIL) \
 	-Idebian/libwireshark-dev/usr/include \
 	-Idebian/libwireshark-dev/usr/include/wireshark \
 	-Idebian/libwireshark-dev/usr/include/libwireshark-dev/epan/dissectors \
 	-Idebian/libwiretap-dev/usr/include/wireshark \
-	-Idebian/libwsutil-dev/usr/include/wireshark \
 	-Idebian/libuiqt-plugin-dev/usr/include/wireshark \
 
 override_dh_install:
 	dh_install
-	# check that all headers can be compiled
+	# check that wsutil headers can be compiled on their own
+	find debian/libwsutil-dev/usr/include -type f -not -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c -S - $(HEADER_CHECK_FLAGS_WSUTIL) -o /dev/null
+	find debian/libwsutil-dev/usr/include -type f -not -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c++ -S - $(HEADER_CHECK_FLAGS_WSUTIL) -o /dev/null
 	# plugin_exports.h is for building plugins, and requires setting WS_BUILD_DLL
+	find debian/libwsutil-dev/usr/include -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c -S - $(HEADER_CHECK_FLAGS) -DWS_BUILD_DLL -o /dev/null
+	find debian/libwsutil-dev/usr/include -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c++ -S - $(HEADER_CHECK_FLAGS) -DWS_BUILD_DLL -o /dev/null
+	# check that all headers can be compiled
 	find debian/*-dev/usr/include -type f -not -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c -S - $(HEADER_CHECK_FLAGS) -o /dev/null
 	find debian/*-dev/usr/include -type f -not -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c++ -S - $(HEADER_CHECK_FLAGS) -o /dev/null
-	find debian/*-dev/usr/include -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c -S - $(HEADER_CHECK_FLAGS) -DWS_BUILD_DLL -o /dev/null
-	find debian/*-dev/usr/include -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c++ -S - $(HEADER_CHECK_FLAGS) -DWS_BUILD_DLL -o /dev/null
 	# check than #include-ing the most widely used headers compiles
 	$(CC) -c debian/headers-check.c $(HEADER_CHECK_FLAGS) -o /dev/null
 
