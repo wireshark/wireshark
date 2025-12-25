@@ -3773,7 +3773,7 @@ static bool rtps_psk_generate_session_key(
 
 static bool rtps_psk_generate_prk_key(
     uint8_t *output,
-    const char * const prefix,
+    bool is_salt,
     const char *preshared_secret_key,
     uint32_t sender_key_id,
     tvbuff_t *rtps_header_tvb,
@@ -3791,7 +3791,6 @@ static bool rtps_psk_generate_master_sender(
     tvbuff_t *rtps_header_tvb,
     int rtps_header_tvb_offset)
 {
-  const char * const prk_prefix = is_salt ? "PSK-SALT" : "PSK-SKEY";
   const char * const suffix = is_salt ?
       "master salt derivation" :
       "master sender key derivation";
@@ -3801,7 +3800,7 @@ static bool rtps_psk_generate_master_sender(
 
   if (!rtps_psk_generate_prk_key(
       prk_key,
-      prk_prefix,
+      is_salt,
       preshared_secret_key,
       sender_key_id,
       rtps_header_tvb,
@@ -3836,7 +3835,7 @@ static void rtps_generate_public_salt(
  */
 static bool rtps_psk_generate_prk_key(
     uint8_t *output,
-    const char * const prefix,
+    bool is_salt,
     const char *preshared_secret_key,
     uint32_t sender_key_id,
     tvbuff_t *rtps_header_tvb,
@@ -3844,6 +3843,7 @@ static bool rtps_psk_generate_prk_key(
 {
   gcry_error_t error = GPG_ERR_NO_ERROR;
   uint8_t public_salt[RTPS_HMAC_256_BUFFER_SIZE_BYTES];
+  const char * const prefix = is_salt ? "PSK-SALT" : "PSK-SKEY";
 
   rtps_generate_public_salt(
       public_salt,
