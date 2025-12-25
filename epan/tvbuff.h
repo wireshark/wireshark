@@ -1976,7 +1976,7 @@ WS_DLL_PUBLIC void tvb_get_guid(tvbuff_t *tvb, const int offset, e_guid_t *guid,
  * @return A pointer to the allocated byte array, or NULL on failure.
  */
 WS_DLL_PUBLIC uint8_t* tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb,
-    const int offset, size_t length, size_t *data_length, const unsigned encoding);
+    const unsigned offset, size_t length, size_t *data_length, const unsigned encoding);
 
 /**
  * @brief Retrieve 1–8 bits from a tvbuff and return them as a uint8_t.

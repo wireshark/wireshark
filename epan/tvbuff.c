@@ -2343,7 +2343,7 @@ static const uint8_t bit_mask8[] = {
  * When encoding is ENC_LITTLE_ENDIAN, the data is aligned to the right.
  */
 uint8_t *
-tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb, const int bit_offset,
+tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned bit_offset,
 		   size_t no_of_bits, size_t *data_length, const unsigned encoding)
 {
 	tvbuff_t *sub_tvb;
