@@ -3862,7 +3862,7 @@ get_ether_name(const uint8_t *addr)
 } /* get_ether_name */
 
 const char *
-tvb_get_ether_name(tvbuff_t *tvb, int offset)
+tvb_get_ether_name(tvbuff_t *tvb, unsigned offset)
 {
     return get_ether_name(tvb_get_ptr(tvb, offset, 6));
 }
@@ -3958,7 +3958,7 @@ get_manuf_name(const uint8_t *addr, size_t size)
 } /* get_manuf_name */
 
 const char *
-tvb_get_manuf_name(tvbuff_t *tvb, int offset)
+tvb_get_manuf_name(tvbuff_t *tvb, unsigned offset)
 {
     uint8_t buf[3] = { 0 };
     tvb_memcpy(tvb, buf, offset, 3);
@@ -4003,7 +4003,7 @@ uint_get_manuf_name_if_known(const uint32_t manuf_key)
 }
 
 const char *
-tvb_get_manuf_name_if_known(tvbuff_t *tvb, int offset)
+tvb_get_manuf_name_if_known(tvbuff_t *tvb, unsigned offset)
 {
     uint8_t buf[3] = { 0 };
     tvb_memcpy(tvb, buf, offset, 3);

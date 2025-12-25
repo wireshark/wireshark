@@ -444,7 +444,7 @@ WS_DLL_PUBLIC void fill_unresolved_ss7pc(const char * pc_addr, const uint8_t ni,
  * @param offset Offset of the Ethernet address.
  * @return Resolved name or formatted MAC string.
  */
-WS_DLL_PUBLIC const char *tvb_get_ether_name(tvbuff_t *tvb, int offset);
+WS_DLL_PUBLIC const char *tvb_get_ether_name(tvbuff_t *tvb, unsigned offset);
 
 /**
  * @brief Resolves an Ethernet address only if an exact match is known.
@@ -524,7 +524,7 @@ WS_DLL_PUBLIC const char *uint_get_manuf_name_if_known(const uint32_t oid);
  * @param offset Offset of the OUI.
  * @return Short vendor name or hex string.
  */
-WS_DLL_PUBLIC const char *tvb_get_manuf_name(tvbuff_t *tvb, int offset);
+WS_DLL_PUBLIC const char *tvb_get_manuf_name(tvbuff_t *tvb, unsigned offset);
 
 /**
  * @brief Resolves a 3-octet OUI from a tvbuff to a full vendor name.
@@ -539,7 +539,7 @@ WS_DLL_PUBLIC const char *tvb_get_manuf_name(tvbuff_t *tvb, int offset);
  * @param offset Offset of the OUI.
  * @return Full vendor name or NULL.
  */
-WS_DLL_PUBLIC const char *tvb_get_manuf_name_if_known(tvbuff_t *tvb, int offset);
+WS_DLL_PUBLIC const char *tvb_get_manuf_name_if_known(tvbuff_t *tvb, unsigned offset);
 
 /**
  * @brief Resolves an EUI-64 address to a logical name or vendor string.
