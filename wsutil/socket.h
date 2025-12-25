@@ -15,41 +15,29 @@
 #include <wireshark.h>
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-	#include <windows.h>
-	#include <ws2tcpip.h>
-	#include <winsock2.h>
-	#include <process.h>
+    #include <windows.h>
+    #include <ws2tcpip.h>
+    #include <winsock2.h>
+    #include <process.h>
 
-	#define socket_handle_t SOCKET
-	#define socklen_t int
+    #define socket_handle_t SOCKET
+    #define socklen_t int
 #else
-	/*
-	 * UN*X, or Windows pretending to be UN*X with the aid of Cygwin.
-	 */
-	#ifdef HAVE_UNISTD_H
-		/*
-		 * For close().
-		 */
-		#include <unistd.h>
-	#endif
-	#ifdef HAVE_SYS_SOCKET_H
-		#include <sys/socket.h>
-	#endif
+    /*
+     * UN*X, or Windows pretending to be UN*X with the aid of Cygwin.
+     */
+    #include <unistd.h> /* For close() */
+    #include <sys/types.h> /* At least some UN*X needs this before netinet/in.h */
+    #include <sys/socket.h>
+    #include <arpa/inet.h>
+    #include <netinet/in.h> /* For sockaddr_in */
 
-	#define closesocket(socket)	close(socket)
-	#define socket_handle_t		int
+    #define closesocket(socket)	close(socket)
+    #define socket_handle_t		int
 #ifndef INVALID_SOCKET
-	#define INVALID_SOCKET		(-1)
+    #define INVALID_SOCKET		(-1)
 #endif
-	#define SOCKET_ERROR		(-1)
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-	#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-	#include <netinet/in.h>
+    #define SOCKET_ERROR		(-1)
 #endif
 
 #ifdef	__cplusplus
@@ -91,16 +79,3 @@ WS_DLL_PUBLIC int ws_socket_ptoa(struct sockaddr_storage *dst, const char *src, 
 #endif
 
 #endif /* __SOCKET_H__ */
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local variables:
- * c-basic-offset: 8
- * tab-width: 8
- * indent-tabs-mode: t
- * End:
- *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
- */
