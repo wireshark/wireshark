@@ -2596,7 +2596,7 @@ static const char* make_key_info(wmem_allocator_t* scope, const uint8_t* key, co
       wmem_strbuf_append_printf(buf, " %02X", *key++);
   }
 
-  return wmem_strbuf_get_str(buf);
+  return wmem_strbuf_finalize(buf);
 }
 
 /* Dissect SECURE_WRAPPER
