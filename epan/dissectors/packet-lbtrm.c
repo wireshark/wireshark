@@ -723,7 +723,7 @@ static char * lbtrm_tag_find(packet_info * pinfo)
     {
         tag = &(lbtrm_tag_entry[idx]);
         /* Is the destination a multicast address? */
-        if (IN_MULTICAST(dest_addr_h))
+        if (in4_addr_is_multicast(dest_addr_h))
         {
             /* Check the MC address. */
             if ((dest_addr_h >= tag->mc_address_low_val_h) && (dest_addr_h <= tag->mc_address_high_val_h))
@@ -1513,7 +1513,7 @@ static bool test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         dest_addr_h = pntohu32(pinfo->dst.data);
 
         /* Is the destination a multicast address? */
-        if (IN_MULTICAST(dest_addr_h))
+        if (in4_addr_is_multicast(dest_addr_h))
         {
             /* Check the MC address. */
             if ((dest_addr_h >= lbtrm_mc_address_low_host) && (dest_addr_h <= lbtrm_mc_address_high_host))

@@ -2027,7 +2027,7 @@ static tap_packet_status lbmr_match_packet(packet_info * pinfo, const lbmr_tag_e
     dest_addr_h = pntohu32(pinfo->dst.data);
     src_addr_h = pntohu32(pinfo->src.data);
 
-    if (IN_MULTICAST(dest_addr_h))
+    if (in4_addr_is_multicast(dest_addr_h))
     {
         /* Check multicast topic resolution values. */
         if ((dest_addr_h != entry->mc_incoming_address_val_h) && (dest_addr_h != entry->mc_outgoing_address_val_h))

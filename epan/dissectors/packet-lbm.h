@@ -76,21 +76,10 @@
          actual payload of their messages.
 */
 
-#if defined(__FreeBSD__)
-#include <sys/types.h>
-#include <netinet/in.h>
-#endif
 #include <stddef.h>
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
-
 #include <epan/tfs.h>
+#include <wsutil/inet_addr.h>
 
 typedef uint8_t lbm_uint8_t;
 typedef uint16_t lbm_uint16_t;
@@ -152,7 +141,7 @@ typedef uint64_t lbm_uint64_t;
             *err = g_strdup("invalid address"); \
             return false; \
         } \
-        if (!IN_MULTICAST(g_ntohl(addr)) && (g_ntohl(addr) != 0)) \
+        if (!in4_addr_is_multicast(g_ntohl(addr)) && (g_ntohl(addr) != 0)) \
         { \
             *err = g_strdup("invalid multicast address"); \
             return false; \
