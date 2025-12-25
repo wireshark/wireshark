@@ -4852,10 +4852,9 @@ int tvb_get_token_len(tvbuff_t *tvb, const unsigned offset, int len, int *next_o
  * separator.
  */
 char *
-tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int len, const char punct)
+tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, const unsigned len, const char punct)
 {
-	DISSECTOR_ASSERT(len >= 0);
-	return bytes_to_str_punct(scope, ensure_contiguous(tvb, offset, len), len, punct);
+	return bytes_to_str_punct(scope, ensure_contiguous_unsigned(tvb, offset, len), len, punct);
 }
 
 /*

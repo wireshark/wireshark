@@ -3132,8 +3132,8 @@ WS_DLL_PUBLIC int tvb_memeql(tvbuff_t *tvb, const unsigned offset,
  *
  * @return A pointer to the formatted string.
  */
-WS_DLL_PUBLIC char *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
-    const int len, const char punct);
+WS_DLL_PUBLIC char *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset,
+    const unsigned len, const char punct);
 
 /**
  * @brief Format a sequence of bytes from a tvbuff as a hexadecimal string.
