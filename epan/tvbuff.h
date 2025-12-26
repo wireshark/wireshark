@@ -1864,7 +1864,7 @@ GByteArray* tvb_get_string_bytes(tvbuff_t *tvb, const int offset, const int leng
  *
  * @return The 32-bit IPv4 address in network byte order.
  */
-WS_DLL_PUBLIC uint32_t tvb_get_ipv4(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint32_t tvb_get_ipv4(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve an IPv6 address from a tvbuff.
@@ -1882,7 +1882,7 @@ WS_DLL_PUBLIC uint32_t tvb_get_ipv4(tvbuff_t *tvb, const int offset);
  * @param offset  The offset within the buffer to begin reading.
  * @param addr    A pointer to a @ref ws_in6_addr structure to receive the IPv6 address.
  */
-WS_DLL_PUBLIC void tvb_get_ipv6(tvbuff_t *tvb, const int offset, ws_in6_addr *addr);
+WS_DLL_PUBLIC void tvb_get_ipv6(tvbuff_t *tvb, const unsigned offset, ws_in6_addr *addr);
 
 /**
  * @brief Fetch an IPv4 address from a tvbuff and mask out bits not covered by a prefix length.
@@ -1896,7 +1896,7 @@ WS_DLL_PUBLIC void tvb_get_ipv6(tvbuff_t *tvb, const int offset, ws_in6_addr *ad
  * @param prefix_len the length of the prefix (in bits)
  * @return the length (in bytes) of the address on success, or -1 on failure
  */
-WS_DLL_PUBLIC int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
+WS_DLL_PUBLIC int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, const unsigned offset,
     ws_in4_addr *addr, uint32_t prefix_len);
 
 /**
@@ -1912,7 +1912,7 @@ WS_DLL_PUBLIC int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
  *
  * @return The length (in bytes) of the address on success, or -1 on failure.
  */
-WS_DLL_PUBLIC int tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset,
+WS_DLL_PUBLIC int tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, const unsigned offset,
     ws_in6_addr *addr, uint32_t prefix_len);
 
 /**
@@ -1926,7 +1926,7 @@ WS_DLL_PUBLIC int tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset,
  * @param offset  The offset within the buffer to begin reading.
  * @param guid    A pointer to an e_guid_t structure to receive the GUID.
  */
-WS_DLL_PUBLIC void tvb_get_ntohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid);
+WS_DLL_PUBLIC void tvb_get_ntohguid(tvbuff_t *tvb, const unsigned offset, e_guid_t *guid);
 
 /**
  * @brief Retrieve a GUID from a tvbuff in little-endian byte order.
@@ -1939,7 +1939,7 @@ WS_DLL_PUBLIC void tvb_get_ntohguid(tvbuff_t *tvb, const int offset, e_guid_t *g
  * @param offset  The offset within the buffer to begin reading.
  * @param guid    A pointer to an e_guid_t structure to receive the GUID.
  */
-WS_DLL_PUBLIC void tvb_get_letohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid);
+WS_DLL_PUBLIC void tvb_get_letohguid(tvbuff_t *tvb, const unsigned offset, e_guid_t *guid);
 
 /**
  * @brief Retrieve a GUID from a tvbuff using the specified encoding.
@@ -1954,7 +1954,7 @@ WS_DLL_PUBLIC void tvb_get_letohguid(tvbuff_t *tvb, const int offset, e_guid_t *
  * @param guid      A pointer to an e_guid_t structure to receive the GUID.
  * @param encoding  The encoding to use when interpreting the GUID bytes.
  */
-WS_DLL_PUBLIC void tvb_get_guid(tvbuff_t *tvb, const int offset, e_guid_t *guid, const unsigned encoding);
+WS_DLL_PUBLIC void tvb_get_guid(tvbuff_t *tvb, const unsigned offset, e_guid_t *guid, const unsigned encoding);
 
 /**
  * @brief Retrieve a byte array from a tvbuff using a bit-level offset and encoding.

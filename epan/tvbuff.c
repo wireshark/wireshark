@@ -2225,7 +2225,7 @@ fail:
  * We do *not* convert them to host byte order; we leave them in
  * network byte order. */
 uint32_t
-tvb_get_ipv4(tvbuff_t *tvb, const int offset)
+tvb_get_ipv4(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 	uint32_t      addr;
@@ -2237,11 +2237,11 @@ tvb_get_ipv4(tvbuff_t *tvb, const int offset)
 
 /* Fetch an IPv6 address. */
 void
-tvb_get_ipv6(tvbuff_t *tvb, const int offset, ws_in6_addr *addr)
+tvb_get_ipv6(tvbuff_t *tvb, const unsigned offset, ws_in6_addr *addr)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, sizeof(*addr));
+	ptr = ensure_contiguous_unsigned(tvb, offset, sizeof(*addr));
 	memcpy(addr, ptr, sizeof *addr);
 }
 
@@ -2250,7 +2250,7 @@ tvb_get_ipv6(tvbuff_t *tvb, const int offset, ws_in6_addr *addr)
  * and -1 if the prefix length is too long.
  */
 int
-tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset, ws_in4_addr *addr,
+tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, const unsigned offset, ws_in4_addr *addr,
     uint32_t prefix_len)
 {
 	uint8_t addr_len;
@@ -2271,7 +2271,7 @@ tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset, ws_in4_addr *addr,
  * and -1 if the prefix length is too long.
  */
 int
-tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset, ws_in6_addr *addr,
+tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, const unsigned offset, ws_in6_addr *addr,
     uint32_t prefix_len)
 {
 	uint32_t addr_len;
@@ -2292,9 +2292,9 @@ tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset, ws_in6_addr *addr,
 
 /* Fetch a GUID. */
 void
-tvb_get_ntohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid)
+tvb_get_ntohguid(tvbuff_t *tvb, const unsigned offset, e_guid_t *guid)
 {
-	const uint8_t *ptr = ensure_contiguous(tvb, offset, GUID_LEN);
+	const uint8_t *ptr = ensure_contiguous_unsigned(tvb, offset, GUID_LEN);
 
 	guid->data1 = pntohu32(ptr + 0);
 	guid->data2 = pntohu16(ptr + 4);
@@ -2303,9 +2303,9 @@ tvb_get_ntohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid)
 }
 
 void
-tvb_get_letohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid)
+tvb_get_letohguid(tvbuff_t *tvb, const unsigned offset, e_guid_t *guid)
 {
-	const uint8_t *ptr = ensure_contiguous(tvb, offset, GUID_LEN);
+	const uint8_t *ptr = ensure_contiguous_unsigned(tvb, offset, GUID_LEN);
 
 	guid->data1 = pletohu32(ptr + 0);
 	guid->data2 = pletohu16(ptr + 4);
@@ -2314,7 +2314,7 @@ tvb_get_letohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid)
 }
 
 void
-tvb_get_guid(tvbuff_t *tvb, const int offset, e_guid_t *guid, const unsigned encoding)
+tvb_get_guid(tvbuff_t *tvb, const unsigned offset, e_guid_t *guid, const unsigned encoding)
 {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		tvb_get_letohguid(tvb, offset, guid);
