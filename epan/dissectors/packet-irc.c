@@ -23,6 +23,9 @@
  *  http://www.irchelp.org/irchelp/rfc/ctcpspec.html
  *  http://web.archive.org/web/20031203073050/http://www.invlogic.com/irc/ctcp.html
  *  https://www.ietf.org/archive/id/draft-oakley-irc-ctcp-02.txt
+ *
+ * TODO: IRC - handle final CRLF
+ *       CTCP - multiple CTCP commands
  */
 
 #include "config.h"
@@ -35,7 +38,6 @@ void proto_register_irc(void);
 void proto_reg_handoff_irc(void);
 
 static int proto_irc;
-static int proto_irc_ctcp;
 static int hf_irc_request;
 static int hf_irc_request_prefix;
 static int hf_irc_request_command;
@@ -47,15 +49,18 @@ static int hf_irc_response_command;
 static int hf_irc_response_num_command;
 static int hf_irc_response_command_param;
 static int hf_irc_response_trailer;
-//static int hf_irc_ctcp;
+static int proto_irc_ctcp;
 static int hf_irc_ctcp_command;
 static int hf_irc_ctcp_params;
+static int hf_irc_ctcp_delimiter_odd;
+static int hf_irc_ctcp_delimiter_even;
 
 static int ett_irc;
 static int ett_irc_request;
 static int ett_irc_request_command;
 static int ett_irc_response;
 static int ett_irc_response_command;
+static int ett_irc_ctcp;
 
 static expert_field ei_irc_missing_end_delimiter;
 static expert_field ei_irc_numeric_request_command;
@@ -69,9 +74,11 @@ static const char TAG_DELIMITER[] = "\x01";
 /* patterns used for tvb_ws_mempbrk_pattern_uint8 */
 static ws_mempbrk_pattern pbrk_tag_delimiter;
 
-static dissector_handle_t ctcp_handle;
+static dissector_table_t irc_ctcp_table;
 
 #define TCP_PORT_RANGE          "6667,57000" /* Not IANA registered */
+
+#define IRCCTCP_DEF             0x01         /* Only known value    */
 
 static int
 dissect_irc_ctcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -80,18 +87,31 @@ dissect_irc_ctcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item   *ti;
     const uint8_t *str_command, *str_params;
     int          space_offset = -1;
+    dissector_handle_t ctcp_handle;
 
-    ti = proto_tree_add_item(tree, proto_irc, tvb, 0, -1, ENC_ASCII|ENC_NA);
+    ctcp_handle = dissector_get_uint_handle(irc_ctcp_table, IRCCTCP_DEF);
+    if (ctcp_handle == NULL) {
+        return tvb_captured_length(tvb);
+    }
+
+    ti = proto_tree_add_item(tree, proto_irc_ctcp, tvb, 0, -1, ENC_NA);
     ctcp_tree = proto_item_add_subtree(ti, ett_irc);
+
+    /* We know for sure that the tvb data starts and ends with ^A (TAG_DELIMITER),
+     * so we aren't checking this again here.
+     */
+    proto_tree_add_item(ctcp_tree, hf_irc_ctcp_delimiter_odd, tvb, 0, 1, ENC_ASCII);
 
     space_offset = tvb_find_uint8(tvb, 1, -1, ' ');
     if (space_offset == -1) {
-        proto_tree_add_item_ret_string(ctcp_tree, hf_irc_ctcp_command, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
+        proto_tree_add_item_ret_string(ctcp_tree, hf_irc_ctcp_command, tvb, 1, tvb_reported_length(tvb)-2, ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
     }
     else {
         proto_tree_add_item_ret_string(ctcp_tree, hf_irc_ctcp_command, tvb, 0, space_offset, ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
         proto_tree_add_item_ret_string(ctcp_tree, hf_irc_ctcp_params, tvb, space_offset+1, tvb_reported_length(tvb)-space_offset-1, ENC_ASCII|ENC_NA, pinfo->pool, &str_params);
     }
+
+    proto_tree_add_item(ctcp_tree, hf_irc_ctcp_delimiter_even, tvb, tvb_reported_length(tvb)-1, 1, ENC_ASCII);
 
     return tvb_captured_length(tvb);
 }
@@ -126,7 +146,7 @@ dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offs
 
     /* Placeholder to call CTCP dissector, strip out delimiter */
     if(tree) {
-        next_tvb = tvb_new_subset_length(tvb, tag_start_offset+1, datalen-2 );
+        next_tvb = tvb_new_subset_length(tvb, tag_start_offset, 1 + tag_end_offset - tag_start_offset);
         dissect_irc_ctcp(next_tvb, pinfo, tree, NULL);
     }
 }
@@ -549,14 +569,17 @@ proto_register_irc(void)
         { &hf_irc_response_trailer, { "Trailer", "irc.response.trailer", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response trailer", HFILL }},
 
-        //{ &hf_irc_ctcp, { "CTCP", "irc.ctcp", FT_STRING, BASE_NONE,
-        //  NULL, 0x0, NULL, HFILL }},
-
         { &hf_irc_ctcp_command, { "Command", "irc.ctcp.command", FT_STRING, BASE_NONE,
           NULL, 0x0, "CTCP command", HFILL }},
 
         { &hf_irc_ctcp_params, { "Parameters", "irc.ctcp.parameters", FT_STRING, BASE_NONE,
           NULL, 0x0, "CTCP parameters", HFILL }},
+
+        { &hf_irc_ctcp_delimiter_odd, { "Odd Delimiter", "irc.ctcp.delimiter.odd", FT_STRING, BASE_NONE,
+          NULL, 0x0, "CTCP odd delimiter", HFILL }},
+
+        { &hf_irc_ctcp_delimiter_even, { "Even Delimiter", "irc.ctcp.delimiter.even", FT_STRING, BASE_NONE,
+          NULL, 0x0, "CTCP even delimiter", HFILL }},
     };
 
     static int *ett[] = {
@@ -564,7 +587,8 @@ proto_register_irc(void)
         &ett_irc_request,
         &ett_irc_request_command,
         &ett_irc_response,
-        &ett_irc_response_command
+        &ett_irc_response_command,
+        &ett_irc_ctcp
     };
 
     static ei_register_info ei[] = {
@@ -586,7 +610,9 @@ proto_register_irc(void)
     expert_register_field_array(expert_irc, ei, array_length(ei));
 
     /* subdissector code */
-    proto_irc_ctcp = proto_register_protocol_in_name_only("Client To Client Protocol", "CTCP", "irc.ctcp", proto_irc, FT_PROTOCOL);
+    irc_ctcp_table = register_dissector_table("irc.ctcp", "CTCP Protocol",
+                                                  proto_irc, FT_UINT8, BASE_DEC);
+    proto_irc_ctcp = proto_register_protocol_in_name_only("Client To Client Protocol", "CTCP", "irc.ctcp", proto_irc, FT_BYTES);
 
     /* compile patterns */
     ws_mempbrk_compile(&pbrk_tag_delimiter, TAG_DELIMITER);
@@ -597,7 +623,7 @@ proto_reg_handoff_irc(void)
 {
     dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE, find_dissector("irc"));
 
-    ctcp_handle = create_dissector_handle(dissect_irc_ctcp, proto_irc_ctcp);
+    dissector_add_uint("irc.ctcp", IRCCTCP_DEF, create_dissector_handle(dissect_irc_ctcp, proto_irc_ctcp));
 }
 
 /*
