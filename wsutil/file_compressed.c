@@ -17,13 +17,6 @@
 
 #include <errno.h>
 
-/*
- * XXX - this is included only to get some libwiretap error codes;
- * we should fix this to have its own error codes for those cases
- * and to have libwiretap use *those* error codes.
- */
-#include <wiretap/wtap.h>
-
 #include <wsutil/file_util.h>
 #include <wsutil/zlib_compat.h>
 
@@ -248,7 +241,8 @@ ws_cwstream_open(const char *filename, ws_compression_type ctype, int *err)
         return NULL;
     }
     pfile->ctype = ctype;
-    errno = WTAP_ERR_CANT_OPEN;
+    /* XXX - Callers call g_strerror on failure, so should "standard" errors be used? */
+    errno = FILE_ERR_CANT_OPEN;
     void* fh = writecap_file_open(pfile, filename);
     if (fh == NULL) {
         *err = errno;
@@ -272,7 +266,8 @@ ws_cwstream_fdopen(int fd, ws_compression_type ctype, int *err)
         return NULL;
     }
     pfile->ctype = ctype;
-    errno = WTAP_ERR_CANT_OPEN;
+    /* XXX - Callers call g_strerror on failure, so should "standard" errors be used? */
+    errno = FILE_ERR_CANT_OPEN;
     WFILE_T fh = writecap_file_fdopen(pfile, fd);
     if (fh == NULL) {
         *err = errno;
@@ -357,7 +352,7 @@ ws_cwstream_write(ws_cwstream* pfile, const uint8_t* data, size_t data_length,
                 if (ferror((FILE *)pfile->fh)) {
                     *err = errno;
                 } else {
-                    *err = WTAP_ERR_SHORT_WRITE;
+                    *err = FILE_ERR_SHORT_WRITE;
                 }
                 return false;
             }
@@ -408,7 +403,7 @@ ws_cwstream_close(ws_cwstream* pfile, int *errp)
 {
     int err = 0;
 
-    errno = WTAP_ERR_CANT_CLOSE;
+    errno = FILE_ERR_CANT_CLOSE;
     switch (pfile->ctype) {
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
         case WS_FILE_GZIP_COMPRESSED:
@@ -533,7 +528,7 @@ gz_init(GZWFILE_T state)
             state->err = ENOMEM;
         } else {
             /* This "shouldn't happen". */
-            state->err = WTAP_ERR_INTERNAL;
+            state->err = FILE_ERR_INTERNAL;
             state->err_info = "Unknown error from deflateInit2()";
         }
         return -1;
@@ -580,7 +575,7 @@ gz_comp(GZWFILE_T state, int flush)
                     return -1;
                 }
                 if ((ptrdiff_t)got != have) {
-                    state->err = WTAP_ERR_SHORT_WRITE;
+                    state->err = FILE_ERR_SHORT_WRITE;
                     return -1;
                 }
             }
@@ -596,7 +591,7 @@ gz_comp(GZWFILE_T state, int flush)
         ret = ZLIB_PREFIX(deflate)(strm, flush);
         if (ret == Z_STREAM_ERROR) {
             /* This "shouldn't happen". */
-            state->err = WTAP_ERR_INTERNAL;
+            state->err = FILE_ERR_INTERNAL;
             state->err_info = "Z_STREAM_ERROR from deflate()";
             return -1;
         }
@@ -826,7 +821,7 @@ lz4_write_out(LZ4WFILE_T state, size_t len)
             return false;
         }
         if ((unsigned)got != len) {
-            state->err = WTAP_ERR_SHORT_WRITE;
+            state->err = FILE_ERR_SHORT_WRITE;
             return false;
         }
         state->pos_out += got;
@@ -845,7 +840,7 @@ lz4_init(LZ4WFILE_T state)
     /* create Compression context */
     ret = LZ4F_createCompressionContext(&state->lz4_cctx, LZ4F_VERSION);
     if (LZ4F_isError(ret)) {
-        state->err = WTAP_ERR_CANT_WRITE; // XXX - WTAP_ERR_COMPRESS?
+        state->err = FILE_ERR_CANT_WRITE; // XXX - FILE_ERR_COMPRESS?
         state->err_info = LZ4F_getErrorName(ret);
         return -1;
     }
@@ -861,7 +856,7 @@ lz4_init(LZ4WFILE_T state)
 
     ret = LZ4F_compressBegin(state->lz4_cctx, state->out, state->want_out, &state->lz4_prefs);
     if (LZ4F_isError(ret)) {
-        state->err = WTAP_ERR_CANT_WRITE; // XXX - WTAP_ERR_COMPRESS?
+        state->err = FILE_ERR_CANT_WRITE; // XXX - FILE_ERR_COMPRESS?
         state->err_info = LZ4F_getErrorName(ret);
         return -1;
     }
@@ -901,7 +896,7 @@ lz4wfile_write(LZ4WFILE_T state, const void *buf, size_t len)
         size_t bytesWritten = LZ4F_compressUpdate(state->lz4_cctx, state->out, state->size_out,
             buf, to_write, NULL);
         if (LZ4F_isError(bytesWritten)) {
-            state->err = WTAP_ERR_CANT_WRITE; // XXX - WTAP_ERR_COMPRESS?
+            state->err = FILE_ERR_CANT_WRITE; // XXX - FILE_ERR_COMPRESS?
             state->err_info = LZ4F_getErrorName(bytesWritten);
             return 0;
         }
@@ -929,7 +924,7 @@ lz4wfile_flush(LZ4WFILE_T state)
     bytesWritten = LZ4F_flush(state->lz4_cctx, state->out, state->size_out, NULL);
     if (LZ4F_isError(bytesWritten)) {
         // Should never happen if size_out >= LZ4F_compressBound(0, prefsPtr)
-        state->err = WTAP_ERR_INTERNAL;
+        state->err = FILE_ERR_INTERNAL;
         return -1;
     }
     if (!lz4_write_out(state, bytesWritten)) {
@@ -949,7 +944,7 @@ lz4wfile_close(LZ4WFILE_T state)
     size_t bytesWritten = LZ4F_compressEnd(state->lz4_cctx, state->out, state->size_out, NULL);
     if (LZ4F_isError(bytesWritten)) {
         // Should never happen if size_out >= LZ4F_compressBound(0, prefsPtr)
-        ret = WTAP_ERR_INTERNAL;
+        ret = FILE_ERR_INTERNAL;
     }
     if (!lz4_write_out(state, bytesWritten)) {
         ret = state->err;

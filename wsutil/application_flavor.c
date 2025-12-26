@@ -13,7 +13,6 @@
 
 #include "application_flavor.h"
 #include "path_config.h"
-#include <wiretap/wtap.h>
 
 static enum application_flavor_e application_flavor = APPLICATION_FLAVOR_WIRESHARK;
 

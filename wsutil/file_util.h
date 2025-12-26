@@ -234,6 +234,13 @@ typedef ssize_t ws_file_ssize_t;
 /* XXX - remove include "sys/stat.h" from files that include this header */
 /* XXX - update docs (e.g. README.developer) */
 
+/* Error codes from file handling routines */
+#define FILE_ERR_CANT_OPEN        -1
+#define FILE_ERR_CANT_WRITE       -2
+#define FILE_ERR_SHORT_WRITE      -3
+#define FILE_ERR_CANT_CLOSE       -4
+#define FILE_ERR_INTERNAL         -5
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

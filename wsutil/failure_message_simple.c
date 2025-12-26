@@ -24,7 +24,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include <wiretap/wtap.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
 #include <wsutil/cmdarg_err.h>

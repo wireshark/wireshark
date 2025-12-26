@@ -42,8 +42,6 @@
 #include <wsutil/report_message.h>
 #include <wsutil/utf8_entities.h>
 
-#include <wiretap/wtap.h>   /* for WTAP_ERR_SHORT_WRITE */
-
 #include "path_config.h"
 
 #define PROFILES_DIR    "profiles"
@@ -2589,7 +2587,7 @@ write_file_binary_mode(const char *filename, const void *content, size_t content
             if (bytes_written < 0) {
                 err = errno;
             } else {
-                err = WTAP_ERR_SHORT_WRITE;
+                err = FILE_ERR_SHORT_WRITE;
             }
             report_write_failure(filename, err);
             ws_close(fd);
@@ -2646,7 +2644,7 @@ copy_file_binary_mode(const char *from_filename, const char *to_filename)
             if (nwritten < 0)
                 err = errno;
             else
-                err = WTAP_ERR_SHORT_WRITE;
+                err = FILE_ERR_SHORT_WRITE;
             report_write_failure(to_filename, err);
             ws_close(from_fd);
             ws_close(to_fd);
