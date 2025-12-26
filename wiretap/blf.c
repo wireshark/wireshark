@@ -37,6 +37,7 @@
 #include <wsutil/time_util.h>
 #include <wsutil/zlib_compat.h>
 #include <wsutil/pint.h>
+#include <wsutil/ws_assert.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
@@ -3399,7 +3400,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
             info_line = ws_strdup_printf("Trace line%s: %s", (apptextheader.reservedAppText1 & 0x00000010) ? "" : " (hidden)", text);
             break;
         default:
-            break;
+            ws_assert_not_reached();
         }
 
         wtap_buffer_append_epdu_string(&params->rec->data, EXP_PDU_TAG_COL_INFO_TEXT, info_line);
@@ -3411,9 +3412,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
         /* We'll write this as a WS UPPER PDU packet with a text blob */
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (uint32_t)ws_buffer_length(&params->rec->data), (uint32_t)ws_buffer_length(&params->rec->data));
         g_free(text);
-        if (info_line) {
-            g_free(info_line);
-        }
+        g_free(info_line);
         return apptextheader.source;
     }
     default:
