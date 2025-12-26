@@ -291,9 +291,15 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
 #define ARGBUF_SZ       128
         // make our "var=val" string
         char *argbuf = wmem_alloc( pinfo->pool, ARGBUF_SZ );
-        snprintf( argbuf, ARGBUF_SZ-2, "%s = {%s",
+        int bytes_written;
+        /* Pass in bufsz-1 to save space for closing bracket. */
+        bytes_written = snprintf( argbuf, ARGBUF_SZ-1, "%s = {%s",
             (*varname ? varname : (const uint8_t *)"<none>"), varval );
-        ws_utf8_truncate( argbuf, ARGBUF_SZ-1 ); // ensure no partial char at the end
+        /* Returns number of bytes that would have been written (not including
+         * the null terminator) if not for the  buffer size limit. */
+        if (bytes_written > ARGBUF_SZ - 2) { // Possibly truncated
+            ws_utf8_truncate( argbuf, ARGBUF_SZ-2 ); // ensure no partial char at the end
+        }
         g_strlcat( argbuf, "}", ARGBUF_SZ ); // close our bracket
 
         // used to check if a value length goes past the end of the message
