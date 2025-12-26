@@ -1017,8 +1017,10 @@ macOS Build:
   extends: .build-macos
   rules: !reference [.if-w-w-only-merge-request]
   # allow_failure: true
-  timeout: 90 minutes
+  # https://support.gitlab.com/hc/en-us/articles/20417424085020-GitLab-com-hosted-macOS-runners-stuck-preparing-the-instance
+  timeout: 45 minutes
   retry:
+    max: 2
     when:
       - runner_system_failure
       - stuck_or_timeout_failure
