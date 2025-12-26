@@ -885,7 +885,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
               if (ascii_offset == -1)
                 {
                   /* Bad line. */
-                  return false;
+                  goto errxit;
                 }
               continue;
             }
@@ -907,7 +907,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
               if (ascii_offset == -1)
                 {
                   /* Bad line. */
-                  return false;
+                  goto errxit;
                 }
               continue;
             }
@@ -930,7 +930,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
           if (ascii_offset == -1)
             {
               /* Bad line. */
-              return false;
+              goto errxit;
             }
           continue;
         }
