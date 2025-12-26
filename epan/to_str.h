@@ -79,7 +79,7 @@ WS_DLL_PUBLIC const char *port_type_to_str (port_type type);
  ************** TVB
  */
 
-WS_DLL_PUBLIC char* tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const int offset);
+WS_DLL_PUBLIC char* tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const unsigned offset);
 
 #define tvb_ether_to_str(scope, tvb, offset) tvb_address_to_str(scope, tvb, AT_ETHER, offset)
 
@@ -105,7 +105,7 @@ WS_DLL_PUBLIC char* tvb_address_with_resolution_to_str(wmem_allocator_t *scope, 
  * @return A pointer to the formatted string
  *
  */
-WS_DLL_PUBLIC char* tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const int offset);
+WS_DLL_PUBLIC char* tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const unsigned offset);
 
 /** Turn an address type retrieved from a tvb into a string.
  *
@@ -117,7 +117,7 @@ WS_DLL_PUBLIC char* tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, i
  * @return A pointer to the formatted string
  *
  */
-WS_DLL_PUBLIC char* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const int offset, int length);
+WS_DLL_PUBLIC char* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const unsigned offset, unsigned length);
 
 /*
  ************** Time

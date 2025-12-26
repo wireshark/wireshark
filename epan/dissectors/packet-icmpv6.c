@@ -1796,17 +1796,17 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
 
 // This is recursive, but we'll run out of PDU before we'll run out of stack.
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *icmp6opt_tree;
     proto_item *ti, *ti_opt, *ti_opt_len;
     uint8_t     opt_type;
-    int         opt_len;
-    int         opt_offset;
+    unsigned    opt_len;
+    unsigned    opt_offset;
     tvbuff_t   *opt_tvb;
     unsigned    used_bytes;
 
-    while ((int)tvb_reported_length(tvb) > offset) {
+    while (tvb_reported_length(tvb) > offset) {
         /* there are more options */
 
         /* ICMPv6 Option */
@@ -1862,7 +1862,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                     /* Padding: 6 bytes */
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_NA);
 
-                    link_str = tvb_eui64_to_str(pinfo->pool, tvb, opt_offset);
+                    link_str = tvb_address_to_str(pinfo->pool, tvb, AT_EUI64, opt_offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
                     proto_item_append_text(ti, " : %s", link_str);
                 }else{
@@ -1896,7 +1896,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                     /* Padding: 6 bytes */
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_NA);
 
-                    link_str = tvb_eui64_to_str(pinfo->pool, tvb, opt_offset);
+                    link_str = tvb_address_to_str(pinfo->pool, tvb, AT_EUI64, opt_offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
                     proto_item_append_text(ti, " : %s", link_str);
                 }else{
@@ -2029,7 +2029,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                 proto_item *cga_item;
                 uint16_t ext_data_len;
                 uint8_t padd_length;
-                int par_len;
+                unsigned par_len;
                 asn1_ctx_t asn1_ctx;
 
                 /* Pad Length */
@@ -2668,7 +2668,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
                 /* EUI-64 */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti, " : Register %s %s", tvb_eui64_to_str(pinfo->pool, tvb, opt_offset), val_to_str(pinfo->pool, status, nd_opt_earo_status_val, "Unknown %d"));
+                proto_item_append_text(ti, " : Register %s %s", tvb_address_to_str(pinfo->pool, tvb, AT_EUI64, opt_offset), val_to_str(pinfo->pool, status, nd_opt_earo_status_val, "Unknown %d"));
                 opt_offset += 8;
 
             }
@@ -2827,8 +2827,8 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
             break;
             case ND_OPT_ENCRYPTED_DNS: /* Encrypted DNS Option (144) */
             {
-                int opt_start = opt_offset;
-                int opt_end = opt_offset + opt_len - 2;
+                unsigned opt_start = opt_offset;
+                unsigned opt_end = opt_offset + opt_len - 2;
                 uint32_t lifetime;
                 uint32_t adn_len = 0;
                 int adn_parsed_len;
@@ -2857,7 +2857,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                 proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_dnr_auth_domain_name_len, tvb, opt_offset, 2, ENC_BIG_ENDIAN, &adn_len);
                 opt_offset += 2;
 
-                if ((unsigned)opt_offset + adn_len > (unsigned)opt_end) {
+                if (opt_offset + adn_len > opt_end) {
                     expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "DNR: truncated option (ADN too long)");
                     break;
                 }
@@ -4480,7 +4480,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     vec_t               cksum_vec[4];
     uint32_t            phdr[2];
     uint16_t            cksum;
-    int                 offset;
+    unsigned            offset;
     tvbuff_t           *next_tvb;
     uint8_t             icmp6_type, icmp6_code;
     icmp_transaction_t *trans      = NULL;
@@ -4974,7 +4974,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 /* Show all Home Agent Addresses */
-                while((int)length > offset)
+                while(length > offset)
                 {
                     proto_tree_add_item(icmp6_tree, hf_icmpv6_mip6_home_agent_address, tvb, offset, 16, ENC_NA);
                     offset += 16;

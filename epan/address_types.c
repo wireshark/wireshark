@@ -1193,7 +1193,7 @@ const char* address_type_column_filter_string(const address* addr, bool src)
 }
 
 char*
-tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const int offset)
+tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const unsigned offset)
 {
     address addr;
     const address_type_t *at;
@@ -1218,7 +1218,7 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const int o
     return address_to_str(scope, &addr);
 }
 
-char* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const int offset, int length)
+char* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const unsigned offset, unsigned length)
 {
     address addr;
 
@@ -1228,7 +1228,7 @@ char* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_typ
 }
 
 char*
-tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const int offset)
+tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const unsigned offset)
 {
     address addr;
     const address_type_t *at;
