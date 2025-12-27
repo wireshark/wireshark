@@ -45,6 +45,7 @@
 
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/ws_roundup.h>
+#include <wsutil/ws_padding_to.h>
 #include <wsutil/crc32.h>
 
 
@@ -232,6 +233,7 @@ static int hf_smb2_write_flags_write_through;
 static int hf_smb2_write_flags_write_unbuffered;
 static int hf_smb2_write_count;
 static int hf_smb2_write_remaining;
+static int hf_smb2_write_rdma_transforms;
 static int hf_smb2_read_blob;
 static int hf_smb2_read_length;
 static int hf_smb2_read_remaining;
@@ -239,6 +241,9 @@ static int hf_smb2_read_padding;
 static int hf_smb2_read_flags;
 static int hf_smb2_read_flags_unbuffered;
 static int hf_smb2_read_flags_compressed;
+static int hf_smb2_read_resp_flags;
+static int hf_smb2_read_resp_flags_rdma_transform;
+static int hf_smb2_read_resp_rdma_transforms;
 static int hf_smb2_file_offset;
 static int hf_smb2_qfr_length;
 static int hf_smb2_qfr_usage;
@@ -281,6 +286,17 @@ static int hf_smb2_rdma_transform_count;
 static int hf_smb2_rdma_transform_reserved1;
 static int hf_smb2_rdma_transform_reserved2;
 static int hf_smb2_rdma_transform_id;
+static int hf_smb2_rw_rdma_transform_count;
+static int hf_smb2_rw_rdma_transform_reserved1;
+static int hf_smb2_rw_rdma_transform_reserved2;
+static int hf_smb2_rdma_crypto_transform;
+static int hf_smb2_rdma_crypto_transform_type;
+static int hf_smb2_rdma_crypto_transform_sig_len;
+static int hf_smb2_rdma_crypto_transform_nonce_len;
+static int hf_smb2_rdma_crypto_transform_reserved;
+static int hf_smb2_rdma_crypto_transform_signature;
+static int hf_smb2_rdma_crypto_transform_nonce;
+static int hf_smb2_rdma_crypto_transform_padding;
 static int hf_smb2_posix_reserved;
 static int hf_smb2_dev;
 static int hf_smb2_inode;
@@ -815,6 +831,7 @@ static int ett_smb2_error_context;
 static int ett_smb2_error_redir_context;
 static int ett_smb2_error_redir_ip_list;
 static int ett_smb2_read_flags;
+static int ett_smb2_read_resp_flags;
 static int ett_smb2_signature;
 static int ett_smb2_transform_flags;
 static int ett_smb2_fscc_file_attributes;
@@ -7713,6 +7730,88 @@ dissect_smb2_rdma_v1_blob(tvbuff_t *tvb, packet_info *pinfo _U_,
 	}
 }
 
+static void
+dissect_smb2_rw_rdma_transform(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+{
+	int offset = 0;
+	offset_length_buffer_t c_olb;
+	uint32_t channel;
+	uint32_t transform_count;
+	uint32_t ti;
+
+	/* write channel info blob offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &c_olb, OLB_O_UINT16_S_UINT16, hf_smb2_channel_info_blob);
+
+	/* channel */
+	channel = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb2_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* the write channel info blob itself */
+	switch (channel) {
+	case SMB2_CHANNEL_RDMA_V1:
+	case SMB2_CHANNEL_RDMA_V1_INVALIDATE:
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &c_olb, si, dissect_smb2_rdma_v1_blob);
+		break;
+	case SMB2_CHANNEL_NONE:
+	default:
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &c_olb, si, NULL);
+		break;
+	}
+
+	/* transform count */
+	proto_tree_add_item_ret_uint(tree, hf_smb2_rw_rdma_transform_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &transform_count);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_smb2_rw_rdma_transform_reserved1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+	proto_tree_add_item(tree, hf_smb2_rw_rdma_transform_reserved2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	for (ti = 0; ti < transform_count; ti++) {
+		uint32_t type;
+		uint32_t sig_len;
+		uint32_t nonce_len;
+		uint32_t pad_len;
+		proto_item *sub_item = NULL;
+		proto_tree *sub_tree = NULL;
+		int sub_offset = offset;
+
+		if (tree) {
+			sub_item = proto_tree_add_item(tree, hf_smb2_rdma_crypto_transform, tvb, offset, -1, ENC_NA);
+			sub_tree = proto_item_add_subtree(sub_item, ett_smb2_olb);
+		}
+
+		proto_tree_add_item_ret_uint(sub_tree, hf_smb2_rdma_crypto_transform_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, &type);
+		offset += 2;
+
+		proto_tree_add_item_ret_uint(sub_tree, hf_smb2_rdma_crypto_transform_sig_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sig_len);
+		offset += 2;
+
+		proto_tree_add_item_ret_uint(sub_tree, hf_smb2_rdma_crypto_transform_nonce_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &nonce_len);
+		offset += 2;
+
+		proto_tree_add_item(sub_tree, hf_smb2_rdma_crypto_transform_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		/* signature */
+		proto_tree_add_item(sub_tree, hf_smb2_rdma_crypto_transform_signature, tvb, offset, sig_len, ENC_NA);
+		offset += sig_len;
+
+		/* nonce */
+		proto_tree_add_item(sub_tree, hf_smb2_rdma_crypto_transform_nonce, tvb, offset, nonce_len, ENC_NA);
+		offset += nonce_len;
+
+		/* padding */
+		pad_len = tvb_captured_length_remaining(tvb, offset);
+		pad_len = MIN(pad_len, WS_PADDING_TO_8(offset));
+		proto_tree_add_item(sub_tree, hf_smb2_rdma_crypto_transform_padding, tvb, offset, pad_len, ENC_NA);
+		offset += pad_len;
+
+		proto_item_set_len(sub_item, offset - sub_offset);
+	}
+}
+
 #define SMB2_WRITE_FLAG_WRITE_THROUGH		0x00000001
 #define SMB2_WRITE_FLAG_WRITE_UNBUFFERED	0x00000002
 
@@ -7815,7 +7914,17 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 4;
 
 	/* write channel info blob offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &c_olb, OLB_O_UINT16_S_UINT16, hf_smb2_channel_info_blob);
+	switch (channel) {
+	case SMB2_CHANNEL_RDMA_TRANSFORM:
+		offset = dissect_smb2_olb_length_offset(tvb, offset, &c_olb, OLB_O_UINT16_S_UINT16, hf_smb2_write_rdma_transforms);
+		break;
+	case SMB2_CHANNEL_RDMA_V1:
+	case SMB2_CHANNEL_RDMA_V1_INVALIDATE:
+	case SMB2_CHANNEL_NONE:
+	default:
+		offset = dissect_smb2_olb_length_offset(tvb, offset, &c_olb, OLB_O_UINT16_S_UINT16, hf_smb2_channel_info_blob);
+		break;
+	}
 
 	/* flags */
 	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_write_flags, ett_smb2_write_flags, f_fields, ENC_LITTLE_ENDIAN);
@@ -7826,6 +7935,9 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	case SMB2_CHANNEL_RDMA_V1:
 	case SMB2_CHANNEL_RDMA_V1_INVALIDATE:
 		dissect_smb2_olb_buffer(pinfo, tree, tvb, &c_olb, si, dissect_smb2_rdma_v1_blob);
+		break;
+	case SMB2_CHANNEL_RDMA_TRANSFORM:
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &c_olb, si, dissect_smb2_rw_rdma_transform);
 		break;
 	case SMB2_CHANNEL_NONE:
 	default:
@@ -9786,6 +9898,13 @@ dissect_smb2_read_blob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2
 	proto_tree_add_item(tree, hf_smb2_read_data, tvb, offset, length, ENC_NA);
 }
 
+#define SMB2_READFLAG_RESPONSE_RDMA_TRANSFORM 0x00000001
+
+static const true_false_string tfs_read_response_rdma_transform = {
+	"The response contains an RDMA Transform",
+	"The response contains NO RDMA Transform"
+};
+
 static int
 dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
@@ -9799,6 +9918,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_item *tag_item = NULL;
 	proto_tree *tag_tree = NULL;
 	proto_tree *which_tree = NULL;
+	uint32_t flags = 0;
 
 	switch (si->status) {
 	/* buffer code */
@@ -9807,10 +9927,21 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		if (!continue_dissection) return offset;
 	}
 
-	/* data offset 8 bit, 8 bit reserved, length 32bit */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &olb,
-						OLB_O_UINT8_P_UINT8_S_UINT32,
-						hf_smb2_read_blob);
+	if (si->conv->dialect >= SMB2_DIALECT_311) {
+		flags = tvb_get_uint32(tvb, offset+10, ENC_LITTLE_ENDIAN);
+	}
+
+	if (flags & SMB2_READFLAG_RESPONSE_RDMA_TRANSFORM) {
+		/* data offset 8 bit, 8 bit reserved, length 32bit */
+		offset = dissect_smb2_olb_length_offset(tvb, offset, &olb,
+							OLB_O_UINT8_P_UINT8_S_UINT32,
+							hf_smb2_read_resp_rdma_transforms);
+	} else {
+		/* data offset 8 bit, 8 bit reserved, length 32bit */
+		offset = dissect_smb2_olb_length_offset(tvb, offset, &olb,
+							OLB_O_UINT8_P_UINT8_S_UINT32,
+							hf_smb2_read_blob);
+	}
 
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb2_read_remaining, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -9872,13 +10003,27 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		}
 	}
 
-	/* reserved */
-	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+	/* reserved/flags */
+	if (si->conv->dialect >= SMB2_DIALECT_311) {
+		static int * const bitmask[] = {
+		     &hf_smb2_read_resp_flags_rdma_transform,
+		     NULL
+		};
+
+		proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_read_resp_flags,
+				       ett_smb2_read_resp_flags, bitmask, ENC_LITTLE_ENDIAN);
+	} else {
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+	}
 	offset += 4;
 
 	data_tvb_len=(uint32_t)tvb_captured_length_remaining(tvb, offset);
 
-	dissect_smb2_olb_buffer(pinfo, tree, tvb, &olb, si, dissect_smb2_read_blob);
+	if (flags & SMB2_READFLAG_RESPONSE_RDMA_TRANSFORM) {
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &olb, si, dissect_smb2_rw_rdma_transform);
+	} else {
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &olb, si, dissect_smb2_read_blob);
+	}
 
 	offset += MIN(olb.len, data_tvb_len);
 
@@ -14120,6 +14265,23 @@ proto_register_smb2(void)
 			TFS(&tfs_read_compressed), SMB2_READFLAG_READ_COMPRESSED, "If client requests compressed response", HFILL }
 		},
 
+		{ &hf_smb2_read_resp_flags,
+			{ "Flags", "smb2.read_resp_flags", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_read_resp_flags_rdma_transform,
+			{ "RDMA Transform", "smb2.read_resp_flags.rdma_transform",
+			FT_BOOLEAN, 32, TFS(&tfs_read_response_rdma_transform),
+			SMB2_READFLAG_RESPONSE_RDMA_TRANSFORM,
+			"The response contains an RDMA Transform", HFILL }
+		},
+
+		{ &hf_smb2_read_resp_rdma_transforms,
+			{ "RDMA Transforms", "smb2.read_resp.rdma_transforms", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_create_flags,
 			{ "Create Flags", "smb2.create_flags", FT_UINT64, BASE_HEX,
 			NULL, 0, NULL, HFILL }
@@ -14247,6 +14409,11 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_write_remaining,
 			{ "Write Remaining", "smb2.write.remaining", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_write_rdma_transforms,
+			{ "RDMA Transforms", "smb2.write.rdma_transforms", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -14777,6 +14944,61 @@ proto_register_smb2(void)
 		{ &hf_smb2_rdma_transform_id,
 			{ "RDMATransformId", "smb2.negotiate_context.rdma_transform_id", FT_UINT16, BASE_HEX,
 			VALS(smb2_rdma_transform_types), 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rw_rdma_transform_count,
+			{ "TransformCount", "smb2.rw.rdma_transform_count", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rw_rdma_transform_reserved1,
+			{ "Reserved1", "smb2.rw.rdma_transform_reserved1", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rw_rdma_transform_reserved2,
+			{ "Reserved2", "smb2.rw.rdma_transform_reserved2", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_crypto_transform,
+			{ "RDMA Crypto Transform", "smb2.rdma_crypto_transform", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_crypto_transform_type,
+			{ "TransformType", "smb2.rdma_crypto_transform.type", FT_UINT16, BASE_HEX,
+			VALS(smb2_rdma_transform_types), 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_crypto_transform_sig_len,
+			{ "SignatureLength", "smb2.rdma_crypto_transform.sig_len", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_crypto_transform_nonce_len,
+			{ "NonceLength", "smb2.rdma_crypto_transform.nonce_len", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_crypto_transform_reserved,
+			{ "Reserved", "smb2.rdma_crypto_transform.reserved", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_crypto_transform_signature,
+			{ "Signature", "smb2.rdma_crypto_transform.signature", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_crypto_transform_nonce,
+			{ "Nonce", "smb2.rdma_crypto_transform.nonce", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_crypto_transform_padding,
+			{ "Padding", "smb2.rdma_crypto_transform.padding", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_current_time,
@@ -16802,6 +17024,7 @@ proto_register_smb2(void)
 		&ett_smb2_error_redir_context,
 		&ett_smb2_error_redir_ip_list,
 		&ett_smb2_read_flags,
+		&ett_smb2_read_resp_flags,
 		&ett_smb2_signature,
 		&ett_smb2_transform_flags,
 		&ett_smb2_fscc_file_attributes,
