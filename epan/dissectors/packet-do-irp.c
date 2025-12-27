@@ -944,6 +944,7 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += 4;
 
     /* Message Body */
+    /* XXX - Should create a subset tvb with body_len */
     if(tvb_captured_length_remaining(tvb, offset) > 0 && body_len > 0) {
 
         proto_item *ti_body = proto_tree_add_item(tree, hf_do_irp_body, tvb, offset, body_len, ENC_NA);
@@ -1202,6 +1203,8 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 tvb_new_subset_length(tvb, offset, unhandled_bytes),
                 pinfo, do_irp_body_tree
             );
+            /* call_data_dissector doesn't throw an exception */
+            tvb_ensure_bytes_exist(tvb, offset, unhandled_bytes);
             offset += unhandled_bytes;
         }
     }
