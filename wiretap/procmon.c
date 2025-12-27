@@ -21,10 +21,6 @@
 
 // To do:
 // - Figure out module timestamps
-// - Read the hosts array and pass the entries to wtap_dump_set_addrinfo_list,
-//   similar to the pcapng parser. The diffculty here is that host entries store
-//   their address in a 16-byte blob with no indication as to whether or not it's
-//   an IPv4 or an IPv6 address; v4 address are just stored in the first 4 bytes.
 // - Read the ports array? Is there any advantage to doing that vs our built in
 //   port number resolution?
 
@@ -140,10 +136,10 @@ typedef struct {
     uint32_t cur_event;
     const char **string_array;
     size_t string_array_size;
-    uint32_t *process_index_map; /* Map of process index to process array index */
-    size_t process_index_map_size;/* Size of the process index map */
-    struct procmon_process_t *process_array; /* Array of processes */
-    size_t process_array_size; /* Size of the process array */
+    uint32_t *process_index_map;    /* Map of process index to process array index */
+    size_t process_index_map_size;
+    struct procmon_process_t *process_array;
+    size_t process_array_size;
 } procmon_file_info_t;
 
 #define COMMON_EVENT_STRUCT_SIZE 52
@@ -178,6 +174,110 @@ static const char *procmon_string(procmon_file_info_t* file_info, uint32_t str_i
         return "<unknown>";
     }
     return file_info->string_array[str_index];
+}
+
+static char *procmon_read_string(FILE_T fh, gunichar2 *str_buf, int *err, char **err_info)
+{
+    uint32_t cur_str_size;
+    if (!wtap_read_bytes_or_eof(fh, &cur_str_size, sizeof(cur_str_size), err, err_info))
+    {
+        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+        if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+        {
+            // Short read or EOF.
+            *err = 0;
+            g_free(*err_info);
+            *err_info = NULL;
+        }
+        return NULL;
+    }
+    cur_str_size = GUINT32_FROM_LE(cur_str_size);
+    if (cur_str_size > MAX_PROCMON_STRING_LENGTH)
+    {
+        if (file_seek(fh, cur_str_size - MAX_PROCMON_STRING_LENGTH, SEEK_CUR, err) == -1)
+        {
+            ws_debug("Failed to skip excess string data");
+            return NULL;
+        }
+        ws_debug("Truncating string from %u bytes to %u", cur_str_size, MAX_PROCMON_STRING_LENGTH);
+        cur_str_size = MAX_PROCMON_STRING_LENGTH;
+    }
+    // XXX Make sure cur_str_size is even?
+    if (!wtap_read_bytes_or_eof(fh, str_buf, cur_str_size, err, err_info))
+    {
+        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+        if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+        {
+            // Short read or EOF.
+            *err = 0;
+            g_free(*err_info);
+            *err_info = NULL;
+        }
+        return NULL;
+    }
+    return g_utf16_to_utf8(str_buf, cur_str_size, NULL, NULL, NULL);
+}
+
+// Read the hosts array. Assume failures here are non-fatal.
+static void procmon_read_hosts(wtap *wth, int64_t host_port_array_offset, int *err, char **err_info)
+{
+    if (!(wth->add_new_ipv4 && wth->add_new_ipv6)) {
+        return;
+    }
+
+    if (file_seek(wth->fh, host_port_array_offset, SEEK_SET, err) == -1)
+    {
+        ws_debug("Failed to locate procmon hosts+ports data");
+        return;
+    }
+    uint32_t num_hosts;
+    if (!wtap_read_bytes_or_eof(wth->fh, &num_hosts, sizeof(num_hosts), err, err_info))
+    {
+        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+        return;
+    }
+    num_hosts = GUINT32_FROM_LE(num_hosts);
+    if (num_hosts > MAX_PROCMON_STRINGS)
+    {
+        ws_debug("Truncating hosts from %u to %u", num_hosts, MAX_PROCMON_STRINGS);
+        num_hosts = MAX_PROCMON_STRINGS;
+    }
+    gunichar2 *str_buf = g_new(gunichar2, MAX_PROCMON_STRING_LENGTH);
+    // Procmon appears to use the hosts table to store ASCII representations of
+    // addresses, so skip those.
+    GRegex *numeric_re = g_regex_new("^([0-9.]+|.*:.*)$", (GRegexCompileFlags)(G_REGEX_CASELESS | G_REGEX_RAW | G_REGEX_OPTIMIZE), (GRegexMatchFlags)0, NULL);
+    for (unsigned idx = 0; idx < num_hosts; idx++)
+    {
+        ws_in6_addr addr;
+        if (!wtap_read_bytes_or_eof(wth->fh, &addr, sizeof(addr), err, err_info))
+        {
+            ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+            return;
+        }
+        char *name = procmon_read_string(wth->fh, str_buf, err, err_info);
+        if (!name) {
+            continue;
+        }
+        if (g_regex_match(numeric_re, name, (GRegexMatchFlags)0, NULL))
+        {
+            g_free(name);
+            continue;
+        }
+        // The PML format gives us a 16 byte blob with no indication as to
+        // whether or not the blob is a v4 or v6 address. Given that there are
+        // several pingable v6 addresses that end with 12 bytes of zeroes (at
+        // the time of this writing 2600::, 2409::, 2a09::, and 2a11:: are all
+        // pingable), let's assume that all addresses are v6 and ones that end
+        // with 12 bytes of zeroes are also v4.
+        wth->add_new_ipv6(&addr, name, false);
+        if (!*(uint32_t*)(&addr.bytes[4]) && !*(uint64_t*)(&addr.bytes[8])) {
+            ws_in4_addr v4addr = *(uint32_t *)(&addr.bytes[4]);
+            wth->add_new_ipv4(v4addr, name, false);
+        }
+        g_free(name);
+    }
+    g_regex_unref(numeric_re);
+    g_free(str_buf);
 }
 
 static bool procmon_read_event(FILE_T fh, wtap_rec* rec, procmon_file_info_t* file_info, int* err, char** err_info)
@@ -282,6 +382,12 @@ static bool procmon_read(wtap *wth, wtap_rec *rec,
 {
     procmon_file_info_t* file_info = (procmon_file_info_t*)wth->priv;
 
+    // file.c and strato.c call wtap_set_cb_new_ipv{4,6} after calling
+    // wtap_open_offline, so read our hosts array here.
+    if (file_info->cur_event == 0) {
+        procmon_read_hosts(wth, file_info->header.host_port_array_offset, err, err_info);
+    }
+
     *data_offset = file_info->event_offsets[file_info->cur_event];
     ws_noisy("file offset is %" PRId64 " array offset is %" PRId64, file_tell(wth->fh), *data_offset);
 
@@ -324,7 +430,7 @@ static bool procmon_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 
 static const uint8_t procmon_magic[] = { 'P', 'M', 'L', '_' };
 
-wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
+wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info)
 {
     procmon_file_info_t* file_info = g_new0(procmon_file_info_t, 1);
     procmon_header_t* header = &file_info->header;
@@ -441,9 +547,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
         }
         return WTAP_OPEN_NOT_MINE;
     }
-#if G_BYTE_ORDER == G_BIG_ENDIAN
-    num_strings = GUINT32_SWAP_LE_BE(num_strings);
-#endif
+    num_strings = GUINT32_FROM_LE(num_strings);
     if (num_strings > MAX_PROCMON_STRINGS) {
         ws_debug("Truncating strings from %u to %u", num_strings, MAX_PROCMON_STRINGS);
         num_strings = MAX_PROCMON_STRINGS;
@@ -474,65 +578,35 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
 
     file_info->string_array_size = num_strings;
     file_info->string_array = g_new0(const char *, num_strings);
-    gunichar2 *cur_str = g_new(gunichar2, MAX_PROCMON_STRING_LENGTH);
+    gunichar2 *str_buf = g_new(gunichar2, MAX_PROCMON_STRING_LENGTH);
     for (unsigned idx = 0; idx < num_strings; idx++) {
         if (file_seek(wth->fh, header->string_array_offset + str_offsets[idx], SEEK_SET, err) == -1)
         {
             file_info_cleanup(file_info);
             g_free(str_offsets);
-            g_free(cur_str);
+            g_free(str_buf);
             ws_debug("Failed to locate procmon string %u", idx);
             return WTAP_OPEN_NOT_MINE;
         }
 
-        uint32_t cur_str_size;
-        if (!wtap_read_bytes_or_eof(wth->fh, &cur_str_size, sizeof(cur_str_size), err, err_info))
-        {
+        const char *cur_str = procmon_read_string(wth->fh, str_buf, err, err_info);
+        if (!cur_str) {
             file_info_cleanup(file_info);
             g_free(str_offsets);
-            g_free(cur_str);
-            ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
-            if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
-            {
-                // Short read or EOF.
-                *err = 0;
-                g_free(*err_info);
-                *err_info = NULL;
-            }
+            g_free(str_buf);
+            ws_debug("Failed to read procmon string %u", idx);
             return WTAP_OPEN_NOT_MINE;
         }
-#if G_BYTE_ORDER == G_BIG_ENDIAN
-        cur_str_size = GUINT32_SWAP_LE_BE(cur_str_size);
-#endif
-        // XXX check cur_str_size
-        if (cur_str_size > MAX_PROCMON_STRING_LENGTH) {
-            ws_debug("Truncating string %u from %u bytes to %u", idx, cur_str_size, MAX_PROCMON_STRING_LENGTH);
-            cur_str_size = MAX_PROCMON_STRING_LENGTH;
-        }
-        if (!wtap_read_bytes_or_eof(wth->fh, cur_str, sizeof(gunichar2) * (unsigned)cur_str_size, err, err_info))
-        {
-            file_info_cleanup(file_info);
-            g_free(str_offsets);
-            g_free(cur_str);
-            ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
-            if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
-            {
-                // Short read or EOF.
-                *err = 0;
-                g_free(*err_info);
-                *err_info = NULL;
-            }
-            return WTAP_OPEN_NOT_MINE;
-        }
-        file_info->string_array[idx] = g_utf16_to_utf8(cur_str, cur_str_size, NULL, NULL, NULL);
+
+        file_info->string_array[idx] = cur_str;
     }
     g_free(str_offsets);
-    g_free(cur_str);
+    g_free(str_buf);
 
     if (file_seek(wth->fh, header->process_array_offset, SEEK_SET, err) == -1)
     {
         ws_debug("Failed to locate procmon process data");
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     uint32_t num_processes;
@@ -549,9 +623,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
         }
         return WTAP_OPEN_NOT_MINE;
     }
-#if G_BYTE_ORDER == G_BIG_ENDIAN
-    num_processes = GUINT32_SWAP_LE_BE(num_processes);
-#endif
+    num_processes = GUINT32_FROM_LE(num_processes);
     if (num_processes > MAX_PROCMON_PROCESSES) {
         ws_debug("Truncating processes from %u to %u", num_processes, MAX_PROCMON_PROCESSES);
         num_processes = MAX_PROCMON_PROCESSES;
@@ -575,9 +647,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
 
     uint32_t max_process_index = 0;
     for (unsigned idx = 0; idx < num_processes; idx++) {
-    #if G_BYTE_ORDER == G_BIG_ENDIAN
-        process_indices[idx] = GUINT32_SWAP_LE_BE(process_indices[idx]);
-    #endif
+        process_indices[idx] = GUINT32_FROM_LE(process_indices[idx]);
         max_process_index = MAX(max_process_index, process_indices[idx]);
     }
     g_free(process_indices);
@@ -748,7 +818,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
     if (file_seek(wth->fh, header->start_events_offset, SEEK_SET, err) == -1)
     {
         ws_debug("Failed to locate procmon events data");
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     wth->meta_events = g_array_new(false, false, sizeof(wtap_block_t));
@@ -774,7 +844,6 @@ static const struct supported_option_type ft_specific_event_block_options_suppor
     { OPT_CUSTOM_STR_NO_COPY, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_CUSTOM_BIN_NO_COPY, MULTIPLE_OPTIONS_SUPPORTED }
 };
-
 
 static const struct supported_block_type procmon_blocks_supported[] = {
 
