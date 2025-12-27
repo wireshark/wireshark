@@ -1091,7 +1091,7 @@ tcp_flags_to_str_first_letter(wmem_allocator_t *scope, const struct tcpheader *t
     wmem_strbuf_t *buf = wmem_strbuf_new(scope, "");
     unsigned i;
     const unsigned flags_count = 12;
-    static const char first_letters[] = "RRRACEUAPRSF";
+    static const char first_letters[] = "RRRAWEUAPRSF";
     static const char digits[] = "01234567";
 
     /* upper three bytes are marked as reserved ('R'). */
