@@ -1,4 +1,4 @@
-/* packet-pcapng.c
+/* packet-pcapng_block.c
  * Dissector to handle pcapng file-type-specific blocks.
  *
  * Wireshark - Network traffic analyzer
