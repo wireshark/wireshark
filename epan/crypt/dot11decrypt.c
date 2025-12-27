@@ -517,6 +517,16 @@ Dot11DecryptNewSa(const DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
     return sa;
 }
 
+static PDOT11DECRYPT_SEC_ASSOCIATION
+Dot11DecryptDupSa(const DOT11DECRYPT_SEC_ASSOCIATION *sa)
+{
+    PDOT11DECRYPT_SEC_ASSOCIATION new_sa = g_memdup2(sa, sizeof(*sa));
+    if (new_sa != NULL) {
+        new_sa->next = NULL;
+    }
+    return new_sa;
+}
+
 static DOT11DECRYPT_SEC_ASSOCIATION *
 Dot11DecryptPrependSa(
     DOT11DECRYPT_SEC_ASSOCIATION *existing_sa,
@@ -785,6 +795,34 @@ Dot11DecryptCopyBroadcastKey(
     return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
 }
 
+static void Dot11DecryptCreateMloGtkSa(
+    PDOT11DECRYPT_CONTEXT ctx,
+    PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
+    DOT11DECRYPT_SEC_ASSOCIATION *ptk_sa
+)
+{
+    if (ptk_sa == NULL || !ptk_sa->validKey || !ptk_sa->wpa.mld) {
+        return;
+    }
+    for (int i = 0; i < eapol_parsed->mlo_gtk_count; ++i) {
+        struct DOT11DECRYPT_EAPOL_PARSED_MLO_GTK *gtk = &eapol_parsed->mlo_gtk[i];
+
+        for (struct DOT11DECRYPT_MLO_LINK_INFO *link = ptk_sa->wpa.mlo_links;
+             link < &ptk_sa->wpa.mlo_links[DOT11DECRYPT_MAX_MLO_LINKS];
+             ++link) {
+            if (!(link->id_set && link->ap_mac_set && link->sta_mac_set))
+                continue;
+            if (link->id == gtk->link_id) {
+                DOT11DECRYPT_SEC_ASSOCIATION_ID saId;
+                memcpy(&saId.bssid, link->ap_mac, DOT11DECRYPT_MAC_LEN);
+                memcpy(&saId.sta, link->sta_mac, DOT11DECRYPT_MAC_LEN);
+                ws_debug("Create GTKSA for LinkID %d", link->id);
+                Dot11DecryptCopyBroadcastKey(ctx, gtk->key, gtk->len, &saId);
+            }
+        }
+    }
+}
+
 static int
 Dot11DecryptGroupHandshake(
     PDOT11DECRYPT_CONTEXT ctx,
@@ -801,7 +839,12 @@ Dot11DecryptGroupHandshake(
         ws_warning("Not Group handshake message 1");
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
-    return Dot11DecryptCopyBroadcastKey(ctx, eapol_parsed->gtk, eapol_parsed->gtk_len, id);
+
+    Dot11DecryptCopyBroadcastKey(ctx, eapol_parsed->gtk, eapol_parsed->gtk_len, id);
+
+    Dot11DecryptCreateMloGtkSa(ctx, eapol_parsed, Dot11DecryptGetSa(ctx, id));
+
+    return DOT11DECRYPT_RET_SUCCESS;
 }
 
 int Dot11DecryptScanEapolForKeys(
@@ -1616,6 +1659,10 @@ Dot11DecryptRsna4WHandshake(
         }
         memcpy(sa->wpa.nonce, eapol_parsed->nonce, 32);
 
+        if (eapol_parsed->mld_mac) {
+            memcpy(sa->wpa.ap_mld_mac, eapol_parsed->mld_mac, 6);
+            sa->wpa.ap_mld_mac_set = 1;
+        }
         /* get the Key Descriptor Version (to select algorithm used in decryption -CCMP or TKIP-) */
         sa->wpa.key_ver = eapol_parsed->key_version;
         sa->handshake=1;
@@ -1643,6 +1690,28 @@ Dot11DecryptRsna4WHandshake(
         }
         if (sa->key != NULL) {
             useCache = true;
+        }
+
+        // Save partial MLO link info using association link info and MLO Link KDEs
+        if (sa->wpa.ap_mld_mac_set && eapol_parsed->mld_mac) {
+            memcpy(sa->wpa.sta_mld_mac, eapol_parsed->mld_mac, DOT11DECRYPT_MAC_LEN);
+            sa->wpa.sta_mld_mac_set = 1;
+            sa->wpa.mld = 1;
+            memcpy(sa->wpa.mlo_links[0].sta_mac, id->sta, DOT11DECRYPT_MAC_LEN);
+            memcpy(sa->wpa.mlo_links[0].ap_mac, id->bssid, DOT11DECRYPT_MAC_LEN);
+            sa->wpa.mlo_links[0].sta_mac_set = 1;
+            sa->wpa.mlo_links[0].ap_mac_set = 1;
+
+            int links = 1;
+            for (int i = 0; i < eapol_parsed->mlo_link_count && links < DOT11DECRYPT_MAX_MLO_LINKS; ++i) {
+                if (!memcmp(eapol_parsed->mlo_link[i].mac, id->sta, DOT11DECRYPT_MAC_LEN))
+                    continue;
+                sa->wpa.mlo_links[links].id = eapol_parsed->mlo_link[i].id;
+                memcpy(sa->wpa.mlo_links[links].sta_mac, eapol_parsed->mlo_link[i].mac, DOT11DECRYPT_MAC_LEN);
+                sa->wpa.mlo_links[links].id_set = 1;
+                sa->wpa.mlo_links[links].sta_mac_set = 1;
+                links++;
+            }
         }
 
         int akm = -1;
@@ -1719,8 +1788,8 @@ Dot11DecryptRsna4WHandshake(
                                               eapol_parsed->fte.r1kh_id_len,
                                               akm, cipher, ptk, &ptk_len);
             } else {
-                /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
-                ret = Dot11DecryptDerivePtk(sa, /* authenticator nonce, bssid, station mac */
+                /* derive the PTK from the AA, SPA, PMK, SNonce, ANonce */
+                ret = Dot11DecryptDerivePtk(sa, /* authenticator nonce, AA, SPA */
                                             tmp_pkt_key->KeyData.Wpa.Psk, /* PSK == PMK */
                                             tmp_pkt_key->KeyData.Wpa.PskLen,
                                             eapol_parsed->nonce, /* supplicant nonce */
@@ -1783,7 +1852,50 @@ Dot11DecryptRsna4WHandshake(
         /* If using WPA2 PSK, message 3 will contain an RSN for the group key (GTK KDE).
            In order to properly support decrypting WPA2-PSK packets, we need to parse this to get the group key. */
         if (eapol_parsed->key_type == DOT11DECRYPT_RSN_WPA2_KEY_DESCRIPTOR) {
-            return Dot11DecryptCopyBroadcastKey(ctx, eapol_parsed->gtk, eapol_parsed->gtk_len, id);
+            Dot11DecryptCopyBroadcastKey(ctx, eapol_parsed->gtk, eapol_parsed->gtk_len, id);
+
+            sa = Dot11DecryptGetSa(ctx, id);
+            if (sa == NULL || sa->handshake != 2 || !sa->validKey || !sa->wpa.mld) {
+                ws_debug("No MLD SA for BSSID found");
+                return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
+            }
+
+            // Build complete MLO link info using MLO Link KDEs
+            for (int i = 0; i < eapol_parsed->mlo_link_count; ++i) {
+                struct DOT11DECRYPT_EAPOL_PARSED_MLO_LINK *parsed = &eapol_parsed->mlo_link[i];
+
+                for (struct DOT11DECRYPT_MLO_LINK_INFO *link = sa->wpa.mlo_links;
+                     link < &sa->wpa.mlo_links[DOT11DECRYPT_MAX_MLO_LINKS];
+                     ++link) {
+                    if (link->ap_mac_set && !memcmp(parsed->mac, link->ap_mac, DOT11DECRYPT_MAC_LEN)) {
+                        link->id = parsed->id;
+                        link->id_set = 1;
+                    } else if (link->id_set && link->id == parsed->id) {
+                        memcpy(link->ap_mac, parsed->mac, DOT11DECRYPT_MAC_LEN);
+                        link->ap_mac_set = 1;
+                    }
+                }
+            }
+
+            // Create PTKSA for non-association links
+            for (struct DOT11DECRYPT_MLO_LINK_INFO *link = sa->wpa.mlo_links;
+                 link < &sa->wpa.mlo_links[DOT11DECRYPT_MAX_MLO_LINKS];
+                 ++link) {
+                if (!(link->id_set && link->ap_mac_set && link->sta_mac_set))
+                    continue;
+                if (!memcmp(link->ap_mac, id->bssid, DOT11DECRYPT_MAC_LEN))
+                    continue;
+                ws_debug("Create PTKSA for LinkID %d", link->id);
+                DOT11DECRYPT_SEC_ASSOCIATION *new_sa = Dot11DecryptDupSa(sa);
+                DOT11DECRYPT_SEC_ASSOCIATION_ID saId;
+                memcpy(&saId.bssid, link->ap_mac, DOT11DECRYPT_MAC_LEN);
+                memcpy(&saId.sta, link->sta_mac, DOT11DECRYPT_MAC_LEN);
+                memcpy(&new_sa->saId, &saId, sizeof(saId));
+                Dot11DecryptAddSa(ctx, &saId, new_sa);
+            }
+
+            // Create GTKSA for all MLO links
+            Dot11DecryptCreateMloGtkSa(ctx, eapol_parsed, sa);
        }
     }
 
@@ -2542,7 +2654,7 @@ Dot11DecryptGetHashAlgoFromAkm(int akm, size_t pmk_len)
     return algo;
 }
 
-/* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
+/* derive the PTK from the AA, SPA, PMK, SNonce, ANonce */
 /** From IEEE 802.11-2024 12.7.1.3 Pairwise key hierarchy:
  *  PRF-Length(PMK, "Pairwise key expansion",
  *      Min(AA, SPA) || Max(AA, SPA) ||
@@ -2593,20 +2705,26 @@ Dot11DecryptDerivePtk(
     static const char *const label = "Pairwise key expansion";
     uint8_t context[DOT11DECRYPT_MAC_LEN * 2 + 32 * 2];
     int offset = 0;
+    const uint8_t *spa = sa->saId.sta, *aa = sa->saId.bssid;
+
+    if (sa->wpa.mld) {
+        spa = sa->wpa.sta_mld_mac;
+        aa = sa->wpa.ap_mld_mac;
+    }
 
     /* Min(AA, SPA) || Max(AA, SPA) */
-    if (memcmp(sa->saId.sta, sa->saId.bssid, DOT11DECRYPT_MAC_LEN) < 0)
+    if (memcmp(spa, aa, DOT11DECRYPT_MAC_LEN) < 0)
     {
-        memcpy(context + offset, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
+        memcpy(context + offset, spa, DOT11DECRYPT_MAC_LEN);
         offset += DOT11DECRYPT_MAC_LEN;
-        memcpy(context + offset, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
+        memcpy(context + offset, aa, DOT11DECRYPT_MAC_LEN);
         offset += DOT11DECRYPT_MAC_LEN;
     }
     else
     {
-        memcpy(context + offset, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
+        memcpy(context + offset, aa, DOT11DECRYPT_MAC_LEN);
         offset += DOT11DECRYPT_MAC_LEN;
-        memcpy(context + offset, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
+        memcpy(context + offset, spa, DOT11DECRYPT_MAC_LEN);
         offset += DOT11DECRYPT_MAC_LEN;
     }
 
@@ -2715,9 +2833,16 @@ Dot11DecryptFtDerivePtk(
     DEBUG_DUMP("PMK-R1", pmk_r1, pmk_r1_len, LOG_LEVEL_DEBUG);
     DEBUG_DUMP("PMKR1Name", pmk_r1_name, 16, LOG_LEVEL_DEBUG);
 
+    // Reference: IEEE 802.11be-2024 12.7.1.6.5
+    const uint8_t *sta_addr = sa->saId.sta, *bssid = sa->saId.bssid;
+    if (sa->wpa.mld) {
+        sta_addr = sa->wpa.sta_mld_mac;
+        bssid = sa->wpa.ap_mld_mac;
+    }
+
     if (!dot11decrypt_derive_ft_ptk(pmk_r1, pmk_r1_len, pmk_r1_name,
                                snonce, sa->wpa.nonce,
-                               sa->saId.bssid, sa->saId.sta, hash_algo,
+                               bssid, sta_addr, hash_algo,
                                ptk, *ptk_len, ptk_name)) {
         return DOT11DECRYPT_RET_UNSUCCESS;
     }

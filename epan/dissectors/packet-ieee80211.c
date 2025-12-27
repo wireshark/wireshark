@@ -365,6 +365,19 @@ typedef enum {
   PASN_DATA_KEY,
   HE_CHANNEL_WIDTH_KEY,
   FRAME_TYPE_KEY,
+  MLD_MAC_KEY,
+  MLO_LINK_COUNT,
+  MLO_LINK_ID_FIRST,
+  MLO_LINK_ID_LAST = MLO_LINK_ID_FIRST + DOT11DECRYPT_MAX_MLO_LINKS - 1,
+  MLO_LINK_MAC_FIRST,
+  MLO_LINK_MAC_LAST = MLO_LINK_MAC_FIRST + DOT11DECRYPT_MAX_MLO_LINKS - 1,
+  MLO_GTK_COUNT,
+  MLO_GTK_LINK_ID_FIRST,
+  MLO_GTK_LINK_ID_LAST = MLO_GTK_LINK_ID_FIRST + DOT11DECRYPT_MAX_MLO_LINKS - 1,
+  MLO_GTK_KEY_FIRST,
+  MLO_GTK_KEY_LAST = MLO_GTK_KEY_FIRST + DOT11DECRYPT_MAX_MLO_LINKS - 1,
+  MLO_GTK_KEY_LEN_FIRST,
+  MLO_GTK_KEY_LEN_LAST = MLO_GTK_KEY_LEN_FIRST + DOT11DECRYPT_MAX_MLO_LINKS - 1,
 } wlan_proto_key_t;
 
 /* ************************************************************************* */
@@ -20877,6 +20890,7 @@ dissect_rsn_ie_mlo_link(proto_item *item, proto_tree *tree, tvbuff_t *tvb,
                         int offset, uint32_t tag_len _U_, packet_info *pinfo)
 {
   uint8_t info = tvb_get_uint8(tvb, offset);
+  int mlo_links = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MLO_LINK_COUNT));
 
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_ieee80211_rsn_ie_mlo_link_info,
@@ -20886,6 +20900,12 @@ dissect_rsn_ie_mlo_link(proto_item *item, proto_tree *tree, tvbuff_t *tvb,
 
   proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_mac_addr, tvb, offset, 6,
                       ENC_NA);
+  if (mlo_links < DOT11DECRYPT_MAX_MLO_LINKS) {
+    uint8_t link_id = info & 0x0f;
+    save_proto_data_value(pinfo, link_id, MLO_LINK_ID_FIRST + mlo_links);
+    save_proto_data(tvb, pinfo, offset, 6, MLO_LINK_MAC_FIRST + mlo_links);
+    save_proto_data_value(pinfo, mlo_links + 1, MLO_LINK_COUNT);
+  }
   offset += 6;
   if ((info & 0x10) == 0x10) { /* Add the RSNE if present */
     offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
@@ -20903,6 +20923,8 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
                       int offset, uint32_t tag_len, packet_info *pinfo)
 {
   uint8_t data_type = tvb_get_uint8(tvb, offset);
+  int mlo_gtk_nb;
+  uint8_t flags;
   proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_kde_data_type, tvb,
                       offset, 1, ENC_NA);
   offset += 1;
@@ -20933,6 +20955,7 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mac_address_kde_mac, tvb,
                           offset, 6, ENC_NA);
       proto_item_append_text(item, ": MAC Address KDE");
+      save_proto_data(tvb, pinfo, offset, 6, MLD_MAC_KEY);
       break;
     case 4:
     {
@@ -21005,6 +21028,8 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
       proto_item_append_text(item, ": BIGTK KDE");
       break;
     case 16: /* MLO GTK KDE */
+      mlo_gtk_nb = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MLO_GTK_COUNT));
+      flags = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_key_id, tvb,
                           offset, 1, ENC_NA);
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_tx, tvb,
@@ -21021,6 +21046,13 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_gtk, tvb,
                           offset, tag_len - 8, ENC_NA);
+      if (mlo_gtk_nb < DOT11DECRYPT_MAX_MLO_LINKS) {
+        uint8_t link_id = (flags & 0xf0) >> 4;
+        save_proto_data_value(pinfo, link_id, MLO_GTK_LINK_ID_FIRST + mlo_gtk_nb);
+        save_proto_data(tvb, pinfo, offset, tag_len - 8, MLO_GTK_KEY_FIRST + mlo_gtk_nb);
+        save_proto_data_value(pinfo, tag_len - 8, MLO_GTK_KEY_LEN_FIRST + mlo_gtk_nb);
+        save_proto_data_value(pinfo, mlo_gtk_nb + 1, MLO_GTK_COUNT);
+      }
 
       proto_item_append_text(item, ": MLO GTK KDE");
       break;
@@ -42315,6 +42347,20 @@ get_eapol_parsed(packet_info *pinfo, PDOT11DECRYPT_EAPOL_PARSED eapol_parsed)
   eapol_parsed->gtk = (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GTK_KEY);
   eapol_parsed->gtk_len = (uint16_t)
     GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GTK_LEN_KEY));
+  eapol_parsed->mld_mac = (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MLD_MAC_KEY);
+
+  eapol_parsed->mlo_link_count = (uint8_t)GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MLO_LINK_COUNT));
+  for (int i = 0; i < eapol_parsed->mlo_link_count; ++i) {
+    eapol_parsed->mlo_link[i].id = (uint8_t)GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MLO_LINK_ID_FIRST + i));
+    eapol_parsed->mlo_link[i].mac = (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MLO_LINK_MAC_FIRST + i);
+  }
+
+  eapol_parsed->mlo_gtk_count = (uint8_t)GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MLO_GTK_COUNT));
+  for (int i = 0; i < eapol_parsed->mlo_gtk_count; ++i) {
+    eapol_parsed->mlo_gtk[i].link_id = (uint8_t)GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MLO_GTK_LINK_ID_FIRST + i));
+    eapol_parsed->mlo_gtk[i].key = (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MLO_GTK_KEY_FIRST + i);
+    eapol_parsed->mlo_gtk[i].len = (uint8_t)GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MLO_GTK_KEY_LEN_FIRST + i));
+  }
 
   /* For fast bss transition akms */
   eapol_parsed->mdid = (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MDID_KEY);

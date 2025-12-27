@@ -311,6 +311,17 @@ class TestDecrypt80211:
                 ), encoding='utf-8', env=test_env)
         assert count_output(stdout, 'ICMP') == 4
 
+    def test_80211_wpa3_mlo(self, cmd_tshark, capture_file, features, test_env):
+        '''IEEE 802.11 decode WPA3 MLO'''
+        # Included in git sources test/captures/wpa3-mlo.pcapng.gz
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa3-mlo.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 526a5a1ae29a93dd221a803d4e1fa52d || wlan.analysis.gtk == d982ebd1ba688facd788f4d813760bd1 || wlan.analysis.gtk == 442ba3015150fefe5af8406452bcf0ab || wlan.analysis.gtk == 4e7af4785c882bfe1a4026cf7f3d593d || wlan.analysis.gtk == 6948f4ce2f08231fac419d5b6231078a',
+                ), encoding='utf-8', env=test_env)
+        assert count_output(stdout, 'EAPOL') == 2
+        assert count_output(stdout, 'ICMP') == 6
+
 class TestDecrypt80211UserTk:
     def test_80211_user_tk_tkip(self, cmd_tshark, capture_file, test_env_80211_user_tk):
         '''IEEE 802.11 decode TKIP using user TK'''
