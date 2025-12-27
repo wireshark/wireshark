@@ -49,8 +49,8 @@
 #define SYSDIG_PARAM_SIZE_V2_LARGE 4
 
 /* Prototypes */
-void proto_reg_handoff_sysdig_event(void);
-void proto_register_sysdig_event(void);
+void event_register_sysdig_event(void);
+void event_reg_handoff_sysdig_event(void);
 
 static dissector_handle_t sysdig_event_handle;
 
@@ -3039,13 +3039,13 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return ret;
 }
 
-/* Register the protocol with Wireshark.
+/* Register the protocol with Stratoshark.
  *
  * This format is required because a script is used to build the C function that
  * calls all the protocol registration.
  */
 void
-proto_register_sysdig_event(void)
+event_register_sysdig_event(void)
 {
     /* XXX Match up with Sysdig's names. */
     static hf_register_info hf[] = {
@@ -3331,7 +3331,7 @@ proto_register_sysdig_event(void)
 }
 
 void
-proto_reg_handoff_sysdig_event(void)
+event_reg_handoff_sysdig_event(void)
 {
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT, sysdig_event_handle);
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT_V2, sysdig_event_handle);

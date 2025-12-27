@@ -30,7 +30,9 @@
  * TODO - character set and chunked transfer-coding
  */
 void proto_register_text_lines(void);
+void event_register_text_lines(void);
 void proto_reg_handoff_text_lines(void);
+void event_reg_handoff_text_lines(void);
 
 /* Filterable header fields */
 static int proto_text_lines;
@@ -125,8 +127,8 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	return length;
 }
 
-void
-proto_register_text_lines(void)
+static void
+common_register_text_lines(void)
 {
 	static int *ett[] = {
 		&ett_text_lines,
@@ -139,7 +141,18 @@ proto_register_text_lines(void)
 }
 
 void
-proto_reg_handoff_text_lines(void)
+proto_register_text_lines(void)
+{
+	common_register_text_lines();
+}
+
+void
+event_register_text_lines(void)
+{
+	common_register_text_lines();
+}
+
+static void common_reg_handoff_text_lines(void)
 {
 	dissector_handle_t text_lines_handle;
 
@@ -167,6 +180,18 @@ proto_reg_handoff_text_lines(void)
 	dissector_add_string("media_type", "application/x-wms-logplaystats", text_lines_handle);
 	dissector_add_string("media_type", "application/x-rtsp-udp-packetpair", text_lines_handle);
 	xml_handle = find_dissector_add_dependency("xml", proto_text_lines);
+}
+
+void
+proto_reg_handoff_text_lines(void)
+{
+	common_reg_handoff_text_lines();
+}
+
+void
+event_reg_handoff_text_lines(void)
+{
+	common_reg_handoff_text_lines();
 }
 
 /*

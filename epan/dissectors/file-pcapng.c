@@ -553,6 +553,7 @@ static const value_string dsb_secrets_types_vals[] = {
 };
 
 void proto_register_pcapng(void);
+void event_register_pcapng(void);
 void proto_reg_handoff_pcapng(void);
 
 #define BYTE_ORDER_MAGIC_SIZE  4
@@ -2147,8 +2148,8 @@ void register_pcapng_local_block_dissector(uint32_t block_number, local_block_ca
     g_hash_table_insert(s_local_block_callback_table, GUINT_TO_POINTER(block_number), block_callback_info);
 }
 
-void
-proto_register_pcapng(void)
+static void
+common_register_pcapng(void)
 {
     module_t         *module;
     expert_module_t  *expert_module;
@@ -2838,13 +2839,24 @@ proto_register_pcapng(void)
 }
 
 void
+proto_register_pcapng(void)
+{
+    common_register_pcapng();
+}
+
+void
+event_register_pcapng(void)
+{
+    common_register_pcapng();
+
+    /* No need for a handoff function */
+}
+
+void
 proto_reg_handoff_pcapng(void)
 {
-    if (epan_supports_packets())
-    {
-        heur_dissector_add("wtap_file", dissect_pcapng_heur, "PCAPNG File", "pcapng_wtap", proto_pcapng, HEURISTIC_ENABLE);
-        pcap_pktdata_handle = find_dissector_add_dependency("pcap_pktdata", proto_pcapng);
-    }
+    heur_dissector_add("wtap_file", dissect_pcapng_heur, "PCAPNG File", "pcapng_wtap", proto_pcapng, HEURISTIC_ENABLE);
+    pcap_pktdata_handle = find_dissector_add_dependency("pcap_pktdata", proto_pcapng);
 }
 
 /*

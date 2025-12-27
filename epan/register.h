@@ -76,7 +76,7 @@ void register_all_protocol_handoffs(register_cb cb, void* client_data);
  * accordingly.
  *
  * @param cb Callback routine which is called for each protocol.
- * Messages have the format "proto_register_XXX".
+ * Messages have the format "event_register_XXX".
  * @param client_data Data pointer for the callback.
  */
 WS_DLL_PUBLIC
@@ -89,7 +89,7 @@ void register_all_event_dissectors(register_cb cb, void* client_data);
  * wmem_alloc. Callbacks should handle themselves accordingly.
  *
  * @param cb Callback routine which is called for each protocol.
- * Messages have the format "proto_reg_handoff_XXX".
+ * Messages have the format "event_reg_handoff_XXX".
  * @param client_data Data pointer for the callback.
  */
 WS_DLL_PUBLIC

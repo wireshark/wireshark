@@ -15,7 +15,9 @@
 #include <wiretap/wtap.h>
 
 void proto_register_pcapng_block(void);
+void event_register_pcapng_block(void);
 void proto_reg_handoff_pcapng_block(void);
+void event_reg_handoff_pcapng_block(void);
 
 static dissector_handle_t pcapng_block_handle;
 
@@ -44,7 +46,7 @@ dissect_pcapng_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	return tvb_captured_length(tvb);
 }
 
-void proto_register_pcapng_block(void)
+static void common_register_pcapng_block(void)
 {
 	proto_pcapng_block = proto_register_protocol("Pcapng block", "PCAPNG", "pcapng");
 	pcapng_block_type_dissector_table = register_dissector_table("pcapng.block_type",
@@ -54,11 +56,32 @@ void proto_register_pcapng_block(void)
 	    proto_pcapng_block);
 }
 
+void proto_register_pcapng_block(void)
+{
+	common_register_pcapng_block();
+}
+
+void event_register_pcapng_block(void)
+{
+	common_register_pcapng_block();
+}
+
+static void common_reg_handoff_pcapng_block(void)
+{
+	dissector_add_uint("wtap_fts_rec", wtap_pcapng_file_type_subtype(),
+		pcapng_block_handle);
+}
+
 void
 proto_reg_handoff_pcapng_block(void)
 {
-	dissector_add_uint("wtap_fts_rec", wtap_pcapng_file_type_subtype(),
-	    pcapng_block_handle);
+	common_reg_handoff_pcapng_block();
+}
+
+void
+event_reg_handoff_pcapng_block(void)
+{
+	common_reg_handoff_pcapng_block();
 }
 
 /*

@@ -40,7 +40,9 @@
 #include <epan/color_filters.h>
 
 void proto_register_frame(void);
+void event_register_frame(void);
 void proto_reg_handoff_frame(void);
+void event_reg_handoff_frame(void);
 
 static int proto_frame;
 static int proto_pkt_comment;
@@ -1298,8 +1300,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	return tvb_captured_length(tvb);
 }
 
-void
-proto_register_frame(void)
+static void common_register_frame(bool use_packets)
 {
 	static hf_register_info hf[] = {
 		{ &hf_frame_arrival_time_local,
@@ -1607,7 +1608,7 @@ proto_register_frame(void)
 	}
 
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame"); /* name, short name, abbreviation */
-	if (epan_supports_packets()) {
+	if (use_packets) {
 		proto_pkt_comment = proto_register_protocol_in_name_only("Packet comments", "Pkt_Comment", "pkt_comment", proto_frame, FT_PROTOCOL);
 		proto_register_alias(proto_pkt_comment, "evt_comment");
 	} else {
@@ -1670,14 +1671,31 @@ proto_register_frame(void)
 }
 
 void
+proto_register_frame(void)
+{
+	common_register_frame(true);
+}
+
+void
+event_register_frame(void)
+{
+	common_register_frame(false);
+}
+
+void
 proto_reg_handoff_frame(void)
 {
 	docsis_handle = find_dissector_add_dependency("docsis", proto_frame);
-	sysdig_handle = find_dissector_add_dependency("sysdig", proto_frame);
-	systemd_journal_handle = find_dissector_add_dependency("systemd_journal", proto_frame);
 	darwin_handle = find_dissector_add_dependency("darwin", proto_frame);
 
 	proto_darwin = proto_registrar_get_id_byname("darwin");
+}
+
+void
+event_reg_handoff_frame(void)
+{
+	sysdig_handle = find_dissector_add_dependency("sysdig", proto_frame);
+	systemd_journal_handle = find_dissector_add_dependency("systemd_journal", proto_frame);
 }
 
 /*

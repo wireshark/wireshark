@@ -27,8 +27,8 @@
 #define PSNAME "MS Procmon"
 #define PFNAME "procmon"
 
-void proto_reg_handoff_procmon(void);
-void proto_register_procmon(void);
+void event_register_procmon(void);
+void event_reg_handoff_procmon(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_procmon;
@@ -2747,7 +2747,7 @@ dissect_procmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
  * Register the protocol with Wireshark.
  */
 void
-proto_register_procmon(void)
+event_register_procmon(void)
 {
     static hf_register_info hf[] = {
         { &hf_procmon_process_index,
@@ -3530,7 +3530,7 @@ proto_register_procmon(void)
 }
 
 void
-proto_reg_handoff_procmon(void)
+event_reg_handoff_procmon(void)
 {
     int file_type_subtype_procmon;
 

@@ -77,9 +77,9 @@ const unsigned long dissector_reg_handoff_count = {1};
 
 def make_event_dissectors(outfile, infiles):
     protos = []
-    protos_regex = r"void\s+(proto_register_[\w]+)\s*\(\s*void\s*\)\s*{"
+    protos_regex = r"void\s+(event_register_[\w]+)\s*\(\s*void\s*\)\s*{"
     handoffs = []
-    handoffs_regex = r"void\s+(proto_reg_handoff_[\w]+)\s*\(\s*void\s*\)\s*{"
+    handoffs_regex = r"void\s+(event_reg_handoff_[\w]+)\s*\(\s*void\s*\)\s*{"
 
     scan_files(infiles, [(protos, protos_regex), (handoffs, handoffs_regex)])
 

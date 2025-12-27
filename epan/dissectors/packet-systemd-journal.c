@@ -39,8 +39,8 @@
 #define PSNAME "systemd Journal"
 #define PFNAME "systemd_journal"
 
-void proto_reg_handoff_systemd_journal(void);
-void proto_register_systemd_journal(void);
+void event_register_systemd_journal(void);
+void event_reg_handoff_systemd_journal(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_systemd_journal;
@@ -427,10 +427,10 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 /*
- * Register the protocol with Wireshark.
+ * Register the protocol with Stratoshark.
  */
 void
-proto_register_systemd_journal(void)
+event_register_systemd_journal(void)
 {
     expert_module_t *expert_systemd_journal;
 
@@ -886,8 +886,9 @@ proto_register_systemd_journal(void)
 }
 
 #define BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT 0x0000009
+
 void
-proto_reg_handoff_systemd_journal(void)
+event_reg_handoff_systemd_journal(void)
 {
     int file_type_subtype_systemd_journal;
 

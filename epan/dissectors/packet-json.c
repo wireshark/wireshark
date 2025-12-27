@@ -29,7 +29,10 @@
 #include "packet-json.h"
 
 void proto_register_json(void);
+void event_register_json(void);
 void proto_reg_handoff_json(void);
+void event_reg_handoff_json(void);
+
 static char* json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length_ptr);
 static const char* get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, bool remove_quotes);
 
@@ -1294,8 +1297,8 @@ register_static_headers(void) {
 
 }
 
-void
-proto_register_json(void)
+static void
+common_register_json(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_json_array,
@@ -1479,18 +1482,21 @@ proto_register_json(void)
 }
 
 void
-proto_reg_handoff_json(void)
+proto_register_json(void)
 {
-	if (epan_supports_packets())
-	{
-		heur_dissector_add("hpfeeds", dissect_json_heur, "JSON over HPFEEDS", "json_hpfeeds", proto_json, HEURISTIC_ENABLE);
-		heur_dissector_add("db-lsp", dissect_json_heur, "JSON over DB-LSP", "json_db_lsp", proto_json, HEURISTIC_ENABLE);
-		heur_dissector_add("udp", dissect_json_acdr_heur, "JSON over AC DR", "json_acdr", proto_json, HEURISTIC_ENABLE);
-	}
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_JSON, json_file_handle);
+	common_register_json();
+}
 
-	if (epan_supports_packets())
-		dissector_add_for_decode_as("udp.port", json_file_handle);
+void
+event_register_json(void)
+{
+	common_register_json();
+}
+
+
+static void common_reg_handoff_json(void)
+{
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_JSON, json_file_handle);
 
 	dissector_add_string("media_type", "application/json", json_handle); /* RFC 4627 */
 	dissector_add_string("media_type", "application/senml+json", json_handle); /* RFC 8428 */
@@ -1504,18 +1510,34 @@ proto_reg_handoff_json(void)
 	dissector_add_string("media_type", "application/json-patch+json", json_handle); /* RFC 6902 JavaScript Object Notation (JSON) Patch */
 	dissector_add_string("media_type", "application/x-ndjson", json_handle);
 	dissector_add_string("media_type", "application/3gppHal+json", json_handle);
-	if (epan_supports_packets())
-	{
-		dissector_add_string("media_type.suffix", "json", json_handle);  /* RFC 6839 */
-		dissector_add_string("grpc_message_type", "application/grpc+json", json_handle);
-		dissector_add_uint_range_with_preference("tcp.port", "", json_file_handle); /* JSON-RPC over TCP */
-		dissector_add_uint_range_with_preference("udp.port", "", json_file_handle); /* JSON-RPC over UDP */
-	}
 
 	text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_json);
-	falco_json_handle = find_dissector("falcojson");
+}
+
+void
+proto_reg_handoff_json(void)
+{
+	common_reg_handoff_json();
+	heur_dissector_add("hpfeeds", dissect_json_heur, "JSON over HPFEEDS", "json_hpfeeds", proto_json, HEURISTIC_ENABLE);
+	heur_dissector_add("db-lsp", dissect_json_heur, "JSON over DB-LSP", "json_db_lsp", proto_json, HEURISTIC_ENABLE);
+	heur_dissector_add("udp", dissect_json_acdr_heur, "JSON over AC DR", "json_acdr", proto_json, HEURISTIC_ENABLE);
+
+	dissector_add_for_decode_as("udp.port", json_file_handle);
+
+	dissector_add_string("media_type.suffix", "json", json_handle);  /* RFC 6839 */
+	dissector_add_string("grpc_message_type", "application/grpc+json", json_handle);
+	dissector_add_uint_range_with_preference("tcp.port", "", json_file_handle); /* JSON-RPC over TCP */
+	dissector_add_uint_range_with_preference("udp.port", "", json_file_handle); /* JSON-RPC over UDP */
 
 	proto_acdr = proto_get_id_by_filter_name("acdr");
+}
+
+
+void
+event_reg_handoff_json(void)
+{
+	common_reg_handoff_json();
+	falco_json_handle = find_dissector("falcojson");
 }
 
 /*

@@ -28,6 +28,7 @@
 #include "file-file.h"
 
 void proto_register_file(void);
+void event_register_file(void);
 
 static int proto_file;
 static int hf_file_record_number;
@@ -297,8 +298,8 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	return tvb_captured_length(tvb);
 }
 
-void
-proto_register_file(void)
+static void
+common_register_file(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_file_record_number,
@@ -385,6 +386,18 @@ proto_register_file(void)
 #endif
 
 	file_tap=register_tap("file");
+}
+
+void
+proto_register_file(void)
+{
+	common_register_file();
+}
+
+void
+event_register_file(void)
+{
+	common_register_file();
 }
 
 /*
