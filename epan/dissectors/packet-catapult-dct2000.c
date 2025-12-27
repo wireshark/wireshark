@@ -3179,7 +3179,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                                            tvb_get_ntohs(tvb, source_port_offset) :
                                                            0,
                                                        (dest_addr_offset) ?
-                                                         ((source_addr_length == 4) ?
+                                                         ((dest_addr_length == 4) ?
                                                               get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)) :
                                                               get_hostname6(&destv6)
                                                             ) :
