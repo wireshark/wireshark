@@ -2253,6 +2253,7 @@ set(INSTALL_DIRS
 	resources/protocols/qualcomm
 	resources/protocols/radius
 	resources/protocols/tpncp
+	resources/protocols/trdp
 	resources/protocols/wimaxasncp
 	resources/protocols/protobuf
 )
@@ -2670,6 +2671,7 @@ set(_protocol_data_dir ${CMAKE_SOURCE_DIR}/resources/protocols)
 # TODO shouldn't this use full (relative) paths instead of glob patterns?
 set(DATA_FILES_SRC
 	${_protocol_data_dir}/tpncp/tpncp.dat
+	${_protocol_data_dir}/trdp/iec_61375-2-3.xml
 	${_protocol_data_dir}/wimaxasncp/*.dtd
 	${_protocol_data_dir}/wimaxasncp/*.xml
 )

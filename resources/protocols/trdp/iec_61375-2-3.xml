@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Disclaimer: This file is part of the Wireshark TRDP dissector. It is derived work from the standard IEC 61375-2-3. It is NOT part of the standard or an official document. As of writing it has not had independent reviews. If you notice issues, please file a bug report.
+Note: Following dataset-Ids are offset to free space, plus com-id*100 + increments. There is no standard. If this conflicts with your application, disable this xml in the dissector settings.
+Author: Thorsten <thorsten.schulz@stadlerrail.com>
+SPDX-License-Identifier: GPL-2.0-or-later
+-->
+<device xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="trdp-config.xsd" host-name="irrelevant" leader-name="irrelevant" type="metro">
+	<bus-interface-list>
+		<bus-interface network-id="1" name="irrelevant" host-ip="127.0.0.1">
+			<telegram com-id="1" name="ETBCTRL" data-set-id="2000000100"/>
+			<telegram com-id="2" name="CSTINFO notification" data-set-id="2000000200"/>
+			<telegram com-id="3" name="CSTINFOCTRL notification" data-set-id="2000000300"/>
+			<telegram com-id="10" name="TRDP Echo"/>
+			<!-- there are conflicting definitions in the IEC 61375-2-3:2017 for the com-ids 30..40 (p. 121 vs p.218) here the latter is used, as it seems more specific. -->
+			<telegram com-id="30" name="TRDP: global statistics request"/>
+			<telegram com-id="31" name="TRDP: global statistics reply" data-set-id="2000003100"/>
+			<telegram com-id="32" name="TRDP: subscription statistics request"/>
+			<telegram com-id="33" name="TRDP: subscription statistics reply" data-set-id="2000003300"/>
+			<telegram com-id="34" name="TRDP: publishing statistics request"/>
+			<telegram com-id="35" name="TRDP: publishing statistics reply" data-set-id="2000003500"/>
+			<telegram com-id="36" name="TRDP: redundancy statistics request"/>
+			<telegram com-id="37" name="TRDP: redundancy statistics reply" data-set-id="2000003700"/>
+			<telegram com-id="38" name="TRDP: UDP listener statistics request"/>
+			<telegram com-id="39" name="TRDP: UDP listener statistics reply" data-set-id="2000003900"/>
+			<telegram com-id="40" name="TRDP: TCP listener statistics request"/>
+			<telegram com-id="41" name="TRDP: TCP listener statistics reply" data-set-id="2000003900"/>
+			<telegram com-id="80" name="Test: control" data-set-id="2000008000"/>
+			<telegram com-id="81" name="Test: status" data-set-id="2000008100"/>
+			<telegram com-id="82" name="Test: confirmation request" data-set-id="2000008200"/>
+			<telegram com-id="83" name="Test: confirmation reply" data-set-id="2000008300"/>
+			<telegram com-id="84" name="Test: opTrnDir request" data-set-id="2000008400"/>
+			<telegram com-id="85" name="Test: opTrnDir reply" data-set-id="2000008500"/>
+			<telegram com-id="86" name="Test: echo request"/>
+			<telegram com-id="87" name="Test: echo reply"/>
+			<telegram com-id="88" name="Test: echo notification" data-set-id="2000008800"/>
+			<telegram com-id="100" name="TTDB: operational train directory status" data-set-id="2000010000"/>
+			<telegram com-id="101" name="TTDB: operational train directory notification" data-set-id="2000010100"/>
+			<telegram com-id="102" name="TTDB: train directory information request" data-set-id="2000010200"/>
+			<telegram com-id="103" name="TTDB: train directory information reply" data-set-id="2000010300"/>
+			<telegram com-id="104" name="TTDB: consist information request" data-set-id="2000010400"/>
+			<telegram com-id="105" name="TTDB: consist information reply" data-set-id="2000010500"/>
+			<telegram com-id="106" name="TTDB: train network directory information request" data-set-id="2000010600"/>
+			<telegram com-id="107" name="TTDB: train network directory information reply" data-set-id="2000010700"/>
+			<telegram com-id="108" name="TTDB: operational train directory information request"/>
+			<telegram com-id="109" name="TTDB: operational train directory information reply" data-set-id="2000010900"/>
+			<telegram com-id="110" name="TTDB: train information complete request" data-set-id="2000011000"/>
+			<telegram com-id="111" name="TTDB: train information complete reply" data-set-id="2000011100"/>
+			<telegram com-id="120" name="ECSP: control" data-set-id="2000012000"/>
+			<telegram com-id="121" name="ECSP: status" data-set-id="2000012100"/>
+			<telegram com-id="122" name="ECSP: Confirmation/Correction request" data-set-id="2000012200"/>
+			<telegram com-id="123" name="ECSP: Confirmation/Correction reply" data-set-id="2000012300"/>
+			<telegram com-id="130" name="ETBN: control request" data-set-id="2000013000"/>
+			<telegram com-id="131" name="ETBN: status reply" data-set-id="2000013100"/>
+			<telegram com-id="132" name="ETBN: train network directory request"/>
+			<telegram com-id="133" name="ETBN: train network directory reply" data-set-id="2000013300"/>
+			<telegram com-id="140" name="TCN-DNS: resolving request (query)" data-set-id="2000014000"/>
+			<telegram com-id="141" name="TCN-DNS: resolving reply" data-set-id="2000014100"/>
+		</bus-interface>
+	</bus-interface-list>
+	<data-set-list>
+		<data-set name="CONFIRMED_VEHICLE" id="2000000101">
+			<element name="trnVehNo" type="UINT8"/>
+			<element name="isLead" type="ANTIVALENT8"/>
+			<element name="leadDir" type="UINT8"/>
+			<element name="vehOrient" type="UINT8"/>
+		</data-set>
+		<data-set name="ETBCTRL_VDP" id="2000000102">
+			<element name="reserved01" unit="hide0" type="UINT32"/>
+			<element name="reserved02" unit="hide0" type="UINT16"/>
+			<element name="userDataVersion" type="UINT16" unit="version"/>
+			<element name="safeSequCount" type="UINT32"/>
+			<element name="safetyCode" type="UINT32"/>
+		</data-set>
+		<data-set name="ETBCTRL_TELEGRAM" id="2000000100">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+			<element name="trnCstNo" type="UINT8"/>
+			<element name="reserved02" unit="hide0" type="UINT8"/>
+			<element name="ownOpCstNo" type="UINT8"/>
+			<element name="reserved03" unit="hide0" type="UINT8"/>
+			<element name="cstTopoCnt" type="UINT32"/>
+			<element name="trnTopoCnt" type="UINT32"/>
+			<element name="opTrnTopoCnt" type="UINT32"/>
+			<element name="wasLead" type="ANTIVALENT8"/>
+			<element name="reqLead" type="ANTIVALENT8"/>
+			<element name="reqLeadDir" type="UINT8"/>
+			<element name="accLead" type="ANTIVALENT8"/>
+			<element name="isLead" type="ANTIVALENT8"/>
+			<element name="clearConfComp" type="ANTIVALENT8"/>
+			<element name="corrRequest" type="ANTIVALENT8"/>
+			<element name="corrInfoSet" type="ANTIVALENT8"/>
+			<element name="compStored" type="ANTIVALENT8"/>
+			<element name="sleepRequest" type="ANTIVALENT8"/>
+			<element name="leadVehOfCst" type="UINT8"/>
+			<element name="reserved04" unit="hide0" type="UINT8"/>
+			<element name="reserved05" unit="hide0" type="UINT16"/>
+			<element name="reserved06" unit="hide0" type="UINT8"/>
+			<element name="confVehCnt" type="UINT8"/>
+			<element name="confVehList" type="2000000101" array-size="0"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+		<data-set name="ETB_INFO" id="2000010503">
+			<element name="etbId" type="UINT8"/>
+			<element name="cnCnt" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+		</data-set>
+		<data-set name="CLTR_CST_INFO" id="2000010506">
+			<element name="cltrCstUUID" type="UUID"/>
+			<element name="cltrCstOrient" type="UINT8"/>
+			<element name="cltrCstNo" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+		</data-set>
+		<data-set name="PROPERTIES" id="2000010502">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="len" type="UINT16"/>
+			<element name="prop" type="UINT8" array-size="0"/>
+		</data-set>
+		<data-set name="FUNCTION_INFO" id="2000010505">
+			<element name="fctName" type="CHAR8" array-size="16"/>
+			<element name="fctId" type="UINT16"/>
+			<element name="grp" type="BOOL8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="cstVehNo" type="UINT8"/>
+			<element name="etbId" type="UINT8"/>
+			<element name="cnId" type="UINT8"/>
+			<element name="reserved02" unit="hide0" type="UINT8"/>
+		</data-set>
+		<data-set name="VEHICLE_INFO" id="2000010504">
+			<element name="vehId" type="CHAR8" array-size="16"/>
+			<element name="vehType" type="CHAR8" array-size="16"/>
+			<element name="vehOrient" type="UINT8"/>
+			<element name="cstVehNo" type="UINT8"/>
+			<element name="tractVeh" type="ANTIVALENT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="vehProp" type="2000010502"/>
+		</data-set>
+		<data-set name="CONSIST_INFO" id="2000010501">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="cstClass" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="cstId" type="CHAR8" array-size="16"/>
+			<element name="cstType" type="CHAR8" array-size="16"/>
+			<element name="cstOwner" type="CHAR8" array-size="16"/>
+			<element name="cstUUID" type="UUID"/>
+			<element name="reserved02" unit="hide0" type="UINT32"/>
+			<element name="cstProp" type="2000010502"/>
+			<element name="reserved03" unit="hide0" type="UINT16"/>
+			<element name="etbCnt" type="UINT16"/>
+			<element name="etbInfoList" type="2000010503" array-size="0"/>
+			<element name="reserved04" unit="hide0" type="UINT16"/>
+			<element name="vehCnt" type="UINT16"/>
+			<element name="vehInfoList" type="2000010504" array-size="0"/>
+			<element name="reserved05" unit="hide0" type="UINT16"/>
+			<element name="fctCnt" type="UINT16"/>
+			<element name="fctInfoList" type="2000010505" array-size="0"/>
+			<element name="reserved06" unit="hide0" type="UINT16"/>
+			<element name="cltrCstCnt" type="UINT16"/>
+			<element name="cltrCstInfoList" type="2000010506" array-size="0"/>
+			<element name="cstTopoCnt" type="UINT32"/>
+		</data-set>
+		<data-set name="CONSIST_INFO_LIST" id="2000010508">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="cstInfoCnt" type="UINT16"/>
+			<element name="cstInfoList" type="2000010501" array-size="0"/>
+		</data-set>
+		<data-set name="CSTINFO" id="2000000200">
+			<element name="cstInfo" type="2000010501"/>
+		</data-set>
+		<data-set name="CSTINFOCTRL" id="2000000300">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="trnCstNo" type="UINT8"/>
+			<element name="cstCnt" type="UINT8"/>
+			<element name="cstList" type="2000011103" array-size="0"/>
+			<element name="trnTopoCnt" type="UINT32"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+		<data-set name="CONSIST" id="2000011103">
+			<element name="cstUUID" type="UUID"/>
+			<element name="cstTopoCnt" type="UINT32"/>
+			<element name="trnCstNo" type="UINT8"/>
+			<element name="cstOrient" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+		</data-set>
+		<data-set name="TRAIN_DIRECTORY" id="2000011102">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="etbId" type="UINT8"/>
+			<element name="cstCnt" type="UINT8"/>
+			<element name="cstList" type="2000011103" array-size="0"/>
+			<element name="trnTopoCnt" type="UINT32"/>
+		</data-set>
+		<data-set name="OP_VEHICLE" id="2000010903">
+			<element name="vehId" type="CHAR8" array-size="16"/>
+			<element name="opVehNo" type="UINT8"/>
+			<element name="isLead" type="ANTIVALENT8"/>
+			<element name="leadDir" type="UINT8"/>
+			<element name="trnVehNo" type="UINT8"/>
+			<element name="vehOrient" type="UINT8"/>
+			<element name="ownOpCstNo" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="reserved02" unit="hide0" type="UINT8"/>
+		</data-set>
+		<data-set name="OP_CONSIST" id="2000010902">
+			<element name="cstUUID" type="UUID"/>
+			<element name="opCstNo" type="UINT8"/>
+			<element name="opCstOrient" type="UINT8"/>
+			<element name="trnCstNo" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+		</data-set>
+		<data-set name="OP_TRAIN_DIRECTORY_STATE" id="2000011101">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="reserved02" unit="hide0" type="UINT8"/>
+			<element name="etbId" type="UINT8"/>
+			<element name="trnDirState" type="UINT8"/>
+			<element name="opTrnDirState" type="UINT8"/>
+			<element name="reserved03" unit="hide0" type="UINT8"/>
+			<element name="trnId" type="CHAR8" array-size="16"/>
+			<element name="trnOperator" type="CHAR8" array-size="16"/>
+			<element name="opTrnTopoCnt" type="UINT32"/>
+			<element name="crc" type="UINT32"/>
+		</data-set>
+		<data-set name="OP_TRAIN_DIRECTORY" id="2000010901">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="etbId" type="UINT8"/>
+			<element name="opTrnOrient" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="reserved02" unit="hide0" type="UINT8"/>
+			<element name="reserved03" unit="hide0" type="UINT8"/>
+			<element name="opCstCnt" type="UINT8"/>
+			<element name="opCstList" type="2000010902" array-size="0"/>
+			<element name="reserved04" unit="hide0" type="UINT8"/>
+			<element name="reserved05" unit="hide0" type="UINT8"/>
+			<element name="reserved06" unit="hide0" type="UINT8"/>
+			<element name="opVehCnt" type="UINT8"/>
+			<element name="opVehList" type="2000010903" array-size="0"/>
+			<element name="opTrnTopoCnt" type="UINT32"/>
+		</data-set>
+		<data-set name="TRAIN_NETWORK_DIRECTORY_ENTRY" id="2000010702">
+			<element name="cstUUID" type="UUID"/>
+			<element name="cstNetProp" type="UINT32"/>
+		</data-set>
+		<data-set name="TRAIN_NETWORK_DIRECTORY" id="2000010701">
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+			<element name="entryCnt" type="UINT16"/>
+			<element name="trnNetDir" type="2000010702" array-size="0"/>
+			<element name="etbTopoCnt" type="UINT32"/>
+		</data-set>
+		<data-set name="TTDB_OP_TRAIN_DIRECTORY_STATUS_INFO" id="2000010000">
+			<element name="state" type="2000011101"/>
+			<element name="etbTopoCnt" type="UINT32"/>
+			<element name="ownOpCstNo" type="UINT8"/>
+			<element name="ownTrnCstNo" type="UINT8"/>
+			<element name="reserved02" unit="hide0" type="UINT16"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+		<data-set name="TTDB_OP_TRAIN_DIRECTORY_INFO" id="2000010100">
+			<element name="opTrnDir" type="2000010901"/>
+		</data-set>
+		<data-set name="TTDB_TRAIN_DIRECTORY_INFO_REQUEST" id="2000010200">
+			<element name="etbId" type="UINT8"/>
+		</data-set>
+		<data-set name="TTDB_TRAIN_DIRECTORY_INFO_REPLY" id="2000010300">
+			<element name="trnDir" type="2000011102"/>
+		</data-set>
+		<data-set name="TTDB_STATIC_CONSIST_INFO_REQUEST" id="2000010400">
+			<element name="cstUUID" type="UUID"/>
+		</data-set>
+		<data-set name="TTDB_STATIC_CONSIST_INFO_REPLY" id="2000010500">
+			<element name="cstInfo" type="2000010501"/>
+		</data-set>
+		<data-set name="TTDB_TRAIN_NETWORK_DIRECTORY_INFO_REQUEST" id="2000010600">
+			<element name="etbId" type="UINT8"/>
+		</data-set>
+		<data-set name="TTDB_TRAIN_NETWORK_DIRECTORY_INFO_REPLY" id="2000010700">
+			<element name="trnNetDir" type="2000010701"/>
+		</data-set>
+		<data-set name="TTDB_OP_TRAIN_DIRECTORY_INFO_REPLY" id="2000010900">
+			<element name="opTrnDir" type="2000010901"/>
+		</data-set>
+		<data-set name="TTDB_READ_COMPLETE_REQUEST" id="2000011000">
+			<element name="etbId" type="UINT8"/>
+		</data-set>
+		<data-set name="TTDB_READ_COMPLETE_REPLY" id="2000011100">
+			<element name="state" type="2000011101"/>
+			<element name="opTrnDir" type="2000010901"/>
+			<element name="trnDir" type="2000011102"/>
+			<element name="trnNetDir" type="2000010701"/>
+		</data-set>
+		<data-set name="TRDP_MEM_STATISTICS_T" id="2000003103">
+			<element name="total" type="UINT32"/>
+			<element name="free" type="UINT32"/>
+			<element name="minFree" type="UINT32"/>
+			<element name="allocBlocks" type="UINT32"/>
+			<element name="allocErr" type="UINT32"/>
+			<element name="freeErr" type="UINT32"/>
+			<element name="blockSize" type="UINT32" array-size="15" unit="b"/>
+			<element name="usedBlockSize" type="UINT32" array-size="15"/>
+		</data-set>
+		<data-set name="TRDP_PD_STATISTICS_T" id="2000003102">
+			<element name="defQos" type="UINT32"/>
+			<element name="defTtl" type="UINT32"/>
+			<element name="defTimeout" type="UINT32" unit="s" scale="0.001"/>
+			<element name="numSubs" type="UINT32"/>
+			<element name="numPub" type="UINT32"/>
+			<element name="numRecv" type="UINT32"/>
+			<element name="numCrcErr" type="UINT32"/>
+			<element name="numProtErr" type="UINT32"/>
+			<element name="numTopoErr" type="UINT32"/>
+			<element name="numNoSubs" type="UINT32"/>
+			<element name="numNoPub" type="UINT32"/>
+			<element name="numTimeout" type="UINT32"/>
+			<element name="numSend" type="UINT32"/>
+		</data-set>
+		<data-set name="TRDP_MD_STATISTICS_T" id="2000003101">
+			<element name="defQos" type="UINT32"/>
+			<element name="defTtl" type="UINT32"/>
+			<element name="defReplyTimeout" type="UINT32" unit="s" scale="0.001"/>
+			<element name="defConfirmTimeout" type="UINT32" unit="s" scale="0.001"/>
+			<element name="numList" type="UINT32"/>
+			<element name="numRecv" type="UINT32"/>
+			<element name="numCrcErr" type="UINT32"/>
+			<element name="numProtErr" type="UINT32"/>
+			<element name="numTopoErr" type="UINT32"/>
+			<element name="numNoListener" type="UINT32"/>
+			<element name="numReplyTimeout" type="UINT32"/>
+			<element name="numConfirmTimeout" type="UINT32"/>
+			<element name="numSend" type="UINT32"/>
+		</data-set>
+		<data-set name="TRDP_STATISTICS_T" id="2000003100">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="timestamp" type="UINT64" unit="s"/>
+			<element name="uptime" type="UINT32" unit="s"/>
+			<element name="statisticTime" type="UINT32" unit="s"/>
+			<element name="hostname" type="CHAR8" array-size="16"/>
+			<element name="leaderName" type="CHAR8" array-size="16"/>
+			<element name="ownIpAddr" type="UINT32" unit="IPv4"/>
+			<element name="leaderIpAddr" type="UINT32" unit="IPv4"/>
+			<element name="processPrio" type="UINT32"/>
+			<element name="processCycle" type="UINT32" unit="s" scale="0.000001"/>
+			<element name="numJoin" type="UINT32"/>
+			<element name="numRed" type="UINT32"/>
+			<element name="mem" type="2000003103"/>
+			<element name="pd" type="2000003102"/>
+			<element name="udpMd" type="2000003101"/>
+			<element name="tcpMd" type="2000003101"/>
+		</data-set>
+		<data-set name="TRDP_SUBS_STATISTICS_T" id="2000003300">
+			<element name="comId" type="UINT32"/>
+			<element name="joinedAddr" type="UINT32" unit="IPv4"/>
+			<element name="filterAddr" type="UINT32" unit="IPv4"/>
+			<element name="callBack" type="UINT32"/>
+			<element name="timeout" type="UINT32" unit="s" scale="0.000001"/>
+			<element name="status" type="UINT32"/>
+			<element name="toBehav" type="UINT32"/>
+			<element name="numRecv" type="UINT32"/>
+		</data-set>
+		<data-set name="TRDP_PUB_STATISTICS_T" id="2000003500">
+			<element name="comId" type="UINT32"/>
+			<element name="destAddr" type="UINT32" unit="IPv4"/>
+			<element name="cycle" type="UINT32" unit="s" scale="0.000001"/>
+			<element name="redId" type="UINT32"/>
+			<element name="redState" type="UINT32"/>
+			<element name="numPut" type="UINT32"/>
+			<element name="numSend" type="UINT32"/>
+		</data-set>
+		<data-set name="TRDP_RED_STATISTICS_T" id="2000003700">
+			<element name="id" type="UINT32"/>
+			<element name="state" type="UINT32"/>
+		</data-set>
+		<data-set name="TRDP_LIST_STATISTICS_T" id="2000003900">
+			<element name="comId" type="UINT32"/>
+			<element name="uri" type="CHAR8" array-size="32"/>
+			<element name="joinedAddr" type="UINT32" unit="IPv4"/>
+			<element name="callback" type="UINT32"/>
+			<element name="queue" type="UINT32"/>
+			<element name="userRef" type="UINT32"/>
+			<element name="numRecv" type="UINT32"/>
+		</data-set>
+		<data-set name="CONFTEST_CTRL" id="2000008000">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+			<element name="inhibit" type="BITSET8" bits="inhibitRequest"/>
+			<element name="leadingReq" type="BOOL8"/>
+			<element name="leadingDir" type="BITSET8" bits="dir1,dir2"/>
+			<element name="reserved02" unit="hide0" type="UINT8"/>
+			<element name="sleepReq" type="BITSET8" bits="sleepRequest"/>
+			<element name="reserved03" unit="hide0" type="UINT8"/>
+			<element name="reserved04" unit="hide0" type="UINT16"/>
+		</data-set>
+		<data-set name="CONFTEST_STATUS" id="2000008100">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="status" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+		</data-set>
+		<data-set name="CONFTEST_CONF_REQUEST" id="2000008200">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="command" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+			<element name="reserved02" unit="hide0" type="UINT16"/>
+			<element name="reserved03" unit="hide0" type="UINT8"/>
+			<element name="confVehCnt" type="UINT16"/>
+			<element name="confVehList" type="2000010903"/>
+		</data-set>
+		<data-set name="CONFTEST_CONF_REPLY" id="2000008300">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="status" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+		</data-set>
+		<data-set name="CONFTEST_OPTRAIN_REQUEST" id="2000008400">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="command" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+		</data-set>
+		<data-set name="CONFTEST_OPTRAIN_REPLY" id="2000008500">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+			<element name="opTrnDir" type="2000010901"/>
+		</data-set>
+		<data-set name="CONFTEST_MDTRIG_MD" id="2000008800">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="protocol" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="destIpAddr" type="UINT32" unit="IPv4"/>
+			<element name="uri" type="CHAR8" array-size="128"/>
+		</data-set>
+		<data-set name="ECSP_CTRL" id="2000012000">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="leadVehOfCst" type="UINT8"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+			<element name="inhibit" type="BOOL8"/>
+			<element name="leadingReq" type="BOOL8"/>
+			<element name="leadingDir" type="BITSET8" bits="leadingReqDir1,leadingReqDir2"/>
+			<element name="sleepReq" type="BOOL8"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+		<data-set name="ECSP_STATUS" id="2000012100">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+			<element name="lifesign" type="UINT16"/>
+			<element name="ecspState" type="BITSET8" bits="inOperation"/>
+			<element name="etbInhibit" type="UINT8"/>
+			<element name="etbLength" type="BITSET8" bits="lengtheningDetected"/>
+			<element name="etbShort" type="BITSET8" bits="shorteningDetected"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+			<element name="etbLeadState" type="UINT8"/>
+			<element name="etbLeadDir" type="BITSET8" bits="TCNDir1,TCNDir2"/>
+			<element name="ttdbSrvState" type="BITSET8" bits="Leader,Follower"/>
+			<element name="dnsSrvState" type="BITSET8" bits="Leader,Follower"/>
+			<element name="trnDirState" type="BITSET8" bits="Confirmed"/>
+			<element name="opTrnDirState" type="BITSET8" bits="INVALID,VALID,SHARED"/>
+			<element name="sleepCtrlState" type="UINT8"/>
+			<element name="sleepReqCnt" type="UINT8"/>
+			<element name="opTrnTopoCnt" type="UINT32"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+		<data-set name="ECSP_CONF_REQUEST" id="2000012200">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="command" type="BITSET8" bits="ConfirmationCorrection,Unconfirmation"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+			<element name="opTrnTopoCnt" type="UINT32"/>
+			<element name="reserved02" unit="hide0" type="UINT16"/>
+			<element name="confVehCnt" type="UINT16"/>
+			<element name="confVehList" type="2000010903"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+		<data-set name="ECSP_CONF_REPLY" id="2000012300">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="status" type="UINT8"/>
+			<element name="reserved01" unit="hide0" type="UINT8"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+			<element name="reqSafetyCode" type="UINT32"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+		<data-set name="ETBN_CTRL" id="2000013000">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+			<element name="inhibit" type="BITSET8" bits="noInhibitRequest,inhibitRequest"/>
+			<element name="byPassCtrl" type="BITSET8" bits="noBypass,activateBypass"/>
+			<element name="txCtrl" type="BITSET8" bits="activateSendingOnETB,stopSendingOnETB"/>
+			<element name="slCtrl" type="BITSET8" bits="wakeUp,sleep"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+		<data-set name="ETBN_STATUS" id="2000013100">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+			<element name="etbnState" type="BITSET8" bits="inOperation"/>
+			<element name="etbnInaugState" type="UINT8"/>
+			<element name="etbnPosition" type="UINT8"/>
+			<element name="etbnRole" type="UINT8"/>
+			<element name="etbInhibit" type="UINT8"/>
+			<element name="etbLength" type="BITSET8" bits="lengtheningDetected"/>
+			<element name="etbShort" type="BITSET8" bits="shorteningDetected"/>
+			<element name="etbLineState" type="BITSET8" bits="line A dir 1,line B dir 1,line C dir 1,line D dir 1,line A dir 2,line B dir 2,line C dir 2,line D dir 2"/>
+			<element name="byPassState" type="BITSET8" bits="activeBypass"/>
+			<element name="slState" type="BITSET8" bits="sleeping"/>
+			<element name="reserved02" unit="hide0" type="UINT16"/>
+			<element name="etbTopoCnt" type="UINT32"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+		<data-set name="ETBN_TRAIN_NETWORK_DIRECTORY_INFO_REPLY" id="2000013300">
+			<element name="trnNetDir" type="2000010701"/>
+		</data-set>
+		<data-set name="TCN_URI" id="2000014001">
+			<element name="tcnUriStr" type="CHAR8" array-size="80"/>
+			<element name="reserved01" unit="hide0" type="INT16"/>
+			<element name="resolvState" type="INT16"/>
+			<element name="tcnUriIpAddr" type="UINT32" unit="IPv4"/>
+			<element name="tcnUriIpAddr2" type="UINT32" unit="IPv4"/>
+		</data-set>
+		<data-set name="DNS_REQUEST" id="2000014000">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="reserved01" unit="hide0" type="INT16"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+			<element name="trnTopoCnt" type="UINT32"/>
+			<element name="opTrnTopoCnt" type="UINT32"/>
+			<element name="etbId" type="UINT8"/>
+			<element name="reserved02" unit="hide0" type="UINT8"/>
+			<element name="reserved03" unit="hide0" type="UINT8"/>
+			<element name="tcnUriCnt" type="UINT8"/>
+			<element name="tcnUriList" type="2000014001" array-size="0"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+		<data-set name="DNS_REPLY" id="2000014100">
+			<element name="version" type="UINT16" unit="version"/>
+			<element name="reserved01" unit="hide0" type="UINT16"/>
+			<element name="deviceName" type="CHAR8" array-size="16"/>
+			<element name="trnTopoCnt" type="UINT32"/>
+			<element name="opTrnTopoCnt" type="UINT32"/>
+			<element name="etbId" type="UINT8"/>
+			<element name="replyStatus" type="INT8"/>
+			<element name="reserved02" unit="hide0" type="UINT8"/>
+			<element name="tcnUriCnt" type="UINT8"/>
+			<element name="tcnUriList" type="2000014001" array-size="0"/>
+			<element name="safetyTrail" type="2000000102"/>
+		</data-set>
+	</data-set-list>
+</device>

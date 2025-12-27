@@ -975,6 +975,12 @@ File "${STAGING_DIR}\qualcomm\logcode_lte.xml"
 File "${STAGING_DIR}\qualcomm\logcode_nr.xml"
 File "${STAGING_DIR}\qualcomm\logcode_umts.xml"
 File "${STAGING_DIR}\qualcomm\logcode_wcdma.xml"
+
+; install the trdp XML com-id and dataset base definitions in the trdp subdirectory
+;
+SetOutPath $INSTDIR\trdp
+File "${STAGING_DIR}\trdp\iec_61375-2-3.xml"
+
 SetOutPath $INSTDIR
 
 ; Write the installation path into the registry for InstallDirRegKey
@@ -1445,6 +1451,7 @@ Delete "$INSTDIR\protobuf\*.*"
 Delete "$INSTDIR\tls\*.*"
 Delete "$INSTDIR\tpncp\*.*"
 Delete "$INSTDIR\translations\*.*"
+Delete "$INSTDIR\trdp\*.*"
 Delete "$INSTDIR\ui\*.*"
 Delete "$INSTDIR\wimaxasncp\*.*"
 Delete "$INSTDIR\ws.css"
@@ -1500,6 +1507,7 @@ RMDir "$INSTDIR\qualcomm"
 RMDir "$INSTDIR\tls"
 RMDir "$INSTDIR\tpncp"
 RMDir "$INSTDIR\translations"
+RMDir "$INSTDIR\trdp"
 RMDir "$INSTDIR\ui"
 RMDir "$INSTDIR\wimaxasncp"
 RMDir "$INSTDIR"

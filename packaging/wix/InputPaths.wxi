@@ -14,6 +14,7 @@
   <?define WiresharkQt.Dir ="$(var.Staging.Dir)" ?>
   <?define Dtds.Dir ="$(var.Staging.Dir)\dtds" ?>
   <?define Tpncp.Dir ="$(var.Staging.Dir)\tpncp" ?>
+  <?define Trdp.Dir ="$(var.Staging.Dir)\trdp" ?>
   <?define Wimaxasncp.Dir ="$(var.Staging.Dir)\wimaxasncp" ?>
   <?define Protobuf.Dir ="$(var.Staging.Dir)\protobuf" ?>
   <?define Help.Dir ="$(var.Staging.Dir)\help" ?>

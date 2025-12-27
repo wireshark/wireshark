@@ -187,6 +187,20 @@
         </ComponentGroup>
     </Fragment>
 
+  <!-- TRDP XML file -->
+    <Fragment>
+        <DirectoryRef Id="dirTrdp">
+            <Component Id="cmpTrdp_base_xml" Guid="*">
+                <File Id="filTrdp_base_xml" KeyPath="yes" Source="$(var.Trdp.Dir)\iec_61375-2-3.xml" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="CG.Trdp">
+            <ComponentRef Id="cmpTrdp_base_xml" />
+        </ComponentGroup>
+    </Fragment>
+
   <!-- wimaxasncp TLV definitions -->
     <Fragment>
       <DirectoryRef Id="dirWimaxasncp">
