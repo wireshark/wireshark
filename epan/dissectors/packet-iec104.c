@@ -455,7 +455,7 @@ static const td_asdu_length asdu_length [] = {
 	{  F_SC_NA_1,	 4 },
 	{  F_LS_NA_1,	 5 },
 	{  F_AF_NA_1,	 4 },
-	{  F_SG_NA_1,	 0 },
+	{  F_SG_NA_1,	 4 },
 	{  F_DR_TA_1,	13 },
 	{  F_SC_NB_1,	16 },
 	{ 0, 0 }
@@ -656,6 +656,71 @@ static const value_string qrp_r_types[] = {
 	{ 0, NULL }
 };
 
+static const value_string frq_qualifier[] = {
+	{ 0,		"Default" },
+	{ 0, NULL }
+};
+
+static const value_string srq_qualifier[] = {
+	{ 0,		"Default" },
+	{ 0, NULL }
+};
+
+static const value_string scq_select[] = {
+	{ 0,		"Default" },
+	{ 1,		"Select file" },
+	{ 2,		"Request file" },
+	{ 3,		"Deactivate file" },
+	{ 4,		"Delete file" },
+	{ 5,		"Select section" },
+	{ 6,		"Request section" },
+	{ 7,		"deactivate section" },
+	{ 0, NULL }
+};
+
+static const value_string scq_qualifier[] = {
+	{ 0,		"Default" },
+	{ 1,		"Requested memory space not available" },
+	{ 2,		"Checksum failed" },
+	{ 3,		"Unexpected communication service" },
+	{ 4,		"Unexpected name of file" },
+	{ 5,		"Unexpected name of section" },
+	{ 0, NULL }
+};
+
+static const value_string lsq_qualifier[] = {
+	{ 0,		"Not used" },
+	{ 1,		"File transfer without deactivation" },
+	{ 2,		"File transfer with deactivation" },
+	{ 3,		"Section transfer without deactivation" },
+	{ 4,		"Section transfer with deactivation" },
+	{ 0, NULL }
+};
+
+static const value_string afq_ack[] = {
+	{ 0,		"Not used" },
+	{ 1,		"Positive acknowledge of file transfer" },
+	{ 2,		"Negative acknowledge of file transfer" },
+	{ 3,		"Positive acknowledge of section transfer" },
+	{ 4,		"Negative acknowledge of section transfer" },
+	{ 0, NULL }
+};
+
+static const value_string afq_qualifier[] = {
+	{ 0,		"Default" },
+	{ 1,		"Requested memory space not available" },
+	{ 2,		"Checksum failed" },
+	{ 3,		"Unexpected communication service" },
+	{ 4,		"Unexpected name of file" },
+	{ 5,		"Unexpected name of section" },
+	{ 0, NULL }
+};
+
+static const value_string sof_status[] = {
+	{ 0,		"Default" },
+	{ 0, NULL }
+};
+
 static const range_string usr_types[] = {
 	{ 0,	0,	"(Unknown)" },
 	{ 1,	1,	"Default" },
@@ -732,6 +797,11 @@ static const true_false_string tfs_select_execute = { "Select", "Execute" };
 static const true_false_string tfs_summer_standard_time = { "Summer time", "Standard time" };
 static const true_false_string tfs_coi_i = { "Initialisation after change of local parameters", "Initialisation with unchanged local parameters" };
 static const true_false_string tfs_adjusted_not_adjusted = { "Adjusted", "Not Adjusted" };
+static const true_false_string tfs_negative_positive = { "Negative", "Positive" };
+static const true_false_string tfs_not_ready_ready = { "Not ready", "Ready" };
+static const true_false_string tfs_last_file_additional_follows = { "Last file", "Additional file follows" };
+static const true_false_string tfs_subdir_file = { "Subdirectory", "File" };
+static const true_false_string tfs_active_waits = { "Transfer active", "Waits for transfer" };
 
 static int global_iec60870_link_addr_len = 1;
 static int global_iec60870_cot_len = 1;
@@ -771,6 +841,8 @@ static int hf_cp56time_day;
 static int hf_cp56time_dow;
 static int hf_cp56time_month;
 static int hf_cp56time_year;
+static int hf_range_start_cp56time;
+static int hf_range_stop_cp56time;
 static int hf_siq;
 static int hf_siq_spi;
 static int hf_siq_bl;
@@ -811,6 +883,30 @@ static int hf_qpm;
 static int hf_qpm_kpa;
 static int hf_qpm_lpc;
 static int hf_qpm_pop;
+static int hf_nof;
+static int hf_lof;
+static int hf_frq;
+static int hf_frq_qualifier;
+static int hf_frq_confirm;
+static int hf_nos;
+static int hf_srq;
+static int hf_srq_qualifier;
+static int hf_srq_ready;
+static int hf_scq;
+static int hf_scq_select;
+static int hf_scq_qualifier;
+static int hf_lsq;
+static int hf_chs;
+static int hf_afq;
+static int hf_afq_ack;
+static int hf_afq_qualifier;
+static int hf_los;
+static int hf_segment_data;
+static int hf_sof;
+static int hf_sof_status;
+static int hf_sof_lfd;
+static int hf_sof_for;
+static int hf_sof_fa;
 static int hf_asn;
 static int hf_usr;
 static int hf_iec60870_segment_data;
@@ -878,6 +974,11 @@ static int ett_sco;
 static int ett_dco;
 static int ett_rco;
 static int ett_qpm;
+static int ett_frq;
+static int ett_srq;
+static int ett_scq;
+static int ett_afq;
+static int ett_sof;
 static int ett_coi;
 static int ett_qcc;
 static int ett_cp24time;
@@ -1312,7 +1413,7 @@ static void get_CP32TimeA(tvbuff_t *tvb, uint8_t *offset, proto_tree *tree)
    Dissects the CP56Time2a time (Seven octet binary time)
    that starts 'offset' bytes in 'tvb'.
    ==================================================================== */
-static void get_CP56Time(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
+static void decode_CP56Time(tvbuff_t *tvb, uint8_t *offset, int hfindex, proto_tree *iec104_header_tree)
 {
 	uint16_t ms;
 	uint8_t value;
@@ -1361,7 +1462,7 @@ static void get_CP56Time(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_head
 
 	(*offset) -= 7;
 
-	ti = proto_tree_add_time(iec104_header_tree, hf_cp56time, tvb, *offset, 7, &datetime);
+	ti = proto_tree_add_time(iec104_header_tree, hfindex, tvb, *offset, 7, &datetime);
 	cp56time_tree = proto_item_add_subtree(ti, ett_cp56time);
 
 	proto_tree_add_item(cp56time_tree, hf_cp56time_ms, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -1385,6 +1486,21 @@ static void get_CP56Time(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_head
 
 	proto_tree_add_item(cp56time_tree, hf_cp56time_year, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 	(*offset) ++;
+}
+
+static void get_CP56Time(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	decode_CP56Time(tvb, offset, hf_cp56time, iec104_header_tree);
+}
+
+static void get_RangeStartCP56Time(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	decode_CP56Time(tvb, offset, hf_range_start_cp56time, iec104_header_tree);
+}
+
+static void get_RangeStopCP56Time(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	decode_CP56Time(tvb, offset, hf_range_stop_cp56time, iec104_header_tree);
 }
 
 /* ====================================================================
@@ -1727,6 +1843,160 @@ static void get_QPM(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tr
 	proto_tree_add_item(qpm_tree, hf_qpm_kpa, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(qpm_tree, hf_qpm_lpc, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(qpm_tree, hf_qpm_pop, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+    NOF: 7.2.6.33 Name of file
+   ==================================================================== */
+static void get_NOF(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_nof, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+	(*offset) += 2;
+}
+
+/* ====================================================================
+    LOF: 7.2.6.35 Length of file
+   ==================================================================== */
+static void get_LOF(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_lof, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+	(*offset) += 3;
+}
+
+/* ====================================================================
+    FRQ: 7.2.6.28 File request qualifier
+   ==================================================================== */
+static void get_FRQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* frq_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_frq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	frq_tree = proto_item_add_subtree(ti, ett_frq);
+
+	proto_tree_add_item(frq_tree, hf_frq_confirm, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(frq_tree, hf_frq_qualifier, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+    NOS: 7.2.6.34 Name of section
+   ==================================================================== */
+static void get_NOS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_nos, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset) ++;
+}
+
+/* ====================================================================
+    SRQ: 7.2.6.29 Section ready qualifier
+   ==================================================================== */
+static void get_SRQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* srq_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_srq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	srq_tree = proto_item_add_subtree(ti, ett_srq);
+
+	proto_tree_add_item(srq_tree, hf_srq_ready, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(srq_tree, hf_srq_qualifier, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+    SCQ: 7.2.6.30 Select and call qualifier
+   ==================================================================== */
+static void get_SCQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* scq_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_scq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	scq_tree = proto_item_add_subtree(ti, ett_scq);
+
+	proto_tree_add_item(scq_tree, hf_scq_select, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(scq_tree, hf_scq_qualifier, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+    LSQ: 7.2.6.31 Last section or segment qualifier
+   ==================================================================== */
+static void get_LSQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_lsq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset)++;
+}
+
+/* ====================================================================
+    CHS: 7.2.6.37 Checksum
+   ==================================================================== */
+static void get_CHS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_chs, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset)++;
+}
+
+/* ====================================================================
+    AFQ: 7.2.6.32 Acknowledge file or section qualifier
+   ==================================================================== */
+static void get_AFQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* afq_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_afq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	afq_tree = proto_item_add_subtree(ti, ett_afq);
+
+	proto_tree_add_item(afq_tree, hf_afq_ack, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(afq_tree, hf_afq_qualifier, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+    LOF: 7.2.6.35 Length of file
+   ==================================================================== */
+static uint8_t get_LOS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	uint8_t value = tvb_get_uint8(tvb, *offset);
+
+	proto_tree_add_item(iec104_header_tree, hf_los, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+	return value;
+}
+
+/* ====================================================================
+    Segment data
+   ==================================================================== */
+static void get_SEG(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree, int length)
+{
+	proto_tree_add_item(iec104_header_tree, hf_segment_data, tvb, *offset, length, ENC_NA);
+	(*offset) += length;
+}
+
+/* ====================================================================
+    SOF: 7.2.6.38 Status of file
+   ==================================================================== */
+static void get_SOF(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* sof_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_sof, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	sof_tree = proto_item_add_subtree(ti, ett_sof);
+
+	proto_tree_add_item(sof_tree, hf_sof_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sof_tree, hf_sof_lfd, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sof_tree, hf_sof_for, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sof_tree, hf_sof_fa, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
 	(*offset)++;
 }
@@ -2233,6 +2503,7 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	uint8_t offset = 0;  /* byte offset, signal dissection */
 	uint8_t i;
+	uint8_t seg_len;
 	uint32_t asdu_info_obj_addr = 0;
 	proto_item * itSignal = NULL;
 	proto_tree * trSignal;
@@ -2373,6 +2644,14 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		case P_ME_NA_1:
 		case P_ME_NB_1:
 		case P_ME_NC_1:
+		case F_FR_NA_1:
+		case F_SR_NA_1:
+		case F_SC_NA_1:
+		case F_LS_NA_1:
+		case F_AF_NA_1:
+		case F_SG_NA_1:
+		case F_DR_TA_1:
+		case F_SC_NB_1:
 
 			/* -- object values */
 			for(i = 0; i < asduh.NumIx; i++)
@@ -2619,6 +2898,50 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				case P_ME_NC_1: /* 112   Parameter of measured value, short floating-point number */
 					get_FLT(tvb, &offset, trSignal);
 					get_QPM(tvb, &offset, trSignal);
+					break;
+				case F_FR_NA_1: /* 120   File ready */
+					get_NOF(tvb, &offset, trSignal);
+					get_LOF(tvb, &offset, trSignal);
+					get_FRQ(tvb, &offset, trSignal);
+					break;
+				case F_SR_NA_1: /* 121   Section ready */
+					get_NOF(tvb, &offset, trSignal);
+					get_NOS(tvb, &offset, trSignal);
+					get_LOF(tvb, &offset, trSignal);
+					get_SRQ(tvb, &offset, trSignal);
+					break;
+				case F_SC_NA_1: /* 122   Call directory, select file, call file, call section */
+					get_NOF(tvb, &offset, trSignal);
+					get_NOS(tvb, &offset, trSignal);
+					get_SCQ(tvb, &offset, trSignal);
+					break;
+				case F_LS_NA_1: /* 123   Last section, last segment */
+					get_NOF(tvb, &offset, trSignal);
+					get_NOS(tvb, &offset, trSignal);
+					get_LSQ(tvb, &offset, trSignal);
+					get_CHS(tvb, &offset, trSignal);
+					break;
+				case F_AF_NA_1: /* 124   Ack file, ack section */
+					get_NOF(tvb, &offset, trSignal);
+					get_NOS(tvb, &offset, trSignal);
+					get_AFQ(tvb, &offset, trSignal);
+					break;
+				case F_SG_NA_1: /* 125   Segment */
+					get_NOF(tvb, &offset, trSignal);
+					get_NOS(tvb, &offset, trSignal);
+					seg_len = get_LOS(tvb, &offset, trSignal);
+					get_SEG(tvb, &offset, trSignal, seg_len);
+					break;
+				case F_DR_TA_1: /* 126   Directory */
+					get_NOF(tvb, &offset, trSignal);
+					get_LOF(tvb, &offset, trSignal);
+					get_SOF(tvb, &offset, trSignal);
+					get_CP56Time(tvb, &offset, trSignal);
+					break;
+				case F_SC_NB_1: /* 127   Query Log - Request archive file */
+					get_NOF(tvb, &offset, trSignal);
+					get_RangeStartCP56Time(tvb, &offset, trSignal);
+					get_RangeStopCP56Time(tvb, &offset, trSignal);
 					break;
 				default:
 					break;
@@ -3027,6 +3350,14 @@ proto_register_iec60870_asdu(void)
 		  { "Year", "iec60870_asdu.cp56time.year", FT_UINT8, BASE_DEC, NULL, 0x7F,
 		    "CP56Time year", HFILL }},
 
+		{ &hf_range_start_cp56time,
+		  { "Range start CP56Time", "iec60870_asdu.range_start_cp56time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
+		    NULL, HFILL }},
+
+		{ &hf_range_stop_cp56time,
+		  { "Range stop CP56Time", "iec60870_asdu.range_stop_cp56time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
+		    NULL, HFILL } },
+
 		{ &hf_siq,
 		  { "SIQ", "iec60870_asdu.siq", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
@@ -3186,6 +3517,102 @@ proto_register_iec60870_asdu(void)
 		{ &hf_qpm_pop,
 		  { "POP", "iec60870_asdu.qpm.pop", FT_UINT8, BASE_DEC, VALS(qpm_pop_types), 0x80,
 		    "QPM POP", HFILL } },
+
+		{ &hf_nof,
+		  { "NOF", "iec60870_asdu.nof", FT_UINT16, BASE_DEC, NULL, 0,
+		    "Name of file", HFILL} },
+
+		{ &hf_lof,
+		  { "LOF", "iec60870_asdu.lof", FT_UINT32, BASE_DEC, NULL, 0,
+		    "Length of file or section", HFILL} },
+
+		{ &hf_frq,
+		  { "FRQ", "iec60870_asdu.frq", FT_UINT8, BASE_HEX, NULL, 0,
+		    "File ready qualifier", HFILL} },
+
+		{ &hf_frq_confirm,
+		  { "Confirmation", "iec60870_asdu.frq.confirm", FT_BOOLEAN, 8, TFS(&tfs_negative_positive), 0x80,
+		    NULL, HFILL } },
+
+		{ &hf_frq_qualifier,
+		  { "Qualifier", "iec60870_asdu.frq.qualifier", FT_UINT8, BASE_DEC, VALS(frq_qualifier), 0x7F,
+		    NULL, HFILL } },
+
+		{ &hf_nos,
+		  { "NOS", "iec60870_asdu.nos", FT_UINT16, BASE_DEC, NULL, 0,
+		    "Name of section", HFILL} },
+
+		{ &hf_srq,
+		  { "SRQ", "iec60870_asdu.srq", FT_UINT8, BASE_HEX, NULL, 0,
+		    "Section ready qualifier", HFILL} },
+
+		{ &hf_srq_ready,
+		  { "Ready", "iec60870_asdu.srq.ready", FT_BOOLEAN, 8, TFS(&tfs_not_ready_ready), 0x80,
+		    NULL, HFILL } },
+
+		{ &hf_srq_qualifier,
+		  { "Qualifier", "iec60870_asdu.srq.qualifier", FT_UINT8, BASE_DEC, VALS(srq_qualifier), 0x7F,
+		    NULL, HFILL } },
+
+		{ &hf_scq,
+		  { "SCQ", "iec60870_asdu.scq", FT_UINT8, BASE_HEX, NULL, 0,
+		    "Select and call qualifier", HFILL}},
+
+		{ &hf_scq_select,
+		  { "Select", "iec60870_asdu.scq.select", FT_UINT8, BASE_DEC, VALS(scq_select), 0x0F,
+		    NULL, HFILL } },
+
+		{ &hf_scq_qualifier,
+		  { "Qualifier", "iec60870_asdu.scq.qualifier", FT_UINT8, BASE_DEC, VALS(scq_qualifier), 0xF0,
+		    NULL, HFILL } },
+
+		{ &hf_lsq,
+		  { "LSQ", "iec60870_asdu.lsq", FT_UINT8, BASE_DEC, VALS(lsq_qualifier), 0,
+		    "Last section or segment qualifier", HFILL} },
+
+		{ &hf_chs,
+		  { "CHS", "iec60870_asdu.chs", FT_UINT8, BASE_HEX, NULL, 0,
+		    "Checksum", HFILL} },
+
+		{ &hf_afq,
+		  { "AFQ", "iec60870_asdu.afq", FT_UINT8, BASE_HEX, NULL, 0,
+		    "Acknowledge file or section qualifier", HFILL} },
+
+		{ &hf_afq_ack,
+		  { "Acknowledge", "iec60870_asdu.afq.ack", FT_UINT8, BASE_DEC, VALS(afq_ack), 0x0F,
+		    NULL, HFILL } },
+
+		{ &hf_afq_qualifier,
+		  { "Qualifier", "iec60870_asdu.afq.qualifier", FT_UINT8, BASE_DEC, VALS(afq_qualifier), 0xF0,
+		    NULL, HFILL } },
+
+		{ &hf_los,
+		  { "LOS", "iec60870_asdu.los", FT_UINT8, BASE_DEC, NULL, 0,
+		    "Length of segment", HFILL} },
+
+		{ &hf_segment_data,
+		  { "Data", "iec60870_asdu.segmentdata", FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Segment data", HFILL } },
+
+		{ &hf_sof,
+		  { "SOF", "iec60870_asdu.sof", FT_UINT8, BASE_HEX, NULL, 0,
+		    "Status of file", HFILL} },
+
+		{ &hf_sof_status,
+		  { "Status", "iec60870_asdu.sof.status", FT_UINT8, BASE_DEC, VALS(sof_status), 0x1F,
+		    NULL, HFILL } },
+
+		{ &hf_sof_lfd,
+		  { "LFD", "iec60870_asdu.sof.lfd", FT_BOOLEAN, 8, TFS(&tfs_last_file_additional_follows), 0x20,
+		    NULL, HFILL } },
+
+		{ &hf_sof_for,
+		  { "FOR", "iec60870_asdu.sof.for", FT_BOOLEAN, 8, TFS(&tfs_subdir_file), 0x40,
+		    NULL, HFILL } },
+
+		{ &hf_sof_fa,
+		  { "FA", "iec60870_asdu.sof.fa", FT_BOOLEAN, 8, TFS(&tfs_active_waits), 0x80,
+		    NULL, HFILL } },
 
 		{ &hf_asn,
 		  { "ASDU Segment Sequence Number (ASN)", "iec60870_asdu.asn", FT_UINT8, BASE_DEC, NULL, 0x3F,
@@ -3453,6 +3880,11 @@ proto_register_iec60870_asdu(void)
 		&ett_dco,
 		&ett_rco,
 		&ett_qpm,
+		&ett_frq,
+		&ett_srq,
+		&ett_scq,
+		&ett_afq,
+		&ett_sof,
 		&ett_coi,
 		&ett_qcc,
 		&ett_cp24time,
