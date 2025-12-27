@@ -197,7 +197,6 @@ typedef struct {
 	const char* env_var_prefix;		/**< The prefix for the application environment variable used to get the configuration directories. */
 	const char** col_fmt;			/**< Array of columns and their formats */
 	int num_cols;				/**< Number of columns in the list above */
-	bool supports_packets;			/**< true if packet dissection is supported; false otherwise (i.e. events).  This should be TEMPORARY */
 	register_entity_func register_func;	/**< Callback to register entities for the dissection engine */
 	register_entity_func handoff_func;	/**< Callback to handoff function for entities in the dissection engine */
 	struct _tap_reg const* tap_reg_listeners;	/**< List of tap registration routines to register built-in tap listeners */
@@ -528,16 +527,6 @@ WS_DLL_PUBLIC void epan_get_version_number(int *major, int *minor, int *micro);
  * @return A pointer to a constant string containing the environment prefix.
  */
 WS_DLL_PUBLIC const char* epan_get_environment_prefix(void);
-
-/**
- * @brief TEMPORARY HACK to indicate whether epan supports packet dissection.
- *
- * This is a workaround to not have "application flavor" APIs within dissectors
- * This should be removed once application flavor is fully integrated.
- *
- * @return true if packet dissection is supported; false otherwise (i.e. events).
- */
-bool epan_supports_packets(void);
 
 /**
  * @brief Set or unset the tree to always be visible when epan_dissect_init() is called.

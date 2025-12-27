@@ -1206,7 +1206,6 @@ main(int argc, char *argv[])
     app_data.register_func = register_all_event_dissectors;
     app_data.handoff_func = register_all_event_dissectors_handoffs;
     app_data.tap_reg_listeners = tap_reg_listener;
-    app_data.supports_packets = application_flavor_is_wireshark();
     if (!epan_init(NULL, NULL, true, &app_data)) {
         exit_status = WS_EXIT_INIT_FAILED;
         goto clean_exit;

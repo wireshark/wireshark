@@ -824,7 +824,6 @@ int main(int argc, char *qt_argv[])
     app_data.register_func = register_all_protocols;
     app_data.handoff_func = register_all_protocol_handoffs;
     app_data.tap_reg_listeners = tap_reg_listener;
-    app_data.supports_packets = application_flavor_is_wireshark();
     if (!epan_init(splash_update, NULL, true, &app_data)) {
         SimpleDialog::displayQueuedMessages(main_w);
         ret_val = WS_EXIT_INIT_FAILED;

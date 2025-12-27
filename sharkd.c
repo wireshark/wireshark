@@ -216,7 +216,6 @@ main(int argc, char *argv[])
     app_data.num_cols = application_num_columns();
     app_data.register_func = register_all_protocols;
     app_data.handoff_func = register_all_protocol_handoffs;
-    app_data.supports_packets = application_flavor_is_wireshark();
     if (!epan_init(NULL, NULL, true, &app_data)) {
         ret = SHARKD_EPAN_INIT_FAIL;
         goto clean_exit;

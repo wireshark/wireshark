@@ -115,7 +115,6 @@ static GSList *epan_plugin_register_all_handoffs;
 
 static wmem_allocator_t *pinfo_pool_cache;
 static char* epan_env_prefix_cache;
-static bool supports_packets = true;
 
 /* Global variables holding the content of the corresponding environment variable
  * to save fetching it repeatedly.
@@ -164,11 +163,6 @@ const char*
 epan_get_environment_prefix(void)
 {
 	return epan_env_prefix_cache;
-}
-
-bool epan_supports_packets(void)
-{
-	return supports_packets;
 }
 
 #if defined(_WIN32) && GCRYPT_VERSION_NUMBER < 0x010b00
@@ -273,7 +267,6 @@ epan_init(register_cb cb, void *client_data, bool load_plugins, epan_app_data_t*
 {
 	volatile bool status = true;
 	epan_env_prefix_cache = g_strdup(app_data->env_var_prefix);
-	supports_packets = app_data->supports_packets;
 
 	/* Get the value of some environment variables and set corresponding globals for performance reasons*/
 	/* If the WIRESHARK_ABORT_ON_DISSECTOR_BUG environment variable is set,
