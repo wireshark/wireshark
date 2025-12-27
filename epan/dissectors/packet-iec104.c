@@ -66,23 +66,6 @@ struct asdu_parms {
 	unsigned ioa_len;
 };
 
-/* ASDU command value/status structure */
-typedef struct {
-	bool OFF;
-	bool ON;
-
-	bool UP;
-	bool DOWN;
-
-	/* QOC qualifier-bits */
-	uint16_t QU;      /* qualifier-value */
-	bool ZeroP;   /* No pulse */
-	bool ShortP;  /* Short Pulse */
-	bool LongP;   /* Long Pulse */
-	bool Persist; /* Persistent output */
-	bool SE;      /* Select (1) / Execute (0) */
-} td_CmdInfo;
-
 #define IEC104_PORT     2404
 
 /* Define the iec101/103/104 protos */
@@ -1333,8 +1316,7 @@ static const value_string iec103_quadstate_types[] = {
 /* Misc. functions for dissection of signal values */
 
 /* ====================================================================
-   Dissects the CP24Time2a time (Three octet binary time)
-   that starts 'offset' bytes in 'tvb'.
+   CP24Time2a: 7.2.6.19 Three octet binary time
    ==================================================================== */
 static void get_CP24Time(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1410,8 +1392,7 @@ static void get_CP32TimeA(tvbuff_t *tvb, uint8_t *offset, proto_tree *tree)
 }
 
 /* ====================================================================
-   Dissects the CP56Time2a time (Seven octet binary time)
-   that starts 'offset' bytes in 'tvb'.
+   CP56Time2a: 7.2.6.18 Seven octet binary time
    ==================================================================== */
 static void decode_CP56Time(tvbuff_t *tvb, uint8_t *offset, int hfindex, proto_tree *iec104_header_tree)
 {
@@ -1542,7 +1523,7 @@ static uint8_t get_TypeIdLength(uint8_t TypeId)
 }
 
 /* ====================================================================
-   SIQ: Single-point information (IEV 371-02-07) w quality descriptor
+   SIQ: 7.2.6.1 Single-point information (IEV 371-02-07) w quality descriptor
    ==================================================================== */
 static void get_SIQ(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1562,7 +1543,7 @@ static void get_SIQ(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-   DIQ: Double-point information (IEV 371-02-08) w quality descriptor
+   DIQ: 7.2.6.2 Double-point information (IEV 371-02-08) w quality descriptor
    ==================================================================== */
 static void get_DIQ(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1582,7 +1563,7 @@ static void get_DIQ(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-   QDS: Quality descriptor (separate octet)
+   QDS: 7.2.6.3 Quality descriptor (separate octet)
    ==================================================================== */
 static void get_QDS(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1602,7 +1583,7 @@ static void get_QDS(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-   QDP: Quality descriptor for events of protection equipment
+   QDP: 7.2.6.4 Quality descriptor for events of protection equipment
    (separate octet)
    ==================================================================== */
 #if 0
@@ -1614,7 +1595,7 @@ static void get_QDP(tvbuff_t *tvb _U_, uint8_t *offset _U_, proto_tree *iec104_h
 #endif
 
 /* ====================================================================
-   VTI: Value with transient state indication
+   VTI: 7.2.6.5 Value with transient state indication
    ==================================================================== */
 static void get_VTI(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1631,7 +1612,7 @@ static void get_VTI(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-   NVA: Normalized value
+   NVA: 7.2.6.6 Normalized value
    ==================================================================== */
 static void get_NVA(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1662,7 +1643,7 @@ static void get_NVAspt(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header
 }
 
 /* ====================================================================
-   SVA: Scaled value
+   SVA: 7.2.6.7 Scaled value
    ==================================================================== */
 static void get_SVA(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1681,17 +1662,7 @@ static void get_SVAspt(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header
 }
 
 /* ====================================================================
-   TSC: Test sequence counter
-   ==================================================================== */
-static void get_TSC(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
-{
-	proto_tree_add_item(iec104_header_tree, hf_asdu_tsc, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-
-	(*offset) += 2;
-}
-
-/* ====================================================================
-   "FLT": Short floating point number
+   FLT: 7.2.6.8 Short floating point number
    ==================================================================== */
 static void get_FLT(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1710,24 +1681,7 @@ static void get_FLTspt(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header
 }
 
 /* ====================================================================
-   "BSI": Binary state information, 32 bit
-   ==================================================================== */
-static void get_BSI(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
-{
-	proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset*8, 32, ENC_BIG_ENDIAN);
-
-	(*offset) += 4;
-}
-
-static void get_BSIspt(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
-{
-	proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset*8, 32, ENC_BIG_ENDIAN);
-
-	(*offset) += 4;
-}
-
-/* ====================================================================
-    BCR: Binary counter reading
+   BCR: 7.2.6.9 Binary counter reading
    ==================================================================== */
 static void get_BCR(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1748,7 +1702,7 @@ static void get_BCR(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    todo -- SEP: Single event of protection equipment
+   SEP: 7.2.6.10 Single event of protection equipment
    ==================================================================== */
 #if 0
 static void get_SEP(tvbuff_t *tvb _U_, uint8_t *offset _U_, proto_tree *iec104_header_tree _U_)
@@ -1759,24 +1713,57 @@ static void get_SEP(tvbuff_t *tvb _U_, uint8_t *offset _U_, proto_tree *iec104_h
 #endif
 
 /* ====================================================================
-    QOS: Qualifier Of Set-point command
+   SPE: 7.2.6.11 Start events of protection equipment
    ==================================================================== */
-static void get_QOS(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
+#if 0
+static void get_SPE(tvbuff_t* tvb _U_, uint8_t* offset _U_, proto_tree* iec104_header_tree _U_)
 {
-	proto_item* ti;
-	proto_tree* qos_tree;
+	/* todo */
 
-	ti = proto_tree_add_item(iec104_header_tree, hf_qos, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	qos_tree = proto_item_add_subtree(ti, ett_qos);
+}
+#endif
 
-	proto_tree_add_item(qos_tree, hf_qos_ql, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(qos_tree, hf_qos_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+/* ====================================================================
+   OCI: 7.2.6.12 Output circuit information of protection equipment
+   ==================================================================== */
+#if 0
+static void get_OCI(tvbuff_t* tvb _U_, uint8_t* offset _U_, proto_tree* iec104_header_tree _U_)
+{
+	/* todo */
 
-	(*offset)++;
+}
+#endif
+
+/* ====================================================================
+   BSI: 7.2.6.13 Binary state information (IEV 371-02-03) 32 bit
+   ==================================================================== */
+static void get_BSI(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset * 8, 32, ENC_BIG_ENDIAN);
+
+	(*offset) += 4;
+}
+
+static void get_BSIspt(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset * 8, 32, ENC_BIG_ENDIAN);
+
+	(*offset) += 4;
 }
 
 /* ====================================================================
-    SCO: Single Command (IEV 371-03-02)
+   FBP: 7.2.6.14 Fixed test bit pattern, two octets
+   ==================================================================== */
+#if 0
+static void get_FBP(tvbuff_t* tvb _U_, uint8_t* offset _U_, proto_tree* iec104_header_tree _U_)
+{
+	/* todo */
+
+}
+#endif
+
+/* ====================================================================
+   SCO: 7.2.6.15 Single Command (IEV 371-03-02)
    ==================================================================== */
 static void get_SCO(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1794,7 +1781,7 @@ static void get_SCO(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    DCO: Double Command (IEV 371-03-03)
+   DCO: 7.2.6.16 Double Command (IEV 371-03-03)
    ==================================================================== */
 static void get_DCO(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1812,7 +1799,7 @@ static void get_DCO(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    RCO: Regulating step command (IEV 371-03-13)
+   RCO: 7.2.6.17 Regulating step command (IEV 371-03-13)
    ==================================================================== */
 static void get_RCO(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -1830,7 +1817,51 @@ static void get_RCO(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    QPM: Qualifier of parameter of measured value
+   COI: 7.2.6.21 Cause of initialisation
+   ==================================================================== */
+static void get_COI(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* coi_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_coi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	coi_tree = proto_item_add_subtree(ti, ett_coi);
+
+	proto_tree_add_item(coi_tree, hf_coi_r, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(coi_tree, hf_coi_i, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+   QOI: 7.2.6.22 Qualifier of interrogation
+   ==================================================================== */
+static void get_QOI(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_qoi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+   QCC: 7.2.6.23 Qualifier of counter interrogation
+   ==================================================================== */
+static void get_QCC(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* qcc_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_qcc, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	qcc_tree = proto_item_add_subtree(ti, ett_qcc);
+
+	proto_tree_add_item(qcc_tree, hf_qcc_rqt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qcc_tree, hf_qcc_frz, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+   QPM: 7.2.6.24 Qualifier of parameter of measured value
    ==================================================================== */
 static void get_QPM(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
@@ -1848,25 +1879,28 @@ static void get_QPM(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tr
 }
 
 /* ====================================================================
-    NOF: 7.2.6.33 Name of file
+   QPA: 7.2.6.25 Qualifier of parameter activation
    ==================================================================== */
-static void get_NOF(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+#if 0
+static void get_QPA(tvbuff_t* tvb _U_, uint8_t* offset _U_, proto_tree* iec104_header_tree _U_)
 {
-	proto_tree_add_item(iec104_header_tree, hf_nof, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-	(*offset) += 2;
+	/* todo */
+
+}
+#endif
+
+/* ====================================================================
+   QRP: 7.2.6.27 Qualifier of reset process command
+   ==================================================================== */
+static void get_QRP(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_qrp, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
 }
 
 /* ====================================================================
-    LOF: 7.2.6.35 Length of file
-   ==================================================================== */
-static void get_LOF(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
-{
-	proto_tree_add_item(iec104_header_tree, hf_lof, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
-	(*offset) += 3;
-}
-
-/* ====================================================================
-    FRQ: 7.2.6.28 File request qualifier
+   FRQ: 7.2.6.28 File request qualifier
    ==================================================================== */
 static void get_FRQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
@@ -1883,16 +1917,7 @@ static void get_FRQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tr
 }
 
 /* ====================================================================
-    NOS: 7.2.6.34 Name of section
-   ==================================================================== */
-static void get_NOS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
-{
-	proto_tree_add_item(iec104_header_tree, hf_nos, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	(*offset) ++;
-}
-
-/* ====================================================================
-    SRQ: 7.2.6.29 Section ready qualifier
+   SRQ: 7.2.6.29 Section ready qualifier
    ==================================================================== */
 static void get_SRQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
@@ -1909,7 +1934,7 @@ static void get_SRQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tr
 }
 
 /* ====================================================================
-    SCQ: 7.2.6.30 Select and call qualifier
+   SCQ: 7.2.6.30 Select and call qualifier
    ==================================================================== */
 static void get_SCQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
@@ -1926,7 +1951,7 @@ static void get_SCQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tr
 }
 
 /* ====================================================================
-    LSQ: 7.2.6.31 Last section or segment qualifier
+   LSQ: 7.2.6.31 Last section or segment qualifier
    ==================================================================== */
 static void get_LSQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
@@ -1935,16 +1960,7 @@ static void get_LSQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tr
 }
 
 /* ====================================================================
-    CHS: 7.2.6.37 Checksum
-   ==================================================================== */
-static void get_CHS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
-{
-	proto_tree_add_item(iec104_header_tree, hf_chs, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	(*offset)++;
-}
-
-/* ====================================================================
-    AFQ: 7.2.6.32 Acknowledge file or section qualifier
+   AFQ: 7.2.6.32 Acknowledge file or section qualifier
    ==================================================================== */
 static void get_AFQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
@@ -1961,7 +1977,34 @@ static void get_AFQ(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tr
 }
 
 /* ====================================================================
-    LOF: 7.2.6.35 Length of file
+   NOF: 7.2.6.33 Name of file
+   ==================================================================== */
+static void get_NOF(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_nof, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+	(*offset) += 2;
+}
+
+/* ====================================================================
+   NOS: 7.2.6.34 Name of section
+   ==================================================================== */
+static void get_NOS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_nos, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset) ++;
+}
+
+/* ====================================================================
+   LOF: 7.2.6.35 Length of file
+   ==================================================================== */
+static void get_LOF(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_lof, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+	(*offset) += 3;
+}
+
+/* ====================================================================
+   LOS: 7.2.6.36 Length of segment
    ==================================================================== */
 static uint8_t get_LOS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
@@ -1974,16 +2017,16 @@ static uint8_t get_LOS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header
 }
 
 /* ====================================================================
-    Segment data
+   CHS: 7.2.6.37 Checksum
    ==================================================================== */
-static void get_SEG(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree, int length)
+static void get_CHS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
-	proto_tree_add_item(iec104_header_tree, hf_segment_data, tvb, *offset, length, ENC_NA);
-	(*offset) += length;
+	proto_tree_add_item(iec104_header_tree, hf_chs, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset)++;
 }
 
 /* ====================================================================
-    SOF: 7.2.6.38 Status of file
+   SOF: 7.2.6.38 Status of file
    ==================================================================== */
 static void get_SOF(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
@@ -2002,7 +2045,43 @@ static void get_SOF(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tr
 }
 
 /* ====================================================================
-    USR: User Number
+   QOS: 7.2.6.39 Qualifier Of Set-point command
+   ==================================================================== */
+static void get_QOS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* qos_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_qos, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	qos_tree = proto_item_add_subtree(ti, ett_qos);
+
+	proto_tree_add_item(qos_tree, hf_qos_ql, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qos_tree, hf_qos_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+   TSC: Test sequence counter
+   ==================================================================== */
+static void get_TSC(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_asdu_tsc, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+
+	(*offset) += 2;
+}
+
+/* ====================================================================
+   SEG: Segment data
+   ==================================================================== */
+static void get_SEG(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree, int length)
+{
+	proto_tree_add_item(iec104_header_tree, hf_segment_data, tvb, *offset, length, ENC_NA);
+	(*offset) += length;
+}
+
+/* ====================================================================
+   USR: User Number
    ==================================================================== */
 static void get_USR(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2012,7 +2091,7 @@ static void get_USR(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    MAL: MAC algorithm
+   MAL: MAC algorithm
    ==================================================================== */
 static void get_MAL(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2022,7 +2101,7 @@ static void get_MAL(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    RSC: Reason for challenge
+   RSC: Reason for challenge
    ==================================================================== */
 static void get_RSC(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2032,7 +2111,7 @@ static void get_RSC(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    CSQ: Challenge sequence number
+   CSQ: Challenge sequence number
    ==================================================================== */
 static void get_CSQ(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2042,7 +2121,7 @@ static void get_CSQ(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    KSQ: Key change sequence number
+   KSQ: Key change sequence number
    ==================================================================== */
 static void get_KSQ(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2052,7 +2131,7 @@ static void get_KSQ(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    KWA: Key wrap algorithm
+   KWA: Key wrap algorithm
    ==================================================================== */
 static void get_KWA(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2062,7 +2141,7 @@ static void get_KWA(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    KST: Key status
+   KST: Key status
    ==================================================================== */
 static void get_KST(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2072,7 +2151,7 @@ static void get_KST(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    HLN: MAC length
+   HLN: MAC length
    ==================================================================== */
 static uint16_t get_HLN(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2085,7 +2164,7 @@ static uint16_t get_HLN(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_heade
 }
 
 /* ====================================================================
-    HAL: MAC algorithm
+   HAL: MAC algorithm
    ==================================================================== */
 static uint8_t get_HAL(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2106,7 +2185,7 @@ static uint8_t get_HAL(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header
 }
 
 /* ====================================================================
-    CLN: Challenge data length
+   CLN: Challenge data length
    ==================================================================== */
 static uint16_t get_CLN(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2119,7 +2198,7 @@ static uint16_t get_CLN(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_heade
 }
 
 /* ====================================================================
-    WKL: Wrapped key data length
+   WKL: Wrapped key data length
    ==================================================================== */
 static uint16_t get_WKL(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2132,7 +2211,7 @@ static uint16_t get_WKL(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_heade
 }
 
 /* ====================================================================
-    Pseudo-random challenge data
+   Pseudo-random challenge data
    ==================================================================== */
 static void get_PRCD(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree, int length)
 {
@@ -2141,7 +2220,7 @@ static void get_PRCD(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_t
 }
 
 /* ====================================================================
-    MAC value
+   MAC value
    ==================================================================== */
 static void get_HMAC(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree, int length)
 {
@@ -2153,7 +2232,7 @@ static void get_HMAC(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_t
 }
 
 /* ====================================================================
-    Wrapped key data
+   Wrapped key data
    ==================================================================== */
 static void get_WKD(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree, int length)
 {
@@ -2162,7 +2241,7 @@ static void get_WKD(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    AID: Association ID
+   AID: Association ID
    ==================================================================== */
 static void get_AID(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2172,7 +2251,7 @@ static void get_AID(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    ERR: Error code
+   ERR: Error code
    ==================================================================== */
 static void get_ERR(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2182,7 +2261,7 @@ static void get_ERR(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    ETM: Error time stamp (7-octet binary time)
+   ETM: Error time stamp (7-octet binary time)
    ==================================================================== */
 static void get_ETM(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2259,7 +2338,7 @@ static void get_ETM(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 }
 
 /* ====================================================================
-    ELN: Error length
+   ELN: Error length
    ==================================================================== */
 static uint16_t get_ELN(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
@@ -2271,7 +2350,7 @@ static uint16_t get_ELN(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_heade
 }
 
 /* ====================================================================
-    Error text
+   Error text
    ==================================================================== */
 static void get_ErrorText(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree, int length)
 {
@@ -2282,59 +2361,6 @@ static void get_ErrorText(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_hea
 	}
 }
 
-/* ====================================================================
-    COI: Cause of initialisation
-   ==================================================================== */
-static void get_COI(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
-{
-	proto_item* ti;
-	proto_tree* coi_tree;
-
-	ti = proto_tree_add_item(iec104_header_tree, hf_coi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	coi_tree = proto_item_add_subtree(ti, ett_coi);
-
-	proto_tree_add_item(coi_tree, hf_coi_r, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(coi_tree, hf_coi_i, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-
-	(*offset)++;
-}
-
-/* ====================================================================
-    QOI: Qualifier of interrogation
-   ==================================================================== */
-static void get_QOI(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
-{
-	proto_tree_add_item(iec104_header_tree, hf_qoi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-
-	(*offset)++;
-}
-
-/* ====================================================================
-    QCC: Qualifier of counter interrogation
-   ==================================================================== */
-static void get_QCC(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
-{
-	proto_item* ti;
-	proto_tree* qcc_tree;
-
-	ti = proto_tree_add_item(iec104_header_tree, hf_qcc, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	qcc_tree = proto_item_add_subtree(ti, ett_qcc);
-
-	proto_tree_add_item(qcc_tree, hf_qcc_rqt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(qcc_tree, hf_qcc_frz, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-
-	(*offset)++;
-}
-
-/* ====================================================================
-    QRP: Qualifier of reset process command
-   ==================================================================== */
-static void get_QRP(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
-{
-	proto_tree_add_item(iec104_header_tree, hf_qrp, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-
-	(*offset)++;
-}
 /* .... end Misc. functions for dissection of signal values */
 
 
