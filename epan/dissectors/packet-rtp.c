@@ -2788,7 +2788,7 @@ dissect_rtp_shim_header(tvbuff_t *tvb, int start, packet_info *pinfo _U_, proto_
 
     if ( tree ) {
         /* Create RTP protocol tree */
-        rtp_ti = proto_tree_add_item(tree, proto_rtp, tvb, offset, 0, ENC_NA );
+        rtp_ti = proto_tree_add_item(tree, proto_rtp, tvb, offset, -1, ENC_NA );
         rtp_tree = proto_item_add_subtree(rtp_ti, ett_rtp );
 
         proto_tree_add_bitmask_list(rtp_tree, tvb, offset, 1, octet1_fields, ENC_NA);

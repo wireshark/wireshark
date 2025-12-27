@@ -328,7 +328,7 @@ dissect_lsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LSDP");
     col_clear(pinfo->cinfo,COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_lsdp, tvb, 0, 0, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_lsdp, tvb, 0, -1, ENC_NA);
     lsdp_tree = proto_item_add_subtree(ti, ett_lsdp);
 
     offset = 0;

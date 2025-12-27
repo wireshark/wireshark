@@ -552,7 +552,7 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
 
-    item = proto_tree_add_item(tree, proto_pktc, tvb, 0, 0, ENC_NA);
+    item = proto_tree_add_item(tree, proto_pktc, tvb, 0, -1, ENC_NA);
     pktc_mtafqdn_tree = proto_item_add_subtree(item, ett_pktc_mtafqdn);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "MTA FQDN %s",
@@ -592,7 +592,7 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
 
-    item = proto_tree_add_item(tree, proto_pktc, tvb, 0, 3, ENC_NA);
+    item = proto_tree_add_item(tree, proto_pktc, tvb, 0, -1, ENC_NA);
     pktc_tree = proto_item_add_subtree(item, ett_pktc);
 
     /* key management message id */

@@ -481,7 +481,7 @@ dissect_roughtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Roughtime");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_roughtime, tvb, 0, 0, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_roughtime, tvb, 0, -1, ENC_NA);
     roughtime_tree = proto_item_add_subtree(ti, ett_roughtime);
 
     /* Conversation init */

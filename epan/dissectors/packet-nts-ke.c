@@ -467,7 +467,7 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTS-KE");
     col_clear(pinfo->cinfo,COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_nts_ke, tvb, 0, 0, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_nts_ke, tvb, 0, -1, ENC_NA);
     nts_ke_tree = proto_item_add_subtree(ti, ett_nts_ke);
 
     /* Error on ALPN mismatch */

@@ -2111,6 +2111,7 @@ static unsigned get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offse
 }
 
 static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    bool is_new_item_tcpcl = false;
     int offset = 0;
     tcpcl_dissect_ctx_t *ctx = tcpcl_dissect_ctx_get(tvb, pinfo, offset);
     if (!ctx) {
@@ -2134,8 +2135,9 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         tree_tcpcl = proto_item_get_subtree(item_tcpcl);
     }
     else {
-        item_tcpcl = proto_tree_add_item(tree, proto_tcpcl, tvb, 0, 0, ENC_NA);
+        item_tcpcl = proto_tree_add_item(tree, proto_tcpcl, tvb, 0, -1, ENC_NA);
         tree_tcpcl = proto_item_add_subtree(item_tcpcl, ett_proto_tcpcl);
+        is_new_item_tcpcl = true;
     }
 
     if (ctx->tx_peer->chdr_missing) {
@@ -2243,13 +2245,12 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
     }
 
-    const int item_len = proto_item_get_len(item_tcpcl);
-    bool is_new_item_tcpcl = (item_len <= 0);
     if (is_new_item_tcpcl) {
         proto_item_set_len(item_tcpcl, offset);
         proto_item_append_text(item_tcpcl, " Version %d", ctx->tx_peer->version);
     }
     else {
+        const int item_len = proto_item_get_len(item_tcpcl);
         proto_item_set_len(item_tcpcl, item_len + offset);
     }
 
