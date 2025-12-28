@@ -15284,6 +15284,14 @@ a:hover {
         <translation>Secuencias de solicitud HTTP</translation>
     </message>
     <message>
+        <source>&amp;BPv7</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BPv7 PDU and block statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>E2AP</source>
         <translation type="unfinished"></translation>
     </message>

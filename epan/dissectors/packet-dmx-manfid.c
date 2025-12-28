@@ -11,7 +11,7 @@
 #include "packet-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2025-12-01
+ * ESTA codes download date: 2025-12-28
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -481,6 +481,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x06B9, "GUANGZHOU DASEN LIGHTING CORPORATION LIMITED" },
   { 0x06BA, "Lightner" },
   { 0x06BB, "IQ COMPANY Ltd." },
+  { 0x06C0, "ANTILATENCY LTD" },
   { 0x06C4, "RHENAC Systems GmbH" },
   { 0x06C5, "ZHIYUN INFORMATION (INTERNATIONAL) TECHNOLOGY CO., LIMITED" },
   { 0x06C7, "L&L Luce&Light" },
@@ -648,6 +649,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0838, "LaserAV" },
   { 0x083A, "Bright Ideas Custom Electronics Inc." },
   { 0x083C, "TDT Productions" },
+  { 0x083D, "Siluj Iluminacion S.L.U." },
   { 0x083E, "Guangdong Hua Chen Film & Television Stage Project Co., Ltd." },
   { 0x083F, "Shenzhen LeiFei Lighting Technologies Co.,Ltd." },
   { 0x0840, "Shenzhen Zwich Science and Technology Co.Ltd." },
@@ -669,6 +671,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0854, "Sharp / NEC Display Solutions, Ltd." },
   { 0x0855, "GODOX Photo Equipment Co., Ltd." },
   { 0x0856, "Ctrl Element ehf" },
+  { 0x0857, "BOS Lighting" },
   { 0x0858, "Juno Lighting Group" },
   { 0x085A, "Guangzhou Ming Jing Stage Light Equipment Co., Ltd." },
   { 0x085B, "Tolifo (Dongguan) Photographic Equipment Co. Ltd" },
@@ -859,7 +862,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0923, "Hangzhou Roleds Lighting System Co., Ltd." },
   { 0x0925, "Guangzhou Aiweidy Lighting Acoustics Equipment Co.,Ltd." },
   { 0x0926, "Elumeros Lighting Limited" },
-  { 0x0927, "Guangzhou Mingying Electronic Technology Co., Ltd." },
+  { 0x0927, "Guangzhou Mingying Electronic Technology / Phazed Logik" },
   { 0x0928, "Chaostreff Backnang e.V." },
   { 0x0929, "UPlight stage equipment(GZ) CO., Ltd." },
   { 0x092A, "Unitech Digital Media srl" },
@@ -887,6 +890,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0941, "Shenzen Zhuoyang Intelligent Technology Co., Ltd." },
   { 0x0942, "Showjockey Technology Co., Ltd" },
   { 0x0943, "Guangzhou Guangying Optoelectronics Co., Ltd" },
+  { 0x0944, "Guangzhou Lighting Cosmos Optoelectronics Technology Co., Ltd." },
   { 0x0945, "Guangzhou Lin Xiang Stage Lighting Equipment CO.,LTD" },
   { 0x0946, "TBE Srl" },
   { 0x0947, "Shenzhen MOSO Electronics Technology Co., Ltd" },

@@ -15423,6 +15423,14 @@ a:hover {
         <translation>Последовательности HTTP-запросов</translation>
     </message>
     <message>
+        <source>&amp;BPv7</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BPv7 PDU and block statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>E2AP</source>
         <translation>E2AP</translation>
     </message>

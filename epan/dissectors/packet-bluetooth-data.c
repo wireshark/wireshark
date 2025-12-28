@@ -5496,6 +5496,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0FD8,   "SIVA Inotec Limited" },
     { 0x0FD9,   "REMDEVICE S.R.L." },
     { 0x0FDA,   "NIVELCO PROCESS CONTROL CO." },
+    { 0x0FDC,   "Beijing Hongsi Electronic Technology Co.,Ltd." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
