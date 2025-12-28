@@ -39,6 +39,7 @@ SPECIALS = {
     "0000": "ESTA / PLASA",
     "0854": "Sharp / NEC Display Solutions, Ltd.",
     "4C5A": "Sumolight GmbH / LightMinded Industries, Inc.",
+    "0927": "Guangzhou Mingying Electronic Technology / Phazed Logik",
 }
 EXTRAS = [
     ("FFFC", "RDMNet RPT All Controllers"),
@@ -86,32 +87,33 @@ def main():
         print("ERROR: number of manufacturers is less than ths stored previous count")
         exit()
 
+    output = HEADER
+    output += "static const value_string dmx_esta_manfid_vals[] = {\n"
+
+    prev_hex = None
+    for row in rows:
+        hex_code = row[0].upper()
+        manf_name = row[2].rstrip(" ").lstrip(" ")
+
+        if prev_hex == hex_code:
+            if hex_code not in SPECIALS.keys():
+                print(f"WARNING: Duplicate ManfID 0x{hex_code} doesn't have a merged form")
+            continue
+        manf_name = SPECIALS.get(hex_code, manf_name)
+
+        while EXTRAS and hex_code > EXTRAS[0][0]:
+            output += "  { 0x" + EXTRAS[0][0] + ', "' + EXTRAS[0][1] + '" },\n'
+            EXTRAS.pop(0)
+
+        output += "  { 0x" + hex_code + ', "' + manf_name + '" },\n'
+        prev_hex = hex_code
+
+    output += "  { 0,      NULL }\n"
+    output += "};\n"
+    output += "value_string_ext dmx_esta_manfid_vals_ext = VALUE_STRING_EXT_INIT(dmx_esta_manfid_vals);\n"
+
     with open(OUTPUT_FILE, "w", encoding="UTF-8") as h:
-        h.write(HEADER)
-        h.write("static const value_string dmx_esta_manfid_vals[] = {\n")
-
-        prev_hex = None
-        for row in rows:
-            hex_code = row[0].upper()
-            manf_name = row[2].rstrip(" ").lstrip(" ")
-
-            if prev_hex == hex_code:
-                if hex_code not in SPECIALS.keys():
-                    print(f"WARNING: Duplicate ManfID 0x{hex_code.decode()} doesn't have a merged form")
-                continue
-            manf_name = SPECIALS.get(hex_code, manf_name)
-
-            while EXTRAS and hex_code > EXTRAS[0][0]:
-                h.write("  { 0x" + EXTRAS[0][0] + ', "' + EXTRAS[0][1] + '" },\n')
-                EXTRAS.pop(0)
-
-            h.write("  { 0x" + hex_code + ', "' + manf_name + '" },\n')
-            prev_hex = hex_code
-
-        h.write("  { 0,      NULL }\n")
-        h.write("};\n")
-        h.write("value_string_ext dmx_esta_manfid_vals_ext = VALUE_STRING_EXT_INIT(dmx_esta_manfid_vals);\n")
-
+        h.write(output)
 
 if __name__ == "__main__":
     main()
