@@ -1247,7 +1247,7 @@ static const value_string dhcp_nbnt_vals[] = {
 /*
  * There is confusion around some Client Architecture IDs: RFC 4578 section 2.1
  * lists *requested* architecture IDs, however the actual assigned IDs
- * (https://www.ietf.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml#processor-architecture)
+ * (https://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xhtml#processor-architecture)
  * differ.  Specifically,
  *
  *    EFI Byte Code (EFI BC, EBC) was 7 in RFC 4578, but is assigned 9 by IETF.
@@ -1290,6 +1290,15 @@ static const value_string dhcp_client_arch[] = {
 	{ 0x001e, "RISC-V 128-bit UEFI HTTP" },
 	{ 0x001f, "s390 Basic" },
 	{ 0x0020, "s390 Extended" },
+	{ 0x0021, "MIPS 32-bit UEFI" },
+	{ 0x0022, "MIPS 64-bit UEFI" },
+	{ 0x0023, "Sunway 32-bit UEFI" },
+	{ 0x0024, "Sunway 64-bit UEFI" },
+	{ 0x0025, "LoongArch 32-bit UEFI" },
+	{ 0x0026, "LoongArch 32-bit UEFI HTTP" },
+	{ 0x0027, "LoongArch 64-bit UEFI" },
+	{ 0x0028, "LoongArch 64-bit UEFI HTTP" },
+	{ 0x0029, "ARM rpiboot" },
 	{ 0,	  NULL }
 };
 
