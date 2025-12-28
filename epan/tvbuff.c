@@ -4271,33 +4271,32 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offse
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
  * no more than bufsize number of bytes, including terminating NUL, to buffer.
- * Returns length of string (not including terminating NUL), or -1 if the string was
- * truncated in the buffer due to not having reached the terminating NUL.
+ * Returns length of string (not including terminating NUL).
  * In this way, it acts like snprintf().
  *
  * bufsize MUST be greater than 0.
  *
- * When processing a packet where the remaining number of bytes is less
- * than bufsize, an exception is not thrown if the end of the packet
- * is reached before the NUL is found. If no NUL is found before reaching
- * the end of the short packet, -1 is still returned, and the string
- * is truncated with a NUL, albeit not at buffer[bufsize - 1], but
- * at the correct spot, terminating the string.
+ * This function does not otherwise throw an exception for running out of room
+ * in the buffer or running out of remaining bytes in the tvbuffer. It will
+ * copy as many bytes to the buffer as possible (the lesser of bufsize - 1
+ * and the number of remaining captured bytes) and then NUL terminate the
+ * string.
  *
  * *bytes_copied will contain the number of bytes actually copied,
- * including the terminating-NUL.
+ * including the terminating-NUL if present in the frame, but not
+ * if it was supplied by the function instead of copied from packet data.
+ * [Not currently used, but could be used to determine how much to advance
+ * the offset.]
  */
-static int
-_tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const int offset, const unsigned bufsize, uint8_t* buffer, int *bytes_copied)
+static unsigned
+_tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const unsigned offset, const unsigned bufsize, uint8_t* buffer, unsigned *bytes_copied)
 {
 	int      stringlen;
-	unsigned abs_offset = 0;
-	int      limit;
+	unsigned limit;
 	unsigned len = 0;
-	bool     decreased_max = false;
 
 	/* Only read to end of tvbuff, w/o throwing exception. */
-	check_offset_length(tvb, offset, -1, &abs_offset, &len);
+	validate_offset_and_remaining(tvb, offset, &len);
 
 	/* There must at least be room for the terminating NUL. */
 	DISSECTOR_ASSERT(bufsize != 0);
@@ -4305,7 +4304,11 @@ _tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const int offset, const unsigned bu
 	/* If there's no room for anything else, just return the NUL. */
 	if (bufsize == 1) {
 		buffer[0] = 0;
-		*bytes_copied = 1;
+		if (len && tvb_get_uint8(tvb, offset) == 0) {
+			*bytes_copied = 1;
+		} else {
+			*bytes_copied = 0;
+		}
 		return 0;
 	}
 
@@ -4315,58 +4318,36 @@ _tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const int offset, const unsigned bu
 		THROW(ReportedBoundsError);
 	}
 
-	/*
-	 * If we've been passed a negative number, bufsize will
-	 * be huge.
-	 */
-	DISSECTOR_ASSERT(bufsize <= INT_MAX);
-
-	if ((unsigned)len < bufsize) {
+	if (len < bufsize) {
 		limit = len;
-		decreased_max = true;
 	}
 	else {
-		limit = bufsize;
+		limit = bufsize - 1;
 	}
 
-	stringlen = tvb_strnlen(tvb, abs_offset, limit - 1);
-	/* If NUL wasn't found, copy the data and return -1 */
+	stringlen = tvb_strnlen(tvb, offset, limit);
+	/* If NUL wasn't found, copy the data up to the limit and terminate */
 	if (stringlen == -1) {
-		tvb_memcpy(tvb, buffer, abs_offset, limit);
-		if (decreased_max) {
-			buffer[limit] = 0;
-			/* Add 1 for the extra NUL that we set at buffer[limit],
-			 * pretending that it was copied as part of the string. */
-			*bytes_copied = limit + 1;
-		}
-		else {
-			*bytes_copied = limit;
-		}
-		return -1;
+		tvb_memcpy(tvb, buffer, offset, limit);
+		buffer[limit] = 0;
+		*bytes_copied = limit;
+		return limit;
 	}
 
 	/* Copy the string to buffer */
-	tvb_memcpy(tvb, buffer, abs_offset, stringlen + 1);
+	tvb_memcpy(tvb, buffer, offset, stringlen + 1);
 	*bytes_copied = stringlen + 1;
-	return stringlen;
+	return (unsigned)stringlen;
 }
 
-int
-tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const int offset, const unsigned bufsize, uint8_t* buffer)
+unsigned
+tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const unsigned offset, const unsigned bufsize, uint8_t* buffer)
 {
-	int	len, bytes_copied;
+	unsigned bytes_copied;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	len = _tvb_get_raw_bytes_as_stringz(tvb, offset, bufsize, buffer, &bytes_copied);
-
-	if (len == -1) {
-		buffer[bufsize - 1] = 0;
-		return bytes_copied - 1;
-	}
-	else {
-		return len;
-	}
+	return _tvb_get_raw_bytes_as_stringz(tvb, offset, bufsize, buffer, &bytes_copied);
 }
 
 /*

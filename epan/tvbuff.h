@@ -2848,9 +2848,12 @@ const uint8_t *tvb_get_const_stringz(tvbuff_t *tvb,
  *
  * Returns the number of bytes copied, excluding the terminating NUL.
  *
- * If the remaining packet data is less than `bufsize`, this function will not throw
- * an exception if the end of the packet is reached before the NUL byte is found.
- * In that case, the buffer is still guaranteed to be NUL-terminated.
+ * `bufsize` must be at least 1 (for the terminating NULL) and the start offset
+ * must be valid, but otherwise this function will not throw an exception if the
+ * end of the captured packet data is reached before the NUL byte is found or if
+ * `bufsize` is not large enough for the string. It will copy as many bytes to
+ * the buffer as possible (the lesser of `bufsize - 1` and the number of
+ * remaining captured bytes) and NUL terminate the buffer.
  *
  * @param tvb      The tvbuff_t to read from.
  * @param offset   The offset in the tvbuff to start searching and copying.
@@ -2858,8 +2861,10 @@ const uint8_t *tvb_get_const_stringz(tvbuff_t *tvb,
  * @param buffer   The destination buffer where bytes will be copied.
  *
  * @return The number of bytes copied, excluding the terminating NUL.
+ *
+ * @see tvb_get_raw_bytes_as_string
  */
-WS_DLL_PUBLIC int tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const int offset,
+WS_DLL_PUBLIC unsigned tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const unsigned offset,
     const unsigned bufsize, uint8_t *buffer);
 
 /**
@@ -2876,6 +2881,8 @@ WS_DLL_PUBLIC int tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const int offset,
  * @param bufsize  The size of the destination buffer (including space for terminating NUL).
  *
  * @return The number of bytes copied into the buffer, excluding the terminating NUL.
+ *
+ * @see tvb_get_raw_bytes_as_stringz
  */
 WS_DLL_PUBLIC unsigned tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const unsigned offset, char *buffer, size_t bufsize);
 
