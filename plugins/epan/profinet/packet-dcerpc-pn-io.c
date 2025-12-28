@@ -6034,13 +6034,13 @@ pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
 
 
 
-static int dissect_block(tvbuff_t *tvb, int offset,
+static unsigned dissect_block(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, uint8_t *drep, uint16_t *u16Index, uint32_t *u32RecDataLen, pnio_ar_t **ar);
 
-static int dissect_a_block(tvbuff_t *tvb, int offset,
+static unsigned dissect_a_block(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, uint8_t *drep);
 
-static int dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
+static unsigned dissect_PNIO_IOxS(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, uint8_t *drep, int hfindex);
 
 
@@ -15849,9 +15849,9 @@ dissect_RS_AckEvent_block(tvbuff_t *tvb, int offset,
 }
 
 /* dissect one PN-IO block (depending on the block type) */
-static int
+static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_block(tvbuff_t *tvb, int offset,
+dissect_block(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, uint8_t *drep, uint16_t *u16Index, uint32_t *u32RecDataLen, pnio_ar_t **ar)
 {
     uint16_t    u16BlockType;
@@ -16386,9 +16386,9 @@ dissect_block(tvbuff_t *tvb, int offset,
 
 
 /* dissect any PN-IO block */
-static int
+static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_a_block(tvbuff_t *tvb, int offset,
+dissect_a_block(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, uint8_t *drep)
 {
     uint16_t   u16Index = 0;
@@ -16405,9 +16405,9 @@ dissect_a_block(tvbuff_t *tvb, int offset,
 }
 
 /* dissect any number of PN-IO blocks */
-int
+unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_blocks(tvbuff_t *tvb, int offset,
+dissect_blocks(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, uint8_t *drep)
 {
     uint16_t   u16Index = 0;
@@ -16429,8 +16429,8 @@ dissect_blocks(tvbuff_t *tvb, int offset,
 
 
 /* dissect a PN-IO (DCE-RPC) request header */
-static int
-dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_IPNIO_rqst_header(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t    u32ArgsMax;
@@ -16474,8 +16474,8 @@ dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
 
 
 /* dissect a PN-IO (DCE-RPC) response header */
-static int
-dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_IPNIO_resp_header(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t    u32ArgsLen;
@@ -16517,8 +16517,8 @@ dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
 
 
 /* dissect a PN-IO request */
-static int
-dissect_IPNIO_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_IPNIO_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 
@@ -16531,8 +16531,8 @@ dissect_IPNIO_rqst(tvbuff_t *tvb, int offset,
 
 
 /* dissect a PN-IO response */
-static int
-dissect_IPNIO_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_IPNIO_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 
@@ -16544,8 +16544,8 @@ dissect_IPNIO_resp(tvbuff_t *tvb, int offset,
 }
 
 /* dissect a PROFIDrive parameter request */
-static int
-dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, uint8_t *drep)
 {
     uint8_t     request_reference;
@@ -17037,8 +17037,8 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
 
 
 /* dissect a PN-IO read response */
-static int
-dissect_IPNIO_Read_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_IPNIO_Read_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t   u16Index      = 0;
@@ -17374,9 +17374,9 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 
 #define PN_IO_MAX_RECURSION_DEPTH 100
 
-static int
+static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_IODWriteReq(tvbuff_t *tvb, int offset,
+dissect_IODWriteReq(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, uint8_t *drep, pnio_ar_t **ar, unsigned recursion_count)
 {
     uint16_t u16Index = 0;
@@ -17425,8 +17425,8 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
 }
 
 /* dissect a PN-IO write request */
-static int
-dissect_IPNIO_Write_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_IPNIO_Write_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     pnio_ar_t *ar = NULL;
@@ -17445,8 +17445,8 @@ dissect_IPNIO_Write_rqst(tvbuff_t *tvb, int offset,
 
 
 
-static int
-dissect_IODWriteRes(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_IODWriteRes(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, uint8_t *drep)
 {
     uint16_t   u16Index = 0;
@@ -17473,8 +17473,8 @@ dissect_IODWriteRes(tvbuff_t *tvb, int offset,
 
 
 /* dissect a PN-IO write response */
-static int
-dissect_IPNIO_Write_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_IPNIO_Write_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 
@@ -17487,8 +17487,8 @@ dissect_IPNIO_Write_resp(tvbuff_t *tvb, int offset,
 
 
 /* dissect any number of PN-RSI blocks */
-int
-dissect_rsi_blocks(tvbuff_t* tvb, int offset,
+unsigned
+dissect_rsi_blocks(tvbuff_t* tvb, unsigned offset,
     packet_info* pinfo, proto_tree* tree, uint8_t* drep, uint32_t u32FOpnumOffsetOpnum, int type)
 {
     pnio_ar_t* ar = NULL;
@@ -17553,8 +17553,8 @@ dissect_rsi_blocks(tvbuff_t* tvb, int offset,
 
 
 /* dissect the IOxS (IOCS, IOPS) field */
-static int
-dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PNIO_IOxS(tvbuff_t *tvb, unsigned offset,
                   packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex)
 {
 

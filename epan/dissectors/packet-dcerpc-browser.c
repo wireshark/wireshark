@@ -134,133 +134,133 @@ static e_guid_t uuid_dcerpc_browser = {
 };
 static uint16_t ver_dcerpc_browser = 0;
 
-static int browser_dissect_element_BrowserrSrvInfo100Ctr_entries_read(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfo100Ctr_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfo100Ctr_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfo100Ctr_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfo101Ctr_entries_read(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfo101Ctr_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfo101Ctr_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfo101Ctr_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfoUnion_info100(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfoUnion_info100_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfoUnion_info101(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfoUnion_info101_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSrvInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
-static int browser_dissect_element_BrowserrSrvInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
-static int browser_dissect_element_TYPE_1_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown10(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown14(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown15(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown16(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown17(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown18(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_2_unknown19(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown10(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown14(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown15(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_3_unknown16(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_4_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_4_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_4_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_TYPE_4_unknown2__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown5_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown7_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnum_unknown8_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrDebugCall_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrDebugCall_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrDebugCall_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrDebugCall_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryOtherDomains_server_unc(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryOtherDomains_server_unc_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryOtherDomains_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryOtherDomains_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryOtherDomains_total_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryOtherDomains_total_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrResetNetlogonState_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrResetNetlogonState_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrDebugTrace_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrDebugTrace_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrDebugTrace_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrDebugTrace_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryStatistics_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryStatistics_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryStatistics_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryStatistics_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryStatistics_unknown2__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrResetStatistics_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrResetStatistics_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_NetrBrowserStatisticsClear_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_NetrBrowserStatisticsClear_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_NetrBrowserStatisticsGet_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_NetrBrowserStatisticsGet_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_NetrBrowserStatisticsGet_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_NetrBrowserStatisticsGet_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_NetrBrowserStatisticsGet_unknown3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSetNetlogonState_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSetNetlogonState_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSetNetlogonState_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSetNetlogonState_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSetNetlogonState_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSetNetlogonState_unknown3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrSetNetlogonState_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown5_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown7_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int browser_dissect_element_BrowserrServerEnumEx_unknown8_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfo100Ctr_entries_read(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfo100Ctr_entries(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfo100Ctr_entries_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfo100Ctr_entries__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfo101Ctr_entries_read(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfo101Ctr_entries(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfo101Ctr_entries_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfo101Ctr_entries__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfoUnion_info100(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfoUnion_info100_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfoUnion_info101(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfoUnion_info101_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSrvInfo_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
+static unsigned browser_dissect_element_BrowserrSrvInfo_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level);
+static unsigned browser_dissect_element_TYPE_1_unknown(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown5(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown6(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown7(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown8(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown9(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown10(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown11(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown12(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown13(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown14(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown15(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown16(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown17(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown18(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_2_unknown19(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown5(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown6(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown7(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown8(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown9(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown10(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown11(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown12(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown13(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown14(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown15(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_3_unknown16(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_4_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_4_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_4_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_TYPE_4_unknown2__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown3_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown5(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown5_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown6(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown7(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown7_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown8(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnum_unknown8_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrDebugCall_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrDebugCall_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrDebugCall_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrDebugCall_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryOtherDomains_server_unc(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryOtherDomains_server_unc_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryOtherDomains_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryOtherDomains_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryOtherDomains_total_entries(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryOtherDomains_total_entries_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrResetNetlogonState_unknown(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrResetNetlogonState_unknown_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrDebugTrace_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrDebugTrace_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrDebugTrace_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrDebugTrace_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryStatistics_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryStatistics_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryStatistics_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryStatistics_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryStatistics_unknown2__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrResetStatistics_unknown(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrResetStatistics_unknown_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_NetrBrowserStatisticsClear_unknown(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_NetrBrowserStatisticsClear_unknown_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_NetrBrowserStatisticsGet_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_NetrBrowserStatisticsGet_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_NetrBrowserStatisticsGet_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_NetrBrowserStatisticsGet_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_NetrBrowserStatisticsGet_unknown3_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSetNetlogonState_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSetNetlogonState_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSetNetlogonState_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSetNetlogonState_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSetNetlogonState_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSetNetlogonState_unknown3_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrSetNetlogonState_unknown4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown3_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown5(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown5_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown6(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown7(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown7_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown8(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned browser_dissect_element_BrowserrServerEnumEx_unknown8_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 
 
 /* IDL: struct { */
@@ -268,44 +268,44 @@ static int browser_dissect_element_BrowserrServerEnumEx_unknown8_(tvbuff_t *tvb 
 /* IDL: 	[size_is(entries_read)] [unique(1)] srvsvc_NetSrvInfo100 *entries; */
 /* IDL: } */
 
-static int
-browser_dissect_element_BrowserrSrvInfo100Ctr_entries_read(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfo100Ctr_entries_read(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSrvInfo100Ctr_entries_read, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSrvInfo100Ctr_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfo100Ctr_entries(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrSrvInfo100Ctr_entries_, NDR_POINTER_UNIQUE, "Pointer to Entries (srvsvc_NetSrvInfo100)",hf_browser_BrowserrSrvInfo100Ctr_entries);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSrvInfo100Ctr_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfo100Ctr_entries_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrSrvInfo100Ctr_entries__);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSrvInfo100Ctr_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfo100Ctr_entries__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = srvsvc_dissect_struct_NetSrvInfo100(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSrvInfo100Ctr_entries, 0);
 
 	return offset;
 }
 
-int
-browser_dissect_struct_BrowserrSrvInfo100Ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+browser_dissect_struct_BrowserrSrvInfo100Ctr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -337,44 +337,44 @@ browser_dissect_struct_BrowserrSrvInfo100Ctr(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: 	[size_is(entries_read)] [unique(1)] srvsvc_NetSrvInfo101 *entries; */
 /* IDL: } */
 
-static int
-browser_dissect_element_BrowserrSrvInfo101Ctr_entries_read(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfo101Ctr_entries_read(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSrvInfo101Ctr_entries_read, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSrvInfo101Ctr_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfo101Ctr_entries(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrSrvInfo101Ctr_entries_, NDR_POINTER_UNIQUE, "Pointer to Entries (srvsvc_NetSrvInfo101)",hf_browser_BrowserrSrvInfo101Ctr_entries);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSrvInfo101Ctr_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfo101Ctr_entries_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrSrvInfo101Ctr_entries__);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSrvInfo101Ctr_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfo101Ctr_entries__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = srvsvc_dissect_struct_NetSrvInfo101(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSrvInfo100Ctr_entries, 0);
 
 	return offset;
 }
 
-int
-browser_dissect_struct_BrowserrSrvInfo101Ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+browser_dissect_struct_BrowserrSrvInfo101Ctr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -407,44 +407,44 @@ browser_dissect_struct_BrowserrSrvInfo101Ctr(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: [default] ; */
 /* IDL: } */
 
-static int
-browser_dissect_element_BrowserrSrvInfoUnion_info100(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfoUnion_info100(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrSrvInfoUnion_info100_, NDR_POINTER_UNIQUE, "Pointer to Info100 (BrowserrSrvInfo100Ctr)",hf_browser_BrowserrSrvInfoUnion_info100);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSrvInfoUnion_info100_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfoUnion_info100_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_BrowserrSrvInfo100Ctr(tvb,offset,pinfo,tree,di,drep,hf_browser_BrowserrSrvInfoUnion_info100,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSrvInfoUnion_info101(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfoUnion_info101(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrSrvInfoUnion_info101_, NDR_POINTER_UNIQUE, "Pointer to Info101 (BrowserrSrvInfo101Ctr)",hf_browser_BrowserrSrvInfoUnion_info101);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSrvInfoUnion_info101_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSrvInfoUnion_info101_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_BrowserrSrvInfo101Ctr(tvb,offset,pinfo,tree,di,drep,hf_browser_BrowserrSrvInfoUnion_info101,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrSrvInfoUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+static unsigned
+browser_dissect_BrowserrSrvInfoUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 	uint32_t level;
 
 	old_offset = offset;
@@ -478,29 +478,29 @@ browser_dissect_BrowserrSrvInfoUnion(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: 	[switch_is(level)] BrowserrSrvInfoUnion info; */
 /* IDL: } */
 
-static int
-browser_dissect_element_BrowserrSrvInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
+static unsigned
+browser_dissect_element_BrowserrSrvInfo_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSrvInfo_level, *level);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSrvInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
+static unsigned
+browser_dissect_element_BrowserrSrvInfo_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	offset = browser_dissect_BrowserrSrvInfoUnion(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSrvInfo_info, *level);
 
 	return offset;
 }
 
-int
-browser_dissect_struct_BrowserrSrvInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+browser_dissect_struct_BrowserrSrvInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	uint32_t level = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -531,20 +531,20 @@ browser_dissect_struct_BrowserrSrvInfo(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: 	hyper unknown; */
 /* IDL: } */
 
-static int
-browser_dissect_element_TYPE_1_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_1_unknown(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_1_unknown, NULL);
 
 	return offset;
 }
 
-int
-browser_dissect_struct_TYPE_1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+browser_dissect_struct_TYPE_1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_8_BYTES;
 
@@ -591,164 +591,164 @@ browser_dissect_struct_TYPE_1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: 	TYPE_1 unknown19; */
 /* IDL: } */
 
-static int
-browser_dissect_element_TYPE_2_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_TYPE_1(tvb,offset,pinfo,tree,di,drep,hf_browser_TYPE_2_unknown1,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_TYPE_1(tvb,offset,pinfo,tree,di,drep,hf_browser_TYPE_2_unknown2,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_TYPE_1(tvb,offset,pinfo,tree,di,drep,hf_browser_TYPE_2_unknown3,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown4, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown5(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown5, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown6(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown6, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown7(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown7, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown8(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown8, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown9(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown9, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown10(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown10(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown10, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown11(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown11, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown12(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown12, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown13(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown13, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown14(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown14(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown14, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown15(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown15(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown15, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown16(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown16(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown16, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown17(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown17(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown17, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown18(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown18(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_2_unknown18, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_2_unknown19(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_2_unknown19(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_TYPE_1(tvb,offset,pinfo,tree,di,drep,hf_browser_TYPE_2_unknown19,0);
 
 	return offset;
 }
 
-int
-browser_dissect_struct_TYPE_2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+browser_dissect_struct_TYPE_2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_8_BYTES;
 
@@ -828,140 +828,140 @@ browser_dissect_struct_TYPE_2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: 	int32 unknown16; */
 /* IDL: } */
 
-static int
-browser_dissect_element_TYPE_3_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_TYPE_1(tvb,offset,pinfo,tree,di,drep,hf_browser_TYPE_3_unknown1,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_TYPE_1(tvb,offset,pinfo,tree,di,drep,hf_browser_TYPE_3_unknown2,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_TYPE_1(tvb,offset,pinfo,tree,di,drep,hf_browser_TYPE_3_unknown3,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown4, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown5(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown5, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown6(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown6, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown7(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_TYPE_1(tvb,offset,pinfo,tree,di,drep,hf_browser_TYPE_3_unknown7,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown8(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown8, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown9(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown9, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown10(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown10(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown10, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown11(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown11, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown12(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown12, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown13(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown13, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown14(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown14(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown14, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown15(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown15(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown15, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_3_unknown16(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_3_unknown16(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_3_unknown16, 0);
 
 	return offset;
 }
 
-int
-browser_dissect_struct_TYPE_3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+browser_dissect_struct_TYPE_3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_8_BYTES;
 
@@ -1021,44 +1021,44 @@ browser_dissect_struct_TYPE_3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: 	[size_is(unknown82)] [unique(1)] uint8 *unknown2; */
 /* IDL: } */
 
-static int
-browser_dissect_element_TYPE_4_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_4_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_4_unknown1, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_4_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_4_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_TYPE_4_unknown2_, NDR_POINTER_UNIQUE, "Pointer to Unknown2 (uint8)",hf_browser_TYPE_4_unknown2);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_4_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_4_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_TYPE_4_unknown2__);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_TYPE_4_unknown2__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_TYPE_4_unknown2__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_browser_TYPE_4_unknown2, 0);
 
 	return offset;
 }
 
-int
-browser_dissect_struct_TYPE_4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+browser_dissect_struct_TYPE_4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1084,16 +1084,16 @@ browser_dissect_struct_TYPE_4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnum_unknown1_, NDR_POINTER_UNIQUE, "Pointer to Unknown1 (uint16)",hf_browser_BrowserrServerEnum_unknown1);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1103,16 +1103,16 @@ browser_dissect_element_BrowserrServerEnum_unknown1_(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnum_unknown2_, NDR_POINTER_UNIQUE, "Pointer to Unknown2 (uint16)",hf_browser_BrowserrServerEnum_unknown2);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1122,16 +1122,16 @@ browser_dissect_element_BrowserrServerEnum_unknown2_(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnum_unknown3_, NDR_POINTER_UNIQUE, "Pointer to Unknown3 (uint16)",hf_browser_BrowserrServerEnum_unknown3);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown3_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1141,64 +1141,64 @@ browser_dissect_element_BrowserrServerEnum_unknown3_(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnum_info_, NDR_POINTER_REF, "Pointer to Info (BrowserrSrvInfo)",hf_browser_BrowserrServerEnum_info);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_BrowserrSrvInfo(tvb,offset,pinfo,tree,di,drep,hf_browser_BrowserrServerEnum_info,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrServerEnum_unknown4, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown5(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnum_unknown5_, NDR_POINTER_REF, "Pointer to Unknown5 (int32)",hf_browser_BrowserrServerEnum_unknown5);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown5_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown5_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrServerEnum_unknown5, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown6(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrServerEnum_unknown6, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown7(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnum_unknown7_, NDR_POINTER_UNIQUE, "Pointer to Unknown7 (uint16)",hf_browser_BrowserrServerEnum_unknown7);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown7_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown7_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1208,16 +1208,16 @@ browser_dissect_element_BrowserrServerEnum_unknown7_(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown8(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnum_unknown8_, NDR_POINTER_UNIQUE, "Pointer to Unknown8 (int32)",hf_browser_BrowserrServerEnum_unknown8);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnum_unknown8_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnum_unknown8_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrServerEnum_unknown8, 0);
 
@@ -1236,8 +1236,8 @@ browser_dissect_element_BrowserrServerEnum_unknown8_(tvbuff_t *tvb _U_, int offs
 /* IDL: [in] [out] [unique(1)] int32 *unknown8 */
 /* IDL: ); */
 
-static int
-browser_dissect_BrowserrServerEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrServerEnum_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1259,8 +1259,8 @@ browser_dissect_BrowserrServerEnum_response(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrServerEnum_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrServerEnum_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="BrowserrServerEnum";
 	offset = browser_dissect_element_BrowserrServerEnum_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -1282,16 +1282,16 @@ browser_dissect_BrowserrServerEnum_request(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrDebugCall_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrDebugCall_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrDebugCall_unknown1_, NDR_POINTER_UNIQUE, "Pointer to Unknown1 (uint16)",hf_browser_BrowserrDebugCall_unknown1);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrDebugCall_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrDebugCall_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1301,16 +1301,16 @@ browser_dissect_element_BrowserrDebugCall_unknown1_(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrDebugCall_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrDebugCall_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrDebugCall_unknown2, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrDebugCall_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrDebugCall_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrDebugCall_unknown3, 0);
 
@@ -1323,8 +1323,8 @@ browser_dissect_element_BrowserrDebugCall_unknown3(tvbuff_t *tvb _U_, int offset
 /* IDL: [in] int32 unknown3 */
 /* IDL: ); */
 
-static int
-browser_dissect_BrowserrDebugCall_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrDebugCall_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1337,8 +1337,8 @@ browser_dissect_BrowserrDebugCall_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrDebugCall_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrDebugCall_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="BrowserrDebugCall";
 	offset = browser_dissect_element_BrowserrDebugCall_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -1350,16 +1350,16 @@ browser_dissect_BrowserrDebugCall_request(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryOtherDomains_server_unc(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryOtherDomains_server_unc(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrQueryOtherDomains_server_unc_, NDR_POINTER_UNIQUE, "Pointer to Server Unc (uint16)",hf_browser_BrowserrQueryOtherDomains_server_unc);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryOtherDomains_server_unc_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryOtherDomains_server_unc_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1369,32 +1369,32 @@ browser_dissect_element_BrowserrQueryOtherDomains_server_unc_(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryOtherDomains_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryOtherDomains_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrQueryOtherDomains_info_, NDR_POINTER_REF, "Pointer to Info (BrowserrSrvInfo)",hf_browser_BrowserrQueryOtherDomains_info);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryOtherDomains_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryOtherDomains_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_BrowserrSrvInfo(tvb,offset,pinfo,tree,di,drep,hf_browser_BrowserrQueryOtherDomains_info,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryOtherDomains_total_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryOtherDomains_total_entries(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrQueryOtherDomains_total_entries_, NDR_POINTER_REF, "Pointer to Total Entries (uint32)",hf_browser_BrowserrQueryOtherDomains_total_entries);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryOtherDomains_total_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryOtherDomains_total_entries_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrQueryOtherDomains_total_entries, 0);
 
@@ -1407,8 +1407,8 @@ browser_dissect_element_BrowserrQueryOtherDomains_total_entries_(tvbuff_t *tvb _
 /* IDL: [out] [ref] uint32 *total_entries */
 /* IDL: ); */
 
-static int
-browser_dissect_BrowserrQueryOtherDomains_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrQueryOtherDomains_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1427,8 +1427,8 @@ browser_dissect_BrowserrQueryOtherDomains_response(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrQueryOtherDomains_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrQueryOtherDomains_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="BrowserrQueryOtherDomains";
 	offset = browser_dissect_element_BrowserrQueryOtherDomains_server_unc(tvb, offset, pinfo, tree, di, drep);
@@ -1438,16 +1438,16 @@ browser_dissect_BrowserrQueryOtherDomains_request(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrResetNetlogonState_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrResetNetlogonState_unknown(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrResetNetlogonState_unknown_, NDR_POINTER_UNIQUE, "Pointer to Unknown (uint16)",hf_browser_BrowserrResetNetlogonState_unknown);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrResetNetlogonState_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrResetNetlogonState_unknown_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1461,8 +1461,8 @@ browser_dissect_element_BrowserrResetNetlogonState_unknown_(tvbuff_t *tvb _U_, i
 /* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *unknown */
 /* IDL: ); */
 
-static int
-browser_dissect_BrowserrResetNetlogonState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrResetNetlogonState_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1475,8 +1475,8 @@ browser_dissect_BrowserrResetNetlogonState_response(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrResetNetlogonState_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrResetNetlogonState_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="BrowserrResetNetlogonState";
 	offset = browser_dissect_element_BrowserrResetNetlogonState_unknown(tvb, offset, pinfo, tree, di, drep);
@@ -1484,16 +1484,16 @@ browser_dissect_BrowserrResetNetlogonState_request(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrDebugTrace_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrDebugTrace_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrDebugTrace_unknown1_, NDR_POINTER_UNIQUE, "Pointer to Unknown1 (uint16)",hf_browser_BrowserrDebugTrace_unknown1);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrDebugTrace_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrDebugTrace_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1503,16 +1503,16 @@ browser_dissect_element_BrowserrDebugTrace_unknown1_(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrDebugTrace_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrDebugTrace_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrDebugTrace_unknown2_, NDR_POINTER_REF, "Pointer to Unknown2 (uint8)",hf_browser_BrowserrDebugTrace_unknown2);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrDebugTrace_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrDebugTrace_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1527,8 +1527,8 @@ browser_dissect_element_BrowserrDebugTrace_unknown2_(tvbuff_t *tvb _U_, int offs
 /* IDL: [in] [ref] uint8 *unknown2 */
 /* IDL: ); */
 
-static int
-browser_dissect_BrowserrDebugTrace_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrDebugTrace_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1541,8 +1541,8 @@ browser_dissect_BrowserrDebugTrace_response(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrDebugTrace_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrDebugTrace_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="BrowserrDebugTrace";
 	offset = browser_dissect_element_BrowserrDebugTrace_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -1552,16 +1552,16 @@ browser_dissect_BrowserrDebugTrace_request(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryStatistics_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryStatistics_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrQueryStatistics_unknown1_, NDR_POINTER_UNIQUE, "Pointer to Unknown1 (uint16)",hf_browser_BrowserrQueryStatistics_unknown1);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryStatistics_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryStatistics_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1571,24 +1571,24 @@ browser_dissect_element_BrowserrQueryStatistics_unknown1_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryStatistics_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryStatistics_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrQueryStatistics_unknown2_, NDR_POINTER_REF, "Pointer to Unknown2 (TYPE_2)",hf_browser_BrowserrQueryStatistics_unknown2);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryStatistics_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryStatistics_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrQueryStatistics_unknown2__, NDR_POINTER_UNIQUE, "Pointer to Unknown2 (TYPE_2)",hf_browser_BrowserrQueryStatistics_unknown2);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryStatistics_unknown2__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryStatistics_unknown2__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_TYPE_2(tvb,offset,pinfo,tree,di,drep,hf_browser_BrowserrQueryStatistics_unknown2,0);
 
@@ -1600,8 +1600,8 @@ browser_dissect_element_BrowserrQueryStatistics_unknown2__(tvbuff_t *tvb _U_, in
 /* IDL: [out] [ref] TYPE_2 **unknown2 */
 /* IDL: ); */
 
-static int
-browser_dissect_BrowserrQueryStatistics_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrQueryStatistics_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1617,8 +1617,8 @@ browser_dissect_BrowserrQueryStatistics_response(tvbuff_t *tvb _U_, int offset _
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrQueryStatistics_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrQueryStatistics_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="BrowserrQueryStatistics";
 	offset = browser_dissect_element_BrowserrQueryStatistics_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -1626,16 +1626,16 @@ browser_dissect_BrowserrQueryStatistics_request(tvbuff_t *tvb _U_, int offset _U
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrResetStatistics_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrResetStatistics_unknown(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrResetStatistics_unknown_, NDR_POINTER_UNIQUE, "Pointer to Unknown (uint16)",hf_browser_BrowserrResetStatistics_unknown);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrResetStatistics_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrResetStatistics_unknown_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1649,8 +1649,8 @@ browser_dissect_element_BrowserrResetStatistics_unknown_(tvbuff_t *tvb _U_, int 
 /* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *unknown */
 /* IDL: ); */
 
-static int
-browser_dissect_BrowserrResetStatistics_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrResetStatistics_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1663,8 +1663,8 @@ browser_dissect_BrowserrResetStatistics_response(tvbuff_t *tvb _U_, int offset _
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrResetStatistics_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrResetStatistics_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="BrowserrResetStatistics";
 	offset = browser_dissect_element_BrowserrResetStatistics_unknown(tvb, offset, pinfo, tree, di, drep);
@@ -1672,16 +1672,16 @@ browser_dissect_BrowserrResetStatistics_request(tvbuff_t *tvb _U_, int offset _U
 	return offset;
 }
 
-static int
-browser_dissect_element_NetrBrowserStatisticsClear_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_NetrBrowserStatisticsClear_unknown(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_NetrBrowserStatisticsClear_unknown_, NDR_POINTER_UNIQUE, "Pointer to Unknown (uint16)",hf_browser_NetrBrowserStatisticsClear_unknown);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_NetrBrowserStatisticsClear_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_NetrBrowserStatisticsClear_unknown_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1695,8 +1695,8 @@ browser_dissect_element_NetrBrowserStatisticsClear_unknown_(tvbuff_t *tvb _U_, i
 /* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *unknown */
 /* IDL: ); */
 
-static int
-browser_dissect_NetrBrowserStatisticsClear_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_NetrBrowserStatisticsClear_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1709,8 +1709,8 @@ browser_dissect_NetrBrowserStatisticsClear_response(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 
-static int
-browser_dissect_NetrBrowserStatisticsClear_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_NetrBrowserStatisticsClear_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="NetrBrowserStatisticsClear";
 	offset = browser_dissect_element_NetrBrowserStatisticsClear_unknown(tvb, offset, pinfo, tree, di, drep);
@@ -1718,16 +1718,16 @@ browser_dissect_NetrBrowserStatisticsClear_request(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-browser_dissect_element_NetrBrowserStatisticsGet_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_NetrBrowserStatisticsGet_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_NetrBrowserStatisticsGet_unknown1_, NDR_POINTER_UNIQUE, "Pointer to Unknown1 (uint16)",hf_browser_NetrBrowserStatisticsGet_unknown1);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_NetrBrowserStatisticsGet_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_NetrBrowserStatisticsGet_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1737,24 +1737,24 @@ browser_dissect_element_NetrBrowserStatisticsGet_unknown1_(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-browser_dissect_element_NetrBrowserStatisticsGet_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_NetrBrowserStatisticsGet_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_NetrBrowserStatisticsGet_unknown2, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_NetrBrowserStatisticsGet_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_NetrBrowserStatisticsGet_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_NetrBrowserStatisticsGet_unknown3_, NDR_POINTER_REF, "Pointer to Unknown3 (BrowserrSrvInfo)",hf_browser_NetrBrowserStatisticsGet_unknown3);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_NetrBrowserStatisticsGet_unknown3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_NetrBrowserStatisticsGet_unknown3_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_BrowserrSrvInfo(tvb,offset,pinfo,tree,di,drep,hf_browser_NetrBrowserStatisticsGet_unknown3,0);
 
@@ -1767,8 +1767,8 @@ browser_dissect_element_NetrBrowserStatisticsGet_unknown3_(tvbuff_t *tvb _U_, in
 /* IDL: [in] [out] [ref] BrowserrSrvInfo *unknown3 */
 /* IDL: ); */
 
-static int
-browser_dissect_NetrBrowserStatisticsGet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_NetrBrowserStatisticsGet_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1784,8 +1784,8 @@ browser_dissect_NetrBrowserStatisticsGet_response(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-browser_dissect_NetrBrowserStatisticsGet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_NetrBrowserStatisticsGet_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="NetrBrowserStatisticsGet";
 	offset = browser_dissect_element_NetrBrowserStatisticsGet_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -1797,16 +1797,16 @@ browser_dissect_NetrBrowserStatisticsGet_request(tvbuff_t *tvb _U_, int offset _
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSetNetlogonState_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSetNetlogonState_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrSetNetlogonState_unknown1_, NDR_POINTER_UNIQUE, "Pointer to Unknown1 (uint16)",hf_browser_BrowserrSetNetlogonState_unknown1);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSetNetlogonState_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSetNetlogonState_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1816,16 +1816,16 @@ browser_dissect_element_BrowserrSetNetlogonState_unknown1_(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSetNetlogonState_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSetNetlogonState_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrSetNetlogonState_unknown2_, NDR_POINTER_REF, "Pointer to Unknown2 (uint16)",hf_browser_BrowserrSetNetlogonState_unknown2);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSetNetlogonState_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSetNetlogonState_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1835,16 +1835,16 @@ browser_dissect_element_BrowserrSetNetlogonState_unknown2_(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSetNetlogonState_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSetNetlogonState_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrSetNetlogonState_unknown3_, NDR_POINTER_UNIQUE, "Pointer to Unknown3 (uint16)",hf_browser_BrowserrSetNetlogonState_unknown3);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSetNetlogonState_unknown3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSetNetlogonState_unknown3_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1854,8 +1854,8 @@ browser_dissect_element_BrowserrSetNetlogonState_unknown3_(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrSetNetlogonState_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrSetNetlogonState_unknown4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSetNetlogonState_unknown4, 0);
 
@@ -1869,8 +1869,8 @@ browser_dissect_element_BrowserrSetNetlogonState_unknown4(tvbuff_t *tvb _U_, int
 /* IDL: [in] int32 unknown4 */
 /* IDL: ); */
 
-static int
-browser_dissect_BrowserrSetNetlogonState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrSetNetlogonState_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1883,8 +1883,8 @@ browser_dissect_BrowserrSetNetlogonState_response(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrSetNetlogonState_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrSetNetlogonState_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="BrowserrSetNetlogonState";
 	offset = browser_dissect_element_BrowserrSetNetlogonState_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -1898,16 +1898,16 @@ browser_dissect_BrowserrSetNetlogonState_request(tvbuff_t *tvb _U_, int offset _
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1_, NDR_POINTER_UNIQUE, "Pointer to Unknown1 (uint16)",hf_browser_BrowserrQueryEmulatedDomains_unknown1);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1917,16 +1917,16 @@ browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1_(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2_, NDR_POINTER_REF, "Pointer to Unknown2 (TYPE_4)",hf_browser_BrowserrQueryEmulatedDomains_unknown2);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_TYPE_4(tvb,offset,pinfo,tree,di,drep,hf_browser_BrowserrQueryEmulatedDomains_unknown2,0);
 
@@ -1938,8 +1938,8 @@ browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2_(tvbuff_t *tvb _U_
 /* IDL: [in] [out] [ref] TYPE_4 *unknown2 */
 /* IDL: ); */
 
-static int
-browser_dissect_BrowserrQueryEmulatedDomains_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrQueryEmulatedDomains_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1955,8 +1955,8 @@ browser_dissect_BrowserrQueryEmulatedDomains_response(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrQueryEmulatedDomains_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrQueryEmulatedDomains_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="BrowserrQueryEmulatedDomains";
 	offset = browser_dissect_element_BrowserrQueryEmulatedDomains_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -1966,16 +1966,16 @@ browser_dissect_BrowserrQueryEmulatedDomains_request(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnumEx_unknown1_, NDR_POINTER_UNIQUE, "Pointer to Unknown1 (uint16)",hf_browser_BrowserrServerEnumEx_unknown1);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1985,16 +1985,16 @@ browser_dissect_element_BrowserrServerEnumEx_unknown1_(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnumEx_unknown2_, NDR_POINTER_UNIQUE, "Pointer to Unknown2 (uint16)",hf_browser_BrowserrServerEnumEx_unknown2);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2004,16 +2004,16 @@ browser_dissect_element_BrowserrServerEnumEx_unknown2_(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnumEx_unknown3_, NDR_POINTER_UNIQUE, "Pointer to Unknown3 (uint16)",hf_browser_BrowserrServerEnumEx_unknown3);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown3_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2023,64 +2023,64 @@ browser_dissect_element_BrowserrServerEnumEx_unknown3_(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnumEx_info_, NDR_POINTER_REF, "Pointer to Info (BrowserrSrvInfo)",hf_browser_BrowserrServerEnumEx_info);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = browser_dissect_struct_BrowserrSrvInfo(tvb,offset,pinfo,tree,di,drep,hf_browser_BrowserrServerEnumEx_info,0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrServerEnumEx_unknown4, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown5(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnumEx_unknown5_, NDR_POINTER_REF, "Pointer to Unknown5 (int32)",hf_browser_BrowserrServerEnumEx_unknown5);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown5_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown5_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrServerEnumEx_unknown5, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown6(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrServerEnumEx_unknown6, 0);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown7(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnumEx_unknown7_, NDR_POINTER_UNIQUE, "Pointer to Unknown7 (uint16)",hf_browser_BrowserrServerEnumEx_unknown7);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown7_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown7_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2090,16 +2090,16 @@ browser_dissect_element_BrowserrServerEnumEx_unknown7_(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown8(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, browser_dissect_element_BrowserrServerEnumEx_unknown8_, NDR_POINTER_UNIQUE, "Pointer to Unknown8 (uint16)",hf_browser_BrowserrServerEnumEx_unknown8);
 
 	return offset;
 }
 
-static int
-browser_dissect_element_BrowserrServerEnumEx_unknown8_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_element_BrowserrServerEnumEx_unknown8_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2121,8 +2121,8 @@ browser_dissect_element_BrowserrServerEnumEx_unknown8_(tvbuff_t *tvb _U_, int of
 /* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *unknown8 */
 /* IDL: ); */
 
-static int
-browser_dissect_BrowserrServerEnumEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrServerEnumEx_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2141,8 +2141,8 @@ browser_dissect_BrowserrServerEnumEx_response(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-browser_dissect_BrowserrServerEnumEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+browser_dissect_BrowserrServerEnumEx_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="BrowserrServerEnumEx";
 	offset = browser_dissect_element_BrowserrServerEnumEx_unknown1(tvb, offset, pinfo, tree, di, drep);

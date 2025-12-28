@@ -39,8 +39,8 @@ static e_guid_t uuid_rs_acct = { 0x4c878280, 0x2000, 0x0000, { 0x0d, 0x00, 0x02,
 static uint16_t ver_rs_acct = 1;
 
 
-static int
-rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, unsigned offset,
 		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t key_size;
@@ -67,8 +67,8 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 
 
 
-static int
-rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, unsigned offset,
 		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t key_size;

@@ -75,58 +75,58 @@ static e_guid_t uuid_dcerpc_efs = {
 };
 static uint16_t ver_dcerpc_efs = 1;
 
-static int efs_dissect_element_EFS_HASH_BLOB_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EFS_HASH_BLOB_pbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EFS_HASH_BLOB_pbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EFS_HASH_BLOB_pbData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_cbTotalLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pHash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pHash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_nCert_Hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EFS_CERTIFICATE_BLOB_dwCertEncodingType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EFS_CERTIFICATE_BLOB_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_TotalLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_pCertBlob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_ENCRYPTION_CERTIFICATE_pCertBlob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcOpenFileRaw_pvContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcOpenFileRaw_pvContext_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcOpenFileRaw_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcOpenFileRaw_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcReadFileRaw_pvContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcReadFileRaw_pvContext_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcWriteFileRaw_pvContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcWriteFileRaw_pvContext_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcCloseRaw_pvContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcCloseRaw_pvContext_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcEncryptFileSrv_Filename(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcDecryptFileSrv_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcDecryptFileSrv_Reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcQueryUsersOnFile_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcQueryRecoveryAgents_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcRemoveUsersFromFile_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcAddUsersToFile_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int
-efs_dissect_struct_dom_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+static unsigned efs_dissect_element_EFS_HASH_BLOB_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EFS_HASH_BLOB_pbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EFS_HASH_BLOB_pbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EFS_HASH_BLOB_pbData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_cbTotalLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pHash(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pHash_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_nCert_Hash(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EFS_CERTIFICATE_BLOB_dwCertEncodingType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EFS_CERTIFICATE_BLOB_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_TotalLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_pCertBlob(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_ENCRYPTION_CERTIFICATE_pCertBlob_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcOpenFileRaw_pvContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcOpenFileRaw_pvContext_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcOpenFileRaw_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcOpenFileRaw_Flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcReadFileRaw_pvContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcReadFileRaw_pvContext_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcWriteFileRaw_pvContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcWriteFileRaw_pvContext_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcCloseRaw_pvContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcCloseRaw_pvContext_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcEncryptFileSrv_Filename(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcDecryptFileSrv_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcDecryptFileSrv_Reserved(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcQueryUsersOnFile_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcQueryRecoveryAgents_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcRemoveUsersFromFile_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcAddUsersToFile_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned
+efs_dissect_struct_dom_sid(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	if(di->conformant_run){
 		/* just a run to handle conformant arrays, no scalars to dissect */
@@ -142,44 +142,44 @@ efs_dissect_struct_dom_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 /* IDL: 	[size_is(cbData)] [unique(1)] uint8 *pbData; */
 /* IDL: } */
 
-static int
-efs_dissect_element_EFS_HASH_BLOB_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EFS_HASH_BLOB_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_efs_EFS_HASH_BLOB_cbData, 0);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EFS_HASH_BLOB_pbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EFS_HASH_BLOB_pbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EFS_HASH_BLOB_pbData_, NDR_POINTER_UNIQUE, "Pointer to PbData (uint8)",hf_efs_EFS_HASH_BLOB_pbData);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EFS_HASH_BLOB_pbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EFS_HASH_BLOB_pbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EFS_HASH_BLOB_pbData__);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EFS_HASH_BLOB_pbData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EFS_HASH_BLOB_pbData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_efs_EFS_HASH_BLOB_pbData, 0);
 
 	return offset;
 }
 
-int
-efs_dissect_struct_EFS_HASH_BLOB(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+efs_dissect_struct_EFS_HASH_BLOB(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -213,56 +213,56 @@ efs_dissect_struct_EFS_HASH_BLOB(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: 	[charset(UTF16)] [unique(1)] uint16 *lpDisplayInformation; */
 /* IDL: } */
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_cbTotalLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_cbTotalLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_efs_ENCRYPTION_CERTIFICATE_HASH_cbTotalLength, 0);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid_, NDR_POINTER_UNIQUE, "Pointer to PUserSid (dom_sid)",hf_efs_ENCRYPTION_CERTIFICATE_HASH_pUserSid);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = efs_dissect_struct_dom_sid(tvb,offset,pinfo,tree,di,drep,hf_efs_ENCRYPTION_CERTIFICATE_HASH_pUserSid,0);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pHash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pHash(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pHash_, NDR_POINTER_UNIQUE, "Pointer to PHash (EFS_HASH_BLOB)",hf_efs_ENCRYPTION_CERTIFICATE_HASH_pHash);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pHash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pHash_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = efs_dissect_struct_EFS_HASH_BLOB(tvb,offset,pinfo,tree,di,drep,hf_efs_ENCRYPTION_CERTIFICATE_HASH_pHash,0);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation_, NDR_POINTER_UNIQUE, "Pointer to LpDisplayInformation (uint16)",hf_efs_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -272,12 +272,12 @@ efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation_(tvbuff_t *
 	return offset;
 }
 
-int
-efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -313,44 +313,44 @@ efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: 	[size_is(nCert_Hash)] [unique(1)] ENCRYPTION_CERTIFICATE_HASH *pUsers[*]; */
 /* IDL: } */
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_nCert_Hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_nCert_Hash(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_efs_ENCRYPTION_CERTIFICATE_HASH_LIST_nCert_Hash, 0);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers_);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers__, NDR_POINTER_UNIQUE, "Pointer to PUsers (ENCRYPTION_CERTIFICATE_HASH)",hf_efs_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH(tvb,offset,pinfo,tree,di,drep,hf_efs_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers,0);
 
 	return offset;
 }
 
-int
-efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH_LIST(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH_LIST(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -383,52 +383,52 @@ efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH_LIST(tvbuff_t *tvb _U_, int offse
 /* IDL: 	[size_is(cbData)] [unique(1)] uint8 *pbData; */
 /* IDL: } */
 
-static int
-efs_dissect_element_EFS_CERTIFICATE_BLOB_dwCertEncodingType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EFS_CERTIFICATE_BLOB_dwCertEncodingType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_efs_EFS_CERTIFICATE_BLOB_dwCertEncodingType, 0);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EFS_CERTIFICATE_BLOB_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EFS_CERTIFICATE_BLOB_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_efs_EFS_CERTIFICATE_BLOB_cbData, 0);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData_, NDR_POINTER_UNIQUE, "Pointer to PbData (uint8)",hf_efs_EFS_CERTIFICATE_BLOB_pbData);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData__);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EFS_CERTIFICATE_BLOB_pbData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_efs_EFS_CERTIFICATE_BLOB_pbData, 0);
 
 	return offset;
 }
 
-int
-efs_dissect_struct_EFS_CERTIFICATE_BLOB(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+efs_dissect_struct_EFS_CERTIFICATE_BLOB(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -463,52 +463,52 @@ efs_dissect_struct_EFS_CERTIFICATE_BLOB(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: 	[unique(1)] EFS_CERTIFICATE_BLOB *pCertBlob; */
 /* IDL: } */
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_TotalLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_TotalLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_efs_ENCRYPTION_CERTIFICATE_TotalLength, 0);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid_, NDR_POINTER_UNIQUE, "Pointer to PUserSid (dom_sid)",hf_efs_ENCRYPTION_CERTIFICATE_pUserSid);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = efs_dissect_struct_dom_sid(tvb,offset,pinfo,tree,di,drep,hf_efs_ENCRYPTION_CERTIFICATE_pUserSid,0);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_pCertBlob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_pCertBlob(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_ENCRYPTION_CERTIFICATE_pCertBlob_, NDR_POINTER_UNIQUE, "Pointer to PCertBlob (EFS_CERTIFICATE_BLOB)",hf_efs_ENCRYPTION_CERTIFICATE_pCertBlob);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_ENCRYPTION_CERTIFICATE_pCertBlob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_ENCRYPTION_CERTIFICATE_pCertBlob_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = efs_dissect_struct_EFS_CERTIFICATE_BLOB(tvb,offset,pinfo,tree,di,drep,hf_efs_ENCRYPTION_CERTIFICATE_pCertBlob,0);
 
 	return offset;
 }
 
-int
-efs_dissect_struct_ENCRYPTION_CERTIFICATE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+efs_dissect_struct_ENCRYPTION_CERTIFICATE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -536,24 +536,24 @@ efs_dissect_struct_ENCRYPTION_CERTIFICATE(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcOpenFileRaw_pvContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcOpenFileRaw_pvContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EfsRpcOpenFileRaw_pvContext_, NDR_POINTER_REF, "Pointer to PvContext (policy_handle)",hf_efs_EfsRpcOpenFileRaw_pvContext);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcOpenFileRaw_pvContext_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcOpenFileRaw_pvContext_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_efs_EfsRpcOpenFileRaw_pvContext, PIDL_POLHND_OPEN);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcOpenFileRaw_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcOpenFileRaw_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -563,8 +563,8 @@ efs_dissect_element_EfsRpcOpenFileRaw_FileName(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcOpenFileRaw_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcOpenFileRaw_Flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_efs_EfsRpcOpenFileRaw_Flags, 0);
 
@@ -577,8 +577,8 @@ efs_dissect_element_EfsRpcOpenFileRaw_Flags(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: [in] uint32 Flags */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcOpenFileRaw_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcOpenFileRaw_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -594,8 +594,8 @@ efs_dissect_EfsRpcOpenFileRaw_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcOpenFileRaw_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcOpenFileRaw_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcOpenFileRaw";
 	offset = efs_dissect_element_EfsRpcOpenFileRaw_FileName(tvb, offset, pinfo, tree, di, drep);
@@ -605,16 +605,16 @@ efs_dissect_EfsRpcOpenFileRaw_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcReadFileRaw_pvContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcReadFileRaw_pvContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EfsRpcReadFileRaw_pvContext_, NDR_POINTER_REF, "Pointer to PvContext (policy_handle)",hf_efs_EfsRpcReadFileRaw_pvContext);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcReadFileRaw_pvContext_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcReadFileRaw_pvContext_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_efs_EfsRpcReadFileRaw_pvContext, 0);
 
@@ -625,8 +625,8 @@ efs_dissect_element_EfsRpcReadFileRaw_pvContext_(tvbuff_t *tvb _U_, int offset _
 /* IDL: [in] [ref] policy_handle *pvContext */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcReadFileRaw_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcReadFileRaw_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -639,8 +639,8 @@ efs_dissect_EfsRpcReadFileRaw_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcReadFileRaw_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcReadFileRaw_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcReadFileRaw";
 	offset = efs_dissect_element_EfsRpcReadFileRaw_pvContext(tvb, offset, pinfo, tree, di, drep);
@@ -648,16 +648,16 @@ efs_dissect_EfsRpcReadFileRaw_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcWriteFileRaw_pvContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcWriteFileRaw_pvContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EfsRpcWriteFileRaw_pvContext_, NDR_POINTER_REF, "Pointer to PvContext (policy_handle)",hf_efs_EfsRpcWriteFileRaw_pvContext);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcWriteFileRaw_pvContext_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcWriteFileRaw_pvContext_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_efs_EfsRpcWriteFileRaw_pvContext, 0);
 
@@ -668,8 +668,8 @@ efs_dissect_element_EfsRpcWriteFileRaw_pvContext_(tvbuff_t *tvb _U_, int offset 
 /* IDL: [in] [ref] policy_handle *pvContext */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcWriteFileRaw_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcWriteFileRaw_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -682,8 +682,8 @@ efs_dissect_EfsRpcWriteFileRaw_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcWriteFileRaw_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcWriteFileRaw_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcWriteFileRaw";
 	offset = efs_dissect_element_EfsRpcWriteFileRaw_pvContext(tvb, offset, pinfo, tree, di, drep);
@@ -691,16 +691,16 @@ efs_dissect_EfsRpcWriteFileRaw_request(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcCloseRaw_pvContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcCloseRaw_pvContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EfsRpcCloseRaw_pvContext_, NDR_POINTER_REF, "Pointer to PvContext (policy_handle)",hf_efs_EfsRpcCloseRaw_pvContext);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcCloseRaw_pvContext_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcCloseRaw_pvContext_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_efs_EfsRpcCloseRaw_pvContext, PIDL_POLHND_CLOSE);
 
@@ -711,8 +711,8 @@ efs_dissect_element_EfsRpcCloseRaw_pvContext_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: [in] [out] [ref] policy_handle *pvContext */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcCloseRaw_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcCloseRaw_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcCloseRaw";
 	offset = efs_dissect_element_EfsRpcCloseRaw_pvContext(tvb, offset, pinfo, tree, di, drep);
@@ -721,8 +721,8 @@ efs_dissect_EfsRpcCloseRaw_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcCloseRaw_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcCloseRaw_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcCloseRaw";
 	offset = efs_dissect_element_EfsRpcCloseRaw_pvContext(tvb, offset, pinfo, tree, di, drep);
@@ -730,8 +730,8 @@ efs_dissect_EfsRpcCloseRaw_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcEncryptFileSrv_Filename(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcEncryptFileSrv_Filename(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -745,8 +745,8 @@ efs_dissect_element_EfsRpcEncryptFileSrv_Filename(tvbuff_t *tvb _U_, int offset 
 /* IDL: [charset(UTF16)] [in] uint16 Filename[*] */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcEncryptFileSrv_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcEncryptFileSrv_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -759,8 +759,8 @@ efs_dissect_EfsRpcEncryptFileSrv_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcEncryptFileSrv_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcEncryptFileSrv_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcEncryptFileSrv";
 	offset = efs_dissect_element_EfsRpcEncryptFileSrv_Filename(tvb, offset, pinfo, tree, di, drep);
@@ -768,8 +768,8 @@ efs_dissect_EfsRpcEncryptFileSrv_request(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcDecryptFileSrv_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcDecryptFileSrv_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -779,8 +779,8 @@ efs_dissect_element_EfsRpcDecryptFileSrv_FileName(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcDecryptFileSrv_Reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcDecryptFileSrv_Reserved(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_efs_EfsRpcDecryptFileSrv_Reserved, 0);
 
@@ -792,8 +792,8 @@ efs_dissect_element_EfsRpcDecryptFileSrv_Reserved(tvbuff_t *tvb _U_, int offset 
 /* IDL: [in] uint32 Reserved */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcDecryptFileSrv_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcDecryptFileSrv_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -806,8 +806,8 @@ efs_dissect_EfsRpcDecryptFileSrv_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcDecryptFileSrv_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcDecryptFileSrv_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcDecryptFileSrv";
 	offset = efs_dissect_element_EfsRpcDecryptFileSrv_FileName(tvb, offset, pinfo, tree, di, drep);
@@ -817,8 +817,8 @@ efs_dissect_EfsRpcDecryptFileSrv_request(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcQueryUsersOnFile_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcQueryUsersOnFile_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -828,24 +828,24 @@ efs_dissect_element_EfsRpcQueryUsersOnFile_FileName(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers_, NDR_POINTER_REF, "Pointer to PUsers (ENCRYPTION_CERTIFICATE_HASH_LIST)",hf_efs_EfsRpcQueryUsersOnFile_pUsers);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers__, NDR_POINTER_UNIQUE, "Pointer to PUsers (ENCRYPTION_CERTIFICATE_HASH_LIST)",hf_efs_EfsRpcQueryUsersOnFile_pUsers);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH_LIST(tvb,offset,pinfo,tree,di,drep,hf_efs_EfsRpcQueryUsersOnFile_pUsers,0);
 
@@ -857,8 +857,8 @@ efs_dissect_element_EfsRpcQueryUsersOnFile_pUsers__(tvbuff_t *tvb _U_, int offse
 /* IDL: [out] [ref] [unique(1)] ENCRYPTION_CERTIFICATE_HASH_LIST **pUsers */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcQueryUsersOnFile_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcQueryUsersOnFile_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -874,8 +874,8 @@ efs_dissect_EfsRpcQueryUsersOnFile_response(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcQueryUsersOnFile_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcQueryUsersOnFile_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcQueryUsersOnFile";
 	offset = efs_dissect_element_EfsRpcQueryUsersOnFile_FileName(tvb, offset, pinfo, tree, di, drep);
@@ -883,8 +883,8 @@ efs_dissect_EfsRpcQueryUsersOnFile_request(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcQueryRecoveryAgents_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcQueryRecoveryAgents_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -894,24 +894,24 @@ efs_dissect_element_EfsRpcQueryRecoveryAgents_FileName(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents_, NDR_POINTER_REF, "Pointer to PRecoveryAgents (ENCRYPTION_CERTIFICATE_HASH_LIST)",hf_efs_EfsRpcQueryRecoveryAgents_pRecoveryAgents);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents__, NDR_POINTER_UNIQUE, "Pointer to PRecoveryAgents (ENCRYPTION_CERTIFICATE_HASH_LIST)",hf_efs_EfsRpcQueryRecoveryAgents_pRecoveryAgents);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH_LIST(tvb,offset,pinfo,tree,di,drep,hf_efs_EfsRpcQueryRecoveryAgents_pRecoveryAgents,0);
 
@@ -923,8 +923,8 @@ efs_dissect_element_EfsRpcQueryRecoveryAgents_pRecoveryAgents__(tvbuff_t *tvb _U
 /* IDL: [out] [ref] [unique(1)] ENCRYPTION_CERTIFICATE_HASH_LIST **pRecoveryAgents */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcQueryRecoveryAgents_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcQueryRecoveryAgents_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -940,8 +940,8 @@ efs_dissect_EfsRpcQueryRecoveryAgents_response(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcQueryRecoveryAgents_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcQueryRecoveryAgents_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcQueryRecoveryAgents";
 	offset = efs_dissect_element_EfsRpcQueryRecoveryAgents_FileName(tvb, offset, pinfo, tree, di, drep);
@@ -949,8 +949,8 @@ efs_dissect_EfsRpcQueryRecoveryAgents_request(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcRemoveUsersFromFile_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcRemoveUsersFromFile_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -964,8 +964,8 @@ efs_dissect_element_EfsRpcRemoveUsersFromFile_FileName(tvbuff_t *tvb _U_, int of
 /* IDL: [charset(UTF16)] [in] uint16 FileName[*] */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcRemoveUsersFromFile_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcRemoveUsersFromFile_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -978,8 +978,8 @@ efs_dissect_EfsRpcRemoveUsersFromFile_response(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcRemoveUsersFromFile_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcRemoveUsersFromFile_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcRemoveUsersFromFile";
 	offset = efs_dissect_element_EfsRpcRemoveUsersFromFile_FileName(tvb, offset, pinfo, tree, di, drep);
@@ -987,8 +987,8 @@ efs_dissect_EfsRpcRemoveUsersFromFile_request(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcAddUsersToFile_FileName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcAddUsersToFile_FileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1002,8 +1002,8 @@ efs_dissect_element_EfsRpcAddUsersToFile_FileName(tvbuff_t *tvb _U_, int offset 
 /* IDL: [charset(UTF16)] [in] uint16 FileName[*] */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcAddUsersToFile_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcAddUsersToFile_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1016,8 +1016,8 @@ efs_dissect_EfsRpcAddUsersToFile_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcAddUsersToFile_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcAddUsersToFile_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcAddUsersToFile";
 	offset = efs_dissect_element_EfsRpcAddUsersToFile_FileName(tvb, offset, pinfo, tree, di, drep);
@@ -1025,16 +1025,16 @@ efs_dissect_EfsRpcAddUsersToFile_request(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate_, NDR_POINTER_UNIQUE, "Pointer to PEncryptionCertificate (ENCRYPTION_CERTIFICATE)",hf_efs_EfsRpcSetFileEncryptionKey_pEncryptionCertificate);
 
 	return offset;
 }
 
-static int
-efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = efs_dissect_struct_ENCRYPTION_CERTIFICATE(tvb,offset,pinfo,tree,di,drep,hf_efs_EfsRpcSetFileEncryptionKey_pEncryptionCertificate,0);
 
@@ -1045,8 +1045,8 @@ efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate_(tvbuff_t 
 /* IDL: [in] [unique(1)] ENCRYPTION_CERTIFICATE *pEncryptionCertificate */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcSetFileEncryptionKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcSetFileEncryptionKey_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1059,8 +1059,8 @@ efs_dissect_EfsRpcSetFileEncryptionKey_response(tvbuff_t *tvb _U_, int offset _U
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcSetFileEncryptionKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcSetFileEncryptionKey_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcSetFileEncryptionKey";
 	offset = efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate(tvb, offset, pinfo, tree, di, drep);
@@ -1072,8 +1072,8 @@ efs_dissect_EfsRpcSetFileEncryptionKey_request(tvbuff_t *tvb _U_, int offset _U_
 /* IDL:  */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcNotSupported_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcNotSupported_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1086,8 +1086,8 @@ efs_dissect_EfsRpcNotSupported_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcNotSupported_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcNotSupported_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcNotSupported";
 	return offset;
@@ -1097,8 +1097,8 @@ efs_dissect_EfsRpcNotSupported_request(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL:  */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcFileKeyInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcFileKeyInfo_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1111,8 +1111,8 @@ efs_dissect_EfsRpcFileKeyInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcFileKeyInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcFileKeyInfo_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcFileKeyInfo";
 	return offset;
@@ -1122,8 +1122,8 @@ efs_dissect_EfsRpcFileKeyInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL:  */
 /* IDL: ); */
 
-static int
-efs_dissect_EfsRpcDuplicateEncryptionInfoFile_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcDuplicateEncryptionInfoFile_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1136,8 +1136,8 @@ efs_dissect_EfsRpcDuplicateEncryptionInfoFile_response(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-efs_dissect_EfsRpcDuplicateEncryptionInfoFile_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+efs_dissect_EfsRpcDuplicateEncryptionInfoFile_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EfsRpcDuplicateEncryptionInfoFile";
 	return offset;

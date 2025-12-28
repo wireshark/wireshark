@@ -271,8 +271,8 @@ static int * const pa_profile_status_fields[] = {
 */
 
 /* Dissector for PROFIsafe Status Byte */
-static int
-dissect_pn_io_ps_SB(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_pn_io_ps_SB(tvbuff_t *tvb, unsigned offset,
 packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * const *fields)
 {
 
@@ -293,8 +293,8 @@ packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * 
 
 
 /* Dissector for PROFIsafe Control Byte */
-static int
-dissect_pn_io_ps_CB(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_pn_io_ps_CB(tvbuff_t *tvb, unsigned offset,
 packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * const *fields)
 {
 
@@ -316,8 +316,8 @@ packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * 
 
 
 /* Dissector for IOCS (As each IOCS stands for a specific Slot & Subslot) */
-static int
-dissect_PNIO_IOCS(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree,
+static unsigned
+dissect_PNIO_IOCS(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree,
             uint8_t *drep _U_, int hfindex, uint16_t slotNr, uint16_t subSlotNr, int * const *fields)
 {
 
@@ -343,8 +343,8 @@ dissect_PNIO_IOCS(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 
 
 /* dissect the IOxS (IOCS, IOPS) field */
-static int
-dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PNIO_IOxS(tvbuff_t *tvb, unsigned offset,
 packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * const *fields)
 {
 
@@ -368,8 +368,8 @@ packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * 
 
 
 /* Universal dissector for flexible PROFIsafe Data 8 to 64 Bits */
-static int
-dissect_pn_io_ps_uint(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+static unsigned
+dissect_pn_io_ps_uint(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
     proto_tree *tree, uint8_t *drep,
 int hfindex, uint8_t bytelength, uint64_t *pdata)
 {
@@ -442,8 +442,8 @@ int hfindex, uint8_t bytelength, uint64_t *pdata)
 
 
 /* dissect a PN-IO RTC1 Cyclic Service Data Unit */
-int
-dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
+unsigned
+dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, uint8_t *drep _U_, uint16_t frameid)
 {
     proto_tree  *data_tree = NULL;
@@ -1009,8 +1009,8 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 }
 
 /* dissect a PN-IO RTC1 with security */
-int
-dissect_PNIO_RTC1_with_security(tvbuff_t* tvb, int offset,
+unsigned
+dissect_PNIO_RTC1_with_security(tvbuff_t* tvb, unsigned offset,
     packet_info* pinfo, proto_tree* tree, uint8_t* drep _U_, uint16_t frameid)
 {
     proto_item* meta_data_item;
@@ -1051,8 +1051,8 @@ dissect_PNIO_RTC1_with_security(tvbuff_t* tvb, int offset,
 
 
 /* dissect the PA Profile status field */
-static int
-dissect_pn_pa_profile_status(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_pn_pa_profile_status(tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo _U_, proto_tree *tree, int hfindex)
 {
 
@@ -1100,8 +1100,8 @@ dissect_pn_pa_profile_status(tvbuff_t *tvb, int offset,
     return offset + 1;
 }
 
-int
-dissect_pn_pa_profile_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+unsigned
+dissect_pn_pa_profile_data(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
                           proto_tree *tree, uint32_t length, const char *text)
 {
     (void)text;

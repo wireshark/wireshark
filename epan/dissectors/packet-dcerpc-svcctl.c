@@ -399,10 +399,10 @@ static e_guid_t uuid_dcerpc_svcctl = {
 };
 static uint16_t ver_dcerpc_svcctl = 2;
 
-static int svcctl_dissect_element_SERVICE_LOCK_STATUS_is_locked(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_duration(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_LOCK_STATUS_is_locked(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_duration(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 const value_string svcctl_svcctl_ServiceStatus_vals[] = {
 	{ SVCCTL_STOPPED, "SVCCTL_STOPPED" },
 	{ SVCCTL_START_PENDING, "SVCCTL_START_PENDING" },
@@ -475,37 +475,37 @@ static const true_false_string svcctl_ControlsAccepted_SERVICE_ACCEPT_USERMODERE
    "SERVICE_ACCEPT_USERMODEREBOOT is SET",
    "SERVICE_ACCEPT_USERMODEREBOOT is NOT SET",
 };
-static int svcctl_dissect_element_SERVICE_STATUS_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_controls_accepted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_win32_exit_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_service_exit_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_check_point(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_wait_hint(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_controls_accepted(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_win32_exit_code(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_service_exit_code(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_check_point(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_wait_hint(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 const value_string svcctl_svcctl_ServiceFlags_vals[] = {
 	{ SERVICE_RUNS_IN_NONSYSTEM_ORNOTRUNNING, "SERVICE_RUNS_IN_NONSYSTEM_ORNOTRUNNING" },
 	{ SERVICE_RUNS_IN_SYSTEM_PROCESS, "SERVICE_RUNS_IN_SYSTEM_PROCESS" },
 { 0, NULL }
 };
-static int svcctl_dissect_element_SERVICE_STATUS_PROCESS_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_PROCESS_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_PROCESS_controls_accepted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_PROCESS_win32_exit_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_PROCESS_service_exit_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_PROCESS_check_point(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_PROCESS_wait_hint(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_PROCESS_process_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SERVICE_STATUS_PROCESS_service_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ENUM_SERVICE_STATUSW_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ENUM_SERVICE_STATUSA_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_PROCESS_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_PROCESS_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_PROCESS_controls_accepted(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_PROCESS_win32_exit_code(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_PROCESS_service_exit_code(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_PROCESS_check_point(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_PROCESS_wait_hint(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_PROCESS_process_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SERVICE_STATUS_PROCESS_service_flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ENUM_SERVICE_STATUSW_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ENUM_SERVICE_STATUSA_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 const value_string svcctl_SERVICE_CONTROL_vals[] = {
 	{ SVCCTL_CONTROL_STOP, "SVCCTL_CONTROL_STOP" },
 	{ SVCCTL_CONTROL_PAUSE, "SVCCTL_CONTROL_PAUSE" },
@@ -604,24 +604,24 @@ static const true_false_string svcctl_ServiceAccessMask_SC_RIGHT_SVC_USER_DEFINE
    "SC_RIGHT_SVC_USER_DEFINED_CONTROL is SET",
    "SC_RIGHT_SVC_USER_DEFINED_CONTROL is NOT SET",
 };
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ArgumentString_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ArgumentString_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ArgumentStringA_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ArgumentStringA_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ArgumentString_string(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ArgumentString_string_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ArgumentStringA_string(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ArgumentStringA_string_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 const value_string svcctl_svcctl_ConfigLevel_vals[] = {
 	{ SERVICE_CONFIG_DESCRIPTION, "SERVICE_CONFIG_DESCRIPTION" },
 	{ SERVICE_CONFIG_FAILURE_ACTIONS, "SERVICE_CONFIG_FAILURE_ACTIONS" },
@@ -631,478 +631,478 @@ const value_string svcctl_svcctl_StatusLevel_vals[] = {
 	{ SVC_STATUS_PROCESS_INFO, "SVC_STATUS_PROCESS_INFO" },
 { 0, NULL }
 };
-static int svcctl_dissect_element_CloseServiceHandle_object_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CloseServiceHandle_object_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ControlService_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ControlService_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ControlService_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ControlService_service_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ControlService_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_DeleteService_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_DeleteService_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_LockServiceDatabase_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_LockServiceDatabase_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_LockServiceDatabase_lock_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_LockServiceDatabase_lock_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceObjectSecurity_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceObjectSecurity_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceObjectSecurity_security_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceObjectSecurity_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceObjectSecurity_bytes_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceObjectSecurity_bytes_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceObjectSecurity_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceObjectSecurity_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceObjectSecurity_security_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceObjectSecurity_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatus_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatus_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatus_service_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatus_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceStatus_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceStatus_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceStatus_service_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SetServiceStatus_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_UnlockServiceDatabase_lock_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_UnlockServiceDatabase_lock_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_NotifyBootConfigStatus_machine_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_NotifyBootConfigStatus_machine_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_NotifyBootConfigStatus_boot_acceptable(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsW_service_bits(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsW_set_bits_on(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsW_update_immediately(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsW_lpString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsW_lpString_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_binary_path_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_load_order_group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_load_order_group_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_dwDependSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_dwPwSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigW_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_DisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_LoadOrderGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_LoadOrderGroup_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_dependencies_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_password__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_password_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_service_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_service_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_service_status__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_bytesneeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_bytesneeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_services_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_services_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_service_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_resume_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_resume_index_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerW_MachineName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerW_MachineName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerW_DatabaseName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerW_DatabaseName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerW_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceW_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceW_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigW_service_config(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigW_service_config_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigW_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigW_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusW_lock_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusW_lock_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusW_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusW_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceW_NumArgs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceW_Arguments(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceW_Arguments_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceW_Arguments__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameW_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameW_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameW_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameW_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameW_display_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameW_display_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameW_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameW_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameW_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameW_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameW_service_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameW_service_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsA_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsA_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsA_service_bits(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsA_set_bits_on(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsA_update_immediately(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsA_lpString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_SCSetServiceBitsA_lpString_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_binary_path_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_load_order_group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_load_order_group_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfigA_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_DisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_dependencies_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_password__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_password_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesA_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesA_service_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesA_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesA_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesA_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesA_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesA_services_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesA_services_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_service_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_service(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_service_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_services_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_services_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusA_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerA_MachineName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerA_MachineName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerA_DatabaseName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerA_DatabaseName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerA_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManagerA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceA_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceA_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenServiceA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigA_query(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigA_query_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigA_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigA_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigA_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusA_lock_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusA_lock_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusA_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusA_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceLockStatusA_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceA_NumArgs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceA_Arguments(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceA_Arguments_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_StartServiceA_Arguments__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameA_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameA_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameA_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameA_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameA_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameA_display_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameA_display_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_key_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_key_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_key_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_key_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetCurrentGroupeStateW_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetCurrentGroupeStateW_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetCurrentGroupeStateW_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetCurrentGroupeStateW_state_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_service_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_lpBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_lpBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_cbBufSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_pcbBytesNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_pcbBytesNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_lpServicesReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_lpServicesReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_ResumeIndex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_ResumeIndex_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_pszGroupName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServiceGroupW_pszGroupName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfig2A_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfig2A_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfig2A_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfig2A_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfig2A_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfig2W_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfig2W_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfig2W_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfig2W_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_ChangeServiceConfig2W_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2A_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2A_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2A_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2A_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2A_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2A_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2A_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2A_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2W_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2W_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2W_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2W_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2W_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2W_buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2W_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2W_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfig2W_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatusEx_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatusEx_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatusEx_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatusEx_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatusEx_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatusEx_buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatusEx_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatusEx_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceStatusEx_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_services(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_services_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_service_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_service_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_group_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_group_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExA_group_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_scmanager(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_scmanager_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_services(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_services_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_services__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_service_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_service_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_group_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusExW_group_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_DisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_dependencies_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_password__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_password_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64A_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_DisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_dependencies_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_password__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_password_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateServiceWOW64W_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigEx_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigEx_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_QueryServiceConfigEx_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_DisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_LoadOrderGroupKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_LoadOrderGroupKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_dependencies_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_password__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_password_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_service_wow_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_CreateWowService_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManager2_database_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManager2_database_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManager2_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManager2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_OpenSCManager2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CloseServiceHandle_object_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CloseServiceHandle_object_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ControlService_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ControlService_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ControlService_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ControlService_service_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ControlService_service_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_DeleteService_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_DeleteService_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_LockServiceDatabase_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_LockServiceDatabase_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_LockServiceDatabase_lock_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_LockServiceDatabase_lock_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceObjectSecurity_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceObjectSecurity_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceObjectSecurity_security_flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceObjectSecurity_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceObjectSecurity_bytes_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceObjectSecurity_bytes_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceObjectSecurity_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceObjectSecurity_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceObjectSecurity_security_flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceObjectSecurity_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatus_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatus_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatus_service_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatus_service_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceStatus_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceStatus_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceStatus_service_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SetServiceStatus_service_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_UnlockServiceDatabase_lock_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_UnlockServiceDatabase_lock_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_NotifyBootConfigStatus_machine_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_NotifyBootConfigStatus_machine_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_NotifyBootConfigStatus_boot_acceptable(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsW_service_bits(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsW_set_bits_on(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsW_update_immediately(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsW_lpString(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsW_lpString_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_binary_path_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_load_order_group(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_load_order_group_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_dwDependSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_dwPwSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigW_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_DisplayName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_LoadOrderGroup(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_LoadOrderGroup_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_dependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_dependencies_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_password__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_password_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_service_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_service_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_service_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_service_status__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_bytesneeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_bytesneeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_services_returned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesW_services_returned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusW_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusW_service_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusW_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusW_resume_index(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusW_resume_index_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerW_MachineName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerW_MachineName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerW_DatabaseName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerW_DatabaseName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerW_access_mask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceW_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceW_access_mask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigW_service_config(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigW_service_config_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigW_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigW_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigW_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusW_lock_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusW_lock_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusW_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusW_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusW_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceW_NumArgs(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceW_Arguments(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceW_Arguments_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceW_Arguments__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameW_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameW_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameW_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameW_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameW_display_name_length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameW_display_name_length_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameW_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameW_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameW_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameW_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameW_service_name_length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameW_service_name_length_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsA_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsA_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsA_service_bits(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsA_set_bits_on(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsA_update_immediately(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsA_lpString(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_SCSetServiceBitsA_lpString_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_binary_path_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_load_order_group(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_load_order_group_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfigA_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_DisplayName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_dependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_dependencies_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_password__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_password_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesA_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesA_service_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesA_service_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesA_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesA_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesA_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesA_services_returned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumDependentServicesA_services_returned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_service_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_service(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_service_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_services_returned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_services_returned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_resume_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusA_resume_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerA_MachineName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerA_MachineName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerA_DatabaseName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerA_DatabaseName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerA_access_mask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManagerA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceA_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceA_access_mask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenServiceA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigA_query(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigA_query_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigA_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigA_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigA_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusA_lock_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusA_lock_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusA_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusA_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceLockStatusA_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceA_NumArgs(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceA_Arguments(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceA_Arguments_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_StartServiceA_Arguments__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameA_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameA_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameA_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameA_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameA_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameA_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameA_display_name_length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceDisplayNameA_display_name_length_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameA_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameA_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameA_key_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameA_key_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameA_key_name_length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetServiceKeyNameA_key_name_length_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetCurrentGroupeStateW_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetCurrentGroupeStateW_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetCurrentGroupeStateW_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_GetCurrentGroupeStateW_state_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_service_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_lpBuffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_lpBuffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_cbBufSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_pcbBytesNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_pcbBytesNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_lpServicesReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_lpServicesReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_ResumeIndex(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_ResumeIndex_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_pszGroupName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServiceGroupW_pszGroupName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfig2A_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfig2A_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfig2A_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfig2A_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfig2A_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfig2W_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfig2W_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfig2W_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfig2W_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_ChangeServiceConfig2W_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2A_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2A_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2A_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2A_buffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2A_buffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2A_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2A_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2A_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2W_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2W_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2W_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2W_buffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2W_buffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2W_buffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2W_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2W_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfig2W_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatusEx_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatusEx_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatusEx_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatusEx_buffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatusEx_buffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatusEx_buffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatusEx_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatusEx_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceStatusEx_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_services(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_services_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_service_returned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_service_returned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_resume_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_resume_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_group_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_group_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExA_group_name__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_scmanager(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_scmanager_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_services(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_services_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_services__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_service_returned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_service_returned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_resume_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_resume_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_group_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_EnumServicesStatusExW_group_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_DisplayName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_dependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_dependencies_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_password__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_password_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64A_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_DisplayName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_dependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_dependencies_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_password__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_password_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateServiceWOW64W_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigEx_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigEx_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_QueryServiceConfigEx_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_DisplayName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_LoadOrderGroupKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_LoadOrderGroupKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_dependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_dependencies_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_password__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_password_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_service_wow_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_CreateWowService_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManager2_database_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManager2_database_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManager2_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManager2_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned svcctl_dissect_element_OpenSCManager2_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 /*  ENUM_SERVICE_STATUSW Caveats
 	https://github.com/fortra/impacket/blob/4888172ce638910104da4bda2c3301c24e17564c/impacket/dcerpc/v5/scmr.py#L1274
 */
-static int
-svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset);
-static int
-svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset)
+static unsigned
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset);
+static unsigned
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1134,8 +1134,8 @@ svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet
 /*  REnumServicesStatusW
 	https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-scmr/22b4ff3d-29c6-481f-b598-8ce66a46944a
 */
-static int
-svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
+static unsigned
+svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	uint32_t status;
 	uint32_t services_returned= 0;
@@ -1184,8 +1184,8 @@ svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_in
 /* IDL: bitmap { */
 /* IDL: } */
 
-int
-svcctl_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	uint32_t flags;
 	ALIGN_TO_4_BYTES;
@@ -1204,24 +1204,24 @@ svcctl_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: 	uint32 lock_duration; */
 /* IDL: } */
 
-static int
-svcctl_dissect_element_SERVICE_LOCK_STATUS_is_locked(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_LOCK_STATUS_is_locked(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_LOCK_STATUS_is_locked, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner_, NDR_POINTER_UNIQUE, "Pointer to Lock Owner (uint16)",hf_svcctl_SERVICE_LOCK_STATUS_lock_owner);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1231,20 +1231,20 @@ svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_owner_(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_duration(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_LOCK_STATUS_lock_duration(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_LOCK_STATUS_lock_duration, 0);
 
 	return offset;
 }
 
-int
-svcctl_dissect_struct_SERVICE_LOCK_STATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_struct_SERVICE_LOCK_STATUS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1283,8 +1283,8 @@ svcctl_dissect_struct_SERVICE_LOCK_STATUS(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	SVCCTL_PAUSED=0x00000007, */
 /* IDL: } */
 
-int
-svcctl_dissect_enum_ServiceStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+svcctl_dissect_enum_ServiceStatus(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	if (param) {
@@ -1312,8 +1312,8 @@ svcctl_dissect_enum_ServiceStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: 	SERVICE_TYPE_INTERACTIVE_PROCESS=0x00000100, */
 /* IDL: } */
 
-int
-svcctl_dissect_enum_ServiceType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+svcctl_dissect_enum_ServiceType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	if (param) {
@@ -1342,8 +1342,8 @@ svcctl_dissect_enum_ServiceType(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: 	SERVICE_ACCEPT_USERMODEREBOOT =  0x00000800 , */
 /* IDL: } */
 
-int
-svcctl_dissect_bitmap_ControlsAccepted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_bitmap_ControlsAccepted(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item;
 	static int * const svcctl_svcctl_ControlsAccepted_fields[] = {
@@ -1391,68 +1391,68 @@ svcctl_dissect_bitmap_ControlsAccepted(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: 	uint32 wait_hint; */
 /* IDL: } */
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceStatus(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_state, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_controls_accepted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_controls_accepted(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_bitmap_ControlsAccepted(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_controls_accepted, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_win32_exit_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_win32_exit_code(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_win32_exit_code, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_service_exit_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_service_exit_code(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_service_exit_code, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_check_point(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_check_point(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_check_point, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_wait_hint(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_wait_hint(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_wait_hint, 0);
 
 	return offset;
 }
 
-int
-svcctl_dissect_struct_SERVICE_STATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_struct_SERVICE_STATUS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1494,8 +1494,8 @@ svcctl_dissect_struct_SERVICE_STATUS(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: 	SERVICE_RUNS_IN_SYSTEM_PROCESS=0x00000001, */
 /* IDL: } */
 
-int
-svcctl_dissect_enum_ServiceFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+svcctl_dissect_enum_ServiceFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	if (param) {
@@ -1521,84 +1521,84 @@ svcctl_dissect_enum_ServiceFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: 	svcctl_ServiceFlags service_flags; */
 /* IDL: } */
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_PROCESS_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_PROCESS_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_PROCESS_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_PROCESS_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_PROCESS_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceStatus(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_PROCESS_state, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_PROCESS_controls_accepted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_PROCESS_controls_accepted(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_bitmap_ControlsAccepted(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_PROCESS_controls_accepted, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_PROCESS_win32_exit_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_PROCESS_win32_exit_code(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_PROCESS_win32_exit_code, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_PROCESS_service_exit_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_PROCESS_service_exit_code(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_PROCESS_service_exit_code, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_PROCESS_check_point(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_PROCESS_check_point(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_PROCESS_check_point, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_PROCESS_wait_hint(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_PROCESS_wait_hint(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_PROCESS_wait_hint, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_PROCESS_process_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_PROCESS_process_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_PROCESS_process_id, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SERVICE_STATUS_PROCESS_service_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SERVICE_STATUS_PROCESS_service_flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceFlags(tvb, offset, pinfo, tree, di, drep, hf_svcctl_SERVICE_STATUS_PROCESS_service_flags, 0);
 
 	return offset;
 }
 
-int
-svcctl_dissect_struct_SERVICE_STATUS_PROCESS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_struct_SERVICE_STATUS_PROCESS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1645,52 +1645,52 @@ svcctl_dissect_struct_SERVICE_STATUS_PROCESS(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: 	SERVICE_STATUS status; */
 /* IDL: } */
 
-static int
-svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name_, NDR_POINTER_UNIQUE, "Pointer to Service Name (string)",hf_svcctl_ENUM_SERVICE_STATUSW_service_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSW_service_name , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name_, NDR_POINTER_UNIQUE, "Pointer to Display Name (string)",hf_svcctl_ENUM_SERVICE_STATUSW_display_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSW_display_name , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ENUM_SERVICE_STATUSW_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ENUM_SERVICE_STATUSW_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_SERVICE_STATUS(tvb,offset,pinfo,tree,di,drep,hf_svcctl_ENUM_SERVICE_STATUSW_status,0);
 
 	return offset;
 }
 
-int
-svcctl_dissect_struct_ENUM_SERVICE_STATUSW(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1725,52 +1725,52 @@ svcctl_dissect_struct_ENUM_SERVICE_STATUSW(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	SERVICE_STATUS status; */
 /* IDL: } */
 
-static int
-svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name_, NDR_POINTER_UNIQUE, "Pointer to Service Name (string)",hf_svcctl_ENUM_SERVICE_STATUSA_service_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSA_service_name , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name_, NDR_POINTER_UNIQUE, "Pointer to Display Name (string)",hf_svcctl_ENUM_SERVICE_STATUSA_display_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSA_display_name , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ENUM_SERVICE_STATUSA_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ENUM_SERVICE_STATUSA_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_SERVICE_STATUS(tvb,offset,pinfo,tree,di,drep,hf_svcctl_ENUM_SERVICE_STATUSA_status,0);
 
 	return offset;
 }
 
-int
-svcctl_dissect_struct_ENUM_SERVICE_STATUSA(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_struct_ENUM_SERVICE_STATUSA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1812,8 +1812,8 @@ svcctl_dissect_struct_ENUM_SERVICE_STATUSA(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	SERVICE_CONTROL_NETBINDDISABLE=0x0000000A, */
 /* IDL: } */
 
-int
-svcctl_dissect_enum_SERVICE_CONTROL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+svcctl_dissect_enum_SERVICE_CONTROL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	if (param) {
@@ -1834,8 +1834,8 @@ svcctl_dissect_enum_SERVICE_CONTROL(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: 	SVCCTL_SVC_ERROR_SEVERE=0x00000003, */
 /* IDL: } */
 
-int
-svcctl_dissect_enum_ErrorControl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+svcctl_dissect_enum_ErrorControl(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	if (param) {
@@ -1857,8 +1857,8 @@ svcctl_dissect_enum_ErrorControl(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: 	SVCCTL_DISABLED=0x00000004, */
 /* IDL: } */
 
-int
-svcctl_dissect_enum_StartType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+svcctl_dissect_enum_StartType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	if (param) {
@@ -1878,8 +1878,8 @@ svcctl_dissect_enum_StartType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: 	SERVICE_STATE_ALL=(SERVICE_STATE_ACTIVE|SERVICE_STATE_INACTIVE), */
 /* IDL: } */
 
-int
-svcctl_dissect_enum_ServiceState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+svcctl_dissect_enum_ServiceState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	if (param) {
@@ -1903,8 +1903,8 @@ svcctl_dissect_enum_ServiceState(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: 	SC_RIGHT_MGR_ALL_ACCESS =  0x000F003F , */
 /* IDL: } */
 
-int
-svcctl_dissect_bitmap_MgrAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_bitmap_MgrAccessMask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item;
 	static int * const svcctl_svcctl_MgrAccessMask_fields[] = {
@@ -1949,8 +1949,8 @@ svcctl_dissect_bitmap_MgrAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: 	SC_RIGHT_SVC_USER_DEFINED_CONTROL =  0x00000100 , */
 /* IDL: } */
 
-int
-svcctl_dissect_bitmap_ServiceAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_bitmap_ServiceAccessMask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item;
 	static int * const svcctl_svcctl_ServiceAccessMask_fields[] = {
@@ -1997,40 +1997,40 @@ svcctl_dissect_bitmap_ServiceAccessMask(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: 	[charset(UTF16)] [range(0,8192)] [unique(1)] uint16 *displayname; */
 /* IDL: } */
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_QUERY_SERVICE_CONFIG_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_StartType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_QUERY_SERVICE_CONFIG_start_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ErrorControl(tvb, offset, pinfo, tree, di, drep, hf_svcctl_QUERY_SERVICE_CONFIG_error_control, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath_, NDR_POINTER_UNIQUE, "Pointer to Executablepath (uint16)",hf_svcctl_QUERY_SERVICE_CONFIG_executablepath);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2040,16 +2040,16 @@ svcctl_dissect_element_QUERY_SERVICE_CONFIG_executablepath_(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup_, NDR_POINTER_UNIQUE, "Pointer to Loadordergroup (uint16)",hf_svcctl_QUERY_SERVICE_CONFIG_loadordergroup);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2059,24 +2059,24 @@ svcctl_dissect_element_QUERY_SERVICE_CONFIG_loadordergroup_(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_QUERY_SERVICE_CONFIG_tag_id, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies_, NDR_POINTER_UNIQUE, "Pointer to Dependencies (uint16)",hf_svcctl_QUERY_SERVICE_CONFIG_dependencies);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2086,16 +2086,16 @@ svcctl_dissect_element_QUERY_SERVICE_CONFIG_dependencies_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname_, NDR_POINTER_UNIQUE, "Pointer to Startname (uint16)",hf_svcctl_QUERY_SERVICE_CONFIG_startname);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2105,16 +2105,16 @@ svcctl_dissect_element_QUERY_SERVICE_CONFIG_startname_(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname_, NDR_POINTER_UNIQUE, "Pointer to Displayname (uint16)",hf_svcctl_QUERY_SERVICE_CONFIG_displayname);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2124,12 +2124,12 @@ svcctl_dissect_element_QUERY_SERVICE_CONFIG_displayname_(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-int
-svcctl_dissect_struct_QUERY_SERVICE_CONFIG(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_struct_QUERY_SERVICE_CONFIG(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2174,16 +2174,16 @@ svcctl_dissect_struct_QUERY_SERVICE_CONFIG(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	[charset(UTF16)] [range(0,SC_MAX_ARGUMENT_LENGTH)] [unique(1)] uint16 *string; */
 /* IDL: } */
 
-static int
-svcctl_dissect_element_ArgumentString_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ArgumentString_string(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ArgumentString_string_, NDR_POINTER_UNIQUE, "Pointer to String (uint16)",hf_svcctl_svcctl_ArgumentString_string);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ArgumentString_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ArgumentString_string_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2193,12 +2193,12 @@ svcctl_dissect_element_ArgumentString_string_(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-int
-svcctl_dissect_struct_ArgumentString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_struct_ArgumentString(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2227,16 +2227,16 @@ svcctl_dissect_struct_ArgumentString(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: 	[charset(ASCII)] [range(0,SC_MAX_ARGUMENT_LENGTH)] [unique(1)] uint8 *string; */
 /* IDL: } */
 
-static int
-svcctl_dissect_element_ArgumentStringA_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ArgumentStringA_string(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ArgumentStringA_string_, NDR_POINTER_UNIQUE, "Pointer to String (uint8)",hf_svcctl_svcctl_ArgumentStringA_string);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ArgumentStringA_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ArgumentStringA_string_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2246,12 +2246,12 @@ svcctl_dissect_element_ArgumentStringA_string_(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-int
-svcctl_dissect_struct_ArgumentStringA(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+svcctl_dissect_struct_ArgumentStringA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2281,8 +2281,8 @@ svcctl_dissect_struct_ArgumentStringA(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: 	SERVICE_CONFIG_FAILURE_ACTIONS=0x00000002, */
 /* IDL: } */
 
-int
-svcctl_dissect_enum_ConfigLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+svcctl_dissect_enum_ConfigLevel(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	if (param) {
@@ -2300,8 +2300,8 @@ svcctl_dissect_enum_ConfigLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: 	SVC_STATUS_PROCESS_INFO=0x00000000, */
 /* IDL: } */
 
-int
-svcctl_dissect_enum_StatusLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+svcctl_dissect_enum_StatusLevel(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	if (param) {
@@ -2314,16 +2314,16 @@ svcctl_dissect_enum_StatusLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CloseServiceHandle_object_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CloseServiceHandle_object_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CloseServiceHandle_object_handle_, NDR_POINTER_REF, "Pointer to Object Handle (policy_handle)",hf_svcctl_svcctl_CloseServiceHandle_object_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CloseServiceHandle_object_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CloseServiceHandle_object_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CloseServiceHandle_object_handle, PIDL_POLHND_CLOSE);
 
@@ -2334,8 +2334,8 @@ svcctl_dissect_element_CloseServiceHandle_object_handle_(tvbuff_t *tvb _U_, int 
 /* IDL: [in] [out] [ref] policy_handle *object_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_CloseServiceHandle_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CloseServiceHandle_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2351,8 +2351,8 @@ svcctl_dissect_CloseServiceHandle_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-svcctl_dissect_CloseServiceHandle_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CloseServiceHandle_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="CloseServiceHandle";
 	offset = svcctl_dissect_element_CloseServiceHandle_object_handle(tvb, offset, pinfo, tree, di, drep);
@@ -2360,40 +2360,40 @@ svcctl_dissect_CloseServiceHandle_request(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ControlService_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ControlService_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ControlService_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_ControlService_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ControlService_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ControlService_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ControlService_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ControlService_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ControlService_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_SERVICE_CONTROL(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ControlService_control, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ControlService_service_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ControlService_service_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ControlService_service_status_, NDR_POINTER_REF, "Pointer to Service Status (SERVICE_STATUS)",hf_svcctl_svcctl_ControlService_service_status);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ControlService_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ControlService_service_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_SERVICE_STATUS(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_ControlService_service_status,0);
 
@@ -2406,8 +2406,8 @@ svcctl_dissect_element_ControlService_service_status_(tvbuff_t *tvb _U_, int off
 /* IDL: [out] [ref] SERVICE_STATUS *service_status */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ControlService_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ControlService_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2423,8 +2423,8 @@ svcctl_dissect_ControlService_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-static int
-svcctl_dissect_ControlService_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ControlService_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ControlService";
 	offset = svcctl_dissect_element_ControlService_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -2434,16 +2434,16 @@ svcctl_dissect_ControlService_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-svcctl_dissect_element_DeleteService_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_DeleteService_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_DeleteService_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_DeleteService_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_DeleteService_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_DeleteService_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_DeleteService_service_handle, 0);
 
@@ -2454,8 +2454,8 @@ svcctl_dissect_element_DeleteService_service_handle_(tvbuff_t *tvb _U_, int offs
 /* IDL: [in] [ref] policy_handle *service_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_DeleteService_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_DeleteService_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2468,8 +2468,8 @@ svcctl_dissect_DeleteService_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-svcctl_dissect_DeleteService_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_DeleteService_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="DeleteService";
 	offset = svcctl_dissect_element_DeleteService_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -2477,32 +2477,32 @@ svcctl_dissect_DeleteService_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	return offset;
 }
 
-static int
-svcctl_dissect_element_LockServiceDatabase_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_LockServiceDatabase_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_LockServiceDatabase_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_LockServiceDatabase_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_LockServiceDatabase_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_LockServiceDatabase_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_LockServiceDatabase_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_LockServiceDatabase_lock_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_LockServiceDatabase_lock_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_LockServiceDatabase_lock_handle_, NDR_POINTER_REF, "Pointer to Lock Handle (policy_handle)",hf_svcctl_svcctl_LockServiceDatabase_lock_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_LockServiceDatabase_lock_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_LockServiceDatabase_lock_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_LockServiceDatabase_lock_handle, 0);
 
@@ -2514,8 +2514,8 @@ svcctl_dissect_element_LockServiceDatabase_lock_handle_(tvbuff_t *tvb _U_, int o
 /* IDL: [out] [ref] policy_handle *lock_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_LockServiceDatabase_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_LockServiceDatabase_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2531,8 +2531,8 @@ svcctl_dissect_LockServiceDatabase_response(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_LockServiceDatabase_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_LockServiceDatabase_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="LockServiceDatabase";
 	offset = svcctl_dissect_element_LockServiceDatabase_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -2540,72 +2540,72 @@ svcctl_dissect_LockServiceDatabase_request(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceObjectSecurity_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceObjectSecurity_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceObjectSecurity_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_QueryServiceObjectSecurity_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceObjectSecurity_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceObjectSecurity_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceObjectSecurity_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceObjectSecurity_security_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceObjectSecurity_security_flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_bitmap_security_secinfo(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceObjectSecurity_security_flags, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor_, NDR_POINTER_REF, "Pointer to Security Descriptor (uint8)",hf_svcctl_svcctl_QueryServiceObjectSecurity_security_descriptor);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceObjectSecurity_security_descriptor__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceObjectSecurity_security_descriptor, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceObjectSecurity_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceObjectSecurity_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceObjectSecurity_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceObjectSecurity_bytes_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceObjectSecurity_bytes_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceObjectSecurity_bytes_needed_, NDR_POINTER_REF, "Pointer to Bytes Needed (uint32)",hf_svcctl_svcctl_QueryServiceObjectSecurity_bytes_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceObjectSecurity_bytes_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceObjectSecurity_bytes_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceObjectSecurity_bytes_needed, 0);
 
@@ -2620,8 +2620,8 @@ svcctl_dissect_element_QueryServiceObjectSecurity_bytes_needed_(tvbuff_t *tvb _U
 /* IDL: [out] [range(0,0x40000)] [ref] uint32 *bytes_needed */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryServiceObjectSecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceObjectSecurity_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2640,8 +2640,8 @@ svcctl_dissect_QueryServiceObjectSecurity_response(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryServiceObjectSecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceObjectSecurity_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryServiceObjectSecurity";
 	offset = svcctl_dissect_element_QueryServiceObjectSecurity_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -2653,56 +2653,56 @@ svcctl_dissect_QueryServiceObjectSecurity_request(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceObjectSecurity_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceObjectSecurity_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_SetServiceObjectSecurity_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_SetServiceObjectSecurity_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceObjectSecurity_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceObjectSecurity_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SetServiceObjectSecurity_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceObjectSecurity_security_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceObjectSecurity_security_flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_bitmap_security_secinfo(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SetServiceObjectSecurity_security_flags, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor_, NDR_POINTER_REF, "Pointer to Security Descriptor (uint8)",hf_svcctl_svcctl_SetServiceObjectSecurity_security_descriptor);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceObjectSecurity_security_descriptor__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SetServiceObjectSecurity_security_descriptor, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceObjectSecurity_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceObjectSecurity_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SetServiceObjectSecurity_offered, 0);
 
@@ -2716,8 +2716,8 @@ svcctl_dissect_element_SetServiceObjectSecurity_offered(tvbuff_t *tvb _U_, int o
 /* IDL: [in] uint32 offered */
 /* IDL: ); */
 
-static int
-svcctl_dissect_SetServiceObjectSecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_SetServiceObjectSecurity_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2730,8 +2730,8 @@ svcctl_dissect_SetServiceObjectSecurity_response(tvbuff_t *tvb _U_, int offset _
 	return offset;
 }
 
-static int
-svcctl_dissect_SetServiceObjectSecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_SetServiceObjectSecurity_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="SetServiceObjectSecurity";
 	offset = svcctl_dissect_element_SetServiceObjectSecurity_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -2745,32 +2745,32 @@ svcctl_dissect_SetServiceObjectSecurity_request(tvbuff_t *tvb _U_, int offset _U
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatus_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatus_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceStatus_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_QueryServiceStatus_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatus_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatus_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceStatus_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatus_service_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatus_service_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceStatus_service_status_, NDR_POINTER_REF, "Pointer to Service Status (SERVICE_STATUS)",hf_svcctl_svcctl_QueryServiceStatus_service_status);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatus_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatus_service_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_SERVICE_STATUS(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_QueryServiceStatus_service_status,0);
 
@@ -2782,8 +2782,8 @@ svcctl_dissect_element_QueryServiceStatus_service_status_(tvbuff_t *tvb _U_, int
 /* IDL: [out] [ref] SERVICE_STATUS *service_status */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryServiceStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceStatus_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2799,8 +2799,8 @@ svcctl_dissect_QueryServiceStatus_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryServiceStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceStatus_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryServiceStatus";
 	offset = svcctl_dissect_element_QueryServiceStatus_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -2808,32 +2808,32 @@ svcctl_dissect_QueryServiceStatus_request(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceStatus_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceStatus_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_SetServiceStatus_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_SetServiceStatus_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceStatus_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceStatus_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SetServiceStatus_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceStatus_service_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceStatus_service_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_SetServiceStatus_service_status_, NDR_POINTER_REF, "Pointer to Service Status (SERVICE_STATUS)",hf_svcctl_svcctl_SetServiceStatus_service_status);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SetServiceStatus_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SetServiceStatus_service_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_SERVICE_STATUS(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_SetServiceStatus_service_status,0);
 
@@ -2845,8 +2845,8 @@ svcctl_dissect_element_SetServiceStatus_service_status_(tvbuff_t *tvb _U_, int o
 /* IDL: [in] [ref] SERVICE_STATUS *service_status */
 /* IDL: ); */
 
-static int
-svcctl_dissect_SetServiceStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_SetServiceStatus_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2859,8 +2859,8 @@ svcctl_dissect_SetServiceStatus_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-svcctl_dissect_SetServiceStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_SetServiceStatus_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="SetServiceStatus";
 	offset = svcctl_dissect_element_SetServiceStatus_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -2870,16 +2870,16 @@ svcctl_dissect_SetServiceStatus_request(tvbuff_t *tvb _U_, int offset _U_, packe
 	return offset;
 }
 
-static int
-svcctl_dissect_element_UnlockServiceDatabase_lock_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_UnlockServiceDatabase_lock_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_UnlockServiceDatabase_lock_handle_, NDR_POINTER_REF, "Pointer to Lock Handle (policy_handle)",hf_svcctl_svcctl_UnlockServiceDatabase_lock_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_UnlockServiceDatabase_lock_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_UnlockServiceDatabase_lock_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_UnlockServiceDatabase_lock_handle, 0);
 
@@ -2890,8 +2890,8 @@ svcctl_dissect_element_UnlockServiceDatabase_lock_handle_(tvbuff_t *tvb _U_, int
 /* IDL: [in] [out] [ref] policy_handle *lock_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_UnlockServiceDatabase_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_UnlockServiceDatabase_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2907,8 +2907,8 @@ svcctl_dissect_UnlockServiceDatabase_response(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_UnlockServiceDatabase_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_UnlockServiceDatabase_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="UnlockServiceDatabase";
 	offset = svcctl_dissect_element_UnlockServiceDatabase_lock_handle(tvb, offset, pinfo, tree, di, drep);
@@ -2916,16 +2916,16 @@ svcctl_dissect_UnlockServiceDatabase_request(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_NotifyBootConfigStatus_machine_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_NotifyBootConfigStatus_machine_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_NotifyBootConfigStatus_machine_name_, NDR_POINTER_UNIQUE, "Pointer to Machine Name (uint16)",hf_svcctl_svcctl_NotifyBootConfigStatus_machine_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_NotifyBootConfigStatus_machine_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_NotifyBootConfigStatus_machine_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2935,8 +2935,8 @@ svcctl_dissect_element_NotifyBootConfigStatus_machine_name_(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-svcctl_dissect_element_NotifyBootConfigStatus_boot_acceptable(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_NotifyBootConfigStatus_boot_acceptable(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_NotifyBootConfigStatus_boot_acceptable, 0);
 
@@ -2948,8 +2948,8 @@ svcctl_dissect_element_NotifyBootConfigStatus_boot_acceptable(tvbuff_t *tvb _U_,
 /* IDL: [in] uint32 boot_acceptable */
 /* IDL: ); */
 
-static int
-svcctl_dissect_NotifyBootConfigStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_NotifyBootConfigStatus_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2962,8 +2962,8 @@ svcctl_dissect_NotifyBootConfigStatus_response(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_NotifyBootConfigStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_NotifyBootConfigStatus_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="NotifyBootConfigStatus";
 	offset = svcctl_dissect_element_NotifyBootConfigStatus_machine_name(tvb, offset, pinfo, tree, di, drep);
@@ -2973,56 +2973,56 @@ svcctl_dissect_NotifyBootConfigStatus_request(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_SCSetServiceBitsW_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_SCSetServiceBitsW_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SCSetServiceBitsW_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsW_service_bits(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsW_service_bits(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SCSetServiceBitsW_service_bits, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsW_set_bits_on(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsW_set_bits_on(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SCSetServiceBitsW_set_bits_on, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsW_update_immediately(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsW_update_immediately(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SCSetServiceBitsW_update_immediately, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsW_lpString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsW_lpString(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_SCSetServiceBitsW_lpString_, NDR_POINTER_UNIQUE, "Pointer to LpString (uint16)",hf_svcctl_svcctl_SCSetServiceBitsW_lpString);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsW_lpString_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsW_lpString_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3040,8 +3040,8 @@ svcctl_dissect_element_SCSetServiceBitsW_lpString_(tvbuff_t *tvb _U_, int offset
 /* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *lpString */
 /* IDL: ); */
 
-static int
-svcctl_dissect_SCSetServiceBitsW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_SCSetServiceBitsW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3054,8 +3054,8 @@ svcctl_dissect_SCSetServiceBitsW_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-svcctl_dissect_SCSetServiceBitsW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_SCSetServiceBitsW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="SCSetServiceBitsW";
 	offset = svcctl_dissect_element_SCSetServiceBitsW_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -3071,56 +3071,56 @@ svcctl_dissect_SCSetServiceBitsW_request(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigW_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_ChangeServiceConfigW_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigW_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigW_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_StartType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigW_start_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ErrorControl(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigW_error_control, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigW_binary_path_, NDR_POINTER_UNIQUE, "Pointer to Binary Path (uint16)",hf_svcctl_svcctl_ChangeServiceConfigW_binary_path);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_binary_path_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_binary_path_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3130,16 +3130,16 @@ svcctl_dissect_element_ChangeServiceConfigW_binary_path_(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_load_order_group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_load_order_group(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigW_load_order_group_, NDR_POINTER_UNIQUE, "Pointer to Load Order Group (uint16)",hf_svcctl_svcctl_ChangeServiceConfigW_load_order_group);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_load_order_group_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_load_order_group_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3149,32 +3149,32 @@ svcctl_dissect_element_ChangeServiceConfigW_load_order_group_(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigW_tag_id_, NDR_POINTER_UNIQUE, "Pointer to Tag Id (uint32)",hf_svcctl_svcctl_ChangeServiceConfigW_tag_id);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigW_tag_id, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigW_dependencies_, NDR_POINTER_UNIQUE, "Pointer to Dependencies (uint16)",hf_svcctl_svcctl_ChangeServiceConfigW_dependencies);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3184,24 +3184,24 @@ svcctl_dissect_element_ChangeServiceConfigW_dependencies_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_dwDependSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_dwDependSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigW_dwDependSize, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigW_service_start_name_, NDR_POINTER_UNIQUE, "Pointer to Service Start Name (uint16)",hf_svcctl_svcctl_ChangeServiceConfigW_service_start_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3211,16 +3211,16 @@ svcctl_dissect_element_ChangeServiceConfigW_service_start_name_(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigW_password_, NDR_POINTER_UNIQUE, "Pointer to Password (uint16)",hf_svcctl_svcctl_ChangeServiceConfigW_password);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3230,24 +3230,24 @@ svcctl_dissect_element_ChangeServiceConfigW_password_(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_dwPwSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_dwPwSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigW_dwPwSize, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigW_display_name_, NDR_POINTER_UNIQUE, "Pointer to Display Name (uint16)",hf_svcctl_svcctl_ChangeServiceConfigW_display_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigW_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigW_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3273,8 +3273,8 @@ svcctl_dissect_element_ChangeServiceConfigW_display_name_(tvbuff_t *tvb _U_, int
 /* IDL: [charset(UTF16)] [in] [range(0,SC_MAX_NAME_LENGTH)] [unique(1)] uint16 *display_name */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ChangeServiceConfigW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ChangeServiceConfigW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3290,8 +3290,8 @@ svcctl_dissect_ChangeServiceConfigW_response(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_ChangeServiceConfigW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ChangeServiceConfigW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ChangeServiceConfigW";
 	offset = svcctl_dissect_element_ChangeServiceConfigW_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -3323,24 +3323,24 @@ svcctl_dissect_ChangeServiceConfigW_request(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceW_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_CreateServiceW_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3350,16 +3350,16 @@ svcctl_dissect_element_CreateServiceW_ServiceName(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceW_DisplayName_, NDR_POINTER_UNIQUE, "Pointer to DisplayName (uint16)",hf_svcctl_svcctl_CreateServiceW_DisplayName);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_DisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_DisplayName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3369,40 +3369,40 @@ svcctl_dissect_element_CreateServiceW_DisplayName_(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_desired_access, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_StartType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_start_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ErrorControl(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_error_control, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3412,16 +3412,16 @@ svcctl_dissect_element_CreateServiceW_binary_path(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_LoadOrderGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_LoadOrderGroup(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceW_LoadOrderGroup_, NDR_POINTER_UNIQUE, "Pointer to LoadOrderGroup (uint16)",hf_svcctl_svcctl_CreateServiceW_LoadOrderGroup);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_LoadOrderGroup_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_LoadOrderGroup_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3431,64 +3431,64 @@ svcctl_dissect_element_CreateServiceW_LoadOrderGroup_(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceW_tag_id_, NDR_POINTER_UNIQUE, "Pointer to Tag Id (uint32)",hf_svcctl_svcctl_CreateServiceW_tag_id);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_tag_id, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceW_dependencies_, NDR_POINTER_UNIQUE, "Pointer to Dependencies (uint8)",hf_svcctl_svcctl_CreateServiceW_dependencies);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceW_dependencies__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_dependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_dependencies, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_dependencies_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_dependencies_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_dependencies_size, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceW_service_start_name_, NDR_POINTER_UNIQUE, "Pointer to Service Start Name (uint16)",hf_svcctl_svcctl_CreateServiceW_service_start_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3498,48 +3498,48 @@ svcctl_dissect_element_CreateServiceW_service_start_name_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceW_password_, NDR_POINTER_UNIQUE, "Pointer to Password (uint8)",hf_svcctl_svcctl_CreateServiceW_password);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceW_password__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_password__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_password__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_password, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_password_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_password_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_password_size, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceW_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_CreateServiceW_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_service_handle, PIDL_POLHND_OPEN);
 
@@ -3565,8 +3565,8 @@ svcctl_dissect_element_CreateServiceW_service_handle_(tvbuff_t *tvb _U_, int off
 /* IDL: [out] [ref] policy_handle *service_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_CreateServiceW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CreateServiceW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3585,8 +3585,8 @@ svcctl_dissect_CreateServiceW_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-static int
-svcctl_dissect_CreateServiceW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CreateServiceW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="CreateServiceW";
 	offset = svcctl_dissect_element_CreateServiceW_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -3622,88 +3622,88 @@ svcctl_dissect_CreateServiceW_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesW_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_EnumDependentServicesW_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesW_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_service_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_service_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceState(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesW_service_state, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_service_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_service_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesW_service_status_, NDR_POINTER_REF, "Pointer to Service Status (ENUM_SERVICE_STATUSW)",hf_svcctl_svcctl_EnumDependentServicesW_service_status);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_service_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesW_service_status__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_service_status__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_service_status__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_ENUM_SERVICE_STATUSW(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_EnumDependentServicesW_service_status,0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesW_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_bytesneeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_bytesneeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesW_bytesneeded_, NDR_POINTER_REF, "Pointer to Bytesneeded (uint32)",hf_svcctl_svcctl_EnumDependentServicesW_bytesneeded);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_bytesneeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_bytesneeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesW_bytesneeded, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_services_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_services_returned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesW_services_returned_, NDR_POINTER_REF, "Pointer to Services Returned (uint32)",hf_svcctl_svcctl_EnumDependentServicesW_services_returned);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesW_services_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesW_services_returned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesW_services_returned, 0);
 
@@ -3719,8 +3719,8 @@ svcctl_dissect_element_EnumDependentServicesW_services_returned_(tvbuff_t *tvb _
 /* IDL: [out] [range(0,0x40000)] [ref] uint32 *services_returned */
 /* IDL: ); */
 
-static int
-svcctl_dissect_EnumDependentServicesW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumDependentServicesW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3742,8 +3742,8 @@ svcctl_dissect_EnumDependentServicesW_response(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_EnumDependentServicesW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumDependentServicesW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EnumDependentServicesW";
 	offset = svcctl_dissect_element_EnumDependentServicesW_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -3755,56 +3755,56 @@ svcctl_dissect_EnumDependentServicesW_request(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusW_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_EnumServicesStatusW_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusW_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusW_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusW_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusW_service_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusW_service_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceState(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusW_service_state, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusW_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusW_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusW_resume_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusW_resume_index(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusW_resume_index_, NDR_POINTER_UNIQUE, "Pointer to Resume Index (uint32)",hf_svcctl_svcctl_EnumServicesStatusW_resume_index);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusW_resume_index_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusW_resume_index_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusW_resume_index, 0);
 
@@ -3822,8 +3822,8 @@ svcctl_dissect_element_EnumServicesStatusW_resume_index_(tvbuff_t *tvb _U_, int 
 /* IDL: [in] [out] [unique(1)] uint32 *resume_index */
 /* IDL: ); */
 
-static int
-svcctl_dissect_EnumServicesStatusW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumServicesStatusW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EnumServicesStatusW";
 	offset = svcctl_dissect_element_EnumServicesStatusW_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -3839,16 +3839,16 @@ svcctl_dissect_EnumServicesStatusW_request(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerW_MachineName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerW_MachineName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenSCManagerW_MachineName_, NDR_POINTER_UNIQUE, "Pointer to MachineName (uint16)",hf_svcctl_svcctl_OpenSCManagerW_MachineName);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerW_MachineName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerW_MachineName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3858,16 +3858,16 @@ svcctl_dissect_element_OpenSCManagerW_MachineName_(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerW_DatabaseName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerW_DatabaseName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenSCManagerW_DatabaseName_, NDR_POINTER_UNIQUE, "Pointer to DatabaseName (uint16)",hf_svcctl_svcctl_OpenSCManagerW_DatabaseName);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerW_DatabaseName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerW_DatabaseName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3877,24 +3877,24 @@ svcctl_dissect_element_OpenSCManagerW_DatabaseName_(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerW_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerW_access_mask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_bitmap_MgrAccessMask(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManagerW_access_mask, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenSCManagerW_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_OpenSCManagerW_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManagerW_scm_handle, PIDL_POLHND_OPEN);
 
@@ -3908,8 +3908,8 @@ svcctl_dissect_element_OpenSCManagerW_scm_handle_(tvbuff_t *tvb _U_, int offset 
 /* IDL: [out] [ref] policy_handle *scm_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_OpenSCManagerW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_OpenSCManagerW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3925,8 +3925,8 @@ svcctl_dissect_OpenSCManagerW_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-static int
-svcctl_dissect_OpenSCManagerW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_OpenSCManagerW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="OpenSCManagerW";
 	offset = svcctl_dissect_element_OpenSCManagerW_MachineName(tvb, offset, pinfo, tree, di, drep);
@@ -3938,24 +3938,24 @@ svcctl_dissect_OpenSCManagerW_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenServiceW_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_OpenServiceW_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenServiceW_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceW_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceW_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3965,24 +3965,24 @@ svcctl_dissect_element_OpenServiceW_ServiceName(tvbuff_t *tvb _U_, int offset _U
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceW_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceW_access_mask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_bitmap_ServiceAccessMask(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenServiceW_access_mask, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenServiceW_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_OpenServiceW_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenServiceW_service_handle, PIDL_POLHND_OPEN);
 
@@ -3996,8 +3996,8 @@ svcctl_dissect_element_OpenServiceW_service_handle_(tvbuff_t *tvb _U_, int offse
 /* IDL: [out] [ref] policy_handle *service_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_OpenServiceW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_OpenServiceW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4013,8 +4013,8 @@ svcctl_dissect_OpenServiceW_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	return offset;
 }
 
-static int
-svcctl_dissect_OpenServiceW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_OpenServiceW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="OpenServiceW";
 	offset = svcctl_dissect_element_OpenServiceW_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -4026,56 +4026,56 @@ svcctl_dissect_OpenServiceW_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfigW_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_QueryServiceConfigW_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfigW_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigW_service_config(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigW_service_config(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfigW_service_config_, NDR_POINTER_REF, "Pointer to Service Config (QUERY_SERVICE_CONFIG)",hf_svcctl_svcctl_QueryServiceConfigW_service_config);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigW_service_config_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigW_service_config_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_QUERY_SERVICE_CONFIG(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_QueryServiceConfigW_service_config,0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigW_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfigW_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigW_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigW_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfigW_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_QueryServiceConfigW_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigW_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigW_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfigW_needed, 0);
 
@@ -4089,8 +4089,8 @@ svcctl_dissect_element_QueryServiceConfigW_needed_(tvbuff_t *tvb _U_, int offset
 /* IDL: [out] [range(0,8192)] [ref] uint32 *needed */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryServiceConfigW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceConfigW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4109,8 +4109,8 @@ svcctl_dissect_QueryServiceConfigW_response(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryServiceConfigW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceConfigW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryServiceConfigW";
 	offset = svcctl_dissect_element_QueryServiceConfigW_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -4120,56 +4120,56 @@ svcctl_dissect_QueryServiceConfigW_request(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceLockStatusW_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_QueryServiceLockStatusW_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceLockStatusW_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusW_lock_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusW_lock_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceLockStatusW_lock_status_, NDR_POINTER_REF, "Pointer to Lock Status (SERVICE_LOCK_STATUS)",hf_svcctl_svcctl_QueryServiceLockStatusW_lock_status);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusW_lock_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusW_lock_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_SERVICE_LOCK_STATUS(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_QueryServiceLockStatusW_lock_status,0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusW_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceLockStatusW_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusW_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusW_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceLockStatusW_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_QueryServiceLockStatusW_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusW_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusW_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceLockStatusW_needed, 0);
 
@@ -4183,8 +4183,8 @@ svcctl_dissect_element_QueryServiceLockStatusW_needed_(tvbuff_t *tvb _U_, int of
 /* IDL: [out] [ref] uint32 *needed */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryServiceLockStatusW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceLockStatusW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4203,8 +4203,8 @@ svcctl_dissect_QueryServiceLockStatusW_response(tvbuff_t *tvb _U_, int offset _U
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryServiceLockStatusW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceLockStatusW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryServiceLockStatusW";
 	offset = svcctl_dissect_element_QueryServiceLockStatusW_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -4214,48 +4214,48 @@ svcctl_dissect_QueryServiceLockStatusW_request(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceW_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceW_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_StartServiceW_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_StartServiceW_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceW_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_StartServiceW_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceW_NumArgs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceW_NumArgs(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_StartServiceW_NumArgs, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceW_Arguments(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceW_Arguments(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_StartServiceW_Arguments_, NDR_POINTER_UNIQUE, "Pointer to Arguments (svcctl_ArgumentString)",hf_svcctl_svcctl_StartServiceW_Arguments);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceW_Arguments_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceW_Arguments_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_StartServiceW_Arguments__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceW_Arguments__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceW_Arguments__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_ArgumentString(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_StartServiceW_Arguments,0);
 
@@ -4268,8 +4268,8 @@ svcctl_dissect_element_StartServiceW_Arguments__(tvbuff_t *tvb _U_, int offset _
 /* IDL: [in] [size_is(NumArgs)] [unique(1)] svcctl_ArgumentString *Arguments */
 /* IDL: ); */
 
-static int
-svcctl_dissect_StartServiceW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_StartServiceW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4282,8 +4282,8 @@ svcctl_dissect_StartServiceW_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-svcctl_dissect_StartServiceW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_StartServiceW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="StartServiceW";
 	offset = svcctl_dissect_element_StartServiceW_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -4295,32 +4295,32 @@ svcctl_dissect_StartServiceW_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameW_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_GetServiceDisplayNameW_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetServiceDisplayNameW_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameW_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameW_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameW_service_name_, NDR_POINTER_REF, "Pointer to Service Name (uint16)",hf_svcctl_svcctl_GetServiceDisplayNameW_service_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameW_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameW_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4330,16 +4330,16 @@ svcctl_dissect_element_GetServiceDisplayNameW_service_name_(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameW_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameW_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameW_display_name_, NDR_POINTER_REF, "Pointer to Display Name (uint16)",hf_svcctl_svcctl_GetServiceDisplayNameW_display_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameW_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameW_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4349,16 +4349,16 @@ svcctl_dissect_element_GetServiceDisplayNameW_display_name_(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameW_display_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameW_display_name_length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameW_display_name_length_, NDR_POINTER_REF, "Pointer to Display Name Length (uint32)",hf_svcctl_svcctl_GetServiceDisplayNameW_display_name_length);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameW_display_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameW_display_name_length_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetServiceDisplayNameW_display_name_length, 0);
 
@@ -4372,8 +4372,8 @@ svcctl_dissect_element_GetServiceDisplayNameW_display_name_length_(tvbuff_t *tvb
 /* IDL: [in] [out] [ref] uint32 *display_name_length */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetServiceDisplayNameW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceDisplayNameW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4392,8 +4392,8 @@ svcctl_dissect_GetServiceDisplayNameW_response(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_GetServiceDisplayNameW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceDisplayNameW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetServiceDisplayNameW";
 	offset = svcctl_dissect_element_GetServiceDisplayNameW_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -4405,32 +4405,32 @@ svcctl_dissect_GetServiceDisplayNameW_request(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameW_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_GetServiceKeyNameW_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetServiceKeyNameW_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameW_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameW_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameW_display_name_, NDR_POINTER_REF, "Pointer to Display Name (uint16)",hf_svcctl_svcctl_GetServiceKeyNameW_display_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameW_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameW_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4440,16 +4440,16 @@ svcctl_dissect_element_GetServiceKeyNameW_display_name_(tvbuff_t *tvb _U_, int o
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameW_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameW_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameW_service_name_, NDR_POINTER_REF, "Pointer to Service Name (uint16)",hf_svcctl_svcctl_GetServiceKeyNameW_service_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameW_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameW_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4459,16 +4459,16 @@ svcctl_dissect_element_GetServiceKeyNameW_service_name_(tvbuff_t *tvb _U_, int o
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameW_service_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameW_service_name_length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameW_service_name_length_, NDR_POINTER_REF, "Pointer to Service Name Length (uint32)",hf_svcctl_svcctl_GetServiceKeyNameW_service_name_length);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameW_service_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameW_service_name_length_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetServiceKeyNameW_service_name_length, 0);
 
@@ -4482,8 +4482,8 @@ svcctl_dissect_element_GetServiceKeyNameW_service_name_length_(tvbuff_t *tvb _U_
 /* IDL: [in] [out] [ref] uint32 *service_name_length */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetServiceKeyNameW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceKeyNameW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4502,8 +4502,8 @@ svcctl_dissect_GetServiceKeyNameW_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-svcctl_dissect_GetServiceKeyNameW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceKeyNameW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetServiceKeyNameW";
 	offset = svcctl_dissect_element_GetServiceKeyNameW_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -4515,56 +4515,56 @@ svcctl_dissect_GetServiceKeyNameW_request(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsA_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsA_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_SCSetServiceBitsA_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_SCSetServiceBitsA_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsA_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsA_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SCSetServiceBitsA_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsA_service_bits(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsA_service_bits(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SCSetServiceBitsA_service_bits, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsA_set_bits_on(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsA_set_bits_on(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SCSetServiceBitsA_set_bits_on, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsA_update_immediately(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsA_update_immediately(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_SCSetServiceBitsA_update_immediately, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsA_lpString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsA_lpString(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_SCSetServiceBitsA_lpString_, NDR_POINTER_UNIQUE, "Pointer to LpString (uint16)",hf_svcctl_svcctl_SCSetServiceBitsA_lpString);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_SCSetServiceBitsA_lpString_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_SCSetServiceBitsA_lpString_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4582,8 +4582,8 @@ svcctl_dissect_element_SCSetServiceBitsA_lpString_(tvbuff_t *tvb _U_, int offset
 /* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *lpString */
 /* IDL: ); */
 
-static int
-svcctl_dissect_SCSetServiceBitsA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_SCSetServiceBitsA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4596,8 +4596,8 @@ svcctl_dissect_SCSetServiceBitsA_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-svcctl_dissect_SCSetServiceBitsA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_SCSetServiceBitsA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="SCSetServiceBitsA";
 	offset = svcctl_dissect_element_SCSetServiceBitsA_handle(tvb, offset, pinfo, tree, di, drep);
@@ -4613,152 +4613,152 @@ svcctl_dissect_SCSetServiceBitsA_request(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigA_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_ChangeServiceConfigA_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigA_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigA_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_StartType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigA_start_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ErrorControl(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigA_error_control, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigA_binary_path_, NDR_POINTER_UNIQUE, "Pointer to Binary Path (string)",hf_svcctl_svcctl_ChangeServiceConfigA_binary_path);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_binary_path_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_binary_path_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_binary_path , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_load_order_group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_load_order_group(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigA_load_order_group_, NDR_POINTER_UNIQUE, "Pointer to Load Order Group (string)",hf_svcctl_svcctl_ChangeServiceConfigA_load_order_group);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_load_order_group_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_load_order_group_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_load_order_group , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigA_tag_id_, NDR_POINTER_UNIQUE, "Pointer to Tag Id (uint32)",hf_svcctl_svcctl_ChangeServiceConfigA_tag_id);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfigA_tag_id, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigA_dependencies_, NDR_POINTER_UNIQUE, "Pointer to Dependencies (string)",hf_svcctl_svcctl_ChangeServiceConfigA_dependencies);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_dependencies , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigA_service_start_name_, NDR_POINTER_UNIQUE, "Pointer to Service Start Name (string)",hf_svcctl_svcctl_ChangeServiceConfigA_service_start_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_service_start_name , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigA_password_, NDR_POINTER_UNIQUE, "Pointer to Password (string)",hf_svcctl_svcctl_ChangeServiceConfigA_password);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_password , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfigA_display_name_, NDR_POINTER_UNIQUE, "Pointer to Display Name (string)",hf_svcctl_svcctl_ChangeServiceConfigA_display_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfigA_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfigA_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_display_name , 0);
 
@@ -4779,8 +4779,8 @@ svcctl_dissect_element_ChangeServiceConfigA_display_name_(tvbuff_t *tvb _U_, int
 /* IDL: [flag(LIBNDR_FLAG_STR_ASCII|LIBNDR_FLAG_STR_NULLTERM)] [in] [unique(1)] string *display_name */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ChangeServiceConfigA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ChangeServiceConfigA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4796,8 +4796,8 @@ svcctl_dissect_ChangeServiceConfigA_response(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_ChangeServiceConfigA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ChangeServiceConfigA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ChangeServiceConfigA";
 	offset = svcctl_dissect_element_ChangeServiceConfigA_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -4825,24 +4825,24 @@ svcctl_dissect_ChangeServiceConfigA_request(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceA_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_CreateServiceA_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4852,16 +4852,16 @@ svcctl_dissect_element_CreateServiceA_ServiceName(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceA_DisplayName_, NDR_POINTER_UNIQUE, "Pointer to DisplayName (uint8)",hf_svcctl_svcctl_CreateServiceA_DisplayName);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_DisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_DisplayName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4871,40 +4871,40 @@ svcctl_dissect_element_CreateServiceA_DisplayName_(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_desired_access, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_StartType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_start_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ErrorControl(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_error_control, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4914,16 +4914,16 @@ svcctl_dissect_element_CreateServiceA_binary_path(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey_, NDR_POINTER_UNIQUE, "Pointer to LoadOrderGroupKey (uint8)",hf_svcctl_svcctl_CreateServiceA_LoadOrderGroupKey);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4933,64 +4933,64 @@ svcctl_dissect_element_CreateServiceA_LoadOrderGroupKey_(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceA_tag_id_, NDR_POINTER_UNIQUE, "Pointer to Tag Id (uint32)",hf_svcctl_svcctl_CreateServiceA_tag_id);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_tag_id, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceA_dependencies_, NDR_POINTER_UNIQUE, "Pointer to Dependencies (string)",hf_svcctl_svcctl_CreateServiceA_dependencies);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceA_dependencies__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_dependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_CreateServiceA_dependencies , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_dependencies_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_dependencies_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_dependencies_size, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceA_service_start_name_, NDR_POINTER_UNIQUE, "Pointer to Service Start Name (uint8)",hf_svcctl_svcctl_CreateServiceA_service_start_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5000,48 +5000,48 @@ svcctl_dissect_element_CreateServiceA_service_start_name_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceA_password_, NDR_POINTER_UNIQUE, "Pointer to Password (uint8)",hf_svcctl_svcctl_CreateServiceA_password);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceA_password__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_password__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_password__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_password, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_password_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_password_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_password_size, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceA_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_CreateServiceA_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_service_handle, PIDL_POLHND_OPEN);
 
@@ -5067,8 +5067,8 @@ svcctl_dissect_element_CreateServiceA_service_handle_(tvbuff_t *tvb _U_, int off
 /* IDL: [out] [ref] policy_handle *service_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_CreateServiceA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CreateServiceA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5087,8 +5087,8 @@ svcctl_dissect_CreateServiceA_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-static int
-svcctl_dissect_CreateServiceA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CreateServiceA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="CreateServiceA";
 	offset = svcctl_dissect_element_CreateServiceA_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -5124,80 +5124,80 @@ svcctl_dissect_CreateServiceA_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesA_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_EnumDependentServicesA_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesA_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesA_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesA_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceState(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesA_state, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesA_service_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesA_service_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesA_service_status_, NDR_POINTER_REF, "Pointer to Service Status (ENUM_SERVICE_STATUSA)",hf_svcctl_svcctl_EnumDependentServicesA_service_status);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesA_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesA_service_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_ENUM_SERVICE_STATUSA(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_EnumDependentServicesA_service_status,0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesA_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesA_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesA_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesA_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesA_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesA_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_EnumDependentServicesA_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesA_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesA_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesA_needed, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesA_services_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesA_services_returned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesA_services_returned_, NDR_POINTER_REF, "Pointer to Services Returned (uint32)",hf_svcctl_svcctl_EnumDependentServicesA_services_returned);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumDependentServicesA_services_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumDependentServicesA_services_returned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesA_services_returned, 0);
 
@@ -5213,8 +5213,8 @@ svcctl_dissect_element_EnumDependentServicesA_services_returned_(tvbuff_t *tvb _
 /* IDL: [out] [ref] uint32 *services_returned */
 /* IDL: ); */
 
-static int
-svcctl_dissect_EnumDependentServicesA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumDependentServicesA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5236,8 +5236,8 @@ svcctl_dissect_EnumDependentServicesA_response(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_EnumDependentServicesA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumDependentServicesA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EnumDependentServicesA";
 	offset = svcctl_dissect_element_EnumDependentServicesA_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -5249,104 +5249,104 @@ svcctl_dissect_EnumDependentServicesA_request(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusA_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_EnumServicesStatusA_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusA_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusA_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_service_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_service_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceState(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusA_service_state, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusA_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_service(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_service(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusA_service_);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_service_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_service_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusA_service, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusA_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_EnumServicesStatusA_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusA_needed, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_services_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_services_returned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusA_services_returned_, NDR_POINTER_REF, "Pointer to Services Returned (uint32)",hf_svcctl_svcctl_EnumServicesStatusA_services_returned);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_services_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_services_returned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusA_services_returned, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_resume_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusA_resume_handle_, NDR_POINTER_UNIQUE, "Pointer to Resume Handle (uint32)",hf_svcctl_svcctl_EnumServicesStatusA_resume_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusA_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusA_resume_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusA_resume_handle, 0);
 
@@ -5364,8 +5364,8 @@ svcctl_dissect_element_EnumServicesStatusA_resume_handle_(tvbuff_t *tvb _U_, int
 /* IDL: [in] [out] [unique(1)] uint32 *resume_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_EnumServicesStatusA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumServicesStatusA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5390,8 +5390,8 @@ svcctl_dissect_EnumServicesStatusA_response(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_EnumServicesStatusA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumServicesStatusA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EnumServicesStatusA";
 	offset = svcctl_dissect_element_EnumServicesStatusA_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -5407,16 +5407,16 @@ svcctl_dissect_EnumServicesStatusA_request(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerA_MachineName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerA_MachineName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenSCManagerA_MachineName_, NDR_POINTER_UNIQUE, "Pointer to MachineName (uint8)",hf_svcctl_svcctl_OpenSCManagerA_MachineName);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerA_MachineName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerA_MachineName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5426,16 +5426,16 @@ svcctl_dissect_element_OpenSCManagerA_MachineName_(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerA_DatabaseName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerA_DatabaseName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenSCManagerA_DatabaseName_, NDR_POINTER_UNIQUE, "Pointer to DatabaseName (uint8)",hf_svcctl_svcctl_OpenSCManagerA_DatabaseName);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerA_DatabaseName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerA_DatabaseName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5445,24 +5445,24 @@ svcctl_dissect_element_OpenSCManagerA_DatabaseName_(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerA_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerA_access_mask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_bitmap_MgrAccessMask(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManagerA_access_mask, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenSCManagerA_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_OpenSCManagerA_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManagerA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManagerA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManagerA_scm_handle, PIDL_POLHND_OPEN);
 
@@ -5476,8 +5476,8 @@ svcctl_dissect_element_OpenSCManagerA_scm_handle_(tvbuff_t *tvb _U_, int offset 
 /* IDL: [out] [ref] policy_handle *scm_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_OpenSCManagerA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_OpenSCManagerA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5493,8 +5493,8 @@ svcctl_dissect_OpenSCManagerA_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-static int
-svcctl_dissect_OpenSCManagerA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_OpenSCManagerA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="OpenSCManagerA";
 	offset = svcctl_dissect_element_OpenSCManagerA_MachineName(tvb, offset, pinfo, tree, di, drep);
@@ -5506,24 +5506,24 @@ svcctl_dissect_OpenSCManagerA_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenServiceA_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_OpenServiceA_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenServiceA_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceA_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceA_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5533,24 +5533,24 @@ svcctl_dissect_element_OpenServiceA_ServiceName(tvbuff_t *tvb _U_, int offset _U
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceA_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceA_access_mask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_bitmap_MgrAccessMask(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenServiceA_access_mask, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenServiceA_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_OpenServiceA_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenServiceA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenServiceA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenServiceA_service_handle, PIDL_POLHND_OPEN);
 
@@ -5564,8 +5564,8 @@ svcctl_dissect_element_OpenServiceA_service_handle_(tvbuff_t *tvb _U_, int offse
 /* IDL: [out] [ref] policy_handle *service_handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_OpenServiceA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_OpenServiceA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5581,8 +5581,8 @@ svcctl_dissect_OpenServiceA_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	return offset;
 }
 
-static int
-svcctl_dissect_OpenServiceA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_OpenServiceA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="OpenServiceA";
 	offset = svcctl_dissect_element_OpenServiceA_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -5594,56 +5594,56 @@ svcctl_dissect_OpenServiceA_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfigA_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_QueryServiceConfigA_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfigA_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigA_query(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigA_query(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfigA_query_);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigA_query_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigA_query_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfigA_query, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigA_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigA_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfigA_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigA_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigA_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfigA_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_QueryServiceConfigA_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigA_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigA_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfigA_needed, 0);
 
@@ -5657,8 +5657,8 @@ svcctl_dissect_element_QueryServiceConfigA_needed_(tvbuff_t *tvb _U_, int offset
 /* IDL: [out] [ref] uint32 *needed */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryServiceConfigA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceConfigA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5677,8 +5677,8 @@ svcctl_dissect_QueryServiceConfigA_response(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryServiceConfigA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceConfigA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryServiceConfigA";
 	offset = svcctl_dissect_element_QueryServiceConfigA_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -5688,56 +5688,56 @@ svcctl_dissect_QueryServiceConfigA_request(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceLockStatusA_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_QueryServiceLockStatusA_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceLockStatusA_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusA_lock_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusA_lock_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceLockStatusA_lock_status_, NDR_POINTER_REF, "Pointer to Lock Status (SERVICE_LOCK_STATUS)",hf_svcctl_svcctl_QueryServiceLockStatusA_lock_status);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusA_lock_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusA_lock_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_SERVICE_LOCK_STATUS(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_QueryServiceLockStatusA_lock_status,0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusA_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusA_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceLockStatusA_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusA_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusA_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceLockStatusA_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_QueryServiceLockStatusA_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceLockStatusA_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceLockStatusA_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceLockStatusA_needed, 0);
 
@@ -5751,8 +5751,8 @@ svcctl_dissect_element_QueryServiceLockStatusA_needed_(tvbuff_t *tvb _U_, int of
 /* IDL: [out] [ref] uint32 *needed */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryServiceLockStatusA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceLockStatusA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5771,8 +5771,8 @@ svcctl_dissect_QueryServiceLockStatusA_response(tvbuff_t *tvb _U_, int offset _U
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryServiceLockStatusA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceLockStatusA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryServiceLockStatusA";
 	offset = svcctl_dissect_element_QueryServiceLockStatusA_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -5782,48 +5782,48 @@ svcctl_dissect_QueryServiceLockStatusA_request(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceA_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceA_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_StartServiceA_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_StartServiceA_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceA_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_StartServiceA_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceA_NumArgs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceA_NumArgs(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_StartServiceA_NumArgs, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceA_Arguments(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceA_Arguments(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_StartServiceA_Arguments_, NDR_POINTER_UNIQUE, "Pointer to Arguments (svcctl_ArgumentStringA)",hf_svcctl_svcctl_StartServiceA_Arguments);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceA_Arguments_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceA_Arguments_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_StartServiceA_Arguments__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_StartServiceA_Arguments__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_StartServiceA_Arguments__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_struct_ArgumentStringA(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_StartServiceA_Arguments,0);
 
@@ -5836,8 +5836,8 @@ svcctl_dissect_element_StartServiceA_Arguments__(tvbuff_t *tvb _U_, int offset _
 /* IDL: [in] [size_is(NumArgs)] [unique(1)] svcctl_ArgumentStringA *Arguments */
 /* IDL: ); */
 
-static int
-svcctl_dissect_StartServiceA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_StartServiceA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5850,8 +5850,8 @@ svcctl_dissect_StartServiceA_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-svcctl_dissect_StartServiceA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_StartServiceA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="StartServiceA";
 	offset = svcctl_dissect_element_StartServiceA_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -5863,48 +5863,48 @@ svcctl_dissect_StartServiceA_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameA_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameA_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameA_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_GetServiceDisplayNameA_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameA_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameA_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetServiceDisplayNameA_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameA_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameA_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameA_service_name_, NDR_POINTER_REF, "Pointer to Service Name (string)",hf_svcctl_svcctl_GetServiceDisplayNameA_service_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameA_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_GetServiceDisplayNameA_service_name , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameA_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameA_display_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameA_display_name_, NDR_POINTER_REF, "Pointer to Display Name (uint8)",hf_svcctl_svcctl_GetServiceDisplayNameA_display_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameA_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameA_display_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5914,16 +5914,16 @@ svcctl_dissect_element_GetServiceDisplayNameA_display_name_(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameA_display_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameA_display_name_length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameA_display_name_length_, NDR_POINTER_REF, "Pointer to Display Name Length (uint32)",hf_svcctl_svcctl_GetServiceDisplayNameA_display_name_length);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceDisplayNameA_display_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceDisplayNameA_display_name_length_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetServiceDisplayNameA_display_name_length, 0);
 
@@ -5937,8 +5937,8 @@ svcctl_dissect_element_GetServiceDisplayNameA_display_name_length_(tvbuff_t *tvb
 /* IDL: [in] [out] [ref] uint32 *display_name_length */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetServiceDisplayNameA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceDisplayNameA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5957,8 +5957,8 @@ svcctl_dissect_GetServiceDisplayNameA_response(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_GetServiceDisplayNameA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceDisplayNameA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetServiceDisplayNameA";
 	offset = svcctl_dissect_element_GetServiceDisplayNameA_handle(tvb, offset, pinfo, tree, di, drep);
@@ -5970,48 +5970,48 @@ svcctl_dissect_GetServiceDisplayNameA_request(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameA_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_GetServiceKeyNameA_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetServiceKeyNameA_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameA_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameA_service_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameA_service_name_, NDR_POINTER_REF, "Pointer to Service Name (string)",hf_svcctl_svcctl_GetServiceKeyNameA_service_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameA_service_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_GetServiceKeyNameA_service_name , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameA_key_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameA_key_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameA_key_name_, NDR_POINTER_REF, "Pointer to Key Name (uint8)",hf_svcctl_svcctl_GetServiceKeyNameA_key_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameA_key_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameA_key_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6021,16 +6021,16 @@ svcctl_dissect_element_GetServiceKeyNameA_key_name_(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameA_key_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameA_key_name_length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameA_key_name_length_, NDR_POINTER_REF, "Pointer to Key Name Length (uint32)",hf_svcctl_svcctl_GetServiceKeyNameA_key_name_length);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetServiceKeyNameA_key_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetServiceKeyNameA_key_name_length_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetServiceKeyNameA_key_name_length, 0);
 
@@ -6044,8 +6044,8 @@ svcctl_dissect_element_GetServiceKeyNameA_key_name_length_(tvbuff_t *tvb _U_, in
 /* IDL: [in] [out] [ref] uint32 *key_name_length */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetServiceKeyNameA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceKeyNameA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6064,8 +6064,8 @@ svcctl_dissect_GetServiceKeyNameA_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-svcctl_dissect_GetServiceKeyNameA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceKeyNameA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetServiceKeyNameA";
 	offset = svcctl_dissect_element_GetServiceKeyNameA_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6077,32 +6077,32 @@ svcctl_dissect_GetServiceKeyNameA_request(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetCurrentGroupeStateW_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetCurrentGroupeStateW_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetCurrentGroupeStateW_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_GetCurrentGroupeStateW_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetCurrentGroupeStateW_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetCurrentGroupeStateW_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetCurrentGroupeStateW_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup_, NDR_POINTER_UNIQUE, "Pointer to LpLoadOrderGroup (uint16)",hf_svcctl_svcctl_GetCurrentGroupeStateW_lpLoadOrderGroup);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6112,16 +6112,16 @@ svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup_(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetCurrentGroupeStateW_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetCurrentGroupeStateW_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetCurrentGroupeStateW_state_, NDR_POINTER_REF, "Pointer to State (uint32)",hf_svcctl_svcctl_GetCurrentGroupeStateW_state);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_GetCurrentGroupeStateW_state_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_GetCurrentGroupeStateW_state_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetCurrentGroupeStateW_state, 0);
 
@@ -6134,8 +6134,8 @@ svcctl_dissect_element_GetCurrentGroupeStateW_state_(tvbuff_t *tvb _U_, int offs
 /* IDL: [out] [ref] uint32 *state */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetCurrentGroupeStateW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetCurrentGroupeStateW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6151,8 +6151,8 @@ svcctl_dissect_GetCurrentGroupeStateW_response(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_GetCurrentGroupeStateW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetCurrentGroupeStateW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetCurrentGroupeStateW";
 	offset = svcctl_dissect_element_GetCurrentGroupeStateW_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6162,120 +6162,120 @@ svcctl_dissect_GetCurrentGroupeStateW_request(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServiceGroupW_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_EnumServiceGroupW_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServiceGroupW_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServiceGroupW_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_service_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_service_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceState(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServiceGroupW_service_state, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_lpBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_lpBuffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServiceGroupW_lpBuffer_);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_lpBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_lpBuffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServiceGroupW_lpBuffer, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_cbBufSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_cbBufSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServiceGroupW_cbBufSize, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_pcbBytesNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_pcbBytesNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServiceGroupW_pcbBytesNeeded_, NDR_POINTER_REF, "Pointer to PcbBytesNeeded (uint32)",hf_svcctl_svcctl_EnumServiceGroupW_pcbBytesNeeded);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_pcbBytesNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_pcbBytesNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServiceGroupW_pcbBytesNeeded, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_lpServicesReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_lpServicesReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServiceGroupW_lpServicesReturned_, NDR_POINTER_REF, "Pointer to LpServicesReturned (uint32)",hf_svcctl_svcctl_EnumServiceGroupW_lpServicesReturned);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_lpServicesReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_lpServicesReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServiceGroupW_lpServicesReturned, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_ResumeIndex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_ResumeIndex(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServiceGroupW_ResumeIndex_, NDR_POINTER_UNIQUE, "Pointer to ResumeIndex (uint32)",hf_svcctl_svcctl_EnumServiceGroupW_ResumeIndex);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_ResumeIndex_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_ResumeIndex_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServiceGroupW_ResumeIndex, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_pszGroupName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_pszGroupName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServiceGroupW_pszGroupName_, NDR_POINTER_UNIQUE, "Pointer to PszGroupName (uint16)",hf_svcctl_svcctl_EnumServiceGroupW_pszGroupName);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServiceGroupW_pszGroupName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServiceGroupW_pszGroupName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6297,8 +6297,8 @@ svcctl_dissect_element_EnumServiceGroupW_pszGroupName_(tvbuff_t *tvb _U_, int of
 /* IDL: [charset(UTF16)] [in] [range(0,SC_MAX_NAME_LENGTH)] [unique(1)] uint16 *pszGroupName */
 /* IDL: ); */
 
-static int
-svcctl_dissect_EnumServiceGroupW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumServiceGroupW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6323,8 +6323,8 @@ svcctl_dissect_EnumServiceGroupW_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-svcctl_dissect_EnumServiceGroupW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumServiceGroupW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EnumServiceGroupW";
 	offset = svcctl_dissect_element_EnumServiceGroupW_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6342,40 +6342,40 @@ svcctl_dissect_EnumServiceGroupW_request(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfig2A_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfig2A_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfig2A_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_ChangeServiceConfig2A_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfig2A_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfig2A_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfig2A_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfig2A_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfig2A_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfig2A_info_level, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfig2A_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfig2A_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfig2A_info_, NDR_POINTER_UNIQUE, "Pointer to Info (uint8)",hf_svcctl_svcctl_ChangeServiceConfig2A_info);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfig2A_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfig2A_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfig2A_info, 0);
 
@@ -6388,8 +6388,8 @@ svcctl_dissect_element_ChangeServiceConfig2A_info_(tvbuff_t *tvb _U_, int offset
 /* IDL: [in] [unique(1)] uint8 *info */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ChangeServiceConfig2A_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ChangeServiceConfig2A_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6402,8 +6402,8 @@ svcctl_dissect_ChangeServiceConfig2A_response(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_ChangeServiceConfig2A_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ChangeServiceConfig2A_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ChangeServiceConfig2A";
 	offset = svcctl_dissect_element_ChangeServiceConfig2A_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6415,40 +6415,40 @@ svcctl_dissect_ChangeServiceConfig2A_request(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfig2W_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfig2W_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfig2W_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_ChangeServiceConfig2W_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfig2W_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfig2W_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfig2W_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfig2W_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfig2W_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfig2W_info_level, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfig2W_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfig2W_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_ChangeServiceConfig2W_info_, NDR_POINTER_UNIQUE, "Pointer to Info (uint8)",hf_svcctl_svcctl_ChangeServiceConfig2W_info);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_ChangeServiceConfig2W_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_ChangeServiceConfig2W_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_ChangeServiceConfig2W_info, 0);
 
@@ -6461,8 +6461,8 @@ svcctl_dissect_element_ChangeServiceConfig2W_info_(tvbuff_t *tvb _U_, int offset
 /* IDL: [in] [unique(1)] uint8 *info */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ChangeServiceConfig2W_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ChangeServiceConfig2W_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6475,8 +6475,8 @@ svcctl_dissect_ChangeServiceConfig2W_response(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_ChangeServiceConfig2W_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ChangeServiceConfig2W_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ChangeServiceConfig2W";
 	offset = svcctl_dissect_element_ChangeServiceConfig2W_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6488,64 +6488,64 @@ svcctl_dissect_ChangeServiceConfig2W_request(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2A_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2A_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfig2A_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_QueryServiceConfig2A_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2A_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2A_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfig2A_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2A_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2A_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ConfigLevel(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfig2A_info_level, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2A_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2A_buffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfig2A_buffer_);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2A_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2A_buffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfig2A_buffer, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2A_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2A_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfig2A_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2A_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2A_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfig2A_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_QueryServiceConfig2A_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2A_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2A_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfig2A_needed, 0);
 
@@ -6560,8 +6560,8 @@ svcctl_dissect_element_QueryServiceConfig2A_needed_(tvbuff_t *tvb _U_, int offse
 /* IDL: [out] [ref] uint32 *needed */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryServiceConfig2A_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceConfig2A_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6580,8 +6580,8 @@ svcctl_dissect_QueryServiceConfig2A_response(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryServiceConfig2A_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceConfig2A_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryServiceConfig2A";
 	offset = svcctl_dissect_element_QueryServiceConfig2A_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6593,72 +6593,72 @@ svcctl_dissect_QueryServiceConfig2A_request(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2W_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2W_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfig2W_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_QueryServiceConfig2W_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2W_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2W_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfig2W_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2W_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2W_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ConfigLevel(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfig2W_info_level, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2W_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2W_buffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfig2W_buffer_, NDR_POINTER_REF, "Pointer to Buffer (uint8)",hf_svcctl_svcctl_QueryServiceConfig2W_buffer);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2W_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2W_buffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfig2W_buffer__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2W_buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2W_buffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfig2W_buffer, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2W_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2W_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfig2W_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2W_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2W_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfig2W_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_QueryServiceConfig2W_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfig2W_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfig2W_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfig2W_needed, 0);
 
@@ -6673,8 +6673,8 @@ svcctl_dissect_element_QueryServiceConfig2W_needed_(tvbuff_t *tvb _U_, int offse
 /* IDL: [out] [range(0,8192)] [ref] uint32 *needed */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryServiceConfig2W_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceConfig2W_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6693,8 +6693,8 @@ svcctl_dissect_QueryServiceConfig2W_response(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryServiceConfig2W_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceConfig2W_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryServiceConfig2W";
 	offset = svcctl_dissect_element_QueryServiceConfig2W_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6706,72 +6706,72 @@ svcctl_dissect_QueryServiceConfig2W_request(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatusEx_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatusEx_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceStatusEx_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_QueryServiceStatusEx_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatusEx_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatusEx_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceStatusEx_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatusEx_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatusEx_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_StatusLevel(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceStatusEx_info_level, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatusEx_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatusEx_buffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceStatusEx_buffer_, NDR_POINTER_REF, "Pointer to Buffer (uint8)",hf_svcctl_svcctl_QueryServiceStatusEx_buffer);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatusEx_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatusEx_buffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceStatusEx_buffer__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatusEx_buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatusEx_buffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceStatusEx_buffer, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatusEx_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatusEx_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceStatusEx_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatusEx_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatusEx_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceStatusEx_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_QueryServiceStatusEx_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceStatusEx_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceStatusEx_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceStatusEx_needed, 0);
 
@@ -6786,8 +6786,8 @@ svcctl_dissect_element_QueryServiceStatusEx_needed_(tvbuff_t *tvb _U_, int offse
 /* IDL: [out] [range(0,8192)] [ref] uint32 *needed */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryServiceStatusEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceStatusEx_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6806,8 +6806,8 @@ svcctl_dissect_QueryServiceStatusEx_response(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryServiceStatusEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceStatusEx_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryServiceStatusEx";
 	offset = svcctl_dissect_element_QueryServiceStatusEx_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6819,136 +6819,136 @@ svcctl_dissect_QueryServiceStatusEx_request(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExA_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_EnumServicesStatusExA_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExA_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExA_info_level, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExA_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceState(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExA_state, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_services(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_services(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExA_services_);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_services_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_services_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExA_services, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExA_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExA_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_EnumServicesStatusExA_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExA_needed, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_service_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_service_returned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExA_service_returned_, NDR_POINTER_REF, "Pointer to Service Returned (uint32)",hf_svcctl_EnumServicesStatusExA_service_returned);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_service_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_service_returned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExA_service_returned, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_resume_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExA_resume_handle_, NDR_POINTER_UNIQUE, "Pointer to Resume Handle (uint32)",hf_svcctl_EnumServicesStatusExA_resume_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_resume_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExA_resume_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_group_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_group_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExA_group_name_, NDR_POINTER_REF, "Pointer to Group Name (uint16)",hf_svcctl_EnumServicesStatusExA_group_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_group_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_group_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExA_group_name__, NDR_POINTER_UNIQUE, "Pointer to Group Name (uint16)",hf_svcctl_EnumServicesStatusExA_group_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExA_group_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExA_group_name__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6971,8 +6971,8 @@ svcctl_dissect_element_EnumServicesStatusExA_group_name__(tvbuff_t *tvb _U_, int
 /* IDL: [charset(UTF16)] [out] [ref] uint16 **group_name */
 /* IDL: ); */
 
-static int
-svcctl_dissect_EnumServicesStatusExA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumServicesStatusExA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7000,8 +7000,8 @@ svcctl_dissect_EnumServicesStatusExA_response(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_EnumServicesStatusExA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumServicesStatusExA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EnumServicesStatusExA";
 	offset = svcctl_dissect_element_EnumServicesStatusExA_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7019,136 +7019,136 @@ svcctl_dissect_EnumServicesStatusExA_request(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_scmanager(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_scmanager(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExW_scmanager_, NDR_POINTER_REF, "Pointer to Scmanager (policy_handle)",hf_svcctl_EnumServicesStatusExW_scmanager);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_scmanager_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_scmanager_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExW_scmanager, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExW_info_level, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExW_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_state(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceState(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExW_state, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_services(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_services(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExW_services_, NDR_POINTER_REF, "Pointer to Services (uint8)",hf_svcctl_EnumServicesStatusExW_services);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_services_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_services_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExW_services__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_services__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_services__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExW_services, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_offered(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExW_offered, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_needed(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExW_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_EnumServicesStatusExW_needed);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_needed_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExW_needed, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_service_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_service_returned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExW_service_returned_, NDR_POINTER_REF, "Pointer to Service Returned (uint32)",hf_svcctl_EnumServicesStatusExW_service_returned);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_service_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_service_returned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExW_service_returned, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_resume_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExW_resume_handle_, NDR_POINTER_UNIQUE, "Pointer to Resume Handle (uint32)",hf_svcctl_EnumServicesStatusExW_resume_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_resume_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_EnumServicesStatusExW_resume_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_group_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_group_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusExW_group_name_, NDR_POINTER_UNIQUE, "Pointer to Group Name (uint16)",hf_svcctl_EnumServicesStatusExW_group_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_EnumServicesStatusExW_group_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_EnumServicesStatusExW_group_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7171,8 +7171,8 @@ svcctl_dissect_element_EnumServicesStatusExW_group_name_(tvbuff_t *tvb _U_, int 
 /* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *group_name */
 /* IDL: ); */
 
-static int
-svcctl_dissect_EnumServicesStatusExW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumServicesStatusExW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7197,8 +7197,8 @@ svcctl_dissect_EnumServicesStatusExW_response(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_EnumServicesStatusExW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_EnumServicesStatusExW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="EnumServicesStatusExW";
 	offset = svcctl_dissect_element_EnumServicesStatusExW_scmanager(tvb, offset, pinfo, tree, di, drep);
@@ -7222,8 +7222,8 @@ svcctl_dissect_EnumServicesStatusExW_request(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ScBroadcastServiceControlMessage_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScBroadcastServiceControlMessage_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7236,31 +7236,31 @@ svcctl_dissect_ScBroadcastServiceControlMessage_response(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-svcctl_dissect_ScBroadcastServiceControlMessage_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScBroadcastServiceControlMessage_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ScBroadcastServiceControlMessage";
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64A_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_CreateServiceWOW64A_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7270,16 +7270,16 @@ svcctl_dissect_element_CreateServiceWOW64A_ServiceName(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64A_DisplayName_, NDR_POINTER_UNIQUE, "Pointer to DisplayName (uint8)",hf_svcctl_svcctl_CreateServiceWOW64A_DisplayName);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_DisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_DisplayName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7289,40 +7289,40 @@ svcctl_dissect_element_CreateServiceWOW64A_DisplayName_(tvbuff_t *tvb _U_, int o
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_desired_access, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_StartType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_start_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ErrorControl(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_error_control, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7332,16 +7332,16 @@ svcctl_dissect_element_CreateServiceWOW64A_binary_path(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey_, NDR_POINTER_UNIQUE, "Pointer to LoadOrderGroupKey (uint8)",hf_svcctl_svcctl_CreateServiceWOW64A_LoadOrderGroupKey);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7351,64 +7351,64 @@ svcctl_dissect_element_CreateServiceWOW64A_LoadOrderGroupKey_(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64A_tag_id_, NDR_POINTER_UNIQUE, "Pointer to Tag Id (uint32)",hf_svcctl_svcctl_CreateServiceWOW64A_tag_id);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_tag_id, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64A_dependencies_, NDR_POINTER_UNIQUE, "Pointer to Dependencies (string)",hf_svcctl_svcctl_CreateServiceWOW64A_dependencies);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64A_dependencies__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_dependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_CreateServiceWOW64A_dependencies , 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_dependencies_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_dependencies_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_dependencies_size, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64A_service_start_name_, NDR_POINTER_UNIQUE, "Pointer to Service Start Name (uint8)",hf_svcctl_svcctl_CreateServiceWOW64A_service_start_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7418,48 +7418,48 @@ svcctl_dissect_element_CreateServiceWOW64A_service_start_name_(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64A_password_, NDR_POINTER_UNIQUE, "Pointer to Password (uint8)",hf_svcctl_svcctl_CreateServiceWOW64A_password);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64A_password__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_password__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_password__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_password, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_password_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_password_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_password_size, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64A_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_CreateServiceWOW64A_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64A_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64A_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_handle, PIDL_POLHND_OPEN);
 
@@ -7485,8 +7485,8 @@ svcctl_dissect_element_CreateServiceWOW64A_handle_(tvbuff_t *tvb _U_, int offset
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_CreateServiceWOW64A_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CreateServiceWOW64A_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7505,8 +7505,8 @@ svcctl_dissect_CreateServiceWOW64A_response(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_CreateServiceWOW64A_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CreateServiceWOW64A_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="CreateServiceWOW64A";
 	offset = svcctl_dissect_element_CreateServiceWOW64A_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7542,24 +7542,24 @@ svcctl_dissect_CreateServiceWOW64A_request(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64W_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_CreateServiceWOW64W_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7569,16 +7569,16 @@ svcctl_dissect_element_CreateServiceWOW64W_ServiceName(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64W_DisplayName_, NDR_POINTER_UNIQUE, "Pointer to DisplayName (uint16)",hf_svcctl_svcctl_CreateServiceWOW64W_DisplayName);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_DisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_DisplayName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7588,40 +7588,40 @@ svcctl_dissect_element_CreateServiceWOW64W_DisplayName_(tvbuff_t *tvb _U_, int o
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_desired_access, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ServiceType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_StartType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_start_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ErrorControl(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_error_control, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7631,16 +7631,16 @@ svcctl_dissect_element_CreateServiceWOW64W_binary_path(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey_, NDR_POINTER_UNIQUE, "Pointer to LoadOrderGroupKey (uint16)",hf_svcctl_svcctl_CreateServiceWOW64W_LoadOrderGroupKey);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7650,64 +7650,64 @@ svcctl_dissect_element_CreateServiceWOW64W_LoadOrderGroupKey_(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64W_tag_id_, NDR_POINTER_UNIQUE, "Pointer to Tag Id (uint32)",hf_svcctl_svcctl_CreateServiceWOW64W_tag_id);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_tag_id, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64W_dependencies_, NDR_POINTER_UNIQUE, "Pointer to Dependencies (uint8)",hf_svcctl_svcctl_CreateServiceWOW64W_dependencies);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64W_dependencies__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_dependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_dependencies, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_dependencies_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_dependencies_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_dependencies_size, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64W_service_start_name_, NDR_POINTER_UNIQUE, "Pointer to Service Start Name (uint16)",hf_svcctl_svcctl_CreateServiceWOW64W_service_start_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7717,48 +7717,48 @@ svcctl_dissect_element_CreateServiceWOW64W_service_start_name_(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64W_password_, NDR_POINTER_UNIQUE, "Pointer to Password (uint8)",hf_svcctl_svcctl_CreateServiceWOW64W_password);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64W_password__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_password__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_password__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_password, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_password_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_password_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_password_size, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateServiceWOW64W_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_CreateServiceWOW64W_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateServiceWOW64W_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateServiceWOW64W_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_handle, PIDL_POLHND_OPEN);
 
@@ -7784,8 +7784,8 @@ svcctl_dissect_element_CreateServiceWOW64W_handle_(tvbuff_t *tvb _U_, int offset
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_CreateServiceWOW64W_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CreateServiceWOW64W_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7804,8 +7804,8 @@ svcctl_dissect_CreateServiceWOW64W_response(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_CreateServiceWOW64W_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CreateServiceWOW64W_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="CreateServiceWOW64W";
 	offset = svcctl_dissect_element_CreateServiceWOW64W_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7845,8 +7845,8 @@ svcctl_dissect_CreateServiceWOW64W_request(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ScQueryServiceTagInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScQueryServiceTagInfo_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7859,8 +7859,8 @@ svcctl_dissect_ScQueryServiceTagInfo_response(tvbuff_t *tvb _U_, int offset _U_,
 	return offset;
 }
 
-static int
-svcctl_dissect_ScQueryServiceTagInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScQueryServiceTagInfo_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ScQueryServiceTagInfo";
 	return offset;
@@ -7870,8 +7870,8 @@ svcctl_dissect_ScQueryServiceTagInfo_request(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_NotifyServiceStatusChange_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_NotifyServiceStatusChange_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7884,8 +7884,8 @@ svcctl_dissect_NotifyServiceStatusChange_response(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-svcctl_dissect_NotifyServiceStatusChange_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_NotifyServiceStatusChange_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="NotifyServiceStatusChange";
 	return offset;
@@ -7895,8 +7895,8 @@ svcctl_dissect_NotifyServiceStatusChange_request(tvbuff_t *tvb _U_, int offset _
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetNotifyResults_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetNotifyResults_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7909,8 +7909,8 @@ svcctl_dissect_GetNotifyResults_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-svcctl_dissect_GetNotifyResults_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetNotifyResults_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetNotifyResults";
 	return offset;
@@ -7920,8 +7920,8 @@ svcctl_dissect_GetNotifyResults_request(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_CloseNotifyHandle_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CloseNotifyHandle_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7934,8 +7934,8 @@ svcctl_dissect_CloseNotifyHandle_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-svcctl_dissect_CloseNotifyHandle_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CloseNotifyHandle_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="CloseNotifyHandle";
 	return offset;
@@ -7945,8 +7945,8 @@ svcctl_dissect_CloseNotifyHandle_request(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ControlServiceExA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ControlServiceExA_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7959,8 +7959,8 @@ svcctl_dissect_ControlServiceExA_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-svcctl_dissect_ControlServiceExA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ControlServiceExA_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ControlServiceExA";
 	return offset;
@@ -7970,8 +7970,8 @@ svcctl_dissect_ControlServiceExA_request(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ControlServiceExW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ControlServiceExW_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7984,8 +7984,8 @@ svcctl_dissect_ControlServiceExW_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-svcctl_dissect_ControlServiceExW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ControlServiceExW_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ControlServiceExW";
 	return offset;
@@ -7995,8 +7995,8 @@ svcctl_dissect_ControlServiceExW_request(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ScSendPnPMessage_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScSendPnPMessage_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8009,8 +8009,8 @@ svcctl_dissect_ScSendPnPMessage_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-svcctl_dissect_ScSendPnPMessage_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScSendPnPMessage_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ScSendPnPMessage";
 	return offset;
@@ -8020,8 +8020,8 @@ svcctl_dissect_ScSendPnPMessage_request(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ScValidatePnPService_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScValidatePnPService_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8034,8 +8034,8 @@ svcctl_dissect_ScValidatePnPService_response(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_ScValidatePnPService_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScValidatePnPService_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ScValidatePnPService";
 	return offset;
@@ -8045,8 +8045,8 @@ svcctl_dissect_ScValidatePnPService_request(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ScOpenServiceStatusHandle_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScOpenServiceStatusHandle_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8059,8 +8059,8 @@ svcctl_dissect_ScOpenServiceStatusHandle_response(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-svcctl_dissect_ScOpenServiceStatusHandle_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScOpenServiceStatusHandle_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ScOpenServiceStatusHandle";
 	return offset;
@@ -8070,8 +8070,8 @@ svcctl_dissect_ScOpenServiceStatusHandle_request(tvbuff_t *tvb _U_, int offset _
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ScQueryServiceConfig_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScQueryServiceConfig_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8084,31 +8084,31 @@ svcctl_dissect_ScQueryServiceConfig_response(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_ScQueryServiceConfig_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScQueryServiceConfig_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ScQueryServiceConfig";
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigEx_service_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigEx_service_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_QueryServiceConfigEx_service_handle_, NDR_POINTER_REF, "Pointer to Service Handle (policy_handle)",hf_svcctl_svcctl_QueryServiceConfigEx_service_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigEx_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigEx_service_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfigEx_service_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_QueryServiceConfigEx_info_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_QueryServiceConfigEx_info_level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_QueryServiceConfigEx_info_level, 0);
 
@@ -8120,8 +8120,8 @@ svcctl_dissect_element_QueryServiceConfigEx_info_level(tvbuff_t *tvb _U_, int of
 /* IDL: [in] uint32 info_level */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryServiceConfigEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceConfigEx_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8134,8 +8134,8 @@ svcctl_dissect_QueryServiceConfigEx_response(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryServiceConfigEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryServiceConfigEx_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryServiceConfigEx";
 	offset = svcctl_dissect_element_QueryServiceConfigEx_service_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8149,8 +8149,8 @@ svcctl_dissect_QueryServiceConfigEx_request(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ScRegisterPreshutdownRestart_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScRegisterPreshutdownRestart_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8163,8 +8163,8 @@ svcctl_dissect_ScRegisterPreshutdownRestart_response(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-svcctl_dissect_ScRegisterPreshutdownRestart_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScRegisterPreshutdownRestart_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ScRegisterPreshutdownRestart";
 	return offset;
@@ -8174,8 +8174,8 @@ svcctl_dissect_ScRegisterPreshutdownRestart_request(tvbuff_t *tvb _U_, int offse
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_ScReparseServiceDatabase_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScReparseServiceDatabase_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8188,8 +8188,8 @@ svcctl_dissect_ScReparseServiceDatabase_response(tvbuff_t *tvb _U_, int offset _
 	return offset;
 }
 
-static int
-svcctl_dissect_ScReparseServiceDatabase_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_ScReparseServiceDatabase_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ScReparseServiceDatabase";
 	return offset;
@@ -8199,8 +8199,8 @@ svcctl_dissect_ScReparseServiceDatabase_request(tvbuff_t *tvb _U_, int offset _U
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_QueryUserServiceName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryUserServiceName_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8213,31 +8213,31 @@ svcctl_dissect_QueryUserServiceName_response(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-svcctl_dissect_QueryUserServiceName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_QueryUserServiceName_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="QueryUserServiceName";
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_scm_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateWowService_scm_handle_, NDR_POINTER_REF, "Pointer to Scm Handle (policy_handle)",hf_svcctl_svcctl_CreateWowService_scm_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_scm_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_scm_handle, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_ServiceName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_ServiceName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8247,16 +8247,16 @@ svcctl_dissect_element_CreateWowService_ServiceName(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateWowService_DisplayName_, NDR_POINTER_UNIQUE, "Pointer to DisplayName (uint16)",hf_svcctl_svcctl_CreateWowService_DisplayName);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_DisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_DisplayName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8266,40 +8266,40 @@ svcctl_dissect_element_CreateWowService_DisplayName_(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_desired_access, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_service_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_service_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_start_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_start_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_StartType(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_start_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_error_control(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_error_control(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = svcctl_dissect_enum_ErrorControl(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_error_control, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_binary_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_binary_path(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8309,16 +8309,16 @@ svcctl_dissect_element_CreateWowService_binary_path(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_LoadOrderGroupKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_LoadOrderGroupKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateWowService_LoadOrderGroupKey_, NDR_POINTER_UNIQUE, "Pointer to LoadOrderGroupKey (uint16)",hf_svcctl_svcctl_CreateWowService_LoadOrderGroupKey);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_LoadOrderGroupKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_LoadOrderGroupKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8328,64 +8328,64 @@ svcctl_dissect_element_CreateWowService_LoadOrderGroupKey_(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_tag_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_tag_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateWowService_tag_id_, NDR_POINTER_UNIQUE, "Pointer to Tag Id (uint32)",hf_svcctl_svcctl_CreateWowService_tag_id);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_tag_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_tag_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_tag_id, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_dependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_dependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateWowService_dependencies_, NDR_POINTER_UNIQUE, "Pointer to Dependencies (uint8)",hf_svcctl_svcctl_CreateWowService_dependencies);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_dependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateWowService_dependencies__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_dependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_dependencies, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_dependencies_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_dependencies_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_dependencies_size, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_service_start_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_service_start_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateWowService_service_start_name_, NDR_POINTER_UNIQUE, "Pointer to Service Start Name (uint16)",hf_svcctl_svcctl_CreateWowService_service_start_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_service_start_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8395,56 +8395,56 @@ svcctl_dissect_element_CreateWowService_service_start_name_(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_password(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateWowService_password_, NDR_POINTER_UNIQUE, "Pointer to Password (uint8)",hf_svcctl_svcctl_CreateWowService_password);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_password_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateWowService_password__);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_password__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_password__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_password, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_password_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_password_size(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_password_size, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_service_wow_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_service_wow_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_service_wow_type, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_CreateWowService_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_CreateWowService_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_CreateWowService_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_CreateWowService_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_handle, PIDL_POLHND_OPEN);
 
@@ -8471,8 +8471,8 @@ svcctl_dissect_element_CreateWowService_handle_(tvbuff_t *tvb _U_, int offset _U
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_CreateWowService_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CreateWowService_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8491,8 +8491,8 @@ svcctl_dissect_CreateWowService_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-svcctl_dissect_CreateWowService_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_CreateWowService_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="CreateWowService";
 	offset = svcctl_dissect_element_CreateWowService_scm_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8534,8 +8534,8 @@ svcctl_dissect_CreateWowService_request(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetServiceRegistryStateKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceRegistryStateKey_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8548,8 +8548,8 @@ svcctl_dissect_GetServiceRegistryStateKey_response(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-svcctl_dissect_GetServiceRegistryStateKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceRegistryStateKey_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetServiceRegistryStateKey";
 	return offset;
@@ -8559,8 +8559,8 @@ svcctl_dissect_GetServiceRegistryStateKey_request(tvbuff_t *tvb _U_, int offset 
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetServiceDirectory_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceDirectory_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8573,8 +8573,8 @@ svcctl_dissect_GetServiceDirectory_response(tvbuff_t *tvb _U_, int offset _U_, p
 	return offset;
 }
 
-static int
-svcctl_dissect_GetServiceDirectory_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceDirectory_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetServiceDirectory";
 	return offset;
@@ -8584,8 +8584,8 @@ svcctl_dissect_GetServiceDirectory_request(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetServiceProcessToken_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceProcessToken_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8598,23 +8598,23 @@ svcctl_dissect_GetServiceProcessToken_response(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-svcctl_dissect_GetServiceProcessToken_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetServiceProcessToken_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetServiceProcessToken";
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManager2_database_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManager2_database_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenSCManager2_database_name_, NDR_POINTER_UNIQUE, "Pointer to Database Name (uint16)",hf_svcctl_svcctl_OpenSCManager2_database_name);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManager2_database_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManager2_database_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8624,24 +8624,24 @@ svcctl_dissect_element_OpenSCManager2_database_name_(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManager2_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManager2_desired_access(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManager2_desired_access, 0);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManager2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManager2_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenSCManager2_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_svcctl_svcctl_OpenSCManager2_handle);
 
 	return offset;
 }
 
-static int
-svcctl_dissect_element_OpenSCManager2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_element_OpenSCManager2_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManager2_handle, PIDL_POLHND_OPEN);
 
@@ -8654,8 +8654,8 @@ svcctl_dissect_element_OpenSCManager2_handle_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
-static int
-svcctl_dissect_OpenSCManager2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_OpenSCManager2_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8671,8 +8671,8 @@ svcctl_dissect_OpenSCManager2_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-static int
-svcctl_dissect_OpenSCManager2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_OpenSCManager2_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="OpenSCManager2";
 	offset = svcctl_dissect_element_OpenSCManager2_database_name(tvb, offset, pinfo, tree, di, drep);
@@ -8686,8 +8686,8 @@ svcctl_dissect_OpenSCManager2_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetSharedServiceRegistryStateKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetSharedServiceRegistryStateKey_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8700,8 +8700,8 @@ svcctl_dissect_GetSharedServiceRegistryStateKey_response(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-svcctl_dissect_GetSharedServiceRegistryStateKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetSharedServiceRegistryStateKey_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetSharedServiceRegistryStateKey";
 	return offset;
@@ -8711,8 +8711,8 @@ svcctl_dissect_GetSharedServiceRegistryStateKey_request(tvbuff_t *tvb _U_, int o
 /* IDL:  */
 /* IDL: ); */
 
-static int
-svcctl_dissect_GetSharedServiceDirectory_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetSharedServiceDirectory_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8725,8 +8725,8 @@ svcctl_dissect_GetSharedServiceDirectory_response(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-svcctl_dissect_GetSharedServiceDirectory_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+svcctl_dissect_GetSharedServiceDirectory_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetSharedServiceDirectory";
 	return offset;

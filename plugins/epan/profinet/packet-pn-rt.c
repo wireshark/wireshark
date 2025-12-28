@@ -171,7 +171,7 @@ static const value_string plugin_proto_checksum_vals[] = {
 };
 
 static void
-dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, uint8_t u8DataStatus)
+dissect_DataStatus(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo, uint8_t u8DataStatus)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
@@ -473,8 +473,8 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 }
 
-int
-dissect_RTC3_with_security(tvbuff_t* tvb, int offset,
+unsigned
+dissect_RTC3_with_security(tvbuff_t* tvb, unsigned offset,
     packet_info* pinfo, proto_tree* tree, uint8_t* drep _U_, void* data)
 {
     proto_item* meta_data_item;

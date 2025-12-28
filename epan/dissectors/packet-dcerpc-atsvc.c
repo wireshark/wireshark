@@ -282,48 +282,48 @@ static const true_false_string atsvc_DaysOfWeek_DAYSOFWEEK_SUNDAY_tfs = {
    "DAYSOFWEEK_SUNDAY is SET",
    "DAYSOFWEEK_SUNDAY is NOT SET",
 };
-static int atsvc_dissect_element_JobInfo_job_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobInfo_days_of_month(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobInfo_days_of_week(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobInfo_command(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobInfo_command_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnumInfo_job_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnumInfo_job_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnumInfo_days_of_month(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnumInfo_days_of_week(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnumInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnumInfo_command(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnumInfo_command_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_enum_ctr_entries_read(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_enum_ctr_first_entry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_enum_ctr_first_entry_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_enum_ctr_first_entry__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobAdd_servername(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobAdd_servername_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobAdd_job_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobAdd_job_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobAdd_job_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobAdd_job_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobDel_servername(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobDel_servername_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobDel_min_job_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobDel_max_job_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnum_servername(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnum_servername_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnum_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnum_ctr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnum_preferred_max_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnum_total_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnum_total_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnum_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobEnum_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobGetInfo_servername(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobGetInfo_servername_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobGetInfo_job_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobGetInfo_job_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobGetInfo_job_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int atsvc_dissect_element_JobGetInfo_job_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobInfo_job_time(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobInfo_days_of_month(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobInfo_days_of_week(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobInfo_flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobInfo_command(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobInfo_command_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnumInfo_job_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnumInfo_job_time(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnumInfo_days_of_month(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnumInfo_days_of_week(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnumInfo_flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnumInfo_command(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnumInfo_command_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_enum_ctr_entries_read(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_enum_ctr_first_entry(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_enum_ctr_first_entry_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_enum_ctr_first_entry__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobAdd_servername(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobAdd_servername_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobAdd_job_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobAdd_job_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobAdd_job_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobAdd_job_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobDel_servername(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobDel_servername_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobDel_min_job_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobDel_max_job_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnum_servername(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnum_servername_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnum_ctr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnum_ctr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnum_preferred_max_len(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnum_total_entries(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnum_total_entries_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnum_resume_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobEnum_resume_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobGetInfo_servername(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobGetInfo_servername_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobGetInfo_job_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobGetInfo_job_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobGetInfo_job_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned atsvc_dissect_element_JobGetInfo_job_info__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 
 
 /* IDL: bitmap { */
@@ -360,8 +360,8 @@ static int atsvc_dissect_element_JobGetInfo_job_info__(tvbuff_t *tvb _U_, int of
 /* IDL: 	Thirtyfirst =  0x40000000 , */
 /* IDL: } */
 
-int
-atsvc_dissect_bitmap_DaysOfMonth(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+atsvc_dissect_bitmap_DaysOfMonth(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item;
 	static int * const atsvc_atsvc_DaysOfMonth_fields[] = {
@@ -426,8 +426,8 @@ atsvc_dissect_bitmap_DaysOfMonth(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: 	JOB_NONINTERACTIVE =  0x10 , */
 /* IDL: } */
 
-int
-atsvc_dissect_bitmap_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+atsvc_dissect_bitmap_Flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item;
 	static int * const atsvc_atsvc_Flags_fields[] = {
@@ -467,8 +467,8 @@ atsvc_dissect_bitmap_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 /* IDL: 	DAYSOFWEEK_SUNDAY =  0x40 , */
 /* IDL: } */
 
-int
-atsvc_dissect_bitmap_DaysOfWeek(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+atsvc_dissect_bitmap_DaysOfWeek(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item;
 	static int * const atsvc_atsvc_DaysOfWeek_fields[] = {
@@ -508,48 +508,48 @@ atsvc_dissect_bitmap_DaysOfWeek(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: 	[charset(UTF16)] [unique(1)] uint16 *command; */
 /* IDL: } */
 
-static int
-atsvc_dissect_element_JobInfo_job_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobInfo_job_time(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobInfo_job_time, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobInfo_days_of_month(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobInfo_days_of_month(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = atsvc_dissect_bitmap_DaysOfMonth(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobInfo_days_of_month, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobInfo_days_of_week(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobInfo_days_of_week(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = atsvc_dissect_bitmap_DaysOfWeek(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobInfo_days_of_week, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobInfo_flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = atsvc_dissect_bitmap_Flags(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobInfo_flags, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobInfo_command(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobInfo_command(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobInfo_command_, NDR_POINTER_UNIQUE, "Pointer to Command (uint16)",hf_atsvc_atsvc_JobInfo_command);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobInfo_command_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobInfo_command_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -559,12 +559,12 @@ atsvc_dissect_element_JobInfo_command_(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-int
-atsvc_dissect_struct_JobInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+atsvc_dissect_struct_JobInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -606,56 +606,56 @@ atsvc_dissect_struct_JobInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: 	[charset(UTF16)] [unique(1)] uint16 *command; */
 /* IDL: } */
 
-static int
-atsvc_dissect_element_JobEnumInfo_job_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnumInfo_job_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_job_id, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnumInfo_job_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnumInfo_job_time(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobEnumInfo_job_time, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnumInfo_days_of_month(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnumInfo_days_of_month(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = atsvc_dissect_bitmap_DaysOfMonth(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobEnumInfo_days_of_month, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnumInfo_days_of_week(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnumInfo_days_of_week(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = atsvc_dissect_bitmap_DaysOfWeek(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobEnumInfo_days_of_week, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnumInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnumInfo_flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = atsvc_dissect_bitmap_Flags(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobEnumInfo_flags, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnumInfo_command(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnumInfo_command(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobEnumInfo_command_, NDR_POINTER_UNIQUE, "Pointer to Command (uint16)",hf_atsvc_atsvc_JobEnumInfo_command);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnumInfo_command_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnumInfo_command_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -665,12 +665,12 @@ atsvc_dissect_element_JobEnumInfo_command_(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-int
-atsvc_dissect_struct_JobEnumInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+atsvc_dissect_struct_JobEnumInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -710,44 +710,44 @@ atsvc_dissect_struct_JobEnumInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: 	[size_is(entries_read)] [unique(1)] atsvc_JobEnumInfo *first_entry; */
 /* IDL: } */
 
-static int
-atsvc_dissect_element_enum_ctr_entries_read(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_enum_ctr_entries_read(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_enum_ctr_entries_read, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_enum_ctr_first_entry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_enum_ctr_first_entry(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_enum_ctr_first_entry_, NDR_POINTER_UNIQUE, "Pointer to First Entry (atsvc_JobEnumInfo)",hf_atsvc_atsvc_enum_ctr_first_entry);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_enum_ctr_first_entry_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_enum_ctr_first_entry_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_enum_ctr_first_entry__);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_enum_ctr_first_entry__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_enum_ctr_first_entry__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = atsvc_dissect_struct_JobEnumInfo(tvb,offset,pinfo,tree,di,drep,hf_atsvc_atsvc_enum_ctr_first_entry,0);
 
 	return offset;
 }
 
-int
-atsvc_dissect_struct_enum_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+atsvc_dissect_struct_enum_ctr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -773,16 +773,16 @@ atsvc_dissect_struct_enum_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobAdd_servername(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobAdd_servername(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobAdd_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (uint16)",hf_atsvc_servername);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobAdd_servername_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobAdd_servername_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -792,32 +792,32 @@ atsvc_dissect_element_JobAdd_servername_(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobAdd_job_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobAdd_job_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobAdd_job_info_, NDR_POINTER_REF, "Pointer to Job Info (atsvc_JobInfo)",hf_atsvc_job_info);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobAdd_job_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobAdd_job_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = atsvc_dissect_struct_JobInfo(tvb,offset,pinfo,tree,di,drep,hf_atsvc_job_info,0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobAdd_job_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobAdd_job_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobAdd_job_id_, NDR_POINTER_REF, "Pointer to Job Id (uint32)",hf_atsvc_job_id);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobAdd_job_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobAdd_job_id_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_job_id, 0);
 
@@ -830,8 +830,8 @@ atsvc_dissect_element_JobAdd_job_id_(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: [out] [ref] uint32 *job_id */
 /* IDL: ); */
 
-static int
-atsvc_dissect_JobAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_JobAdd_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -847,8 +847,8 @@ atsvc_dissect_JobAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	return offset;
 }
 
-static int
-atsvc_dissect_JobAdd_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_JobAdd_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="JobAdd";
 	offset = atsvc_dissect_element_JobAdd_servername(tvb, offset, pinfo, tree, di, drep);
@@ -858,16 +858,16 @@ atsvc_dissect_JobAdd_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobDel_servername(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobDel_servername(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobDel_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (uint16)",hf_atsvc_servername);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobDel_servername_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobDel_servername_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -877,16 +877,16 @@ atsvc_dissect_element_JobDel_servername_(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobDel_min_job_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobDel_min_job_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobDel_min_job_id, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobDel_max_job_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobDel_max_job_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobDel_max_job_id, 0);
 
@@ -899,8 +899,8 @@ atsvc_dissect_element_JobDel_max_job_id(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: [in] uint32 max_job_id */
 /* IDL: ); */
 
-static int
-atsvc_dissect_JobDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_JobDel_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -913,8 +913,8 @@ atsvc_dissect_JobDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	return offset;
 }
 
-static int
-atsvc_dissect_JobDel_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_JobDel_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="JobDel";
 	offset = atsvc_dissect_element_JobDel_servername(tvb, offset, pinfo, tree, di, drep);
@@ -926,16 +926,16 @@ atsvc_dissect_JobDel_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnum_servername(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnum_servername(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobEnum_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (uint16)",hf_atsvc_servername);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnum_servername_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnum_servername_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -945,56 +945,56 @@ atsvc_dissect_element_JobEnum_servername_(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnum_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnum_ctr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobEnum_ctr_, NDR_POINTER_REF, "Pointer to Ctr (atsvc_enum_ctr)",hf_atsvc_atsvc_JobEnum_ctr);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnum_ctr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnum_ctr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = atsvc_dissect_struct_enum_ctr(tvb,offset,pinfo,tree,di,drep,hf_atsvc_atsvc_JobEnum_ctr,0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnum_preferred_max_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnum_preferred_max_len(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobEnum_preferred_max_len, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnum_total_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnum_total_entries(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobEnum_total_entries_, NDR_POINTER_REF, "Pointer to Total Entries (uint32)",hf_atsvc_atsvc_JobEnum_total_entries);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnum_total_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnum_total_entries_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobEnum_total_entries, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnum_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnum_resume_handle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobEnum_resume_handle_, NDR_POINTER_UNIQUE, "Pointer to Resume Handle (uint32)",hf_atsvc_atsvc_JobEnum_resume_handle);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobEnum_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobEnum_resume_handle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_atsvc_JobEnum_resume_handle, 0);
 
@@ -1009,8 +1009,8 @@ atsvc_dissect_element_JobEnum_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: [in] [out] [unique(1)] uint32 *resume_handle */
 /* IDL: ); */
 
-static int
-atsvc_dissect_JobEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_JobEnum_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1032,8 +1032,8 @@ atsvc_dissect_JobEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	return offset;
 }
 
-static int
-atsvc_dissect_JobEnum_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_JobEnum_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="JobEnum";
 	offset = atsvc_dissect_element_JobEnum_servername(tvb, offset, pinfo, tree, di, drep);
@@ -1047,16 +1047,16 @@ atsvc_dissect_JobEnum_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobGetInfo_servername(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobGetInfo_servername(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobGetInfo_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (uint16)",hf_atsvc_servername);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobGetInfo_servername_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobGetInfo_servername_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1066,32 +1066,32 @@ atsvc_dissect_element_JobGetInfo_servername_(tvbuff_t *tvb _U_, int offset _U_, 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobGetInfo_job_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobGetInfo_job_id(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_atsvc_job_id, 0);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobGetInfo_job_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobGetInfo_job_info(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobGetInfo_job_info_, NDR_POINTER_REF, "Pointer to Job Info (atsvc_JobInfo)",hf_atsvc_job_info);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobGetInfo_job_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobGetInfo_job_info_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, atsvc_dissect_element_JobGetInfo_job_info__, NDR_POINTER_UNIQUE, "Pointer to Job Info (atsvc_JobInfo)",hf_atsvc_job_info);
 
 	return offset;
 }
 
-static int
-atsvc_dissect_element_JobGetInfo_job_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_element_JobGetInfo_job_info__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = atsvc_dissect_struct_JobInfo(tvb,offset,pinfo,tree,di,drep,hf_atsvc_job_info,0);
 
@@ -1104,8 +1104,8 @@ atsvc_dissect_element_JobGetInfo_job_info__(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: [out] [ref] atsvc_JobInfo **job_info */
 /* IDL: ); */
 
-static int
-atsvc_dissect_JobGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_JobGetInfo_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1121,8 +1121,8 @@ atsvc_dissect_JobGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	return offset;
 }
 
-static int
-atsvc_dissect_JobGetInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+atsvc_dissect_JobGetInfo_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="JobGetInfo";
 	offset = atsvc_dissect_element_JobGetInfo_servername(tvb, offset, pinfo, tree, di, drep);

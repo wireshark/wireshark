@@ -2922,8 +2922,8 @@ ntlmssp_cleanup_protocol(void)
 
 
 
-static int
-wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+wrap_dissect_ntlmssp(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                      proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
   tvbuff_t *auth_tvb;
@@ -2935,8 +2935,8 @@ wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
   return tvb_captured_length_remaining(tvb, offset);
 }
 
-static int
-wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                           proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
   tvbuff_t *auth_tvb;

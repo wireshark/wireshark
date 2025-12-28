@@ -123,85 +123,85 @@ extern void pn_rsi_reassemble_init(void);
 
 extern void init_pnio_rtc1_station(stationInfo *station_info);
 
-extern int dissect_pn_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_pn_uint8(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                   proto_tree *tree, int hfindex, uint8_t *pdata);
 
-extern int dissect_pn_uint16_ret_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+extern unsigned dissect_pn_uint16_ret_item(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
                        proto_tree *tree, int hfindex, uint16_t *pdata, proto_item ** new_item);
-extern int dissect_pn_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_pn_uint16(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                        proto_tree *tree, int hfindex, uint16_t *pdata);
 
-extern int dissect_pn_int16(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_pn_int16(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                        proto_tree *tree, int hfindex, int16_t *pdata);
 
-extern int dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_pn_oid(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                     proto_tree *tree, int hfindex, uint32_t *pdata);
 
-extern int dissect_pn_mac(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_pn_mac(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                     proto_tree *tree, int hfindex, uint8_t *pdata);
 
-extern int dissect_pn_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_pn_ipv4(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                     proto_tree *tree, int hfindex, uint32_t *pdata);
 
-extern int dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_pn_uuid(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                     proto_tree *tree, int hfindex, e_guid_t *uuid);
 
-extern int dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_pn_undecoded(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                     proto_tree *tree, uint32_t length);
 
-extern int dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+extern unsigned dissect_pn_user_data(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
                     proto_tree *tree, uint32_t length, const char *text);
 
-extern int dissect_pn_pa_profile_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+extern unsigned dissect_pn_pa_profile_data(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
                     proto_tree *tree, uint32_t length, const char *text);
 
-extern int dissect_blocks(tvbuff_t *tvb, int offset,
+extern unsigned dissect_blocks(tvbuff_t *tvb, unsigned offset,
                     packet_info *pinfo, proto_tree *tree, uint8_t *drep);
 
 #define PDU_TYPE_REQ 0x05
 #define PDU_TYPE_RSP 0x06
 
-extern int dissect_rsi_blocks(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree* tree, uint8_t* drep, uint32_t u32FOpnumOffsetOpnum, int type);
+extern unsigned dissect_rsi_blocks(tvbuff_t* tvb, unsigned offset, packet_info* pinfo, proto_tree* tree, uint8_t* drep, uint32_t u32FOpnumOffsetOpnum, int type);
 
 #define SUBST_DATA  1
 #define FRAG_DATA   2
 
-extern int dissect_pn_user_data_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+extern unsigned dissect_pn_user_data_bytes(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
                     proto_tree *tree, uint32_t length, int iSelect);
 
-extern int dissect_pn_malformed(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_pn_malformed(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                     proto_tree *tree, uint32_t length);
 
-extern int dissect_pn_padding(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                    proto_tree *tree, int length);
+extern unsigned dissect_pn_padding(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
+                    proto_tree *tree, unsigned length);
 
-extern int dissect_pn_align4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+extern unsigned dissect_pn_align4(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree);
 
-extern int dissect_PNIO_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_PNIO_status(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                     proto_tree *tree, uint8_t *drep);
 
-extern int dissect_PNIO_C_SDU_RTC1(tvbuff_t* tvb, int offset, packet_info* pinfo,
+extern unsigned dissect_PNIO_C_SDU_RTC1(tvbuff_t* tvb, unsigned offset, packet_info* pinfo,
                     proto_tree* tree, uint8_t* drep _U_, uint16_t frameid);
 
-extern int dissect_PNIO_RTC1_with_security(tvbuff_t* tvb, int offset, packet_info* pinfo,
+extern unsigned dissect_PNIO_RTC1_with_security(tvbuff_t* tvb, unsigned offset, packet_info* pinfo,
                     proto_tree* tree, uint8_t* drep _U_, uint16_t frameid);
 
-extern int dissect_RTC3_with_security(tvbuff_t* tvb, int offset, packet_info* pinfo,
+extern unsigned dissect_RTC3_with_security(tvbuff_t* tvb, unsigned offset, packet_info* pinfo,
                     proto_tree* tree, uint8_t* drep _U_, void* data);
 
-extern int dissect_PNIO_RSI(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern unsigned dissect_PNIO_RSI(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                     proto_tree *tree, uint8_t *drep);
 
-extern int dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset, packet_info* pinfo,
+extern unsigned dissect_PNIO_RSI_with_security(tvbuff_t* tvb, unsigned offset, packet_info* pinfo,
                     proto_tree* tree, uint8_t* drep);
 
-extern int dissect_SecurityMetaData_block(tvbuff_t* tvb, int offset,
+extern unsigned dissect_SecurityMetaData_block(tvbuff_t* tvb, unsigned offset,
                     packet_info* pinfo, proto_item* item, proto_tree* tree, uint8_t* drep);
 
-extern int dissect_SecurityChecksum(tvbuff_t* tvb, int offset, proto_tree* tree);
+extern unsigned dissect_SecurityChecksum(tvbuff_t* tvb, unsigned offset, proto_tree* tree);
 
 
-extern int dissect_PDRsiInstances_block(tvbuff_t *tvb, int offset,
+extern unsigned dissect_PDRsiInstances_block(tvbuff_t *tvb, unsigned offset,
                     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint8_t *drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow);
 
 extern void pn_append_info(packet_info *pinfo, proto_item *dcp_item, const char *text);

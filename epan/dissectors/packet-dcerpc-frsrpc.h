@@ -15,10 +15,10 @@
 
 #define FRSRPC_CO_IFLAG_NONE	( 0x0000000 )
 
-int frsrpc_dissect_struct_CommPktChunkGuidName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int frsrpc_dissect_struct_CommPktGSVN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int frsrpc_dissect_bitmap_CommPktCoCmdFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int frsrpc_dissect_bitmap_CommPktCoCmdIFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_struct_CommPktChunkGuidName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_struct_CommPktGSVN(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_bitmap_CommPktCoCmdFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_bitmap_CommPktCoCmdIFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define FRSRPC_CO_STATUS_CO_ENTERED_LOG (0x00000000)
 #define FRSRPC_CO_STATUS_ALLOC_STAGING_LOCAL_CO (0x00000001)
 #define FRSRPC_CO_STATUS_LOCAL_CO_STAGING_STARTED (0x00000002)
@@ -42,8 +42,8 @@ int frsrpc_dissect_bitmap_CommPktCoCmdIFlags(tvbuff_t *tvb _U_, int offset _U_, 
 #define FRSRPC_CO_STATUS_DB_STATE_UPDATE_COMPLETED (0x00000017)
 #define FRSRPC_CO_STATUS_CO_ABORTED (0x00000018)
 extern const value_string frsrpc_frsrpc_CommPktCoCmdStatus_vals[];
-int frsrpc_dissect_enum_CommPktCoCmdStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int frsrpc_dissect_bitmap_CommPktCoCmdContentCmd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_enum_CommPktCoCmdStatus(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned frsrpc_dissect_bitmap_CommPktCoCmdContentCmd(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define FRSRPC_CO_LOCATION_FILE_CREATE (0x00000000)
 #define FRSRPC_CO_LOCATION_DIR_CREATE (0x00000000|0x00000001)
 #define FRSRPC_CO_LOCATION_FILE_DELETE (0x00000002)
@@ -61,21 +61,21 @@ int frsrpc_dissect_bitmap_CommPktCoCmdContentCmd(tvbuff_t *tvb _U_, int offset _
 #define FRSRPC_CO_LOCATION_FILE_NO_CMD (0x0000000e)
 #define FRSRPC_CO_LOCATION_DIR_NO_CMD (0x0000000e|0x00000001)
 extern const value_string frsrpc_frsrpc_CommPktCoCmdLocationCmd_vals[];
-int frsrpc_dissect_enum_CommPktCoCmdLocationCmd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int frsrpc_dissect_struct_CommPktChangeOrderCommand(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_enum_CommPktCoCmdLocationCmd(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned frsrpc_dissect_struct_CommPktChangeOrderCommand(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define FRSRPC_DATA_EXTENSION_TERMINATOR (0x00000000)
 #define FRSRPC_DATA_EXTENSION_MD5_CHECKSUM (0x00000001)
 #define FRSRPC_DATA_EXTENSION_RETRY_TIMEOUT (0x00000002)
 extern const value_string frsrpc_frsrpc_CommPktDataExtensionType_vals[];
-int frsrpc_dissect_enum_CommPktDataExtensionType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int frsrpc_dissect_struct_CommPktDataExtensionChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int frsrpc_dissect_struct_CommPktDataExtensionRetryTimeout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_enum_CommPktDataExtensionType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned frsrpc_dissect_struct_CommPktDataExtensionChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_struct_CommPktDataExtensionRetryTimeout(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define FRSRPC_CO_RECORD_EXTENSION_VERSION_WIN2K (0x0000)
 #define FRSRPC_CO_RECORD_EXTENSION_VERSION_1 (0x0001)
 extern const value_string frsrpc_frsrpc_CommPktCoRecordExtensionMajor_vals[];
-int frsrpc_dissect_enum_CommPktCoRecordExtensionMajor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int frsrpc_dissect_struct_CommPktCoRecordExtensionWin2k(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int frsrpc_dissect_struct_CommPktChangeOrderRecordExtension(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_enum_CommPktCoRecordExtensionMajor(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned frsrpc_dissect_struct_CommPktCoRecordExtensionWin2k(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_struct_CommPktChangeOrderRecordExtension(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define FRSRPC_COMMAND_REMOTE_CO (0x00000218)
 #define FRSRPC_COMMAND_RECEIVING_STATE (0x00000238)
 #define FRSRPC_COMMAND_REMOTE_CO_DONE (0x00000250)
@@ -89,7 +89,7 @@ int frsrpc_dissect_struct_CommPktChangeOrderRecordExtension(tvbuff_t *tvb _U_, i
 #define FRSRPC_COMMAND_WJOIN_DONE (0x00000136)
 #define FRSRPC_COMMAND_SEND_STAGE (0x00000228)
 extern const value_string frsrpc_frsrpc_CommPktCommand_vals[];
-int frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define FRSRPC_COMM_PKT_CHUNK_BOP (0x0001)
 #define FRSRPC_COMM_PKT_CHUNK_COMMAND (0x0002)
 #define FRSRPC_COMM_PKT_CHUNK_TO (0x0003)
@@ -114,11 +114,11 @@ int frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, int offset _U_, packet
 #define FRSRPC_COMM_PKT_CHUNK_CO_EXTENSION_2 (0x0017)
 #define FRSRPC_COMM_PKT_CHUNK_EOP (0x0013)
 extern const value_string frsrpc_frsrpc_CommPktChunkType_vals[];
-int frsrpc_dissect_enum_CommPktChunkType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_enum_CommPktChunkType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define FRSRPC_COMM_PKT_MAJOR_0 (0x00000000)
 extern const value_string frsrpc_frsrpc_CommPktMajor_vals[];
-int frsrpc_dissect_enum_CommPktMajor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned frsrpc_dissect_enum_CommPktMajor(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define FRSRPC_COMM_PKT_MINOR_0 (0x00000000)
 #define FRSRPC_COMM_PKT_MINOR_1 (0x00000001)
 #define FRSRPC_COMM_PKT_MINOR_2 (0x00000002)
@@ -130,10 +130,10 @@ int frsrpc_dissect_enum_CommPktMajor(tvbuff_t *tvb _U_, int offset _U_, packet_i
 #define FRSRPC_COMM_PKT_MINOR_8 (0x00000008)
 #define FRSRPC_COMM_PKT_MINOR_9 (0x00000009)
 extern const value_string frsrpc_frsrpc_CommPktMinor_vals[];
-int frsrpc_dissect_enum_CommPktMinor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int frsrpc_dissect_struct_FrsSendCommPktReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned frsrpc_dissect_enum_CommPktMinor(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned frsrpc_dissect_struct_FrsSendCommPktReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define FRSRPC_PARENT_AUTH_LEVEL_ENCRYPTED_KERBEROS (0x00000000)
 #define FRSRPC_PARENT_AUTH_LEVEL_NO_AUTHENTICATION (0x00000001)
 extern const value_string frsrpc_frsrpc_PartnerAuthLevel_vals[];
-int frsrpc_dissect_enum_PartnerAuthLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned frsrpc_dissect_enum_PartnerAuthLevel(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #endif /* __PACKET_DCERPC_FRSRPC_H */

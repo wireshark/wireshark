@@ -37,10 +37,10 @@ CODE START
 /*  ENUM_SERVICE_STATUSW Caveats
 	https://github.com/fortra/impacket/blob/4888172ce638910104da4bda2c3301c24e17564c/impacket/dcerpc/v5/scmr.py#L1274
 */
-static int
-svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset);
-static int
-svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset)
+static unsigned
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset);
+static unsigned
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -82,8 +82,8 @@ svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet
 /*  REnumServicesStatusW
 	https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-scmr/22b4ff3d-29c6-481f-b598-8ce66a46944a
 */
-static int
-svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
+static unsigned
+svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	uint32_t status;
 	uint32_t services_returned= 0;

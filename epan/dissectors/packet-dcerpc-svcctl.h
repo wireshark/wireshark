@@ -53,8 +53,8 @@
 
 #define SC_MAX_ARGUMENTS	( 1024 )
 
-int svcctl_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int svcctl_dissect_struct_SERVICE_LOCK_STATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_struct_SERVICE_LOCK_STATUS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define SVCCTL_STOPPED (0x00000001)
 #define SVCCTL_START_PENDING (0x00000002)
 #define SVCCTL_STOP_PENDING (0x00000003)
@@ -63,7 +63,7 @@ int svcctl_dissect_struct_SERVICE_LOCK_STATUS(tvbuff_t *tvb _U_, int offset _U_,
 #define SVCCTL_PAUSE_PENDING (0x00000006)
 #define SVCCTL_PAUSED (0x00000007)
 extern const value_string svcctl_svcctl_ServiceStatus_vals[];
-int svcctl_dissect_enum_ServiceStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned svcctl_dissect_enum_ServiceStatus(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define SERVICE_TYPE_KERNEL_DRIVER (0x00000001)
 #define SERVICE_TYPE_FS_DRIVER (0x00000002)
 #define SERVICE_TYPE_ADAPTER (0x00000004)
@@ -76,16 +76,16 @@ int svcctl_dissect_enum_ServiceStatus(tvbuff_t *tvb _U_, int offset _U_, packet_
 #define SERVICE_TYPE_WIN32 (SERVICE_TYPE_WIN32_OWN_PROCESS|SERVICE_TYPE_WIN32_SHARE_PROCESS)
 #define SERVICE_TYPE_INTERACTIVE_PROCESS (0x00000100)
 extern const value_string svcctl_svcctl_ServiceType_vals[];
-int svcctl_dissect_enum_ServiceType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int svcctl_dissect_bitmap_ControlsAccepted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int svcctl_dissect_struct_SERVICE_STATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_enum_ServiceType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned svcctl_dissect_bitmap_ControlsAccepted(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_struct_SERVICE_STATUS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define SERVICE_RUNS_IN_NONSYSTEM_ORNOTRUNNING (0x00000000)
 #define SERVICE_RUNS_IN_SYSTEM_PROCESS (0x00000001)
 extern const value_string svcctl_svcctl_ServiceFlags_vals[];
-int svcctl_dissect_enum_ServiceFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int svcctl_dissect_struct_SERVICE_STATUS_PROCESS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int svcctl_dissect_struct_ENUM_SERVICE_STATUSW(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int svcctl_dissect_struct_ENUM_SERVICE_STATUSA(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_enum_ServiceFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned svcctl_dissect_struct_SERVICE_STATUS_PROCESS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_struct_ENUM_SERVICE_STATUSW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_struct_ENUM_SERVICE_STATUSA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define SVCCTL_CONTROL_STOP (0x00000001)
 #define SVCCTL_CONTROL_PAUSE (0x00000002)
 #define SVCCTL_CONTROL_CONTINUE (0x00000003)
@@ -97,35 +97,35 @@ int svcctl_dissect_struct_ENUM_SERVICE_STATUSA(tvbuff_t *tvb _U_, int offset _U_
 #define SERVICE_CONTROL_NETBINDENABLE (0x00000009)
 #define SERVICE_CONTROL_NETBINDDISABLE (0x0000000A)
 extern const value_string svcctl_SERVICE_CONTROL_vals[];
-int svcctl_dissect_enum_SERVICE_CONTROL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned svcctl_dissect_enum_SERVICE_CONTROL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define SVCCTL_SVC_ERROR_IGNORE (0x00000000)
 #define SVCCTL_SVC_ERROR_NORMAL (0x00000001)
 #define SVCCTL_SVC_ERROR_CRITICAL (0x00000002)
 #define SVCCTL_SVC_ERROR_SEVERE (0x00000003)
 extern const value_string svcctl_svcctl_ErrorControl_vals[];
-int svcctl_dissect_enum_ErrorControl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned svcctl_dissect_enum_ErrorControl(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define SVCCTL_BOOT_START (0x00000000)
 #define SVCCTL_SYSTEM_START (0x00000001)
 #define SVCCTL_AUTO_START (0x00000002)
 #define SVCCTL_DEMAND_START (0x00000003)
 #define SVCCTL_DISABLED (0x00000004)
 extern const value_string svcctl_svcctl_StartType_vals[];
-int svcctl_dissect_enum_StartType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned svcctl_dissect_enum_StartType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define SERVICE_STATE_ACTIVE (0x00000001)
 #define SERVICE_STATE_INACTIVE (0x00000002)
 #define SERVICE_STATE_ALL ((SERVICE_STATE_ACTIVE|SERVICE_STATE_INACTIVE))
 extern const value_string svcctl_svcctl_ServiceState_vals[];
-int svcctl_dissect_enum_ServiceState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int svcctl_dissect_bitmap_MgrAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int svcctl_dissect_bitmap_ServiceAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int svcctl_dissect_struct_QUERY_SERVICE_CONFIG(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int svcctl_dissect_struct_ArgumentString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int svcctl_dissect_struct_ArgumentStringA(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_enum_ServiceState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned svcctl_dissect_bitmap_MgrAccessMask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_bitmap_ServiceAccessMask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_struct_QUERY_SERVICE_CONFIG(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_struct_ArgumentString(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned svcctl_dissect_struct_ArgumentStringA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define SERVICE_CONFIG_DESCRIPTION (0x00000001)
 #define SERVICE_CONFIG_FAILURE_ACTIONS (0x00000002)
 extern const value_string svcctl_svcctl_ConfigLevel_vals[];
-int svcctl_dissect_enum_ConfigLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned svcctl_dissect_enum_ConfigLevel(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define SVC_STATUS_PROCESS_INFO (0x00000000)
 extern const value_string svcctl_svcctl_StatusLevel_vals[];
-int svcctl_dissect_enum_StatusLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned svcctl_dissect_enum_StatusLevel(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #endif /* __PACKET_DCERPC_SVCCTL_H */

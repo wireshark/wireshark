@@ -173,7 +173,7 @@ sub Enum($$$$)
 	}
 
 	$self->pidl_hdr("extern const value_string $valsstring\[];");
-	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, " . mapWireScalarType($e->{BASE_TYPE}) ." *param _U_);");
+	$self->pidl_hdr("unsigned $dissectorname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, " . mapWireScalarType($e->{BASE_TYPE}) ." *param _U_);");
 
 	$self->pidl_def("const value_string ".$valsstring."[] = {");
 	foreach (@{$e->{ELEMENTS}}) {
@@ -185,8 +185,8 @@ sub Enum($$$$)
 	$self->pidl_def("};");
 
 	$self->pidl_fn_start($dissectorname);
-	$self->pidl_code("int");
-	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, " . mapWireScalarType($e->{BASE_TYPE}) . " *param _U_)");
+	$self->pidl_code("unsigned");
+	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, " . mapWireScalarType($e->{BASE_TYPE}) . " *param _U_)");
 	$self->pidl_code("{");
 	$self->indent;
 	$self->pidl_code(mapWireScalarType($e->{BASE_TYPE}) . " parameter=0;");
@@ -229,11 +229,11 @@ sub Bitmap($$$$)
 
 	$self->register_ett("ett_$ifname\_$name");
 
-	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);");
+	$self->pidl_hdr("unsigned $dissectorname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);");
 
 	$self->pidl_fn_start($dissectorname);
-	$self->pidl_code("int");
-	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)");
+	$self->pidl_code("unsigned");
+	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)");
 	$self->pidl_code("{");
 	$self->indent;
 	foreach (@{$e->{ELEMENTS}}) {
@@ -453,14 +453,14 @@ sub ElementLevel($$$$$$$$)
 		# continue to dissect handmarshalled stuff with pidl
 		$self->pidl_code("di->call_data->flags &= ~DCERPC_IS_NDR64;");
 
-		$self->pidl_code("subtvb = tvb_new_subset_length(tvb, offset, (const int)size);");
+		$self->pidl_code("subtvb = tvb_new_subset_length(tvb, offset, (const unsigned)size);");
 		if ($param ne 0) {
 			$self->{conformance}->{dissectorparams}->{$myname}->{USED} = 1;
 			$self->pidl_code("$myname\_(subtvb, 0, pinfo, tree, di, drep, $param);");
 		} else {
 			$self->pidl_code("$myname\_(subtvb, 0, pinfo, tree, di, drep);");
 		}
-		$self->pidl_code("offset += (int)size;");
+		$self->pidl_code("offset += (unsigned)size;");
 		$self->pidl_code("di->call_data->flags = saved_flags;");
 		$self->deindent;
 		$self->pidl_code("}");
@@ -599,11 +599,11 @@ sub Element($$$$$$)
 		}
 		next if ($_->{TYPE} eq "SWITCH");
 		next if (defined($self->{conformance}->{noemit}->{"$dissectorname$add"}));
-		$self->pidl_def("static int $dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_$moreparam);");
+		$self->pidl_def("static unsigned $dissectorname$add(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_$moreparam);");
 		if (not defined($self->{conformance}->{manual}->{"$dissectorname$add"})) {
 			$self->pidl_fn_start("$dissectorname$add");
-			$self->pidl_code("static int");
-			$self->pidl_code("$dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_$moreparam)");
+			$self->pidl_code("static unsigned");
+			$self->pidl_code("$dissectorname$add(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_$moreparam)");
 			$self->pidl_code("{");
 			$self->indent;
 
@@ -640,8 +640,8 @@ sub Function($$$)
 
 	$self->PrintIdl(DumpFunction($fn->{ORIGINAL}));
 	$self->pidl_fn_start("$ifname\_dissect\_$fn_name\_response");
-	$self->pidl_code("static int");
-	$self->pidl_code("$ifname\_dissect\_${fn_name}_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)");
+	$self->pidl_code("static unsigned");
+	$self->pidl_code("$ifname\_dissect\_${fn_name}_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)");
 	$self->pidl_code("{");
 	$self->indent;
 	if ( not defined($fn->{RETURN_TYPE})) {
@@ -708,8 +708,8 @@ sub Function($$$)
 	$self->pidl_fn_end("$ifname\_dissect\_$fn_name\_response");
 
 	$self->pidl_fn_start("$ifname\_dissect\_$fn_name\_request");
-	$self->pidl_code("static int");
-	$self->pidl_code("$ifname\_dissect\_${fn_name}_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)");
+	$self->pidl_code("static unsigned");
+	$self->pidl_code("$ifname\_dissect\_${fn_name}_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)");
 	$self->pidl_code("{");
 	$self->indent;
 	$self->pidl_code("di->dcerpc_procedure_name=\"${fn_name}\";");
@@ -784,11 +784,11 @@ sub Struct($$$$)
 		$doalign = 0;
 	}
 
-	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);");
+	$self->pidl_hdr("unsigned $dissectorname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);");
 
 	$self->pidl_fn_start($dissectorname);
-	$self->pidl_code("int");
-	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)");
+	$self->pidl_code("unsigned");
+	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)");
 	$self->pidl_code("{");
 	$self->indent;
 	$self->pidl_code($_) foreach (@$vars);
@@ -799,7 +799,7 @@ sub Struct($$$$)
 	if (defined($doalign) and $doalign == 0) {
 		$self->pidl_code("bool oldalign = di->no_align;");
 	}
-	$self->pidl_code("int old_offset;");
+	$self->pidl_code("unsigned old_offset;");
 	$self->pidl_code("");
 
 	if (defined($doalign)) {
@@ -888,13 +888,13 @@ sub Union($$$$)
 	}
 
 	$self->pidl_fn_start($dissectorname);
-	$self->pidl_code("static int");
-	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)");
+	$self->pidl_code("static unsigned");
+	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)");
 	$self->pidl_code("{");
 	$self->indent;
 	$self->pidl_code("proto_item *item = NULL;");
 	$self->pidl_code("proto_tree *tree = NULL;");
-	$self->pidl_code("int old_offset;");
+	$self->pidl_code("unsigned old_offset;");
 	if (!defined $switch_type) {
 		$self->pidl_code("uint32_t level = param;");
 	} else {

@@ -5784,7 +5784,7 @@ void proto_register_kerberos(void) {
 #endif /* HAVE_KERBEROS */
 
 }
-static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned wrap_dissect_gss_kerb(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				 proto_tree *tree, dcerpc_info *di _U_,uint8_t *drep _U_)
 {
 	tvbuff_t *auth_tvb;

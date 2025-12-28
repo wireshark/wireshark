@@ -3,8 +3,8 @@ MANUAL mdssvc_dissect_element_blob_spotlight_blob
 NOEMIT mdssvc_dissect_element_blob_spotlight_blob_
 
 CODE START
-static int
-mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_)
+static unsigned
+mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_)
 {
 	tvbuff_t *spotlight_tvb;
 	dissector_handle_t spotlight_handle;

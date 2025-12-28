@@ -48,8 +48,8 @@ static uint16_t ver_dcerpc_messenger = 1;
  * IDL  [in][string][ref] char *client;
  * IDL  [in][string][ref] char *message;
  */
-static int
-messenger_dissect_send_message_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+messenger_dissect_send_message_rqst(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
@@ -65,8 +65,8 @@ messenger_dissect_send_message_rqst(tvbuff_t *tvb, int offset, packet_info *pinf
 
 	return offset;
 }
-static int
-messenger_dissect_send_message_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+messenger_dissect_send_message_reply(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,

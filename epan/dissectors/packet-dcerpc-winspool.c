@@ -390,10 +390,10 @@ static e_guid_t uuid_dcerpc_iremotewinspool = {
 };
 static uint16_t ver_dcerpc_iremotewinspool = 1;
 
-static int iremotewinspool_dissect_element_winspool_NOTIFY_REPLY_CONTAINER_pInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_NOTIFY_REPLY_CONTAINER_pInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_NOTIFY_OPTIONS_CONTAINER_pOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_NOTIFY_OPTIONS_CONTAINER_pOptions_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_NOTIFY_REPLY_CONTAINER_pInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_NOTIFY_REPLY_CONTAINER_pInfo_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_NOTIFY_OPTIONS_CONTAINER_pOptions(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_NOTIFY_OPTIONS_CONTAINER_pOptions_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 const value_string iremotewinspool_winspool_PrintPropertyType_vals[] = {
 	{ winspool_PropertyTypeString, "winspool_PropertyTypeString" },
 	{ winspool_PropertyTypeInt32, "winspool_PropertyTypeInt32" },
@@ -406,25 +406,25 @@ const value_string iremotewinspool_winspool_PrintPropertyType_vals[] = {
 	{ winspool_PropertyTypeNotificationOptions, "winspool_PropertyTypeNotificationOptions" },
 { 0, NULL }
 };
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyInt32(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyInt64(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyByte(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyTimeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertySDContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyReplyContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyOptionsContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValue_PropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType);
-static int iremotewinspool_dissect_element_winspool_PrintPropertyValue_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType);
-static int iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_numberOfProperties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyInt32(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyInt64(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyByte(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyTimeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertySDContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyReplyContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyOptionsContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValue_PropertyType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertyValue_value(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType);
+static unsigned iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyValue(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_numberOfProperties(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static const true_false_string winspool_InstallPrinterDriverFromPackageFlags_IPDFP_COPY_ALL_FILES_tfs = {
    "IPDFP_COPY_ALL_FILES is SET",
    "IPDFP_COPY_ALL_FILES is NOT SET",
@@ -437,571 +437,571 @@ static const true_false_string winspool_UploadPrinterDriverPackageFlags_UPDP_CHE
    "UPDP_CHECK_DRIVERSTORE is SET",
    "UPDP_CHECK_DRIVERSTORE is NOT SET",
 };
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_AccessRequired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pPrinterContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pPrinterContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pSecurityContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pSecurityContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pClientInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pClientInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetJob_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetJob_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetJob_pJobContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetJob_pJobContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetJob_Command(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJob_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJob_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJob_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJob_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_FirstJob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_NoJobs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddJob_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddJob_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddJob_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncScheduleJob_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncScheduleJob_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pPrinterContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pPrinterContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pSecurityContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pSecurityContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinter_Command(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinter_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinter_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pDocInfoContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pDocInfoContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncStartPagePrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncWritePrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncWritePrinter_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEndPagePrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEndDocPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAbortPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_nSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_nSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddForm_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteForm_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetForm_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetForm_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetForm_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetForm_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumForms_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumForms_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumForms_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_dwClientMajorVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_dwClientMinorVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_dwIndex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_cbValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_cbEnumValues(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pcbEnumValues(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pcbEnumValues_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_cbSubkey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_hXcv(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_cbInputData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_cbOutputData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pcbOutputNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pcbOutputNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pReqData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pReqData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_hPrinterIC(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_cIn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_cOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_ul(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pDriverContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pDriverContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_dwFileCopyFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_dwDeleteFlag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_dwVersionNum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPort_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPort_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortVarContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortVarContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPort_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPort_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcessorName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcessorName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinterName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinterName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRpcHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRpcHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_hRpcHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_pNotifyFilter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_pNotifyFilter_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_hRpcHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_dwFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfPath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfPath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_dwFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_cchCoreDrivers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_cCorePrinterDrivers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_CoreDriverGUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_ftDriverDate(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_dwlDriverVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_cchDriverPackageCab(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfPath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfPath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncReadPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncReadPrinter_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncResetPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_pcProperties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_pcProperties_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_AccessRequired(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pPrinterContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pPrinterContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pSecurityContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pSecurityContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pClientInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pClientInfo_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetJob_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetJob_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetJob_pJobContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetJob_pJobContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetJob_Command(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJob_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJob_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJob_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJob_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_FirstJob(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_NoJobs(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddJob_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddJob_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddJob_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncScheduleJob_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncScheduleJob_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pPrinterContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pPrinterContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pSecurityContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pSecurityContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinter_Command(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinter_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinter_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pDocInfoContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pDocInfoContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncStartPagePrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncWritePrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncWritePrinter_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEndPagePrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEndDocPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAbortPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_nSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_nSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_Type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_Type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddForm_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteForm_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetForm_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetForm_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetForm_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetForm_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumForms_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumForms_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumForms_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_dwClientMajorVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_dwClientMinorVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersion_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_dwIndex(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_cbValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_cbEnumValues(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pcbEnumValues(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pcbEnumValues_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_cbSubkey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_hXcv(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_cbInputData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_cbOutputData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pcbOutputNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pcbOutputNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pReqData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pReqData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_hPrinterIC(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_cIn(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_cOut(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_ul(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_Flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pDriverContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pDriverContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_dwFileCopyFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_dwDeleteFlag(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_dwVersionNum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPort_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPort_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortVarContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortVarContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPort_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPort_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcessorName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcessorName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinterName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinterName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRpcHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRpcHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_hRpcHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_pNotifyFilter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_pNotifyFilter_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_hRpcHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_dwFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfPath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfPath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_dwFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_cchCoreDrivers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_cCorePrinterDrivers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_CoreDriverGUID(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_ftDriverDate(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_dwlDriverVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_cchDriverPackageCab(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfPath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfPath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncReadPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncReadPrinter_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncResetPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_pcProperties(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_pcProperties_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 	#include "packet-smb.h"
 	#include "packet-smb-browse.h"
 extern struct access_mask_info spoolss_printer_access_mask_info;
-static int
-iremotewinspool_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
+static unsigned
+iremotewinspool_dissect_sec_desc_buf(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	uint32_t len;
 	if(di->conformant_run){
@@ -1022,28 +1022,28 @@ iremotewinspool_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pin
 /* IDL: 	[unique(1)] spoolss_NotifyInfo *pInfo; */
 /* IDL: } */
 
-static int
-iremotewinspool_dissect_element_winspool_NOTIFY_REPLY_CONTAINER_pInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_NOTIFY_REPLY_CONTAINER_pInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_NOTIFY_REPLY_CONTAINER_pInfo_, NDR_POINTER_UNIQUE, "Pointer to PInfo (spoolss_NotifyInfo)",hf_iremotewinspool_winspool_NOTIFY_REPLY_CONTAINER_pInfo);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_NOTIFY_REPLY_CONTAINER_pInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_NOTIFY_REPLY_CONTAINER_pInfo_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_NOTIFY_INFO(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-int
-iremotewinspool_dissect_struct_winspool_NOTIFY_REPLY_CONTAINER(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+iremotewinspool_dissect_struct_winspool_NOTIFY_REPLY_CONTAINER(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1072,28 +1072,28 @@ iremotewinspool_dissect_struct_winspool_NOTIFY_REPLY_CONTAINER(tvbuff_t *tvb _U_
 /* IDL: 	[unique(1)] spoolss_NotifyOption *pOptions; */
 /* IDL: } */
 
-static int
-iremotewinspool_dissect_element_winspool_NOTIFY_OPTIONS_CONTAINER_pOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_NOTIFY_OPTIONS_CONTAINER_pOptions(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_NOTIFY_OPTIONS_CONTAINER_pOptions_, NDR_POINTER_UNIQUE, "Pointer to POptions (spoolss_NotifyOption)",hf_iremotewinspool_winspool_NOTIFY_OPTIONS_CONTAINER_pOptions);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_NOTIFY_OPTIONS_CONTAINER_pOptions_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_NOTIFY_OPTIONS_CONTAINER_pOptions_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-int
-iremotewinspool_dissect_struct_winspool_NOTIFY_OPTIONS_CONTAINER(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+iremotewinspool_dissect_struct_winspool_NOTIFY_OPTIONS_CONTAINER(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1130,8 +1130,8 @@ iremotewinspool_dissect_struct_winspool_NOTIFY_OPTIONS_CONTAINER(tvbuff_t *tvb _
 /* IDL: 	winspool_PropertyTypeNotificationOptions=9, */
 /* IDL: } */
 
-int
-iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	if (param) {
@@ -1157,16 +1157,16 @@ iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvbuff_t *tvb _U_, int o
 /* IDL: [case(winspool_PropertyTypeNotificationOptions)] [case(winspool_PropertyTypeNotificationOptions)] winspool_NOTIFY_OPTIONS_CONTAINER propertyOptionsContainer; */
 /* IDL: } */
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString_, NDR_POINTER_UNIQUE, "Pointer to PropertyString (uint16)",hf_iremotewinspool_winspool_PrintPropertyValueUnion_propertyString);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1176,76 +1176,76 @@ iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyString_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyInt32(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyInt32(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_PrintPropertyValueUnion_propertyInt32, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyInt64(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyInt64(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_PrintPropertyValueUnion_propertyInt64, NULL);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyByte(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyByte(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_PrintPropertyValueUnion_propertyByte, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyTimeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyTimeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertySDContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertySDContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyReplyContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyReplyContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_struct_winspool_NOTIFY_REPLY_CONTAINER(tvb,offset,pinfo,tree,di,drep,hf_iremotewinspool_winspool_PrintPropertyValueUnion_propertyReplyContainer,0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyOptionsContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValueUnion_propertyOptionsContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_struct_winspool_NOTIFY_OPTIONS_CONTAINER(tvb,offset,pinfo,tree,di,drep,hf_iremotewinspool_winspool_PrintPropertyValueUnion_propertyOptionsContainer,0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_PrintPropertyValueUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+static unsigned
+iremotewinspool_dissect_winspool_PrintPropertyValueUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 	uint32_t level;
 
 	old_offset = offset;
@@ -1304,29 +1304,29 @@ iremotewinspool_dissect_winspool_PrintPropertyValueUnion(tvbuff_t *tvb _U_, int 
 /* IDL: 	[switch_is(PropertyType)] winspool_PrintPropertyValueUnion value; */
 /* IDL: } */
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValue_PropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValue_PropertyType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType)
 {
 	offset = iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_PrintPropertyValue_PropertyType, PropertyType);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertyValue_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertyValue_value(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *PropertyType)
 {
 	offset = iremotewinspool_dissect_winspool_PrintPropertyValueUnion(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_PrintPropertyValue_value, *PropertyType);
 
 	return offset;
 }
 
-int
-iremotewinspool_dissect_struct_winspool_PrintPropertyValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+iremotewinspool_dissect_struct_winspool_PrintPropertyValue(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	uint32_t PropertyType = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_8_BYTES;
 
@@ -1358,16 +1358,16 @@ iremotewinspool_dissect_struct_winspool_PrintPropertyValue(tvbuff_t *tvb _U_, in
 /* IDL: 	winspool_PrintPropertyValue propertyValue; */
 /* IDL: } */
 
-static int
-iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName_, NDR_POINTER_UNIQUE, "Pointer to PropertyName (uint16)",hf_iremotewinspool_winspool_PrintNamedProperty_propertyName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1377,20 +1377,20 @@ iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyName_(tvbuff
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintNamedProperty_propertyValue(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_struct_winspool_PrintPropertyValue(tvb,offset,pinfo,tree,di,drep,hf_iremotewinspool_winspool_PrintNamedProperty_propertyValue,0);
 
 	return offset;
 }
 
-int
-iremotewinspool_dissect_struct_winspool_PrintNamedProperty(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+iremotewinspool_dissect_struct_winspool_PrintNamedProperty(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_8_BYTES;
 
@@ -1422,44 +1422,44 @@ iremotewinspool_dissect_struct_winspool_PrintNamedProperty(tvbuff_t *tvb _U_, in
 /* IDL: 	[size_is(numberOfProperties)] [unique(1)] winspool_PrintNamedProperty *propertiesCollection; */
 /* IDL: } */
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_numberOfProperties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_numberOfProperties(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_PrintPropertiesCollection_numberOfProperties, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection_, NDR_POINTER_UNIQUE, "Pointer to PropertiesCollection (winspool_PrintNamedProperty)",hf_iremotewinspool_winspool_PrintPropertiesCollection_propertiesCollection);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_PrintPropertiesCollection_propertiesCollection__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_struct_winspool_PrintNamedProperty(tvb,offset,pinfo,tree,di,drep,hf_iremotewinspool_winspool_PrintPropertiesCollection_propertiesCollection,0);
 
 	return offset;
 }
 
-int
-iremotewinspool_dissect_struct_winspool_PrintPropertiesCollection(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+iremotewinspool_dissect_struct_winspool_PrintPropertiesCollection(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1491,8 +1491,8 @@ iremotewinspool_dissect_struct_winspool_PrintPropertiesCollection(tvbuff_t *tvb 
 /* IDL: 	IPDFP_COPY_ALL_FILES =  0x00000001 , */
 /* IDL: } */
 
-int
-iremotewinspool_dissect_bitmap_winspool_InstallPrinterDriverFromPackageFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+iremotewinspool_dissect_bitmap_winspool_InstallPrinterDriverFromPackageFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item;
 	static int * const iremotewinspool_winspool_InstallPrinterDriverFromPackageFlags_fields[] = {
@@ -1525,8 +1525,8 @@ iremotewinspool_dissect_bitmap_winspool_InstallPrinterDriverFromPackageFlags(tvb
 /* IDL: 	UPDP_CHECK_DRIVERSTORE =  0x00000004 , */
 /* IDL: } */
 
-int
-iremotewinspool_dissect_bitmap_winspool_UploadPrinterDriverPackageFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+iremotewinspool_dissect_bitmap_winspool_UploadPrinterDriverPackageFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item;
 	static int * const iremotewinspool_winspool_UploadPrinterDriverPackageFlags_fields[] = {
@@ -1553,16 +1553,16 @@ iremotewinspool_dissect_bitmap_winspool_UploadPrinterDriverPackageFlags(tvbuff_t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName_, NDR_POINTER_UNIQUE, "Pointer to PPrinterName (uint16)",hf_iremotewinspool_winspool_AsyncOpenPrinter_pPrinterName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1572,32 +1572,32 @@ iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName_(tvbuff_t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pHandle_, NDR_POINTER_REF, "Pointer to PHandle (policy_handle)",hf_iremotewinspool_winspool_AsyncOpenPrinter_pHandle);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncOpenPrinter_pHandle, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype_, NDR_POINTER_UNIQUE, "Pointer to PDatatype (uint16)",hf_iremotewinspool_winspool_AsyncOpenPrinter_pDatatype);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1607,40 +1607,40 @@ iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDatatype_(tvbuff_t *t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDevModeContainer_, NDR_POINTER_REF, "Pointer to PDevModeContainer (spoolss_DevmodeContainer)",hf_iremotewinspool_winspool_AsyncOpenPrinter_pDevModeContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_AccessRequired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_AccessRequired(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncOpenPrinter_AccessRequired, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo_, NDR_POINTER_REF, "Pointer to PClientInfo (spoolss_UserLevelCtr)",hf_iremotewinspool_winspool_AsyncOpenPrinter_pClientInfo);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_USER_LEVEL_CTR(tvb, offset, pinfo, tree, di, drep);
 
@@ -1656,8 +1656,8 @@ iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo_(tvbuff_t 
 /* IDL: [in] [ref] spoolss_UserLevelCtr *pClientInfo */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncOpenPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncOpenPrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1673,8 +1673,8 @@ iremotewinspool_dissect_winspool_AsyncOpenPrinter_response(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncOpenPrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncOpenPrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncOpenPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pPrinterName(tvb, offset, pinfo, tree, di, drep);
@@ -1690,16 +1690,16 @@ iremotewinspool_dissect_winspool_AsyncOpenPrinter_request(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncAddPrinter_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1709,80 +1709,80 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName_(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pPrinterContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pPrinterContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pPrinterContainer_, NDR_POINTER_REF, "Pointer to PPrinterContainer (spoolss_SetPrinterInfoCtr)",hf_iremotewinspool_winspool_AsyncAddPrinter_pPrinterContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pPrinterContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pPrinterContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_SPOOL_PRINTER_INFO(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pDevModeContainer_, NDR_POINTER_REF, "Pointer to PDevModeContainer (spoolss_DevmodeContainer)",hf_iremotewinspool_winspool_AsyncAddPrinter_pDevModeContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pSecurityContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pSecurityContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pSecurityContainer_, NDR_POINTER_REF, "Pointer to PSecurityContainer (sec_desc_buf)",hf_iremotewinspool_winspool_AsyncAddPrinter_pSecurityContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pSecurityContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pSecurityContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pClientInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pClientInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pClientInfo_, NDR_POINTER_REF, "Pointer to PClientInfo (spoolss_UserLevelCtr)",hf_iremotewinspool_winspool_AsyncAddPrinter_pClientInfo);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pClientInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pClientInfo_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_USER_LEVEL_CTR(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle_, NDR_POINTER_REF, "Pointer to PHandle (policy_handle)",hf_iremotewinspool_winspool_AsyncAddPrinter_pHandle);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncAddPrinter_pHandle, 0);
 
@@ -1798,8 +1798,8 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle_(tvbuff_t *tvb 
 /* IDL: [out] [ref] policy_handle *pHandle */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddPrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1815,8 +1815,8 @@ iremotewinspool_dissect_winspool_AsyncAddPrinter_response(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddPrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddPrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncAddPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pName(tvb, offset, pinfo, tree, di, drep);
@@ -1832,40 +1832,40 @@ iremotewinspool_dissect_winspool_AsyncAddPrinter_request(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetJob_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetJob_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetJob_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetJob_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetJob_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetJob_JobId, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetJob_pJobContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetJob_pJobContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetJob_pJobContainer_, NDR_POINTER_UNIQUE, "Pointer to PJobContainer (spoolss_JobInfoContainer)",hf_iremotewinspool_winspool_AsyncSetJob_pJobContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetJob_pJobContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetJob_pJobContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetJob_Command(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetJob_Command(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetJob_Command, 0);
 
@@ -1879,8 +1879,8 @@ iremotewinspool_dissect_element_winspool_AsyncSetJob_Command(tvbuff_t *tvb _U_, 
 /* IDL: [in] uint32 Command */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetJob_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetJob_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -1893,8 +1893,8 @@ iremotewinspool_dissect_winspool_AsyncSetJob_response(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetJob_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetJob_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncSetJob";
 	offset = iremotewinspool_dissect_element_winspool_AsyncSetJob_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -1908,72 +1908,72 @@ iremotewinspool_dissect_winspool_AsyncSetJob_request(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJob_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJob_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetJob_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJob_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJob_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetJob_JobId, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJob_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJob_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetJob_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob_, NDR_POINTER_UNIQUE, "Pointer to PJob (uint8)",hf_iremotewinspool_winspool_AsyncGetJob_pJob);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetJob_pJob, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJob_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJob_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetJob_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncGetJob_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetJob_pcbNeeded, 0);
 
@@ -1989,8 +1989,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded_(tvbuff_t *tvb _U
 /* IDL: [out] [ref] uint32 *pcbNeeded */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetJob_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetJob_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2009,8 +2009,8 @@ iremotewinspool_dissect_winspool_AsyncGetJob_response(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetJob_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetJob_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetJob";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetJob_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2026,96 +2026,96 @@ iremotewinspool_dissect_winspool_AsyncGetJob_request(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobs_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_FirstJob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_FirstJob(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobs_FirstJob, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_NoJobs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_NoJobs(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobs_NoJobs, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobs_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob_, NDR_POINTER_UNIQUE, "Pointer to PJob (uint8)",hf_iremotewinspool_winspool_AsyncEnumJobs_pJob);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobs_pJob, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobs_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncEnumJobs_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobs_pcbNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned_, NDR_POINTER_REF, "Pointer to PcReturned (uint32)",hf_iremotewinspool_winspool_AsyncEnumJobs_pcReturned);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobs_pcReturned, 0);
 
@@ -2133,8 +2133,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned_(tvbuff_t *tvb
 /* IDL: [out] [ref] uint32 *pcReturned */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumJobs_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumJobs_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2156,8 +2156,8 @@ iremotewinspool_dissect_winspool_AsyncEnumJobs_response(tvbuff_t *tvb _U_, int o
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumJobs_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumJobs_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumJobs";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumJobs_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2175,64 +2175,64 @@ iremotewinspool_dissect_winspool_AsyncEnumJobs_request(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddJob_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddJob_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncAddJob_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddJob_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddJob_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncAddJob_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob_, NDR_POINTER_UNIQUE, "Pointer to PAddJob (uint8)",hf_iremotewinspool_winspool_AsyncAddJob_pAddJob);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncAddJob_pAddJob, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddJob_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddJob_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncAddJob_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncAddJob_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncAddJob_pcbNeeded, 0);
 
@@ -2247,8 +2247,8 @@ iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded_(tvbuff_t *tvb _U
 /* IDL: [out] [ref] uint32 *pcbNeeded */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddJob_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddJob_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2267,8 +2267,8 @@ iremotewinspool_dissect_winspool_AsyncAddJob_response(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddJob_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddJob_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncAddJob";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAddJob_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2282,16 +2282,16 @@ iremotewinspool_dissect_winspool_AsyncAddJob_request(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncScheduleJob_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncScheduleJob_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncScheduleJob_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncScheduleJob_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncScheduleJob_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncScheduleJob_JobId, 0);
 
@@ -2303,8 +2303,8 @@ iremotewinspool_dissect_element_winspool_AsyncScheduleJob_JobId(tvbuff_t *tvb _U
 /* IDL: [in] uint32 JobId */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncScheduleJob_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncScheduleJob_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2317,8 +2317,8 @@ iremotewinspool_dissect_winspool_AsyncScheduleJob_response(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncScheduleJob_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncScheduleJob_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncScheduleJob";
 	offset = iremotewinspool_dissect_element_winspool_AsyncScheduleJob_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2328,8 +2328,8 @@ iremotewinspool_dissect_winspool_AsyncScheduleJob_request(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncDeletePrinter_hPrinter, 0);
 
@@ -2340,8 +2340,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinter_hPrinter(tvbuff_t *t
 /* IDL: [in] policy_handle hPrinter */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2354,8 +2354,8 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinter_response(tvbuff_t *tvb _U_, 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2363,64 +2363,64 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinter_request(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetPrinter_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pPrinterContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pPrinterContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pPrinterContainer_, NDR_POINTER_REF, "Pointer to PPrinterContainer (spoolss_SetPrinterInfoCtr)",hf_iremotewinspool_winspool_AsyncSetPrinter_pPrinterContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pPrinterContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pPrinterContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_SPOOL_PRINTER_INFO(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pDevModeContainer_, NDR_POINTER_REF, "Pointer to PDevModeContainer (spoolss_DevmodeContainer)",hf_iremotewinspool_winspool_AsyncSetPrinter_pDevModeContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pSecurityContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pSecurityContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pSecurityContainer_, NDR_POINTER_REF, "Pointer to PSecurityContainer (sec_desc_buf)",hf_iremotewinspool_winspool_AsyncSetPrinter_pSecurityContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pSecurityContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinter_pSecurityContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinter_Command(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinter_Command(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetPrinter_Command, 0);
 
@@ -2435,8 +2435,8 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinter_Command(tvbuff_t *tvb _
 /* IDL: [in] uint32 Command */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetPrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2449,8 +2449,8 @@ iremotewinspool_dissect_winspool_AsyncSetPrinter_response(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetPrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetPrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncSetPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncSetPrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2466,64 +2466,64 @@ iremotewinspool_dissect_winspool_AsyncSetPrinter_request(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinter_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinter_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinter_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinter_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter_, NDR_POINTER_UNIQUE, "Pointer to PPrinter (uint8)",hf_iremotewinspool_winspool_AsyncGetPrinter_pPrinter);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinter_pPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinter_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinter_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinter_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncGetPrinter_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinter_pcbNeeded, 0);
 
@@ -2538,8 +2538,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded_(tvbuff_t *tv
 /* IDL: [out] [ref] uint32 *pcbNeeded */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2558,8 +2558,8 @@ iremotewinspool_dissect_winspool_AsyncGetPrinter_response(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2573,40 +2573,40 @@ iremotewinspool_dissect_winspool_AsyncGetPrinter_request(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncStartDocPrinter_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pDocInfoContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pDocInfoContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pDocInfoContainer_, NDR_POINTER_REF, "Pointer to PDocInfoContainer (spoolss_DocumentInfoCtr)",hf_iremotewinspool_winspool_AsyncStartDocPrinter_pDocInfoContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pDocInfoContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pDocInfoContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_spoolss_doc_info_ctr(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId_, NDR_POINTER_REF, "Pointer to PJobId (uint32)",hf_iremotewinspool_winspool_AsyncStartDocPrinter_pJobId);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncStartDocPrinter_pJobId, 0);
 
@@ -2619,8 +2619,8 @@ iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId_(tvbuff_t *
 /* IDL: [out] [ref] uint32 *pJobId */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncStartDocPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncStartDocPrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2636,8 +2636,8 @@ iremotewinspool_dissect_winspool_AsyncStartDocPrinter_response(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncStartDocPrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncStartDocPrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncStartDocPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2647,8 +2647,8 @@ iremotewinspool_dissect_winspool_AsyncStartDocPrinter_request(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncStartPagePrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncStartPagePrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncStartPagePrinter_hPrinter, 0);
 
@@ -2659,8 +2659,8 @@ iremotewinspool_dissect_element_winspool_AsyncStartPagePrinter_hPrinter(tvbuff_t
 /* IDL: [in] policy_handle hPrinter */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncStartPagePrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncStartPagePrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2673,8 +2673,8 @@ iremotewinspool_dissect_winspool_AsyncStartPagePrinter_response(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncStartPagePrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncStartPagePrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncStartPagePrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncStartPagePrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2682,56 +2682,56 @@ iremotewinspool_dissect_winspool_AsyncStartPagePrinter_request(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncWritePrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncWritePrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncWritePrinter_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf_, NDR_POINTER_REF, "Pointer to PBuf (uint8)",hf_iremotewinspool_winspool_AsyncWritePrinter_pBuf);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pBuf__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncWritePrinter_pBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncWritePrinter_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncWritePrinter_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncWritePrinter_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten_, NDR_POINTER_REF, "Pointer to PcWritten (uint32)",hf_iremotewinspool_winspool_AsyncWritePrinter_pcWritten);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncWritePrinter_pcWritten, 0);
 
@@ -2745,8 +2745,8 @@ iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten_(tvbuff_t *
 /* IDL: [out] [ref] uint32 *pcWritten */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncWritePrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncWritePrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2762,8 +2762,8 @@ iremotewinspool_dissect_winspool_AsyncWritePrinter_response(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncWritePrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncWritePrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncWritePrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncWritePrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2775,8 +2775,8 @@ iremotewinspool_dissect_winspool_AsyncWritePrinter_request(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEndPagePrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEndPagePrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEndPagePrinter_hPrinter, 0);
 
@@ -2787,8 +2787,8 @@ iremotewinspool_dissect_element_winspool_AsyncEndPagePrinter_hPrinter(tvbuff_t *
 /* IDL: [in] policy_handle hPrinter */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEndPagePrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEndPagePrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2801,8 +2801,8 @@ iremotewinspool_dissect_winspool_AsyncEndPagePrinter_response(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEndPagePrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEndPagePrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEndPagePrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEndPagePrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2810,8 +2810,8 @@ iremotewinspool_dissect_winspool_AsyncEndPagePrinter_request(tvbuff_t *tvb _U_, 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEndDocPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEndDocPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEndDocPrinter_hPrinter, 0);
 
@@ -2822,8 +2822,8 @@ iremotewinspool_dissect_element_winspool_AsyncEndDocPrinter_hPrinter(tvbuff_t *t
 /* IDL: [in] policy_handle hPrinter */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEndDocPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEndDocPrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2836,8 +2836,8 @@ iremotewinspool_dissect_winspool_AsyncEndDocPrinter_response(tvbuff_t *tvb _U_, 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEndDocPrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEndDocPrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEndDocPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEndDocPrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2845,8 +2845,8 @@ iremotewinspool_dissect_winspool_AsyncEndDocPrinter_request(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAbortPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAbortPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncAbortPrinter_hPrinter, 0);
 
@@ -2857,8 +2857,8 @@ iremotewinspool_dissect_element_winspool_AsyncAbortPrinter_hPrinter(tvbuff_t *tv
 /* IDL: [in] policy_handle hPrinter */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncAbortPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAbortPrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -2871,8 +2871,8 @@ iremotewinspool_dissect_winspool_AsyncAbortPrinter_response(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncAbortPrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAbortPrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncAbortPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAbortPrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2880,24 +2880,24 @@ iremotewinspool_dissect_winspool_AsyncAbortPrinter_request(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterData_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName_, NDR_POINTER_REF, "Pointer to PValueName (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterData_pValueName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2907,64 +2907,64 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pValueName_(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pType_, NDR_POINTER_REF, "Pointer to PType (uint32)",hf_iremotewinspool_winspool_AsyncGetPrinterData_pType);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterData_pType, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData_, NDR_POINTER_REF, "Pointer to PData (uint8)",hf_iremotewinspool_winspool_AsyncGetPrinterData_pData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterData_pData, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_nSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_nSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterData_nSize, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncGetPrinterData_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterData_pcbNeeded, 0);
 
@@ -2980,8 +2980,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded_(tvbuff_t
 /* IDL: [out] [ref] uint32 *pcbNeeded */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinterData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinterData_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3003,8 +3003,8 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterData_response(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinterData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinterData_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinterData";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3016,24 +3016,24 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterData_request(tvbuff_t *tvb _U_, 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName_, NDR_POINTER_REF, "Pointer to PKeyName (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pKeyName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3043,16 +3043,16 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pKeyName_(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName_, NDR_POINTER_REF, "Pointer to PValueName (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pValueName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3062,64 +3062,64 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pValueName_(tvbuf
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pType_, NDR_POINTER_REF, "Pointer to PType (uint32)",hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pType);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pType, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData_, NDR_POINTER_REF, "Pointer to PData (uint8)",hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pData, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_nSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_nSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_nSize, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDataEx_pcbNeeded, 0);
 
@@ -3136,8 +3136,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded_(tvbuff
 /* IDL: [out] [ref] uint32 *pcbNeeded */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinterDataEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinterDataEx_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3159,8 +3159,8 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDataEx_response(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinterDataEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinterDataEx_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinterDataEx";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3174,24 +3174,24 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDataEx_request(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetPrinterData_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName_, NDR_POINTER_REF, "Pointer to PValueName (uint16)",hf_iremotewinspool_winspool_AsyncSetPrinterData_pValueName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3201,40 +3201,40 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pValueName_(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_Type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetPrinterData_Type, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData_, NDR_POINTER_REF, "Pointer to PData (uint8)",hf_iremotewinspool_winspool_AsyncSetPrinterData_pData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_pData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetPrinterData_pData, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetPrinterData_cbData, 0);
 
@@ -3249,8 +3249,8 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_cbData(tvbuff_t *tv
 /* IDL: [in] uint32 cbData */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetPrinterData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetPrinterData_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3263,8 +3263,8 @@ iremotewinspool_dissect_winspool_AsyncSetPrinterData_response(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetPrinterData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetPrinterData_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncSetPrinterData";
 	offset = iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3280,24 +3280,24 @@ iremotewinspool_dissect_winspool_AsyncSetPrinterData_request(tvbuff_t *tvb _U_, 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName_, NDR_POINTER_REF, "Pointer to PKeyName (uint16)",hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_pKeyName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3307,16 +3307,16 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pKeyName_(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName_, NDR_POINTER_REF, "Pointer to PValueName (uint16)",hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_pValueName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3326,40 +3326,40 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pValueName_(tvbuf
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_Type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_Type, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData_, NDR_POINTER_REF, "Pointer to PData (uint8)",hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_pData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_pData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_pData, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetPrinterDataEx_cbData, 0);
 
@@ -3375,8 +3375,8 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_cbData(tvbuff_t *
 /* IDL: [in] uint32 cbData */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetPrinterDataEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetPrinterDataEx_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3389,8 +3389,8 @@ iremotewinspool_dissect_winspool_AsyncSetPrinterDataEx_response(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetPrinterDataEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetPrinterDataEx_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncSetPrinterDataEx";
 	offset = iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3408,16 +3408,16 @@ iremotewinspool_dissect_winspool_AsyncSetPrinterDataEx_request(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter_, NDR_POINTER_REF, "Pointer to PhPrinter (policy_handle)",hf_iremotewinspool_winspool_AsyncClosePrinter_phPrinter);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncClosePrinter_phPrinter, 0);
 
@@ -3428,8 +3428,8 @@ iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter_(tvbuff_t *
 /* IDL: [in] [out] [ref] policy_handle *phPrinter */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncClosePrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncClosePrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3445,8 +3445,8 @@ iremotewinspool_dissect_winspool_AsyncClosePrinter_response(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncClosePrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncClosePrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncClosePrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3454,24 +3454,24 @@ iremotewinspool_dissect_winspool_AsyncClosePrinter_request(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddForm_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddForm_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncAddForm_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer_, NDR_POINTER_REF, "Pointer to PFormInfoContainer (spoolss_AddFormInfoCtr)",hf_iremotewinspool_winspool_AsyncAddForm_pFormInfoContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_FORM_CTR(tvb, offset, pinfo, tree, di, drep);
 
@@ -3483,8 +3483,8 @@ iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer_(tvbuff
 /* IDL: [in] [ref] spoolss_AddFormInfoCtr *pFormInfoContainer */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddForm_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddForm_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3497,8 +3497,8 @@ iremotewinspool_dissect_winspool_AsyncAddForm_response(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddForm_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddForm_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncAddForm";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAddForm_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3508,24 +3508,24 @@ iremotewinspool_dissect_winspool_AsyncAddForm_request(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteForm_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteForm_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncDeleteForm_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName_, NDR_POINTER_REF, "Pointer to PFormName (uint16)",hf_iremotewinspool_winspool_AsyncDeleteForm_pFormName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3540,8 +3540,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName_(tvbuff_t *tv
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pFormName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeleteForm_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeleteForm_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3554,8 +3554,8 @@ iremotewinspool_dissect_winspool_AsyncDeleteForm_response(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeleteForm_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeleteForm_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeleteForm";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeleteForm_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3565,24 +3565,24 @@ iremotewinspool_dissect_winspool_AsyncDeleteForm_request(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetForm_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetForm_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetForm_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName_, NDR_POINTER_REF, "Pointer to PFormName (uint16)",hf_iremotewinspool_winspool_AsyncGetForm_pFormName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3592,56 +3592,56 @@ iremotewinspool_dissect_element_winspool_AsyncGetForm_pFormName_(tvbuff_t *tvb _
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetForm_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetForm_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetForm_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm_, NDR_POINTER_UNIQUE, "Pointer to PForm (uint8)",hf_iremotewinspool_winspool_AsyncGetForm_pForm);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetForm_pForm, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetForm_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetForm_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetForm_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncGetForm_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetForm_pcbNeeded, 0);
 
@@ -3657,8 +3657,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded_(tvbuff_t *tvb _
 /* IDL: [out] [ref] uint32 *pcbNeeded */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetForm_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetForm_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3677,8 +3677,8 @@ iremotewinspool_dissect_winspool_AsyncGetForm_response(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetForm_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetForm_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetForm";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetForm_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3694,24 +3694,24 @@ iremotewinspool_dissect_winspool_AsyncGetForm_request(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetForm_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetForm_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetForm_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName_, NDR_POINTER_REF, "Pointer to PFormName (uint16)",hf_iremotewinspool_winspool_AsyncSetForm_pFormName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3721,16 +3721,16 @@ iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormName_(tvbuff_t *tvb _
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer_, NDR_POINTER_REF, "Pointer to PFormInfoContainer (spoolss_AddFormInfoCtr)",hf_iremotewinspool_winspool_AsyncSetForm_pFormInfoContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_FORM_CTR(tvb, offset, pinfo, tree, di, drep);
 
@@ -3743,8 +3743,8 @@ iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer_(tvbuff
 /* IDL: [in] [ref] spoolss_AddFormInfoCtr *pFormInfoContainer */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetForm_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetForm_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3757,8 +3757,8 @@ iremotewinspool_dissect_winspool_AsyncSetForm_response(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetForm_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetForm_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncSetForm";
 	offset = iremotewinspool_dissect_element_winspool_AsyncSetForm_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3770,80 +3770,80 @@ iremotewinspool_dissect_winspool_AsyncSetForm_request(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumForms_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumForms_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumForms_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumForms_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumForms_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumForms_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm_, NDR_POINTER_UNIQUE, "Pointer to PForm (uint8)",hf_iremotewinspool_winspool_AsyncEnumForms_pForm);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumForms_pForm, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumForms_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumForms_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumForms_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncEnumForms_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumForms_pcbNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned_, NDR_POINTER_REF, "Pointer to PcReturned (uint32)",hf_iremotewinspool_winspool_AsyncEnumForms_pcReturned);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumForms_pcReturned, 0);
 
@@ -3859,8 +3859,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned_(tvbuff_t *tv
 /* IDL: [out] [ref] uint32 *pcReturned */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumForms_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumForms_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -3882,8 +3882,8 @@ iremotewinspool_dissect_winspool_AsyncEnumForms_response(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumForms_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumForms_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumForms";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumForms_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3897,24 +3897,24 @@ iremotewinspool_dissect_winspool_AsyncEnumForms_request(tvbuff_t *tvb _U_, int o
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriver_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment_, NDR_POINTER_UNIQUE, "Pointer to PEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -3924,104 +3924,104 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pEnvironment_(tvb
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriver_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver_, NDR_POINTER_UNIQUE, "Pointer to PDriver (uint8)",hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pDriver);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pDriver, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriver_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pcbNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_dwClientMajorVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_dwClientMajorVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriver_dwClientMajorVersion, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_dwClientMinorVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_dwClientMinorVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriver_dwClientMinorVersion, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion_, NDR_POINTER_REF, "Pointer to PdwServerMaxVersion (uint32)",hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pdwServerMaxVersion, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersion_, NDR_POINTER_REF, "Pointer to PdwServerMinVersion (uint32)",hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pdwServerMinVersion);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersion_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriver_pdwServerMinVersion, 0);
 
@@ -4041,8 +4041,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersi
 /* IDL: [out] [ref] uint32 *pdwServerMinVersion */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinterDriver_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinterDriver_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4067,8 +4067,8 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDriver_response(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinterDriver_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinterDriver_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinterDriver";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -4088,128 +4088,128 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDriver_request(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterData_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_dwIndex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_dwIndex(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterData_dwIndex, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName_, NDR_POINTER_REF, "Pointer to PValueName (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrinterData_pValueName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterData_pValueName, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_cbValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_cbValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterData_cbValueName, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbValueName_, NDR_POINTER_REF, "Pointer to PcbValueName (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrinterData_pcbValueName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterData_pcbValueName, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pType_, NDR_POINTER_REF, "Pointer to PType (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrinterData_pType);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterData_pType, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData_, NDR_POINTER_REF, "Pointer to PData (uint8)",hf_iremotewinspool_winspool_AsyncEnumPrinterData_pData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterData_pData, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterData_cbData, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData_, NDR_POINTER_REF, "Pointer to PcbData (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrinterData_pcbData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterData_pcbData, 0);
 
@@ -4228,8 +4228,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData_(tvbuff_t 
 /* IDL: [out] [ref] uint32 *pcbData */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrinterData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrinterData_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4257,8 +4257,8 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterData_response(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrinterData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrinterData_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrinterData";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -4272,24 +4272,24 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterData_request(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName_, NDR_POINTER_REF, "Pointer to PKeyName (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_pKeyName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4299,64 +4299,64 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pKeyName_(tvbuff
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues_, NDR_POINTER_REF, "Pointer to PEnumValues (uint8)",hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_pEnumValues);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_pEnumValues, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_cbEnumValues(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_cbEnumValues(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_cbEnumValues, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pcbEnumValues(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pcbEnumValues(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pcbEnumValues_, NDR_POINTER_REF, "Pointer to PcbEnumValues (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_pcbEnumValues);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pcbEnumValues_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pcbEnumValues_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_pcbEnumValues, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues_, NDR_POINTER_REF, "Pointer to PnEnumValues (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_pnEnumValues);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterDataEx_pnEnumValues, 0);
 
@@ -4372,8 +4372,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues_(tv
 /* IDL: [out] [ref] uint32 *pnEnumValues */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrinterDataEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrinterDataEx_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4395,8 +4395,8 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterDataEx_response(tvbuff_t *tvb _
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrinterDataEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrinterDataEx_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrinterDataEx";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -4408,24 +4408,24 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterDataEx_request(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterKey_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName_, NDR_POINTER_REF, "Pointer to PKeyName (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrinterKey_pKeyName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4435,48 +4435,48 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pKeyName_(tvbuff_t 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey_, NDR_POINTER_REF, "Pointer to PSubkey (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrinterKey_pSubkey);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterKey_pSubkey, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_cbSubkey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_cbSubkey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterKey_cbSubkey, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey_, NDR_POINTER_REF, "Pointer to PcbSubkey (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrinterKey_pcbSubkey);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterKey_pcbSubkey, 0);
 
@@ -4491,8 +4491,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey_(tvbuff_t
 /* IDL: [out] [ref] uint32 *pcbSubkey */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrinterKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrinterKey_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4511,8 +4511,8 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterKey_response(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrinterKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrinterKey_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrinterKey";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -4524,24 +4524,24 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterKey_request(tvbuff_t *tvb _U_, 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncDeletePrinterData_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName_, NDR_POINTER_REF, "Pointer to PValueName (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterData_pValueName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4556,8 +4556,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName_(tvbu
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pValueName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterData_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4570,8 +4570,8 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterData_response(tvbuff_t *tvb _
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterData_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterData";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -4581,24 +4581,24 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterData_request(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncDeletePrinterDataEx_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName_, NDR_POINTER_REF, "Pointer to PKeyName (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDataEx_pKeyName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4608,16 +4608,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pKeyName_(tvbu
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName_, NDR_POINTER_REF, "Pointer to PValueName (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDataEx_pValueName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4633,8 +4633,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName_(tv
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pValueName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterDataEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterDataEx_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4647,8 +4647,8 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDataEx_response(tvbuff_t *tvb
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterDataEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterDataEx_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterDataEx";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -4660,24 +4660,24 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDataEx_request(tvbuff_t *tvb 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncDeletePrinterKey_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName_, NDR_POINTER_REF, "Pointer to PKeyName (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterKey_pKeyName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4692,8 +4692,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName_(tvbuff_
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pKeyName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterKey_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4706,8 +4706,8 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterKey_response(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterKey_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterKey";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -4717,24 +4717,24 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterKey_request(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_hXcv(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_hXcv(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncXcvData_hXcv, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName_, NDR_POINTER_REF, "Pointer to PszDataName (uint16)",hf_iremotewinspool_winspool_AsyncXcvData_pszDataName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4744,96 +4744,96 @@ iremotewinspool_dissect_element_winspool_AsyncXcvData_pszDataName_(tvbuff_t *tvb
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData_, NDR_POINTER_REF, "Pointer to PInputData (uint8)",hf_iremotewinspool_winspool_AsyncXcvData_pInputData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pInputData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncXcvData_pInputData, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_cbInputData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_cbInputData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncXcvData_cbInputData, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData_, NDR_POINTER_REF, "Pointer to POutputData (uint8)",hf_iremotewinspool_winspool_AsyncXcvData_pOutputData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncXcvData_pOutputData, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_cbOutputData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_cbOutputData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncXcvData_cbOutputData, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pcbOutputNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pcbOutputNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncXcvData_pcbOutputNeeded_, NDR_POINTER_REF, "Pointer to PcbOutputNeeded (uint32)",hf_iremotewinspool_winspool_AsyncXcvData_pcbOutputNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pcbOutputNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pcbOutputNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncXcvData_pcbOutputNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus_, NDR_POINTER_REF, "Pointer to PdwStatus (uint32)",hf_iremotewinspool_winspool_AsyncXcvData_pdwStatus);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncXcvData_pdwStatus, 0);
 
@@ -4851,8 +4851,8 @@ iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus_(tvbuff_t *tvb _
 /* IDL: [in] [out] [ref] uint32 *pdwStatus */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncXcvData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncXcvData_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4874,8 +4874,8 @@ iremotewinspool_dissect_winspool_AsyncXcvData_response(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncXcvData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncXcvData_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncXcvData";
 	offset = iremotewinspool_dissect_element_winspool_AsyncXcvData_hXcv(tvb, offset, pinfo, tree, di, drep);
@@ -4893,24 +4893,24 @@ iremotewinspool_dissect_winspool_AsyncXcvData_request(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSendRecvBidiData_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction_, NDR_POINTER_UNIQUE, "Pointer to PAction (uint16)",hf_iremotewinspool_winspool_AsyncSendRecvBidiData_pAction);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4920,40 +4920,40 @@ iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pAction_(tvbuff_t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pReqData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pReqData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pReqData_, NDR_POINTER_REF, "Pointer to PReqData (RPC_BIDI_REQUEST_CONTAINER)",hf_iremotewinspool_winspool_AsyncSendRecvBidiData_pReqData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pReqData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_pReqData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData_, NDR_POINTER_REF, "Pointer to PpRespData (RPC_BIDI_RESPONSE_CONTAINER)",hf_iremotewinspool_winspool_AsyncSendRecvBidiData_ppRespData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData__, NDR_POINTER_UNIQUE, "Pointer to PpRespData (RPC_BIDI_RESPONSE_CONTAINER)",hf_iremotewinspool_winspool_AsyncSendRecvBidiData_ppRespData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
@@ -4967,8 +4967,8 @@ iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData__(tvbu
 /* IDL: [out] [ref] RPC_BIDI_RESPONSE_CONTAINER **ppRespData */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncSendRecvBidiData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSendRecvBidiData_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -4984,8 +4984,8 @@ iremotewinspool_dissect_winspool_AsyncSendRecvBidiData_response(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncSendRecvBidiData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSendRecvBidiData_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncSendRecvBidiData";
 	offset = iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -4997,40 +4997,40 @@ iremotewinspool_dissect_winspool_AsyncSendRecvBidiData_request(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncCreatePrinterIC_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pHandle_, NDR_POINTER_REF, "Pointer to PHandle (policy_handle)",hf_iremotewinspool_winspool_AsyncCreatePrinterIC_pHandle);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncCreatePrinterIC_pHandle, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer_, NDR_POINTER_REF, "Pointer to PDevModeContainer (spoolss_DevmodeContainer)",hf_iremotewinspool_winspool_AsyncCreatePrinterIC_pDevModeContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, di, drep);
 
@@ -5043,8 +5043,8 @@ iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer_
 /* IDL: [in] [ref] spoolss_DevmodeContainer *pDevModeContainer */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncCreatePrinterIC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncCreatePrinterIC_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5060,8 +5060,8 @@ iremotewinspool_dissect_winspool_AsyncCreatePrinterIC_response(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncCreatePrinterIC_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncCreatePrinterIC_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncCreatePrinterIC";
 	offset = iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -5071,80 +5071,80 @@ iremotewinspool_dissect_winspool_AsyncCreatePrinterIC_request(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_hPrinterIC(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_hPrinterIC(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncPlayGdiScriptOnPrinterIC_hPrinterIC, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn_, NDR_POINTER_REF, "Pointer to PIn (uint8)",hf_iremotewinspool_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncPlayGdiScriptOnPrinterIC_pIn, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_cIn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_cIn(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncPlayGdiScriptOnPrinterIC_cIn, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut_, NDR_POINTER_REF, "Pointer to POut (uint8)",hf_iremotewinspool_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_cOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_cOut(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncPlayGdiScriptOnPrinterIC_cOut, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_ul(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_ul(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncPlayGdiScriptOnPrinterIC_ul, 0);
 
@@ -5160,8 +5160,8 @@ iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_ul(tvbuff
 /* IDL: [in] uint32 ul */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncPlayGdiScriptOnPrinterIC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncPlayGdiScriptOnPrinterIC_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5177,8 +5177,8 @@ iremotewinspool_dissect_winspool_AsyncPlayGdiScriptOnPrinterIC_response(tvbuff_t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncPlayGdiScriptOnPrinterIC_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncPlayGdiScriptOnPrinterIC_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncPlayGdiScriptOnPrinterIC";
 	offset = iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_hPrinterIC(tvb, offset, pinfo, tree, di, drep);
@@ -5194,16 +5194,16 @@ iremotewinspool_dissect_winspool_AsyncPlayGdiScriptOnPrinterIC_request(tvbuff_t 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC_, NDR_POINTER_REF, "Pointer to PhPrinterIC (policy_handle)",hf_iremotewinspool_winspool_AsyncDeletePrinterIC_phPrinterIC);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncDeletePrinterIC_phPrinterIC, 0);
 
@@ -5214,8 +5214,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC_(tvbuf
 /* IDL: [in] [out] [ref] policy_handle *phPrinterIC */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterIC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterIC_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5231,8 +5231,8 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterIC_response(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterIC_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterIC_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterIC";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC(tvb, offset, pinfo, tree, di, drep);
@@ -5240,24 +5240,24 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterIC_request(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_Flags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinters_Flags, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrinters_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5267,72 +5267,72 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pName_(tvbuff_t *tvb 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinters_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum_, NDR_POINTER_UNIQUE, "Pointer to PPrinterEnum (uint8)",hf_iremotewinspool_winspool_AsyncEnumPrinters_pPrinterEnum);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinters_pPrinterEnum, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinters_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrinters_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinters_pcbNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned_, NDR_POINTER_REF, "Pointer to PcReturned (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrinters_pcReturned);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinters_pcReturned, 0);
 
@@ -5349,8 +5349,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned_(tvbuff_t 
 /* IDL: [out] [ref] uint32 *pcReturned */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrinters_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrinters_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5372,8 +5372,8 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinters_response(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrinters_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrinters_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrinters";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_Flags(tvb, offset, pinfo, tree, di, drep);
@@ -5389,16 +5389,16 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinters_request(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncAddPrinterDriver_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5408,24 +5408,24 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName_(tvbuff_t *
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pDriverContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pDriverContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pDriverContainer_, NDR_POINTER_REF, "Pointer to PDriverContainer (spoolss_AddDriverInfoCtr)",hf_iremotewinspool_winspool_AsyncAddPrinterDriver_pDriverContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pDriverContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pDriverContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_dwFileCopyFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_dwFileCopyFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncAddPrinterDriver_dwFileCopyFlags, 0);
 
@@ -5438,8 +5438,8 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_dwFileCopyFlags(t
 /* IDL: [in] uint32 dwFileCopyFlags */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddPrinterDriver_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddPrinterDriver_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5452,8 +5452,8 @@ iremotewinspool_dissect_winspool_AsyncAddPrinterDriver_response(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddPrinterDriver_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddPrinterDriver_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncAddPrinterDriver";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_pName(tvb, offset, pinfo, tree, di, drep);
@@ -5465,16 +5465,16 @@ iremotewinspool_dissect_winspool_AsyncAddPrinterDriver_request(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5484,16 +5484,16 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName_(tvbuff_t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment_, NDR_POINTER_UNIQUE, "Pointer to PEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5503,72 +5503,72 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pEnvironment_(t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers_, NDR_POINTER_UNIQUE, "Pointer to PDrivers (uint8)",hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pDrivers);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pDrivers, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pcbNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned_, NDR_POINTER_REF, "Pointer to PcReturned (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pcReturned);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrinterDrivers_pcReturned, 0);
 
@@ -5585,8 +5585,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned_(tvb
 /* IDL: [out] [ref] uint32 *pcReturned */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrinterDrivers_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrinterDrivers_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5608,8 +5608,8 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterDrivers_response(tvbuff_t *tvb 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrinterDrivers_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrinterDrivers_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrinterDrivers";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pName(tvb, offset, pinfo, tree, di, drep);
@@ -5625,16 +5625,16 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterDrivers_request(tvbuff_t *tvb _
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5644,16 +5644,16 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName_(t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnvironment_, NDR_POINTER_UNIQUE, "Pointer to PEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_pEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5663,56 +5663,56 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pEnviron
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory_, NDR_POINTER_UNIQUE, "Pointer to PDriverDirectory (uint8)",hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriverDirectory_pcbNeeded, 0);
 
@@ -5728,8 +5728,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeede
 /* IDL: [out] [ref] uint32 *pcbNeeded */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinterDriverDirectory_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinterDriverDirectory_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5748,8 +5748,8 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDriverDirectory_response(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinterDriverDirectory_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinterDriverDirectory_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinterDriverDirectory";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pName(tvb, offset, pinfo, tree, di, drep);
@@ -5765,16 +5765,16 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDriverDirectory_request(tvbuff_t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDriver_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5784,16 +5784,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName_(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment_, NDR_POINTER_REF, "Pointer to PEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDriver_pEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5803,16 +5803,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pEnvironment_(
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName_, NDR_POINTER_REF, "Pointer to PDriverName (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDriver_pDriverName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5828,8 +5828,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName_(t
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pDriverName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterDriver_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterDriver_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5842,8 +5842,8 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDriver_response(tvbuff_t *tvb
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterDriver_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterDriver_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterDriver";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pName(tvb, offset, pinfo, tree, di, drep);
@@ -5855,16 +5855,16 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDriver_request(tvbuff_t *tvb 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5874,16 +5874,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName_(tvbuf
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment_, NDR_POINTER_REF, "Pointer to PEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_pEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5893,16 +5893,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pEnvironment
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName_, NDR_POINTER_REF, "Pointer to PDriverName (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_pDriverName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5912,16 +5912,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pDriverName_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_dwDeleteFlag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_dwDeleteFlag(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_dwDeleteFlag, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_dwVersionNum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_dwVersionNum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncDeletePrinterDriverEx_dwVersionNum, 0);
 
@@ -5936,8 +5936,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_dwVersionNum
 /* IDL: [in] uint32 dwVersionNum */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverEx_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -5950,8 +5950,8 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverEx_response(tvbuff_t *t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverEx_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterDriverEx";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_pName(tvb, offset, pinfo, tree, di, drep);
@@ -5967,16 +5967,16 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverEx_request(tvbuff_t *tv
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -5986,16 +5986,16 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName_(tvbuff_t 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment_, NDR_POINTER_REF, "Pointer to PEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6005,16 +6005,16 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pEnvironment_(tv
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName_, NDR_POINTER_REF, "Pointer to PPathName (uint16)",hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pPathName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6024,16 +6024,16 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPathName_(tvbuf
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorName_, NDR_POINTER_REF, "Pointer to PPrintProcessorName (uint16)",hf_iremotewinspool_winspool_AsyncAddPrintProcessor_pPrintProcessorName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6050,8 +6050,8 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorN
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pPrintProcessorName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddPrintProcessor_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddPrintProcessor_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6064,8 +6064,8 @@ iremotewinspool_dissect_winspool_AsyncAddPrintProcessor_response(tvbuff_t *tvb _
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddPrintProcessor_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddPrintProcessor_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncAddPrintProcessor";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pName(tvb, offset, pinfo, tree, di, drep);
@@ -6079,16 +6079,16 @@ iremotewinspool_dissect_winspool_AsyncAddPrintProcessor_request(tvbuff_t *tvb _U
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6098,16 +6098,16 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName_(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment_, NDR_POINTER_UNIQUE, "Pointer to PEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6117,72 +6117,72 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pEnvironment_(
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo_, NDR_POINTER_UNIQUE, "Pointer to PPrintProcessorInfo (uint8)",hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pcbNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned_, NDR_POINTER_REF, "Pointer to PcReturned (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pcReturned);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrintProcessors_pcReturned, 0);
 
@@ -6199,8 +6199,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned_(tv
 /* IDL: [out] [ref] uint32 *pcReturned */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrintProcessors_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrintProcessors_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6222,8 +6222,8 @@ iremotewinspool_dissect_winspool_AsyncEnumPrintProcessors_response(tvbuff_t *tvb
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrintProcessors_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrintProcessors_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrintProcessors";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pName(tvb, offset, pinfo, tree, di, drep);
@@ -6239,16 +6239,16 @@ iremotewinspool_dissect_winspool_AsyncEnumPrintProcessors_request(tvbuff_t *tvb 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6258,16 +6258,16 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName_(
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnvironment_, NDR_POINTER_UNIQUE, "Pointer to PEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_pEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6277,56 +6277,56 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pEnviro
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory_, NDR_POINTER_UNIQUE, "Pointer to PPrintProcessorDirectory (uint8)",hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrintProcessorDirectory_pcbNeeded, 0);
 
@@ -6342,8 +6342,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeed
 /* IDL: [out] [ref] uint32 *pcbNeeded */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrintProcessorDirectory_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrintProcessorDirectory_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6362,8 +6362,8 @@ iremotewinspool_dissect_winspool_AsyncGetPrintProcessorDirectory_response(tvbuff
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrintProcessorDirectory_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrintProcessorDirectory_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetPrintProcessorDirectory";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pName(tvb, offset, pinfo, tree, di, drep);
@@ -6379,16 +6379,16 @@ iremotewinspool_dissect_winspool_AsyncGetPrintProcessorDirectory_request(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncEnumPorts_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6398,72 +6398,72 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName_(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPorts_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort_, NDR_POINTER_UNIQUE, "Pointer to PPort (uint8)",hf_iremotewinspool_winspool_AsyncEnumPorts_pPort);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPorts_pPort, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPorts_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncEnumPorts_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPorts_pcbNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned_, NDR_POINTER_REF, "Pointer to PcReturned (uint32)",hf_iremotewinspool_winspool_AsyncEnumPorts_pcReturned);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPorts_pcReturned, 0);
 
@@ -6479,8 +6479,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned_(tvbuff_t *tv
 /* IDL: [out] [ref] uint32 *pcReturned */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPorts_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPorts_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6502,8 +6502,8 @@ iremotewinspool_dissect_winspool_AsyncEnumPorts_response(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPorts_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPorts_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumPorts";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pName(tvb, offset, pinfo, tree, di, drep);
@@ -6517,16 +6517,16 @@ iremotewinspool_dissect_winspool_AsyncEnumPorts_request(tvbuff_t *tvb _U_, int o
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncEnumMonitors_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6536,72 +6536,72 @@ iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName_(tvbuff_t *tvb 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumMonitors_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor_, NDR_POINTER_UNIQUE, "Pointer to PMonitor (uint8)",hf_iremotewinspool_winspool_AsyncEnumMonitors_pMonitor);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumMonitors_pMonitor, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumMonitors_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncEnumMonitors_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumMonitors_pcbNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned_, NDR_POINTER_REF, "Pointer to PcReturned (uint32)",hf_iremotewinspool_winspool_AsyncEnumMonitors_pcReturned);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumMonitors_pcReturned, 0);
 
@@ -6617,8 +6617,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned_(tvbuff_t 
 /* IDL: [out] [ref] uint32 *pcReturned */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumMonitors_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumMonitors_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6640,8 +6640,8 @@ iremotewinspool_dissect_winspool_AsyncEnumMonitors_response(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumMonitors_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumMonitors_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumMonitors";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pName(tvb, offset, pinfo, tree, di, drep);
@@ -6655,16 +6655,16 @@ iremotewinspool_dissect_winspool_AsyncEnumMonitors_request(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPort_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPort_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPort_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncAddPort_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPort_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPort_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6674,48 +6674,48 @@ iremotewinspool_dissect_element_winspool_AsyncAddPort_pName_(tvbuff_t *tvb _U_, 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortContainer_, NDR_POINTER_REF, "Pointer to PPortContainer (spoolss_SetPortInfoContainer)",hf_iremotewinspool_winspool_AsyncAddPort_pPortContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortVarContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortVarContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortVarContainer_, NDR_POINTER_REF, "Pointer to PPortVarContainer (spoolss_PortVarContainer)",hf_iremotewinspool_winspool_AsyncAddPort_pPortVarContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortVarContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPort_pPortVarContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName_, NDR_POINTER_REF, "Pointer to PMonitorName (uint16)",hf_iremotewinspool_winspool_AsyncAddPort_pMonitorName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6732,8 +6732,8 @@ iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName_(tvbuff_t *tv
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pMonitorName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddPort_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddPort_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6746,8 +6746,8 @@ iremotewinspool_dissect_winspool_AsyncAddPort_response(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddPort_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddPort_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncAddPort";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAddPort_pName(tvb, offset, pinfo, tree, di, drep);
@@ -6761,16 +6761,16 @@ iremotewinspool_dissect_winspool_AsyncAddPort_request(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPort_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPort_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPort_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncSetPort_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPort_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPort_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6780,16 +6780,16 @@ iremotewinspool_dissect_element_winspool_AsyncSetPort_pName_(tvbuff_t *tvb _U_, 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName_, NDR_POINTER_UNIQUE, "Pointer to PPortName (uint16)",hf_iremotewinspool_winspool_AsyncSetPort_pPortName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6799,16 +6799,16 @@ iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortName_(tvbuff_t *tvb _
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer_, NDR_POINTER_REF, "Pointer to PPortContainer (spoolss_SetPortInfoContainer)",hf_iremotewinspool_winspool_AsyncSetPort_pPortContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
@@ -6821,8 +6821,8 @@ iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer_(tvbuff_t *
 /* IDL: [in] [ref] spoolss_SetPortInfoContainer *pPortContainer */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetPort_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetPort_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6835,8 +6835,8 @@ iremotewinspool_dissect_winspool_AsyncSetPort_response(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetPort_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetPort_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncSetPort";
 	offset = iremotewinspool_dissect_element_winspool_AsyncSetPort_pName(tvb, offset, pinfo, tree, di, drep);
@@ -6848,16 +6848,16 @@ iremotewinspool_dissect_winspool_AsyncSetPort_request(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name_, NDR_POINTER_UNIQUE, "Pointer to Name (uint16)",hf_iremotewinspool_winspool_AsyncAddMonitor_Name);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6867,16 +6867,16 @@ iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name_(tvbuff_t *tvb _U_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer_, NDR_POINTER_REF, "Pointer to PMonitorContainer (spoolss_MonitorContainer)",hf_iremotewinspool_winspool_AsyncAddMonitor_pMonitorContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
@@ -6888,8 +6888,8 @@ iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer_(tvbu
 /* IDL: [in] [ref] spoolss_MonitorContainer *pMonitorContainer */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddMonitor_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddMonitor_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6902,8 +6902,8 @@ iremotewinspool_dissect_winspool_AsyncAddMonitor_response(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddMonitor_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddMonitor_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncAddMonitor";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAddMonitor_Name(tvb, offset, pinfo, tree, di, drep);
@@ -6913,16 +6913,16 @@ iremotewinspool_dissect_winspool_AsyncAddMonitor_request(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name_, NDR_POINTER_UNIQUE, "Pointer to Name (uint16)",hf_iremotewinspool_winspool_AsyncDeleteMonitor_Name);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6932,16 +6932,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name_(tvbuff_t *tvb 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment_, NDR_POINTER_UNIQUE, "Pointer to PEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncDeleteMonitor_pEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6951,16 +6951,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pEnvironment_(tvbuff
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName_, NDR_POINTER_REF, "Pointer to PMonitorName (uint16)",hf_iremotewinspool_winspool_AsyncDeleteMonitor_pMonitorName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -6976,8 +6976,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName_(tvbuff
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pMonitorName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeleteMonitor_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeleteMonitor_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -6990,8 +6990,8 @@ iremotewinspool_dissect_winspool_AsyncDeleteMonitor_response(tvbuff_t *tvb _U_, 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeleteMonitor_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeleteMonitor_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeleteMonitor";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_Name(tvb, offset, pinfo, tree, di, drep);
@@ -7003,16 +7003,16 @@ iremotewinspool_dissect_winspool_AsyncDeleteMonitor_request(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name_, NDR_POINTER_UNIQUE, "Pointer to Name (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrintProcessor_Name);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7022,16 +7022,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name_(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment_, NDR_POINTER_UNIQUE, "Pointer to PEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrintProcessor_pEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7041,16 +7041,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pEnvironment_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcessorName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcessorName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcessorName_, NDR_POINTER_REF, "Pointer to PPrintProcessorName (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrintProcessor_pPrintProcessorName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcessorName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcessorName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7066,8 +7066,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcess
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pPrintProcessorName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrintProcessor_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrintProcessor_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7080,8 +7080,8 @@ iremotewinspool_dissect_winspool_AsyncDeletePrintProcessor_response(tvbuff_t *tv
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrintProcessor_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrintProcessor_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrintProcessor";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_Name(tvb, offset, pinfo, tree, di, drep);
@@ -7093,16 +7093,16 @@ iremotewinspool_dissect_winspool_AsyncDeletePrintProcessor_request(tvbuff_t *tvb
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName_, NDR_POINTER_UNIQUE, "Pointer to PName (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7112,16 +7112,16 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName_, NDR_POINTER_UNIQUE, "Pointer to PPrintProcessorName (uint16)",hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrintProcessorName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7131,72 +7131,72 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pPrint
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_Level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_Level(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_Level, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes_, NDR_POINTER_UNIQUE, "Pointer to PDatatypes (uint8)",hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pcbNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned_, NDR_POINTER_REF, "Pointer to PcReturned (uint32)",hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPrintProcessorDatatypes_pcReturned, 0);
 
@@ -7213,8 +7213,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcRetu
 /* IDL: [out] [ref] uint32 *pcReturned */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrintProcessorDatatypes_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrintProcessorDatatypes_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7236,8 +7236,8 @@ iremotewinspool_dissect_winspool_AsyncEnumPrintProcessorDatatypes_response(tvbuf
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPrintProcessorDatatypes_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPrintProcessorDatatypes_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrintProcessorDatatypes";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pName(tvb, offset, pinfo, tree, di, drep);
@@ -7253,16 +7253,16 @@ iremotewinspool_dissect_winspool_AsyncEnumPrintProcessorDatatypes_request(tvbuff
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer_, NDR_POINTER_UNIQUE, "Pointer to PServer (uint16)",hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pServer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7272,16 +7272,16 @@ iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer_(t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterName_, NDR_POINTER_REF, "Pointer to PPrinterName (uint16)",hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pPrinterName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7291,16 +7291,16 @@ iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrinterNa
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServer_, NDR_POINTER_REF, "Pointer to PPrintServer (uint16)",hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pPrintServer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7310,16 +7310,16 @@ iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pPrintServ
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider_, NDR_POINTER_REF, "Pointer to PProvider (uint16)",hf_iremotewinspool_winspool_AsyncAddPerMachineConnection_pProvider);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7336,8 +7336,8 @@ iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider_
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pProvider */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddPerMachineConnection_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddPerMachineConnection_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7350,8 +7350,8 @@ iremotewinspool_dissect_winspool_AsyncAddPerMachineConnection_response(tvbuff_t 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncAddPerMachineConnection_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncAddPerMachineConnection_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncAddPerMachineConnection";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pServer(tvb, offset, pinfo, tree, di, drep);
@@ -7365,16 +7365,16 @@ iremotewinspool_dissect_winspool_AsyncAddPerMachineConnection_request(tvbuff_t *
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer_, NDR_POINTER_UNIQUE, "Pointer to PServer (uint16)",hf_iremotewinspool_winspool_AsyncDeletePerMachineConnection_pServer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7384,16 +7384,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinterName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinterName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinterName_, NDR_POINTER_REF, "Pointer to PPrinterName (uint16)",hf_iremotewinspool_winspool_AsyncDeletePerMachineConnection_pPrinterName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinterName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinterName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7408,8 +7408,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinte
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pPrinterName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePerMachineConnection_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePerMachineConnection_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7422,8 +7422,8 @@ iremotewinspool_dissect_winspool_AsyncDeletePerMachineConnection_response(tvbuff
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePerMachineConnection_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePerMachineConnection_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeletePerMachineConnection";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pServer(tvb, offset, pinfo, tree, di, drep);
@@ -7433,16 +7433,16 @@ iremotewinspool_dissect_winspool_AsyncDeletePerMachineConnection_request(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer_, NDR_POINTER_UNIQUE, "Pointer to PServer (uint16)",hf_iremotewinspool_winspool_AsyncEnumPerMachineConnections_pServer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7452,64 +7452,64 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum_, NDR_POINTER_UNIQUE, "Pointer to PPrinterEnum (uint8)",hf_iremotewinspool_winspool_AsyncEnumPerMachineConnections_pPrinterEnum);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPerMachineConnections_pPrinterEnum, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPerMachineConnections_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcbNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcbNeeded(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcbNeeded_, NDR_POINTER_REF, "Pointer to PcbNeeded (uint32)",hf_iremotewinspool_winspool_AsyncEnumPerMachineConnections_pcbNeeded);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcbNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcbNeeded_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPerMachineConnections_pcbNeeded, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturned(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturned_, NDR_POINTER_REF, "Pointer to PcReturned (uint32)",hf_iremotewinspool_winspool_AsyncEnumPerMachineConnections_pcReturned);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturned_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumPerMachineConnections_pcReturned, 0);
 
@@ -7524,8 +7524,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturn
 /* IDL: [out] [ref] uint32 *pcReturned */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPerMachineConnections_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPerMachineConnections_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7547,8 +7547,8 @@ iremotewinspool_dissect_winspool_AsyncEnumPerMachineConnections_response(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumPerMachineConnections_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumPerMachineConnections_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumPerMachineConnections";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pServer(tvb, offset, pinfo, tree, di, drep);
@@ -7560,40 +7560,40 @@ iremotewinspool_dissect_winspool_AsyncEnumPerMachineConnections_request(tvbuff_t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_SyncRegisterForRemoteNotifications_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter_, NDR_POINTER_REF, "Pointer to PNotifyFilter (winspool_PrintPropertiesCollection)",hf_iremotewinspool_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_struct_winspool_PrintPropertiesCollection(tvb,offset,pinfo,tree,di,drep,hf_iremotewinspool_winspool_SyncRegisterForRemoteNotifications_pNotifyFilter,0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRpcHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRpcHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRpcHandle_, NDR_POINTER_REF, "Pointer to PhRpcHandle (policy_handle)",hf_iremotewinspool_winspool_SyncRegisterForRemoteNotifications_phRpcHandle);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRpcHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRpcHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_SyncRegisterForRemoteNotifications_phRpcHandle, 0);
 
@@ -7606,8 +7606,8 @@ iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRp
 /* IDL: [out] [ref] policy_handle *phRpcHandle */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_SyncRegisterForRemoteNotifications_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_SyncRegisterForRemoteNotifications_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7623,8 +7623,8 @@ iremotewinspool_dissect_winspool_SyncRegisterForRemoteNotifications_response(tvb
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_SyncRegisterForRemoteNotifications_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_SyncRegisterForRemoteNotifications_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_SyncRegisterForRemoteNotifications";
 	offset = iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -7634,16 +7634,16 @@ iremotewinspool_dissect_winspool_SyncRegisterForRemoteNotifications_request(tvbu
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle_, NDR_POINTER_REF, "Pointer to PhRpcHandle (policy_handle)",hf_iremotewinspool_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle, 0);
 
@@ -7654,8 +7654,8 @@ iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_ph
 /* IDL: [in] [out] [ref] policy_handle *phRpcHandle */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_SyncUnRegisterForRemoteNotifications_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_SyncUnRegisterForRemoteNotifications_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7671,8 +7671,8 @@ iremotewinspool_dissect_winspool_SyncUnRegisterForRemoteNotifications_response(t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_SyncUnRegisterForRemoteNotifications_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_SyncUnRegisterForRemoteNotifications_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_SyncUnRegisterForRemoteNotifications";
 	offset = iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle(tvb, offset, pinfo, tree, di, drep);
@@ -7680,48 +7680,48 @@ iremotewinspool_dissect_winspool_SyncUnRegisterForRemoteNotifications_request(tv
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_hRpcHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_hRpcHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_SyncRefreshRemoteNotifications_hRpcHandle, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_pNotifyFilter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_pNotifyFilter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_pNotifyFilter_, NDR_POINTER_REF, "Pointer to PNotifyFilter (winspool_PrintPropertiesCollection)",hf_iremotewinspool_winspool_SyncRefreshRemoteNotifications_pNotifyFilter);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_pNotifyFilter_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_pNotifyFilter_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_struct_winspool_PrintPropertiesCollection(tvb,offset,pinfo,tree,di,drep,hf_iremotewinspool_winspool_SyncRefreshRemoteNotifications_pNotifyFilter,0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData_, NDR_POINTER_REF, "Pointer to PpNotifyData (winspool_PrintPropertiesCollection)",hf_iremotewinspool_winspool_SyncRefreshRemoteNotifications_ppNotifyData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData__, NDR_POINTER_UNIQUE, "Pointer to PpNotifyData (winspool_PrintPropertiesCollection)",hf_iremotewinspool_winspool_SyncRefreshRemoteNotifications_ppNotifyData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_struct_winspool_PrintPropertiesCollection(tvb,offset,pinfo,tree,di,drep,hf_iremotewinspool_winspool_SyncRefreshRemoteNotifications_ppNotifyData,0);
 
@@ -7734,8 +7734,8 @@ iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotify
 /* IDL: [out] [ref] winspool_PrintPropertiesCollection **ppNotifyData */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_SyncRefreshRemoteNotifications_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_SyncRefreshRemoteNotifications_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7751,8 +7751,8 @@ iremotewinspool_dissect_winspool_SyncRefreshRemoteNotifications_response(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_SyncRefreshRemoteNotifications_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_SyncRefreshRemoteNotifications_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_SyncRefreshRemoteNotifications";
 	offset = iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_hRpcHandle(tvb, offset, pinfo, tree, di, drep);
@@ -7762,32 +7762,32 @@ iremotewinspool_dissect_winspool_SyncRefreshRemoteNotifications_request(tvbuff_t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_hRpcHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_hRpcHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetRemoteNotifications_hRpcHandle, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData_, NDR_POINTER_REF, "Pointer to PpNotifyData (winspool_PrintPropertiesCollection)",hf_iremotewinspool_winspool_AsyncGetRemoteNotifications_ppNotifyData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData__, NDR_POINTER_UNIQUE, "Pointer to PpNotifyData (winspool_PrintPropertiesCollection)",hf_iremotewinspool_winspool_AsyncGetRemoteNotifications_ppNotifyData);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_struct_winspool_PrintPropertiesCollection(tvb,offset,pinfo,tree,di,drep,hf_iremotewinspool_winspool_AsyncGetRemoteNotifications_ppNotifyData,0);
 
@@ -7799,8 +7799,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyDat
 /* IDL: [out] [ref] winspool_PrintPropertiesCollection **ppNotifyData */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetRemoteNotifications_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetRemoteNotifications_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7816,8 +7816,8 @@ iremotewinspool_dissect_winspool_AsyncGetRemoteNotifications_response(tvbuff_t *
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetRemoteNotifications_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetRemoteNotifications_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetRemoteNotifications";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_hRpcHandle(tvb, offset, pinfo, tree, di, drep);
@@ -7825,16 +7825,16 @@ iremotewinspool_dissect_winspool_AsyncGetRemoteNotifications_request(tvbuff_t *t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszServer_, NDR_POINTER_UNIQUE, "Pointer to PszServer (uint16)",hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszServer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7844,16 +7844,16 @@ iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_ps
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath_, NDR_POINTER_UNIQUE, "Pointer to PszInfPath (uint16)",hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszInfPath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7863,16 +7863,16 @@ iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_ps
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName_, NDR_POINTER_REF, "Pointer to PszDriverName (uint16)",hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszDriverName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7882,16 +7882,16 @@ iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_ps
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment_, NDR_POINTER_REF, "Pointer to PszEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7901,8 +7901,8 @@ iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_ps
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_dwFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_dwFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_bitmap_winspool_InstallPrinterDriverFromPackageFlags(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncInstallPrinterDriverFromPackage_dwFlags, 0);
 
@@ -7917,8 +7917,8 @@ iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_dw
 /* IDL: [in] winspool_InstallPrinterDriverFromPackageFlags dwFlags */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncInstallPrinterDriverFromPackage_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncInstallPrinterDriverFromPackage_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -7931,8 +7931,8 @@ iremotewinspool_dissect_winspool_AsyncInstallPrinterDriverFromPackage_response(t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncInstallPrinterDriverFromPackage_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncInstallPrinterDriverFromPackage_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncInstallPrinterDriverFromPackage";
 	offset = iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_pszServer(tvb, offset, pinfo, tree, di, drep);
@@ -7948,16 +7948,16 @@ iremotewinspool_dissect_winspool_AsyncInstallPrinterDriverFromPackage_request(tv
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServer_, NDR_POINTER_UNIQUE, "Pointer to PszServer (uint16)",hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszServer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7967,16 +7967,16 @@ iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServ
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfPath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfPath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfPath_, NDR_POINTER_REF, "Pointer to PszInfPath (uint16)",hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszInfPath);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfPath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfPath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -7986,16 +7986,16 @@ iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszInfP
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment_, NDR_POINTER_REF, "Pointer to PszEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8005,48 +8005,48 @@ iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszEnvi
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_dwFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_dwFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = iremotewinspool_dissect_bitmap_winspool_UploadPrinterDriverPackageFlags(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_dwFlags, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath_, NDR_POINTER_UNIQUE, "Pointer to PszDestInfPath (uint16)",hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath_, NDR_POINTER_REF, "Pointer to PcchDestInfPath (uint32)",hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncUploadPrinterDriverPackage_pcchDestInfPath, 0);
 
@@ -8062,8 +8062,8 @@ iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDes
 /* IDL: [in] [out] [ref] uint32 *pcchDestInfPath */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncUploadPrinterDriverPackage_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncUploadPrinterDriverPackage_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8082,8 +8082,8 @@ iremotewinspool_dissect_winspool_AsyncUploadPrinterDriverPackage_response(tvbuff
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncUploadPrinterDriverPackage_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncUploadPrinterDriverPackage_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncUploadPrinterDriverPackage";
 	offset = iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszServer(tvb, offset, pinfo, tree, di, drep);
@@ -8101,16 +8101,16 @@ iremotewinspool_dissect_winspool_AsyncUploadPrinterDriverPackage_request(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer_, NDR_POINTER_UNIQUE, "Pointer to PszServer (uint16)",hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_pszServer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8120,16 +8120,16 @@ iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer_(t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironment_, NDR_POINTER_REF, "Pointer to PszEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_pszEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8139,64 +8139,64 @@ iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszEnvironme
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_cchCoreDrivers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_cchCoreDrivers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_cchCoreDrivers, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies_, NDR_POINTER_REF, "Pointer to PszzCoreDriverDependencies (uint16)",hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_pszzCoreDriverDependencies, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_cCorePrinterDrivers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_cCorePrinterDrivers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_cCorePrinterDrivers, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers_, NDR_POINTER_REF, "Pointer to PCorePrinterDrivers (spoolss_CorePrinterDriver)",hf_iremotewinspool_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
@@ -8212,8 +8212,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinter
 /* IDL: [out] [ref] [size_is(cCorePrinterDrivers)] spoolss_CorePrinterDriver *pCorePrinterDrivers */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetCorePrinterDrivers_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetCorePrinterDrivers_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8229,8 +8229,8 @@ iremotewinspool_dissect_winspool_AsyncGetCorePrinterDrivers_response(tvbuff_t *t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetCorePrinterDrivers_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetCorePrinterDrivers_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetCorePrinterDrivers";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pszServer(tvb, offset, pinfo, tree, di, drep);
@@ -8246,16 +8246,16 @@ iremotewinspool_dissect_winspool_AsyncGetCorePrinterDrivers_request(tvbuff_t *tv
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServer_, NDR_POINTER_UNIQUE, "Pointer to PszServer (uint16)",hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_pszServer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8265,16 +8265,16 @@ iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServ
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment_, NDR_POINTER_REF, "Pointer to PszEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8284,40 +8284,40 @@ iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszEnvi
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_CoreDriverGUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_CoreDriverGUID(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_CoreDriverGUID, NULL);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_ftDriverDate(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_ftDriverDate(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_ftDriverDate);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_dwlDriverVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_dwlDriverVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_dwlDriverVersion, NULL);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled_, NDR_POINTER_REF, "Pointer to PbDriverInstalled (int32)",hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled, 0);
 
@@ -8333,8 +8333,8 @@ iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDrive
 /* IDL: [out] [ref] int32 *pbDriverInstalled */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncCorePrinterDriverInstalled_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncCorePrinterDriverInstalled_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8350,8 +8350,8 @@ iremotewinspool_dissect_winspool_AsyncCorePrinterDriverInstalled_response(tvbuff
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncCorePrinterDriverInstalled_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncCorePrinterDriverInstalled_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncCorePrinterDriverInstalled";
 	offset = iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pszServer(tvb, offset, pinfo, tree, di, drep);
@@ -8367,16 +8367,16 @@ iremotewinspool_dissect_winspool_AsyncCorePrinterDriverInstalled_request(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszServer_, NDR_POINTER_UNIQUE, "Pointer to PszServer (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszServer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8386,16 +8386,16 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszSer
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment_, NDR_POINTER_REF, "Pointer to PszEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8405,16 +8405,16 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszEnv
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage_, NDR_POINTER_UNIQUE, "Pointer to PszLanguage (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLanguage_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8424,16 +8424,16 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszLan
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID_, NDR_POINTER_REF, "Pointer to PszPackageID (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPackageID_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8443,48 +8443,48 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszPac
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab_, NDR_POINTER_UNIQUE, "Pointer to PszDriverPackageCab (uint16)",hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_cchDriverPackageCab(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_cchDriverPackageCab(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_cchDriverPackageCab, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize_, NDR_POINTER_REF, "Pointer to PcchRequiredSize (uint32)",hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetPrinterDriverPackagePath_pcchRequiredSize, 0);
 
@@ -8501,8 +8501,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRe
 /* IDL: [out] [ref] uint32 *pcchRequiredSize */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinterDriverPackagePath_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinterDriverPackagePath_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8521,8 +8521,8 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDriverPackagePath_response(tvbuf
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetPrinterDriverPackagePath_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetPrinterDriverPackagePath_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinterDriverPackagePath";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszServer(tvb, offset, pinfo, tree, di, drep);
@@ -8540,16 +8540,16 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDriverPackagePath_request(tvbuff
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServer_, NDR_POINTER_UNIQUE, "Pointer to PszServer (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDriverPackage_pszServer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8559,16 +8559,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServ
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfPath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfPath(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfPath_, NDR_POINTER_REF, "Pointer to PszInfPath (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDriverPackage_pszInfPath);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfPath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfPath_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8578,16 +8578,16 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszInfP
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment_, NDR_POINTER_REF, "Pointer to PszEnvironment (uint16)",hf_iremotewinspool_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvironment_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8603,8 +8603,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvi
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pszEnvironment */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverPackage_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverPackage_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8617,8 +8617,8 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverPackage_response(tvbuff
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverPackage_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverPackage_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterDriverPackage";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszServer(tvb, offset, pinfo, tree, di, drep);
@@ -8630,56 +8630,56 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverPackage_request(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncReadPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncReadPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncReadPrinter_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf_, NDR_POINTER_REF, "Pointer to PBuf (uint8)",hf_iremotewinspool_winspool_AsyncReadPrinter_pBuf);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf__);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncReadPrinter_pBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncReadPrinter_cbBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncReadPrinter_cbBuf(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncReadPrinter_cbBuf, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead_, NDR_POINTER_REF, "Pointer to PcNoBytesRead (uint32)",hf_iremotewinspool_winspool_AsyncReadPrinter_pcNoBytesRead);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncReadPrinter_pcNoBytesRead, 0);
 
@@ -8693,8 +8693,8 @@ iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead_(tvbuff_
 /* IDL: [out] [ref] uint32 *pcNoBytesRead */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncReadPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncReadPrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8713,8 +8713,8 @@ iremotewinspool_dissect_winspool_AsyncReadPrinter_response(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncReadPrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncReadPrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncReadPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncReadPrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -8724,24 +8724,24 @@ iremotewinspool_dissect_winspool_AsyncReadPrinter_request(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncResetPrinter_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncResetPrinter_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncResetPrinter_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype_, NDR_POINTER_UNIQUE, "Pointer to PDatatype (uint16)",hf_iremotewinspool_winspool_AsyncResetPrinter_pDatatype);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8751,16 +8751,16 @@ iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDatatype_(tvbuff_t *
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer_, NDR_POINTER_REF, "Pointer to PDevModeContainer (spoolss_DevmodeContainer)",hf_iremotewinspool_winspool_AsyncResetPrinter_pDevModeContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, di, drep);
 
@@ -8773,8 +8773,8 @@ iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer_(tv
 /* IDL: [in] [ref] spoolss_DevmodeContainer *pDevModeContainer */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncResetPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncResetPrinter_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8787,8 +8787,8 @@ iremotewinspool_dissect_winspool_AsyncResetPrinter_response(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncResetPrinter_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncResetPrinter_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncResetPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncResetPrinter_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -8800,32 +8800,32 @@ iremotewinspool_dissect_winspool_AsyncResetPrinter_request(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetJobNamedPropertyValue_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncGetJobNamedPropertyValue_JobId, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName_, NDR_POINTER_REF, "Pointer to PszName (uint16)",hf_iremotewinspool_winspool_AsyncGetJobNamedPropertyValue_pszName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8835,16 +8835,16 @@ iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pszName_(
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue_, NDR_POINTER_REF, "Pointer to PValue (spoolss_PrintPropertyValue)",hf_iremotewinspool_winspool_AsyncGetJobNamedPropertyValue_pValue);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
@@ -8858,8 +8858,8 @@ iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue_(t
 /* IDL: [out] [ref] spoolss_PrintPropertyValue *pValue */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetJobNamedPropertyValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetJobNamedPropertyValue_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8875,8 +8875,8 @@ iremotewinspool_dissect_winspool_AsyncGetJobNamedPropertyValue_response(tvbuff_t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncGetJobNamedPropertyValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncGetJobNamedPropertyValue_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncGetJobNamedPropertyValue";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -8888,32 +8888,32 @@ iremotewinspool_dissect_winspool_AsyncGetJobNamedPropertyValue_request(tvbuff_t 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetJobNamedProperty_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncSetJobNamedProperty_JobId, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty_, NDR_POINTER_REF, "Pointer to PProperty (spoolss_PrintNamedProperty)",hf_iremotewinspool_winspool_AsyncSetJobNamedProperty_pProperty);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
@@ -8926,8 +8926,8 @@ iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty_(tvb
 /* IDL: [in] [ref] spoolss_PrintNamedProperty *pProperty */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetJobNamedProperty_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetJobNamedProperty_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -8940,8 +8940,8 @@ iremotewinspool_dissect_winspool_AsyncSetJobNamedProperty_response(tvbuff_t *tvb
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncSetJobNamedProperty_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncSetJobNamedProperty_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncSetJobNamedProperty";
 	offset = iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -8953,32 +8953,32 @@ iremotewinspool_dissect_winspool_AsyncSetJobNamedProperty_request(tvbuff_t *tvb 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncDeleteJobNamedProperty_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncDeleteJobNamedProperty_JobId, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName_, NDR_POINTER_REF, "Pointer to PszName (uint16)",hf_iremotewinspool_winspool_AsyncDeleteJobNamedProperty_pszName);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -8994,8 +8994,8 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName_(tv
 /* IDL: [charset(UTF16)] [in] [ref] uint16 *pszName */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeleteJobNamedProperty_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeleteJobNamedProperty_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -9008,8 +9008,8 @@ iremotewinspool_dissect_winspool_AsyncDeleteJobNamedProperty_response(tvbuff_t *
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncDeleteJobNamedProperty_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncDeleteJobNamedProperty_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncDeleteJobNamedProperty";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -9021,64 +9021,64 @@ iremotewinspool_dissect_winspool_AsyncDeleteJobNamedProperty_request(tvbuff_t *t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobNamedProperties_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_JobId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_JobId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobNamedProperties_JobId, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_pcProperties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_pcProperties(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_pcProperties_, NDR_POINTER_REF, "Pointer to PcProperties (uint32)",hf_iremotewinspool_winspool_AsyncEnumJobNamedProperties_pcProperties);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_pcProperties_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_pcProperties_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncEnumJobNamedProperties_pcProperties, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties_, NDR_POINTER_REF, "Pointer to PpProperties (spoolss_PrintNamedProperty)",hf_iremotewinspool_winspool_AsyncEnumJobNamedProperties_ppProperties);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties__, NDR_POINTER_UNIQUE, "Pointer to PpProperties (spoolss_PrintNamedProperty)",hf_iremotewinspool_winspool_AsyncEnumJobNamedProperties_ppProperties);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties___);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppProperties___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
@@ -9092,8 +9092,8 @@ iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppPropertie
 /* IDL: [out] [ref] [size_is(,*pcProperties)] spoolss_PrintNamedProperty **ppProperties */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumJobNamedProperties_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumJobNamedProperties_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -9112,8 +9112,8 @@ iremotewinspool_dissect_winspool_AsyncEnumJobNamedProperties_response(tvbuff_t *
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncEnumJobNamedProperties_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncEnumJobNamedProperties_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncEnumJobNamedProperties";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_hPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -9123,24 +9123,24 @@ iremotewinspool_dissect_winspool_AsyncEnumJobNamedProperties_request(tvbuff_t *t
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_hPrinter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_hPrinter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_winspool_AsyncLogJobInfoForBranchOffice_hPrinter, 0);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer_, NDR_POINTER_REF, "Pointer to PBranchOfficeJobDataContainer (spoolss_BranchOfficeJobDataContainer)",hf_iremotewinspool_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer);
 
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);
 
@@ -9152,8 +9152,8 @@ iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchO
 /* IDL: [in] [ref] spoolss_BranchOfficeJobDataContainer *pBranchOfficeJobDataContainer */
 /* IDL: ); */
 
-static int
-iremotewinspool_dissect_winspool_AsyncLogJobInfoForBranchOffice_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncLogJobInfoForBranchOffice_response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	uint32_t status;
 
@@ -9166,8 +9166,8 @@ iremotewinspool_dissect_winspool_AsyncLogJobInfoForBranchOffice_response(tvbuff_
 	return offset;
 }
 
-static int
-iremotewinspool_dissect_winspool_AsyncLogJobInfoForBranchOffice_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+iremotewinspool_dissect_winspool_AsyncLogJobInfoForBranchOffice_request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="winspool_AsyncLogJobInfoForBranchOffice";
 	offset = iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_hPrinter(tvb, offset, pinfo, tree, di, drep);

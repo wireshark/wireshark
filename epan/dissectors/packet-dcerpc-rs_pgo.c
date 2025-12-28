@@ -112,8 +112,8 @@ static e_guid_t uuid_rs_pgo =
 static uint16_t ver_rs_pgo = 1;
 
 
-static int
-dissect_error_status_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_error_status_t (tvbuff_t * tvb, unsigned offset,
                         packet_info * pinfo, proto_tree * parent_tree,
                         dcerpc_info *di, uint8_t * drep)
 {
@@ -142,8 +142,8 @@ dissect_error_status_t (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-dissect_sec_rgy_pname_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_sec_rgy_pname_t (tvbuff_t * tvb, unsigned offset,
                          packet_info * pinfo, proto_tree * parent_tree,
                          dcerpc_info *di, uint8_t * drep)
 {
@@ -194,8 +194,8 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
   return offset;
 }
 
-static int
-dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, unsigned offset,
                              packet_info * pinfo, proto_tree * parent_tree,
                              dcerpc_info *di, uint8_t * drep)
 {
@@ -288,8 +288,8 @@ dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, int offset,
 
 
 
-static int
-dissect_rs_cache_data_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_rs_cache_data_t (tvbuff_t * tvb, unsigned offset,
                          packet_info * pinfo, proto_tree * parent_tree,
                          dcerpc_info *di, uint8_t * drep)
 {
@@ -349,8 +349,8 @@ dissect_rs_cache_data_t (tvbuff_t * tvb, int offset,
 
 
 
-static int
-dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_sec_rgy_name_t (tvbuff_t * tvb, unsigned offset,
                         packet_info * pinfo, proto_tree * parent_tree,
                         dcerpc_info *di, uint8_t * drep)
 {
@@ -400,8 +400,8 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-dissect_sec_rgy_domain_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_sec_rgy_domain_t (tvbuff_t * tvb, unsigned offset,
                           packet_info * pinfo, proto_tree * parent_tree,
                           dcerpc_info *di, uint8_t * drep)
 {
@@ -440,8 +440,8 @@ dissect_sec_rgy_domain_t (tvbuff_t * tvb, int offset,
   return offset;
 }
 
-static int
-dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, unsigned offset,
                             packet_info * pinfo, proto_tree * parent_tree,
                             dcerpc_info *di, uint8_t * drep)
 {
@@ -500,8 +500,8 @@ dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_sec_rgy_cursor_t (tvbuff_t * tvb, unsigned offset,
                           packet_info * pinfo, proto_tree * parent_tree,
                           dcerpc_info *di, uint8_t * drep)
 {
@@ -557,8 +557,8 @@ dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
   return offset;
 }
 
-static int
-dissect_rs_pgo_query_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_rs_pgo_query_t (tvbuff_t * tvb, unsigned offset,
                         packet_info * pinfo, proto_tree * parent_tree,
                         dcerpc_info *di, uint8_t * drep)
 {
@@ -621,8 +621,8 @@ dissect_rs_pgo_query_t (tvbuff_t * tvb, int offset,
   proto_item_set_len (item, offset - old_offset);
   return offset;
 }
-static int
-dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_rs_pgo_id_key_t (tvbuff_t * tvb, unsigned offset,
                          packet_info * pinfo, proto_tree * parent_tree,
                          dcerpc_info *di, uint8_t * drep)
 {
@@ -668,8 +668,8 @@ dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-dissect_rs_pgo_result_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_rs_pgo_result_t (tvbuff_t * tvb, unsigned offset,
                          packet_info * pinfo, proto_tree * parent_tree,
                          dcerpc_info *di, uint8_t * drep)
 {
@@ -708,8 +708,8 @@ dissect_rs_pgo_result_t (tvbuff_t * tvb, int offset,
 
 
 
-static int
-dissect_rs_pgo_unix_num_key_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_rs_pgo_unix_num_key_t (tvbuff_t * tvb, unsigned offset,
                                packet_info * pinfo, proto_tree * parent_tree,
                                dcerpc_info *di, uint8_t * drep)
 {
@@ -756,8 +756,8 @@ r
 }
 
 
-static int
-dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_rs_pgo_query_key_t (tvbuff_t * tvb, unsigned offset,
                             packet_info * pinfo, proto_tree * parent_tree,
                             dcerpc_info *di, uint8_t * drep)
 {
@@ -845,8 +845,8 @@ dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
+static unsigned
+dissect_rs_pgo_query_result_t (tvbuff_t * tvb, unsigned offset,
                                packet_info * pinfo, proto_tree * parent_tree,
                                dcerpc_info *di, uint8_t * drep)
 {
@@ -904,8 +904,8 @@ dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
 
 
 
-static int
-rs_pgo_dissect_add_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_add_rqst (tvbuff_t * tvb, unsigned offset,
                          packet_info * pinfo, proto_tree * tree,
                          dcerpc_info *di, uint8_t * drep)
 {
@@ -930,8 +930,8 @@ rs_pgo_dissect_add_rqst (tvbuff_t * tvb, int offset,
 
   return offset;
 }
-static int
-rs_pgo_dissect_add_resp (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_add_resp (tvbuff_t * tvb, unsigned offset,
                          packet_info * pinfo, proto_tree * tree,
                          dcerpc_info *di, uint8_t * drep)
 {
@@ -963,8 +963,8 @@ if (buff_remain > 8) {
   return offset;
 }
 
-static int
-rs_pgo_dissect_delete_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_delete_rqst (tvbuff_t * tvb, unsigned offset,
                             packet_info * pinfo, proto_tree * tree,
                             dcerpc_info *di, uint8_t * drep)
 {
@@ -983,8 +983,8 @@ rs_pgo_dissect_delete_rqst (tvbuff_t * tvb, int offset,
   return offset;
 }
 
-static int
-rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_delete_resp (tvbuff_t * tvb, unsigned offset,
                             packet_info * pinfo, proto_tree * tree,
                             dcerpc_info *di, uint8_t * drep)
 {
@@ -1018,8 +1018,8 @@ rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
   return offset;
 }
 
-static int
-rs_pgo_dissect_replace_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_replace_rqst (tvbuff_t * tvb, unsigned offset,
                              packet_info * pinfo, proto_tree * tree,
                              dcerpc_info *di, uint8_t * drep)
 {
@@ -1043,8 +1043,8 @@ rs_pgo_dissect_replace_rqst (tvbuff_t * tvb, int offset,
   return offset;
 }
 
-static int
-rs_pgo_dissect_replace_resp (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_replace_resp (tvbuff_t * tvb, unsigned offset,
                              packet_info * pinfo, proto_tree * tree,
                              dcerpc_info *di, uint8_t * drep)
 {
@@ -1072,8 +1072,8 @@ rs_pgo_dissect_replace_resp (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-rs_pgo_dissect_add_member_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_add_member_rqst (tvbuff_t * tvb, unsigned offset,
                                 packet_info * pinfo, proto_tree * tree,
                                 dcerpc_info *di, uint8_t * drep)
 {
@@ -1098,8 +1098,8 @@ rs_pgo_dissect_add_member_rqst (tvbuff_t * tvb, int offset,
   return offset;
 
 }
-static int
-rs_pgo_dissect_rename_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_rename_rqst (tvbuff_t * tvb, unsigned offset,
                             packet_info * pinfo, proto_tree * tree,
                             dcerpc_info *di, uint8_t * drep)
 {
@@ -1121,8 +1121,8 @@ rs_pgo_dissect_rename_rqst (tvbuff_t * tvb, int offset,
   return offset;
 }
 
-static int
-rs_pgo_dissect_rename_resp (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_rename_resp (tvbuff_t * tvb, unsigned offset,
                             packet_info * pinfo, proto_tree * tree,
                             dcerpc_info *di, uint8_t * drep)
 {
@@ -1148,8 +1148,8 @@ rs_pgo_dissect_rename_resp (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-rs_pgo_dissect_add_member_resp (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_add_member_resp (tvbuff_t * tvb, unsigned offset,
                                 packet_info * pinfo, proto_tree * tree,
                                 dcerpc_info *di, uint8_t * drep)
 {
@@ -1184,8 +1184,8 @@ if (buff_remain > 8) {
   return offset;
 }
 
-static int
-rs_pgo_dissect_delete_member_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_delete_member_rqst (tvbuff_t * tvb, unsigned offset,
                                    packet_info * pinfo, proto_tree * tree,
                                    dcerpc_info *di, uint8_t * drep)
 {
@@ -1211,8 +1211,8 @@ rs_pgo_dissect_delete_member_rqst (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-rs_pgo_dissect_get_members_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_get_members_rqst (tvbuff_t * tvb, unsigned offset,
                                  packet_info * pinfo, proto_tree * tree,
                                  dcerpc_info *di, uint8_t * drep)
 {
@@ -1247,8 +1247,8 @@ rs_pgo_dissect_get_members_rqst (tvbuff_t * tvb, int offset,
   return offset;
 }
 
-static int
-rs_pgo_dissect_key_transfer_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_key_transfer_rqst (tvbuff_t * tvb, unsigned offset,
                                   packet_info * pinfo, proto_tree * tree,
                                   dcerpc_info *di, uint8_t * drep)
 {
@@ -1275,8 +1275,8 @@ rs_pgo_dissect_key_transfer_rqst (tvbuff_t * tvb, int offset,
   return offset;
 }
 
-static int
-rs_pgo_dissect_key_transfer_resp (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_key_transfer_resp (tvbuff_t * tvb, unsigned offset,
                                   packet_info * pinfo, proto_tree * tree,
                                   dcerpc_info *di, uint8_t * drep)
 {
@@ -1308,8 +1308,8 @@ rs_pgo_dissect_key_transfer_resp (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-rs_pgo_dissect_is_member_resp (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_is_member_resp (tvbuff_t * tvb, unsigned offset,
                                packet_info * pinfo, proto_tree * tree,
                                dcerpc_info *di, uint8_t * drep)
 {
@@ -1335,8 +1335,8 @@ rs_pgo_dissect_is_member_resp (tvbuff_t * tvb, int offset,
   return offset;
 }
 
-static int
-rs_pgo_dissect_is_member_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_is_member_rqst (tvbuff_t * tvb, unsigned offset,
                                packet_info * pinfo, proto_tree * tree,
                                dcerpc_info *di, uint8_t * drep)
 {
@@ -1363,8 +1363,8 @@ rs_pgo_dissect_is_member_rqst (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-rs_pgo_dissect_get_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_get_rqst (tvbuff_t * tvb, unsigned offset,
                          packet_info * pinfo, proto_tree * tree,
                          dcerpc_info *di, uint8_t * drep)
 {
@@ -1405,8 +1405,8 @@ rs_pgo_dissect_get_rqst (tvbuff_t * tvb, int offset,
 
 }
 
-static int
-rs_pgo_dissect_get_resp (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_get_resp (tvbuff_t * tvb, unsigned offset,
                          packet_info * pinfo, proto_tree * tree,
                          dcerpc_info *di, uint8_t * drep)
 {
@@ -1438,8 +1438,8 @@ rs_pgo_dissect_get_resp (tvbuff_t * tvb, int offset,
 
 }
 
-static int
-rs_pgo_dissect_delete_member_resp (tvbuff_t * tvb, int offset,
+static unsigned
+rs_pgo_dissect_delete_member_resp (tvbuff_t * tvb, unsigned offset,
                                    packet_info * pinfo, proto_tree * tree,
                                    dcerpc_info *di, uint8_t * drep)
 {

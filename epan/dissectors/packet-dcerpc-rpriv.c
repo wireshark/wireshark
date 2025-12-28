@@ -38,8 +38,8 @@ static e_guid_t uuid_rpriv = { 0xb1e338f8, 0x9533, 0x11c9, { 0xa3, 0x4a, 0x08, 0
 static uint16_t ver_rpriv = 1;
 
 
-static int
-rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, unsigned offset,
 			      packet_info *pinfo, proto_tree *tree,
 			      dcerpc_info *di, uint8_t *drep)
 {

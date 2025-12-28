@@ -35,8 +35,8 @@ static e_guid_t uuid_rs_misc = { 0x4c878280, 0x5000, 0x0000, { 0x0d, 0x00, 0x02,
 static uint16_t ver_rs_misc = 1;
 
 
-static int
-rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, unsigned offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 

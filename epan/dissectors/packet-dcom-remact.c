@@ -42,8 +42,8 @@ static e_guid_t uuid_remact = { 0x4d9f4ab8, 0x7d1c, 0x11cf, { 0x86, 0x1e, 0x00, 
 static uint16_t ver_remact;
 
 
-static int
-dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_remact_remote_activation_rqst(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t u32ClientImpLevel;
@@ -108,8 +108,8 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_remact_remote_activation_resp(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t	u32Pointer;

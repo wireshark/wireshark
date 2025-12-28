@@ -1217,12 +1217,12 @@ dissect_wmio_encoding_methodpart(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static int
-dissect_wmio(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_, int size)
+static unsigned
+dissect_wmio(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_, int size)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
-    int old_offset = offset;
+    unsigned old_offset = offset;
     uint32_t signature;
 
     sub_item = proto_tree_add_item(tree, hf_wmio, tvb, offset, size, ENC_NA);

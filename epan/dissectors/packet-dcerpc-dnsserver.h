@@ -21,21 +21,21 @@
 #define DNS_CLIENT_VERSION_DOTNET (0x00000006)
 #define DNS_CLIENT_VERSION_LONGHORN (0x00000007)
 extern const value_string dnsserver_DNS_RPC_CLIENT_VERSION_vals[];
-int dnsserver_dissect_enum_DNS_RPC_CLIENT_VERSION(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int dnsserver_dissect_struct_DNS_RPC_VERSION(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_enum_DNS_RPC_CLIENT_VERSION(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned dnsserver_dissect_struct_DNS_RPC_VERSION(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define DNS_RPC_BOOT_METHOD_FILE (0x01)
 #define DNS_RPC_BOOT_METHOD_REGISTRY (0x02)
 #define DNS_RPC_BOOT_METHOD_DIRECTORY (0x03)
 extern const value_string dnsserver_DNS_RPC_BOOT_METHOD_vals[];
-int dnsserver_dissect_enum_DNS_RPC_BOOT_METHOD(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
-int dnsserver_dissect_bitmap_DNS_LOG_LEVELS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int dnsserver_dissect_bitmap_DNS_RPC_PROTOCOLS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_enum_DNS_RPC_BOOT_METHOD(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint8_t *param _U_);
+unsigned dnsserver_dissect_bitmap_DNS_LOG_LEVELS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_bitmap_DNS_RPC_PROTOCOLS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define DNS_ALLOW_RFC_NAMES_ONLY (0x00000000)
 #define DNS_ALLOW_NONRFC_NAMES (0x00000001)
 #define DNS_ALLOW_MULTIBYTE_NAMES (0x00000002)
 #define DNS_ALLOW_ALL_NAMES (0x00000003)
 extern const value_string dnsserver_DNS_NAME_CHECK_FLAGS_vals[];
-int dnsserver_dissect_enum_DNS_NAME_CHECK_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned dnsserver_dissect_enum_DNS_NAME_CHECK_FLAGS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define DNS_TYPE_ZERO (0x0000)
 #define DNS_TYPE_A (0x0001)
 #define DNS_TYPE_NS (0x0002)
@@ -75,15 +75,15 @@ int dnsserver_dissect_enum_DNS_NAME_CHECK_FLAGS(tvbuff_t *tvb _U_, int offset _U
 #define DNS_TYPE_WINS (0xff01)
 #define DNS_TYPE_WINSR (0xff02)
 extern const value_string dnsserver_DNS_RECORD_TYPE_vals[];
-int dnsserver_dissect_enum_DNS_RECORD_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_);
-int dnsserver_dissect_bitmap_DNS_SELECT_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int dnsserver_dissect_bitmap_DNS_RPC_NODE_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int dnsserver_dissect_struct_DNS_RPC_RECORD_NODE_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int dnsserver_dissect_struct_DNS_RPC_RECORD(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int dnsserver_dissect_struct_DNS_RPC_NODE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int dnsserver_dissect_struct_IP4_ARRAY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int dnsserver_dissect_struct_DNS_RPC_SERVER_INFO_DOTNET(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_enum_DNS_RECORD_TYPE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_);
+unsigned dnsserver_dissect_bitmap_DNS_SELECT_FLAGS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_bitmap_DNS_RPC_NODE_FLAGS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_struct_DNS_RPC_RECORD_NODE_NAME(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_struct_DNS_RPC_RECORD(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_struct_DNS_RPC_NODE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_struct_IP4_ARRAY(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_struct_DNS_RPC_SERVER_INFO_DOTNET(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define DNSSRV_TYPEID_NULL (0)
 #define DNSSRV_TYPEID_DWORD (1)
 #define DNSSRV_TYPEID_LPSTR (2)
@@ -130,6 +130,6 @@ int dnsserver_dissect_struct_DNS_RPC_SERVER_INFO_DOTNET(tvbuff_t *tvb _U_, int o
 #define DNSSRV_TYPEID_UTF8_STRING_LIST (43)
 #define DNSSRV_TYPEID_UNICODE_STRING_LIST (44)
 extern const value_string dnsserver_DnssrvRpcTypeId_vals[];
-int dnsserver_dissect_enum_DnssrvRpcTypeId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int dnsserver_dissect_struct_DNS_RECORD_BUFFER(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned dnsserver_dissect_enum_DnssrvRpcTypeId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned dnsserver_dissect_struct_DNS_RECORD_BUFFER(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #endif /* __PACKET_DCERPC_DNSSERVER_H */

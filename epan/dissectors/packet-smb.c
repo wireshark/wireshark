@@ -1908,7 +1908,7 @@ typedef struct _smb_uid_t {
 } smb_uid_t;
 
 static void
-smb_file_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t mask)
+smb_file_specific_rights(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint32_t mask)
 {
 	static int * const mask_flags[] = {
 		&hf_smb_file_access_mask_write_attribute,
@@ -1938,7 +1938,7 @@ static struct access_mask_info smb_file_access_mask_info = {
 
 
 static void
-smb_dir_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t mask)
+smb_dir_specific_rights(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint32_t mask)
 {
 	static int * const mask_flags[] = {
 		&hf_smb_dir_access_mask_write_attribute,

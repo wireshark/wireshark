@@ -158,7 +158,7 @@ typedef struct _dcerpc_info {
 	uint8_t ptype;       /* packet type: PDU_REQ, PDU_RESP, ... */
 	bool conformant_run;
 	bool no_align; /* are data aligned? (default yes) */
-	int32_t conformant_eaten; /* how many bytes did the conformant run eat?*/
+	uint32_t conformant_eaten; /* how many bytes did the conformant run eat?*/
 	uint32_t array_max_count;	/* max_count for conformant arrays */
 	uint32_t array_max_count_offset;
 	uint32_t array_offset;
@@ -225,40 +225,40 @@ typedef struct _dcerpc_info {
  * If you're writing a subdissector, you almost certainly want the
  * NDR functions below.
  */
-uint16_t dcerpc_tvb_get_ntohs (tvbuff_t *tvb, int offset, uint8_t *drep);
-uint32_t dcerpc_tvb_get_ntohl (tvbuff_t *tvb, int offset, uint8_t *drep);
-void dcerpc_tvb_get_uuid (tvbuff_t *tvb, int offset, uint8_t *drep, e_guid_t *uuid);
+uint16_t dcerpc_tvb_get_ntohs (tvbuff_t *tvb, unsigned offset, uint8_t *drep);
+uint32_t dcerpc_tvb_get_ntohl (tvbuff_t *tvb, unsigned offset, uint8_t *drep);
+void dcerpc_tvb_get_uuid (tvbuff_t *tvb, unsigned offset, uint8_t *drep, e_guid_t *uuid);
 WS_DLL_PUBLIC
-int dissect_dcerpc_char (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_dcerpc_char (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                          proto_tree *tree, uint8_t *drep,
                          int hfindex, uint8_t *pdata);
 WS_DLL_PUBLIC
-int dissect_dcerpc_uint8 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_dcerpc_uint8 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                           proto_tree *tree, uint8_t *drep,
                           int hfindex, uint8_t *pdata);
 WS_DLL_PUBLIC
-int dissect_dcerpc_uint16 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_dcerpc_uint16 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, uint8_t *drep,
                            int hfindex, uint16_t *pdata);
 WS_DLL_PUBLIC
-int dissect_dcerpc_uint32 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_dcerpc_uint32 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, uint8_t *drep,
                            int hfindex, uint32_t *pdata);
 WS_DLL_PUBLIC
-int dissect_dcerpc_uint64 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_dcerpc_uint64 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                            int hfindex, uint64_t *pdata);
-int dissect_dcerpc_float  (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_dcerpc_float  (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, uint8_t *drep,
                            int hfindex, float *pdata);
-int dissect_dcerpc_double (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_dcerpc_double (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, uint8_t *drep,
                            int hfindex, double *pdata);
-int dissect_dcerpc_time_t (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_dcerpc_time_t (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, uint8_t *drep,
                            int hfindex, uint32_t *pdata);
 WS_DLL_PUBLIC
-int dissect_dcerpc_uuid_t (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_dcerpc_uuid_t (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, uint8_t *drep,
                            int hfindex, e_guid_t *pdata);
 
@@ -266,51 +266,51 @@ int dissect_dcerpc_uuid_t (tvbuff_t *tvb, int offset, packet_info *pinfo,
  * NDR routines for subdissectors.
  */
 WS_DLL_PUBLIC
-int dissect_ndr_uint8 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_uint8 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                        proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                        int hfindex, uint8_t *pdata);
-int PIDL_dissect_uint8 (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param);
-int PIDL_dissect_uint8_val (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param, uint8_t *pval);
+unsigned PIDL_dissect_uint8 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param);
+unsigned PIDL_dissect_uint8_val (tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param, uint8_t *pval);
 WS_DLL_PUBLIC
-int dissect_ndr_uint16 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_uint16 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         int hfindex, uint16_t *pdata);
-int PIDL_dissect_uint16 (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param);
-int PIDL_dissect_uint16_val (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param, uint16_t *pval);
+unsigned PIDL_dissect_uint16 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param);
+unsigned PIDL_dissect_uint16_val (tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param, uint16_t *pval);
 WS_DLL_PUBLIC
-int dissect_ndr_uint32 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_uint32 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         int hfindex, uint32_t *pdata);
-int PIDL_dissect_uint32 (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param);
-int PIDL_dissect_uint32_val (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param, uint32_t *rval);
+unsigned PIDL_dissect_uint32 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param);
+unsigned PIDL_dissect_uint32_val (tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param, uint32_t *rval);
 WS_DLL_PUBLIC
-int dissect_ndr_duint32 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_duint32 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         int hfindex, uint64_t *pdata);
 WS_DLL_PUBLIC
-int dissect_ndr_uint64 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_uint64 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         int hfindex, uint64_t *pdata);
-int PIDL_dissect_uint64 (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param);
-int PIDL_dissect_uint64_val (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param, uint64_t *pval);
+unsigned PIDL_dissect_uint64 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param);
+unsigned PIDL_dissect_uint64_val (tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, uint32_t param, uint64_t *pval);
 WS_DLL_PUBLIC
-int dissect_ndr_float (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_float (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         int hfindex, float *pdata);
 WS_DLL_PUBLIC
-int dissect_ndr_double (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_double (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         int hfindex, double *pdata);
 
 WS_DLL_PUBLIC
-int dissect_ndr_time_t (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_time_t (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         int hfindex, uint32_t *pdata);
 WS_DLL_PUBLIC
-int dissect_ndr_uuid_t (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_uuid_t (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         int hfindex, e_guid_t *pdata);
-int dissect_ndr_ctx_hnd (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_ctx_hnd (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         int hfindex, e_ctx_hnd *pdata);
 
@@ -318,94 +318,94 @@ int dissect_ndr_ctx_hnd (tvbuff_t *tvb, int offset, packet_info *pinfo,
 typedef uint32_t uint1632_t;
 
 WS_DLL_PUBLIC
-int dissect_ndr_uint1632 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_uint1632 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		        proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 		        int hfindex, uint1632_t *pdata);
 
 typedef uint64_t uint3264_t;
 
 WS_DLL_PUBLIC
-int dissect_ndr_uint3264 (tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_uint3264 (tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		        proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 		        int hfindex, uint3264_t *pdata);
 
-typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-typedef int (dcerpc_dissect_fnct_blk_t)(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+typedef unsigned (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+typedef unsigned (dcerpc_dissect_fnct_blk_t)(tvbuff_t *tvb, unsigned offset, unsigned length, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
 
-typedef void (dcerpc_callback_fnct_t)(packet_info *pinfo, proto_tree *tree, proto_item *item, dcerpc_info *di, tvbuff_t *tvb, int start_offset, int end_offset, void *callback_args);
+typedef void (dcerpc_callback_fnct_t)(packet_info *pinfo, proto_tree *tree, proto_item *item, dcerpc_info *di, tvbuff_t *tvb, unsigned start_offset, unsigned end_offset, void *callback_args);
 
 #define NDR_POINTER_REF		1
 #define NDR_POINTER_UNIQUE	2
 #define NDR_POINTER_PTR		3
 
-int dissect_ndr_pointer_cb(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_pointer_cb(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 			   dcerpc_dissect_fnct_t *fnct, int type, const char *text,
 			   int hf_index, dcerpc_callback_fnct_t *callback,
 			   void *callback_args);
 
-int dissect_ndr_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 			dcerpc_dissect_fnct_t *fnct, int type, const char *text,
 			int hf_index);
-int dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_info *di, uint8_t *drep);
-int dissect_ndr_embedded_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, dcerpc_info *di, uint8_t *drep);
+unsigned dissect_ndr_embedded_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 			dcerpc_dissect_fnct_t *fnct, int type, const char *text,
 			int hf_index);
-int dissect_ndr_toplevel_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_toplevel_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 			dcerpc_dissect_fnct_t *fnct, int type, const char *text,
 			int hf_index);
 
 /* dissect a NDR unidimensional conformant array */
-int dissect_ndr_ucarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_ucarray(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         dcerpc_dissect_fnct_t *fnct);
 
-int dissect_ndr_ucarray_block(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_ucarray_block(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                               proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                               dcerpc_dissect_fnct_blk_t *fnct);
 
 /* dissect a NDR unidimensional conformant and varying array
  * each byte in the array is processed separately
  */
-int dissect_ndr_ucvarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_ucvarray(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                          proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                          dcerpc_dissect_fnct_t *fnct);
 
-int dissect_ndr_ucvarray_block(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_ucvarray_block(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                                proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                                dcerpc_dissect_fnct_blk_t *fnct);
 
 /* dissect a NDR unidimensional varying array */
-int dissect_ndr_uvarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_uvarray(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                         dcerpc_dissect_fnct_t *fnct);
 
-int dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_byte_array(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, dcerpc_info *di, uint8_t *drep);
 
-int dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_cvstring(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			 proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size_is,
 			 int hfinfo, bool add_subtree,
 			 char **data);
-int dissect_ndr_char_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_char_cvstring(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-int dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_wchar_cvstring(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                             proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-int PIDL_dissect_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int chsize, int hfindex, uint32_t param);
+unsigned PIDL_dissect_cvstring(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int chsize, int hfindex, uint32_t param);
 
-int dissect_ndr_cstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_cstring(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size_is,
                         int hfindex, bool add_subtree, char **data);
-int dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_vstring(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			 proto_tree *tree, dcerpc_info *di, uint8_t *drep, int size_is,
 			 int hfinfo, bool add_subtree,
 			 char **data);
-int dissect_ndr_char_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_char_vstring(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-int dissect_ndr_wchar_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_ndr_wchar_vstring(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                             proto_tree *tree, dcerpc_info *di, uint8_t *drep);
 
 typedef struct _dcerpc_sub_dissector {

@@ -194,8 +194,8 @@ static const value_string dcom_boolean_vals[] = {
 
 
 
-static int
-dissect_ICBABrowse_get_Count_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBABrowse_get_Count_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Count;
@@ -222,8 +222,8 @@ dissect_ICBABrowse_get_Count_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBABrowse_BrowseItems_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBABrowse_BrowseItems_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Offset;
@@ -244,8 +244,8 @@ dissect_ICBABrowse_BrowseItems_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBABrowse_BrowseItems_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBABrowse_BrowseItems_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Pointer;
@@ -282,8 +282,8 @@ dissect_ICBABrowse_BrowseItems_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBABrowse2_get_Count2_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBABrowse2_get_Count2_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Selector;
@@ -302,8 +302,8 @@ dissect_ICBABrowse2_get_Count2_rqst(tvbuff_t *tvb, int offset,
 
 
 
-static int
-dissect_ICBABrowse2_BrowseItems2_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBABrowse2_BrowseItems2_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Selector;
@@ -327,8 +327,8 @@ dissect_ICBABrowse2_BrowseItems2_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBABrowse2_BrowseItems2_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBABrowse2_BrowseItems2_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Pointer;
@@ -365,8 +365,8 @@ dissect_ICBABrowse2_BrowseItems2_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBAPersist2_Save2_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBAPersist2_Save2_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Pointer;
@@ -398,8 +398,8 @@ dissect_ICBAPersist2_Save2_resp(tvbuff_t *tvb, int offset,
 
 
 
-static int
-dissect_get_BSTR_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_get_BSTR_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex)
 {
     char    szStr[1000] = "";
@@ -427,8 +427,8 @@ dissect_get_BSTR_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_get_ProductionDate_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_get_ProductionDate_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32HResult;
@@ -451,8 +451,8 @@ dissect_get_ProductionDate_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_get_SerialNo_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_get_SerialNo_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32HResult;
@@ -478,8 +478,8 @@ dissect_get_SerialNo_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBATime_get_Time_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBATime_get_Time_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32HResult;
@@ -502,8 +502,8 @@ dissect_ICBATime_get_Time_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBATime_put_Time_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBATime_put_Time_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     double r8Date;
@@ -518,8 +518,8 @@ dissect_ICBATime_put_Time_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_get_Producer_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_get_Producer_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 
@@ -527,8 +527,8 @@ dissect_get_Producer_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_get_Product_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_get_Product_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 
@@ -536,8 +536,8 @@ dissect_get_Product_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t     u32Pointer;
@@ -566,8 +566,8 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBAPhysicalDevice_get_LogicalDevice_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBAPhysicalDevice_get_LogicalDevice_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t          u32HResult;
@@ -606,8 +606,8 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBAPhysicalDevice2_Type_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBAPhysicalDevice2_Type_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t u16MultiApp;
@@ -635,8 +635,8 @@ dissect_ICBAPhysicalDevice2_Type_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_PROFInetRevision_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PROFInetRevision_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t u16Major;
@@ -668,8 +668,8 @@ dissect_PROFInetRevision_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBAPhysicalDevice2_get_PDevStamp_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBAPhysicalDevice2_get_PDevStamp_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32PDevStamp;
@@ -692,8 +692,8 @@ dissect_ICBAPhysicalDevice2_get_PDevStamp_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_Revision_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_Revision_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t u16Major;
@@ -720,8 +720,8 @@ dissect_Revision_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBALogicalDevice_get_Name_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBALogicalDevice_get_Name_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     char    szStr[1000] = "";
@@ -749,8 +749,8 @@ dissect_ICBALogicalDevice_get_Name_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_RTAuto_get_Name_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_RTAuto_get_Name_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 
@@ -758,8 +758,8 @@ dissect_RTAuto_get_Name_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBALogicalDevice_get_ACCO_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBALogicalDevice_get_ACCO_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t          u32HResult;
@@ -790,8 +790,8 @@ dissect_ICBALogicalDevice_get_ACCO_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBALogicalDevice_get_RTAuto_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBALogicalDevice_get_RTAuto_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32HResult;
@@ -810,8 +810,8 @@ dissect_ICBALogicalDevice_get_RTAuto_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBALogicalDevice_Get_RTAuto_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBALogicalDevice_Get_RTAuto_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     char    szStr[1000] = "";
@@ -835,8 +835,8 @@ dissect_ICBALogicalDevice_Get_RTAuto_rqst(tvbuff_t *tvb, int offset,
 
 
 
-static int
-dissect_ComponentInfo_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ComponentInfo_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     char    szStr[1000] = "";
@@ -874,7 +874,7 @@ dissect_ComponentInfo_resp(tvbuff_t *tvb, int offset,
 
 
 static void
-dissect_PBAddressInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_PBAddressInfo(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                        proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                        uint32_t u32VarType _U_, uint32_t u32ArraySize)
 {
@@ -901,8 +901,8 @@ dissect_PBAddressInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static int
-dissect_PBAddressInfo_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PBAddressInfo_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32HResult;
@@ -920,8 +920,8 @@ dissect_PBAddressInfo_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_Advise_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_Advise_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 
@@ -934,8 +934,8 @@ dissect_Advise_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_Advise_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_Advise_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Cookie;
@@ -958,8 +958,8 @@ dissect_Advise_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_Unadvise_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_Unadvise_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Cookie;
@@ -977,8 +977,8 @@ dissect_Unadvise_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBAState_get_State_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBAState_get_State_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t u16State;
@@ -1001,8 +1001,8 @@ dissect_ICBAState_get_State_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBAStateEvent_OnStateChanged_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBAStateEvent_OnStateChanged_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t u16NewState;
@@ -1025,8 +1025,8 @@ dissect_ICBAStateEvent_OnStateChanged_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBAGroupError_OnGroupErrorChanged_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBAGroupError_OnGroupErrorChanged_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t u16NewGroupError;
@@ -1049,8 +1049,8 @@ dissect_ICBAGroupError_OnGroupErrorChanged_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_ICBAPhysicalDevicePCEvent_OnLogicalDeviceAdded_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBAPhysicalDevicePCEvent_OnLogicalDeviceAdded_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Cookie;
@@ -1075,8 +1075,8 @@ dissect_ICBAPhysicalDevicePCEvent_OnLogicalDeviceAdded_rqst(tvbuff_t *tvb, int o
 }
 
 
-static int
-dissect_ICBAGroupError_GroupError_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_ICBAGroupError_GroupError_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t u16GroupError;

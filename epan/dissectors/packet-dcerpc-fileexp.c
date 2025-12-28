@@ -306,8 +306,8 @@ inode, volume, etc all will be garbage.
     } \
   }
 
-static int
-dissect_afsFid (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsFid (tvbuff_t *tvb, unsigned offset,
                 packet_info *pinfo, proto_tree *parent_tree,
                 dcerpc_info *di, uint8_t *drep)
 {
@@ -367,8 +367,8 @@ dissect_afsFid (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-dissect_afsConnParams (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsConnParams (tvbuff_t *tvb, unsigned offset,
                        packet_info *pinfo, proto_tree *parent_tree,
                        dcerpc_info *di, uint8_t *drep)
 {
@@ -519,8 +519,8 @@ dissect_afsConnParams (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-dissect_afsNameString_t (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsNameString_t (tvbuff_t *tvb, unsigned offset,
                          packet_info *pinfo, proto_tree *parent_tree,
                          dcerpc_info *di, uint8_t *drep)
 {
@@ -570,8 +570,8 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 }
 
 
-static int
-dissect_afsNetAddr (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsNetAddr (tvbuff_t *tvb, unsigned offset,
                     packet_info *pinfo, proto_tree *parent_tree,
                     dcerpc_info *di, uint8_t *drep)
 {
@@ -652,8 +652,8 @@ dissect_afsNetAddr (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_afsNetData (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsNetData (tvbuff_t *tvb, unsigned offset,
                     packet_info *pinfo, proto_tree *parent_tree,
                     dcerpc_info *di, uint8_t *drep)
 {
@@ -685,8 +685,8 @@ dissect_afsNetData (tvbuff_t *tvb, int offset,
 
 }
 
-static int
-dissect_afsTaggedPath (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsTaggedPath (tvbuff_t *tvb, unsigned offset,
                        packet_info *pinfo, proto_tree *parent_tree,
                        dcerpc_info *di, uint8_t *drep)
 {
@@ -730,8 +730,8 @@ dissect_afsTaggedPath (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-dissect_afsAcl (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsAcl (tvbuff_t *tvb, unsigned offset,
                 packet_info *pinfo, proto_tree *parent_tree,
                 dcerpc_info *di, uint8_t *drep)
 {
@@ -791,8 +791,8 @@ dissect_afsAcl (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_afsErrorStatus (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsErrorStatus (tvbuff_t *tvb, unsigned offset,
                         packet_info *pinfo, proto_tree *parent_tree,
                         dcerpc_info *di, uint8_t *drep)
 {
@@ -824,8 +824,8 @@ dissect_afsErrorStatus (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-dissect_afsRecordLock (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsRecordLock (tvbuff_t *tvb, unsigned offset,
                        packet_info *pinfo, proto_tree *parent_tree,
                        dcerpc_info *di, uint8_t *drep)
 {
@@ -891,8 +891,8 @@ dissect_afsRecordLock (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-dissect_afsstorestatus (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsstorestatus (tvbuff_t *tvb, unsigned offset,
                         packet_info *pinfo, proto_tree *parent_tree,
                         dcerpc_info *di, uint8_t *drep)
 {
@@ -1082,8 +1082,8 @@ dissect_afsstorestatus (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-dissect_afstoken (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afstoken (tvbuff_t *tvb, unsigned offset,
                   packet_info *pinfo, proto_tree *parent_tree,
                   dcerpc_info *di, uint8_t *drep)
 {
@@ -1225,8 +1225,8 @@ dissect_afstoken (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-dissect_afstaggedname (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afstaggedname (tvbuff_t *tvb, unsigned offset,
                        packet_info *pinfo, proto_tree *parent_tree,
                        dcerpc_info *di, uint8_t *drep)
 {
@@ -1278,8 +1278,8 @@ dissect_afstaggedname (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-dissect_afsfidtaggedname (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsfidtaggedname (tvbuff_t *tvb, unsigned offset,
                           packet_info *pinfo, proto_tree *parent_tree,
                           dcerpc_info *di, uint8_t *drep)
 {
@@ -1310,8 +1310,8 @@ dissect_afsfidtaggedname (tvbuff_t *tvb, int offset,
 
 }
 
-static int
-dissect_minvvp (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_minvvp (tvbuff_t *tvb, unsigned offset,
                 packet_info *pinfo, proto_tree *parent_tree,
                 dcerpc_info *di, uint8_t *drep)
 {
@@ -1349,8 +1349,8 @@ dissect_minvvp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_afsuuid (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsuuid (tvbuff_t *tvb, unsigned offset,
                  packet_info *pinfo, proto_tree *parent_tree,
                  dcerpc_info *di, uint8_t *drep)
 {
@@ -1383,8 +1383,8 @@ dissect_afsuuid (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_offsetp (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_offsetp (tvbuff_t *tvb, unsigned offset,
                  packet_info *pinfo, proto_tree *parent_tree,
                  dcerpc_info *di, uint8_t *drep)
 {
@@ -1422,8 +1422,8 @@ dissect_offsetp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_returntokenidp (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_returntokenidp (tvbuff_t *tvb, unsigned offset,
                         packet_info *pinfo, proto_tree *parent_tree,
                         dcerpc_info *di, uint8_t *drep)
 {
@@ -1461,8 +1461,8 @@ dissect_returntokenidp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_volsync (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_volsync (tvbuff_t *tvb, unsigned offset,
                  packet_info *pinfo, proto_tree *parent_tree,
                  dcerpc_info *di, uint8_t *drep)
 {
@@ -1529,8 +1529,8 @@ dissect_volsync (tvbuff_t *tvb, int offset,
 
 }
 
-static int
-dissect_afsFlags (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsFlags (tvbuff_t *tvb, unsigned offset,
                   packet_info *pinfo, proto_tree *parent_tree,
                   dcerpc_info *di, uint8_t *drep)
 {
@@ -1644,8 +1644,8 @@ dissect_afsFlags (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-dissect_fetchstatus (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_fetchstatus (tvbuff_t *tvb, unsigned offset,
                      packet_info *pinfo, proto_tree *parent_tree,
                      dcerpc_info *di, uint8_t *drep)
 {
@@ -1833,8 +1833,8 @@ dissect_fetchstatus (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-dissect_afsReturnDesc (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsReturnDesc (tvbuff_t *tvb, unsigned offset,
                        packet_info *pinfo, proto_tree *parent_tree,
                        dcerpc_info *di, uint8_t *drep)
 {
@@ -1888,8 +1888,8 @@ dissect_afsReturnDesc (tvbuff_t *tvb, int offset,
 
 
 
-static int
-dissect_afsReturns (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsReturns (tvbuff_t *tvb, unsigned offset,
                     packet_info *pinfo, proto_tree *tree,
                     dcerpc_info *di, uint8_t *drep)
 {
@@ -1914,8 +1914,8 @@ dissect_afsReturns (tvbuff_t *tvb, int offset,
 
 #if 0 /* not used */
 
-static int
-dissect_afsbundled_stat (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsbundled_stat (tvbuff_t *tvb, unsigned offset,
                          packet_info *pinfo, proto_tree *parent_tree,
                          dcerpc_info *di, uint8_t *drep _U_)
 {
@@ -1960,8 +1960,8 @@ dissect_afsbundled_stat (tvbuff_t *tvb, int offset,
 
 #endif /* not used */
 
-static int
-dissect_afsBulkStat (tvbuff_t *tvb _U_, int offset,
+static unsigned
+dissect_afsBulkStat (tvbuff_t *tvb _U_, unsigned offset,
                                   packet_info *pinfo _U_, proto_tree *tree _U_,
                                   dcerpc_info *di _U_, uint8_t *drep _U_)
 {
@@ -1982,8 +1982,8 @@ dissect_afsBulkStat (tvbuff_t *tvb _U_, int offset,
 
 
 
-static int
-fileexp_dissect_removefile_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_removefile_rqst (tvbuff_t *tvb, unsigned offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, uint8_t *drep)
 {
@@ -2021,8 +2021,8 @@ fileexp_dissect_removefile_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_storedata_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_storedata_rqst (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {
@@ -2078,8 +2078,8 @@ fileexp_dissect_storedata_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_gettoken_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_gettoken_rqst (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -2114,8 +2114,8 @@ fileexp_dissect_gettoken_rqst (tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int
-fileexp_dissect_gettoken_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_gettoken_resp (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -2152,8 +2152,8 @@ fileexp_dissect_gettoken_resp (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_lookuproot_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_lookuproot_rqst (tvbuff_t *tvb, unsigned offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, uint8_t *drep)
 {
@@ -2183,8 +2183,8 @@ fileexp_dissect_lookuproot_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_fetchdata_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_fetchdata_rqst (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {
@@ -2229,8 +2229,8 @@ fileexp_dissect_fetchdata_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_fetchacl_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_fetchacl_rqst (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -2272,8 +2272,8 @@ fileexp_dissect_fetchacl_rqst (tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int
-fileexp_dissect_fetchstatus_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_fetchstatus_rqst (tvbuff_t *tvb, unsigned offset,
                                   packet_info *pinfo, proto_tree *tree,
                                   dcerpc_info *di, uint8_t *drep)
 {
@@ -2300,8 +2300,8 @@ fileexp_dissect_fetchstatus_rqst (tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int
-fileexp_dissect_storeacl_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_storeacl_rqst (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -2345,8 +2345,8 @@ fileexp_dissect_storeacl_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_storestatus_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_storestatus_rqst (tvbuff_t *tvb, unsigned offset,
                                   packet_info *pinfo, proto_tree *tree,
                                   dcerpc_info *di, uint8_t *drep)
 {
@@ -2379,8 +2379,8 @@ fileexp_dissect_storestatus_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_createfile_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_createfile_rqst (tvbuff_t *tvb, unsigned offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, uint8_t *drep)
 {
@@ -2418,8 +2418,8 @@ fileexp_dissect_createfile_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_rename_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_rename_rqst (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -2472,8 +2472,8 @@ fileexp_dissect_rename_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_symlink_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_symlink_rqst (tvbuff_t *tvb, unsigned offset,
                               packet_info *pinfo, proto_tree *tree,
                               dcerpc_info *di, uint8_t *drep)
 {
@@ -2516,8 +2516,8 @@ fileexp_dissect_symlink_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_readdir_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_readdir_rqst (tvbuff_t *tvb, unsigned offset,
                               packet_info *pinfo, proto_tree *tree,
                               dcerpc_info *di, uint8_t *drep)
 {
@@ -2556,8 +2556,8 @@ fileexp_dissect_readdir_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_makedir_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_makedir_rqst (tvbuff_t *tvb, unsigned offset,
                               packet_info *pinfo, proto_tree *tree,
                               dcerpc_info *di, uint8_t *drep)
 {
@@ -2594,8 +2594,8 @@ fileexp_dissect_makedir_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_removedir_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_removedir_rqst (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {
@@ -2638,8 +2638,8 @@ fileexp_dissect_removedir_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_lookup_rqst (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -2670,8 +2670,8 @@ fileexp_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int
-fileexp_dissect_lookup_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_lookup_resp (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -2711,8 +2711,8 @@ fileexp_dissect_lookup_resp (tvbuff_t *tvb, int offset,
 
 }
 
-static int
-fileexp_dissect_makemountpoint_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_makemountpoint_rqst (tvbuff_t *tvb, unsigned offset,
                                      packet_info *pinfo, proto_tree *tree,
                                      dcerpc_info *di, uint8_t *drep)
 {
@@ -2771,8 +2771,8 @@ fileexp_dissect_makemountpoint_rqst (tvbuff_t *tvb, int offset,
 
 }
 
-static int
-fileexp_dissect_setcontext_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_setcontext_rqst (tvbuff_t *tvb, unsigned offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, uint8_t *drep)
 {
@@ -2818,8 +2818,8 @@ fileexp_dissect_setcontext_rqst (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-fileexp_dissect_setcontext_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fileexp_dissect_setcontext_resp (tvbuff_t *tvb, unsigned offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, uint8_t *drep)
 {
@@ -2834,8 +2834,8 @@ fileexp_dissect_setcontext_resp (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-static int
-  fileexp_dissect_lookuproot_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_lookuproot_resp (tvbuff_t *tvb, unsigned offset,
                                    packet_info *pinfo, proto_tree *tree,
                                    dcerpc_info *di, uint8_t *drep)
 {
@@ -2868,8 +2868,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_fetchdata_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_fetchdata_resp (tvbuff_t *tvb, unsigned offset,
                                   packet_info *pinfo, proto_tree *tree,
                                   dcerpc_info *di, uint8_t *drep)
 {
@@ -2896,8 +2896,8 @@ There is also not sign of the afsVolSync structure... Just size, and data string
   return offset;
 }
 
-static int
-  fileexp_dissect_fetchacl_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_fetchacl_resp (tvbuff_t *tvb, unsigned offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, uint8_t *drep)
 {
@@ -2926,8 +2926,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_fetchstatus_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_fetchstatus_resp (tvbuff_t *tvb, unsigned offset,
                                     packet_info *pinfo, proto_tree *tree,
                                     dcerpc_info *di, uint8_t *drep)
 {
@@ -2956,8 +2956,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_storedata_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_storedata_resp (tvbuff_t *tvb, unsigned offset,
                                   packet_info *pinfo, proto_tree *tree,
                                   dcerpc_info *di, uint8_t *drep)
 {
@@ -2982,8 +2982,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_storeacl_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_storeacl_resp (tvbuff_t *tvb, unsigned offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, uint8_t *drep)
 {
@@ -3008,8 +3008,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_storestatus_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_storestatus_resp (tvbuff_t *tvb, unsigned offset,
                                     packet_info *pinfo, proto_tree *tree,
                                     dcerpc_info *di, uint8_t *drep)
 {
@@ -3034,8 +3034,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_removefile_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_removefile_resp (tvbuff_t *tvb, unsigned offset,
                                    packet_info *pinfo, proto_tree *tree,
                                    dcerpc_info *di, uint8_t *drep)
 {
@@ -3067,8 +3067,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_createfile_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_createfile_resp (tvbuff_t *tvb, unsigned offset,
                                    packet_info *pinfo, proto_tree *tree,
                                    dcerpc_info *di, uint8_t *drep)
 {
@@ -3107,8 +3107,8 @@ static int
 
   return offset;
 }
-static int
-  fileexp_dissect_rename_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_rename_resp (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -3154,8 +3154,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_symlink_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_symlink_resp (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {
@@ -3192,8 +3192,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_hardlink_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_hardlink_resp (tvbuff_t *tvb, unsigned offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, uint8_t *drep)
 {
@@ -3222,8 +3222,8 @@ static int
 
   return offset;
 }
-static int
-  fileexp_dissect_hardlink_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_hardlink_rqst (tvbuff_t *tvb, unsigned offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, uint8_t *drep)
 {
@@ -3263,8 +3263,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_makedir_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_makedir_resp (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {
@@ -3301,8 +3301,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_removedir_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_removedir_resp (tvbuff_t *tvb, unsigned offset,
                                   packet_info *pinfo, proto_tree *tree,
                                   dcerpc_info *di, uint8_t *drep)
 {
@@ -3336,8 +3336,8 @@ static int
 
 }
 
-static int
-  fileexp_dissect_readdir_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_readdir_resp (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {
@@ -3376,8 +3376,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_releasetokens_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_releasetokens_resp (tvbuff_t *tvb, unsigned offset,
                                       packet_info *pinfo, proto_tree *tree,
                                       dcerpc_info *di, uint8_t *drep)
 {
@@ -3391,8 +3391,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_releasetokens_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_releasetokens_rqst (tvbuff_t *tvb, unsigned offset,
                                       packet_info *pinfo, proto_tree *tree,
                                       dcerpc_info *di, uint8_t *drep)
 {
@@ -3415,8 +3415,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_gettime_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_gettime_resp (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {
@@ -3455,8 +3455,8 @@ static int
 
 }
 
-static int
-  fileexp_dissect_gettime_rqst (tvbuff_t *tvb _U_, int offset,
+static unsigned
+  fileexp_dissect_gettime_rqst (tvbuff_t *tvb _U_, unsigned offset,
                                 packet_info *pinfo _U_, proto_tree *tree _U_,
                                 dcerpc_info *di _U_, uint8_t *drep _U_)
 {
@@ -3465,8 +3465,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_processquota_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_processquota_resp (tvbuff_t *tvb, unsigned offset,
                                      packet_info *pinfo, proto_tree *tree,
                                      dcerpc_info *di, uint8_t *drep)
 {
@@ -3494,8 +3494,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_processquota_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_processquota_rqst (tvbuff_t *tvb, unsigned offset,
                                      packet_info *pinfo, proto_tree *tree,
                                      dcerpc_info *di, uint8_t *drep)
 {
@@ -3524,8 +3524,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_getserverinterfaces_rqst (tvbuff_t *tvb _U_, int offset,
+static unsigned
+  fileexp_dissect_getserverinterfaces_rqst (tvbuff_t *tvb _U_, unsigned offset,
                                             packet_info *pinfo _U_, proto_tree *tree _U_,
                                             dcerpc_info *di _U_, uint8_t *drep _U_)
 {
@@ -3537,8 +3537,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_getserverinterfaces_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_getserverinterfaces_resp (tvbuff_t *tvb, unsigned offset,
                                             packet_info *pinfo, proto_tree *tree,
                                             dcerpc_info *di, uint8_t *drep)
 {
@@ -3556,8 +3556,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_setparams_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_setparams_rqst (tvbuff_t *tvb, unsigned offset,
                                   packet_info *pinfo, proto_tree *tree,
                                   dcerpc_info *di, uint8_t *drep)
 {
@@ -3578,8 +3578,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_setparams_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_setparams_resp (tvbuff_t *tvb, unsigned offset,
                                   packet_info *pinfo, proto_tree *tree,
                                   dcerpc_info *di, uint8_t *drep)
 {
@@ -3600,8 +3600,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_makemountpoint_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_makemountpoint_resp (tvbuff_t *tvb, unsigned offset,
                                        packet_info *pinfo, proto_tree *tree,
                                        dcerpc_info *di, uint8_t *drep)
 {
@@ -3634,8 +3634,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_getstatistics_rqst (tvbuff_t *tvb _U_, int offset,
+static unsigned
+  fileexp_dissect_getstatistics_rqst (tvbuff_t *tvb _U_, unsigned offset,
                                       packet_info *pinfo _U_, proto_tree *tree _U_,
                                       dcerpc_info *di, uint8_t *drep _U_)
 {
@@ -3648,8 +3648,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_getstatistics_resp (tvbuff_t *tvb _U_, int offset,
+static unsigned
+  fileexp_dissect_getstatistics_resp (tvbuff_t *tvb _U_, unsigned offset,
                                       packet_info *pinfo _U_, proto_tree *tree _U_,
                                       dcerpc_info *di _U_, uint8_t *drep _U_)
 {
@@ -3661,8 +3661,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_bulkfetchvv_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_bulkfetchvv_rqst (tvbuff_t *tvb, unsigned offset,
                                     packet_info *pinfo, proto_tree *tree,
                                     dcerpc_info *di, uint8_t *drep)
 {
@@ -3706,8 +3706,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_bulkfetchvv_resp (tvbuff_t *tvb _U_, int offset,
+static unsigned
+  fileexp_dissect_bulkfetchvv_resp (tvbuff_t *tvb _U_, unsigned offset,
                                     packet_info *pinfo _U_, proto_tree *tree _U_,
                                     dcerpc_info *di _U_, uint8_t *drep _U_)
 {
@@ -3719,8 +3719,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_bulkkeepalive_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_bulkkeepalive_resp (tvbuff_t *tvb, unsigned offset,
                                       packet_info *pinfo, proto_tree *tree,
                                       dcerpc_info *di, uint8_t *drep)
 {
@@ -3742,8 +3742,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_bulkkeepalive_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_bulkkeepalive_rqst (tvbuff_t *tvb, unsigned offset,
                                       packet_info *pinfo, proto_tree *tree,
                                       dcerpc_info *di, uint8_t *drep)
 {
@@ -3777,8 +3777,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_bulkfetchstatus_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_bulkfetchstatus_rqst (tvbuff_t *tvb, unsigned offset,
                                         packet_info *pinfo, proto_tree *tree,
                                         dcerpc_info *di, uint8_t *drep)
 {
@@ -3821,8 +3821,8 @@ static int
   return offset;
 }
 
-static int
-  fileexp_dissect_bulkfetchstatus_resp (tvbuff_t *tvb, int offset,
+static unsigned
+  fileexp_dissect_bulkfetchstatus_resp (tvbuff_t *tvb, unsigned offset,
                                         packet_info *pinfo, proto_tree *tree,
                                         dcerpc_info *di, uint8_t *drep)
 {

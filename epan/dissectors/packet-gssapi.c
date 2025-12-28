@@ -643,8 +643,8 @@ proto_register_gssapi(void)
 	register_shutdown_routine(gssapi_shutdown);
 }
 
-static int
-wrap_dissect_gssapi(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+wrap_dissect_gssapi(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		    proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	tvbuff_t *auth_tvb;
@@ -656,8 +656,8 @@ wrap_dissect_gssapi(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return tvb_captured_length_remaining(tvb, offset);
 }
 
-int
-wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+wrap_dissect_gssapi_verf(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			 proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	tvbuff_t *auth_tvb;

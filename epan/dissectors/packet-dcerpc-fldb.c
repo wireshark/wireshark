@@ -222,8 +222,8 @@ static const char *st_str;
   }
 
 
-static int
-dissect_afsnetaddr (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsnetaddr (tvbuff_t *tvb, unsigned offset,
                     packet_info *pinfo, proto_tree *parent_tree,
                     dcerpc_info *di, uint8_t *drep)
 {
@@ -293,8 +293,8 @@ dissect_afsnetaddr (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_vlconf_cell (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_vlconf_cell (tvbuff_t *tvb, unsigned offset,
                      packet_info *pinfo, proto_tree *parent_tree,
                      dcerpc_info *di, uint8_t *drep)
 {
@@ -389,8 +389,8 @@ dissect_vlconf_cell (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_afsNameString_t (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsNameString_t (tvbuff_t *tvb, unsigned offset,
                          packet_info *pinfo, proto_tree *parent_tree,
                          dcerpc_info *di, uint8_t *drep)
 {
@@ -438,8 +438,8 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 }
 
 
-static int
-dissect_afsflags (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_afsflags (tvbuff_t *tvb, unsigned offset,
                   packet_info *pinfo, proto_tree *parent_tree,
                   dcerpc_info *di, uint8_t *drep)
 {
@@ -549,8 +549,8 @@ dissect_afsflags (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_siteflags (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_siteflags (tvbuff_t *tvb, unsigned offset,
                    packet_info *pinfo, proto_tree *parent_tree,
                    dcerpc_info *di, uint8_t *drep)
 {
@@ -612,8 +612,8 @@ dissect_siteflags (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_vldbentry (tvbuff_t *tvb, int offset,
+static unsigned
+dissect_vldbentry (tvbuff_t *tvb, unsigned offset,
                    packet_info *pinfo, proto_tree *parent_tree,
                    dcerpc_info *di, uint8_t *drep)
 {
@@ -861,8 +861,8 @@ dissect_vldbentry (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_getcellinfo_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_getcellinfo_resp (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -878,8 +878,8 @@ fldb_dissect_getcellinfo_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_getentrybyname_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_getentrybyname_rqst (tvbuff_t *tvb, unsigned offset,
                                   packet_info *pinfo, proto_tree *tree,
                                   dcerpc_info *di, uint8_t *drep)
 {
@@ -899,8 +899,8 @@ fldb_dissect_getentrybyname_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_getentrybyname_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_getentrybyname_resp (tvbuff_t *tvb, unsigned offset,
                                   packet_info *pinfo, proto_tree *tree,
                                   dcerpc_info *di, uint8_t *drep)
 {
@@ -919,8 +919,8 @@ fldb_dissect_getentrybyname_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_getsiteinfo_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_getsiteinfo_rqst (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -947,8 +947,8 @@ fldb_dissect_getsiteinfo_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_getsiteinfo_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_getsiteinfo_resp (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -1038,8 +1038,8 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_listentry_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_listentry_rqst (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -1073,8 +1073,8 @@ fldb_dissect_listentry_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_listentry_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_listentry_resp (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -1102,8 +1102,8 @@ fldb_dissect_listentry_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_setlock_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_setlock_rqst (tvbuff_t *tvb, unsigned offset,
                            packet_info *pinfo, proto_tree *tree,
                            dcerpc_info *di, uint8_t *drep)
 {
@@ -1135,8 +1135,8 @@ fldb_dissect_setlock_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_setlock_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_setlock_resp (tvbuff_t *tvb, unsigned offset,
                            packet_info *pinfo, proto_tree *tree,
                            dcerpc_info *di, uint8_t *drep)
 {
@@ -1151,8 +1151,8 @@ fldb_dissect_setlock_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_deleteentry_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_deleteentry_resp (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -1167,8 +1167,8 @@ fldb_dissect_deleteentry_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_deleteentry_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_deleteentry_rqst (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -1205,8 +1205,8 @@ fldb_dissect_deleteentry_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_createentry_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_createentry_resp (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -1221,8 +1221,8 @@ fldb_dissect_createentry_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_createentry_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_createentry_rqst (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -1236,8 +1236,8 @@ fldb_dissect_createentry_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_getentrybyid_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_getentrybyid_rqst (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {
@@ -1271,8 +1271,8 @@ fldb_dissect_getentrybyid_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_getnewvolumeids_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_getnewvolumeids_rqst (tvbuff_t *tvb, unsigned offset,
                                    packet_info *pinfo, proto_tree *tree,
                                    dcerpc_info *di, uint8_t *drep)
 {
@@ -1297,8 +1297,8 @@ fldb_dissect_getnewvolumeids_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_getentrybyid_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_getentrybyid_resp (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {
@@ -1312,8 +1312,8 @@ fldb_dissect_getentrybyid_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_releaselock_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_releaselock_resp (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -1329,8 +1329,8 @@ fldb_dissect_releaselock_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_releaselock_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_releaselock_rqst (tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, uint8_t *drep)
 {
@@ -1362,8 +1362,8 @@ fldb_dissect_releaselock_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_replaceentry_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_replaceentry_resp (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {
@@ -1378,8 +1378,8 @@ fldb_dissect_replaceentry_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_getnextserversbyid_resp (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_getnextserversbyid_resp (tvbuff_t *tvb, unsigned offset,
                                       packet_info *pinfo, proto_tree *tree,
                                       dcerpc_info *di, uint8_t *drep)
 {
@@ -1413,8 +1413,8 @@ fldb_dissect_getnextserversbyid_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-fldb_dissect_replaceentry_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+fldb_dissect_replaceentry_rqst (tvbuff_t *tvb, unsigned offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, uint8_t *drep)
 {

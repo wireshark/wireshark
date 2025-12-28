@@ -199,28 +199,28 @@ static const value_string typekind_vals[] = {
 
 
 
-static int dissect_typeinfo_PARAMDESCEX(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
-static int dissect_typeinfo_PARAMDESCEX_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_typeinfo_PARAMDESC(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
-static int dissect_typeinfo_TYPEDESC_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_typeinfo_TYPEDESC(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
-static int dissect_typeinfo_ELEMDESC(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
-static int dissect_typeinfo_ELEMDESC_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_typeinfo_ELEMDESC_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_typeinfo_FUNCDESC(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
-static int dissect_typeinfo_TYPEATTR(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
-static int dissect_typeinfo_TYPEATTR_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_typeinfo_FUNCDESC_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_ITypeInfo_GetFuncDesc_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_ITypeInfo_GetFuncDesc_resp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_ITypeInfo_GetNames_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_ITypeInfo_GetNames_resp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_ITypeInfo_GetDocumentation_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_ITypeInfo_GetDocumentation_resp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_ITypeInfo_GetTypeAttr_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-static int dissect_ITypeInfo_GetTypeAttr_resp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_typeinfo_PARAMDESCEX(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
+static unsigned dissect_typeinfo_PARAMDESCEX_through_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_typeinfo_PARAMDESC(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
+static unsigned dissect_typeinfo_TYPEDESC_item(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_typeinfo_TYPEDESC(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
+static unsigned dissect_typeinfo_ELEMDESC(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
+static unsigned dissect_typeinfo_ELEMDESC_through_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_typeinfo_ELEMDESC_array(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_typeinfo_FUNCDESC(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
+static unsigned dissect_typeinfo_TYPEATTR(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex);
+static unsigned dissect_typeinfo_TYPEATTR_through_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_typeinfo_FUNCDESC_through_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_ITypeInfo_GetFuncDesc_rqst(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_ITypeInfo_GetFuncDesc_resp(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_ITypeInfo_GetNames_rqst(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_ITypeInfo_GetNames_resp(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_ITypeInfo_GetDocumentation_rqst(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_ITypeInfo_GetDocumentation_resp(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_ITypeInfo_GetTypeAttr_rqst(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned dissect_ITypeInfo_GetTypeAttr_resp(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
 
-int dissect_typeinfo_PARAMDESCEX(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned dissect_typeinfo_PARAMDESCEX(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                              proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex)
 {
     uint32_t u32Pointer;
@@ -252,13 +252,13 @@ int dissect_typeinfo_PARAMDESCEX(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
-int dissect_typeinfo_PARAMDESCEX_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned dissect_typeinfo_PARAMDESCEX_through_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                                              proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     return dissect_typeinfo_PARAMDESCEX(tvb, offset, pinfo, tree, di, drep, hf_typeinfo_paramdescex);
 }
 
-int dissect_typeinfo_PARAMDESC(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned dissect_typeinfo_PARAMDESC(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                            proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex)
 {
     uint16_t u16wParamFlags;
@@ -302,13 +302,13 @@ int dissect_typeinfo_PARAMDESC(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
-int dissect_typeinfo_TYPEDESC_item(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned dissect_typeinfo_TYPEDESC_item(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                                proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     return dissect_typeinfo_TYPEDESC(tvb, offset, pinfo, tree, di, drep, hf_typeinfo_typedesc);
 }
 
-int dissect_typeinfo_TYPEDESC(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned dissect_typeinfo_TYPEDESC(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                           proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex)
 {
     uint16_t u16vtrettag;
@@ -353,7 +353,7 @@ int dissect_typeinfo_TYPEDESC(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
-int dissect_typeinfo_ELEMDESC(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned dissect_typeinfo_ELEMDESC(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                           proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex)
 {
     proto_item *sub_item;
@@ -376,19 +376,19 @@ int dissect_typeinfo_ELEMDESC(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
-int dissect_typeinfo_ELEMDESC_through_pointer(tvbuff_t *tvb, int offset,
+static unsigned dissect_typeinfo_ELEMDESC_through_pointer(tvbuff_t *tvb, unsigned offset,
                                      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     return dissect_typeinfo_ELEMDESC(tvb, offset, pinfo, tree, di, drep, hf_typeinfo_funcdesc_elemdesc);
 }
 
-int dissect_typeinfo_ELEMDESC_array(tvbuff_t *tvb, int offset,
+static unsigned dissect_typeinfo_ELEMDESC_array(tvbuff_t *tvb, unsigned offset,
                            packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     return dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, dissect_typeinfo_ELEMDESC_through_pointer);
 }
 
-int dissect_typeinfo_FUNCDESC(tvbuff_t *tvb, int offset,
+static unsigned dissect_typeinfo_FUNCDESC(tvbuff_t *tvb, unsigned offset,
                           packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex)
 {
     uint16_t u16Funcflags;
@@ -482,13 +482,13 @@ int dissect_typeinfo_FUNCDESC(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-int dissect_typeinfo_FUNCDESC_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned dissect_typeinfo_FUNCDESC_through_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                                           proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     return dissect_typeinfo_FUNCDESC(tvb, offset, pinfo, tree, di, drep, hf_typeinfo_funcdesc);
 }
 
-int dissect_typeinfo_TYPEATTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned dissect_typeinfo_TYPEATTR(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                               proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex)
 {
     uint16_t u16wTypeFlags;
@@ -603,7 +603,7 @@ int dissect_typeinfo_TYPEATTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
-int dissect_typeinfo_TYPEATTR_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned dissect_typeinfo_TYPEATTR_through_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                                               proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_typeinfo_TYPEATTR(tvb, offset, pinfo, tree, di, drep, hf_typeinfo_typeattr);
@@ -611,8 +611,8 @@ int dissect_typeinfo_TYPEATTR_through_pointer(tvbuff_t *tvb, int offset, packet_
     return offset;
 }
 
-static int
-dissect_bstr_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+static unsigned
+dissect_bstr_through_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     char szName[1000] = {0};
     offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, di, drep,
@@ -620,8 +620,8 @@ dissect_bstr_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
     return offset;
 }
 
-static int
-dissect_dword_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+static unsigned
+dissect_dword_through_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
                                 di->hf_index, NULL);
@@ -629,7 +629,7 @@ dissect_dword_through_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     return offset;
 }
 
-int dissect_ITypeInfo_GetFuncDesc_rqst(tvbuff_t *tvb, int offset,
+static unsigned dissect_ITypeInfo_GetFuncDesc_rqst(tvbuff_t *tvb, unsigned offset,
                                        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -640,7 +640,7 @@ int dissect_ITypeInfo_GetFuncDesc_rqst(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-int dissect_ITypeInfo_GetFuncDesc_resp(tvbuff_t *tvb, int offset,
+static unsigned dissect_ITypeInfo_GetFuncDesc_resp(tvbuff_t *tvb, unsigned offset,
                                        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -659,7 +659,7 @@ int dissect_ITypeInfo_GetFuncDesc_resp(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-int dissect_ITypeInfo_GetNames_rqst(tvbuff_t *tvb, int offset,
+static unsigned dissect_ITypeInfo_GetNames_rqst(tvbuff_t *tvb, unsigned offset,
                                     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -675,7 +675,7 @@ int dissect_ITypeInfo_GetNames_rqst(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-int dissect_ITypeInfo_GetNames_resp(tvbuff_t *tvb, int offset,
+static unsigned dissect_ITypeInfo_GetNames_resp(tvbuff_t *tvb, unsigned offset,
                                     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32ArrayLength;
@@ -731,7 +731,7 @@ int dissect_ITypeInfo_GetNames_resp(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-int dissect_ITypeInfo_GetDocumentation_rqst(tvbuff_t *tvb, int offset,
+static unsigned dissect_ITypeInfo_GetDocumentation_rqst(tvbuff_t *tvb, unsigned offset,
                                             packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Flags;
@@ -762,7 +762,7 @@ int dissect_ITypeInfo_GetDocumentation_rqst(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-int dissect_ITypeInfo_GetDocumentation_resp(tvbuff_t *tvb, int offset,
+static unsigned dissect_ITypeInfo_GetDocumentation_resp(tvbuff_t *tvb, unsigned offset,
                                             packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -784,14 +784,14 @@ int dissect_ITypeInfo_GetDocumentation_resp(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-int dissect_ITypeInfo_GetTypeAttr_rqst(tvbuff_t *tvb, int offset,
+static unsigned dissect_ITypeInfo_GetTypeAttr_rqst(tvbuff_t *tvb, unsigned offset,
                                        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
     return offset;
 }
 
-int dissect_ITypeInfo_GetTypeAttr_resp(tvbuff_t *tvb, int offset,
+static unsigned dissect_ITypeInfo_GetTypeAttr_resp(tvbuff_t *tvb, unsigned offset,
                                        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);

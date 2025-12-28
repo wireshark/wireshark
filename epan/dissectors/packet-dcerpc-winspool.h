@@ -17,8 +17,8 @@
 
 #define IREMOTEWINSPOOL_OBJECT_GUID	( "9940CA8E-512F-4C58-88A9-61098D6896BD" )
 
-int iremotewinspool_dissect_struct_winspool_NOTIFY_REPLY_CONTAINER(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int iremotewinspool_dissect_struct_winspool_NOTIFY_OPTIONS_CONTAINER(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned iremotewinspool_dissect_struct_winspool_NOTIFY_REPLY_CONTAINER(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned iremotewinspool_dissect_struct_winspool_NOTIFY_OPTIONS_CONTAINER(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define winspool_PropertyTypeString (1)
 #define winspool_PropertyTypeInt32 (2)
 #define winspool_PropertyTypeInt64 (3)
@@ -29,10 +29,10 @@ int iremotewinspool_dissect_struct_winspool_NOTIFY_OPTIONS_CONTAINER(tvbuff_t *t
 #define winspool_PropertyTypeNotificationReply (8)
 #define winspool_PropertyTypeNotificationOptions (9)
 extern const value_string iremotewinspool_winspool_PrintPropertyType_vals[];
-int iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int iremotewinspool_dissect_struct_winspool_PrintPropertyValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int iremotewinspool_dissect_struct_winspool_PrintNamedProperty(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int iremotewinspool_dissect_struct_winspool_PrintPropertiesCollection(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int iremotewinspool_dissect_bitmap_winspool_InstallPrinterDriverFromPackageFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int iremotewinspool_dissect_bitmap_winspool_UploadPrinterDriverPackageFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned iremotewinspool_dissect_enum_winspool_PrintPropertyType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned iremotewinspool_dissect_struct_winspool_PrintPropertyValue(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned iremotewinspool_dissect_struct_winspool_PrintNamedProperty(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned iremotewinspool_dissect_struct_winspool_PrintPropertiesCollection(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned iremotewinspool_dissect_bitmap_winspool_InstallPrinterDriverFromPackageFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned iremotewinspool_dissect_bitmap_winspool_UploadPrinterDriverPackageFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #endif /* __PACKET_DCERPC_IREMOTEWINSPOOL_H */

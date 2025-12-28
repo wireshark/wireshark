@@ -44,8 +44,8 @@ static int hf_krb5rpc_sendto_kdc_resp_keysize;
 static int hf_krb5rpc_krb5;
 static int ett_krb5rpc_krb5;
 
-static int
-krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
+static unsigned
+krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, unsigned offset,
                                  packet_info * pinfo, proto_tree * tree,
                                  dcerpc_info *di, uint8_t *drep)
 {
@@ -81,8 +81,8 @@ krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
 }
 
 
-static int
-krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, int offset,
+static unsigned
+krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, unsigned offset,
                                  packet_info * pinfo, proto_tree * tree,
                                  dcerpc_info *di, uint8_t *drep)
 {

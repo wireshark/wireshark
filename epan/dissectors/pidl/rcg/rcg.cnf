@@ -20,8 +20,8 @@ CODE START
  #include <epan/asn1.h>
  #include "packet-kerberos.h"
 
-static int
-rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_ , guint8 *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_ , guint8 *drep _U_)
 {
         if (di->conformant_run)
             return offset;
@@ -38,8 +38,8 @@ rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-int
-rcg_dissect_struct_KerbCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+unsigned
+rcg_dissect_struct_KerbCredIsoRemoteOutput(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	guint16 CallId = 0;
 	proto_item *item = NULL;
@@ -71,8 +71,8 @@ rcg_dissect_struct_KerbCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-int
-rcg_dissect_struct_KerbCredIsoRemoteInput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+unsigned
+rcg_dissect_struct_KerbCredIsoRemoteInput(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	guint16 CallId = 0;
 	proto_item *item = NULL;
@@ -102,8 +102,8 @@ rcg_dissect_struct_KerbCredIsoRemoteInput(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-int
-rcg_dissect_struct_NtlmCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_NtlmCredIsoRemoteOutput(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	uint16_t CallId = 0;
 	proto_item *item = NULL;
@@ -137,8 +137,8 @@ rcg_dissect_struct_NtlmCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 
-int
-rcg_dissect_struct_NtlmCredIsoRemoteInput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_NtlmCredIsoRemoteInput(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	uint16_t CallId = 0;
 	proto_item *item = NULL;

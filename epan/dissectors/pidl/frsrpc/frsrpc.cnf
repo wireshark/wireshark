@@ -11,8 +11,8 @@ MANUAL frsrpc_dissect_enum_CommPktCommand
 MANUAL frsrpc_dissect_struct_CommPktChunk
 
 CODE START
-static int
-frsrpc_dissect_element_CommPktChangeOrderCommand_file_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_)
+static unsigned
+frsrpc_dissect_element_CommPktChangeOrderCommand_file_name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_)
 {
 	int conformant = di->conformant_run;
 
@@ -26,8 +26,8 @@ frsrpc_dissect_element_CommPktChangeOrderCommand_file_name(tvbuff_t *tvb _U_, in
 	return offset;
 }
 
-int
-frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	uint1632_t type = 0;
 	int i = 0;
@@ -66,8 +66,8 @@ frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	return offset;
 }
 
-int
-frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
+unsigned
+frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_)
 {
 	uint32_t parameter=0;
 	int i = 0;
@@ -93,8 +93,8 @@ frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 
-static int
-frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_, int hf_index, uint32_t param _U_)
+static unsigned
+frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_, int hf_index, uint32_t param _U_)
 {
 	uint32_t remaining = tvb_reported_length_remaining(tvb, offset);
 	int align_status = di->no_align;

@@ -56,8 +56,8 @@ static uint16_t ver_dcerpc_tapi = 1;
   IDL         [in] [string] [ref] wchar_t *element_5
   IDL   );
 */
-static int
-dissect_tapi_client_attach_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_tapi_client_attach_rqst(tvbuff_t *tvb, unsigned offset,
 			packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, uint8_t *drep)
 {
@@ -74,8 +74,8 @@ dissect_tapi_client_attach_rqst(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-static int
-dissect_tapi_client_attach_reply(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_tapi_client_attach_reply(tvbuff_t *tvb, unsigned offset,
 			packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, uint8_t *drep)
 {
@@ -98,8 +98,8 @@ dissect_tapi_client_attach_reply(tvbuff_t *tvb, int offset,
   IDL         [in] long element_8
   IDL   );
 */
-static int
-dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_tapi_TYPE_1(tvbuff_t *tvb, unsigned offset,
 			packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, uint8_t *drep)
 {
@@ -117,8 +117,8 @@ dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-dissect_tapi_client_request_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_tapi_client_request_rqst(tvbuff_t *tvb, unsigned offset,
 			packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, uint8_t *drep)
 {
@@ -134,8 +134,8 @@ dissect_tapi_client_request_rqst(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-static int
-dissect_tapi_client_request_reply(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_tapi_client_request_reply(tvbuff_t *tvb, unsigned offset,
 			packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, uint8_t *drep)
 {
@@ -151,15 +151,15 @@ dissect_tapi_client_request_reply(tvbuff_t *tvb, int offset,
   IDL         void
   IDL   );
 */
-static int
-dissect_tapi_client_detach_rqst(tvbuff_t *tvb _U_, int offset,
+static unsigned
+dissect_tapi_client_detach_rqst(tvbuff_t *tvb _U_, unsigned offset,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
 			dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	return offset;
 }
-static int
-dissect_tapi_client_detach_reply(tvbuff_t *tvb _U_, int offset,
+static unsigned
+dissect_tapi_client_detach_reply(tvbuff_t *tvb _U_, unsigned offset,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
 			dcerpc_info *di _U_, uint8_t *drep _U_)
 {

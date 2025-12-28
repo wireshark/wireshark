@@ -37,8 +37,8 @@ static e_guid_t uuid_conv = { 0x333a2276, 0x0000, 0x0000, { 0x0d, 0x00, 0x00, 0x
 static uint16_t ver_conv = 3;
 
 
-static int
-conv_dissect_who_are_you_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+conv_dissect_who_are_you_rqst (tvbuff_t *tvb, unsigned offset,
 			       packet_info *pinfo, proto_tree *tree,
 			       dcerpc_info *di, uint8_t *drep)
 {
@@ -60,8 +60,8 @@ conv_dissect_who_are_you_rqst (tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-conv_dissect_who_are_you_resp (tvbuff_t *tvb, int offset,
+static unsigned
+conv_dissect_who_are_you_resp (tvbuff_t *tvb, unsigned offset,
 			       packet_info *pinfo, proto_tree *tree,
 			       dcerpc_info *di, uint8_t *drep)
 {
@@ -83,8 +83,8 @@ conv_dissect_who_are_you_resp (tvbuff_t *tvb, int offset,
 
 
 
-static int
-conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, unsigned offset,
 				packet_info *pinfo, proto_tree *tree,
 				dcerpc_info *di, uint8_t *drep)
 {
@@ -105,8 +105,8 @@ conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-static int
-conv_dissect_who_are_you2_resp (tvbuff_t *tvb, int offset,
+static unsigned
+conv_dissect_who_are_you2_resp (tvbuff_t *tvb, unsigned offset,
 				packet_info *pinfo, proto_tree *tree,
 				dcerpc_info *di, uint8_t *drep)
 {

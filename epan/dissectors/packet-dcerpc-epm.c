@@ -81,11 +81,11 @@ static const value_string ep_service[] = {
       [size_is(tower_len)] char tower[];
    } twr_t, *twr_p_t;
 */
-static int epm_dissect_tower (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
+static unsigned epm_dissect_tower (tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
 
 
-static int
-epm_dissect_pointer_IF_ID(tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_pointer_IF_ID(tvbuff_t *tvb, unsigned offset,
                           packet_info *pinfo, proto_tree *tree,
                           dcerpc_info *di, uint8_t *drep)
 {
@@ -98,8 +98,8 @@ epm_dissect_pointer_IF_ID(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int
-epm_dissect_pointer_UUID(tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_pointer_UUID(tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -108,8 +108,8 @@ epm_dissect_pointer_UUID(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int
-epm_dissect_ept_lookup_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_lookup_rqst (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -136,8 +136,8 @@ epm_dissect_ept_lookup_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_entry_t(tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *parent_tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -181,8 +181,8 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int
-epm_dissect_ept_entry_t_array(tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_entry_t_array(tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -192,8 +192,8 @@ epm_dissect_ept_entry_t_array(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int
-epm_dissect_ept_lookup_resp (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_lookup_resp (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -213,8 +213,8 @@ epm_dissect_ept_lookup_resp (tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int
-epm_dissect_uuid (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_uuid (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -294,8 +294,8 @@ static const value_string proto_id_vals[] = {
 /* XXX this function assumes LE encoding. can not use the NDR routines
    since they assume padding.
 */
-static int
-epm_dissect_tower_data (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_tower_data (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep _U_)
 {
@@ -455,8 +455,8 @@ epm_fmt_uuid_version( char *result, uint32_t revision )
       [size_is(tower_len)] char tower[];
    } twr_t, *twr_p_t;
 */
-static int
-epm_dissect_tower (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_tower (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -476,8 +476,8 @@ epm_dissect_tower (tvbuff_t *tvb, int offset,
 
     return offset;
 }
-static int
-epm_dissect_tower_pointer (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_tower_pointer (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -486,8 +486,8 @@ epm_dissect_tower_pointer (tvbuff_t *tvb, int offset,
                              "Tower pointer:", -1);
     return offset;
 }
-static int
-epm_dissect_tower_array (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_tower_array (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -497,8 +497,8 @@ epm_dissect_tower_array (tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int
-epm_dissect_ept_map_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_map_rqst (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -523,8 +523,8 @@ epm_dissect_ept_map_rqst (tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int
-epm_dissect_ept_map_resp (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_map_resp (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -548,8 +548,8 @@ epm_dissect_ept_map_resp (tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int
-epm_dissect_ept_entry_t_ucarray(tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_entry_t_ucarray(tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -559,8 +559,8 @@ epm_dissect_ept_entry_t_ucarray(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int
-epm_dissect_ept_insert_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_insert_rqst (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -579,8 +579,8 @@ epm_dissect_ept_insert_rqst (tvbuff_t *tvb, int offset,
 
 
 
-static int
-epm_dissect_ept_insert_resp (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_insert_resp (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -592,8 +592,8 @@ epm_dissect_ept_insert_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static int
-epm_dissect_ept_delete_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_delete_rqst (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -609,8 +609,8 @@ epm_dissect_ept_delete_rqst (tvbuff_t *tvb, int offset,
 
 
 
-static int
-epm_dissect_ept_delete_resp (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_delete_resp (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -623,8 +623,8 @@ epm_dissect_ept_delete_resp (tvbuff_t *tvb, int offset,
 
 
 
-static int
-epm_dissect_ept_lookup_handle_free_rqst (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_lookup_handle_free_rqst (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
@@ -635,8 +635,8 @@ epm_dissect_ept_lookup_handle_free_rqst (tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int
-epm_dissect_ept_lookup_handle_free_resp (tvbuff_t *tvb, int offset,
+static unsigned
+epm_dissect_ept_lookup_handle_free_resp (tvbuff_t *tvb, unsigned offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {

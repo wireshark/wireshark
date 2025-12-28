@@ -136,7 +136,7 @@ MANUAL winreg_dissect_bitmap_AccessMask
 CODE START
  #include "packet-dcerpc-lsa.h"
 static void
-winreg_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
+winreg_specific_rights(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint32_t access)
 {
 	static int* const access_flags[] = {
 		&hf_winreg_winreg_AccessMask_KEY_WOW64_32KEY,
@@ -160,8 +160,8 @@ static struct access_mask_info winreg_access_mask_info = {
 	NULL			/* Standard mapping table */
 };
 
-static int
-winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
+static unsigned
+winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	uint32_t len;
 
@@ -183,8 +183,8 @@ winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_i
 	return offset;
 }
 
-int
-winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
+unsigned
+winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_winreg_access_mask,
@@ -199,8 +199,8 @@ winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, 
  *		[string,charset(UTF16)] uint16 *name;
  *	} winreg_String;
  */
-static int
-cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, uint32_t param, int hfindex)
+static unsigned
+cnf_dissect_winreg_String(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, uint32_t param, int hfindex)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;

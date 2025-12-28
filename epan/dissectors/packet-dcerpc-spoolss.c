@@ -384,7 +384,7 @@ static int hf_printer_access_use;
 static int hf_job_access_admin;
 
 static void
-spoolss_printer_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree,
+spoolss_printer_specific_rights(tvbuff_t *tvb, unsigned offset, proto_tree *tree,
 				uint32_t access)
 {
 	proto_tree_add_boolean(
@@ -402,7 +402,7 @@ struct access_mask_info spoolss_printer_access_mask_info = {
 };
 
 static void
-spoolss_printserver_specific_rights(tvbuff_t *tvb, int offset,
+spoolss_printserver_specific_rights(tvbuff_t *tvb, unsigned offset,
 				    proto_tree *tree, uint32_t access)
 {
 	proto_tree_add_boolean(
@@ -420,7 +420,7 @@ static struct access_mask_info spoolss_printserver_access_mask_info = {
 };
 
 static void
-spoolss_job_specific_rights(tvbuff_t *tvb, int offset,
+spoolss_job_specific_rights(tvbuff_t *tvb, unsigned offset,
 			    proto_tree *tree, uint32_t access)
 {
 	proto_tree_add_boolean(
@@ -446,8 +446,8 @@ typedef struct {
 
 static int ett_BUFFER;
 
-static int
-dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_buffer_data(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	BUFFER *b = (BUFFER *)di->private_data;
@@ -501,8 +501,8 @@ dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Dissect a spoolss buffer and return buffer data */
 
-static int
-dissect_spoolss_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_buffer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, BUFFER *b)
 {
 	if (b)
@@ -518,8 +518,8 @@ dissect_spoolss_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_string_parm_data(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t buffer_len;
@@ -558,8 +558,8 @@ dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Dissect a spoolss string parameter */
 
-static int
-dissect_spoolss_string_parm(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_string_parm(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, const char *text)
 {
 	offset = dissect_ndr_pointer(
@@ -585,8 +585,8 @@ static int hf_time_minute;
 static int hf_time_second;
 static int hf_time_msec;
 
-static int
-dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_SYSTEM_TIME(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		    proto_tree *tree, dcerpc_info *di, uint8_t *drep, const char *name,
 		    bool add_subtree, char **data)
 {
@@ -637,8 +637,8 @@ dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-dissect_SYSTEM_TIME_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_SYSTEM_TIME_ptr(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -656,8 +656,8 @@ dissect_SYSTEM_TIME_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * SpoolssClosePrinter
  */
 
-static int
-SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssClosePrinter_q(tvbuff_t *tvb, unsigned offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, uint8_t *drep)
 {
@@ -680,8 +680,8 @@ SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssClosePrinter_r(tvbuff_t *tvb, unsigned offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, uint8_t *drep)
 {
@@ -706,8 +706,8 @@ SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 static int ett_printerdata_data;
 static int ett_printerdata_value;
 
-static int
-dissect_printerdata_data(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_printerdata_data(tvbuff_t *tvb, unsigned offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    dcerpc_info *di, uint8_t *drep, uint32_t type)
 {
@@ -776,8 +776,8 @@ dissect_printerdata_data(tvbuff_t *tvb, int offset,
  * SpoolssGetPrinterData
  */
 
-static int
-SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetPrinterData_q(tvbuff_t *tvb, unsigned offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   dcerpc_info *di, uint8_t *drep)
 {
@@ -815,8 +815,8 @@ SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetPrinterData_r(tvbuff_t *tvb, unsigned offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   dcerpc_info *di, uint8_t *drep)
 {
@@ -854,8 +854,8 @@ SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
  * SpoolssGetPrinterDataEx
  */
 
-static int
-SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {
@@ -903,8 +903,8 @@ SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {
@@ -946,8 +946,8 @@ SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
  * SpoolssSetPrinterData
  */
 
-static int
-SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssSetPrinterData_q(tvbuff_t *tvb, unsigned offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   dcerpc_info *di, uint8_t *drep)
 {
@@ -996,8 +996,8 @@ SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssSetPrinterData_r(tvbuff_t *tvb, unsigned offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   dcerpc_info *di, uint8_t *drep)
 {
@@ -1023,8 +1023,8 @@ static int hf_setprinterdataex_max_len;
 static int hf_setprinterdataex_real_len;
 static int hf_setprinterdataex_data;
 
-static int
-SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {
@@ -1071,8 +1071,8 @@ SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {
@@ -1091,8 +1091,8 @@ SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 }
 
 /* XXX - "name" should be an hf_ value for an FT_STRING. */
-static int
-dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+static unsigned
+dissect_spoolss_uint16uni(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
 			  proto_tree *tree, uint8_t *drep _U_, char **data,
 			  int hf_name)
 {
@@ -1403,8 +1403,8 @@ static const value_string devmode_dithertype_vals[] =
 
 static int ett_DEVMODE_fields;
 
-static int
-dissect_DEVMODE_fields(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_DEVMODE_fields(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, uint32_t *pdata)
 {
 	uint32_t fields;
@@ -1459,8 +1459,8 @@ dissect_DEVMODE_fields(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_DEVMODE;
 
-static int
-dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_DEVMODE(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_item *item;
@@ -1642,8 +1642,8 @@ dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_DEVMODE_CTR;
 
-int
-dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_DEVMODE_CTR(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			       proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_tree *subtree;
@@ -1670,8 +1670,8 @@ dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_RELSTR;
 
-static int
-dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_relstr(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hf_index,
 		       int struct_start, char **data)
 {
@@ -1720,8 +1720,8 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_RELSTR_ARRAY;
 
-static int
-dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_relstrarray(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hf_index,
 			    int struct_start, char **data)
 {
@@ -1799,8 +1799,8 @@ static value_string_ext printer_status_vals_ext = VALUE_STRING_EXT_INIT(printer_
 
 static int ett_PRINTER_INFO_0;
 
-static int
-dissect_PRINTER_INFO_0(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PRINTER_INFO_0(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -1922,8 +1922,8 @@ dissect_PRINTER_INFO_0(tvbuff_t *tvb, int offset,
 
 static int ett_PRINTER_INFO_1;
 
-static int
-dissect_PRINTER_INFO_1(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PRINTER_INFO_1(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -2005,8 +2005,8 @@ static const true_false_string tfs_job_status_user_intervention = {
 
 static int ett_job_status;
 
-static int
-dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_job_status(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t status;
@@ -2123,8 +2123,8 @@ static const true_false_string tfs_printer_attributes_published = {
 	"The printer is not published in the directory"
 };
 
-static int
-dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_printer_attributes(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t attributes;
@@ -2232,8 +2232,8 @@ static const true_false_string tfs_printer_driver_attributes_category_3d = {
 	"Printer Driver is not a 3D Printer Driver"
 };
 
-static int
-dissect_printer_driver_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_printer_driver_attributes(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				  proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t attributes;
@@ -2268,8 +2268,8 @@ dissect_printer_driver_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_PRINTER_INFO_2;
 
-static int
-dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PRINTER_INFO_2(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -2385,8 +2385,8 @@ dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 
 static int ett_PRINTER_INFO_3;
 
-static int
-dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PRINTER_INFO_3(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -2408,8 +2408,8 @@ dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
 
 static int ett_PRINTER_INFO_5;
 
-static int
-dissect_PRINTER_INFO_5(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PRINTER_INFO_5(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -2450,8 +2450,8 @@ static const value_string getprinter_action_vals[] = {
 	{ 0, NULL }
 };
 
-static int
-dissect_PRINTER_INFO_7(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PRINTER_INFO_7(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -2472,8 +2472,8 @@ dissect_PRINTER_INFO_7(tvbuff_t *tvb, int offset,
 
 static int ett_PRINTER_DATATYPE;
 
-static int
-dissect_PRINTER_DATATYPE(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_PRINTER_DATATYPE(tvbuff_t *tvb, unsigned offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    dcerpc_info *di, uint8_t *drep)
 {
@@ -2501,8 +2501,8 @@ static int hf_userlevel_major;
 static int hf_userlevel_minor;
 static int hf_userlevel_processor;
 
-static int
-dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_USER_LEVEL_1(tvbuff_t *tvb, unsigned offset,
 				packet_info *pinfo, proto_tree *tree,
 				dcerpc_info *di, uint8_t *drep)
 {
@@ -2548,8 +2548,8 @@ dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset,
 
 static int ett_USER_LEVEL_CTR;
 
-int
-dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset,
+unsigned
+dissect_USER_LEVEL_CTR(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -2585,8 +2585,8 @@ dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset,
  * SpoolssOpenPrinterEx
  */
 
-static int
-SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssOpenPrinterEx_q(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -2649,8 +2649,8 @@ SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssOpenPrinterEx_r(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -2748,8 +2748,8 @@ static const value_string job_notify_option_data_vals[] = {
 };
 static value_string_ext job_notify_option_data_vals_ext = VALUE_STRING_EXT_INIT(job_notify_option_data_vals);
 
-static int
-dissect_notify_field(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_notify_field(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		     proto_tree *tree, dcerpc_info *di, uint8_t *drep, uint16_t type,
 		     uint16_t *data)
 {
@@ -2782,8 +2782,8 @@ dissect_notify_field(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-dissect_NOTIFY_OPTION_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_NOTIFY_OPTION_DATA(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2824,8 +2824,8 @@ char *notify_plural(int count)
 
 static int ett_NOTIFY_OPTION;
 
-static int
-dissect_NOTIFY_OPTION(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_NOTIFY_OPTION(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		      proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2868,8 +2868,8 @@ dissect_NOTIFY_OPTION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-dissect_NOTIFY_OPTIONS_ARRAY(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_NOTIFY_OPTIONS_ARRAY(tvbuff_t *tvb, unsigned offset,
 			     packet_info *pinfo, proto_tree *tree,
 			     dcerpc_info *di, uint8_t *drep)
 {
@@ -2888,8 +2888,8 @@ static const true_false_string tfs_notify_options_flags_refresh = {
 	"Data for all monitored fields not present"
 };
 
-static int
-dissect_notify_options_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_notify_options_flags(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t flags;
@@ -2906,8 +2906,8 @@ dissect_notify_options_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-int
-dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, int offset,
+unsigned
+dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, unsigned offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, uint8_t *drep)
 {
@@ -3066,8 +3066,8 @@ static const true_false_string tfs_rffpcnex_flags_timeout = {
 	"Don't notify on timeout"
 };
 
-static int
-SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssRFFPCNEX_q(tvbuff_t *tvb, unsigned offset,
 			     packet_info *pinfo, proto_tree *tree,
 			     dcerpc_info *di, uint8_t *drep)
 {
@@ -3125,8 +3125,8 @@ SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssRFFPCNEX_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssRFFPCNEX_r(tvbuff_t *tvb, unsigned offset,
 			     packet_info *pinfo, proto_tree *tree,
 			     dcerpc_info *di, uint8_t *drep)
 {
@@ -3142,8 +3142,8 @@ SpoolssRFFPCNEX_r(tvbuff_t *tvb, int offset,
  * SpoolssReplyOpenPrinter
  */
 
-static int
-SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {
@@ -3186,8 +3186,8 @@ SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {
@@ -3230,8 +3230,8 @@ SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
  */
 
 
-static int
-SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssGetPrinter_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			       proto_tree *tree, dcerpc_info *di, uint8_t *drep )
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -3265,8 +3265,8 @@ SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_PRINTER_INFO;
 
-static int
-SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssGetPrinter_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -3335,8 +3335,8 @@ static int hf_secdescbuf_maxlen;
 static int hf_secdescbuf_undoc;
 static int hf_secdescbuf_len;
 
-static int
-dissect_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_SEC_DESC_BUF(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		     proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_tree *subtree;
@@ -3383,8 +3383,8 @@ static int ett_SPOOL_PRINTER_INFO_LEVEL;
 static int hf_spool_printer_info_devmode_ptr;
 static int hf_spool_printer_info_secdesc_ptr;
 
-int
-dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_tree *subtree;
@@ -3449,8 +3449,8 @@ static const value_string setprinter_cmd_vals[] = {
 	{ 0, NULL }
 };
 
-static int
-SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssSetPrinter_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			       proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t level;
@@ -3476,8 +3476,8 @@ SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssSetPrinter_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	/* Parse packet */
@@ -3502,8 +3502,8 @@ static const value_string form_type_vals[] =
 
 static int ett_FORM_REL;
 
-static int
-dissect_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_FORM_REL(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep, int struct_start)
 {
 	proto_item *item;
@@ -3558,8 +3558,8 @@ dissect_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * SpoolssEnumForms
  */
 
-static int
-SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssEnumForms_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			      proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -3595,8 +3595,8 @@ SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssEnumForms_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			      proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -3647,8 +3647,8 @@ SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * SpoolssDeletePrinter
  */
 
-static int
-SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssDeletePrinter_q(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -3661,8 +3661,8 @@ SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssDeletePrinter_r(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -3678,8 +3678,8 @@ SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssAddPrinterEx_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				 proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -3727,8 +3727,8 @@ static int hf_enumprinterdata_value_len;
 static int hf_enumprinterdata_value_needed;
 static int hf_enumprinterdata_data_needed;
 
-static int
-SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEnumPrinterData_q(tvbuff_t *tvb, unsigned offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    dcerpc_info *di, uint8_t *drep)
 {
@@ -3762,8 +3762,8 @@ SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEnumPrinterData_r(tvbuff_t *tvb, unsigned offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    dcerpc_info *di, uint8_t *drep)
 {
@@ -3838,8 +3838,8 @@ static int hf_enumprinters_flags_connections;
 static int hf_enumprinters_flags_network;
 static int hf_enumprinters_flags_remote;
 
-static int
-SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssEnumPrinters_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				 proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t level, flags;
@@ -3885,8 +3885,8 @@ SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssEnumPrinters_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				 proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t num_drivers;
@@ -3953,8 +3953,8 @@ SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /*
  * AddPrinterDriver
  */
-static int
-SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssAddPrinterDriver_r(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {
@@ -3972,8 +3972,8 @@ SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
 
 static int ett_FORM_1;
 
-static int
-dissect_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_FORM_1(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			  proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_tree *subtree;
@@ -4032,8 +4032,8 @@ dissect_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_FORM_CTR;
 
-int
-dissect_FORM_CTR(tvbuff_t *tvb, int offset,
+unsigned
+dissect_FORM_CTR(tvbuff_t *tvb, unsigned offset,
 			    packet_info *pinfo, proto_tree *tree,
 			    dcerpc_info *di, uint8_t *drep)
 {
@@ -4063,8 +4063,8 @@ dissect_FORM_CTR(tvbuff_t *tvb, int offset,
  * AddForm
  */
 
-static int
-SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssAddForm_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -4096,8 +4096,8 @@ SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssAddForm_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_item *hidden_item;
@@ -4118,8 +4118,8 @@ SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * DeleteForm
  */
 
-static int
-SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssDeleteForm_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			       proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_item *hidden_item;
@@ -4145,8 +4145,8 @@ SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssDeleteForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssDeleteForm_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_item *hidden_item;
@@ -4167,8 +4167,8 @@ SpoolssDeleteForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * SetForm
  */
 
-static int
-SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssSetForm_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	char *name = NULL;
@@ -4202,8 +4202,8 @@ SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssSetForm_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_item *hidden_item;
@@ -4224,8 +4224,8 @@ SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * GetForm
  */
 
-static int
-SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssGetForm_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -4268,8 +4268,8 @@ SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssGetForm_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -4321,8 +4321,8 @@ SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
    unimplemented dissectors so the status code can be inserted into the
    INFO column. */
 
-static int
-SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssGeneric_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	int len = tvb_reported_length(tvb);
@@ -4341,8 +4341,8 @@ SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_JOB_INFO_1;
 
-static int
-dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_item *item;
@@ -4410,8 +4410,8 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_JOB_INFO_2;
 
-static int
-dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_item *item;
@@ -4531,8 +4531,8 @@ dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int hf_enumjobs_firstjob;
 static int hf_enumjobs_numjobs;
 
-static int
-SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssEnumJobs_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -4568,8 +4568,8 @@ SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssEnumJobs_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -4632,8 +4632,8 @@ static const value_string setjob_commands[] = {
 
 static int hf_setjob_cmd;
 
-static int
-SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssSetJob_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t jobid, cmd;
@@ -4661,8 +4661,8 @@ SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssSetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssSetJob_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	/* Parse packet */
@@ -4677,8 +4677,8 @@ SpoolssSetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * GetJob
  */
 
-static int
-SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssGetJob_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -4712,8 +4712,8 @@ SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssGetJob_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -4754,8 +4754,8 @@ SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * StartPagePrinter
  */
 
-static int
-SpoolssStartPagePrinter_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssStartPagePrinter_q(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {
@@ -4778,8 +4778,8 @@ SpoolssStartPagePrinter_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssStartPagePrinter_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssStartPagePrinter_r(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {
@@ -4795,8 +4795,8 @@ SpoolssStartPagePrinter_r(tvbuff_t *tvb, int offset,
  * EndPagePrinter
  */
 
-static int
-SpoolssEndPagePrinter_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEndPagePrinter_q(tvbuff_t *tvb, unsigned offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   dcerpc_info *di, uint8_t *drep)
 {
@@ -4819,8 +4819,8 @@ SpoolssEndPagePrinter_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssEndPagePrinter_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEndPagePrinter_r(tvbuff_t *tvb, unsigned offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   dcerpc_info *di, uint8_t *drep)
 {
@@ -4838,8 +4838,8 @@ SpoolssEndPagePrinter_r(tvbuff_t *tvb, int offset,
 
 static int ett_DOC_INFO_1;
 
-static int
-dissect_spoolss_doc_info_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_doc_info_1(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_tree *subtree;
@@ -4862,8 +4862,8 @@ dissect_spoolss_doc_info_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-dissect_spoolss_doc_info_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_doc_info_data(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			      proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	if (di->conformant_run)
@@ -4878,8 +4878,8 @@ dissect_spoolss_doc_info_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_DOC_INFO;
 
-static int
-dissect_spoolss_doc_info(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_doc_info(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			 proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_tree *subtree;
@@ -4905,8 +4905,8 @@ dissect_spoolss_doc_info(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_DOC_INFO_CTR;
 
-int
-dissect_spoolss_doc_info_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_spoolss_doc_info_ctr(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_tree *subtree;
@@ -4927,8 +4927,8 @@ dissect_spoolss_doc_info_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * StartDocPrinter
  */
 
-static int
-SpoolssStartDocPrinter_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssStartDocPrinter_q(tvbuff_t *tvb, unsigned offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    dcerpc_info *di, uint8_t *drep)
 {
@@ -4953,8 +4953,8 @@ SpoolssStartDocPrinter_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssStartDocPrinter_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssStartDocPrinter_r(tvbuff_t *tvb, unsigned offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    dcerpc_info *di, uint8_t *drep)
 {
@@ -4973,8 +4973,8 @@ SpoolssStartDocPrinter_r(tvbuff_t *tvb, int offset,
  * EndDocPrinter
  */
 
-static int
-SpoolssEndDocPrinter_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEndDocPrinter_q(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -4998,8 +4998,8 @@ SpoolssEndDocPrinter_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssEndDocPrinter_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEndDocPrinter_r(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep)
 {
@@ -5019,8 +5019,8 @@ static int ett_writeprinter_buffer;
 
 static int hf_writeprinter_numwritten;
 
-static int
-SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssWritePrinter_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				 proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	e_ctx_hnd policy_hnd;
@@ -5060,8 +5060,8 @@ SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssWritePrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssWritePrinter_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				 proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t size;
@@ -5085,8 +5085,8 @@ SpoolssWritePrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * DeletePrinterData
  */
 
-static int
-SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssDeletePrinterData_q(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      dcerpc_info *di, uint8_t *drep)
 {
@@ -5112,8 +5112,8 @@ SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssDeletePrinterData_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssDeletePrinterData_r(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      dcerpc_info *di, uint8_t *drep)
 {
@@ -5137,8 +5137,8 @@ SpoolssDeletePrinterData_r(tvbuff_t *tvb, int offset,
 
 static int ett_DRIVER_INFO_1;
 
-static int
-dissect_DRIVER_INFO_1(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_DRIVER_INFO_1(tvbuff_t *tvb, unsigned offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, uint8_t *drep)
 {
@@ -5169,8 +5169,8 @@ static const value_string driverinfo_cversion_vals[] =
 
 static int ett_DRIVER_INFO_2;
 
-static int
-dissect_DRIVER_INFO_2(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_DRIVER_INFO_2(tvbuff_t *tvb, unsigned offset,
 	 packet_info *pinfo, proto_tree *tree,
 	 dcerpc_info *di, uint8_t *drep)
 {
@@ -5212,8 +5212,8 @@ dissect_DRIVER_INFO_2(tvbuff_t *tvb, int offset,
 
 static int ett_DRIVER_INFO_3;
 
-static int
-dissect_DRIVER_INFO_3(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_DRIVER_INFO_3(tvbuff_t *tvb, unsigned offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, uint8_t *drep)
 {
@@ -5272,8 +5272,8 @@ dissect_DRIVER_INFO_3(tvbuff_t *tvb, int offset,
 
 static int ett_DRIVER_INFO_6;
 
-static int
-dissect_DRIVER_INFO_6(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_DRIVER_INFO_6(tvbuff_t *tvb, unsigned offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, uint8_t *drep)
 {
@@ -5367,8 +5367,8 @@ dissect_DRIVER_INFO_6(tvbuff_t *tvb, int offset,
 
 static int ett_DRIVER_INFO_8;
 
-static int
-dissect_DRIVER_INFO_8(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_DRIVER_INFO_8(tvbuff_t *tvb, unsigned offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, uint8_t *drep)
 {
@@ -5492,8 +5492,8 @@ dissect_DRIVER_INFO_8(tvbuff_t *tvb, int offset,
 
 static int ett_DRIVER_INFO_101;
 
-static int
-dissect_DRIVER_INFO_101(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_DRIVER_INFO_101(tvbuff_t *tvb, unsigned offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, uint8_t *drep)
 {
@@ -5525,8 +5525,8 @@ dissect_DRIVER_INFO_101(tvbuff_t *tvb, int offset,
 
 static int ett_CORE_PRINTER_DRIVER;
 
-static int
-dissect_CORE_PRINTER_DRIVER(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_CORE_PRINTER_DRIVER(tvbuff_t *tvb, unsigned offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, uint8_t *drep)
 {
@@ -5565,8 +5565,8 @@ dissect_CORE_PRINTER_DRIVER(tvbuff_t *tvb, int offset,
  * EnumPrinterDrivers
  */
 
-static int
-SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, unsigned offset,
 				       packet_info *pinfo, proto_tree *tree,
 				       dcerpc_info *di, uint8_t *drep)
 {
@@ -5601,8 +5601,8 @@ SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, unsigned offset,
 				       packet_info *pinfo, proto_tree *tree,
 				       dcerpc_info *di, uint8_t *drep)
 {
@@ -5675,8 +5675,8 @@ done:
  * GetPrinterDriver2
  */
 
-static int
-SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      dcerpc_info *di, uint8_t *drep)
 {
@@ -5725,8 +5725,8 @@ SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      dcerpc_info *di, uint8_t *drep)
 {
@@ -5786,8 +5786,8 @@ SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-dissect_notify_info_data_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_notify_info_data_buffer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t len;
@@ -5807,7 +5807,7 @@ static void
 cb_notify_str_postprocess(packet_info *pinfo _U_,
 				      proto_tree *tree,
 				      proto_item *item, dcerpc_info *di _U_, tvbuff_t *tvb,
-				      int start_offset, int end_offset,
+				      unsigned start_offset, unsigned end_offset,
 				      void *callback_args)
 {
 	int levels, hf_index = GPOINTER_TO_INT(callback_args);
@@ -5959,8 +5959,8 @@ job_notify_hf_index(int field)
 	return result;
 }
 
-static int
-dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				 proto_tree *tree, proto_item *item,
 				 dcerpc_info *di, uint8_t *drep, uint16_t field)
 {
@@ -6063,7 +6063,7 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 notify_job_time_cb(packet_info *pinfo _U_, proto_tree *tree _U_,
 			       proto_item *item, dcerpc_info *di, tvbuff_t *tvb _U_,
-			       int start_offset _U_, int end_offset _U_,
+			       unsigned start_offset _U_, unsigned end_offset _U_,
 			       void *callback_args _U_)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -6079,8 +6079,8 @@ notify_job_time_cb(packet_info *pinfo _U_, proto_tree *tree _U_,
 		proto_item_append_text(item->parent, ": %s", str);
 }
 
-static int
-dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			     proto_tree *tree, proto_item *item, dcerpc_info *di, uint8_t *drep,
 			     uint16_t field)
 {
@@ -6198,8 +6198,8 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int ett_NOTIFY_INFO_DATA;
 
-static int
-dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			 proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	proto_item *item;
@@ -6269,8 +6269,8 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-int
-dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_NOTIFY_INFO(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t count;
@@ -6299,8 +6299,8 @@ dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * RFNPCNEX
  */
 
-static int
-SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssRFNPCNEX_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t changeid;
@@ -6325,8 +6325,8 @@ SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssRFNPCNEX_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssRFNPCNEX_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	/* Parse packet */
@@ -6346,8 +6346,8 @@ SpoolssRFNPCNEX_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * RRPCN
  */
 
-static int
-SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssRRPCN_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			  proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t changeid;
@@ -6383,8 +6383,8 @@ SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssRRPCN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssRRPCN_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			  proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	/* Parse packet */
@@ -6402,8 +6402,8 @@ SpoolssRRPCN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * ReplyClosePrinter
  */
 
-static int
-SpoolssReplyClosePrinter_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssReplyClosePrinter_q(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      dcerpc_info *di, uint8_t *drep)
 {
@@ -6416,8 +6416,8 @@ SpoolssReplyClosePrinter_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssReplyClosePrinter_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssReplyClosePrinter_r(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      dcerpc_info *di, uint8_t *drep)
 {
@@ -6437,8 +6437,8 @@ SpoolssReplyClosePrinter_r(tvbuff_t *tvb, int offset,
  * FCPN
  */
 
-static int
-SpoolssFCPN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssFCPN_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	/* Parse packet */
@@ -6450,8 +6450,8 @@ SpoolssFCPN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssFCPN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssFCPN_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	/* Parse packet */
@@ -6470,8 +6470,8 @@ static int hf_routerreplyprinter_condition;
 static int hf_routerreplyprinter_unknown1;
 static int hf_routerreplyprinter_changeid;
 
-static int
-SpoolssRouterReplyPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssRouterReplyPrinter_q(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				       proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	/* Parse packet */
@@ -6495,8 +6495,8 @@ SpoolssRouterReplyPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int
-SpoolssRouterReplyPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+SpoolssRouterReplyPrinter_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				       proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	/* Parse packet */
@@ -6509,12 +6509,12 @@ SpoolssRouterReplyPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int hf_keybuffer_size;
 
-static int
-dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_spoolss_keybuffer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			  proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t size;
-	int end_offset;
+	unsigned end_offset;
 
 	if (di->conformant_run)
 		return offset;
@@ -6543,8 +6543,8 @@ dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static int
-SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEnumPrinterKey_q(tvbuff_t *tvb, unsigned offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   dcerpc_info *di, uint8_t *drep)
 {
@@ -6571,8 +6571,8 @@ SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssEnumPrinterKey_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEnumPrinterKey_r(tvbuff_t *tvb, unsigned offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   dcerpc_info *di, uint8_t *drep)
 {
@@ -6601,8 +6601,8 @@ static int hf_enumprinterdataex_value_uint;
 static int hf_enumprinterdataex_value_binary;
 static int hf_enumprinterdataex_value_multi_sz;
 
-static int
-SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      dcerpc_info *di, uint8_t *drep)
 {
@@ -6633,8 +6633,8 @@ SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 
 static int ett_printer_enumdataex_value;
 
-static int
-dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_spoolss_printer_enum_values(tvbuff_t *tvb, unsigned offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    dcerpc_info *di, uint8_t *drep)
 {
@@ -6687,7 +6687,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 	case DCERPC_REG_DWORD: {
 		uint32_t value;
 		uint16_t low, high;
-		int offset2 = start_offset + val_offset;
+		unsigned offset2 = start_offset + val_offset;
 
 		/* Needs to be broken into two 16-byte ints because it may
 		   not be aligned. */
@@ -6742,8 +6742,8 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 
 static int ett_PRINTER_DATA_CTR;
 
-static int
-SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, unsigned offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   dcerpc_info *di, uint8_t *drep)
 {
@@ -6766,7 +6766,7 @@ SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
 
 	if (size) {
 		proto_tree *subtree;
-		int offset2 = offset;
+		unsigned offset2 = offset;
 		uint32_t i;
 
 		subtree = proto_tree_add_subtree(
@@ -6791,8 +6791,8 @@ SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssGetPrinterDriverDirectory_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetPrinterDriverDirectory_q(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      dcerpc_info *di, uint8_t *drep)
 {
@@ -6820,8 +6820,8 @@ SpoolssGetPrinterDriverDirectory_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssGetPrinterDriverDirectory_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetPrinterDriverDirectory_r(tvbuff_t *tvb, unsigned offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      dcerpc_info *di, uint8_t *drep)
 {
@@ -6839,8 +6839,8 @@ SpoolssGetPrinterDriverDirectory_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssGetCorePrinterDrivers_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetCorePrinterDrivers_q(tvbuff_t *tvb, unsigned offset,
 			       packet_info *pinfo, proto_tree *tree,
 			       dcerpc_info *di, uint8_t *drep)
 {
@@ -6876,8 +6876,8 @@ SpoolssGetCorePrinterDrivers_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssGetCorePrinterDrivers_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetCorePrinterDrivers_r(tvbuff_t *tvb, unsigned offset,
 			       packet_info *pinfo, proto_tree *tree,
 			       dcerpc_info *di, uint8_t *drep)
 {
@@ -6906,8 +6906,8 @@ SpoolssGetCorePrinterDrivers_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssGetPrinterDriverPackagePath_q(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetPrinterDriverPackagePath_q(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {
@@ -6939,8 +6939,8 @@ SpoolssGetPrinterDriverPackagePath_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-SpoolssGetPrinterDriverPackagePath_r(tvbuff_t *tvb, int offset,
+static unsigned
+SpoolssGetPrinterDriverPackagePath_r(tvbuff_t *tvb, unsigned offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     dcerpc_info *di, uint8_t *drep)
 {

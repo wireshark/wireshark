@@ -35,8 +35,8 @@ TYPE lsa_String "offset=dissect_ndr_counted_string(tvb, offset, pinfo, tree, di,
 
 CODE START
 
-static int
-eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+static unsigned
+eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t len;
 	tvbuff_t *record_tvb;
@@ -65,16 +65,16 @@ eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_i
 /* sid_length and sid_offset handled by manual code since this is not NDR
    and we want to dissect the sid from the data blob */
 static uint32_t sid_length;
-static int
-eventlog_dissect_element_Record_sid_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+static unsigned
+eventlog_dissect_element_Record_sid_length(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	sid_length=0;
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_Record_sid_length,&sid_length);
 
 	return offset;
 }
-static int
-eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+static unsigned
+eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t sid_offset=0;
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_Record_sid_offset,&sid_offset);
@@ -92,8 +92,8 @@ eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_inf
 	return offset;
 }
 
-static int
-eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
+static unsigned
+eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	unsigned len;
 
@@ -104,8 +104,8 @@ eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_in
 	return offset;
 }
 
-static int
-eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
+static unsigned
+eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	unsigned len;
 
@@ -118,8 +118,8 @@ eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_
 
 static uint16_t num_of_strings;
 
-static int
-eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+static unsigned
+eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	num_of_strings=0;
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_Record_num_of_strings,&num_of_strings);
@@ -129,8 +129,8 @@ eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet
 
 static uint32_t string_offset;
 
-static int
-eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+static unsigned
+eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	string_offset=0;
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_Record_stringoffset,&string_offset);
@@ -138,8 +138,8 @@ eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_i
 	return offset;
 }
 
-static int
-eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
+static unsigned
+eventlog_dissect_element_Record_strings(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	while(string_offset && num_of_strings){
 		unsigned len;

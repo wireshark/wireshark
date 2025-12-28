@@ -47,8 +47,8 @@ static e_guid_t uuid_oxid = { 0x99fcfec4, 0x5260, 0x101b, { 0xbb, 0xcb, 0x00, 0x
 static uint16_t ver_oxid;
 
 
-static int
-dissect_oxid_simple_ping_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_oxid_simple_ping_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
@@ -58,8 +58,8 @@ dissect_oxid_simple_ping_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_oxid_simple_ping_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_oxid_simple_ping_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32HResult;
@@ -75,8 +75,8 @@ dissect_oxid_simple_ping_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_oxid_server_alive_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_oxid_server_alive_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32HResult;
@@ -92,8 +92,8 @@ dissect_oxid_server_alive_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t u16SeqNum;
@@ -145,8 +145,8 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_oxid_complex_ping_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_oxid_complex_ping_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t u16PingBackoffFactor;
@@ -168,8 +168,8 @@ dissect_oxid_complex_ping_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_oxid_resolve_oxid2_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_oxid_resolve_oxid2_rqst(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint16_t u16ProtSeqs;
@@ -195,8 +195,8 @@ dissect_oxid_resolve_oxid2_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, unsigned offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t u32Pointer;
@@ -237,8 +237,8 @@ dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_oxid_server_alive2_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_oxid_server_alive2_resp(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                 proto_tree *tree, dcerpc_info *di, uint8_t *drep) {
     uint16_t u16VersionMajor;
     uint16_t u16VersionMinor;

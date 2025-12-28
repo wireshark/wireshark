@@ -323,33 +323,33 @@ static e_guid_t uuid_dcerpc_rcg = {
 };
 static uint16_t ver_dcerpc_rcg = 0;
 
-static int rcg_dissect_element_KERB_ASN1_DATA_Pdu(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_ASN1_DATA_Length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Pdu(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_OCTET_STRING_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_OCTET_STRING_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_OCTET_STRING_value_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_OCTET_STRING_value__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_PA_DATA_preauth_data_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_PA_DATA_preauth_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_RPC_UNICODE_STRING_Length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_RPC_UNICODE_STRING_MaximumLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_RPC_UNICODE_STRING_Buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_RPC_UNICODE_STRING_Buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_INTERNAL_NAME_NameType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_INTERNAL_NAME_NameCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_ASN1_DATA_Pdu(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_ASN1_DATA_Length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Pdu(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_OCTET_STRING_length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_OCTET_STRING_value(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_OCTET_STRING_value_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_OCTET_STRING_value__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_PA_DATA_preauth_data_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_PA_DATA_preauth_data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_RPC_UNICODE_STRING_Length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_RPC_UNICODE_STRING_MaximumLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_RPC_UNICODE_STRING_Buffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_RPC_UNICODE_STRING_Buffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_INTERNAL_NAME_NameType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_INTERNAL_NAME_NameCount(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 const value_string rcg_RemoteGuardCallId_vals[] = {
 	{ RemoteCallKerbNegotiateVersion, "RemoteCallKerbNegotiateVersion" },
 	{ RemoteCallKerbBuildAsReqAuthenticator, "RemoteCallKerbBuildAsReqAuthenticator" },
@@ -376,308 +376,308 @@ const value_string rcg_RemoteGuardCallId_vals[] = {
 	{ RemoteCallNtlmCompareCredentials, "RemoteCallNtlmCompareCredentials" },
 { 0, NULL }
 };
-static int rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_PackageName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_CredentialSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_CredentialCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_Credentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_Credentials_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NegotiateVersion_MaxSupportedVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_LARGE_INTEGER_QuadPart(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildAsReqAuthenticatorReq_EncryptionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildAsReqAuthenticatorReq_EncryptionKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildAsReqAuthenticatorReq_ArmorKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildAsReqAuthenticatorReq_ArmorKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildAsReqAuthenticatorReq_TimeSkew(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildAsReqAuthenticatorReq_TimeSkew_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildAsReqAuthenticatorResp_PreauthDataType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildAsReqAuthenticatorResp_PreauthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyServiceTicketReq_PackedTicket(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyServiceTicketReq_PackedTicket_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyServiceTicketReq_ServiceKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyServiceTicketReq_ServiceKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyServiceTicketReq_TimeSkew(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyServiceTicketReq_TimeSkew_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyServiceTicketResp_DecryptedTicket(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyServiceTicketResp_KerbProtocolError(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_EncryptionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_EncryptionKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_SequenceNumber(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_ClientName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_ClientName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_ClientRealm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_ClientRealm_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_SkewTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_SkewTime_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_SubKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_SubKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_AuthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_AuthData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorReq_KeyUsage(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorResp_AuthenticatorTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorResp_Authenticator(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateApReqAuthenticatorResp_KerbProtocolError(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptApReplyReq_EncryptedReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptApReplyReq_EncryptedReply_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptApReplyReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptApReplyReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptApReplyResp_ApReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_UnpackKdcReplyBodyReq_EncryptedData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_UnpackKdcReplyBodyReq_EncryptedData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_UnpackKdcReplyBodyReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_UnpackKdcReplyBodyReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_UnpackKdcReplyBodyReq_StrengthenKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_UnpackKdcReplyBodyReq_StrengthenKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_UnpackKdcReplyBodyReq_Pdu(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_UnpackKdcReplyBodyReq_KeyUsage(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_UnpackKdcReplyBodyResp_KerbProtocolError(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_UnpackKdcReplyBodyResp_ReplyBody(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_ComputeTgsChecksumReq_RequestBody(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_ComputeTgsChecksumReq_RequestBody_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_ComputeTgsChecksumReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_ComputeTgsChecksumReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_ComputeTgsChecksumReq_ChecksumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_ComputeTgsChecksumResp_Checksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildEncryptedAuthDataReq_KeyUsage(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildEncryptedAuthDataReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildEncryptedAuthDataReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildEncryptedAuthDataReq_PlainAuthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildEncryptedAuthDataReq_PlainAuthData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_BuildEncryptedAuthDataResp_EncryptedAuthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_PackApReplyReq_Reply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_PackApReplyReq_Reply_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_PackApReplyReq_ReplyBody(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_PackApReplyReq_ReplyBody_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_PackApReplyReq_SessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_PackApReplyReq_SessionKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_PackApReplyResp_PackedReplySize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_PackApReplyResp_PackedReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_PackApReplyResp_PackedReply_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_PackApReplyResp_PackedReply__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthReq_S4UPreauth(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthReq_S4UPreauth_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthReq_ChecksumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthResp_ChecksumSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthResp_ChecksumSize_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthResp_ChecksumValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthResp_ChecksumValue_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthResp_ChecksumValue__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_HashS4UPreauthResp_ChecksumValue___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataReq_IsRequest(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataReq_UserId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataReq_UserId_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataReq_ChecksumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataReq_ChecksumType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataResp_ChecksumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataResp_ChecksumType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataResp_ChecksumSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataResp_ChecksumSize_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_ChecksumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_ExpectedChecksumSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_DataToCheckSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_DataToCheck(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_DataToCheck_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumReq_DataToCheck__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_VerifyChecksumResp_IsValid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptPacCredentialsReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptPacCredentialsReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptPacCredentialsReq_Version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptPacCredentialsReq_EncryptionType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptPacCredentialsReq_DataSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptPacCredentialsReq_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptPacCredentialsReq_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptPacCredentialsReq_Data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptPacCredentialsResp_Credentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DecryptPacCredentialsResp_Credentials_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementReq_KeyBitLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementResp_KerbErr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementResp_KerbErr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKeyLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKeyLen_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementReq_Ignored(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_ModulusP(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_ModulusP_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_GeneratorG(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_GeneratorG_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_FactorQ(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_FactorQ_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_KeyAgreementHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_KerbErr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_KerbErr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DestroyKeyAgreementReq_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_DestroyKeyAgreementResp_Ignored(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KeyAgreementGenerateNonceReq_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KeyAgreementGenerateNonceResp_NonceLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KeyAgreementGenerateNonceResp_NonceLen_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_KeyAgreementHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_KerbEType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_KerbEType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonceLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKeyLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementResp_SharedKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_FinalizeKeyAgreementResp_SharedKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_negociateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_buildAsReqAuthenticator(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_verifyServiceTicket(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_createApReqAuthenticator(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_decryptApReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_unpackKdcReplyBody(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_computeTgsChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_buildEncryptedAuthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_packApReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_hashS4UPreauth(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_signS4UPreauthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_verifyChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_decryptPacCredentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_createECDHKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_createDHKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_destroyKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_keyAgreementGenerateNonce(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbInputUnion_finalizeKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbCredIsoRemoteInput_CallId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
-static int rcg_dissect_element_KerbCredIsoRemoteInput_callUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
-static int rcg_dissect_element_KerbOutputUnion_negociateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_buildAsReqAuthenticator(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_verifyServiceTicket(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_createApReqAuthenticator(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_decryptApReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_unpackKdcReplyBody(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_computeTgsChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_buildEncryptedAuthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_packApReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_hashS4UPreauth(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_signS4UPreauthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_verifyChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_decryptPacCredentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_createECDHKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_createDHKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_destroyKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_keyAgreementGenerateNonce(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbOutputUnion_finalizeKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbCredIsoRemoteOutput_CallId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
-static int rcg_dissect_element_KerbCredIsoRemoteOutput_Status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KerbCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
-static int rcg_dissect_element_NT_RESPONSE_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NT_RESPONSE_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NT_CHALLENGE_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NT_CHALLENGE_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_LM_SESSION_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_LM_SESSION_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_USER_SESSION_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_USER_SESSION_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reservedSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3ResponseLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Lm3Response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_UserSessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_LmSessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CalculateNtResponseReq_NtChallenge(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CalculateNtResponseReq_NtChallenge_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CalculateNtResponseReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CalculateNtResponseReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CalculateNtResponseResp_NtResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CalculateUserSessionKeyNtResp_UserSessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CompareCredentialsReq_LhsCredential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CompareCredentialsReq_LhsCredential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CompareCredentialsReq_RhsCredential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CompareCredentialsReq_RhsCredential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CompareCredentialsResp_AreNtOwfsEqual(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CompareCredentialsResp_AreLmOwfsEqual(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_CompareCredentialsResp_AreShaOwfsEqual(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredInput_negotiateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredInput_lm20GetNtlm3ChallengeResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredInput_calculateNtResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredInput_calculateUserSessionKeyNt(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredInput_compareCredentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredIsoRemoteInput_CallId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
-static int rcg_dissect_element_NtlmCredIsoRemoteInput_callUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
-static int rcg_dissect_element_NtlmCredOutput_negotiateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredOutput_lm20GetNtlm3ChallengeResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredOutput_calculateNtResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredOutput_calculateUserSessionKeyNt(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredOutput_compareCredentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredIsoRemoteOutput_CallId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
-static int rcg_dissect_element_NtlmCredIsoRemoteOutput_Status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_NtlmCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
+static unsigned rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_PackageName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_CredentialSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_CredentialCount(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_Credentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_Credentials_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NegotiateVersion_MaxSupportedVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_LARGE_INTEGER_QuadPart(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildAsReqAuthenticatorReq_EncryptionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildAsReqAuthenticatorReq_EncryptionKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildAsReqAuthenticatorReq_ArmorKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildAsReqAuthenticatorReq_ArmorKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildAsReqAuthenticatorReq_TimeSkew(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildAsReqAuthenticatorReq_TimeSkew_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildAsReqAuthenticatorResp_PreauthDataType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildAsReqAuthenticatorResp_PreauthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyServiceTicketReq_PackedTicket(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyServiceTicketReq_PackedTicket_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyServiceTicketReq_ServiceKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyServiceTicketReq_ServiceKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyServiceTicketReq_TimeSkew(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyServiceTicketReq_TimeSkew_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyServiceTicketResp_DecryptedTicket(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyServiceTicketResp_KerbProtocolError(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_EncryptionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_EncryptionKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_SequenceNumber(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_ClientName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_ClientName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_ClientRealm(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_ClientRealm_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_SkewTime(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_SkewTime_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_SubKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_SubKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_AuthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_AuthData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorReq_KeyUsage(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorResp_AuthenticatorTime(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorResp_Authenticator(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateApReqAuthenticatorResp_KerbProtocolError(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptApReplyReq_EncryptedReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptApReplyReq_EncryptedReply_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptApReplyReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptApReplyReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptApReplyResp_ApReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_UnpackKdcReplyBodyReq_EncryptedData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_UnpackKdcReplyBodyReq_EncryptedData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_UnpackKdcReplyBodyReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_UnpackKdcReplyBodyReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_UnpackKdcReplyBodyReq_StrengthenKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_UnpackKdcReplyBodyReq_StrengthenKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_UnpackKdcReplyBodyReq_Pdu(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_UnpackKdcReplyBodyReq_KeyUsage(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_UnpackKdcReplyBodyResp_KerbProtocolError(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_UnpackKdcReplyBodyResp_ReplyBody(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_ComputeTgsChecksumReq_RequestBody(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_ComputeTgsChecksumReq_RequestBody_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_ComputeTgsChecksumReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_ComputeTgsChecksumReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_ComputeTgsChecksumReq_ChecksumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_ComputeTgsChecksumResp_Checksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildEncryptedAuthDataReq_KeyUsage(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildEncryptedAuthDataReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildEncryptedAuthDataReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildEncryptedAuthDataReq_PlainAuthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildEncryptedAuthDataReq_PlainAuthData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_BuildEncryptedAuthDataResp_EncryptedAuthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_PackApReplyReq_Reply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_PackApReplyReq_Reply_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_PackApReplyReq_ReplyBody(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_PackApReplyReq_ReplyBody_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_PackApReplyReq_SessionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_PackApReplyReq_SessionKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_PackApReplyResp_PackedReplySize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_PackApReplyResp_PackedReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_PackApReplyResp_PackedReply_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_PackApReplyResp_PackedReply__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthReq_S4UPreauth(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthReq_S4UPreauth_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthReq_ChecksumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthResp_ChecksumSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthResp_ChecksumSize_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthResp_ChecksumValue(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthResp_ChecksumValue_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthResp_ChecksumValue__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_HashS4UPreauthResp_ChecksumValue___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataReq_IsRequest(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataReq_UserId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataReq_UserId_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataReq_ChecksumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataReq_ChecksumType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataResp_ChecksumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataResp_ChecksumType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataResp_ChecksumSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataResp_ChecksumSize_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_ChecksumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_ExpectedChecksumSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_DataToCheckSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_DataToCheck(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_DataToCheck_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumReq_DataToCheck__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_VerifyChecksumResp_IsValid(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptPacCredentialsReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptPacCredentialsReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptPacCredentialsReq_Version(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptPacCredentialsReq_EncryptionType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptPacCredentialsReq_DataSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptPacCredentialsReq_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptPacCredentialsReq_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptPacCredentialsReq_Data__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptPacCredentialsResp_Credentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DecryptPacCredentialsResp_Credentials_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementReq_KeyBitLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementResp_KerbErr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementResp_KerbErr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKeyLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKeyLen_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementReq_Ignored(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_ModulusP(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_ModulusP_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_GeneratorG(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_GeneratorG_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_FactorQ(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_FactorQ_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_KeyAgreementHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_KeyAgreementHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_KerbErr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_KerbErr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DestroyKeyAgreementReq_KeyAgreementHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_DestroyKeyAgreementResp_Ignored(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KeyAgreementGenerateNonceReq_KeyAgreementHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KeyAgreementGenerateNonceResp_NonceLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KeyAgreementGenerateNonceResp_NonceLen_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_KeyAgreementHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_KeyAgreementHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_KerbEType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_KerbEType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonceLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKeyLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementResp_SharedKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_FinalizeKeyAgreementResp_SharedKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_negociateVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_buildAsReqAuthenticator(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_verifyServiceTicket(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_createApReqAuthenticator(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_decryptApReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_unpackKdcReplyBody(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_computeTgsChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_buildEncryptedAuthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_packApReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_hashS4UPreauth(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_signS4UPreauthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_verifyChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_decryptPacCredentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_createECDHKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_createDHKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_destroyKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_keyAgreementGenerateNonce(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbInputUnion_finalizeKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbCredIsoRemoteInput_CallId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
+static unsigned rcg_dissect_element_KerbCredIsoRemoteInput_callUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
+static unsigned rcg_dissect_element_KerbOutputUnion_negociateVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_buildAsReqAuthenticator(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_verifyServiceTicket(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_createApReqAuthenticator(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_decryptApReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_unpackKdcReplyBody(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_computeTgsChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_buildEncryptedAuthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_packApReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_hashS4UPreauth(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_signS4UPreauthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_verifyChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_decryptPacCredentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_createECDHKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_createDHKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_destroyKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_keyAgreementGenerateNonce(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbOutputUnion_finalizeKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbCredIsoRemoteOutput_CallId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
+static unsigned rcg_dissect_element_KerbCredIsoRemoteOutput_Status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_KerbCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
+static unsigned rcg_dissect_element_NT_RESPONSE_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NT_RESPONSE_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NT_CHALLENGE_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NT_CHALLENGE_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_LM_SESSION_KEY_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_LM_SESSION_KEY_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_USER_SESSION_KEY_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_USER_SESSION_KEY_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved5(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reservedSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3ResponseLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Lm3Response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_UserSessionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_LmSessionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CalculateNtResponseReq_NtChallenge(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CalculateNtResponseReq_NtChallenge_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CalculateNtResponseReq_Credential(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CalculateNtResponseReq_Credential_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CalculateNtResponseResp_NtResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CalculateUserSessionKeyNtResp_UserSessionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CompareCredentialsReq_LhsCredential(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CompareCredentialsReq_LhsCredential_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CompareCredentialsReq_RhsCredential(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CompareCredentialsReq_RhsCredential_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CompareCredentialsResp_AreNtOwfsEqual(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CompareCredentialsResp_AreLmOwfsEqual(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_CompareCredentialsResp_AreShaOwfsEqual(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredInput_negotiateVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredInput_lm20GetNtlm3ChallengeResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredInput_calculateNtResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredInput_calculateUserSessionKeyNt(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredInput_compareCredentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredIsoRemoteInput_CallId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
+static unsigned rcg_dissect_element_NtlmCredIsoRemoteInput_callUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
+static unsigned rcg_dissect_element_NtlmCredOutput_negotiateVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredOutput_lm20GetNtlm3ChallengeResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredOutput_calculateNtResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredOutput_calculateUserSessionKeyNt(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredOutput_compareCredentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredIsoRemoteOutput_CallId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
+static unsigned rcg_dissect_element_NtlmCredIsoRemoteOutput_Status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned rcg_dissect_element_NtlmCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
  #include <epan/asn1.h>
  #include "packet-kerberos.h"
-static int
-rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_ , guint8 *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_ , guint8 *drep _U_)
 {
         if (di->conformant_run)
             return offset;
@@ -688,8 +688,8 @@ rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_(tvbuff_t *tvb, int offset,
 	offset = dissect_krb5_Checksum(tree, tvb, offset + 4, &asn1_ctx);
 	return offset;
 }
-int
-rcg_dissect_struct_KerbCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+unsigned
+rcg_dissect_struct_KerbCredIsoRemoteOutput(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	guint16 CallId = 0;
 	proto_item *item = NULL;
@@ -712,8 +712,8 @@ rcg_dissect_struct_KerbCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, pa
 	}
 	return offset;
 }
-int
-rcg_dissect_struct_KerbCredIsoRemoteInput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+unsigned
+rcg_dissect_struct_KerbCredIsoRemoteInput(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	guint16 CallId = 0;
 	proto_item *item = NULL;
@@ -735,8 +735,8 @@ rcg_dissect_struct_KerbCredIsoRemoteInput(tvbuff_t *tvb _U_, int offset _U_, pac
 	}
 	return offset;
 }
-int
-rcg_dissect_struct_NtlmCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_NtlmCredIsoRemoteOutput(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	uint16_t CallId = 0;
 	proto_item *item = NULL;
@@ -760,8 +760,8 @@ rcg_dissect_struct_NtlmCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, pa
 	}
 	return offset;
 }
-int
-rcg_dissect_struct_NtlmCredIsoRemoteInput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_NtlmCredIsoRemoteInput(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	uint16_t CallId = 0;
 	proto_item *item = NULL;
@@ -792,52 +792,52 @@ rcg_dissect_struct_NtlmCredIsoRemoteInput(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	[ref] [size_is(Length)] uint8 *Asn1Buffer; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KERB_ASN1_DATA_Pdu(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_ASN1_DATA_Pdu(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_ASN1_DATA_Pdu, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_ASN1_DATA_Length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_ASN1_DATA_Length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_ASN1_DATA_Length, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer_, NDR_POINTER_REF, "Pointer to Asn1Buffer (uint8)",hf_rcg_KERB_ASN1_DATA_Asn1Buffer);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_ASN1_DATA_Asn1Buffer, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_KERB_ASN1_DATA(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_KERB_ASN1_DATA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -872,36 +872,36 @@ rcg_dissect_struct_KERB_ASN1_DATA(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: 	[ref] [size_is(Length)] uint8 *checksum; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Pdu(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Pdu(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_ASN1_DATA_CHECKSUM_Pdu, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_ASN1_DATA_CHECKSUM_Length, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_, NDR_POINTER_REF, "Pointer to Checksum (uint8)",hf_rcg_KERB_ASN1_DATA_CHECKSUM_checksum);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_KERB_ASN1_DATA_CHECKSUM(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_KERB_ASN1_DATA_CHECKSUM(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -935,44 +935,44 @@ rcg_dissect_struct_KERB_ASN1_DATA_CHECKSUM(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	[ref] [size_is(length)] uint8 *value; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KERB_RPC_OCTET_STRING_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_OCTET_STRING_length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_RPC_OCTET_STRING_length, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_OCTET_STRING_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_OCTET_STRING_value(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_RPC_OCTET_STRING_value_, NDR_POINTER_REF, "Pointer to Value (uint8)",hf_rcg_KERB_RPC_OCTET_STRING_value);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_OCTET_STRING_value_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_OCTET_STRING_value_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_RPC_OCTET_STRING_value__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_OCTET_STRING_value__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_OCTET_STRING_value__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_RPC_OCTET_STRING_value, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_KERB_RPC_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_KERB_RPC_OCTET_STRING(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1004,28 +1004,28 @@ rcg_dissect_struct_KERB_RPC_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	KERB_RPC_OCTET_STRING preauth_data; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KERB_RPC_PA_DATA_preauth_data_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_PA_DATA_preauth_data_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_RPC_PA_DATA_preauth_data_type, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_PA_DATA_preauth_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_PA_DATA_preauth_data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_OCTET_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_KERB_RPC_PA_DATA_preauth_data,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_KERB_RPC_PA_DATA(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_KERB_RPC_PA_DATA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1058,36 +1058,36 @@ rcg_dissect_struct_KERB_RPC_PA_DATA(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: 	KERB_RPC_OCTET_STRING reserved3; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_KERB_RPC_ENCRYPTION_KEY_reserved1, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_KERB_RPC_ENCRYPTION_KEY_reserved2, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_ENCRYPTION_KEY_reserved3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_OCTET_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_KERB_RPC_ENCRYPTION_KEY_reserved3,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1122,32 +1122,32 @@ rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	[charset(UTF16)] [length_is(Length/2)] [ref] [size_is(MaximumLength/2)] uint16 *Buffer; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_RPC_UNICODE_STRING_Length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_RPC_UNICODE_STRING_Length(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_rcg_RPC_UNICODE_STRING_Length, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_RPC_UNICODE_STRING_MaximumLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_RPC_UNICODE_STRING_MaximumLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_rcg_RPC_UNICODE_STRING_MaximumLength, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_RPC_UNICODE_STRING_Buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_RPC_UNICODE_STRING_Buffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_RPC_UNICODE_STRING_Buffer_, NDR_POINTER_REF, "Pointer to Buffer (uint16)",hf_rcg_RPC_UNICODE_STRING_Buffer);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_RPC_UNICODE_STRING_Buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_RPC_UNICODE_STRING_Buffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1157,12 +1157,12 @@ rcg_dissect_element_RPC_UNICODE_STRING_Buffer_(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-int
-rcg_dissect_struct_RPC_UNICODE_STRING(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_RPC_UNICODE_STRING(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1197,52 +1197,52 @@ rcg_dissect_struct_RPC_UNICODE_STRING(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: 	[ref] [size_is(NameCount)] RPC_UNICODE_STRING *Names; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KERB_RPC_INTERNAL_NAME_NameType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_INTERNAL_NAME_NameType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_RPC_INTERNAL_NAME_NameType, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_INTERNAL_NAME_NameCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_INTERNAL_NAME_NameCount(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_RPC_INTERNAL_NAME_NameCount, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names_, NDR_POINTER_REF, "Pointer to Names (RPC_UNICODE_STRING)",hf_rcg_KERB_RPC_INTERNAL_NAME_Names);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_INTERNAL_NAME_Names__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_RPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_KERB_RPC_INTERNAL_NAME_Names,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_KERB_RPC_INTERNAL_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_KERB_RPC_INTERNAL_NAME(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1297,8 +1297,8 @@ rcg_dissect_struct_KERB_RPC_INTERNAL_NAME(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	RemoteCallNtlmCompareCredentials=0x204, */
 /* IDL: } */
 
-int
-rcg_dissect_enum_RemoteGuardCallId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_)
+unsigned
+rcg_dissect_enum_RemoteGuardCallId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_)
 {
 	uint16_t parameter=0;
 	if (param) {
@@ -1318,52 +1318,52 @@ rcg_dissect_enum_RemoteGuardCallId(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: 	[ref] [size_is(CredentialSize)] uint8 *Credentials; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_PackageName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_PackageName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_RPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_SECPKG_SUPPLEMENTAL_CRED_PackageName,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_CredentialSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_CredentialSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_SECPKG_SUPPLEMENTAL_CRED_CredentialSize, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials_, NDR_POINTER_REF, "Pointer to Credentials (uint8)",hf_rcg_SECPKG_SUPPLEMENTAL_CRED_Credentials);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_Credentials__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_SECPKG_SUPPLEMENTAL_CRED_Credentials, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1397,36 +1397,36 @@ rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	[size_is(CredentialCount)] SECPKG_SUPPLEMENTAL_CRED Credentials[*]; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_CredentialCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_CredentialCount(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_SECPKG_SUPPLEMENTAL_CRED_ARRAY_CredentialCount, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_Credentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_Credentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_Credentials_);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_Credentials_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SECPKG_SUPPLEMENTAL_CRED_ARRAY_Credentials_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED(tvb,offset,pinfo,tree,di,drep,hf_rcg_SECPKG_SUPPLEMENTAL_CRED_ARRAY_Credentials,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED_ARRAY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED_ARRAY(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1458,44 +1458,44 @@ rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED_ARRAY(tvbuff_t *tvb _U_, int offset 
 /* IDL: 	[ref] [size_is(cbData)] uint8 *pbData; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_cbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_cbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_RPC_CRYPTO_API_BLOB_cbData, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData_, NDR_POINTER_REF, "Pointer to PbData (uint8)",hf_rcg_KERB_RPC_CRYPTO_API_BLOB_pbData);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KERB_RPC_CRYPTO_API_BLOB_pbData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_KERB_RPC_CRYPTO_API_BLOB_pbData, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_KERB_RPC_CRYPTO_API_BLOB(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_KERB_RPC_CRYPTO_API_BLOB(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1526,20 +1526,20 @@ rcg_dissect_struct_KERB_RPC_CRYPTO_API_BLOB(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	uint32 MaxSupportedVersion; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_NegotiateVersion_MaxSupportedVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NegotiateVersion_MaxSupportedVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_NegotiateVersion_MaxSupportedVersion, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_NegotiateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_NegotiateVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1568,20 +1568,20 @@ rcg_dissect_struct_NegotiateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: 	int64 QuadPart; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_LARGE_INTEGER_QuadPart(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_LARGE_INTEGER_QuadPart(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint64(tvb, offset, pinfo, tree, di, drep, hf_rcg_LARGE_INTEGER_QuadPart, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_LARGE_INTEGER(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_LARGE_INTEGER(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_8_BYTES;
 
@@ -1609,11 +1609,11 @@ rcg_dissect_struct_LARGE_INTEGER(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: struct LARGE_INTEGER { */
 /* IDL: } */
 
-int
-rcg_dissect_struct_PLARGE_INTEGER(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_PLARGE_INTEGER(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1641,60 +1641,60 @@ rcg_dissect_struct_PLARGE_INTEGER(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: 	[ref] LARGE_INTEGER *TimeSkew; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_BuildAsReqAuthenticatorReq_EncryptionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildAsReqAuthenticatorReq_EncryptionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_BuildAsReqAuthenticatorReq_EncryptionKey_, NDR_POINTER_REF, "Pointer to EncryptionKey (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_BuildAsReqAuthenticatorReq_EncryptionKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_BuildAsReqAuthenticatorReq_EncryptionKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildAsReqAuthenticatorReq_EncryptionKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_BuildAsReqAuthenticatorReq_EncryptionKey,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_BuildAsReqAuthenticatorReq_ArmorKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildAsReqAuthenticatorReq_ArmorKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_BuildAsReqAuthenticatorReq_ArmorKey_, NDR_POINTER_PTR, "Pointer to ArmorKey (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_BuildAsReqAuthenticatorReq_ArmorKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_BuildAsReqAuthenticatorReq_ArmorKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildAsReqAuthenticatorReq_ArmorKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_BuildAsReqAuthenticatorReq_ArmorKey,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_BuildAsReqAuthenticatorReq_TimeSkew(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildAsReqAuthenticatorReq_TimeSkew(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_BuildAsReqAuthenticatorReq_TimeSkew_, NDR_POINTER_REF, "Pointer to TimeSkew (LARGE_INTEGER)",hf_rcg_BuildAsReqAuthenticatorReq_TimeSkew);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_BuildAsReqAuthenticatorReq_TimeSkew_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildAsReqAuthenticatorReq_TimeSkew_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_LARGE_INTEGER(tvb,offset,pinfo,tree,di,drep,hf_rcg_BuildAsReqAuthenticatorReq_TimeSkew,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_BuildAsReqAuthenticatorReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_BuildAsReqAuthenticatorReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1728,28 +1728,28 @@ rcg_dissect_struct_BuildAsReqAuthenticatorReq(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: 	KERB_RPC_OCTET_STRING PreauthData; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_BuildAsReqAuthenticatorResp_PreauthDataType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildAsReqAuthenticatorResp_PreauthDataType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_BuildAsReqAuthenticatorResp_PreauthDataType, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_BuildAsReqAuthenticatorResp_PreauthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildAsReqAuthenticatorResp_PreauthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_OCTET_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_BuildAsReqAuthenticatorResp_PreauthData,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_BuildAsReqAuthenticatorResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_BuildAsReqAuthenticatorResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1782,60 +1782,60 @@ rcg_dissect_struct_BuildAsReqAuthenticatorResp(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: 	[ptr(1)] LARGE_INTEGER *TimeSkew; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_VerifyServiceTicketReq_PackedTicket(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyServiceTicketReq_PackedTicket(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_VerifyServiceTicketReq_PackedTicket_, NDR_POINTER_REF, "Pointer to PackedTicket (KERB_ASN1_DATA)",hf_rcg_VerifyServiceTicketReq_PackedTicket);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyServiceTicketReq_PackedTicket_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyServiceTicketReq_PackedTicket_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_VerifyServiceTicketReq_PackedTicket,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyServiceTicketReq_ServiceKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyServiceTicketReq_ServiceKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_VerifyServiceTicketReq_ServiceKey_, NDR_POINTER_REF, "Pointer to ServiceKey (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_VerifyServiceTicketReq_ServiceKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyServiceTicketReq_ServiceKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyServiceTicketReq_ServiceKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_VerifyServiceTicketReq_ServiceKey,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyServiceTicketReq_TimeSkew(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyServiceTicketReq_TimeSkew(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_VerifyServiceTicketReq_TimeSkew_, NDR_POINTER_PTR, "Pointer to TimeSkew (LARGE_INTEGER)",hf_rcg_VerifyServiceTicketReq_TimeSkew);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyServiceTicketReq_TimeSkew_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyServiceTicketReq_TimeSkew_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_LARGE_INTEGER(tvb,offset,pinfo,tree,di,drep,hf_rcg_VerifyServiceTicketReq_TimeSkew,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_VerifyServiceTicketReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_VerifyServiceTicketReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1869,28 +1869,28 @@ rcg_dissect_struct_VerifyServiceTicketReq(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	int32 KerbProtocolError; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_VerifyServiceTicketResp_DecryptedTicket(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyServiceTicketResp_DecryptedTicket(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_VerifyServiceTicketResp_DecryptedTicket,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyServiceTicketResp_KerbProtocolError(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyServiceTicketResp_KerbProtocolError(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_VerifyServiceTicketResp_KerbProtocolError, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_VerifyServiceTicketResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_VerifyServiceTicketResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1929,140 +1929,140 @@ rcg_dissect_struct_VerifyServiceTicketResp(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	uint32 KeyUsage; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_EncryptionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_EncryptionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateApReqAuthenticatorReq_EncryptionKey_, NDR_POINTER_REF, "Pointer to EncryptionKey (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_CreateApReqAuthenticatorReq_EncryptionKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_EncryptionKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_EncryptionKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorReq_EncryptionKey,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_SequenceNumber(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_SequenceNumber(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateApReqAuthenticatorReq_SequenceNumber, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_ClientName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_ClientName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateApReqAuthenticatorReq_ClientName_, NDR_POINTER_REF, "Pointer to ClientName (KERB_RPC_INTERNAL_NAME)",hf_rcg_CreateApReqAuthenticatorReq_ClientName);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_ClientName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_ClientName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_INTERNAL_NAME(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorReq_ClientName,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_ClientRealm(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_ClientRealm(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateApReqAuthenticatorReq_ClientRealm_, NDR_POINTER_REF, "Pointer to ClientRealm (RPC_UNICODE_STRING)",hf_rcg_CreateApReqAuthenticatorReq_ClientRealm);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_ClientRealm_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_ClientRealm_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_RPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorReq_ClientRealm,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_SkewTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_SkewTime(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateApReqAuthenticatorReq_SkewTime_, NDR_POINTER_REF, "Pointer to SkewTime (LARGE_INTEGER)",hf_rcg_CreateApReqAuthenticatorReq_SkewTime);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_SkewTime_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_SkewTime_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_LARGE_INTEGER(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorReq_SkewTime,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_SubKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_SubKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateApReqAuthenticatorReq_SubKey_, NDR_POINTER_PTR, "Pointer to SubKey (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_CreateApReqAuthenticatorReq_SubKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_SubKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_SubKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorReq_SubKey,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_AuthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_AuthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateApReqAuthenticatorReq_AuthData_, NDR_POINTER_PTR, "Pointer to AuthData (KERB_ASN1_DATA)",hf_rcg_CreateApReqAuthenticatorReq_AuthData);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_AuthData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_AuthData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorReq_AuthData,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum_, NDR_POINTER_PTR, "Pointer to GssChecksum (KERB_ASN1_DATA_CHECKSUM)",hf_rcg_CreateApReqAuthenticatorReq_GssChecksum);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA_CHECKSUM(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorReq_GssChecksum,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorReq_KeyUsage(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorReq_KeyUsage(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateApReqAuthenticatorReq_KeyUsage, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CreateApReqAuthenticatorReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CreateApReqAuthenticatorReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2109,36 +2109,36 @@ rcg_dissect_struct_CreateApReqAuthenticatorReq(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: 	int32 KerbProtocolError; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorResp_AuthenticatorTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorResp_AuthenticatorTime(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_LARGE_INTEGER(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorResp_AuthenticatorTime,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorResp_Authenticator(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorResp_Authenticator(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorResp_Authenticator,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateApReqAuthenticatorResp_KerbProtocolError(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateApReqAuthenticatorResp_KerbProtocolError(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateApReqAuthenticatorResp_KerbProtocolError, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CreateApReqAuthenticatorResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CreateApReqAuthenticatorResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_8_BYTES;
 
@@ -2172,44 +2172,44 @@ rcg_dissect_struct_CreateApReqAuthenticatorResp(tvbuff_t *tvb _U_, int offset _U
 /* IDL: 	[ref] KERB_RPC_ENCRYPTION_KEY *Key; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_DecryptApReplyReq_EncryptedReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptApReplyReq_EncryptedReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_DecryptApReplyReq_EncryptedReply_, NDR_POINTER_REF, "Pointer to EncryptedReply (KERB_ASN1_DATA)",hf_rcg_DecryptApReplyReq_EncryptedReply);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptApReplyReq_EncryptedReply_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptApReplyReq_EncryptedReply_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_DecryptApReplyReq_EncryptedReply,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptApReplyReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptApReplyReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_DecryptApReplyReq_Key_, NDR_POINTER_REF, "Pointer to Key (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_DecryptApReplyReq_Key);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptApReplyReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptApReplyReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_DecryptApReplyReq_Key,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_DecryptApReplyReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_DecryptApReplyReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2240,20 +2240,20 @@ rcg_dissect_struct_DecryptApReplyReq(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: 	KERB_ASN1_DATA ApReply; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_DecryptApReplyResp_ApReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptApReplyResp_ApReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_DecryptApReplyResp_ApReply,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_DecryptApReplyResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_DecryptApReplyResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2286,76 +2286,76 @@ rcg_dissect_struct_DecryptApReplyResp(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: 	uint32 KeyUsage; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_UnpackKdcReplyBodyReq_EncryptedData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_UnpackKdcReplyBodyReq_EncryptedData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_UnpackKdcReplyBodyReq_EncryptedData_, NDR_POINTER_REF, "Pointer to EncryptedData (KERB_ASN1_DATA)",hf_rcg_UnpackKdcReplyBodyReq_EncryptedData);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_UnpackKdcReplyBodyReq_EncryptedData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_UnpackKdcReplyBodyReq_EncryptedData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_UnpackKdcReplyBodyReq_EncryptedData,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_UnpackKdcReplyBodyReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_UnpackKdcReplyBodyReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_UnpackKdcReplyBodyReq_Key_, NDR_POINTER_REF, "Pointer to Key (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_UnpackKdcReplyBodyReq_Key);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_UnpackKdcReplyBodyReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_UnpackKdcReplyBodyReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_UnpackKdcReplyBodyReq_Key,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_UnpackKdcReplyBodyReq_StrengthenKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_UnpackKdcReplyBodyReq_StrengthenKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_UnpackKdcReplyBodyReq_StrengthenKey_, NDR_POINTER_PTR, "Pointer to StrengthenKey (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_UnpackKdcReplyBodyReq_StrengthenKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_UnpackKdcReplyBodyReq_StrengthenKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_UnpackKdcReplyBodyReq_StrengthenKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_UnpackKdcReplyBodyReq_StrengthenKey,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_UnpackKdcReplyBodyReq_Pdu(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_UnpackKdcReplyBodyReq_Pdu(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_UnpackKdcReplyBodyReq_Pdu, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_UnpackKdcReplyBodyReq_KeyUsage(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_UnpackKdcReplyBodyReq_KeyUsage(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_UnpackKdcReplyBodyReq_KeyUsage, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_UnpackKdcReplyBodyReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_UnpackKdcReplyBodyReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2393,28 +2393,28 @@ rcg_dissect_struct_UnpackKdcReplyBodyReq(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	KERB_ASN1_DATA ReplyBody; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_UnpackKdcReplyBodyResp_KerbProtocolError(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_UnpackKdcReplyBodyResp_KerbProtocolError(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_UnpackKdcReplyBodyResp_KerbProtocolError, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_UnpackKdcReplyBodyResp_ReplyBody(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_UnpackKdcReplyBodyResp_ReplyBody(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_UnpackKdcReplyBodyResp_ReplyBody,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_UnpackKdcReplyBodyResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_UnpackKdcReplyBodyResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2447,52 +2447,52 @@ rcg_dissect_struct_UnpackKdcReplyBodyResp(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	uint32 ChecksumType; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_ComputeTgsChecksumReq_RequestBody(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_ComputeTgsChecksumReq_RequestBody(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_ComputeTgsChecksumReq_RequestBody_, NDR_POINTER_REF, "Pointer to RequestBody (KERB_ASN1_DATA)",hf_rcg_ComputeTgsChecksumReq_RequestBody);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_ComputeTgsChecksumReq_RequestBody_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_ComputeTgsChecksumReq_RequestBody_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_ComputeTgsChecksumReq_RequestBody,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_ComputeTgsChecksumReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_ComputeTgsChecksumReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_ComputeTgsChecksumReq_Key_, NDR_POINTER_REF, "Pointer to Key (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_ComputeTgsChecksumReq_Key);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_ComputeTgsChecksumReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_ComputeTgsChecksumReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_ComputeTgsChecksumReq_Key,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_ComputeTgsChecksumReq_ChecksumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_ComputeTgsChecksumReq_ChecksumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_ComputeTgsChecksumReq_ChecksumType, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_ComputeTgsChecksumReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_ComputeTgsChecksumReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2525,20 +2525,20 @@ rcg_dissect_struct_ComputeTgsChecksumReq(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	KERB_ASN1_DATA_CHECKSUM Checksum; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_ComputeTgsChecksumResp_Checksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_ComputeTgsChecksumResp_Checksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA_CHECKSUM(tvb,offset,pinfo,tree,di,drep,hf_rcg_ComputeTgsChecksumResp_Checksum,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_ComputeTgsChecksumResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_ComputeTgsChecksumResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2569,52 +2569,52 @@ rcg_dissect_struct_ComputeTgsChecksumResp(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	[ref] KERB_ASN1_DATA *PlainAuthData; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_BuildEncryptedAuthDataReq_KeyUsage(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildEncryptedAuthDataReq_KeyUsage(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_BuildEncryptedAuthDataReq_KeyUsage, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_BuildEncryptedAuthDataReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildEncryptedAuthDataReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_BuildEncryptedAuthDataReq_Key_, NDR_POINTER_REF, "Pointer to Key (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_BuildEncryptedAuthDataReq_Key);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_BuildEncryptedAuthDataReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildEncryptedAuthDataReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_BuildEncryptedAuthDataReq_Key,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_BuildEncryptedAuthDataReq_PlainAuthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildEncryptedAuthDataReq_PlainAuthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_BuildEncryptedAuthDataReq_PlainAuthData_, NDR_POINTER_REF, "Pointer to PlainAuthData (KERB_ASN1_DATA)",hf_rcg_BuildEncryptedAuthDataReq_PlainAuthData);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_BuildEncryptedAuthDataReq_PlainAuthData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildEncryptedAuthDataReq_PlainAuthData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_BuildEncryptedAuthDataReq_PlainAuthData,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_BuildEncryptedAuthDataReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_BuildEncryptedAuthDataReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2647,20 +2647,20 @@ rcg_dissect_struct_BuildEncryptedAuthDataReq(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: 	KERB_ASN1_DATA EncryptedAuthData; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_BuildEncryptedAuthDataResp_EncryptedAuthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_BuildEncryptedAuthDataResp_EncryptedAuthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_BuildEncryptedAuthDataResp_EncryptedAuthData,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_BuildEncryptedAuthDataResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_BuildEncryptedAuthDataResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2691,60 +2691,60 @@ rcg_dissect_struct_BuildEncryptedAuthDataResp(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: 	[ref] KERB_RPC_ENCRYPTION_KEY *SessionKey; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_PackApReplyReq_Reply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_PackApReplyReq_Reply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_PackApReplyReq_Reply_, NDR_POINTER_REF, "Pointer to Reply (KERB_ASN1_DATA)",hf_rcg_PackApReplyReq_Reply);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_PackApReplyReq_Reply_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_PackApReplyReq_Reply_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_PackApReplyReq_Reply,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_PackApReplyReq_ReplyBody(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_PackApReplyReq_ReplyBody(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_PackApReplyReq_ReplyBody_, NDR_POINTER_REF, "Pointer to ReplyBody (KERB_ASN1_DATA)",hf_rcg_PackApReplyReq_ReplyBody);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_PackApReplyReq_ReplyBody_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_PackApReplyReq_ReplyBody_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_PackApReplyReq_ReplyBody,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_PackApReplyReq_SessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_PackApReplyReq_SessionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_PackApReplyReq_SessionKey_, NDR_POINTER_REF, "Pointer to SessionKey (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_PackApReplyReq_SessionKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_PackApReplyReq_SessionKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_PackApReplyReq_SessionKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_PackApReplyReq_SessionKey,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_PackApReplyReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_PackApReplyReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2778,44 +2778,44 @@ rcg_dissect_struct_PackApReplyReq(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: 	[ref] [size_is(PackedReplySize)] uint8 *PackedReply; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_PackApReplyResp_PackedReplySize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_PackApReplyResp_PackedReplySize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_PackApReplyResp_PackedReplySize, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_PackApReplyResp_PackedReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_PackApReplyResp_PackedReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_PackApReplyResp_PackedReply_, NDR_POINTER_REF, "Pointer to PackedReply (uint8)",hf_rcg_PackApReplyResp_PackedReply);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_PackApReplyResp_PackedReply_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_PackApReplyResp_PackedReply_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_PackApReplyResp_PackedReply__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_PackApReplyResp_PackedReply__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_PackApReplyResp_PackedReply__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_PackApReplyResp_PackedReply, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_PackApReplyResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_PackApReplyResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2848,52 +2848,52 @@ rcg_dissect_struct_PackApReplyResp(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: 	int32 ChecksumType; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_HashS4UPreauthReq_S4UPreauth(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthReq_S4UPreauth(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_HashS4UPreauthReq_S4UPreauth_, NDR_POINTER_REF, "Pointer to S4UPreauth (KERB_ASN1_DATA)",hf_rcg_HashS4UPreauthReq_S4UPreauth);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_HashS4UPreauthReq_S4UPreauth_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthReq_S4UPreauth_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_HashS4UPreauthReq_S4UPreauth,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_HashS4UPreauthReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_HashS4UPreauthReq_Key_, NDR_POINTER_REF, "Pointer to Key (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_HashS4UPreauthReq_Key);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_HashS4UPreauthReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_HashS4UPreauthReq_Key,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_HashS4UPreauthReq_ChecksumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthReq_ChecksumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_HashS4UPreauthReq_ChecksumType, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_HashS4UPreauthReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_HashS4UPreauthReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2927,60 +2927,60 @@ rcg_dissect_struct_HashS4UPreauthReq(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: 	[ref] [size_is(,*ChecksumSize)] uint8 **ChecksumValue; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_HashS4UPreauthResp_ChecksumSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthResp_ChecksumSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_HashS4UPreauthResp_ChecksumSize_, NDR_POINTER_REF, "Pointer to ChecksumSize (uint32)",hf_rcg_HashS4UPreauthResp_ChecksumSize);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_HashS4UPreauthResp_ChecksumSize_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthResp_ChecksumSize_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_HashS4UPreauthResp_ChecksumSize, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_HashS4UPreauthResp_ChecksumValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthResp_ChecksumValue(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_HashS4UPreauthResp_ChecksumValue_, NDR_POINTER_REF, "Pointer to ChecksumValue (uint8)",hf_rcg_HashS4UPreauthResp_ChecksumValue);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_HashS4UPreauthResp_ChecksumValue_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthResp_ChecksumValue_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_HashS4UPreauthResp_ChecksumValue__, NDR_POINTER_REF, "Pointer to ChecksumValue (uint8)",hf_rcg_HashS4UPreauthResp_ChecksumValue);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_HashS4UPreauthResp_ChecksumValue__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthResp_ChecksumValue__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_HashS4UPreauthResp_ChecksumValue___);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_HashS4UPreauthResp_ChecksumValue___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_HashS4UPreauthResp_ChecksumValue___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_HashS4UPreauthResp_ChecksumValue, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_HashS4UPreauthResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_HashS4UPreauthResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3014,68 +3014,68 @@ rcg_dissect_struct_HashS4UPreauthResp(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: 	[ref] int32 *ChecksumType; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_SignS4UPreauthDataReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SignS4UPreauthDataReq_Key_, NDR_POINTER_REF, "Pointer to Key (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_SignS4UPreauthDataReq_Key);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_SignS4UPreauthDataReq_Key,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataReq_IsRequest(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataReq_IsRequest(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_SignS4UPreauthDataReq_IsRequest, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataReq_UserId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataReq_UserId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SignS4UPreauthDataReq_UserId_, NDR_POINTER_REF, "Pointer to UserId (KERB_ASN1_DATA)",hf_rcg_SignS4UPreauthDataReq_UserId);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataReq_UserId_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataReq_UserId_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_SignS4UPreauthDataReq_UserId,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataReq_ChecksumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataReq_ChecksumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SignS4UPreauthDataReq_ChecksumType_, NDR_POINTER_REF, "Pointer to ChecksumType (int32)",hf_rcg_SignS4UPreauthDataReq_ChecksumType);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataReq_ChecksumType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataReq_ChecksumType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_SignS4UPreauthDataReq_ChecksumType, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_SignS4UPreauthDataReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_SignS4UPreauthDataReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3112,76 +3112,76 @@ rcg_dissect_struct_SignS4UPreauthDataReq(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	[ref] [size_is(,*ChecksumSize)] uint8 **ChecksumValue; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_SignS4UPreauthDataResp_ChecksumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataResp_ChecksumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SignS4UPreauthDataResp_ChecksumType_, NDR_POINTER_REF, "Pointer to ChecksumType (int32)",hf_rcg_SignS4UPreauthDataResp_ChecksumType);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataResp_ChecksumType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataResp_ChecksumType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_SignS4UPreauthDataResp_ChecksumType, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataResp_ChecksumSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataResp_ChecksumSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SignS4UPreauthDataResp_ChecksumSize_, NDR_POINTER_REF, "Pointer to ChecksumSize (uint32)",hf_rcg_SignS4UPreauthDataResp_ChecksumSize);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataResp_ChecksumSize_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataResp_ChecksumSize_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_SignS4UPreauthDataResp_ChecksumSize, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue_, NDR_POINTER_REF, "Pointer to ChecksumValue (uint8)",hf_rcg_SignS4UPreauthDataResp_ChecksumValue);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue__, NDR_POINTER_REF, "Pointer to ChecksumValue (uint8)",hf_rcg_SignS4UPreauthDataResp_ChecksumValue);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue___);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_SignS4UPreauthDataResp_ChecksumValue___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_SignS4UPreauthDataResp_ChecksumValue, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_SignS4UPreauthDataResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_SignS4UPreauthDataResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3219,100 +3219,100 @@ rcg_dissect_struct_SignS4UPreauthDataResp(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	[ref] [size_is(DataToCheckSize)] uint8 *DataToCheck; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_VerifyChecksumReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_VerifyChecksumReq_Key_, NDR_POINTER_REF, "Pointer to Key (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_VerifyChecksumReq_Key);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyChecksumReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_VerifyChecksumReq_Key,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyChecksumReq_ChecksumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_ChecksumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_VerifyChecksumReq_ChecksumType, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyChecksumReq_ExpectedChecksumSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_ExpectedChecksumSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_VerifyChecksumReq_ExpectedChecksumSize, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum_, NDR_POINTER_REF, "Pointer to ExpectedChecksum (uint8)",hf_rcg_VerifyChecksumReq_ExpectedChecksum);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_ExpectedChecksum__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_VerifyChecksumReq_ExpectedChecksum, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyChecksumReq_DataToCheckSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_DataToCheckSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_VerifyChecksumReq_DataToCheckSize, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyChecksumReq_DataToCheck(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_DataToCheck(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_VerifyChecksumReq_DataToCheck_, NDR_POINTER_REF, "Pointer to DataToCheck (uint8)",hf_rcg_VerifyChecksumReq_DataToCheck);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyChecksumReq_DataToCheck_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_DataToCheck_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_VerifyChecksumReq_DataToCheck__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_VerifyChecksumReq_DataToCheck__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumReq_DataToCheck__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_VerifyChecksumReq_DataToCheck, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_VerifyChecksumReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_VerifyChecksumReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3351,20 +3351,20 @@ rcg_dissect_struct_VerifyChecksumReq(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: 	uint32 IsValid; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_VerifyChecksumResp_IsValid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_VerifyChecksumResp_IsValid(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_VerifyChecksumResp_IsValid, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_VerifyChecksumResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_VerifyChecksumResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3397,76 +3397,76 @@ rcg_dissect_struct_VerifyChecksumResp(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: 	[ref] [size_is(DataSize)] uint8 *Data; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_DecryptPacCredentialsReq_Key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptPacCredentialsReq_Key(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_DecryptPacCredentialsReq_Key_, NDR_POINTER_REF, "Pointer to Key (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_DecryptPacCredentialsReq_Key);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptPacCredentialsReq_Key_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptPacCredentialsReq_Key_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_DecryptPacCredentialsReq_Key,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptPacCredentialsReq_Version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptPacCredentialsReq_Version(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_DecryptPacCredentialsReq_Version, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptPacCredentialsReq_EncryptionType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptPacCredentialsReq_EncryptionType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_DecryptPacCredentialsReq_EncryptionType, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptPacCredentialsReq_DataSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptPacCredentialsReq_DataSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_DecryptPacCredentialsReq_DataSize, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptPacCredentialsReq_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptPacCredentialsReq_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_DecryptPacCredentialsReq_Data_, NDR_POINTER_REF, "Pointer to Data (uint8)",hf_rcg_DecryptPacCredentialsReq_Data);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptPacCredentialsReq_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptPacCredentialsReq_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_DecryptPacCredentialsReq_Data__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptPacCredentialsReq_Data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptPacCredentialsReq_Data__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_DecryptPacCredentialsReq_Data, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_DecryptPacCredentialsReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_DecryptPacCredentialsReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3503,28 +3503,28 @@ rcg_dissect_struct_DecryptPacCredentialsReq(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	[ref] SECPKG_SUPPLEMENTAL_CRED_ARRAY *Credentials; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_DecryptPacCredentialsResp_Credentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptPacCredentialsResp_Credentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_DecryptPacCredentialsResp_Credentials_, NDR_POINTER_REF, "Pointer to Credentials (SECPKG_SUPPLEMENTAL_CRED_ARRAY)",hf_rcg_DecryptPacCredentialsResp_Credentials);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_DecryptPacCredentialsResp_Credentials_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DecryptPacCredentialsResp_Credentials_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED_ARRAY(tvb,offset,pinfo,tree,di,drep,hf_rcg_DecryptPacCredentialsResp_Credentials,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_DecryptPacCredentialsResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_DecryptPacCredentialsResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3553,20 +3553,20 @@ rcg_dissect_struct_DecryptPacCredentialsResp(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: 	uint32 KeyBitLen; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementReq_KeyBitLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementReq_KeyBitLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateECDHKeyAgreementReq_KeyBitLen, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CreateECDHKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CreateECDHKeyAgreementReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3598,92 +3598,92 @@ rcg_dissect_struct_CreateECDHKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: 	[ref] [size_is(,*EncodedPubKeyLen)] uint8 **EncodedPubKey; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle_, NDR_POINTER_REF, "Pointer to KeyAgreementHandle (int64)",hf_rcg_CreateECDHKeyAgreementResp_KeyAgreementHandle);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint64(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateECDHKeyAgreementResp_KeyAgreementHandle, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementResp_KerbErr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementResp_KerbErr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateECDHKeyAgreementResp_KerbErr_, NDR_POINTER_REF, "Pointer to KerbErr (int32)",hf_rcg_CreateECDHKeyAgreementResp_KerbErr);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementResp_KerbErr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementResp_KerbErr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateECDHKeyAgreementResp_KerbErr, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKeyLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKeyLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKeyLen_, NDR_POINTER_REF, "Pointer to EncodedPubKeyLen (uint32)",hf_rcg_CreateECDHKeyAgreementResp_EncodedPubKeyLen);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKeyLen_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKeyLen_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateECDHKeyAgreementResp_EncodedPubKeyLen, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey_, NDR_POINTER_REF, "Pointer to EncodedPubKey (uint8)",hf_rcg_CreateECDHKeyAgreementResp_EncodedPubKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey__, NDR_POINTER_REF, "Pointer to EncodedPubKey (uint8)",hf_rcg_CreateECDHKeyAgreementResp_EncodedPubKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey___);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateECDHKeyAgreementResp_EncodedPubKey___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateECDHKeyAgreementResp_EncodedPubKey, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CreateECDHKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CreateECDHKeyAgreementResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3718,20 +3718,20 @@ rcg_dissect_struct_CreateECDHKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: 	uint8 Ignored; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementReq_Ignored(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementReq_Ignored(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateDHKeyAgreementReq_Ignored, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CreateDHKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CreateDHKeyAgreementReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	old_offset = offset;
 
@@ -3760,140 +3760,140 @@ rcg_dissect_struct_CreateDHKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	[ref] [size_is(,*LittleEndianPublicKeyLen)] uint8 **LittleEndianPublicKey; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_ModulusP(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_ModulusP(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateDHKeyAgreementResp_ModulusP_, NDR_POINTER_REF, "Pointer to ModulusP (KERB_RPC_CRYPTO_API_BLOB)",hf_rcg_CreateDHKeyAgreementResp_ModulusP);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_ModulusP_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_ModulusP_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_CRYPTO_API_BLOB(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateDHKeyAgreementResp_ModulusP,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_GeneratorG(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_GeneratorG(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateDHKeyAgreementResp_GeneratorG_, NDR_POINTER_REF, "Pointer to GeneratorG (KERB_RPC_CRYPTO_API_BLOB)",hf_rcg_CreateDHKeyAgreementResp_GeneratorG);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_GeneratorG_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_GeneratorG_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_CRYPTO_API_BLOB(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateDHKeyAgreementResp_GeneratorG,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_FactorQ(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_FactorQ(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateDHKeyAgreementResp_FactorQ_, NDR_POINTER_REF, "Pointer to FactorQ (KERB_RPC_CRYPTO_API_BLOB)",hf_rcg_CreateDHKeyAgreementResp_FactorQ);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_FactorQ_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_FactorQ_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_CRYPTO_API_BLOB(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateDHKeyAgreementResp_FactorQ,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_KeyAgreementHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateDHKeyAgreementResp_KeyAgreementHandle_, NDR_POINTER_REF, "Pointer to KeyAgreementHandle (int64)",hf_rcg_CreateDHKeyAgreementResp_KeyAgreementHandle);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_KeyAgreementHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_KeyAgreementHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint64(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateDHKeyAgreementResp_KeyAgreementHandle, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_KerbErr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_KerbErr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateDHKeyAgreementResp_KerbErr_, NDR_POINTER_REF, "Pointer to KerbErr (int32)",hf_rcg_CreateDHKeyAgreementResp_KerbErr);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_KerbErr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_KerbErr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateDHKeyAgreementResp_KerbErr, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen_, NDR_POINTER_REF, "Pointer to LittleEndianPublicKeyLen (uint32)",hf_rcg_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateDHKeyAgreementResp_LittleEndianPublicKeyLen, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey_, NDR_POINTER_REF, "Pointer to LittleEndianPublicKey (uint8)",hf_rcg_CreateDHKeyAgreementResp_LittleEndianPublicKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey__, NDR_POINTER_REF, "Pointer to LittleEndianPublicKey (uint8)",hf_rcg_CreateDHKeyAgreementResp_LittleEndianPublicKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey___);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CreateDHKeyAgreementResp_LittleEndianPublicKey___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_CreateDHKeyAgreementResp_LittleEndianPublicKey, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CreateDHKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CreateDHKeyAgreementResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3934,20 +3934,20 @@ rcg_dissect_struct_CreateDHKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	int64 KeyAgreementHandle; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_DestroyKeyAgreementReq_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DestroyKeyAgreementReq_KeyAgreementHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint64(tvb, offset, pinfo, tree, di, drep, hf_rcg_DestroyKeyAgreementReq_KeyAgreementHandle, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_DestroyKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_DestroyKeyAgreementReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_8_BYTES;
 
@@ -3976,20 +3976,20 @@ rcg_dissect_struct_DestroyKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	uint8 Ignored; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_DestroyKeyAgreementResp_Ignored(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_DestroyKeyAgreementResp_Ignored(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_DestroyKeyAgreementResp_Ignored, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_DestroyKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_DestroyKeyAgreementResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	old_offset = offset;
 
@@ -4012,20 +4012,20 @@ rcg_dissect_struct_DestroyKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	int64 KeyAgreementHandle; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KeyAgreementGenerateNonceReq_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KeyAgreementGenerateNonceReq_KeyAgreementHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint64(tvb, offset, pinfo, tree, di, drep, hf_rcg_KeyAgreementGenerateNonceReq_KeyAgreementHandle, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_KeyAgreementGenerateNonceReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_KeyAgreementGenerateNonceReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_8_BYTES;
 
@@ -4055,60 +4055,60 @@ rcg_dissect_struct_KeyAgreementGenerateNonceReq(tvbuff_t *tvb _U_, int offset _U
 /* IDL: 	[ref] [size_is(,*NonceLen)] uint8 **Nonce; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KeyAgreementGenerateNonceResp_NonceLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KeyAgreementGenerateNonceResp_NonceLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KeyAgreementGenerateNonceResp_NonceLen_, NDR_POINTER_REF, "Pointer to NonceLen (uint32)",hf_rcg_KeyAgreementGenerateNonceResp_NonceLen);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KeyAgreementGenerateNonceResp_NonceLen_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KeyAgreementGenerateNonceResp_NonceLen_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_KeyAgreementGenerateNonceResp_NonceLen, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce_, NDR_POINTER_REF, "Pointer to Nonce (uint8)",hf_rcg_KeyAgreementGenerateNonceResp_Nonce);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce__, NDR_POINTER_REF, "Pointer to Nonce (uint8)",hf_rcg_KeyAgreementGenerateNonceResp_Nonce);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce___);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KeyAgreementGenerateNonceResp_Nonce___(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_KeyAgreementGenerateNonceResp_Nonce, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_KeyAgreementGenerateNonceResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_KeyAgreementGenerateNonceResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -4144,108 +4144,108 @@ rcg_dissect_struct_KeyAgreementGenerateNonceResp(tvbuff_t *tvb _U_, int offset _
 /* IDL: 	[ref] [size_is(X509PublicKeyLen)] uint8 *X509PublicKey; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_KeyAgreementHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_FinalizeKeyAgreementReq_KeyAgreementHandle_, NDR_POINTER_REF, "Pointer to KeyAgreementHandle (int64)",hf_rcg_FinalizeKeyAgreementReq_KeyAgreementHandle);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_KeyAgreementHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_KeyAgreementHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint64(tvb, offset, pinfo, tree, di, drep, hf_rcg_FinalizeKeyAgreementReq_KeyAgreementHandle, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_KerbEType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_KerbEType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_FinalizeKeyAgreementReq_KerbEType_, NDR_POINTER_REF, "Pointer to KerbEType (uint32)",hf_rcg_FinalizeKeyAgreementReq_KerbEType);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_KerbEType_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_KerbEType_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_FinalizeKeyAgreementReq_KerbEType, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonceLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonceLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_FinalizeKeyAgreementReq_RemoteNonceLen, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce_, NDR_POINTER_REF, "Pointer to RemoteNonce (uint8)",hf_rcg_FinalizeKeyAgreementReq_RemoteNonce);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_RemoteNonce__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_FinalizeKeyAgreementReq_RemoteNonce, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKeyLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKeyLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_FinalizeKeyAgreementReq_X509PublicKeyLen, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey_, NDR_POINTER_REF, "Pointer to X509PublicKey (uint8)",hf_rcg_FinalizeKeyAgreementReq_X509PublicKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementReq_X509PublicKey__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_FinalizeKeyAgreementReq_X509PublicKey, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_FinalizeKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_FinalizeKeyAgreementReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -4284,28 +4284,28 @@ rcg_dissect_struct_FinalizeKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	[ref] KERB_RPC_ENCRYPTION_KEY *SharedKey; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementResp_SharedKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementResp_SharedKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_FinalizeKeyAgreementResp_SharedKey_, NDR_POINTER_REF, "Pointer to SharedKey (KERB_RPC_ENCRYPTION_KEY)",hf_rcg_FinalizeKeyAgreementResp_SharedKey);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_FinalizeKeyAgreementResp_SharedKey_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_FinalizeKeyAgreementResp_SharedKey_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_FinalizeKeyAgreementResp_SharedKey,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_FinalizeKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_FinalizeKeyAgreementResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -4351,156 +4351,156 @@ rcg_dissect_struct_FinalizeKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: [case(RemoteCallKerbFinalizeKeyAgreement)] [case(RemoteCallKerbFinalizeKeyAgreement)] FinalizeKeyAgreementReq finalizeKeyAgreement; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KerbInputUnion_negociateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_negociateVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_NegotiateVersion(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_negociateVersion,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_buildAsReqAuthenticator(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_buildAsReqAuthenticator(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_BuildAsReqAuthenticatorReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_buildAsReqAuthenticator,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_verifyServiceTicket(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_verifyServiceTicket(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_VerifyServiceTicketReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_verifyServiceTicket,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_createApReqAuthenticator(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_createApReqAuthenticator(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CreateApReqAuthenticatorReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_createApReqAuthenticator,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_decryptApReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_decryptApReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_DecryptApReplyReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_decryptApReply,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_unpackKdcReplyBody(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_unpackKdcReplyBody(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_UnpackKdcReplyBodyReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_unpackKdcReplyBody,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_computeTgsChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_computeTgsChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_ComputeTgsChecksumReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_computeTgsChecksum,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_buildEncryptedAuthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_buildEncryptedAuthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_BuildEncryptedAuthDataReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_buildEncryptedAuthData,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_packApReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_packApReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_PackApReplyReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_packApReply,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_hashS4UPreauth(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_hashS4UPreauth(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_HashS4UPreauthReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_hashS4UPreauth,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_signS4UPreauthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_signS4UPreauthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_SignS4UPreauthDataReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_signS4UPreauthData,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_verifyChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_verifyChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_VerifyChecksumReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_verifyChecksum,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_decryptPacCredentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_decryptPacCredentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_DecryptPacCredentialsReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_decryptPacCredentials,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_createECDHKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_createECDHKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CreateECDHKeyAgreementReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_createECDHKeyAgreement,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_createDHKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_createDHKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CreateDHKeyAgreementReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_createDHKeyAgreement,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_destroyKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_destroyKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_DestroyKeyAgreementReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_destroyKeyAgreement,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_keyAgreementGenerateNonce(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_keyAgreementGenerateNonce(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KeyAgreementGenerateNonceReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_keyAgreementGenerateNonce,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbInputUnion_finalizeKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbInputUnion_finalizeKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_FinalizeKeyAgreementReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbInputUnion_finalizeKeyAgreement,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_KerbInputUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+static unsigned
+rcg_dissect_KerbInputUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 	uint16_t level;
 
 	old_offset = offset;
@@ -4595,16 +4595,16 @@ rcg_dissect_KerbInputUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 /* IDL: 	[switch_is(CallId)] [switch_type(uint16)] KerbInputUnion callUnion; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KerbCredIsoRemoteInput_CallId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
+static unsigned
+rcg_dissect_element_KerbCredIsoRemoteInput_CallId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
 {
 	offset = rcg_dissect_enum_RemoteGuardCallId(tvb, offset, pinfo, tree, di, drep, hf_rcg_KerbCredIsoRemoteInput_CallId, CallId);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbCredIsoRemoteInput_callUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
+static unsigned
+rcg_dissect_element_KerbCredIsoRemoteInput_callUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
 {
 	offset = rcg_dissect_KerbInputUnion(tvb, offset, pinfo, tree, di, drep, hf_rcg_KerbCredIsoRemoteInput_callUnion, *CallId);
 
@@ -4633,156 +4633,156 @@ rcg_dissect_element_KerbCredIsoRemoteInput_callUnion(tvbuff_t *tvb _U_, int offs
 /* IDL: [case(RemoteCallKerbFinalizeKeyAgreement)] [case(RemoteCallKerbFinalizeKeyAgreement)] FinalizeKeyAgreementResp finalizeKeyAgreement; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KerbOutputUnion_negociateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_negociateVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_NegotiateVersion(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_negociateVersion,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_buildAsReqAuthenticator(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_buildAsReqAuthenticator(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_BuildAsReqAuthenticatorResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_buildAsReqAuthenticator,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_verifyServiceTicket(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_verifyServiceTicket(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_VerifyServiceTicketResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_verifyServiceTicket,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_createApReqAuthenticator(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_createApReqAuthenticator(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CreateApReqAuthenticatorResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_createApReqAuthenticator,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_decryptApReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_decryptApReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_DecryptApReplyResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_decryptApReply,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_unpackKdcReplyBody(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_unpackKdcReplyBody(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_UnpackKdcReplyBodyResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_unpackKdcReplyBody,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_computeTgsChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_computeTgsChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_ComputeTgsChecksumResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_computeTgsChecksum,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_buildEncryptedAuthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_buildEncryptedAuthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_BuildEncryptedAuthDataResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_buildEncryptedAuthData,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_packApReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_packApReply(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_PackApReplyResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_packApReply,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_hashS4UPreauth(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_hashS4UPreauth(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_HashS4UPreauthResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_hashS4UPreauth,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_signS4UPreauthData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_signS4UPreauthData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_SignS4UPreauthDataResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_signS4UPreauthData,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_verifyChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_verifyChecksum(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_VerifyChecksumResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_verifyChecksum,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_decryptPacCredentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_decryptPacCredentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_DecryptPacCredentialsResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_decryptPacCredentials,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_createECDHKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_createECDHKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CreateECDHKeyAgreementResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_createECDHKeyAgreement,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_createDHKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_createDHKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CreateDHKeyAgreementResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_createDHKeyAgreement,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_destroyKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_destroyKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_DestroyKeyAgreementResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_destroyKeyAgreement,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_keyAgreementGenerateNonce(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_keyAgreementGenerateNonce(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_KeyAgreementGenerateNonceResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_keyAgreementGenerateNonce,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbOutputUnion_finalizeKeyAgreement(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbOutputUnion_finalizeKeyAgreement(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_FinalizeKeyAgreementResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_KerbOutputUnion_finalizeKeyAgreement,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_KerbOutputUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+static unsigned
+rcg_dissect_KerbOutputUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 	uint16_t level;
 
 	old_offset = offset;
@@ -4878,24 +4878,24 @@ rcg_dissect_KerbOutputUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 /* IDL: 	[switch_is(CallId)] [switch_type(RemoteGuardCallId)] KerbOutputUnion callUnion; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_KerbCredIsoRemoteOutput_CallId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
+static unsigned
+rcg_dissect_element_KerbCredIsoRemoteOutput_CallId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
 {
 	offset = rcg_dissect_enum_RemoteGuardCallId(tvb, offset, pinfo, tree, di, drep, hf_rcg_KerbCredIsoRemoteOutput_CallId, CallId);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbCredIsoRemoteOutput_Status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_KerbCredIsoRemoteOutput_Status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_KerbCredIsoRemoteOutput_Status, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_KerbCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
+static unsigned
+rcg_dissect_element_KerbCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
 {
 	offset = rcg_dissect_KerbOutputUnion(tvb, offset, pinfo, tree, di, drep, hf_rcg_KerbCredIsoRemoteOutput_callUnion, *CallId);
 
@@ -4907,8 +4907,8 @@ rcg_dissect_element_KerbCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, int off
 /* IDL: 	uint8 Data[24]; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_NT_RESPONSE_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NT_RESPONSE_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 24; i++)
@@ -4917,20 +4917,20 @@ rcg_dissect_element_NT_RESPONSE_Data(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	return offset;
 }
 
-static int
-rcg_dissect_element_NT_RESPONSE_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NT_RESPONSE_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_NT_RESPONSE_Data, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_NT_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_NT_RESPONSE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	old_offset = offset;
 
@@ -4953,8 +4953,8 @@ rcg_dissect_struct_NT_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: 	uint8 Data[8]; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_NT_CHALLENGE_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NT_CHALLENGE_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 8; i++)
@@ -4963,20 +4963,20 @@ rcg_dissect_element_NT_CHALLENGE_Data(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
-static int
-rcg_dissect_element_NT_CHALLENGE_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NT_CHALLENGE_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_NT_CHALLENGE_Data, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_NT_CHALLENGE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_NT_CHALLENGE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5005,8 +5005,8 @@ rcg_dissect_struct_NT_CHALLENGE(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: 	uint8 Data[8]; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_LM_SESSION_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_LM_SESSION_KEY_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 8; i++)
@@ -5015,20 +5015,20 @@ rcg_dissect_element_LM_SESSION_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packe
 	return offset;
 }
 
-static int
-rcg_dissect_element_LM_SESSION_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_LM_SESSION_KEY_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_LM_SESSION_KEY_Data, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_LM_SESSION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_LM_SESSION_KEY(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5058,8 +5058,8 @@ rcg_dissect_struct_LM_SESSION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: 	uint8 ChallengeFromClient[8]; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 16; i++)
@@ -5068,16 +5068,16 @@ rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response(tvbuff_t *tvb _U_, int offset _
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_LM3_RESPONSE_Response, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 8; i++)
@@ -5086,20 +5086,20 @@ rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient(tvbuff_t *tvb _U_, i
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_LM3_RESPONSE_ChallengeFromClient, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_MSV1_0_LM3_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_MSV1_0_LM3_RESPONSE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	old_offset = offset;
 
@@ -5124,8 +5124,8 @@ rcg_dissect_struct_MSV1_0_LM3_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: 	uint8 Data[16]; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_USER_SESSION_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_USER_SESSION_KEY_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 16; i++)
@@ -5134,20 +5134,20 @@ rcg_dissect_element_USER_SESSION_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 
-static int
-rcg_dissect_element_USER_SESSION_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_USER_SESSION_KEY_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_USER_SESSION_KEY_Data, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_USER_SESSION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_USER_SESSION_KEY(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	old_offset = offset;
 
@@ -5170,8 +5170,8 @@ rcg_dissect_struct_USER_SESSION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: 	uint8 Data[20]; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 20; i++)
@@ -5180,20 +5180,20 @@ rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_CREDENTIAL_KEY_Data, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_MSV1_0_CREDENTIAL_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_MSV1_0_CREDENTIAL_KEY(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	old_offset = offset;
 
@@ -5222,84 +5222,84 @@ rcg_dissect_struct_MSV1_0_CREDENTIAL_KEY(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	[ref] [size_is(reservedSize)] uint8 *reserved6; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved1, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved2, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved3(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved3, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved4(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_MSV1_0_CREDENTIAL_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved4,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved5(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_MSV1_0_CREDENTIAL_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved5,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reservedSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reservedSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reservedSize, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6_, NDR_POINTER_REF, "Pointer to Reserved6 (uint8)",hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5344,72 +5344,72 @@ rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvbuff_t *tvb _U_, int offset
 /* IDL: 	uint8 ChallengeToClient[8]; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential_, NDR_POINTER_REF, "Pointer to Credential (MSV1_0_REMOTE_ENCRYPTED_SECRETS)",hf_rcg_Lm20GetNtlm3ChallengeResponseReq_Credential);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_Credential,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName_, NDR_POINTER_REF, "Pointer to UserName (RPC_UNICODE_STRING)",hf_rcg_Lm20GetNtlm3ChallengeResponseReq_UserName);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_RPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_UserName,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName_, NDR_POINTER_REF, "Pointer to LogonDomainName (RPC_UNICODE_STRING)",hf_rcg_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_RPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName_, NDR_POINTER_REF, "Pointer to ServerName (RPC_UNICODE_STRING)",hf_rcg_Lm20GetNtlm3ChallengeResponseReq_ServerName);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_RPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_ServerName,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 8; i++)
@@ -5418,20 +5418,20 @@ rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient(tvbuff_t 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -5472,68 +5472,68 @@ rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseReq(tvbuff_t *tvb _U_, int offse
 /* IDL: 	LM_SESSION_KEY LmSessionKey; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3ResponseLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3ResponseLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_rcg_Lm20GetNtlm3ChallengeResponseResp_Ntlm3ResponseLength, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response_, NDR_POINTER_REF, "Pointer to Ntlm3Response (uint8)",hf_rcg_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response__);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Lm3Response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Lm3Response(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_MSV1_0_LM3_RESPONSE(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseResp_Lm3Response,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_UserSessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_UserSessionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_USER_SESSION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseResp_UserSessionKey,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_LmSessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_LmSessionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_LM_SESSION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseResp_LmSessionKey,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -5571,44 +5571,44 @@ rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseResp(tvbuff_t *tvb _U_, int offs
 /* IDL: 	[ref] MSV1_0_REMOTE_ENCRYPTED_SECRETS *Credential; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CalculateNtResponseReq_NtChallenge(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CalculateNtResponseReq_NtChallenge(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CalculateNtResponseReq_NtChallenge_, NDR_POINTER_REF, "Pointer to NtChallenge (NT_CHALLENGE)",hf_rcg_CalculateNtResponseReq_NtChallenge);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CalculateNtResponseReq_NtChallenge_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CalculateNtResponseReq_NtChallenge_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_NT_CHALLENGE(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateNtResponseReq_NtChallenge,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CalculateNtResponseReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CalculateNtResponseReq_Credential(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CalculateNtResponseReq_Credential_, NDR_POINTER_REF, "Pointer to Credential (MSV1_0_REMOTE_ENCRYPTED_SECRETS)",hf_rcg_CalculateNtResponseReq_Credential);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CalculateNtResponseReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CalculateNtResponseReq_Credential_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateNtResponseReq_Credential,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CalculateNtResponseReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CalculateNtResponseReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -5639,20 +5639,20 @@ rcg_dissect_struct_CalculateNtResponseReq(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	NT_RESPONSE NtResponse; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CalculateNtResponseResp_NtResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CalculateNtResponseResp_NtResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_NT_RESPONSE(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateNtResponseResp_NtResponse,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CalculateNtResponseResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CalculateNtResponseResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	old_offset = offset;
 
@@ -5676,44 +5676,44 @@ rcg_dissect_struct_CalculateNtResponseResp(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	[ref] MSV1_0_REMOTE_ENCRYPTED_SECRETS *Credential; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse_, NDR_POINTER_REF, "Pointer to NtResponse (NT_RESPONSE)",hf_rcg_CalculateUserSessionKeyNtReq_NtResponse);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_NT_RESPONSE(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateUserSessionKeyNtReq_NtResponse,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential_, NDR_POINTER_REF, "Pointer to Credential (MSV1_0_REMOTE_ENCRYPTED_SECRETS)",hf_rcg_CalculateUserSessionKeyNtReq_Credential);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateUserSessionKeyNtReq_Credential,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CalculateUserSessionKeyNtReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CalculateUserSessionKeyNtReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -5744,20 +5744,20 @@ rcg_dissect_struct_CalculateUserSessionKeyNtReq(tvbuff_t *tvb _U_, int offset _U
 /* IDL: 	USER_SESSION_KEY UserSessionKey; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CalculateUserSessionKeyNtResp_UserSessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CalculateUserSessionKeyNtResp_UserSessionKey(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_USER_SESSION_KEY(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateUserSessionKeyNtResp_UserSessionKey,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CalculateUserSessionKeyNtResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CalculateUserSessionKeyNtResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	old_offset = offset;
 
@@ -5781,44 +5781,44 @@ rcg_dissect_struct_CalculateUserSessionKeyNtResp(tvbuff_t *tvb _U_, int offset _
 /* IDL: 	[ref] MSV1_0_REMOTE_ENCRYPTED_SECRETS *RhsCredential; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CompareCredentialsReq_LhsCredential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CompareCredentialsReq_LhsCredential(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CompareCredentialsReq_LhsCredential_, NDR_POINTER_REF, "Pointer to LhsCredential (MSV1_0_REMOTE_ENCRYPTED_SECRETS)",hf_rcg_CompareCredentialsReq_LhsCredential);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CompareCredentialsReq_LhsCredential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CompareCredentialsReq_LhsCredential_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CompareCredentialsReq_LhsCredential,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CompareCredentialsReq_RhsCredential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CompareCredentialsReq_RhsCredential(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CompareCredentialsReq_RhsCredential_, NDR_POINTER_REF, "Pointer to RhsCredential (MSV1_0_REMOTE_ENCRYPTED_SECRETS)",hf_rcg_CompareCredentialsReq_RhsCredential);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CompareCredentialsReq_RhsCredential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CompareCredentialsReq_RhsCredential_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CompareCredentialsReq_RhsCredential,0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CompareCredentialsReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CompareCredentialsReq(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -5851,36 +5851,36 @@ rcg_dissect_struct_CompareCredentialsReq(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	uint32 AreShaOwfsEqual; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_CompareCredentialsResp_AreNtOwfsEqual(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CompareCredentialsResp_AreNtOwfsEqual(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CompareCredentialsResp_AreNtOwfsEqual, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CompareCredentialsResp_AreLmOwfsEqual(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CompareCredentialsResp_AreLmOwfsEqual(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CompareCredentialsResp_AreLmOwfsEqual, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_CompareCredentialsResp_AreShaOwfsEqual(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_CompareCredentialsResp_AreShaOwfsEqual(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_CompareCredentialsResp_AreShaOwfsEqual, 0);
 
 	return offset;
 }
 
-int
-rcg_dissect_struct_CompareCredentialsResp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+rcg_dissect_struct_CompareCredentialsResp(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5917,52 +5917,52 @@ rcg_dissect_struct_CompareCredentialsResp(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: [case(RemoteCallNtlmCompareCredentials)] [case(RemoteCallNtlmCompareCredentials)] CompareCredentialsReq compareCredentials; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_NtlmCredInput_negotiateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredInput_negotiateVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_NegotiateVersion(tvb,offset,pinfo,tree,di,drep,hf_rcg_NtlmCredInput_negotiateVersion,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredInput_lm20GetNtlm3ChallengeResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredInput_lm20GetNtlm3ChallengeResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_NtlmCredInput_lm20GetNtlm3ChallengeResponse,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredInput_calculateNtResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredInput_calculateNtResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CalculateNtResponseReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_NtlmCredInput_calculateNtResponse,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredInput_calculateUserSessionKeyNt(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredInput_calculateUserSessionKeyNt(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CalculateUserSessionKeyNtReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_NtlmCredInput_calculateUserSessionKeyNt,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredInput_compareCredentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredInput_compareCredentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CompareCredentialsReq(tvb,offset,pinfo,tree,di,drep,hf_rcg_NtlmCredInput_compareCredentials,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_NtlmCredInput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+static unsigned
+rcg_dissect_NtlmCredInput(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 	uint16_t level;
 
 	old_offset = offset;
@@ -6005,16 +6005,16 @@ rcg_dissect_NtlmCredInput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 /* IDL: 	[switch_is(CallId)] [switch_type(RemoteGuardCallId)] NtlmCredInput callUnion; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_NtlmCredIsoRemoteInput_CallId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
+static unsigned
+rcg_dissect_element_NtlmCredIsoRemoteInput_CallId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
 {
 	offset = rcg_dissect_enum_RemoteGuardCallId(tvb, offset, pinfo, tree, di, drep, hf_rcg_NtlmCredIsoRemoteInput_CallId, CallId);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredIsoRemoteInput_callUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
+static unsigned
+rcg_dissect_element_NtlmCredIsoRemoteInput_callUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
 {
 	offset = rcg_dissect_NtlmCredInput(tvb, offset, pinfo, tree, di, drep, hf_rcg_NtlmCredIsoRemoteInput_callUnion, *CallId);
 
@@ -6030,52 +6030,52 @@ rcg_dissect_element_NtlmCredIsoRemoteInput_callUnion(tvbuff_t *tvb _U_, int offs
 /* IDL: [case(RemoteCallNtlmCompareCredentials)] [case(RemoteCallNtlmCompareCredentials)] CompareCredentialsResp compareCredentials; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_NtlmCredOutput_negotiateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredOutput_negotiateVersion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_NegotiateVersion(tvb,offset,pinfo,tree,di,drep,hf_rcg_NtlmCredOutput_negotiateVersion,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredOutput_lm20GetNtlm3ChallengeResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredOutput_lm20GetNtlm3ChallengeResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_NtlmCredOutput_lm20GetNtlm3ChallengeResponse,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredOutput_calculateNtResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredOutput_calculateNtResponse(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CalculateNtResponseResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_NtlmCredOutput_calculateNtResponse,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredOutput_calculateUserSessionKeyNt(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredOutput_calculateUserSessionKeyNt(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CalculateUserSessionKeyNtResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_NtlmCredOutput_calculateUserSessionKeyNt,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredOutput_compareCredentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredOutput_compareCredentials(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = rcg_dissect_struct_CompareCredentialsResp(tvb,offset,pinfo,tree,di,drep,hf_rcg_NtlmCredOutput_compareCredentials,0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_NtlmCredOutput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+static unsigned
+rcg_dissect_NtlmCredOutput(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 	uint16_t level;
 
 	old_offset = offset;
@@ -6119,24 +6119,24 @@ rcg_dissect_NtlmCredOutput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 /* IDL: 	[switch_is(CallId)] [switch_type(RemoteGuardCallId)] NtlmCredOutput callUnion; */
 /* IDL: } */
 
-static int
-rcg_dissect_element_NtlmCredIsoRemoteOutput_CallId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
+static unsigned
+rcg_dissect_element_NtlmCredIsoRemoteOutput_CallId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
 {
 	offset = rcg_dissect_enum_RemoteGuardCallId(tvb, offset, pinfo, tree, di, drep, hf_rcg_NtlmCredIsoRemoteOutput_CallId, CallId);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredIsoRemoteOutput_Status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+rcg_dissect_element_NtlmCredIsoRemoteOutput_Status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rcg_NtlmCredIsoRemoteOutput_Status, 0);
 
 	return offset;
 }
 
-static int
-rcg_dissect_element_NtlmCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
+static unsigned
+rcg_dissect_element_NtlmCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId)
 {
 	offset = rcg_dissect_NtlmCredOutput(tvb, offset, pinfo, tree, di, drep, hf_rcg_NtlmCredIsoRemoteOutput_callUnion, *CallId);
 

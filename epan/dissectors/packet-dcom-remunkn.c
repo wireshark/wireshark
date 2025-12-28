@@ -64,8 +64,8 @@ typedef struct remunk_remqueryinterface_call_s {
 } remunk_remqueryinterface_call_t;
 
 
-static int
-dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, unsigned offset,
                                       packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     e_guid_t     ipid;
@@ -113,8 +113,8 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, unsigned offset,
                                       packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t     u32Pointer;
@@ -198,8 +198,8 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_remunk_remrelease_rqst(tvbuff_t *tvb, unsigned offset,
                                packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t     u32Pointer;

@@ -5889,7 +5889,7 @@ int dissect_nt_sid_ret_item(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 #define SPECIFIC_RIGHTS_MASK 0x0000FFFF /* Specific rights defined per-object */
 
-typedef void (nt_access_mask_fn_t)(tvbuff_t *tvb, int offset,
+typedef void (nt_access_mask_fn_t)(tvbuff_t *tvb, unsigned offset,
 				   proto_tree *tree, uint32_t access);
 
 /* Map generic access permissions to specific permissions */

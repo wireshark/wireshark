@@ -668,8 +668,8 @@ static const value_string dcom_vt_bool_vals[] = {
 
 
 /* dissect extension to DCOM "this" and "that" */
-static int
-dissect_dcom_extent(tvbuff_t *tvb, int offset,
+static unsigned
+dissect_dcom_extent(tvbuff_t *tvb, unsigned offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t u32ArraySize;
@@ -771,8 +771,8 @@ dissect_dcom_extent(tvbuff_t *tvb, int offset,
 
 
 /* dissect DCOM "this" (start of every DCOM request) */
-int
-dissect_dcom_this(tvbuff_t *tvb, int offset,
+unsigned
+dissect_dcom_this(tvbuff_t *tvb, unsigned offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint16_t u16VersionMajor;
@@ -820,8 +820,8 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 
 
 /* dissect DCOM "that" (start of every DCOM response) */
-int
-dissect_dcom_that(tvbuff_t *tvb, int offset,
+unsigned
+dissect_dcom_that(tvbuff_t *tvb, unsigned offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep) {
 	uint32_t u32Flags;
 	proto_item *sub_item;
@@ -854,8 +854,8 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 
 
 /* dissect simple dcom request, DCOM "this" only */
-int
-dissect_dcom_simple_rqst(tvbuff_t *tvb, int offset,
+unsigned
+dissect_dcom_simple_rqst(tvbuff_t *tvb, unsigned offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 
@@ -866,8 +866,8 @@ dissect_dcom_simple_rqst(tvbuff_t *tvb, int offset,
 
 
 /* dissect simple dcom response, DCOM "that" and returned HRESULT only */
-int
-dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
+unsigned
+dissect_dcom_simple_resp(tvbuff_t *tvb, unsigned offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t u32HResult;
@@ -887,8 +887,8 @@ dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
 
 
 /* dissect a dcerpc array size */
-int
-dissect_dcom_dcerpc_array_size(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_dcerpc_array_size(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, uint32_t *pu32ArraySize)
 {
 
@@ -907,8 +907,8 @@ dissect_dcom_dcerpc_array_size(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 /* dissect a dcerpc pointer value */
-int
-dissect_dcom_dcerpc_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_dcerpc_pointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, uint32_t *pu32Pointer)
 {
 
@@ -927,8 +927,8 @@ dissect_dcom_dcerpc_pointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* mark data as "ToBeDone" */
 /* XXX: handout data to generic "unknown data" dissector? */
-extern int
-dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
+extern unsigned
+dissect_dcom_tobedone_data(tvbuff_t *tvb, unsigned offset,
 	packet_info *pinfo, proto_tree *tree, uint8_t *drep _U_, int length)
 {
 	proto_item *item;
@@ -946,8 +946,8 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 
 /* mark data as "No Specification Available" */
 /* XXX: handout data to generic "unknown data" dissector? */
-extern int
-dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
+extern unsigned
+dissect_dcom_nospec_data(tvbuff_t *tvb, unsigned offset,
 	packet_info *pinfo, proto_tree *tree, uint8_t *drep _U_, int length)
 {
 	proto_item *item;
@@ -964,8 +964,8 @@ dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
 
 
 /* dissect an indexed WORD, something like: "FieldName[1]: 0x1234" */
-int
-dissect_dcom_indexed_WORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
+unsigned
+dissect_dcom_indexed_WORD(tvbuff_t *tvb, unsigned offset,	packet_info *pinfo,
 					 proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 					 int hfindex, uint16_t * pu16WORD, int field_index)
 {
@@ -994,8 +994,8 @@ dissect_dcom_indexed_WORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
 
 /* dissect an indexed DWORD, something like: "FieldName[1]: 0x12345678" */
-int
-dissect_dcom_indexed_DWORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
+unsigned
+dissect_dcom_indexed_DWORD(tvbuff_t *tvb, unsigned offset,	packet_info *pinfo,
 					 proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 					 int hfindex, uint32_t * pu32DWORD, int field_index)
 {
@@ -1024,8 +1024,8 @@ dissect_dcom_indexed_DWORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
 
 /* dissect hresult field of a usual DCOM call (create "raw" item) */
-int
-dissect_dcom_HRESULT_item(tvbuff_t *tvb, int offset,	packet_info *pinfo,
+unsigned
+dissect_dcom_HRESULT_item(tvbuff_t *tvb, unsigned offset,	packet_info *pinfo,
 					 proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 					 uint32_t * pu32HResult, int field_index, proto_item **item)
 {
@@ -1048,8 +1048,8 @@ dissect_dcom_HRESULT_item(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
 
 /* dissect hresult field of a usual DCOM call (separate method, because often used) */
-int
-dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
+unsigned
+dissect_dcom_HRESULT(tvbuff_t *tvb, unsigned offset,	packet_info *pinfo,
 					 proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 					 uint32_t * pu32HResult)
 {
@@ -1079,8 +1079,8 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
 
 /* partial results of indexed DCOM subcalls (e.g.: from a kind of array) */
-int
-dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
+unsigned
+dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, unsigned offset,	packet_info *pinfo,
 					 proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 					 uint32_t * pu32HResult, int field_index)
 {
@@ -1113,8 +1113,8 @@ dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
 
 
-int
-dissect_dcom_COMVERSION(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_COMVERSION(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 						proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 						uint16_t	* pu16VersionMajor, uint16_t * pu16VersionMinor)
 {
@@ -1128,8 +1128,8 @@ dissect_dcom_COMVERSION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-int
-dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_SAFEARRAY(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 						proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex _U_, sa_callback_t sacb)
 {
 	uint32_t u32Dims;
@@ -1278,8 +1278,8 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 
-int
-dissect_dcom_VARTYPE(tvbuff_t *tvb, int offset,	packet_info *pinfo,
+unsigned
+dissect_dcom_VARTYPE(tvbuff_t *tvb, unsigned offset,	packet_info *pinfo,
 					proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 					uint16_t *pu16VarType)
 {
@@ -1291,9 +1291,9 @@ dissect_dcom_VARTYPE(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 }
 
 
-int
+unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_dcom_VARIANT(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 					 proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex)
 {
 	uint32_t	u32Size;
@@ -1460,8 +1460,8 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-int
-dissect_dcom_UUID(tvbuff_t *tvb, int offset,
+unsigned
+dissect_dcom_UUID(tvbuff_t *tvb, unsigned offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 	int hfindex, e_guid_t *pdata)
 {
@@ -1505,8 +1505,8 @@ dissect_dcom_UUID(tvbuff_t *tvb, int offset,
 }
 
 
-int
-dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
+unsigned
+dissect_dcom_append_UUID(tvbuff_t *tvb, unsigned offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 	int hfindex, int field_index, e_guid_t *uuid)
 {
@@ -1565,8 +1565,8 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 /* get a wide character string from tvb (zero terminated or limited through inLength) */
 /* the string will be converted to ASCII if possible or simple hexdump otherwise */
 /* outLength is in output bytes including zero termination output */
-static int
-dcom_tvb_get_nwstringz0(tvbuff_t *tvb, int offset, uint32_t inLength, char *pszStr, uint32_t outLength, bool *isPrintable)
+static unsigned
+dcom_tvb_get_nwstringz0(tvbuff_t *tvb, unsigned offset, uint32_t inLength, char *pszStr, uint32_t outLength, bool *isPrintable)
 {
 	uint32_t u32Idx;
 	uint32_t u32IdxA;
@@ -1635,8 +1635,8 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, int offset, uint32_t inLength, char *pszS
 /* dissect a LPWSTR into a given buffer */
 /* use FT_STRING for hfindex */
 /* u32MaxStr is maximum length of string (including trailing zero) */
-int
-dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex,
 					   char *pszStr, uint32_t u32MaxStr, int field_index)
 {
@@ -1686,8 +1686,8 @@ dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-int
-dissect_dcom_LPWSTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_LPWSTR(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex,
 					   char *pszStr, uint32_t u32MaxStr)
 {
@@ -1701,8 +1701,8 @@ dissect_dcom_LPWSTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* dissect a BSTR to tree and into a given buffer (use FT_STRING for hfindex) */
 /* u32MaxStr is maximum length of string (including trailing zero) */
 /* (Hint: the BSTR space is always as long as the maximum size) */
-int
-dissect_dcom_BSTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_BSTR(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex,
 					   char *pszStr, uint32_t u32MaxStr)
 {
@@ -1755,8 +1755,8 @@ dissect_dcom_BSTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 /* dissect an DUALSTRINGARRAY */
-int
-dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, char *ip)
 {
 	uint16_t	u16NumEntries;
@@ -1881,8 +1881,8 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 /* dissect an STDOBJREF */
-int
-dissect_dcom_STDOBJREF(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_STDOBJREF(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex _U_,
 		       uint64_t *oxid, uint64_t *oid, e_guid_t *ipid)
 {
@@ -1937,7 +1937,7 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, int offset, packet_info *pinfo,
  *
  */
 
-int
+unsigned
 dcom_register_routine(dcom_dissect_fn_t routine, e_guid_t* uuid)
 {
 	dcom_marshaler_t *marshaler;
@@ -1988,8 +1988,8 @@ dcom_get_routine_by_uuid(const e_guid_t* uuid)
 }
 
 /* dissect an CUSTOM */
-static int
-dissect_dcom_CUSTOBJREF(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+dissect_dcom_CUSTOBJREF(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		               proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex,
 		               e_guid_t *clsid, e_guid_t *iid)
 {
@@ -2028,8 +2028,8 @@ dissect_dcom_CUSTOBJREF(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /* dissect an OBJREF */
-int
-dissect_dcom_OBJREF(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_OBJREF(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, dcom_interface_t **interf)
 {
 	uint32_t	u32Signature;
@@ -2105,8 +2105,8 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /* dissect an MInterfacePointer */
-int
-dissect_dcom_MInterfacePointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_MInterfacePointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, dcom_interface_t **interf)
 {
 	uint32_t	u32CntData;
@@ -2139,8 +2139,8 @@ dissect_dcom_MInterfacePointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /* dissect a pointer to a MInterfacePointer */
-int
-dissect_dcom_PMInterfacePointer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned
+dissect_dcom_PMInterfacePointer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex, dcom_interface_t **interf)
 {
 	uint32_t u32Pointer;

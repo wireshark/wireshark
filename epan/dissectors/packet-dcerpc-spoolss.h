@@ -576,21 +576,21 @@
 #define JOB_CONTROL_RESTART            4
 #define JOB_CONTROL_DELETE             5
 
-int dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset,
+unsigned dissect_USER_LEVEL_CTR(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep);
-int dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, int offset,
+unsigned dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, unsigned offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, uint8_t *drep);
-int dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_NOTIFY_INFO(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		    proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-int dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_DEVMODE_CTR(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			       proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-int dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-int dissect_spoolss_doc_info_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+unsigned dissect_spoolss_doc_info_ctr(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, uint8_t *drep);
-int dissect_FORM_CTR(tvbuff_t *tvb, int offset,
+unsigned dissect_FORM_CTR(tvbuff_t *tvb, unsigned offset,
 			    packet_info *pinfo, proto_tree *tree,
 			    dcerpc_info *di, uint8_t *drep);
 

@@ -282,270 +282,270 @@ static e_guid_t uuid_dcerpc_scard_pack = {
 };
 static uint16_t ver_dcerpc_scard_pack = 1;
 
-static int scard_pack_dissect_element_REDIR_SCARDCONTEXT_cbContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_REDIR_SCARDHANDLE_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_REDIR_SCARDHANDLE_cbHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_long_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaderGroups_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaderGroups_Return_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaderGroups_Return_msz(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaderGroups_Return_msz_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaderGroups_Return_msz__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaders_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaders_Return_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaders_Return_msz(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaders_Return_msz_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaders_Return_msz__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Context_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndStringA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndStringA_Call_sz(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndStringA_Call_sz_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndStringW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndStringW_Call_sz(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndStringW_Call_sz_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndTwoStringA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndTwoStringA_Call_sz1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndTwoStringA_Call_sz1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndTwoStringA_Call_sz2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndTwoStringA_Call_sz2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndTwoStringW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndTwoStringW_Call_sz1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndTwoStringW_Call_sz1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndTwoStringW_Call_sz2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ContextAndTwoStringW_Call_sz2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_EstablishContext_Call_dwScope(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_EstablishContext_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_EstablishContext_Return_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaderGroups_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaderGroups_Call_fmszGroupsIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReaderGroups_Call_cchGroups(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersA_Call_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersA_Call_mszGroups(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersA_Call_mszGroups_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersA_Call_fmszReadersIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersA_Call_cchReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersW_Call_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersW_Call_mszGroups(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersW_Call_mszGroups_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersW_Call_mszGroups__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersW_Call_fmszReadersIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ListReadersW_Call_cchReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderState_Common_Call_dwCurrentState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderState_Common_Call_dwEventState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderState_Common_Call_cbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderState_Common_Call_rgbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderState_Common_Call_rgbAtr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderStateA_szReader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderStateA_szReader_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderStateA_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderStateW_szReader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderStateW_szReader_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderStateW_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderState_Return_dwCurrentState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderState_Return_dwEventState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderState_Return_cbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderState_Return_rgbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReaderState_Return_rgbAtr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeA_Call_dwTimeOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeA_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsA_Call_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsA_Call_mszCards(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsA_Call_mszCards_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsA_Call_mszCards__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsA_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsW_Call_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsW_Call_mszCards(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsW_Call_mszCards_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsW_Call_mszCards__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsW_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCards_ATRMask_cbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCards_ATRMask_rgbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCards_ATRMask_rgbAtr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCards_ATRMask_rgbMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCards_ATRMask_rgbMask_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRA_Call_cAtrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRA_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRW_Call_cAtrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRW_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCards_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCards_Return_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCards_Return_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCards_Return_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_LocateCards_Return_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChange_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChange_Return_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeW_Call_dwTimeOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeW_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Connect_Common_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Connect_Common_dwShareMode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Connect_Common_dwPreferredProtocols(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ConnectA_Call_szReader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ConnectA_Call_szReader_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ConnectA_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ConnectW_Call_szReader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ConnectW_Call_szReader_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ConnectW_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Connect_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Connect_Return_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Connect_Return_dwActiveProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Reconnect_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Reconnect_Call_dwShareMode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Reconnect_Call_dwPreferredProtocols(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Reconnect_Call_dwInitialization(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Reconnect_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Reconnect_Return_dwActiveProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_HCardAndDisposition_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_HCardAndDisposition_Call_dwDisposition(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_State_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_State_Call_fpbAtrIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_State_Call_cbAtrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_State_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_State_Return_dwState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_State_Return_dwProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_State_Return_cbAtrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_State_Return_rgAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_State_Return_rgAtr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_State_Return_rgAtr__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Call_fmszReaderNamesIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Call_cchReaderLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Call_cbAtrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Return_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Return_mszReaderNames(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Return_mszReaderNames_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Return_mszReaderNames__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Return_dwState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Return_dwProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Return_pbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Return_pbAtr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Status_Return_cbAtrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SCardIO_Request_dwProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SCardIO_Request_cbExtraBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SCardIO_Request_pbExtraBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SCardIO_Request_pbExtraBytes_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SCardIO_Request_pbExtraBytes__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Call_ioSendPci(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Call_cbSendLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Call_pbSendBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Call_pbSendBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Call_pbSendBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Call_pioRecvPci(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Call_pioRecvPci_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Call_fpbRecvBufferIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Call_cbRecvLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Return_pioRecvPci(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Return_pioRecvPci_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Return_cbRecvLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Return_pbRecvBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Return_pbRecvBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Transmit_Return_pbRecvBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetTransmitCount_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetTransmitCount_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetTransmitCount_Return_cTransmitCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Call_dwControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Call_cbInBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Call_pvInBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Call_pvInBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Call_pvInBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Call_fpvOutBufferIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Call_cbOutBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Return_cbOutBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Return_pvOutBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Return_pvOutBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_Control_Return_pvOutBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetAttrib_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetAttrib_Call_dwAttrId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetAttrib_Call_fpbAttrIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetAttrib_Call_cbAttrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetAttrib_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetAttrib_Return_cbAttrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetAttrib_Return_pbAttr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetAttrib_Return_pbAttr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetAttrib_Return_pbAttr__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SetAttrib_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SetAttrib_Call_dwAttrId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SetAttrib_Call_cbAttrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SetAttrib_Call_pbAttr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SetAttrib_Call_pbAttr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_SetAttrib_Call_pbAttr__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCache_Common_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCache_Common_FreshnessCounter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCache_Common_fPbDataIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCache_Common_cbDataLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCacheA_Call_szLookupName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCacheA_Call_szLookupName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCacheA_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCacheW_Call_szLookupName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCacheW_Call_szLookupName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCacheW_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCache_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCache_Return_cbDataLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCache_Return_pbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCache_Return_pbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_ReadCache_Return_pbData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCache_Common_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCache_Common_FreshnessCounter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCache_Common_cbDataLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCache_Common_pbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCache_Common_pbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCache_Common_pbData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCacheA_Call_szLookupName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCacheA_Call_szLookupName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCacheA_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCacheW_Call_szLookupName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCacheW_Call_szLookupName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_WriteCacheW_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetDeviceTypeId_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetDeviceTypeId_Call_szReaderName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetDeviceTypeId_Call_szReaderName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetDeviceTypeId_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int scard_pack_dissect_element_GetDeviceTypeId_Return_dwDeviceId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_REDIR_SCARDCONTEXT_cbContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_REDIR_SCARDHANDLE_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_REDIR_SCARDHANDLE_cbHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_long_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaderGroups_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaderGroups_Return_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaderGroups_Return_msz(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaderGroups_Return_msz_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaderGroups_Return_msz__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaders_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaders_Return_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaders_Return_msz(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaders_Return_msz_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaders_Return_msz__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Context_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndStringA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndStringA_Call_sz(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndStringA_Call_sz_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndStringW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndStringW_Call_sz(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndStringW_Call_sz_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndTwoStringA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndTwoStringA_Call_sz1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndTwoStringA_Call_sz1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndTwoStringA_Call_sz2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndTwoStringA_Call_sz2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndTwoStringW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndTwoStringW_Call_sz1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndTwoStringW_Call_sz1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndTwoStringW_Call_sz2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ContextAndTwoStringW_Call_sz2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_EstablishContext_Call_dwScope(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_EstablishContext_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_EstablishContext_Return_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaderGroups_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaderGroups_Call_fmszGroupsIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReaderGroups_Call_cchGroups(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersA_Call_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersA_Call_mszGroups(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersA_Call_mszGroups_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersA_Call_fmszReadersIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersA_Call_cchReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersW_Call_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersW_Call_mszGroups(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersW_Call_mszGroups_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersW_Call_mszGroups__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersW_Call_fmszReadersIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ListReadersW_Call_cchReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderState_Common_Call_dwCurrentState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderState_Common_Call_dwEventState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderState_Common_Call_cbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderState_Common_Call_rgbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderState_Common_Call_rgbAtr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderStateA_szReader(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderStateA_szReader_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderStateA_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderStateW_szReader(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderStateW_szReader_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderStateW_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderState_Return_dwCurrentState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderState_Return_dwEventState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderState_Return_cbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderState_Return_rgbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReaderState_Return_rgbAtr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeA_Call_dwTimeOut(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeA_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsA_Call_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsA_Call_mszCards(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsA_Call_mszCards_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsA_Call_mszCards__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsA_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsW_Call_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsW_Call_mszCards(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsW_Call_mszCards_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsW_Call_mszCards__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsW_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCards_ATRMask_cbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCards_ATRMask_rgbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCards_ATRMask_rgbAtr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCards_ATRMask_rgbMask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCards_ATRMask_rgbMask_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRA_Call_cAtrs(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRA_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRW_Call_cAtrs(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRW_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCards_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCards_Return_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCards_Return_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCards_Return_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_LocateCards_Return_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChange_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChange_Return_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeW_Call_dwTimeOut(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeW_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Connect_Common_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Connect_Common_dwShareMode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Connect_Common_dwPreferredProtocols(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ConnectA_Call_szReader(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ConnectA_Call_szReader_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ConnectA_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ConnectW_Call_szReader(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ConnectW_Call_szReader_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ConnectW_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Connect_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Connect_Return_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Connect_Return_dwActiveProtocol(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Reconnect_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Reconnect_Call_dwShareMode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Reconnect_Call_dwPreferredProtocols(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Reconnect_Call_dwInitialization(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Reconnect_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Reconnect_Return_dwActiveProtocol(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_HCardAndDisposition_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_HCardAndDisposition_Call_dwDisposition(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_State_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_State_Call_fpbAtrIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_State_Call_cbAtrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_State_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_State_Return_dwState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_State_Return_dwProtocol(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_State_Return_cbAtrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_State_Return_rgAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_State_Return_rgAtr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_State_Return_rgAtr__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Call_fmszReaderNamesIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Call_cchReaderLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Call_cbAtrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Return_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Return_mszReaderNames(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Return_mszReaderNames_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Return_mszReaderNames__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Return_dwState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Return_dwProtocol(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Return_pbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Return_pbAtr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Status_Return_cbAtrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SCardIO_Request_dwProtocol(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SCardIO_Request_cbExtraBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SCardIO_Request_pbExtraBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SCardIO_Request_pbExtraBytes_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SCardIO_Request_pbExtraBytes__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Call_ioSendPci(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Call_cbSendLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Call_pbSendBuffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Call_pbSendBuffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Call_pbSendBuffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Call_pioRecvPci(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Call_pioRecvPci_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Call_fpbRecvBufferIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Call_cbRecvLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Return_pioRecvPci(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Return_pioRecvPci_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Return_cbRecvLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Return_pbRecvBuffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Return_pbRecvBuffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Transmit_Return_pbRecvBuffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetTransmitCount_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetTransmitCount_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetTransmitCount_Return_cTransmitCount(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Call_dwControlCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Call_cbInBufferSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Call_pvInBuffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Call_pvInBuffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Call_pvInBuffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Call_fpvOutBufferIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Call_cbOutBufferSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Return_cbOutBufferSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Return_pvOutBuffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Return_pvOutBuffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_Control_Return_pvOutBuffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetAttrib_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetAttrib_Call_dwAttrId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetAttrib_Call_fpbAttrIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetAttrib_Call_cbAttrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetAttrib_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetAttrib_Return_cbAttrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetAttrib_Return_pbAttr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetAttrib_Return_pbAttr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetAttrib_Return_pbAttr__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SetAttrib_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SetAttrib_Call_dwAttrId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SetAttrib_Call_cbAttrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SetAttrib_Call_pbAttr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SetAttrib_Call_pbAttr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_SetAttrib_Call_pbAttr__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCache_Common_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCache_Common_FreshnessCounter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCache_Common_fPbDataIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCache_Common_cbDataLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCacheA_Call_szLookupName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCacheA_Call_szLookupName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCacheA_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCacheW_Call_szLookupName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCacheW_Call_szLookupName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCacheW_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCache_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCache_Return_cbDataLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCache_Return_pbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCache_Return_pbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_ReadCache_Return_pbData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCache_Common_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCache_Common_FreshnessCounter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCache_Common_cbDataLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCache_Common_pbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCache_Common_pbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCache_Common_pbData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCacheA_Call_szLookupName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCacheA_Call_szLookupName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCacheA_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCacheW_Call_szLookupName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCacheW_Call_szLookupName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_WriteCacheW_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetDeviceTypeId_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetDeviceTypeId_Call_szReaderName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetDeviceTypeId_Call_szReaderName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetDeviceTypeId_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned scard_pack_dissect_element_GetDeviceTypeId_Return_dwDeviceId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 
 
 /* IDL: struct _REDIR_SCARDCONTEXT { */
@@ -553,44 +553,44 @@ static int scard_pack_dissect_element_GetDeviceTypeId_Return_dwDeviceId(tvbuff_t
 /* IDL: 	[size_is(cbContext)] [unique(1)] uint8 *pbContext; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_REDIR_SCARDCONTEXT_cbContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_REDIR_SCARDCONTEXT_cbContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_REDIR_SCARDCONTEXT_cbContext, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext_, NDR_POINTER_UNIQUE, "Pointer to PbContext (uint8)",hf_scard_pack_REDIR_SCARDCONTEXT_pbContext);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_REDIR_SCARDCONTEXT_pbContext__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_REDIR_SCARDCONTEXT_pbContext, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -623,52 +623,52 @@ scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: 	[size_is(cbHandle)] [unique(1)] uint8 *pbHandle; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_REDIR_SCARDHANDLE_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_REDIR_SCARDHANDLE_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_REDIR_SCARDHANDLE_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_REDIR_SCARDHANDLE_cbHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_REDIR_SCARDHANDLE_cbHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_REDIR_SCARDHANDLE_cbHandle, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle_, NDR_POINTER_UNIQUE, "Pointer to PbHandle (uint8)",hf_scard_pack_REDIR_SCARDHANDLE_pbHandle);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_REDIR_SCARDHANDLE_pbHandle__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_REDIR_SCARDHANDLE_pbHandle, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -701,20 +701,20 @@ scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	int32 ReturnCode; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_long_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_long_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_long_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_long_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_long_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -745,52 +745,52 @@ scard_pack_dissect_struct_long_Return(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: 	[size_is(cBytes)] [unique(1)] uint8 *msz; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ListReaderGroups_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaderGroups_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReaderGroups_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReaderGroups_Return_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaderGroups_Return_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReaderGroups_Return_cBytes, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReaderGroups_Return_msz(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaderGroups_Return_msz(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ListReaderGroups_Return_msz_, NDR_POINTER_UNIQUE, "Pointer to Msz (uint8)",hf_scard_pack_ListReaderGroups_Return_msz);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReaderGroups_Return_msz_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaderGroups_Return_msz_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ListReaderGroups_Return_msz__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReaderGroups_Return_msz__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaderGroups_Return_msz__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReaderGroups_Return_msz, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ListReaderGroups_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ListReaderGroups_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -825,52 +825,52 @@ scard_pack_dissect_struct_ListReaderGroups_Return(tvbuff_t *tvb _U_, int offset 
 /* IDL: 	[size_is(cBytes)] [unique(1)] uint8 *msz; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ListReaders_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaders_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReaders_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReaders_Return_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaders_Return_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReaders_Return_cBytes, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReaders_Return_msz(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaders_Return_msz(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ListReaders_Return_msz_, NDR_POINTER_UNIQUE, "Pointer to Msz (uint8)",hf_scard_pack_ListReaders_Return_msz);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReaders_Return_msz_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaders_Return_msz_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ListReaders_Return_msz__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReaders_Return_msz__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaders_Return_msz__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReaders_Return_msz, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ListReaders_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ListReaders_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -903,20 +903,20 @@ scard_pack_dissect_struct_ListReaders_Return(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: 	REDIR_SCARDCONTEXT Context; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Context_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Context_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_Context_Call_Context,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Context_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Context_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -946,24 +946,24 @@ scard_pack_dissect_struct_Context_Call(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: 	[unique(1)] uint8 *sz; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ContextAndStringA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndStringA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ContextAndStringA_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndStringA_Call_sz(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndStringA_Call_sz(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ContextAndStringA_Call_sz_, NDR_POINTER_UNIQUE, "Pointer to Sz (uint8)",hf_scard_pack_ContextAndStringA_Call_sz);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndStringA_Call_sz_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndStringA_Call_sz_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -973,12 +973,12 @@ scard_pack_dissect_element_ContextAndStringA_Call_sz_(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ContextAndStringA_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ContextAndStringA_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1010,24 +1010,24 @@ scard_pack_dissect_struct_ContextAndStringA_Call(tvbuff_t *tvb _U_, int offset _
 /* IDL: 	[unique(1)] uint16 *sz; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ContextAndStringW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndStringW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ContextAndStringW_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndStringW_Call_sz(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndStringW_Call_sz(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ContextAndStringW_Call_sz_, NDR_POINTER_UNIQUE, "Pointer to Sz (uint16)",hf_scard_pack_ContextAndStringW_Call_sz);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndStringW_Call_sz_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndStringW_Call_sz_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1037,12 +1037,12 @@ scard_pack_dissect_element_ContextAndStringW_Call_sz_(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ContextAndStringW_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ContextAndStringW_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1075,24 +1075,24 @@ scard_pack_dissect_struct_ContextAndStringW_Call(tvbuff_t *tvb _U_, int offset _
 /* IDL: 	[unique(1)] uint8 *sz2; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ContextAndTwoStringA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndTwoStringA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ContextAndTwoStringA_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndTwoStringA_Call_sz1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndTwoStringA_Call_sz1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ContextAndTwoStringA_Call_sz1_, NDR_POINTER_UNIQUE, "Pointer to Sz1 (uint8)",hf_scard_pack_ContextAndTwoStringA_Call_sz1);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndTwoStringA_Call_sz1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndTwoStringA_Call_sz1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1102,16 +1102,16 @@ scard_pack_dissect_element_ContextAndTwoStringA_Call_sz1_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndTwoStringA_Call_sz2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndTwoStringA_Call_sz2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ContextAndTwoStringA_Call_sz2_, NDR_POINTER_UNIQUE, "Pointer to Sz2 (uint8)",hf_scard_pack_ContextAndTwoStringA_Call_sz2);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndTwoStringA_Call_sz2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndTwoStringA_Call_sz2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1121,12 +1121,12 @@ scard_pack_dissect_element_ContextAndTwoStringA_Call_sz2_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ContextAndTwoStringA_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ContextAndTwoStringA_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1161,24 +1161,24 @@ scard_pack_dissect_struct_ContextAndTwoStringA_Call(tvbuff_t *tvb _U_, int offse
 /* IDL: 	[unique(1)] uint16 *sz2; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ContextAndTwoStringW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndTwoStringW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ContextAndTwoStringW_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndTwoStringW_Call_sz1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndTwoStringW_Call_sz1(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ContextAndTwoStringW_Call_sz1_, NDR_POINTER_UNIQUE, "Pointer to Sz1 (uint16)",hf_scard_pack_ContextAndTwoStringW_Call_sz1);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndTwoStringW_Call_sz1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndTwoStringW_Call_sz1_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1188,16 +1188,16 @@ scard_pack_dissect_element_ContextAndTwoStringW_Call_sz1_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndTwoStringW_Call_sz2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndTwoStringW_Call_sz2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ContextAndTwoStringW_Call_sz2_, NDR_POINTER_UNIQUE, "Pointer to Sz2 (uint16)",hf_scard_pack_ContextAndTwoStringW_Call_sz2);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ContextAndTwoStringW_Call_sz2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ContextAndTwoStringW_Call_sz2_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1207,12 +1207,12 @@ scard_pack_dissect_element_ContextAndTwoStringW_Call_sz2_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ContextAndTwoStringW_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ContextAndTwoStringW_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1245,20 +1245,20 @@ scard_pack_dissect_struct_ContextAndTwoStringW_Call(tvbuff_t *tvb _U_, int offse
 /* IDL: 	uint32 dwScope; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_EstablishContext_Call_dwScope(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_EstablishContext_Call_dwScope(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_EstablishContext_Call_dwScope, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_EstablishContext_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_EstablishContext_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1288,28 +1288,28 @@ scard_pack_dissect_struct_EstablishContext_Call(tvbuff_t *tvb _U_, int offset _U
 /* IDL: 	REDIR_SCARDCONTEXT Context; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_EstablishContext_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_EstablishContext_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_EstablishContext_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_EstablishContext_Return_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_EstablishContext_Return_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_EstablishContext_Return_Context,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_EstablishContext_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_EstablishContext_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1342,36 +1342,36 @@ scard_pack_dissect_struct_EstablishContext_Return(tvbuff_t *tvb _U_, int offset 
 /* IDL: 	uint32 cchGroups; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ListReaderGroups_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaderGroups_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ListReaderGroups_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReaderGroups_Call_fmszGroupsIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaderGroups_Call_fmszGroupsIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReaderGroups_Call_fmszGroupsIsNULL, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReaderGroups_Call_cchGroups(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReaderGroups_Call_cchGroups(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReaderGroups_Call_cchGroups, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ListReaderGroups_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ListReaderGroups_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1408,32 +1408,32 @@ scard_pack_dissect_struct_ListReaderGroups_Call(tvbuff_t *tvb _U_, int offset _U
 /* IDL: 	uint32 cchReaders; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ListReadersA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ListReadersA_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersA_Call_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersA_Call_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReadersA_Call_cBytes, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersA_Call_mszGroups(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersA_Call_mszGroups(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ListReadersA_Call_mszGroups_, NDR_POINTER_UNIQUE, "Pointer to MszGroups (uint8)",hf_scard_pack_ListReadersA_Call_mszGroups);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersA_Call_mszGroups_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersA_Call_mszGroups_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1443,28 +1443,28 @@ scard_pack_dissect_element_ListReadersA_Call_mszGroups_(tvbuff_t *tvb _U_, int o
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersA_Call_fmszReadersIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersA_Call_fmszReadersIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReadersA_Call_fmszReadersIsNULL, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersA_Call_cchReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersA_Call_cchReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReadersA_Call_cchReaders, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ListReadersA_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ListReadersA_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1505,68 +1505,68 @@ scard_pack_dissect_struct_ListReadersA_Call(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	uint32 cchReaders; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ListReadersW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ListReadersW_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersW_Call_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersW_Call_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReadersW_Call_cBytes, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersW_Call_mszGroups(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersW_Call_mszGroups(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ListReadersW_Call_mszGroups_, NDR_POINTER_UNIQUE, "Pointer to MszGroups (uint16)",hf_scard_pack_ListReadersW_Call_mszGroups);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersW_Call_mszGroups_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersW_Call_mszGroups_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ListReadersW_Call_mszGroups__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersW_Call_mszGroups__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersW_Call_mszGroups__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReadersW_Call_mszGroups, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersW_Call_fmszReadersIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersW_Call_fmszReadersIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReadersW_Call_fmszReadersIsNULL, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ListReadersW_Call_cchReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ListReadersW_Call_cchReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ListReadersW_Call_cchReaders, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ListReadersW_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ListReadersW_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1606,32 +1606,32 @@ scard_pack_dissect_struct_ListReadersW_Call(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	uint8 rgbAtr[36]; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ReaderState_Common_Call_dwCurrentState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderState_Common_Call_dwCurrentState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReaderState_Common_Call_dwCurrentState, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderState_Common_Call_dwEventState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderState_Common_Call_dwEventState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReaderState_Common_Call_dwEventState, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderState_Common_Call_cbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderState_Common_Call_cbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReaderState_Common_Call_cbAtr, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderState_Common_Call_rgbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderState_Common_Call_rgbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 36; i++)
@@ -1640,20 +1640,20 @@ scard_pack_dissect_element_ReaderState_Common_Call_rgbAtr(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderState_Common_Call_rgbAtr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderState_Common_Call_rgbAtr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReaderState_Common_Call_rgbAtr, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ReaderState_Common_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ReaderState_Common_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1689,16 +1689,16 @@ scard_pack_dissect_struct_ReaderState_Common_Call(tvbuff_t *tvb _U_, int offset 
 /* IDL: 	ReaderState_Common_Call Common; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ReaderStateA_szReader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderStateA_szReader(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ReaderStateA_szReader_, NDR_POINTER_UNIQUE, "Pointer to SzReader (uint8)",hf_scard_pack_ReaderStateA_szReader);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderStateA_szReader_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderStateA_szReader_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1708,20 +1708,20 @@ scard_pack_dissect_element_ReaderStateA_szReader_(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderStateA_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderStateA_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReaderState_Common_Call(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ReaderStateA_Common,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ReaderStateA(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ReaderStateA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1753,16 +1753,16 @@ scard_pack_dissect_struct_ReaderStateA(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: 	ReaderState_Common_Call Common; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ReaderStateW_szReader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderStateW_szReader(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ReaderStateW_szReader_, NDR_POINTER_UNIQUE, "Pointer to SzReader (uint16)",hf_scard_pack_ReaderStateW_szReader);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderStateW_szReader_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderStateW_szReader_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -1772,20 +1772,20 @@ scard_pack_dissect_element_ReaderStateW_szReader_(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderStateW_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderStateW_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReaderState_Common_Call(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ReaderStateW_Common,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ReaderStateW(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ReaderStateW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1819,32 +1819,32 @@ scard_pack_dissect_struct_ReaderStateW(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: 	uint8 rgbAtr[36]; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ReaderState_Return_dwCurrentState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderState_Return_dwCurrentState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReaderState_Return_dwCurrentState, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderState_Return_dwEventState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderState_Return_dwEventState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReaderState_Return_dwEventState, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderState_Return_cbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderState_Return_cbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReaderState_Return_cbAtr, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderState_Return_rgbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderState_Return_rgbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 36; i++)
@@ -1853,20 +1853,20 @@ scard_pack_dissect_element_ReaderState_Return_rgbAtr(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReaderState_Return_rgbAtr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReaderState_Return_rgbAtr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReaderState_Return_rgbAtr, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ReaderState_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ReaderState_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1904,60 +1904,60 @@ scard_pack_dissect_struct_ReaderState_Return(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: 	[size_is(cReaders)] [unique(1)] ReaderStateA *rgReaderStates; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_GetStatusChangeA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_GetStatusChangeA_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChangeA_Call_dwTimeOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeA_Call_dwTimeOut(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetStatusChangeA_Call_dwTimeOut, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChangeA_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeA_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetStatusChangeA_Call_cReaders, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates_, NDR_POINTER_UNIQUE, "Pointer to RgReaderStates (ReaderStateA)",hf_scard_pack_GetStatusChangeA_Call_rgReaderStates);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeA_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReaderStateA(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_GetStatusChangeA_Call_rgReaderStates,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_GetStatusChangeA_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_GetStatusChangeA_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1996,84 +1996,84 @@ scard_pack_dissect_struct_GetStatusChangeA_Call(tvbuff_t *tvb _U_, int offset _U
 /* IDL: 	[size_is(cReaders)] [unique(1)] ReaderStateA *rgReaderStates; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_LocateCardsA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCardsA_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsA_Call_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsA_Call_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCardsA_Call_cBytes, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsA_Call_mszCards(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsA_Call_mszCards(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsA_Call_mszCards_, NDR_POINTER_UNIQUE, "Pointer to MszCards (uint8)",hf_scard_pack_LocateCardsA_Call_mszCards);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsA_Call_mszCards_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsA_Call_mszCards_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsA_Call_mszCards__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsA_Call_mszCards__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsA_Call_mszCards__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCardsA_Call_mszCards, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsA_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsA_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCardsA_Call_cReaders, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates_, NDR_POINTER_UNIQUE, "Pointer to RgReaderStates (ReaderStateA)",hf_scard_pack_LocateCardsA_Call_rgReaderStates);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsA_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReaderStateA(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCardsA_Call_rgReaderStates,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_LocateCardsA_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_LocateCardsA_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2114,84 +2114,84 @@ scard_pack_dissect_struct_LocateCardsA_Call(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	[size_is(cReaders)] [unique(1)] ReaderStateW *rgReaderStates; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_LocateCardsW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCardsW_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsW_Call_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsW_Call_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCardsW_Call_cBytes, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsW_Call_mszCards(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsW_Call_mszCards(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsW_Call_mszCards_, NDR_POINTER_UNIQUE, "Pointer to MszCards (uint8)",hf_scard_pack_LocateCardsW_Call_mszCards);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsW_Call_mszCards_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsW_Call_mszCards_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsW_Call_mszCards__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsW_Call_mszCards__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsW_Call_mszCards__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCardsW_Call_mszCards, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsW_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsW_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCardsW_Call_cReaders, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates_, NDR_POINTER_UNIQUE, "Pointer to RgReaderStates (ReaderStateW)",hf_scard_pack_LocateCardsW_Call_rgReaderStates);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsW_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReaderStateW(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCardsW_Call_rgReaderStates,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_LocateCardsW_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_LocateCardsW_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2230,16 +2230,16 @@ scard_pack_dissect_struct_LocateCardsW_Call(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	uint8 rgbMask[36]; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_LocateCards_ATRMask_cbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCards_ATRMask_cbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCards_ATRMask_cbAtr, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCards_ATRMask_rgbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCards_ATRMask_rgbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 36; i++)
@@ -2248,16 +2248,16 @@ scard_pack_dissect_element_LocateCards_ATRMask_rgbAtr(tvbuff_t *tvb _U_, int off
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCards_ATRMask_rgbAtr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCards_ATRMask_rgbAtr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCards_ATRMask_rgbAtr, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCards_ATRMask_rgbMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCards_ATRMask_rgbMask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 36; i++)
@@ -2266,20 +2266,20 @@ scard_pack_dissect_element_LocateCards_ATRMask_rgbMask(tvbuff_t *tvb _U_, int of
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCards_ATRMask_rgbMask_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCards_ATRMask_rgbMask_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCards_ATRMask_rgbMask, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_LocateCards_ATRMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_LocateCards_ATRMask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2316,84 +2316,84 @@ scard_pack_dissect_struct_LocateCards_ATRMask(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: 	[size_is(cReaders)] [unique(1)] ReaderStateA *rgReaderStates; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_LocateCardsByATRA_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRA_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCardsByATRA_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRA_Call_cAtrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRA_Call_cAtrs(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCardsByATRA_Call_cAtrs, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks_, NDR_POINTER_UNIQUE, "Pointer to RgAtrMasks (LocateCards_ATRMask)",hf_scard_pack_LocateCardsByATRA_Call_rgAtrMasks);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRA_Call_rgAtrMasks__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_LocateCards_ATRMask(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCardsByATRA_Call_rgAtrMasks,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRA_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRA_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCardsByATRA_Call_cReaders, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates_, NDR_POINTER_UNIQUE, "Pointer to RgReaderStates (ReaderStateA)",hf_scard_pack_LocateCardsByATRA_Call_rgReaderStates);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRA_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReaderStateA(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCardsByATRA_Call_rgReaderStates,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_LocateCardsByATRA_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_LocateCardsByATRA_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2434,84 +2434,84 @@ scard_pack_dissect_struct_LocateCardsByATRA_Call(tvbuff_t *tvb _U_, int offset _
 /* IDL: 	[size_is(cReaders)] [unique(1)] ReaderStateW *rgReaderStates; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_LocateCardsByATRW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCardsByATRW_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRW_Call_cAtrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRW_Call_cAtrs(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCardsByATRW_Call_cAtrs, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks_, NDR_POINTER_UNIQUE, "Pointer to RgAtrMasks (LocateCards_ATRMask)",hf_scard_pack_LocateCardsByATRW_Call_rgAtrMasks);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRW_Call_rgAtrMasks__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_LocateCards_ATRMask(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCardsByATRW_Call_rgAtrMasks,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRW_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRW_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCardsByATRW_Call_cReaders, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates_, NDR_POINTER_UNIQUE, "Pointer to RgReaderStates (ReaderStateW)",hf_scard_pack_LocateCardsByATRW_Call_rgReaderStates);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCardsByATRW_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReaderStateW(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCardsByATRW_Call_rgReaderStates,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_LocateCardsByATRW_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_LocateCardsByATRW_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2550,52 +2550,52 @@ scard_pack_dissect_struct_LocateCardsByATRW_Call(tvbuff_t *tvb _U_, int offset _
 /* IDL: 	[size_is(cReaders)] [unique(1)] ReaderState_Return *rgReaderStates; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_LocateCards_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCards_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCards_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCards_Return_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCards_Return_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_LocateCards_Return_cReaders, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCards_Return_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCards_Return_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCards_Return_rgReaderStates_, NDR_POINTER_UNIQUE, "Pointer to RgReaderStates (ReaderState_Return)",hf_scard_pack_LocateCards_Return_rgReaderStates);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCards_Return_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCards_Return_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_LocateCards_Return_rgReaderStates__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_LocateCards_Return_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_LocateCards_Return_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReaderState_Return(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_LocateCards_Return_rgReaderStates,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_LocateCards_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_LocateCards_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2630,52 +2630,52 @@ scard_pack_dissect_struct_LocateCards_Return(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: 	[size_is(cReaders)] [unique(1)] ReaderState_Return *rgReaderStates; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_GetStatusChange_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChange_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetStatusChange_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChange_Return_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChange_Return_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetStatusChange_Return_cReaders, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates_, NDR_POINTER_UNIQUE, "Pointer to RgReaderStates (ReaderState_Return)",hf_scard_pack_GetStatusChange_Return_rgReaderStates);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChange_Return_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReaderState_Return(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_GetStatusChange_Return_rgReaderStates,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_GetStatusChange_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_GetStatusChange_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2711,60 +2711,60 @@ scard_pack_dissect_struct_GetStatusChange_Return(tvbuff_t *tvb _U_, int offset _
 /* IDL: 	[size_is(cReaders)] [unique(1)] ReaderStateW *rgReaderStates; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_GetStatusChangeW_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeW_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_GetStatusChangeW_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChangeW_Call_dwTimeOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeW_Call_dwTimeOut(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetStatusChangeW_Call_dwTimeOut, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChangeW_Call_cReaders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeW_Call_cReaders(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetStatusChangeW_Call_cReaders, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates_, NDR_POINTER_UNIQUE, "Pointer to RgReaderStates (ReaderStateW)",hf_scard_pack_GetStatusChangeW_Call_rgReaderStates);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetStatusChangeW_Call_rgReaderStates__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReaderStateW(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_GetStatusChangeW_Call_rgReaderStates,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_GetStatusChangeW_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_GetStatusChangeW_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2801,36 +2801,36 @@ scard_pack_dissect_struct_GetStatusChangeW_Call(tvbuff_t *tvb _U_, int offset _U
 /* IDL: 	uint32 dwPreferredProtocols; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Connect_Common_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Connect_Common_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_Connect_Common_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Connect_Common_dwShareMode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Connect_Common_dwShareMode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Connect_Common_dwShareMode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Connect_Common_dwPreferredProtocols(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Connect_Common_dwPreferredProtocols(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Connect_Common_dwPreferredProtocols, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Connect_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Connect_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2864,16 +2864,16 @@ scard_pack_dissect_struct_Connect_Common(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	Connect_Common Common; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ConnectA_Call_szReader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ConnectA_Call_szReader(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ConnectA_Call_szReader_, NDR_POINTER_UNIQUE, "Pointer to SzReader (uint8)",hf_scard_pack_ConnectA_Call_szReader);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ConnectA_Call_szReader_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ConnectA_Call_szReader_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2883,20 +2883,20 @@ scard_pack_dissect_element_ConnectA_Call_szReader_(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ConnectA_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ConnectA_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_Connect_Common(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ConnectA_Call_Common,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ConnectA_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ConnectA_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2928,16 +2928,16 @@ scard_pack_dissect_struct_ConnectA_Call(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: 	Connect_Common Common; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ConnectW_Call_szReader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ConnectW_Call_szReader(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ConnectW_Call_szReader_, NDR_POINTER_UNIQUE, "Pointer to SzReader (uint16)",hf_scard_pack_ConnectW_Call_szReader);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ConnectW_Call_szReader_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ConnectW_Call_szReader_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -2947,20 +2947,20 @@ scard_pack_dissect_element_ConnectW_Call_szReader_(tvbuff_t *tvb _U_, int offset
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ConnectW_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ConnectW_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_Connect_Common(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ConnectW_Call_Common,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ConnectW_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ConnectW_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2993,36 +2993,36 @@ scard_pack_dissect_struct_ConnectW_Call(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: 	uint32 dwActiveProtocol; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Connect_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Connect_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Connect_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Connect_Return_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Connect_Return_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_Connect_Return_hCard,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Connect_Return_dwActiveProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Connect_Return_dwActiveProtocol(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Connect_Return_dwActiveProtocol, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Connect_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Connect_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3058,44 +3058,44 @@ scard_pack_dissect_struct_Connect_Return(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	uint32 dwInitialization; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Reconnect_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Reconnect_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_Reconnect_Call_hCard,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Reconnect_Call_dwShareMode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Reconnect_Call_dwShareMode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Reconnect_Call_dwShareMode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Reconnect_Call_dwPreferredProtocols(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Reconnect_Call_dwPreferredProtocols(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Reconnect_Call_dwPreferredProtocols, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Reconnect_Call_dwInitialization(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Reconnect_Call_dwInitialization(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Reconnect_Call_dwInitialization, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Reconnect_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Reconnect_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3131,28 +3131,28 @@ scard_pack_dissect_struct_Reconnect_Call(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	uint32 dwActiveProtocol; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Reconnect_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Reconnect_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Reconnect_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Reconnect_Return_dwActiveProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Reconnect_Return_dwActiveProtocol(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Reconnect_Return_dwActiveProtocol, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Reconnect_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Reconnect_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3184,28 +3184,28 @@ scard_pack_dissect_struct_Reconnect_Return(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	uint32 dwDisposition; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_HCardAndDisposition_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_HCardAndDisposition_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_HCardAndDisposition_Call_hCard,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_HCardAndDisposition_Call_dwDisposition(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_HCardAndDisposition_Call_dwDisposition(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_HCardAndDisposition_Call_dwDisposition, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_HCardAndDisposition_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_HCardAndDisposition_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3238,36 +3238,36 @@ scard_pack_dissect_struct_HCardAndDisposition_Call(tvbuff_t *tvb _U_, int offset
 /* IDL: 	uint32 cbAtrLen; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_State_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_State_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_State_Call_hCard,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_State_Call_fpbAtrIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_State_Call_fpbAtrIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_State_Call_fpbAtrIsNULL, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_State_Call_cbAtrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_State_Call_cbAtrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_State_Call_cbAtrLen, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_State_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_State_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3304,68 +3304,68 @@ scard_pack_dissect_struct_State_Call(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: 	[size_is(cbAtrLen)] [unique(1)] uint8 *rgAtr; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_State_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_State_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_State_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_State_Return_dwState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_State_Return_dwState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_State_Return_dwState, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_State_Return_dwProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_State_Return_dwProtocol(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_State_Return_dwProtocol, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_State_Return_cbAtrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_State_Return_cbAtrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_State_Return_cbAtrLen, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_State_Return_rgAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_State_Return_rgAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_State_Return_rgAtr_, NDR_POINTER_UNIQUE, "Pointer to RgAtr (uint8)",hf_scard_pack_State_Return_rgAtr);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_State_Return_rgAtr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_State_Return_rgAtr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_State_Return_rgAtr__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_State_Return_rgAtr__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_State_Return_rgAtr__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_State_Return_rgAtr, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_State_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_State_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3405,44 +3405,44 @@ scard_pack_dissect_struct_State_Return(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: 	uint32 cbAtrLen; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Status_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_Status_Call_hCard,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Call_fmszReaderNamesIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Call_fmszReaderNamesIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Status_Call_fmszReaderNamesIsNULL, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Call_cchReaderLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Call_cchReaderLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Status_Call_cchReaderLen, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Call_cbAtrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Call_cbAtrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Status_Call_cbAtrLen, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Status_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Status_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3483,64 +3483,64 @@ scard_pack_dissect_struct_Status_Call(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: 	[range(0,32)] uint32 cbAtrLen; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Status_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Status_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Return_cBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Return_cBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Status_Return_cBytes, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Return_mszReaderNames(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Return_mszReaderNames(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Status_Return_mszReaderNames_, NDR_POINTER_UNIQUE, "Pointer to MszReaderNames (uint8)",hf_scard_pack_Status_Return_mszReaderNames);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Return_mszReaderNames_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Return_mszReaderNames_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Status_Return_mszReaderNames__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Return_mszReaderNames__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Return_mszReaderNames__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Status_Return_mszReaderNames, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Return_dwState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Return_dwState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Status_Return_dwState, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Return_dwProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Return_dwProtocol(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Status_Return_dwProtocol, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Return_pbAtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Return_pbAtr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	int i;
 	for (i = 0; i < 32; i++)
@@ -3549,28 +3549,28 @@ scard_pack_dissect_element_Status_Return_pbAtr(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Return_pbAtr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Return_pbAtr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Status_Return_pbAtr, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Status_Return_cbAtrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Status_Return_cbAtrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Status_Return_cbAtrLen, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Status_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Status_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3613,52 +3613,52 @@ scard_pack_dissect_struct_Status_Return(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: 	[size_is(cbExtraBytes)] [unique(1)] uint8 *pbExtraBytes; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_SCardIO_Request_dwProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SCardIO_Request_dwProtocol(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_SCardIO_Request_dwProtocol, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_SCardIO_Request_cbExtraBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SCardIO_Request_cbExtraBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_SCardIO_Request_cbExtraBytes, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_SCardIO_Request_pbExtraBytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SCardIO_Request_pbExtraBytes(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_SCardIO_Request_pbExtraBytes_, NDR_POINTER_UNIQUE, "Pointer to PbExtraBytes (uint8)",hf_scard_pack_SCardIO_Request_pbExtraBytes);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_SCardIO_Request_pbExtraBytes_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SCardIO_Request_pbExtraBytes_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_SCardIO_Request_pbExtraBytes__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_SCardIO_Request_pbExtraBytes__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SCardIO_Request_pbExtraBytes__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_SCardIO_Request_pbExtraBytes, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_SCardIO_Request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_SCardIO_Request(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3697,92 +3697,92 @@ scard_pack_dissect_struct_SCardIO_Request(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	uint32 cbRecvLength; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Transmit_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_Transmit_Call_hCard,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Call_ioSendPci(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Call_ioSendPci(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_SCardIO_Request(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_Transmit_Call_ioSendPci,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Call_cbSendLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Call_cbSendLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Transmit_Call_cbSendLength, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Call_pbSendBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Call_pbSendBuffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Transmit_Call_pbSendBuffer_, NDR_POINTER_UNIQUE, "Pointer to PbSendBuffer (uint8)",hf_scard_pack_Transmit_Call_pbSendBuffer);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Call_pbSendBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Call_pbSendBuffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Transmit_Call_pbSendBuffer__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Call_pbSendBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Call_pbSendBuffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Transmit_Call_pbSendBuffer, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Call_pioRecvPci(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Call_pioRecvPci(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Transmit_Call_pioRecvPci_, NDR_POINTER_UNIQUE, "Pointer to PioRecvPci (SCardIO_Request)",hf_scard_pack_Transmit_Call_pioRecvPci);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Call_pioRecvPci_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Call_pioRecvPci_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_SCardIO_Request(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_Transmit_Call_pioRecvPci,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Call_fpbRecvBufferIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Call_fpbRecvBufferIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Transmit_Call_fpbRecvBufferIsNULL, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Call_cbRecvLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Call_cbRecvLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Transmit_Call_cbRecvLength, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Transmit_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Transmit_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3826,68 +3826,68 @@ scard_pack_dissect_struct_Transmit_Call(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: 	[size_is(cbRecvLength)] [unique(1)] uint8 *pbRecvBuffer; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Transmit_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Transmit_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Return_pioRecvPci(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Return_pioRecvPci(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Transmit_Return_pioRecvPci_, NDR_POINTER_UNIQUE, "Pointer to PioRecvPci (SCardIO_Request)",hf_scard_pack_Transmit_Return_pioRecvPci);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Return_pioRecvPci_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Return_pioRecvPci_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_SCardIO_Request(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_Transmit_Return_pioRecvPci,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Return_cbRecvLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Return_cbRecvLength(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Transmit_Return_cbRecvLength, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Return_pbRecvBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Return_pbRecvBuffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Transmit_Return_pbRecvBuffer_, NDR_POINTER_UNIQUE, "Pointer to PbRecvBuffer (uint8)",hf_scard_pack_Transmit_Return_pbRecvBuffer);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Return_pbRecvBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Return_pbRecvBuffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Transmit_Return_pbRecvBuffer__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Transmit_Return_pbRecvBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Transmit_Return_pbRecvBuffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Transmit_Return_pbRecvBuffer, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Transmit_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Transmit_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3922,20 +3922,20 @@ scard_pack_dissect_struct_Transmit_Return(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	REDIR_SCARDHANDLE hCard; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_GetTransmitCount_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetTransmitCount_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_GetTransmitCount_Call_hCard,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_GetTransmitCount_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_GetTransmitCount_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3965,28 +3965,28 @@ scard_pack_dissect_struct_GetTransmitCount_Call(tvbuff_t *tvb _U_, int offset _U
 /* IDL: 	uint32 cTransmitCount; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_GetTransmitCount_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetTransmitCount_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetTransmitCount_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetTransmitCount_Return_cTransmitCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetTransmitCount_Return_cTransmitCount(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetTransmitCount_Return_cTransmitCount, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_GetTransmitCount_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_GetTransmitCount_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4022,76 +4022,76 @@ scard_pack_dissect_struct_GetTransmitCount_Return(tvbuff_t *tvb _U_, int offset 
 /* IDL: 	uint32 cbOutBufferSize; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Control_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_Control_Call_hCard,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Call_dwControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Call_dwControlCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Control_Call_dwControlCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Call_cbInBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Call_cbInBufferSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Control_Call_cbInBufferSize, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Call_pvInBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Call_pvInBuffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Control_Call_pvInBuffer_, NDR_POINTER_UNIQUE, "Pointer to PvInBuffer (uint8)",hf_scard_pack_Control_Call_pvInBuffer);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Call_pvInBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Call_pvInBuffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Control_Call_pvInBuffer__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Call_pvInBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Call_pvInBuffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Control_Call_pvInBuffer, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Call_fpvOutBufferIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Call_fpvOutBufferIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Control_Call_fpvOutBufferIsNULL, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Call_cbOutBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Call_cbOutBufferSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Control_Call_cbOutBufferSize, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Control_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Control_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4132,52 +4132,52 @@ scard_pack_dissect_struct_Control_Call(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: 	[size_is(cbOutBufferSize)] [unique(1)] uint8 *pvOutBuffer; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_Control_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Control_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Return_cbOutBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Return_cbOutBufferSize(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Control_Return_cbOutBufferSize, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Return_pvOutBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Return_pvOutBuffer(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Control_Return_pvOutBuffer_, NDR_POINTER_UNIQUE, "Pointer to PvOutBuffer (uint8)",hf_scard_pack_Control_Return_pvOutBuffer);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Return_pvOutBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Return_pvOutBuffer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_Control_Return_pvOutBuffer__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_Control_Return_pvOutBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_Control_Return_pvOutBuffer__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_Control_Return_pvOutBuffer, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_Control_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_Control_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4213,44 +4213,44 @@ scard_pack_dissect_struct_Control_Return(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	uint32 cbAttrLen; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_GetAttrib_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetAttrib_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_GetAttrib_Call_hCard,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetAttrib_Call_dwAttrId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetAttrib_Call_dwAttrId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetAttrib_Call_dwAttrId, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetAttrib_Call_fpbAttrIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetAttrib_Call_fpbAttrIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetAttrib_Call_fpbAttrIsNULL, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetAttrib_Call_cbAttrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetAttrib_Call_cbAttrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetAttrib_Call_cbAttrLen, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_GetAttrib_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_GetAttrib_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4287,52 +4287,52 @@ scard_pack_dissect_struct_GetAttrib_Call(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	[size_is(cbAttrLen)] [unique(1)] uint8 *pbAttr; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_GetAttrib_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetAttrib_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetAttrib_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetAttrib_Return_cbAttrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetAttrib_Return_cbAttrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetAttrib_Return_cbAttrLen, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetAttrib_Return_pbAttr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetAttrib_Return_pbAttr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_GetAttrib_Return_pbAttr_, NDR_POINTER_UNIQUE, "Pointer to PbAttr (uint8)",hf_scard_pack_GetAttrib_Return_pbAttr);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetAttrib_Return_pbAttr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetAttrib_Return_pbAttr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_GetAttrib_Return_pbAttr__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetAttrib_Return_pbAttr__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetAttrib_Return_pbAttr__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetAttrib_Return_pbAttr, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_GetAttrib_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_GetAttrib_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4368,60 +4368,60 @@ scard_pack_dissect_struct_GetAttrib_Return(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	[size_is(cbAttrLen)] [unique(1)] uint8 *pbAttr; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_SetAttrib_Call_hCard(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SetAttrib_Call_hCard(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDHANDLE(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_SetAttrib_Call_hCard,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_SetAttrib_Call_dwAttrId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SetAttrib_Call_dwAttrId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_SetAttrib_Call_dwAttrId, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_SetAttrib_Call_cbAttrLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SetAttrib_Call_cbAttrLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_SetAttrib_Call_cbAttrLen, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_SetAttrib_Call_pbAttr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SetAttrib_Call_pbAttr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_SetAttrib_Call_pbAttr_, NDR_POINTER_UNIQUE, "Pointer to PbAttr (uint8)",hf_scard_pack_SetAttrib_Call_pbAttr);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_SetAttrib_Call_pbAttr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SetAttrib_Call_pbAttr_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_SetAttrib_Call_pbAttr__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_SetAttrib_Call_pbAttr__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_SetAttrib_Call_pbAttr__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_SetAttrib_Call_pbAttr, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_SetAttrib_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_SetAttrib_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4459,44 +4459,44 @@ scard_pack_dissect_struct_SetAttrib_Call(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: 	uint32 cbDataLen; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ReadCache_Common_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCache_Common_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ReadCache_Common_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCache_Common_FreshnessCounter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCache_Common_FreshnessCounter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReadCache_Common_FreshnessCounter, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCache_Common_fPbDataIsNULL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCache_Common_fPbDataIsNULL(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReadCache_Common_fPbDataIsNULL, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCache_Common_cbDataLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCache_Common_cbDataLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReadCache_Common_cbDataLen, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ReadCache_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ReadCache_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4532,16 +4532,16 @@ scard_pack_dissect_struct_ReadCache_Common(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	ReadCache_Common Common; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ReadCacheA_Call_szLookupName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCacheA_Call_szLookupName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ReadCacheA_Call_szLookupName_, NDR_POINTER_UNIQUE, "Pointer to SzLookupName (uint8)",hf_scard_pack_ReadCacheA_Call_szLookupName);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCacheA_Call_szLookupName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCacheA_Call_szLookupName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4551,20 +4551,20 @@ scard_pack_dissect_element_ReadCacheA_Call_szLookupName_(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCacheA_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCacheA_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReadCache_Common(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ReadCacheA_Call_Common,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ReadCacheA_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ReadCacheA_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4596,16 +4596,16 @@ scard_pack_dissect_struct_ReadCacheA_Call(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	ReadCache_Common Common; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ReadCacheW_Call_szLookupName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCacheW_Call_szLookupName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ReadCacheW_Call_szLookupName_, NDR_POINTER_UNIQUE, "Pointer to SzLookupName (uint16)",hf_scard_pack_ReadCacheW_Call_szLookupName);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCacheW_Call_szLookupName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCacheW_Call_szLookupName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4615,20 +4615,20 @@ scard_pack_dissect_element_ReadCacheW_Call_szLookupName_(tvbuff_t *tvb _U_, int 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCacheW_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCacheW_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_ReadCache_Common(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_ReadCacheW_Call_Common,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ReadCacheW_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ReadCacheW_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4661,52 +4661,52 @@ scard_pack_dissect_struct_ReadCacheW_Call(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	[size_is(cbDataLen)] [unique(1)] uint8 *pbData; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_ReadCache_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCache_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReadCache_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCache_Return_cbDataLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCache_Return_cbDataLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReadCache_Return_cbDataLen, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCache_Return_pbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCache_Return_pbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ReadCache_Return_pbData_, NDR_POINTER_UNIQUE, "Pointer to PbData (uint8)",hf_scard_pack_ReadCache_Return_pbData);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCache_Return_pbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCache_Return_pbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_ReadCache_Return_pbData__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_ReadCache_Return_pbData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_ReadCache_Return_pbData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_ReadCache_Return_pbData, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_ReadCache_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_ReadCache_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4742,60 +4742,60 @@ scard_pack_dissect_struct_ReadCache_Return(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	[size_is(cbDataLen)] [unique(1)] uint8 *pbData; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_WriteCache_Common_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCache_Common_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_WriteCache_Common_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_WriteCache_Common_FreshnessCounter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCache_Common_FreshnessCounter(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_WriteCache_Common_FreshnessCounter, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_WriteCache_Common_cbDataLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCache_Common_cbDataLen(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_WriteCache_Common_cbDataLen, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_WriteCache_Common_pbData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCache_Common_pbData(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_WriteCache_Common_pbData_, NDR_POINTER_UNIQUE, "Pointer to PbData (uint8)",hf_scard_pack_WriteCache_Common_pbData);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_WriteCache_Common_pbData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCache_Common_pbData_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_WriteCache_Common_pbData__);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_WriteCache_Common_pbData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCache_Common_pbData__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_WriteCache_Common_pbData, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_WriteCache_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_WriteCache_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4831,16 +4831,16 @@ scard_pack_dissect_struct_WriteCache_Common(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	WriteCache_Common Common; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_WriteCacheA_Call_szLookupName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCacheA_Call_szLookupName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_WriteCacheA_Call_szLookupName_, NDR_POINTER_UNIQUE, "Pointer to SzLookupName (uint8)",hf_scard_pack_WriteCacheA_Call_szLookupName);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_WriteCacheA_Call_szLookupName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCacheA_Call_szLookupName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4850,20 +4850,20 @@ scard_pack_dissect_element_WriteCacheA_Call_szLookupName_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_WriteCacheA_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCacheA_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_WriteCache_Common(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_WriteCacheA_Call_Common,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_WriteCacheA_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_WriteCacheA_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4895,16 +4895,16 @@ scard_pack_dissect_struct_WriteCacheA_Call(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	WriteCache_Common Common; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_WriteCacheW_Call_szLookupName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCacheW_Call_szLookupName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_WriteCacheW_Call_szLookupName_, NDR_POINTER_UNIQUE, "Pointer to SzLookupName (uint16)",hf_scard_pack_WriteCacheW_Call_szLookupName);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_WriteCacheW_Call_szLookupName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCacheW_Call_szLookupName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4914,20 +4914,20 @@ scard_pack_dissect_element_WriteCacheW_Call_szLookupName_(tvbuff_t *tvb _U_, int
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_WriteCacheW_Call_Common(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_WriteCacheW_Call_Common(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_WriteCache_Common(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_WriteCacheW_Call_Common,0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_WriteCacheW_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_WriteCacheW_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -4959,24 +4959,24 @@ scard_pack_dissect_struct_WriteCacheW_Call(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: 	[unique(1)] uint16 *szReaderName; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_GetDeviceTypeId_Call_Context(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetDeviceTypeId_Call_Context(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = scard_pack_dissect_struct_REDIR_SCARDCONTEXT(tvb,offset,pinfo,tree,di,drep,hf_scard_pack_GetDeviceTypeId_Call_Context,0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetDeviceTypeId_Call_szReaderName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetDeviceTypeId_Call_szReaderName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, scard_pack_dissect_element_GetDeviceTypeId_Call_szReaderName_, NDR_POINTER_UNIQUE, "Pointer to SzReaderName (uint16)",hf_scard_pack_GetDeviceTypeId_Call_szReaderName);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetDeviceTypeId_Call_szReaderName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetDeviceTypeId_Call_szReaderName_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	char *data;
 
@@ -4986,12 +4986,12 @@ scard_pack_dissect_element_GetDeviceTypeId_Call_szReaderName_(tvbuff_t *tvb _U_,
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_GetDeviceTypeId_Call(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_GetDeviceTypeId_Call(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5023,28 +5023,28 @@ scard_pack_dissect_struct_GetDeviceTypeId_Call(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: 	uint32 dwDeviceId; */
 /* IDL: } */
 
-static int
-scard_pack_dissect_element_GetDeviceTypeId_Return_ReturnCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetDeviceTypeId_Return_ReturnCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetDeviceTypeId_Return_ReturnCode, 0);
 
 	return offset;
 }
 
-static int
-scard_pack_dissect_element_GetDeviceTypeId_Return_dwDeviceId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+static unsigned
+scard_pack_dissect_element_GetDeviceTypeId_Return_dwDeviceId(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_scard_pack_GetDeviceTypeId_Return_dwDeviceId, 0);
 
 	return offset;
 }
 
-int
-scard_pack_dissect_struct_GetDeviceTypeId_Return(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+unsigned
+scard_pack_dissect_struct_GetDeviceTypeId_Return(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 
 	ALIGN_TO_4_BYTES;
 

@@ -14,25 +14,25 @@
 #ifndef __PACKET_DCERPC_CLUSAPI_H
 #define __PACKET_DCERPC_CLUSAPI_H
 
-int clusapi_dissect_struct_RPC_SECURITY_DESCRIPTOR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_RPC_SECURITY_ATTRIBUTES(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_CLUSTER_OPERATIONAL_VERSION_INFO(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_IDL_CLUSTER_SET_PASSWORD_STATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_RPC_SECURITY_DESCRIPTOR(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_RPC_SECURITY_ATTRIBUTES(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_CLUSTER_OPERATIONAL_VERSION_INFO(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_IDL_CLUSTER_SET_PASSWORD_STATUS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define IDL_CLUSTER_SET_PASSWORD_IGNORE_DOWN_NODES (1)
 extern const value_string clusapi_IDL_CLUSTER_SET_PASSWORD_FLAGS_vals[];
-int clusapi_dissect_enum_IDL_CLUSTER_SET_PASSWORD_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int clusapi_dissect_struct_CLUSTER_CREATE_GROUP_INFO_RPC(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_bitmap_ClusterEnumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_ENUM_ENTRY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_ENUM_LIST(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_GROUP_ENUM_ENTRY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_RESOURCE_ENUM_ENTRY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_GROUP_ENUM_LIST(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_RESOURCE_ENUM_LIST(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_enum_IDL_CLUSTER_SET_PASSWORD_FLAGS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_struct_CLUSTER_CREATE_GROUP_INFO_RPC(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_bitmap_ClusterEnumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_ENUM_ENTRY(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_ENUM_LIST(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_GROUP_ENUM_ENTRY(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_RESOURCE_ENUM_ENTRY(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_GROUP_ENUM_LIST(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_RESOURCE_ENUM_LIST(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define CLUSTER_RESOURCE_DEFAULT_MONITOR (0x00000000)
 #define CLUSTER_RESOURCE_SEPARATE_MONITOR (0x00000001)
 extern const value_string clusapi_clusapi_CreateResourceFlags_vals[];
-int clusapi_dissect_enum_CreateResourceFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CreateResourceFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define ClusterResourceInitializing (0x00000001)
 #define ClusterResourceOnline (0x00000002)
 #define ClusterResourceOffline (0x00000003)
@@ -41,7 +41,7 @@ int clusapi_dissect_enum_CreateResourceFlags(tvbuff_t *tvb _U_, int offset _U_, 
 #define ClusterResourceOfflinePending (0x00000082)
 #define ClusterResourceStateUnknown (0xFFFFFFFF)
 extern const value_string clusapi_clusapi_ClusterResourceState_vals[];
-int clusapi_dissect_enum_ClusterResourceState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_ClusterResourceState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define ClusterGroupOnline (0x00000000)
 #define ClusterGroupOffline (0x00000001)
 #define ClusterGroupFailed (0x00000002)
@@ -49,21 +49,21 @@ int clusapi_dissect_enum_ClusterResourceState(tvbuff_t *tvb _U_, int offset _U_,
 #define ClusterGroupPending (0x00000004)
 #define ClusterGroupStateUnknown (0xFFFFFFFF)
 extern const value_string clusapi_clusapi_ClusterGroupState_vals[];
-int clusapi_dissect_enum_ClusterGroupState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int clusapi_dissect_bitmap_ClusterGroupEnumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_enum_ClusterGroupState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_bitmap_ClusterGroupEnumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define ClusterNodeUp (0x00000000)
 #define ClusterNodeDown (0x00000001)
 #define ClusterNodePaused (0x00000002)
 #define ClusterNodeJoining (0x00000003)
 #define ClusterNodeStateUnknown (0xFFFFFFFF)
 extern const value_string clusapi_clusapi_ClusterNodeState_vals[];
-int clusapi_dissect_enum_ClusterNodeState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_ClusterNodeState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUS_RESCLASS_UNKNOWN (0x00000000)
 #define CLUS_RESCLASS_STORAGE (0x00000001)
 #define CLUS_RESCLASS_NETWORK (0x00000002)
 extern const value_string clusapi_clusapi_ResourceClass_vals[];
-int clusapi_dissect_enum_ResourceClass(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int clusapi_dissect_struct_CLUS_RESOURCE_CLASS_INFO(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_enum_ResourceClass(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_struct_CLUS_RESOURCE_CLASS_INFO(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define CLUSCTL_RESOURCE_UNKNOWN (0x01000000)
 #define CLUSCTL_RESOURCE_GET_CHARACTERISTICS (0x01000005)
 #define CLUSCTL_RESOURCE_GET_FLAGS (0x01000009)
@@ -124,7 +124,7 @@ int clusapi_dissect_struct_CLUS_RESOURCE_CLASS_INFO(tvbuff_t *tvb _U_, int offse
 #define CLUSCTL_RESOURCE_NETNAME_CHECK_OU_PERMISSIONS (0x07002121)
 #define CLUSCTL_RESOURCE_NETNAME_CHECK_AD_STATE (0x07002125)
 extern const value_string clusapi_clusapi_ResourceControlCode_vals[];
-int clusapi_dissect_enum_ResourceControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_ResourceControlCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSCTL_RESOURCE_TYPE_UNKNOWN (0x02000000)
 #define CLUSCTL_RESOURCE_TYPE_GET_CHARACTERISTICS (0x02000005)
 #define CLUSCTL_RESOURCE_TYPE_GET_FLAGS (0x02000009)
@@ -165,7 +165,7 @@ int clusapi_dissect_enum_ResourceControlCode(tvbuff_t *tvb _U_, int offset _U_, 
 #define CLUSCTL_RESOURCE_TYPE_REPLICATION_GET_REPLICATED_DISKS (0x02002155)
 #define CLUSCTL_RESOURCE_TYPE_REPLICATION_GET_RESOURCE_GROUP (0x02002161)
 extern const value_string clusapi_clusapi_ResourceTypeControlCode_vals[];
-int clusapi_dissect_enum_ResourceTypeControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_ResourceTypeControlCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSCTL_GROUP_UNKNOWN (0x03000000)
 #define CLUSCTL_GROUP_GET_CHARACTERISTICS (0x03000005)
 #define CLUSCTL_GROUP_GET_FLAGS (0x03000009)
@@ -183,7 +183,7 @@ int clusapi_dissect_enum_ResourceTypeControlCode(tvbuff_t *tvb _U_, int offset _
 #define CLUSCTL_GROUP_SET_PRIVATE_PROPERTIES (0x03400086)
 #define CLUSCTL_GROUP_VALIDATE_PRIVATE_PROPERTIES (0x03000089)
 extern const value_string clusapi_clusapi_GroupControlCode_vals[];
-int clusapi_dissect_enum_GroupControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_GroupControlCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSCTL_NODE_UNKNOWN (0x04000000)
 #define CLUSCTL_NODE_GET_CHARACTERISTICS (0x04000005)
 #define CLUSCTL_NODE_GET_FLAGS (0x04000009)
@@ -201,22 +201,22 @@ int clusapi_dissect_enum_GroupControlCode(tvbuff_t *tvb _U_, int offset _U_, pac
 #define CLUSCTL_NODE_SET_PRIVATE_PROPERTIES (0x04400086)
 #define CLUSCTL_NODE_VALIDATE_PRIVATE_PROPERTIES (0x04000089)
 extern const value_string clusapi_clusapi_NodeControlCode_vals[];
-int clusapi_dissect_enum_NodeControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_NodeControlCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define ClusterNetworkUnavailable (0x00000000)
 #define ClusterNetworkDown (0x00000001)
 #define ClusterNetworkPartitioned (0x00000002)
 #define ClusterNetworkUp (0x00000003)
 #define ClusterNetworkStateUnknown (0xFFFFFFFF)
 extern const value_string clusapi_clusapi_ClusterNetworkState_vals[];
-int clusapi_dissect_enum_ClusterNetworkState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_ClusterNetworkState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define ClusterNetInterfaceFailed (0x00000000)
 #define ClusterNetInterfaceUnreachable (0x00000001)
 #define ClusterNetInterfaceUnavailable (0x00000002)
 #define ClusterNetInterfaceUp (0x00000003)
 #define ClusterNetInterfaceStateUnknown (0xFFFFFFFF)
 extern const value_string clusapi_clusapi_ClusterNetInterfaceState_vals[];
-int clusapi_dissect_enum_ClusterNetInterfaceState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int clusapi_dissect_bitmap_ClusterResTypeEnumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_enum_ClusterNetInterfaceState(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_bitmap_ClusterResTypeEnumType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define CLUSCTL_CLUSTER_UNKNOWN (0x07000000)
 #define CLUSCTL_CLUSTER_GET_FQDN (0x0700003D)
 #define CLUSCTL_CLUSTER_CHECK_VOTER_EVICT (0x07000045)
@@ -238,7 +238,7 @@ int clusapi_dissect_bitmap_ClusterResTypeEnumType(tvbuff_t *tvb _U_, int offset 
 #define CLUSCTL_CLUSTER_CLEAR_UPGRADE_IN_PROGRESS (0x074000d2)
 #define CLUSCTL_CLUSTER_IS_READY_FOR_UPGRADE (0x070000d5)
 extern const value_string clusapi_clusapi_ClusterControlCode_vals[];
-int clusapi_dissect_enum_ClusterControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_ClusterControlCode(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSPROP_SYNTAX_ENDMARK (0x00000000)
 #define CLUSPROP_SYNTAX_NAME (0x00040003)
 #define CLUSPROP_SYNTAX_RESCLASS (0x00020002)
@@ -263,20 +263,20 @@ int clusapi_dissect_enum_ClusterControlCode(tvbuff_t *tvb _U_, int offset _U_, p
 #define CLUSPROP_SYNTAX_DISK_SIZE (0x000c0006)
 #define CLUSPROP_SYNTAX_PARTITION_INFO_EX (0x000d0001)
 extern const value_string clusapi_CLUSTER_PROPERTY_SYNTAX_vals[];
-int clusapi_dissect_enum_CLUSTER_PROPERTY_SYNTAX(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-int clusapi_dissect_bitmap_DesiredAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_NOTIFY_FILTER_AND_TYPE_RPC(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_NOTIFICATION_DATA_RPC(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_NOTIFICATION_RPC(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_CLUSTER_DISKID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_CLUSTER_MRR_NODE_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_CLUSTER_MRR_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
-int clusapi_dissect_struct_NOTIFICATION_DATA_ASYNC_RPC(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_PROPERTY_SYNTAX(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_bitmap_DesiredAccessMask(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_NOTIFY_FILTER_AND_TYPE_RPC(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_NOTIFICATION_DATA_RPC(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_NOTIFICATION_RPC(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_CLUSTER_DISKID(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_CLUSTER_MRR_NODE_RESPONSE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_CLUSTER_MRR_RESPONSE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
+unsigned clusapi_dissect_struct_NOTIFICATION_DATA_ASYNC_RPC(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 #define DiskIdSignature (0x00000001)
 #define DiskIdGuid (0x00000002)
 #define DiskIdUnKnown (0x00001388)
 extern const value_string clusapi_CLUSDSK_DISKID_ENUM_vals[];
-int clusapi_dissect_enum_CLUSDSK_DISKID_ENUM(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSDSK_DISKID_ENUM(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSPROP_TYPE_ENDMARK (0x0000)
 #define CLUSPROP_TYPE_LIST_VALUE (0x0001)
 #define CLUSPROP_TYPE_RESCLASS (0x0002)
@@ -290,7 +290,7 @@ int clusapi_dissect_enum_CLUSDSK_DISKID_ENUM(tvbuff_t *tvb _U_, int offset _U_, 
 #define CLUSPROP_TYPE_DISK_SIZE (0x000c)
 #define CLUSPROP_TYPE_PARTITION_INFO_EX (0x000d)
 extern const value_string clusapi_CLUSTER_PROPERTY_TYPE_vals[];
-int clusapi_dissect_enum_CLUSTER_PROPERTY_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_PROPERTY_TYPE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSPROP_FORMAT_UNKNOWN (0x0000)
 #define CLUSPROP_FORMAT_BINARY (0x0001)
 #define CLUSPROP_FORMAT_DWORD (0x0002)
@@ -305,7 +305,7 @@ int clusapi_dissect_enum_CLUSTER_PROPERTY_TYPE(tvbuff_t *tvb _U_, int offset _U_
 #define CLUSPROP_FORMAT_WORD (0x000b)
 #define CLUSPROP_FORMAT_FILETIME (0x000c)
 extern const value_string clusapi_CLUSTER_PROPERTY_FORMAT_vals[];
-int clusapi_dissect_enum_CLUSTER_PROPERTY_FORMAT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_PROPERTY_FORMAT(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUS_CHAR_UNKNOWN (0x00000000)
 #define CLUS_CHAR_QUORUM (0x00000001)
 #define CLUS_CHAR_DELETE_REQUIRES_ALL_NODES (0x00000002)
@@ -320,15 +320,15 @@ int clusapi_dissect_enum_CLUSTER_PROPERTY_FORMAT(tvbuff_t *tvb _U_, int offset _
 #define CLUS_CHAR_RESERVED3 (0x00001000)
 #define CLUS_CHAR_RESERVED4 (0x00002000)
 extern const value_string clusapi_CLUS_CHARACTERISTICS_vals[];
-int clusapi_dissect_enum_CLUS_CHARACTERISTICS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUS_CHARACTERISTICS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUS_FLAG_CORE (0x00000001)
 extern const value_string clusapi_CLUS_FLAGS_vals[];
-int clusapi_dissect_enum_CLUS_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUS_FLAGS(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define MaintenanceModeTypeDisableIsAliveCheck (1)
 #define MaintenanceModeTypeOfflineResource (2)
 #define MaintenanceModeTypeUnclusterResource (3)
 extern const value_string clusapi_MAINTENANCE_MODE_TYPE_vals[];
-int clusapi_dissect_enum_MAINTENANCE_MODE_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_MAINTENANCE_MODE_TYPE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_NODE_STATE (0x00000001)
 #define CLUSTER_CHANGE_NODE_DELETED (0x00000002)
 #define CLUSTER_CHANGE_NODE_ADDED (0x00000004)
@@ -362,7 +362,7 @@ int clusapi_dissect_enum_MAINTENANCE_MODE_TYPE(tvbuff_t *tvb _U_, int offset _U_
 #define CLUSTER_CHANGE_CLUSTER_PROPERTY (0x40000000)
 #define CLUSTER_CHANGE_HANDLE_CLOSE (0x80000000)
 extern const value_string clusapi_CLUSTER_CHANGE_vals[];
-int clusapi_dissect_enum_CLUSTER_CHANGE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_CHANGE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSREG_SET_VALUE (1)
 #define CLUSREG_CREATE_KEY (2)
 #define CLUSREG_DELETE_KEY (3)
@@ -372,11 +372,11 @@ int clusapi_dissect_enum_CLUSTER_CHANGE(tvbuff_t *tvb _U_, int offset _U_, packe
 #define CLUSREG_READ_VALUE (8)
 #define CLUSREG_READ_ERROR (9)
 extern const value_string clusapi_CLUSTER_REG_BATCH_COMMAND_vals[];
-int clusapi_dissect_enum_CLUSTER_REG_BATCH_COMMAND(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_REG_BATCH_COMMAND(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_QUORUM_MAINTAINED (0)
 #define CLUSTER_QUORUM_LOST (1)
 extern const value_string clusapi_CLUSTER_QUORUM_VALUE_vals[];
-int clusapi_dissect_enum_CLUSTER_QUORUM_VALUE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_QUORUM_VALUE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_OBJECT_TYPE_CLUSTER (0x00000001)
 #define CLUSTER_OBJECT_TYPE_GROUP (0x00000002)
 #define CLUSTER_OBJECT_TYPE_RESOURCE (0x00000003)
@@ -388,7 +388,7 @@ int clusapi_dissect_enum_CLUSTER_QUORUM_VALUE(tvbuff_t *tvb _U_, int offset _U_,
 #define CLUSTER_OBJECT_TYPE_QUORUM (0x00000009)
 #define CLUSTER_OBJECT_TYPE_SHARED_VOLUME (0x0000000a)
 extern const value_string clusapi_CLUSTER_OBJECT_TYPE_vals[];
-int clusapi_dissect_enum_CLUSTER_OBJECT_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_OBJECT_TYPE(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_CLUSTER_RECONNECT_V2 (0x00000001)
 #define CLUSTER_CHANGE_CLUSTER_STATE_V2 (0x00000002)
 #define CLUSTER_CHANGE_CLUSTER_GROUP_ADDED_V2 (0x00000004)
@@ -401,7 +401,7 @@ int clusapi_dissect_enum_CLUSTER_OBJECT_TYPE(tvbuff_t *tvb _U_, int offset _U_, 
 #define CLUSTER_CHANGE_CLUSTER_LOST_NOTIFICATIONS_V2 (0x00000200)
 #define CLUSTER_CHANGE_CLUSTER_RENAME_V2 (0x00000400)
 extern const value_string clusapi_CLUSTER_CHANGE_CLUSTER_V2_vals[];
-int clusapi_dissect_enum_CLUSTER_CHANGE_CLUSTER_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_CHANGE_CLUSTER_V2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_GROUP_DELETED_V2 (0x00000001)
 #define CLUSTER_CHANGE_GROUP_COMMON_PROPERTY_V2 (0x00000002)
 #define CLUSTER_CHANGE_GROUP_PRIVATE_PROPERTY_V2 (0x00000004)
@@ -413,7 +413,7 @@ int clusapi_dissect_enum_CLUSTER_CHANGE_CLUSTER_V2(tvbuff_t *tvb _U_, int offset
 #define CLUSTER_CHANGE_GROUP_RESOURCE_LOST_V2 (0x00000100)
 #define CLUSTER_CHANGE_GROUP_HANDLE_CLOSE_V2 (0x00000200)
 extern const value_string clusapi_CLUSTER_CHANGE_GROUP_V2_vals[];
-int clusapi_dissect_enum_CLUSTER_CHANGE_GROUP_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_CHANGE_GROUP_V2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_RESOURCE_COMMON_PROPERTY_V2 (0x00000001)
 #define CLUSTER_CHANGE_RESOURCE_PRIVATE_PROPERTY_V2 (0x00000002)
 #define CLUSTER_CHANGE_RESOURCE_STATE_V2 (0x00000004)
@@ -425,28 +425,28 @@ int clusapi_dissect_enum_CLUSTER_CHANGE_GROUP_V2(tvbuff_t *tvb _U_, int offset _
 #define CLUSTER_CHANGE_RESOURCE_DLL_UPGRADED_V2 (0x00000100)
 #define CLUSTER_CHANGE_RESOURCE_HANDLE_CLOSE_V2 (0x00000200)
 extern const value_string clusapi_CLUSTER_CHANGE_RESOURCE_V2_vals[];
-int clusapi_dissect_enum_CLUSTER_CHANGE_RESOURCE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_CHANGE_RESOURCE_V2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_RESOURCE_TYPE_DELETED_V2 (0x00000001)
 #define CLUSTER_CHANGE_RESOURCE_TYPE_COMMON_PROPERTY_V2 (0x00000002)
 #define CLUSTER_CHANGE_RESOURCE_TYPE_PRIVATE_PROPERTY_V2 (0x00000004)
 #define CLUSTER_CHANGE_RESOURCE_TYPE_POSSIBLE_OWNERS_V2 (0x00000008)
 #define CLUSTER_CHANGE_RESOURCE_TYPE_DLL_UPGRADED_V2 (0x00000010)
 extern const value_string clusapi_CHANGE_RESOURCE_TYPE_V2_vals[];
-int clusapi_dissect_enum_CHANGE_RESOURCE_TYPE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CHANGE_RESOURCE_TYPE_V2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_NETINTERFACE_DELETED_V2 (0x00000001)
 #define CLUSTER_CHANGE_NETINTERFACE_COMMON_PROPERTY_V2 (0x00000002)
 #define CLUSTER_CHANGE_NETINTERFACE_PRIVATE_PROPERTY_V2 (0x00000004)
 #define CLUSTER_CHANGE_NETINTERFACE_STATE_V2 (0x00000008)
 #define CLUSTER_CHANGE_NETINTERFACE_HANDLE_CLOSE_V2 (0x00000010)
 extern const value_string clusapi_CLUSTER_CHANGE_NETINTERFACE_V2_vals[];
-int clusapi_dissect_enum_CLUSTER_CHANGE_NETINTERFACE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_CHANGE_NETINTERFACE_V2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_NETWORK_DELETED_V2 (0x00000001)
 #define CLUSTER_CHANGE_NETWORK_COMMON_PROPERTY_V2 (0x00000002)
 #define CLUSTER_CHANGE_NETWORK_PRIVATE_PROPERTY_V2 (0x00000004)
 #define CLUSTER_CHANGE_NETWORK_STATE_V2 (0x00000008)
 #define CLUSTER_CHANGE_NETWORK_HANDLE_CLOSE_V2 (0x00000010)
 extern const value_string clusapi_CLUSTER_CHANGE_NETWORK_V2_vals[];
-int clusapi_dissect_enum_CLUSTER_CHANGE_NETWORK_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_CHANGE_NETWORK_V2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_NODE_NETINTERFACE_ADDED_V2 (0x00000001)
 #define CLUSTER_CHANGE_NODE_DELETED_V2 (0x00000002)
 #define CLUSTER_CHANGE_NODE_COMMON_PROPERTY_V2 (0x00000004)
@@ -456,18 +456,18 @@ int clusapi_dissect_enum_CLUSTER_CHANGE_NETWORK_V2(tvbuff_t *tvb _U_, int offset
 #define CLUSTER_CHANGE_NODE_GROUP_LOST_V2 (0x00000040)
 #define CLUSTER_CHANGE_NODE_HANDLE_CLOSE_V2 (0x00000080)
 extern const value_string clusapi_CLUSTER_CHANGE_NODE_V2_vals[];
-int clusapi_dissect_enum_CLUSTER_CHANGE_NODE_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_CHANGE_NODE_V2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_REGISTRY_ATTRIBUTES_V2 (0x00000001)
 #define CLUSTER_CHANGE_REGISTRY_NAME_V2 (0x00000002)
 #define CLUSTER_CHANGE_REGISTRY_SUBTREE_V2 (0x00000004)
 #define CLUSTER_CHANGE_REGISTRY_VALUE_V2 (0x00000008)
 #define CLUSTER_CHANGE_REGISTRY_HANDLE_CLOSE_V2 (0x00000010)
 extern const value_string clusapi_CLUSTER_CHANGE_REGISTRY_V2_vals[];
-int clusapi_dissect_enum_CLUSTER_CHANGE_REGISTRY_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_CHANGE_REGISTRY_V2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_QUORUM_STATE_V2 (0x00000001)
 extern const value_string clusapi_CLUSTER_CHANGE_QUORUM_V2_vals[];
-int clusapi_dissect_enum_CLUSTER_CHANGE_QUORUM_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_CHANGE_QUORUM_V2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #define CLUSTER_CHANGE_SHARED_VOLUME_STATE_V2 (0x00000001)
 extern const value_string clusapi_CLUSTER_CHANGE_SHARED_VOLUME_V2_vals[];
-int clusapi_dissect_enum_CLUSTER_CHANGE_SHARED_VOLUME_V2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
+unsigned clusapi_dissect_enum_CLUSTER_CHANGE_SHARED_VOLUME_V2(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
 #endif /* __PACKET_DCERPC_CLUSAPI_H */

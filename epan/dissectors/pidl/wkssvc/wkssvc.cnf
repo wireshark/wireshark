@@ -34,12 +34,12 @@ TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, di, dre
 
 CODE START
 
-static int
-cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, uint32_t param, int hfindex)
+static unsigned
+cnf_dissect_lsa_String(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, uint32_t param, int hfindex)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset;
+	unsigned old_offset;
 	header_field_info *hf_info;
 
 	ALIGN_TO_4_BYTES;

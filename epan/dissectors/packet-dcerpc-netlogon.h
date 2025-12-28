@@ -65,28 +65,28 @@
 
 
 /* needed to decrypt PAC_LOGON_INFO in kerberos */
-int
-netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
+unsigned
+netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, unsigned offset,
 			packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, uint8_t *drep);
 
 /* needed to decrypt PAC_S4U_DELEGATION_INFO in kerberos */
-int
-netlogon_dissect_PAC_S4U_DELEGATION_INFO(tvbuff_t *tvb, int offset,
+unsigned
+netlogon_dissect_PAC_S4U_DELEGATION_INFO(tvbuff_t *tvb, unsigned offset,
 			packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, uint8_t *drep);
 
 /* needed to decrypt PAC_DEVICE_INFO in kerberos */
-int
-netlogon_dissect_PAC_DEVICE_INFO(tvbuff_t *tvb, int offset,
+unsigned
+netlogon_dissect_PAC_DEVICE_INFO(tvbuff_t *tvb, unsigned offset,
 			packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, uint8_t *drep);
 
 /* needed to dissect PAC_CLAIMS_INFO in kerberos */
-int
+unsigned
 netlogon_dissect_CLAIMS_SET_METADATA_BLOB(tvbuff_t *tvb,
-                                          int offset,
-                                          int length,
+                                          unsigned offset,
+                                          unsigned length,
                                           packet_info *pinfo,
                                           proto_tree *parent_tree,
                                           int hf_index,
