@@ -19,7 +19,7 @@
 
 #include "wsutil/str_util.h"
 #include "wsutil/utf8_entities.h"
-#include "wsutil/version_info.h"
+#include "app/application_flavor.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "main_application.h"
@@ -121,7 +121,7 @@ QString CaptureFilePropertiesDialog::getItemCommentString() const
 
 QString CaptureFilePropertiesDialog::getCreatedByString() const
 {
-    return tr("Created by Wireshark %1\n\n").arg(get_ws_vcs_version_info());
+    return tr("Created by Wireshark %1\n\n").arg(application_get_vcs_version_info());
 }
 
 /**/

@@ -48,6 +48,28 @@ extern const char* application_configuration_environment_prefix(void);
 extern const char* application_extcap_dir(void);
 
 /**
+ * @brief Retrieve the application version string with VCS metadata.
+ *
+ * Returns a string containing the application version number. For builds
+ * from a source tree checked out via version control, the string includes
+ * additional metadata identifying the specific version or commit.
+ *
+ * @return  A constant string with the application version and VCS details.
+ */
+extern const char* application_get_vcs_version_info(void);
+
+/**
+ * @brief Retrieve a shortened application version string with VCS metadata.
+ *
+ * Returns a concise version string for application, including minimal
+ * version control metadata. This is a trimmed-down alternative to
+ * `application_get_vcs_version_info()`.
+ *
+ * @return  A constant string with abbreviated application version and VCS info.
+ */
+extern const char* application_get_vcs_version_info_short(void);
+
+/**
  * @brief Get the list of application supported file extensions
  *
  * @param file_extensions Returned array of extensions supported by the application

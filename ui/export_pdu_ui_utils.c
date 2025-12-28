@@ -15,7 +15,6 @@
 #include "globals.h"
 #include "wsutil/os_version_info.h"
 #include "wsutil/tempfile.h"
-#include "wsutil/version_info.h"
 
 #include <epan/tap.h>
 #include <epan/prefs.h>

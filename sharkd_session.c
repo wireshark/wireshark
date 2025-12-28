@@ -57,7 +57,7 @@
 #include <ui/tap-rtp-analysis.h>
 #include <ui/cli/tap-protohierstat.h>
 #include <ui/cli/tap-voip.h>
-#include <wsutil/version_info.h>
+#include <app/application_flavor.h>
 #include <epan/to_str.h>
 
 #include <epan/addr_resolv.h>
@@ -1095,7 +1095,7 @@ sharkd_session_process_info(void)
     sharkd_session_print_encap_types();
     sharkd_json_array_close();
 
-    sharkd_json_value_string("version", get_ws_vcs_version_info_short());
+    sharkd_json_value_string("version", application_get_vcs_version_info_short());
 
     sharkd_json_array_open("nstat");
     i = 0;

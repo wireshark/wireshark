@@ -17,7 +17,7 @@
 #include <wiretap/wtap_opttypes.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/report_message.h>
-#include "wsutil/version_info.h"
+#include <wsutil/version_info.h>
 
 #include "tap_export_pdu.h"
 

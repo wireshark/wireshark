@@ -363,7 +363,7 @@ main(int argc, char *argv[])
     initialize_funnel_ops();
 
     /* Initialize the version information. */
-    ws_init_version_info("TFShark", application_flavor_name_proper(), get_ws_vcs_version_info,
+    ws_init_version_info("TFShark", application_flavor_name_proper(), application_get_vcs_version_info,
                          epan_gather_compile_info,
                          epan_gather_runtime_info);
     /*
@@ -1563,7 +1563,7 @@ write_preamble(capture_file *cf)
     switch (output_action) {
 
         case WRITE_TEXT:
-            return print_preamble(print_stream, cf->filename, get_ws_vcs_version_info());
+            return print_preamble(print_stream, cf->filename, application_get_vcs_version_info());
 
         case WRITE_XML:
             if (print_details)

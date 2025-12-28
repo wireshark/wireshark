@@ -15,7 +15,6 @@
 #include "ui/urls.h"
 
 #include <app/application_flavor.h>
-#include <wsutil/version_info.h>
 
 #include "welcome_page.h"
 #include <ui_welcome_page.h>
@@ -151,7 +150,7 @@ void WelcomePage::setReleaseLabel()
             full_release = tr("You are running Stratoshark ");
         }
     }
-    full_release += application_flavor_is_wireshark() ? get_ws_vcs_version_info() : get_ss_vcs_version_info();
+    full_release += application_get_vcs_version_info();
     full_release += ".";
 #ifdef HAVE_SOFTWARE_UPDATE
     if (prefs.gui_update_enabled) {

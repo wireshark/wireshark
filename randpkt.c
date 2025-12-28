@@ -164,7 +164,7 @@ main(int argc, char *argv[])
     create_app_running_mutex();
 #endif /* _WIN32 */
 
-    ws_init_version_info("Randpkt", NULL, get_ws_vcs_version_info, NULL, NULL);
+    ws_init_version_info("Randpkt", NULL, application_get_vcs_version_info, NULL, NULL);
 
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {

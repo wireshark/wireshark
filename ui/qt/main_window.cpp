@@ -337,7 +337,7 @@ void MainWindow::copyDisplayFilterTranslation()
 QString MainWindow::replaceWindowTitleVariables(QString title)
 {
     title.replace("%P", get_profile_name());
-    title.replace("%V", get_ws_vcs_version_info());
+    title.replace("%V", application_get_vcs_version_info());
 
 #ifdef HAVE_LIBPCAP
     char* capture_comment = commandline_get_first_capture_comment();

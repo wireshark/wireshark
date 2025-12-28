@@ -182,42 +182,6 @@ WS_DLL_PUBLIC
 GString *get_runtime_version_info(gather_feature_func gather_runtime);
 
 /**
- * @brief Retrieve the Wireshark version string with VCS metadata.
- *
- * Returns a string containing the Wireshark version number. For builds
- * from a source tree checked out via version control, the string includes
- * additional metadata identifying the specific version or commit.
- *
- * @return  A constant string with the Wireshark version and VCS details.
- */
-WS_DLL_PUBLIC
-const char *get_ws_vcs_version_info(void);
-
-/**
- * @brief Retrieve the Stratoshark version string with VCS metadata.
- *
- * Returns a string containing the Stratoshark version number. For builds
- * from a source tree checked out via version control, the string includes
- * additional metadata identifying the specific version or commit.
- *
- * @return  A constant string with the Stratoshark version and VCS details.
- */
-WS_DLL_PUBLIC
-const char *get_ss_vcs_version_info(void);
-
-/**
- * @brief Retrieve a shortened Wireshark version string with VCS metadata.
- *
- * Returns a concise version string for Wireshark, including minimal
- * version control metadata. This is a trimmed-down alternative to
- * `get_ws_vcs_version_info()`.
- *
- * @return  A constant string with abbreviated Wireshark version and VCS info.
- */
-WS_DLL_PUBLIC
-const char *get_ws_vcs_version_info_short(void);
-
-/**
  * @brief Retrieve the Wireshark version number as integers.
  *
  * Populates the provided pointers with the major, minor, and micro

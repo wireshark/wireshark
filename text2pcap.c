@@ -418,7 +418,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     info->payload = "data";
 
     /* Initialize the version information. */
-    ws_init_version_info("Text2pcap", NULL, get_ws_vcs_version_info, NULL, NULL);
+    ws_init_version_info("Text2pcap", NULL, application_get_vcs_version_info, NULL, NULL);
 
     /* Scan CLI parameters */
     while ((c = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {

@@ -182,7 +182,7 @@ main(int argc, char *argv[])
     }
 
     /* Initialize the version information. */
-    ws_init_version_info("Sharkd", NULL, get_ws_vcs_version_info,
+    ws_init_version_info("Sharkd", NULL, application_get_vcs_version_info,
                          epan_gather_compile_info,
                          epan_gather_runtime_info);
 

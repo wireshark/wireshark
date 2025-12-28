@@ -21,9 +21,6 @@ class StratosharkAboutDialog : public AboutDialog
 public:
     explicit StratosharkAboutDialog(QWidget *parent = 0);
     virtual ~StratosharkAboutDialog() {}
-
-protected:
-    virtual const char* getVCSVersion() override;
 };
 
 #endif // STRATOSHARK_ABOUT_DIALOG_H

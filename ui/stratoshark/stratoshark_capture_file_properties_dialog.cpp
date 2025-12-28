@@ -8,7 +8,7 @@
  */
 
 #include "stratoshark_capture_file_properties_dialog.h"
-#include "wsutil/version_info.h"
+#include "app/application_flavor.h"
 
 StratosharkCaptureFilePropertiesDialog::StratosharkCaptureFilePropertiesDialog(QWidget &parent, CaptureFile &capture_file) :
     CaptureFilePropertiesDialog(parent, capture_file)
@@ -66,5 +66,5 @@ QString StratosharkCaptureFilePropertiesDialog::getItemCommentString() const
 
 QString StratosharkCaptureFilePropertiesDialog::getCreatedByString() const
 {
-    return tr("Created by Stratoshark %1\n\n").arg(get_ss_vcs_version_info());
+    return tr("Created by Stratoshark %1\n\n").arg(application_get_vcs_version_info());
 }

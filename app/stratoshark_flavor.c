@@ -35,6 +35,26 @@ const char* application_extcap_dir(void)
     return STRATOSHARK_EXTCAP_DIR;
 }
 
+const char*
+application_get_vcs_version_info(void)
+{
+#ifdef STRATOSHARK_VCS_VERSION
+    return STRATOSHARK_VERSION " (" STRATOSHARK_VCS_VERSION ")";
+#else
+    return STRATOSHARK_VERSION;
+#endif
+}
+
+const char*
+application_get_vcs_version_info_short(void)
+{
+#ifdef STRATOSHARK_VCS_VERSION
+    return STRATOSHARK_VCS_VERSION;
+#else
+    return VERSION;
+#endif
+}
+
 void application_file_extensions(const struct file_extension_info** file_extensions, unsigned* num_extensions)
 {
     static const struct file_extension_info stratoshark_file_type_extensions_base[] = {

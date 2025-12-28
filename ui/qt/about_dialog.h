@@ -76,7 +76,7 @@ public:
 protected:
     virtual bool event(QEvent *event);
     virtual void showEvent(QShowEvent *);
-    virtual const char* getVCSVersion();
+    const char* getVCSVersion();
 
     // UI getters
     QLabel* labelLogo() const;

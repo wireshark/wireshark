@@ -574,7 +574,7 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
 
     /* Get the compile-time version information string */
-    ws_init_version_info("Stratoshark", application_flavor_name_proper(), get_ss_vcs_version_info, gather_wireshark_qt_compiled_info,
+    ws_init_version_info("Stratoshark", application_flavor_name_proper(), application_get_vcs_version_info, gather_wireshark_qt_compiled_info,
                          gather_wireshark_runtime_info);
 
     init_report_alert_box("Stratoshark");

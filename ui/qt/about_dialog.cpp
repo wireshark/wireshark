@@ -435,7 +435,7 @@ void AboutDialog::showEvent(QShowEvent * event)
 
 const char* AboutDialog::getVCSVersion()
 {
-    return get_ws_vcs_version_info();
+    return application_get_vcs_version_info();
 }
 
 

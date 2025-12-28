@@ -389,7 +389,7 @@ main(int argc, char **argv)
         g_free(configuration_init_error);
     }
 
-    ws_init_version_info("DFTest", NULL, get_ws_vcs_version_info, NULL, NULL);
+    ws_init_version_info("DFTest", NULL, application_get_vcs_version_info, NULL, NULL);
 
     for (;;) {
         opt = ws_getopt_long(argc, argv, optstring, long_options, NULL);

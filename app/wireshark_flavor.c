@@ -34,6 +34,31 @@ const char* application_extcap_dir(void)
     return EXTCAP_DIR;
 }
 
+/*
+ * Return a version number string for Wireshark, including, for builds
+ * from a tree checked out from Wireshark's version control system,
+ * something identifying what version was checked out.
+ */
+const char*
+application_get_vcs_version_info(void)
+{
+#ifdef WIRESHARK_VCS_VERSION
+    return VERSION " (" WIRESHARK_VCS_VERSION ")";
+#else
+    return VERSION;
+#endif
+}
+
+const char*
+application_get_vcs_version_info_short(void)
+{
+#ifdef WIRESHARK_VCS_VERSION
+    return WIRESHARK_VCS_VERSION;
+#else
+    return VERSION;
+#endif
+}
+
 void application_file_extensions(const struct file_extension_info** file_extensions, unsigned* num_extensions)
 {
     static const struct file_extension_info wireshark_file_type_extensions_base[] = {

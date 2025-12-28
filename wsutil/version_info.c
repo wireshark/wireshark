@@ -623,41 +623,6 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 	return str;
 }
 
-/*
- * Return a version number string for Wireshark, including, for builds
- * from a tree checked out from Wireshark's version control system,
- * something identifying what version was checked out.
- */
-const char *
-get_ws_vcs_version_info(void)
-{
-#ifdef WIRESHARK_VCS_VERSION
-	return VERSION " (" WIRESHARK_VCS_VERSION ")";
-#else
-	return VERSION;
-#endif
-}
-
-const char *
-get_ss_vcs_version_info(void)
-{
-#ifdef STRATOSHARK_VCS_VERSION
-	return STRATOSHARK_VERSION " (" STRATOSHARK_VCS_VERSION ")";
-#else
-	return STRATOSHARK_VERSION;
-#endif
-}
-
-const char *
-get_ws_vcs_version_info_short(void)
-{
-#ifdef WIRESHARK_VCS_VERSION
-	return WIRESHARK_VCS_VERSION;
-#else
-	return VERSION;
-#endif
-}
-
 void
 get_ws_version_number(int *major, int *minor, int *micro)
 {

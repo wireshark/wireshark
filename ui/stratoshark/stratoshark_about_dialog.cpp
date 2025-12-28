@@ -11,7 +11,6 @@
 
 #include "about_dialog.h"
 #include "stratoshark_about_dialog.h"
-#include "wsutil/version_info.h"
 
 #include "main_application.h"
 
@@ -31,9 +30,3 @@ StratosharkAboutDialog::StratosharkAboutDialog(QWidget *parent) :
         labelLogo()->setPixmap(QPixmap(":/about/sssplash.png"));
     }
 }
-
-const char* StratosharkAboutDialog::getVCSVersion()
-{
-    return get_ss_vcs_version_info();
-}
-
