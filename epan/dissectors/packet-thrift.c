@@ -1845,6 +1845,7 @@ dissect_thrift_t_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
             }
             offset = dissect_thrift_t_field_header(tvb, pinfo, sub_tree, offset, thrift_opt, DE_THRIFT_T_MAP, field_id, NULL);
         }
+        ABORT_SUBDISSECTION_ON_ISSUE(offset);
 
         /* Read and check number of key-value pair in the map. */
         if (tvb_reported_length_remaining(tvb, offset) < TCP_THRIFT_MIN_VARINT_LEN) {
