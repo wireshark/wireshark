@@ -66,7 +66,7 @@ HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc enc
     row_width_(recent.gui_bytes_view == BYTES_BITS ? 8 : 16),
     em_width_(0),
     line_height_(0),
-    allow_hover_selection_(false)
+    allow_hover_selection_(!recent.gui_allow_hover_selection)
 {
     layout_->setCacheEnabled(true);
 
