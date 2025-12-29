@@ -7830,9 +7830,9 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         */
 
         {
-            int e_len = tvb_captured_length(tvb) - offset;
-            const uint8_t *epp_buf = tvb_get_ptr(tvb, 0, -1);
             unsigned a_len = offset;
+            const uint8_t *epp_buf = tvb_get_ptr(tvb, 0, offset);
+            unsigned e_len = tvb_captured_length_remaining(tvb, offset);
             uint8_t *buf = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, e_len);
             tvbuff_t *app;
 
@@ -8039,9 +8039,9 @@ static int dissect_ccm_validate(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     */
 
     {
-        int e_len = tvb_captured_length(tvb) - offset;
-        const uint8_t *epp_buf = tvb_get_ptr(tvb, 0, -1);
-        unsigned a_len = offset - 0;
+        unsigned a_len = offset;
+        const uint8_t *epp_buf = tvb_get_ptr(tvb, 0, offset);
+        unsigned e_len = tvb_captured_length_remaining(tvb, offset);
         uint16_t e_off;
         uint8_t *buf = (uint8_t *)g_malloc(e_len);
 
