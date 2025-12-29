@@ -484,8 +484,9 @@ Edition, it will include an SDK.
 [#ChToolsDocumentationToolchain]
 === Documentation Toolchain
 
-Wireshark’s documentation is split across two directories.
-The `doc` directory contains man pages, User’s Guide, Developer’s Guide, and the release notes, which are written in Asciidoctor markup.
+Wireshark’s documentation is located in the `doc` directory.
+It contains man pages, User’s Guide, Developer’s Guide, and the release notes, which are written in Asciidoctor markup.
+A bunch of README files in text format can also be found there.
 
 Our various output formats are generated using the following tools.
 Intermediate formats are in _italics_.
@@ -506,7 +507,7 @@ The Ruby and Java flavors can be used to build Wireshark’s documentation, but 
 CMake will download a pre-built version of Ruby and the Asciidoctor gem on Windows.
 // We need docbook5, PDF & EPUB output and macros
 
-The guides and release notes were originally written in DocBook (hence the directory name).
+The guides and release notes were originally written in DocBook.
 They were later converted to AsciiDoc and then migrated to Asciidoctor.
 The man pages were originally in Perl’s POD (Plain Old Documentation) format and were later converted to Asciidoctor.
 We use Asciidoctor’s modern (>= 1.5.0) syntax.
