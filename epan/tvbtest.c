@@ -33,7 +33,7 @@ typedef struct {
 	struct {
 		bool test;
 		uint16_t needle;
-		int offset;
+		unsigned offset;
 	} g16;
 	struct {
 		bool test;
@@ -51,7 +51,7 @@ test_searches(tvbuff_t *tvb, int offset, search_test_params *sp)
 	TRY {
 		tvb_find_uint8_remaining(tvb, offset, sp->g8.needle, &sp->g8.offset);
 		if (sp->g16.test) {
-			sp->g16.offset = tvb_find_uint16(tvb, offset, -1, sp->g16.needle);
+			tvb_find_uint16_remaining(tvb, offset, sp->g16.needle, &sp->g16.offset);
 		}
 		if (sp->mempbrk.test) {
 			tvb_ws_mempbrk_uint8_remaining(tvb, offset,

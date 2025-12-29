@@ -213,15 +213,15 @@ static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinf
     return false;
 
   /* Search the end */
-  int sd_end = tvb_find_uint16(tvb, *offset, -1, SD_STOP);
-  if (sd_end == -1)
+  unsigned sd_end;
+  if (!tvb_find_uint16_remaining(tvb, *offset, SD_STOP, &sd_end))
     return false;
 
   ti = proto_tree_add_item(tree, hf_syslog_sd, tvb, *offset, sd_end - *offset + 1, ENC_NA);
   sd_tree = proto_item_add_subtree(ti, ett_syslog_sd);
 
   /* SD-ELEMENTS */
-  while(*offset < (unsigned)sd_end) {
+  while(*offset < sd_end) {
 
     proto_item *ti_element;
     proto_tree *element_tree;

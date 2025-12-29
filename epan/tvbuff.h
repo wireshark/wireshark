@@ -2274,6 +2274,64 @@ static inline int tvb_find_guint8(tvbuff_t* tvb, const unsigned offset,
 /**
  * @brief Find the first occurrence of a 16-bit value in a tvbuff.
  *
+ * Searches for the first occurrence of `needle` in the given tvbuff_t,
+ * starting at `offset` and searching the remaining captured bytes.
+ *
+ * This function will throw an exception if the start offset is outside
+ * the tvbuff captured bytes, but will not throw an exception if the needle
+ * is not found.
+ *
+ * @note This searches for the value on any byte alignment, not 2-byte alignment,
+ * and is thus unsuited, e.g., for searching for a UCS-2 or UTF-16 character
+ * without additional verification and possible follow-up searches.
+ *
+ * @param tvb          The tvbuff_t to search.
+ * @param offset       The offset in the tvbuff to begin searching.
+ * @param needle       The 16-bit value to search for.
+ * @param found_offset The offset of the needle, if found. Otherwise, the offset
+ * just past the bytes searched, i.e. tvb_captured_length(tvb). (The pointer can
+ * be NULL.)
+ *
+ * @return true if the needle is found, false otherwise
+ *
+ * @see tvb_find_uint16_length
+ */
+WS_DLL_PUBLIC bool tvb_find_uint16_remaining(tvbuff_t *tvb, const unsigned offset,
+    const uint16_t needle, unsigned *found_offset);
+
+/**
+ * @brief Find the first occurrence of a 16-bit value in a tvbuff up to a limit.
+ *
+ * Searches for the first occurrence of `needle` in the given tvbuff_t,
+ * starting at `offset` and scanning up to `maxlength` bytes.
+ *
+ * This function will only search up to the bytes actually contained in the
+ * tvbuff, and will not throw an exception for going past the captured or
+ * reported length, even if even if `maxlength` exceeds those. (It will throw
+ * an exception if the start offset is outside the tvbuff captured bytes.)
+ *
+ * @note This searches for the value on any byte alignment, not 2-byte alignment,
+ * and is thus unsuited, e.g., for searching for a UCS-2 or UTF-16 character
+ * without additional verification and possible follow-up searches.
+ *
+ * @param tvb          The tvbuff_t to search.
+ * @param offset       The offset in the tvbuff to begin searching.
+ * @param maxlength    The maximum number of bytes to search.
+ * @param needle       The 16-bit value to search for.
+ * @param found_offset The offset of the needle, if found. Otherwise, the offset
+ * just past the bytes searched, i.e. the lesser of tvb_captured_length(tvb) and
+ * `offset + maxlength`. (The pointer can be NULL.)
+ *
+ * @return true if the needle is found, false otherwise
+ *
+ * @see tvb_find_uint16_remaining
+ */
+WS_DLL_PUBLIC bool tvb_find_uint16_length(tvbuff_t *tvb, const unsigned offset,
+    const unsigned maxlength, const uint16_t needle, unsigned *found_offset);
+
+/**
+ * @brief Find the first occurrence of a 16-bit value in a tvbuff.
+ *
  * Searches for the first occurrence of the 16-bit `needle` in the given tvbuff_t,
  * starting at `offset` and scanning up to `maxlength` bytes. If `maxlength` is -1,
  * the search continues to the end of the tvbuff.

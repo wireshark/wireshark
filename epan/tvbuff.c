@@ -2691,13 +2691,53 @@ tvb_find_uint8_remaining(tvbuff_t *tvb, const unsigned offset, const uint8_t nee
 	return _tvb_find_uint8_length(tvb, offset, limit, needle, end_offset);
 }
 
+static bool
+_tvb_find_uint16_length(tvbuff_t *tvb, const unsigned offset, const unsigned limit, const uint16_t needle, unsigned *end_offset)
+{
+	const uint8_t needle1 = ((needle & 0xFF00) >> 8);
+	const uint8_t needle2 = ((needle & 0x00FF) >> 0);
+	unsigned searched_bytes = 0;
+	unsigned pos = offset;
+
+	if (end_offset) {
+		*end_offset = offset + limit;
+	}
+
+	do {
+		if (!_tvb_find_uint8_length(tvb, pos, limit - searched_bytes, needle1, &pos)) {
+			return false;
+		}
+
+		/* Bytes searched so far (not counting the second byte) */
+		searched_bytes = pos - offset + 1;
+
+		/* Test vs. equality to account for the second byte */
+		if (searched_bytes >= limit) {
+			return false;
+		}
+
+		if (_tvb_find_uint8_length(tvb, pos + 1, 1, needle2, NULL)) {
+			if (end_offset) {
+				*end_offset = pos;
+			}
+			return true;
+		}
+
+		pos += 1;
+		searched_bytes += 1;
+	} while (searched_bytes < limit);
+
+	return false;
+}
+
 /* Same as tvb_find_uint8() with 16bit needle. */
 int
 tvb_find_uint16(tvbuff_t *tvb, const int offset, const int maxlength,
 		 const uint16_t needle)
 {
-	unsigned	      abs_offset = 0;
-	unsigned	      limit = 0;
+	unsigned      abs_offset = 0;
+	unsigned      limit = 0;
+	unsigned      end_offset;
 	int           exception;
 
 	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &limit);
@@ -2711,41 +2751,48 @@ tvb_find_uint16(tvbuff_t *tvb, const int offset, const int maxlength,
 		limit = (unsigned) maxlength;
 	}
 
-	const uint8_t needle1 = ((needle & 0xFF00) >> 8);
-	const uint8_t needle2 = ((needle & 0x00FF) >> 0);
-	unsigned searched_bytes = 0;
-	unsigned pos = abs_offset;
+	if (!_tvb_find_uint16_length(tvb, abs_offset, limit, needle, &end_offset)) {
+		return -1;
+	}
 
-	do {
-		int offset1 =
-			tvb_find_uint8(tvb, pos, limit - searched_bytes, needle1);
-		int offset2 = -1;
+	return end_offset;
+}
 
-		if (offset1 == -1) {
-			return -1;
-		}
+bool
+tvb_find_uint16_length(tvbuff_t *tvb, const unsigned offset, const unsigned maxlength, const uint16_t needle, unsigned *end_offset)
+{
+	unsigned      limit = 0;
+	int           exception;
 
-		searched_bytes = (unsigned)offset1 - abs_offset + 1;
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-		if (searched_bytes >= limit) {
-			return -1;
-		}
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
 
-		offset2 = tvb_find_uint8(tvb, offset1 + 1, 1, needle2);
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (limit > maxlength) {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
+		limit = maxlength;
+	}
 
-		searched_bytes += 1;
+	return _tvb_find_uint16_length(tvb, offset, limit, needle, end_offset);
+}
 
-		if (offset2 != -1) {
-			if (searched_bytes > limit) {
-				return -1;
-			}
-			return offset1;
-		}
+bool
+tvb_find_uint16_remaining(tvbuff_t *tvb, const unsigned offset, const uint16_t needle, unsigned *end_offset)
+{
+	unsigned      limit = 0;
+	int           exception;
 
-		pos = offset1 + 1;
-	} while (searched_bytes < limit);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	return -1;
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	return _tvb_find_uint16_length(tvb, offset, limit, needle, end_offset);
 }
 
 static inline bool
