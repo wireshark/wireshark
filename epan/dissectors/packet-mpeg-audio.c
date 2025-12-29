@@ -448,8 +448,8 @@ test_mpeg_audio(tvbuff_t *tvb, int offset)
 	return MPA_VALID(&mpa);
 }
 
-static int
-mpeg_resync(tvbuff_t *tvb, int offset)
+static unsigned
+mpeg_resync(tvbuff_t *tvb, unsigned offset)
 {
 	uint32_t hdr;
 	struct mpa mpa;
@@ -457,14 +457,12 @@ mpeg_resync(tvbuff_t *tvb, int offset)
 	/* This only looks to resync on another frame; it doesn't
 	 * look for an ID3 tag.
 	 */
-	offset = tvb_find_uint8(tvb, offset, -1, '\xff');
-	while (offset != -1 && tvb_bytes_exist(tvb, offset, 4)) {
+	while (tvb_find_uint8_remaining(tvb, offset, '\xff', &offset) && tvb_bytes_exist(tvb, offset, 4)) {
 		hdr = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 		MPA_UNMARSHAL(&mpa, hdr);
 		if (MPA_VALID(&mpa)) {
 			return offset;
 		}
-		offset = tvb_find_uint8(tvb, offset + 1, -1, '\xff');
 	}
 	return tvb_reported_length(tvb);
 }
@@ -474,9 +472,9 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	uint32_t h;
 	struct mpa mpa;
-	int data_size = 0;
+	unsigned data_size = 0;
 	asn1_ctx_t asn1_ctx;
-	int offset = 0;
+	unsigned offset = 0;
 	static const char *version_names[] = { "1", "2", "2.5" };
 
 	if (!tvb_bytes_exist(tvb, 0, 4))
@@ -493,7 +491,7 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 				"Audio Layer %d", mpa_layer(&mpa) + 1);
 	if (MPA_BITRATE_VALID(&mpa) && MPA_FREQUENCY_VALID(&mpa)) {
-		data_size = (int)(MPA_DATA_BYTES(&mpa) - sizeof mpa);
+		data_size = (MPA_DATA_BYTES(&mpa) - sizeof mpa);
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 						", %d kb/s, %g kHz",
 						mpa_bitrate(&mpa) / 1000,
@@ -519,7 +517,7 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return offset / 8;
 }
 
-static int
+static unsigned
 dissect_id3v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	asn1_ctx_t asn1_ctx;
@@ -537,7 +535,8 @@ dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	proto_item *ti;
 	proto_tree *mpeg_audio_tree;
 
-	int magic, offset = 0;
+	int magic;
+	unsigned offset = 0;
 	uint32_t frame_len;
 	tvbuff_t *next_tvb;
 
