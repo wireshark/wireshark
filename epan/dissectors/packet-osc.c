@@ -946,27 +946,33 @@ dissect_osc_tcp_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 {
     unsigned offset = 0;
 
-    while(offset < tvb_reported_length(tvb))
+    while(tvb_reported_length_remaining(tvb, offset))
     {
-        const int available = tvb_reported_length_remaining(tvb, offset);
-        const uint8_t *encoded_buf = tvb_get_ptr(tvb, offset, -1);
-        const uint8_t *slip_end_found = (const uint8_t *)memchr(encoded_buf, SLIP_END, available);
+        const unsigned available = tvb_reported_length_remaining(tvb, offset);
+        unsigned slip_end_offset;
+        const uint8_t *encoded_buf;
         unsigned encoded_len;
         int decoded_len;
         uint8_t *decoded_buf;
         tvbuff_t *next_tvb;
 
-        if(!slip_end_found) /* no SLIP'd stream ending in this chunk */
-        {
-            /* we ran out of data: ask for more */
-            pinfo->desegment_offset = offset;
-            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-            return (offset + available);
+        if(!tvb_find_uint8_remaining(tvb, offset, SLIP_END, &slip_end_offset)) {
+            /* no SLIP'd stream ending in this chunk */
+            if (pinfo->can_desegment) {
+                /* we ran out of data: ask for more */
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+                return offset + available;
+            } else {
+                /* XXX - Probably not correct error handling */
+                return 0; /* failed to decode SLIP'd stream */
+            }
         }
 
-        encoded_len = (unsigned)(slip_end_found + 1 - encoded_buf);
+        encoded_len = slip_end_offset - offset + 1;
         if(encoded_len > 1) /* we have a non-empty SLIP'd stream*/
         {
+            encoded_buf = tvb_get_ptr(tvb, offset, encoded_len);
             decoded_len = slip_decoded_len(encoded_buf, encoded_len);
             if(decoded_len != -1) /* is a valid SLIP'd stream */
             {
