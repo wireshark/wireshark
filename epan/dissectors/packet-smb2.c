@@ -10092,7 +10092,8 @@ dissect_smb2_MxAc_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	offset += 4;
 
 	maximal_access = tvb_get_letohl(tvb, offset);
-	is_dir = si->file->is_dir;
+	if (si->file)
+		is_dir = si->file->is_dir;
 	dissect_smb_access_mask_bits(tvb, tree, offset, 4, maximal_access, is_dir, SMB2_ACCESS_MAXIMAL);
 
 	if (si->file) {
