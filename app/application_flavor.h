@@ -41,6 +41,13 @@ extern const char *application_flavor_name_lower(void);
 extern const char* application_configuration_environment_prefix(void);
 
 /**
+ * @brief Get the application specific extcap directory.
+ *
+ * @return The extcap directory. Must not be freed.
+ */
+extern const char* application_extcap_dir(void);
+
+/**
  * @brief Get the list of application supported file extensions
  *
  * @param file_extensions Returned array of extensions supported by the application

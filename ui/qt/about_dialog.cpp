@@ -173,7 +173,7 @@ FolderListModel::FolderListModel(QObject * parent):
         AStringListListModel(parent)
 {
     const char* env_prefix = application_configuration_environment_prefix();
-    const char* extcap_dir = application_flavor_is_wireshark() ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR;
+    const char* extcap_dir = application_extcap_dir();
 
     /* "file open" */
     appendRow(QStringList() << tr("\"File\" dialog location") << get_open_dialog_initial_dir() << tr("Capture files"));

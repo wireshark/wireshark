@@ -414,7 +414,7 @@ static void
 extcap_run_one(const extcap_interface *interface, GList *arguments, extcap_cb_t cb, void *user_data, char **err_str,
     const char* option_name, const char* option_value)
 {
-    const char* extcap_dir = application_flavor_is_wireshark() ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR;
+    const char* extcap_dir = application_extcap_dir();
     const char *dirname = get_extcap_dir(application_configuration_environment_prefix(), extcap_dir);
     char **args = extcap_convert_arguments_to_array(arguments);
     int cnt = g_list_length(arguments);
@@ -441,7 +441,7 @@ extcap_thread_callback(void *data, void *user_data)
 {
     extcap_run_task_t *task = (extcap_run_task_t *)data;
     thread_pool_t *pool = (thread_pool_t *)user_data;
-    const char* extcap_dir = application_flavor_is_wireshark() ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR;
+    const char* extcap_dir = application_extcap_dir();
     const char *dirname = get_extcap_dir(application_configuration_environment_prefix(), extcap_dir);
 
     char *command_output;
@@ -477,7 +477,7 @@ extcap_run_all(const char *argv[], extcap_run_cb_t output_cb, size_t data_size, 
 {
     /* Need enough space for at least 'extcap_path'. */
     ws_assert(data_size >= sizeof(char *));
-    const char* extcap_dir = application_flavor_is_wireshark() ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR;
+    const char* extcap_dir = application_extcap_dir();
 
     GSList *paths = extcap_get_extcap_paths(application_configuration_environment_prefix(), extcap_dir);
     int i = 0;
@@ -1278,7 +1278,7 @@ extcap_cleanup_postkill(const char* ifname)
     if (interface)
     {
         ws_info("(extcap_cleanup_postkill) Extcap path %s", interface->extcap_path);
-        const char* extcap_dir = application_flavor_is_wireshark() ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR;
+        const char* extcap_dir = application_extcap_dir();
 
         dirname = get_extcap_dir(application_configuration_environment_prefix(), extcap_dir);
         args = g_strdup(EXTCAP_ARGUMENT_CLEANUP_POSTKILL);

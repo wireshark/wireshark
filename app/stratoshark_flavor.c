@@ -30,6 +30,11 @@ const char* application_configuration_environment_prefix(void)
     return "STRATOSHARK";
 }
 
+const char* application_extcap_dir(void)
+{
+    return STRATOSHARK_EXTCAP_DIR;
+}
+
 void application_file_extensions(const struct file_extension_info** file_extensions, unsigned* num_extensions)
 {
     static const struct file_extension_info stratoshark_file_type_extensions_base[] = {
