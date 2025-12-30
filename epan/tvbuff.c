@@ -82,7 +82,7 @@ tvb_new(const struct tvb_ops *ops)
 	tvb->reported_length	 = 0;
 	tvb->contained_length	 = 0;
 	tvb->real_data		 = NULL;
-	tvb->raw_offset		 = -1;
+	tvb->raw_offset		 = 0;
 	tvb->ds_tvb		 = NULL;
 
 	return tvb;
@@ -5035,10 +5035,14 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, const int haystack_of
 	return -1;
 }
 
-int
+unsigned
 tvb_raw_offset(tvbuff_t *tvb)
 {
-	return ((tvb->raw_offset==-1) ? (tvb->raw_offset = tvb_offset_from_real_beginning(tvb)) : tvb->raw_offset);
+	if (!(tvb->flags & TVBUFF_RAW_OFFSET)) {
+		tvb->raw_offset = tvb_offset_from_real_beginning(tvb);
+		tvb->flags |= TVBUFF_RAW_OFFSET;
+	}
+	return tvb->raw_offset;
 }
 
 void

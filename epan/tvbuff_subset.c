@@ -144,6 +144,10 @@ tvb_new_with_subset(tvbuff_t *backing, const unsigned reported_length,
 		tvb->real_data = backing->real_data + subset_tvb_offset;
 	}
 
+	if (backing->flags & TVBUFF_RAW_OFFSET) {
+		tvb->raw_offset = backing->raw_offset + subset_tvb_offset;
+	}
+
 	/*
 	 * The top-level data source of this tvbuff is the top-level
 	 * data source of its parent.

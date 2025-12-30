@@ -543,6 +543,12 @@ WS_DLL_PUBLIC void tvb_fix_reported_length(tvbuff_t *tvb);
  * @param tvb The tvbuff_t to query.
  *
  * @return The offset from the beginning of the real buffer.
+ *
+ * @note This function returns the same value as tvb_raw_offset; the difference
+ * is that this function calculates the value each time whereas tvb_raw_offset
+ * caches the result (hence this function can take a const tvbuff_t.)
+ *
+ * @see tvb_raw_offset
  */
 WS_DLL_PUBLIC unsigned tvb_offset_from_real_beginning(const tvbuff_t *tvb);
 
@@ -556,8 +562,13 @@ WS_DLL_PUBLIC unsigned tvb_offset_from_real_beginning(const tvbuff_t *tvb);
  * @param tvb The tvbuff to query.
  *
  * @return The offset from the first byte of real data in the buffer.
+ *
+ * @note This function returns the same value as tvb_offset_from_real_beginning
+ * but caches the result in the tvbuff_t.
+ *
+ * @see tvb_offset_from_real_beginning
  */
-WS_DLL_PUBLIC int tvb_raw_offset(tvbuff_t *tvb);
+WS_DLL_PUBLIC unsigned tvb_raw_offset(tvbuff_t *tvb);
 
 /**
  * @brief Set the "this is a fragment" flag on a tvbuff.
