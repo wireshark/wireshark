@@ -630,7 +630,7 @@ tvb_clone(tvbuff_t *tvb)
 	return tvb_clone_offset_len(tvb, 0, tvb->length);
 }
 
-unsigned
+inline unsigned
 tvb_captured_length(const tvbuff_t *tvb)
 {
 	DISSECTOR_ASSERT(tvb && tvb->initialized);

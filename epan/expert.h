@@ -139,6 +139,23 @@ proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field *eiinde
         tvbuff_t *tvb, int start, int length);
 
 /** Add an expert info associated with some byte data
+ Add an expert info tree to a protocol item using registered expert info item.
+ This function is intended to replace places where a "text only" proto_tree_add_xxx
+ API + expert_add_info would be used. Length will be to the end of the tvb.
+
+ @param tree Current protocol tree (or NULL)
+ @param pinfo Packet info of the currently processed packet. May be NULL if tree is supplied
+ @param eiindex The registered expert info item
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @return the newly created item above expert info tree
+ */
+
+WS_DLL_PUBLIC proto_item*
+proto_tree_add_expert_remaining(proto_tree* tree, packet_info* pinfo, expert_field* eiindex,
+	tvbuff_t* tvb, unsigned start);
+
+/** Add an expert info associated with some byte data
  Add an expert info tree to a protocol item, using registered expert info item,
  but with a formatted message.
  Add an expert info tree to a protocol item using registered expert info item.
@@ -150,13 +167,33 @@ proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field *eiinde
  @param eiindex The registered expert info item
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
- @param length length of data in tvb
  @param format Printf-style format string for additional arguments
  @return the newly created item above expert info tree
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
         tvbuff_t *tvb, int start, int length, const char *format, ...) G_GNUC_PRINTF(7, 8);
+
+/** Same as proto_tree_add_expert_format but without the length parameter, length
+ will be sret to end of the tvb.
+ Add an expert info associated with some byte data
+ Add an expert info tree to a protocol item, using registered expert info item,
+ but with a formatted message.
+ Add an expert info tree to a protocol item using registered expert info item.
+ This function is intended to replace places where a "text only" proto_tree_add_xxx
+ API + expert_add_info_format
+ would be used.
+ @param tree Current protocol tree (or NULL)
+ @param pinfo Packet info of the currently processed packet. May be NULL if tree is supplied
+ @param eiindex The registered expert info item
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param format Printf-style format string for additional arguments
+ @return the newly created item above expert info tree
+ */
+WS_DLL_PUBLIC proto_item*
+proto_tree_add_expert_format_remaining(proto_tree* tree, packet_info* pinfo, expert_field* eiindex,
+	tvbuff_t* tvb, unsigned start, const char* format, ...) G_GNUC_PRINTF(6, 7);
 
 /*
  * Register that a protocol has expert info.

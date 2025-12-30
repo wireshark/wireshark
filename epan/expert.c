@@ -733,11 +733,44 @@ proto_tree_add_expert_internal(proto_tree *tree, packet_info *pinfo, expert_fiel
 	return ti;
 }
 
+static inline proto_item*
+proto_tree_add_expert_internal_remaining(proto_tree* tree, packet_info* pinfo, expert_field* expindex,
+	tvbuff_t* tvb, unsigned start, ...)
+{
+	expert_field_info* eiinfo;
+	proto_item*        ti;
+	unsigned           item_length, captured_length;
+	va_list            unused;
+
+	/* Look up the item */
+	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
+
+	/* Make sure this doesn't throw an exception when adding the item */
+	captured_length = tvb_captured_length(tvb);
+	if (start >= captured_length) {
+		item_length = 0;
+	} else {
+		item_length = captured_length - start;
+	}
+	ti = proto_tree_add_text_internal(tree, tvb, start, item_length, "%s", eiinfo->summary);
+	va_start(unused, start);
+	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, false, eiinfo->summary, unused);
+	va_end(unused);
+
+	return ti;
+}
 proto_item *
 proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field *expindex,
 		tvbuff_t *tvb, int start, int length)
 {
 	return proto_tree_add_expert_internal(tree, pinfo, expindex, tvb, start, length);
+}
+
+proto_item*
+proto_tree_add_expert_remaining(proto_tree* tree, packet_info* pinfo, expert_field* expindex,
+	tvbuff_t* tvb, unsigned start)
+{
+	return proto_tree_add_expert_internal_remaining(tree, pinfo, expindex, tvb, start);
 }
 
 proto_item *
@@ -767,13 +800,38 @@ proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field 
 	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, true, format, ap);
 	va_end(ap);
 
-	/* But make sure it throws an exception *after* adding the item */
-	if (length != -1) {
-		tvb_ensure_bytes_exist(tvb, start, length);
-	}
 	return ti;
 }
 
+proto_item*
+proto_tree_add_expert_format_remaining(proto_tree* tree, packet_info* pinfo, expert_field* expindex,
+	tvbuff_t* tvb, unsigned start, const char* format, ...)
+{
+	va_list            ap;
+	expert_field_info* eiinfo;
+	unsigned           item_length, captured_length;
+	proto_item* ti;
+
+	/* Look up the item */
+	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
+
+	/* Make sure this doesn't throw an exception when adding the item */
+	captured_length = tvb_captured_length(tvb);
+	if (start >= captured_length) {
+		item_length = 0;
+	} else {
+		item_length = captured_length - start;
+	}
+	va_start(ap, format);
+	ti = proto_tree_add_text_valist_internal(tree, tvb, start, item_length, format, ap);
+	va_end(ap);
+
+	va_start(ap, format);
+	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, true, format, ap);
+	va_end(ap);
+
+	return ti;
+}
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

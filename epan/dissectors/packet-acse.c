@@ -1670,15 +1670,15 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		oid=find_oid_by_pres_ctx_id(pinfo, indir_ref);
 		if (oid) {
 			if (strcmp(oid, ACSE_APDU_OID) == 0) {
-				proto_tree_add_expert_format(parent_tree, pinfo, &ei_acse_invalid_oid, tvb, offset, -1,
+				proto_tree_add_expert_format_remaining(parent_tree, pinfo, &ei_acse_invalid_oid, tvb, offset,
 				    "Invalid OID: %s", ACSE_APDU_OID);
 			}
 		 else {
 			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree, NULL);
 		 }
 		} else {
-			proto_tree_add_expert(parent_tree, pinfo, &ei_acse_dissector_not_available,
-									tvb, offset, -1);
+			proto_tree_add_expert_remaining(parent_tree, pinfo, &ei_acse_dissector_not_available,
+									tvb, offset);
 		}
 		return 0;
 	default:
