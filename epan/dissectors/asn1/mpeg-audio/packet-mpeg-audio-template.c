@@ -70,6 +70,7 @@ mpeg_resync(tvbuff_t *tvb, unsigned offset)
 		if (MPA_VALID(&mpa)) {
 			return offset;
 		}
+		offset += 1;
 	}
 	return tvb_reported_length(tvb);
 }
