@@ -72,7 +72,7 @@ class PrintDialog;
 class FileSetDialog;
 class FilterDialog;
 class FunnelStatistics;
-class WelcomePage;
+class StratosharkWelcomePage;
 class PacketCommentDialog;
 class PacketList;
 class ProtoTree;

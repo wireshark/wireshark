@@ -127,7 +127,7 @@
       <property name="enabled">
        <bool>true</bool>
       </property>
-      <widget class="WelcomePage" name="welcomePage"/>
+      <widget class="StratosharkWelcomePage" name="welcomePage"/>
      </widget>
     </item>
    </layout>
@@ -2265,9 +2265,9 @@
    <header>main_status_bar.h</header>
   </customwidget>
   <customwidget>
-   <class>WelcomePage</class>
-   <extends>QFrame</extends>
-   <header>welcome_page.h</header>
+   <class>StratosharkWelcomePage</class>
+   <extends>WelcomePage</extends>
+   <header>stratoshark_welcome_page.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

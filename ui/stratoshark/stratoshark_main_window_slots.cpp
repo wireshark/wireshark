@@ -2839,15 +2839,15 @@ void StratosharkMainWindow::showCaptureOptionsDialog()
         connect(capture_options_dialog_, &CaptureOptionsDialog::stopCapture, this, &StratosharkMainWindow::stopCapture);
 
         connect(capture_options_dialog_, &CaptureOptionsDialog::interfacesChanged,
-                this->welcome_page_, &WelcomePage::interfaceSelected);
+                this->welcome_page_, &StratosharkWelcomePage::interfaceSelected);
         connect(capture_options_dialog_, &CaptureOptionsDialog::interfacesChanged,
                 this->welcome_page_->getInterfaceFrame(), &InterfaceFrame::updateSelectedInterfaces);
         connect(capture_options_dialog_, &CaptureOptionsDialog::interfaceListChanged,
                 this->welcome_page_->getInterfaceFrame(), &InterfaceFrame::interfaceListChanged);
         connect(capture_options_dialog_, &CaptureOptionsDialog::captureFilterTextEdited,
-                this->welcome_page_, &WelcomePage::setCaptureFilterText);
+                this->welcome_page_, &StratosharkWelcomePage::setCaptureFilterText);
         // Propagate selection changes from main UI to dialog.
-        connect(this->welcome_page_, &WelcomePage::interfacesChanged,
+        connect(this->welcome_page_, &StratosharkWelcomePage::interfacesChanged,
                 capture_options_dialog_, &CaptureOptionsDialog::interfaceSelected);
 
         connect(capture_options_dialog_, &CaptureOptionsDialog::setFilterValid,

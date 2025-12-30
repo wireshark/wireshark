@@ -564,8 +564,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
     connect(main_ui_->mainStack, &QStackedWidget::currentChanged, this, &StratosharkMainWindow::mainStackChanged);
 
-    connect(welcome_page_, &WelcomePage::startCapture, this, [this](QStringList) { startCapture(); });
-    connect(welcome_page_, &WelcomePage::recentFileActivated, this, [this](QString cfile) { openCaptureFile(cfile); });
+    connect(welcome_page_, &StratosharkWelcomePage::startCapture, this, [this](QStringList) { startCapture(); });
+    connect(welcome_page_, &StratosharkWelcomePage::recentFileActivated, this, [this](QString cfile) { openCaptureFile(cfile); });
 
     connect(main_ui_->addressEditorFrame, &AddressEditorFrame::redissectPackets,
             this, &StratosharkMainWindow::redissectPackets);
@@ -636,11 +636,11 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     if (iface_tree) {
         connect(iface_tree, &QTreeWidget::itemSelectionChanged, this, &StratosharkMainWindow::interfaceSelectionChanged);
     }
-    connect(main_ui_->welcomePage, &WelcomePage::captureFilterSyntaxChanged,
+    connect(main_ui_->welcomePage, &StratosharkWelcomePage::captureFilterSyntaxChanged,
             this, &StratosharkMainWindow::captureFilterSyntaxChanged);
 
     connect(this, &StratosharkMainWindow::showExtcapOptions, this, &StratosharkMainWindow::showExtcapOptionsDialog);
-    connect(this->welcome_page_, &WelcomePage::showExtcapOptions, this, &StratosharkMainWindow::showExtcapOptionsDialog);
+    connect(this->welcome_page_, &StratosharkWelcomePage::showExtcapOptions, this, &StratosharkMainWindow::showExtcapOptionsDialog);
 
 #endif // HAVE_LIBPCAP
 

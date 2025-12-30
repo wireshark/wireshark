@@ -132,23 +132,25 @@ void WelcomePage::interfaceListChanged()
     welcome_ui_->btnInterfaceType->setMenu(welcome_ui_->interfaceFrame->getSelectionMenu());
 }
 
+QString WelcomePage::getReleaseLabel()
+{
+    return tr("You are running Wireshark ");
+}
+
+QString WelcomePage::getReleaseLabelGlue()
+{
+    return tr("You are sniffing the glue that holds the Internet together using Wireshark ");
+}
+
 void WelcomePage::setReleaseLabel()
 {
     // XXX Add a "check for updates" link?
     QString full_release;
     QDate today = QDate::currentDate();
     if ((today.month() == 4 && today.day() == 1) || (today.month() == 7 && today.day() == 14)) {
-        if (application_flavor_is_wireshark()) {
-            full_release = tr("You are sniffing the glue that holds the Internet together using Wireshark ");
-        } else {
-            full_release = tr("You are sniffing the glue that holds your system together using Stratoshark ");
-        }
+        full_release = getReleaseLabelGlue();
     } else {
-        if (application_flavor_is_wireshark()) {
-            full_release = tr("You are running Wireshark ");
-        } else {
-            full_release = tr("You are running Stratoshark ");
-        }
+        full_release = getReleaseLabel();
     }
     full_release += application_get_vcs_version_info();
     full_release += ".";

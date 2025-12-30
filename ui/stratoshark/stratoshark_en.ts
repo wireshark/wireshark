@@ -13422,7 +13422,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>WelcomePage</name>
+    <name>StratosharkWelcomePage</name>
     <message>
         <source>Form</source>
         <translation type="unfinished"></translation>
