@@ -69,9 +69,6 @@
 //   https://www.qcustomplot.com/index.php/demos/multiaxisdemo
 //   https://www.qcustomplot.com/index.php/tutorials/specialcases/axistags
 
-const int DEFAULT_MOVING_AVERAGE = 0;
-const int DEFAULT_Y_AXIS_FACTOR = 1;
-
 // Don't accidentally zoom into a 1x1 rect if you happen to click on the graph
 // in zoom mode.
 const int min_zoom_pixels_ = 20;
@@ -218,9 +215,7 @@ static void io_graph_post_update_cb() {
 
 } // extern "C"
 
-IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, uat_field_t* io_graph_fields, const char* type_unit_name,
-        QString displayFilter, io_graph_item_unit_t value_units, QString yfield,
-        bool is_sibling_dialog, QVector<QString> convFilters):
+IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_unit_name) :
     WiresharkDialog(parent, cf),
     ui(new Ui::IOGraphDialog),
     uat_model_(nullptr),
@@ -363,12 +358,18 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, uat_field_t* io_g
     iop->setMouseTracking(true);
     iop->setEnabled(true);
 
-    QCPTextElement *title = new QCPTextElement(iop);
+    tracer_ = new QCPItemTracer(iop);
+}
+
+void IOGraphDialog::initialize(QWidget& parent, uat_field_t* io_graph_fields, QString displayFilter, io_graph_item_unit_t value_units, QString yfield, bool is_sibling_dialog, const QVector<QString> convFilters)
+{
+    QCustomPlot* iop = ui->ioPlot;
+
+    QCPTextElement* title = new QCPTextElement(iop);
     iop->plotLayout()->insertRow(0);
     iop->plotLayout()->addElement(0, 0, title);
-    title->setText(tr("Wireshark I/O Graphs: %1").arg(cap_file_.fileDisplayName()));
-
-    tracer_ = new QCPItemTracer(iop);
+    title->setText(tr("%1 I/O Graphs: %2").arg(application_flavor_name_proper())
+                                          .arg(cap_file_.fileDisplayName()));
 
     /* Depending on how the dialog was called (Main Window/Conversations),
      * we will display from the Profile & Display Filter or from selected convs.
@@ -483,6 +484,26 @@ void IOGraphDialog::copyFromProfile(QString filename)
     }
 }
 
+QString IOGraphDialog::getFilteredName() const
+{
+    return tr("Filtered packets");
+}
+
+QString IOGraphDialog::getXAxisName() const
+{
+    return tr("All packets");
+}
+
+const char* IOGraphDialog::getYAxisName(io_graph_item_unit_t value_units) const
+{
+    return val_to_str_const(value_units, y_axis_packet_vs, "Packets");
+}
+
+QString IOGraphDialog::getYFieldName(io_graph_item_unit_t value_units, const QString& yfield) const
+{
+    return QString(val_to_str_const(value_units, y_axis_packet_vs, "Unknown")).replace("Y Field", yfield);
+}
+
 void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average, double y_axis_factor)
 {
     if (uat_model_ == nullptr)
@@ -494,11 +515,7 @@ void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfi
     newRowData.append(dfilter);
     newRowData.append(QColor(color_idx));
     newRowData.append(val_to_str_const(style, io_graph_style_vs, "None"));
-    if (application_flavor_is_wireshark()) {
-        newRowData.append(val_to_str_const(value_units, y_axis_packet_vs, "Packets"));
-    } else {
-        newRowData.append(val_to_str_const(value_units, y_axis_event_vs, "Events"));
-    }
+    newRowData.append(getYAxisName(value_units));
     newRowData.append(yfield);
     newRowData.append(val_to_str_const((uint32_t) moving_average, moving_avg_vs, "None"));
     newRowData.append(y_axis_factor);
@@ -521,16 +538,12 @@ void IOGraphDialog::addGraph(bool checked, bool asAOT, QString dfilter, io_graph
     QString graph_name;
     if (yfield.isEmpty()) {
         if (!dfilter.isEmpty()) {
-            graph_name = application_flavor_is_wireshark() ? tr("Filtered packets") : tr("Filtered events");
+            graph_name = getFilteredName();
         } else {
-            graph_name = application_flavor_is_wireshark() ? tr("All packets") : tr("All events");
+            graph_name = getXAxisName();
         }
     } else {
-        if (application_flavor_is_wireshark()) {
-            graph_name = QString(val_to_str_const(value_units, y_axis_packet_vs, "Unknown")).replace("Y Field", yfield);
-        } else {
-            graph_name = QString(val_to_str_const(value_units, y_axis_event_vs, "Unknown")).replace("Y Field", yfield);
-        }
+        graph_name = getYFieldName(value_units, yfield);
     }
     addGraph(checked, asAOT, std::move(graph_name), dfilter, ColorUtils::graphColor(uat_model_->rowCount()),
         IOGraph::psLine, value_units, yfield, DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
@@ -582,29 +595,21 @@ void IOGraphDialog::createIOGraph(int currentRow)
 
 void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
 {
-    if (application_flavor_is_wireshark()) {
-        switch (idx % 2) {
-        case 0:
-            addGraph(enabled, false, tr("All Packets"), QString(), ColorUtils::graphColor(idx),
-                    IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
-            break;
-        default:
-            addGraph(enabled, false, tr("TCP Errors"), "tcp.analysis.flags", ColorUtils::graphColor(4), // 4 = red
-                    IOGraph::psBar, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
-            break;
-        }
-    } else {
-        switch (idx % 2) {
-        case 0:
-            addGraph(enabled, false, tr("All Events"), QString(), ColorUtils::graphColor(idx),
-                    IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
-            break;
-        default:
-            addGraph(enabled, false, tr("All Execs"), "evt.type == \"execve\"", ColorUtils::graphColor(4), // 4 = red
-                    IOGraph::psDot, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
-            break;
-        }
+    switch (idx % 2) {
+    case 0:
+        addGraph(enabled, false, tr("All Packets"), QString(), ColorUtils::graphColor(idx),
+                IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
+        break;
+    default:
+        addGraph(enabled, false, tr("TCP Errors"), "tcp.analysis.flags", ColorUtils::graphColor(4), // 4 = red
+                IOGraph::psBar, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
+        break;
     }
+}
+
+int IOGraphDialog::getYAxisValue(const QString& data)
+{
+    return (int) str_to_val(qUtf8Printable(data), y_axis_packet_vs, IOG_ITEM_UNIT_PACKETS);
 }
 
 // Sync the settings from UAT model to its IOGraph.
@@ -636,11 +641,7 @@ void IOGraphDialog::syncGraphSettings(int row)
 
     /* plot style depend on the value unit, so set it first. */
     data_str = uat_model_->data(uat_model_->index(row, colYAxis)).toString();
-    if (application_flavor_is_wireshark()) {
-        iog->setValueUnits((int) str_to_val(qUtf8Printable(data_str), y_axis_packet_vs, IOG_ITEM_UNIT_PACKETS));
-    } else {
-        iog->setValueUnits((int) str_to_val(qUtf8Printable(data_str), y_axis_event_vs, IOG_ITEM_UNIT_PACKETS));
-    }
+    iog->setValueUnits(getYAxisValue(data_str));
     iog->setValueUnitField(uat_model_->data(uat_model_->index(row, colYField)).toString());
 
     iog->setColor(uat_model_->data(uat_model_->index(row, colColor), Qt::DecorationRole).value<QColor>().rgb());
@@ -999,6 +1000,18 @@ void IOGraphDialog::getGraphInfo()
     }
 }
 
+QString IOGraphDialog::getNoDataHint() const
+{
+    return tr("No packets in interval");
+}
+
+QString IOGraphDialog::getHintText(unsigned num_items) const
+{
+    return QStringLiteral("%1 %2")
+        .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
+        .arg(num_items);
+}
+
 void IOGraphDialog::updateHint()
 {
     QCustomPlot *iop = ui->ioPlot;
@@ -1024,19 +1037,11 @@ void IOGraphDialog::updateHint()
         if (interval_packet < 0) {
             hint += tr("Hover over the graph for details.");
         } else {
-            QString msg = application_flavor_is_wireshark() ? tr("No packets in interval") : tr("No events in interval");
+            QString msg = getNoDataHint();
             QString val;
             if (interval_packet > 0) {
                 packet_num_ = (uint32_t) interval_packet;
-                if (application_flavor_is_wireshark()) {
-                    msg = QStringLiteral("%1 %2")
-                            .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
-                            .arg(packet_num_);
-                } else {
-                    msg = QStringLiteral("%1 %2")
-                            .arg(!file_closed_ ? tr("Click to select event") : tr("Event"))
-                            .arg(packet_num_);
-                }
+                msg = getHintText(packet_num_);
                 val = QStringLiteral(" = %1").arg(tracer_->position->value(), 0, 'g', 4);
             }
             // XXX - If Time of Day is selected, should we use ISO 8601

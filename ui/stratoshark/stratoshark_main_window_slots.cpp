@@ -112,8 +112,7 @@ DIAG_ON(frame-larger-than=)
 #include "stratoshark_follow_stream_dialog.h"
 #include "funnel_statistics.h"
 #include "interface_toolbar.h"
-#include "io_graph_dialog.h"
-#include "ui/io_graph_uat.h"
+#include "stratoshark_io_graph_dialog.h"
 #include "plot_dialog.h"
 #include <ui/qt/widgets/additional_toolbar.h>
 #include "main_application.h"
@@ -3136,40 +3135,23 @@ void StratosharkMainWindow::statCommandIOGraph(const char *, void *)
     showIOGraphDialog(IOG_ITEM_UNIT_PACKETS, QString());
 }
 
-UAT_VS_DEF(io_graph, yaxis, io_graph_settings_t, uint32_t, 0, "Events")
-
-static uat_field_t io_graph_event_fields[] = {
-    UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
-    UAT_FLD_CSTRING(io_graph, name, "Graph Name", "The name of the graph"),
-    UAT_FLD_DISPLAY_FILTER(io_graph, dfilter, "Display Filter", "Graph packets matching this display filter"),
-    UAT_FLD_COLOR(io_graph, color, "Color", "Graph color (#RRGGBB)"),
-    UAT_FLD_VS(io_graph, style, "Style", io_graph_style_vs, "Graph style (Line, Bars, etc.)"),
-    UAT_FLD_VS(io_graph, yaxis, "Y Axis", y_axis_event_vs, "Y Axis units"),
-    UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
-    UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
-    UAT_FLD_DBL(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
-    UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "asAOT", "asAOT"),
-
-    UAT_END_FIELDS
-};
-
 void StratosharkMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, QString yfield)
 {
     const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
-    IOGraphDialog *iog_dialog = nullptr;
+    StratosharkIOGraphDialog* iog_dialog = nullptr;
     QString displayFilter;
     if (df_edit)
         displayFilter = df_edit->text();
 
     if (!yfield.isEmpty()) {
-        QList<IOGraphDialog *> iographdialogs = findChildren<IOGraphDialog *>();
+        QList<StratosharkIOGraphDialog*> iographdialogs = findChildren<StratosharkIOGraphDialog*>();
         // GeometryStateDialogs aren't parented on Linux and Windows
         // (see geometry_state_dialog.h), so we search for an
         // I/O Dialog in all the top level widgets.
         if (iographdialogs.isEmpty()) {
             foreach(QWidget *topLevelWidget, mainApp->topLevelWidgets()) {
-                if (qobject_cast<IOGraphDialog*>(topLevelWidget)) {
-                    iographdialogs << qobject_cast<IOGraphDialog*>(topLevelWidget);
+                if (qobject_cast<StratosharkIOGraphDialog*>(topLevelWidget)) {
+                    iographdialogs << qobject_cast<StratosharkIOGraphDialog*>(topLevelWidget);
                 }
             }
         }
@@ -3187,9 +3169,10 @@ void StratosharkMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, 
     }
 
     if (iog_dialog == nullptr) {
-        iog_dialog = new IOGraphDialog(*this, capture_file_, io_graph_event_fields, "Events", displayFilter, value_units, yfield);
-        connect(iog_dialog, &IOGraphDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
-        connect(this, &StratosharkMainWindow::reloadFields, iog_dialog, &IOGraphDialog::reloadFields);
+        iog_dialog = new StratosharkIOGraphDialog(*this, capture_file_);
+        iog_dialog->initialize(*this, displayFilter, value_units, yfield);
+        connect(iog_dialog, &StratosharkIOGraphDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
+        connect(this, &StratosharkMainWindow::reloadFields, iog_dialog, &StratosharkIOGraphDialog::reloadFields);
     }
     iog_dialog->show();
 }

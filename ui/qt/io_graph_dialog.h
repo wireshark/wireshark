@@ -89,18 +89,20 @@ class IOGraphDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    explicit IOGraphDialog(QWidget &parent, CaptureFile &cf, uat_field_t* io_graph_fields, const char* type_unit_name, QString displayFilter = QString(),
-                           io_graph_item_unit_t value_units = IOG_ITEM_UNIT_PACKETS,
-                           QString yfield = QString(),
-                           bool is_sibling_dialog = false,
-                           const QVector<QString> convFilters = QVector<QString>() );
-    ~IOGraphDialog();
+    explicit IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_unit_name);
+    virtual ~IOGraphDialog();
+    // Initialize the dialog after construction to allow polymorphic behavior.
+    void initialize(QWidget& parent, uat_field_t* io_graph_fields, QString displayFilter = QString(),
+        io_graph_item_unit_t value_units = IOG_ITEM_UNIT_PACKETS,
+        QString yfield = QString(),
+        bool is_sibling_dialog = false,
+        const QVector<QString> convFilters = QVector<QString>());
 
     void addGraph(bool checked, bool asAOT, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style,
                   io_graph_item_unit_t value_units, QString yfield, int moving_average, double yaxisfactor);
     void addGraph(bool checked, bool asAOT, QString dfilter, io_graph_item_unit_t value_units, QString yfield);
     void addGraph(bool copy_from_current = false);
-    void addDefaultGraph(bool enabled, int idx = 0);
+    virtual void addDefaultGraph(bool enabled, int idx = 0);
     void syncGraphSettings(int row);
     qsizetype graphCount() const;
 
@@ -114,6 +116,13 @@ protected:
     void captureFileClosing();
     void keyPressEvent(QKeyEvent *event);
     void reject();
+    virtual QString getFilteredName() const;
+    virtual QString getXAxisName() const;
+    virtual const char* getYAxisName(io_graph_item_unit_t value_units) const;
+    virtual QString getYFieldName(io_graph_item_unit_t value_units, const QString& yfield) const;
+    virtual int getYAxisValue(const QString& data);
+    virtual QString getNoDataHint() const;
+    virtual QString getHintText(unsigned num_items) const;
 
 protected slots:
     void modelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
@@ -127,6 +136,10 @@ signals:
     void recalcGraphData(capture_file *cap_file);
     void intervalChanged(int interval);
     void reloadValueUnitFields();
+
+protected:
+    static const int DEFAULT_MOVING_AVERAGE = 0;
+    static const int DEFAULT_Y_AXIS_FACTOR = 1;
 
 private:
     Ui::IOGraphDialog *ui;

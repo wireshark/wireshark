@@ -3722,7 +3722,8 @@ void WiresharkMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, QS
 
     if (iog_dialog == nullptr) {
         QVector<QString> conv_filters;
-        iog_dialog = new IOGraphDialog(*this, capture_file_, io_graph_packet_fields, "Packets", displayFilter, value_units, yfield, false, conv_filters);
+        iog_dialog = new IOGraphDialog(*this, capture_file_, "Packets");
+        iog_dialog->initialize(*this, io_graph_packet_fields, displayFilter, value_units, yfield, false, conv_filters);
         connect(iog_dialog, &IOGraphDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
         connect(this, &WiresharkMainWindow::reloadFields, iog_dialog, &IOGraphDialog::reloadFields);
     }
@@ -3792,7 +3793,8 @@ void WiresharkMainWindow::openIOGraph(bool filtered, QVector<uint> typed_conv_id
         }
     }
 
-    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, io_graph_packet_fields, "Packets", displayFilter, IOG_ITEM_UNIT_PACKETS, QString(), true, conv_filters);
+    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, "Packets");
+    iog_dialog->initialize(*this, io_graph_packet_fields, displayFilter, IOG_ITEM_UNIT_PACKETS, QString(), true, conv_filters);
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
 }

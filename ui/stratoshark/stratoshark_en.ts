@@ -3415,7 +3415,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>IOGraphDialog</name>
+    <name>StratosharkIOGraphDialog</name>
     <message>
         <source>Dialog</source>
         <translation type="unfinished"></translation>
