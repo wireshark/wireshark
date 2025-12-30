@@ -3747,7 +3747,7 @@ capture_loop_dispatch(loop_data *ld,
                     inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_write_packet_cb, (uint8_t *)pcap_src);
                 }
                 if (inpkts < 0) {
-                    if (inpkts == -1) {
+                    if (inpkts == PCAP_ERROR) {
                         /* Error, rather than pcap_breakloop(). */
                         pcap_src->pcap_err = true;
                     }
@@ -3790,7 +3790,7 @@ capture_loop_dispatch(loop_data *ld,
             }
 #endif
             if (inpkts < 0) {
-                if (inpkts == -1) {
+                if (inpkts == PCAP_ERROR) {
                     /* Error, rather than pcap_breakloop(). */
                     pcap_src->pcap_err = true;
                 }
