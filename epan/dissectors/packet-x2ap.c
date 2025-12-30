@@ -44,10 +44,6 @@
 #include "packet-xnap.h"
 #include "packet-sctp.h"
 
-#ifdef _MSC_VER
-/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
-#pragma warning(disable:4146)
-#endif
 
 #define PNAME  "EUTRAN X2 Application Protocol (X2AP)"
 #define PSNAME "X2AP"

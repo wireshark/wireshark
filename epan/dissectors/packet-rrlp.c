@@ -32,12 +32,6 @@
 #define PFNAME "rrlp"
 
 
-
-#ifdef _MSC_VER
-/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
-#pragma warning(disable:4146)
-#endif
-
 void proto_register_rrlp(void);
 void proto_reg_handoff_rrlp(void);
 

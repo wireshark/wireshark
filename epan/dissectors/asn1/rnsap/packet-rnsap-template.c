@@ -26,10 +26,6 @@
 #include "packet-ber.h"
 #include "packet-e212.h"
 
-#ifdef _MSC_VER
-/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
-#pragma warning(disable:4146)
-#endif
 
 #define PNAME  "UTRAN Iur interface Radio Network Subsystem Application Part"
 #define PSNAME "RNSAP"

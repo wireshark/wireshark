@@ -37,11 +37,6 @@
 #include "packet-s1ap.h"
 #include "packet-rtp.h"
 
-#ifdef _MSC_VER
-/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
-#pragma warning(disable:4146)
-#endif
-
 #define SCCP_SSN_RANAP 142
 
 #define PNAME  "Radio Access Network Application Part"
