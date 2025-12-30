@@ -227,7 +227,8 @@ static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinf
     proto_tree *element_tree;
 
     /* Find the end of current element (finding is guaranteed, because we already checked for SD_STOP) */
-    int element_end = tvb_find_uint8(tvb, *offset, -1, SD_END);
+    unsigned element_end;
+    DISSECTOR_ASSERT(tvb_find_uint8_remaining(tvb, *offset, SD_END, &element_end));
     ti_element = proto_tree_add_item(sd_tree, hf_syslog_sd_element, tvb, *offset, element_end - *offset + 1, ENC_NA);
     element_tree = proto_item_add_subtree(ti_element, ett_syslog_sd_element);
 
@@ -235,11 +236,11 @@ static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinf
     *offset = *offset + 1;
 
     /* SD-ELEMENT */
-    while(*offset < (unsigned)element_end) {
+    while(*offset < element_end) {
 
       /* Find the first space char (=SD-NAME), move to next element if failed */
-      int sdname_end = tvb_find_uint8(tvb, *offset, -1, CHR_SPACE);
-      if(sdname_end == -1 || sdname_end >= element_end) {
+      unsigned sdname_end;
+      if(!tvb_find_uint8_length(tvb, *offset, element_end - *offset, CHR_SPACE, &sdname_end)) {
         *offset = element_end + 1;
         break;
       }
@@ -250,16 +251,15 @@ static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinf
 
       /* PARAMETERS */
       counter_parameters = 0;
-      while(*offset < (unsigned)element_end) {
+      while(*offset < element_end) {
 
         proto_item *ti_param;
         proto_tree *param_tree;
 
         /* Find the first equals char ('=') which delimits param name and value, move to next element if failed */
-        int param_value_divide = tvb_find_uint8(tvb, *offset, -1, CHR_EQUAL);
-        if(param_value_divide == -1 || param_value_divide >= element_end) {
+        unsigned param_value_divide;
+        if(!tvb_find_uint8_length(tvb, *offset, element_end - *offset, CHR_EQUAL, &param_value_divide)) {
           *offset = element_end + 1;
-          break;
           break;
         }
 
@@ -273,13 +273,12 @@ static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinf
         *offset = param_value_divide + 1;
 
         /* Find the first and second quote char which marks the start and end of a value */
-        int value_start = tvb_find_uint8(tvb, *offset,   -1, CHR_QUOTE);
-        int value_end   = tvb_find_uint8(tvb, *offset+1, -1, CHR_QUOTE);
+        unsigned value_start, value_end;
 
         /* If start or end could not be determined, move to next element */
-        if(value_start == -1 || value_end == -1 || value_start >= element_end || value_end >= element_end) {
+        if(!tvb_find_uint8_length(tvb, *offset, element_end - *offset, CHR_QUOTE, &value_start) ||
+           !tvb_find_uint8_length(tvb, value_start, element_end - value_start, CHR_QUOTE, &value_end)) {
           *offset = element_end + 1;
-          break;
           break;
         }
 
