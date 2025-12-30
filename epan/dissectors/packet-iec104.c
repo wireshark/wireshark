@@ -139,6 +139,9 @@ static const value_string u_types[] = {
 #define M_ME_TC_1  14    /* measured value, short floating point number with time tag 				*/
 #define M_IT_NA_1  15    /* integrated totals 									*/
 #define M_IT_TA_1  16    /* integrated totals with time tag 							*/
+#define M_EP_TA_1  17    /* event of protection equipment with time tag 					*/
+#define M_EP_TB_1  18    /* packed start events of protection equipment with time tag 				*/
+#define M_EP_TC_1  19    /* packed output circuit information of protection equipment with time tag 		*/
 #define M_PS_NA_1  20    /* packed single-point information with status change detection 			*/
 #define M_ME_ND_1  21    /* measured value, normalized value without quality descriptor 			*/
 #define M_SP_TB_1  30    /* single-point information with time tag CP56Time2a 					*/
@@ -185,7 +188,9 @@ static const value_string u_types[] = {
 #define C_CI_NA_1  101    /* counter interrogation command 							*/
 #define C_RD_NA_1  102    /* read command 									*/
 #define C_CS_NA_1  103    /* clock synchronization command 							*/
+#define C_TS_NA_1  104	  /* test command                                                                       */
 #define C_RP_NA_1  105    /* reset process command 								*/
+#define C_CD_NA_1  106    /* delay acquisition command 								*/
 #define C_TS_TA_1  107    /* test command with time tag CP56Time2a 						*/
 #define P_ME_NA_1  110    /* parameter of measured value, normalized value 					*/
 #define P_ME_NB_1  111    /* parameter of measured value, scaled value 						*/
@@ -216,6 +221,9 @@ static const value_string asdu_types [] = {
 	{  M_ME_TC_1,		"M_ME_TC_1" },
 	{  M_IT_NA_1,		"M_IT_NA_1" },
 	{  M_IT_TA_1,		"M_IT_TA_1" },
+	{  M_EP_TA_1,		"M_EP_TA_1" },
+	{  M_EP_TB_1,		"M_EP_TB_1" },
+	{  M_EP_TC_1,		"M_EP_TC_1" },
 	{  M_PS_NA_1,		"M_PS_NA_1" },
 	{  M_ME_ND_1,		"M_ME_ND_1" },
 	{  M_SP_TB_1,		"M_SP_TB_1" },
@@ -262,7 +270,9 @@ static const value_string asdu_types [] = {
 	{  C_CI_NA_1,		"C_CI_NA_1" },
 	{  C_RD_NA_1,		"C_RD_NA_1" },
 	{  C_CS_NA_1,		"C_CS_NA_1" },
+	{  C_TS_NA_1,		"C_TS_NA_1" },
 	{  C_RP_NA_1,		"C_RP_NA_1" },
+	{  C_CD_NA_1,		"C_CD_NA_1" },
 	{  C_TS_TA_1,		"C_TS_TA_1" },
 	{  P_ME_NA_1,		"P_ME_NA_1" },
 	{  P_ME_NB_1,		"P_ME_NB_1" },
@@ -296,6 +306,9 @@ static const value_string asdu_lngtypes [] = {
 	{  M_ME_TC_1,		"measured value, short floating point number with time tag" },
 	{  M_IT_NA_1,		"integrated totals" },
 	{  M_IT_TA_1,		"integrated totals with time tag" },
+	{  M_EP_TA_1,		"event of protection equipment with time tag" },
+	{  M_EP_TB_1,		"packed start events of protection equipment with time tag" },
+	{  M_EP_TC_1,		"packed output circuit information of protection equipment with time tag" },
 	{  M_PS_NA_1,		"packed single-point information with status change detection" },
 	{  M_ME_ND_1,		"measured value, normalized value without quality descriptor" },
 	{  M_SP_TB_1,		"single-point information with time tag CP56Time2a" },
@@ -342,7 +355,9 @@ static const value_string asdu_lngtypes [] = {
 	{  C_CI_NA_1,		"counter interrogation command" },
 	{  C_RD_NA_1,		"read command" },
 	{  C_CS_NA_1,		"clock synchronization command" },
+	{  C_TS_NA_1,		"test command" },
 	{  C_RP_NA_1,		"reset process command" },
+	{  C_CD_NA_1,		"delay acquisition command" },
 	{  C_TS_TA_1,		"test command with time tag CP56Time2a" },
 	{  P_ME_NA_1,		"parameter of measured value, normalized value" },
 	{  P_ME_NB_1,		"parameter of measured value, scaled value" },
@@ -381,6 +396,9 @@ static const td_asdu_length asdu_length [] = {
 	{  M_ME_TC_1,	 8 },
 	{  M_IT_NA_1,	 5 },
 	{  M_IT_TA_1,	 8 },
+	{  M_EP_TA_1,	 6 },
+	{  M_EP_TB_1,	 7 },
+	{  M_EP_TC_1,	 7 },
 	{  M_PS_NA_1,	 5 },
 	{  M_ME_ND_1,	 2 },
 	{  M_SP_TB_1,	 8 },
@@ -427,7 +445,9 @@ static const td_asdu_length asdu_length [] = {
 	{  C_CI_NA_1,	 1 },
 	{  C_RD_NA_1,	 0 },
 	{  C_CS_NA_1,	 7 },
+	{  C_TS_NA_1,	 2 },
 	{  C_RP_NA_1,	 1 },
+	{  C_CD_NA_1,	 2 },
 	{  C_TS_TA_1,	 9 },
 	{  P_ME_NA_1,	 3 },
 	{  P_ME_NB_1,	 3 },
@@ -704,6 +724,22 @@ static const value_string sof_status[] = {
 	{ 0, NULL }
 };
 
+static const value_string sep_types[] = {
+	{ 0,		"Indeterminate" },
+	{ 1,		"OFF" },
+	{ 2,		"ON" },
+	{ 3,		"Indeterminate" },
+	{ 0, NULL }
+};
+
+static const value_string qpa_types[] = {
+	{ 0,		"Not used" },
+	{ 1,		"Act/deact of the previously loaded parameters (object address = 0)" },
+	{ 2,		"Act/deact of the parameter of the addressed object" },
+	{ 3,		"Act/deact of persistent cyclic or periodic transmission of the addressed object" },
+	{ 0, NULL }
+};
+
 static const range_string usr_types[] = {
 	{ 0,	0,	"(Unknown)" },
 	{ 1,	1,	"Default" },
@@ -785,6 +821,12 @@ static const true_false_string tfs_not_ready_ready = { "Not ready", "Ready" };
 static const true_false_string tfs_last_file_additional_follows = { "Last file", "Additional file follows" };
 static const true_false_string tfs_subdir_file = { "Subdirectory", "File" };
 static const true_false_string tfs_active_waits = { "Transfer active", "Waits for transfer" };
+static const true_false_string tfs_elapsed_invalid_valid = { "Elapsed time invalid", "Elapsed time valid" };
+static const true_false_string tfs_general_start_no_general_start = { "General start", "No general start" };
+static const true_false_string tfs_general_command_no_general_command = { "General command", "No general command" };
+static const true_false_string tfs_start_no_start = { "Start", "No start" };
+static const true_false_string tfs_start_reverse_no_start_revers = { "Start in reverse direction", "No start in reverse direction" };
+static const true_false_string tfs_command_no_command = { "Command", "No command" };
 
 static int global_iec60870_link_addr_len = 1;
 static int global_iec60870_cot_len = 1;
@@ -809,6 +851,7 @@ static int hf_test;
 static int hf_ioa;
 static int hf_numix;
 static int hf_sq;
+static int hf_cp16time;
 static int hf_cp24time;
 static int hf_cp24time_ms;
 static int hf_cp24time_min;
@@ -890,6 +933,36 @@ static int hf_sof_status;
 static int hf_sof_lfd;
 static int hf_sof_for;
 static int hf_sof_fa;
+static int hf_sep;
+static int hf_sep_es;
+static int hf_sep_ei;
+static int hf_sep_bl;
+static int hf_sep_sb;
+static int hf_sep_nt;
+static int hf_sep_iv;
+static int hf_spe;
+static int hf_spe_gs;
+static int hf_spe_sl1;
+static int hf_spe_sl2;
+static int hf_spe_sl3;
+static int hf_spe_sie;
+static int hf_spe_srd;
+static int hf_qdp;
+static int hf_qdp_ei;
+static int hf_qdp_bl;
+static int hf_qdp_sb;
+static int hf_qdp_nt;
+static int hf_qdp_iv;
+static int hf_oci;
+static int hf_oci_gc;
+static int hf_oci_cl1;
+static int hf_oci_cl2;
+static int hf_oci_cl3;
+static int hf_qpa;
+static int hf_fbp;
+static int hf_scd;
+static int hf_scd_st;
+static int hf_scd_cd;
 static int hf_asn;
 static int hf_usr;
 static int hf_iec60870_segment_data;
@@ -954,6 +1027,11 @@ static int ett_vti;
 static int ett_qds;
 static int ett_qos;
 static int ett_sco;
+static int ett_sep;
+static int ett_spe;
+static int ett_qdp;
+static int ett_oci;
+static int ett_scd;
 static int ett_dco;
 static int ett_rco;
 static int ett_qpm;
@@ -1349,7 +1427,7 @@ static void get_CP24Time(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_head
 }
 
 /* ====================================================================
-   Dissect a CP32Time2a (four octet binary time), add to proto tree
+   CP56Time2a: 60870-5-103 7.2.6.28 Four octet binary time
    ==================================================================== */
 static void get_CP32TimeA(tvbuff_t *tvb, uint8_t *offset, proto_tree *tree)
 {
@@ -1485,6 +1563,15 @@ static void get_RangeStopCP56Time(tvbuff_t* tvb, uint8_t* offset, proto_tree* ie
 }
 
 /* ====================================================================
+   CP16Time2a: 7.2.6.20 Two octet binary time
+   ==================================================================== */
+static void get_CP16Time(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_cp16time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+	(*offset) += 2;
+}
+
+/* ====================================================================
    Information object address (Identifier)
    ASDU -> Inform Object #1 -> Information object address
    ==================================================================== */
@@ -1586,13 +1673,22 @@ static void get_QDS(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
    QDP: 7.2.6.4 Quality descriptor for events of protection equipment
    (separate octet)
    ==================================================================== */
-#if 0
-static void get_QDP(tvbuff_t *tvb _U_, uint8_t *offset _U_, proto_tree *iec104_header_tree _U_)
+static void get_QDP(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
-	/* todo */
+	proto_item* ti;
+	proto_tree* qdp_tree;
 
+	ti = proto_tree_add_item(iec104_header_tree, hf_qdp, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	qdp_tree = proto_item_add_subtree(ti, ett_qdp);
+
+	proto_tree_add_item(qdp_tree, hf_qdp_ei, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qdp_tree, hf_qdp_bl, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qdp_tree, hf_qdp_sb, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qdp_tree, hf_qdp_nt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qdp_tree, hf_qdp_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
 }
-#endif
 
 /* ====================================================================
    VTI: 7.2.6.5 Value with transient state indication
@@ -1704,49 +1800,77 @@ static void get_BCR(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tr
 /* ====================================================================
    SEP: 7.2.6.10 Single event of protection equipment
    ==================================================================== */
-#if 0
-static void get_SEP(tvbuff_t *tvb _U_, uint8_t *offset _U_, proto_tree *iec104_header_tree _U_)
+static void get_SEP(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
-	/* todo */
+	proto_item* ti;
+	proto_tree* sep_tree;
 
+	ti = proto_tree_add_item(iec104_header_tree, hf_sep, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	sep_tree = proto_item_add_subtree(ti, ett_sep);
+
+	proto_tree_add_item(sep_tree, hf_sep_es, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sep_tree, hf_sep_ei, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sep_tree, hf_sep_bl, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sep_tree, hf_sep_sb, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sep_tree, hf_sep_nt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sep_tree, hf_sep_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
 }
-#endif
 
 /* ====================================================================
    SPE: 7.2.6.11 Start events of protection equipment
    ==================================================================== */
-#if 0
-static void get_SPE(tvbuff_t* tvb _U_, uint8_t* offset _U_, proto_tree* iec104_header_tree _U_)
+static void get_SPE(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
-	/* todo */
+	proto_item* ti;
+	proto_tree* spe_tree;
 
+	ti = proto_tree_add_item(iec104_header_tree, hf_spe, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	spe_tree = proto_item_add_subtree(ti, ett_spe);
+
+	proto_tree_add_item(spe_tree, hf_spe_gs, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(spe_tree, hf_spe_sl1, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(spe_tree, hf_spe_sl2, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(spe_tree, hf_spe_sl3, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(spe_tree, hf_spe_sie, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(spe_tree, hf_spe_srd, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
 }
-#endif
 
 /* ====================================================================
    OCI: 7.2.6.12 Output circuit information of protection equipment
    ==================================================================== */
-#if 0
-static void get_OCI(tvbuff_t* tvb _U_, uint8_t* offset _U_, proto_tree* iec104_header_tree _U_)
+static void get_OCI(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
-	/* todo */
+	proto_item* ti;
+	proto_tree* oci_tree;
 
+	ti = proto_tree_add_item(iec104_header_tree, hf_oci, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	oci_tree = proto_item_add_subtree(ti, ett_oci);
+
+	proto_tree_add_item(oci_tree, hf_oci_gc, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(oci_tree, hf_oci_cl1, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(oci_tree, hf_oci_cl2, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(oci_tree, hf_oci_cl3, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
 }
-#endif
 
 /* ====================================================================
    BSI: 7.2.6.13 Binary state information (IEV 371-02-03) 32 bit
    ==================================================================== */
 static void get_BSI(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
-	proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset * 8, 32, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset * 8, 32, ENC_LITTLE_ENDIAN);
 
 	(*offset) += 4;
 }
 
 static void get_BSIspt(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tree)
 {
-	proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset * 8, 32, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset * 8, 32, ENC_LITTLE_ENDIAN);
 
 	(*offset) += 4;
 }
@@ -1754,13 +1878,12 @@ static void get_BSIspt(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header
 /* ====================================================================
    FBP: 7.2.6.14 Fixed test bit pattern, two octets
    ==================================================================== */
-#if 0
-static void get_FBP(tvbuff_t* tvb _U_, uint8_t* offset _U_, proto_tree* iec104_header_tree _U_)
+static void get_FBP(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
-	/* todo */
+	proto_tree_add_item(iec104_header_tree, hf_fbp, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 
+	(*offset) += 2;
 }
-#endif
 
 /* ====================================================================
    SCO: 7.2.6.15 Single Command (IEV 371-03-02)
@@ -1881,13 +2004,12 @@ static void get_QPM(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tr
 /* ====================================================================
    QPA: 7.2.6.25 Qualifier of parameter activation
    ==================================================================== */
-#if 0
-static void get_QPA(tvbuff_t* tvb _U_, uint8_t* offset _U_, proto_tree* iec104_header_tree _U_)
+static void get_QPA(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
 {
-	/* todo */
+	proto_tree_add_item(iec104_header_tree, hf_qpa, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
+	(*offset)++;
 }
-#endif
 
 /* ====================================================================
    QRP: 7.2.6.27 Qualifier of reset process command
@@ -2059,6 +2181,24 @@ static void get_QOS(tvbuff_t* tvb, uint8_t* offset, proto_tree* iec104_header_tr
 	proto_tree_add_item(qos_tree, hf_qos_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
 	(*offset)++;
+}
+
+/* ====================================================================
+   SCD: 7.2.6.40 Status and status change detection
+   ==================================================================== */
+static void get_SCD(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* scd_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_scd, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+	scd_tree = proto_item_add_subtree(ti, ett_scd);
+
+	proto_tree_add_bits_item(scd_tree, hf_scd_st, tvb, *offset * 8, 16, ENC_LITTLE_ENDIAN);
+	(*offset) += 2;
+
+	proto_tree_add_bits_item(scd_tree, hf_scd_cd, tvb, *offset * 8, 16, ENC_LITTLE_ENDIAN);
+	(*offset) += 2;
 }
 
 /* ====================================================================
@@ -2639,13 +2779,20 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		case M_ME_TB_1:
 		case M_ME_NC_1:
 		case M_ME_TC_1:
+		case M_IT_NA_1:
+		case M_IT_TA_1:
+		case M_EP_TA_1:
+		case M_EP_TB_1:
+		case M_EP_TC_1:
+		case M_PS_NA_1:
 		case M_ME_ND_1:
 		case M_ME_TD_1:
 		case M_ME_TE_1:
 		case M_ME_TF_1:
-		case M_IT_NA_1:
-		case M_IT_TA_1:
 		case M_IT_TB_1:
+		case M_EP_TD_1:
+		case M_EP_TE_1:
+		case M_EP_TF_1:
 		case S_IT_TC_1:
 		case C_SC_NA_1:
 		case C_DC_NA_1:
@@ -2665,11 +2812,14 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		case C_IC_NA_1:
 		case C_CI_NA_1:
 		case C_CS_NA_1:
+		case C_TS_NA_1:
 		case C_RP_NA_1:
+		case C_CD_NA_1:
 		case C_TS_TA_1:
 		case P_ME_NA_1:
 		case P_ME_NB_1:
 		case P_ME_NC_1:
+		case P_AC_NA_1:
 		case F_FR_NA_1:
 		case F_SR_NA_1:
 		case F_SC_NA_1:
@@ -2794,7 +2944,28 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					get_BCR(tvb, &offset, trSignal);
 					get_CP24Time(tvb, &offset, trSignal);
 					break;
-				case M_ME_ND_1: /* 21    Measured value, normalized value without quality descriptor */
+				case M_EP_TA_1: /* 17   Event of protection equipment with time tag */
+					get_SEP(tvb, &offset, trSignal);
+					get_CP16Time(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
+					break;
+				case M_EP_TB_1: /* 18   Packed start events of protection equipment with time tag */
+					get_SPE(tvb, &offset, trSignal);
+					get_QDP(tvb, &offset, trSignal);
+					get_CP16Time(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
+					break;
+				case M_EP_TC_1: /* 19   Packed output circuit information of protection equipment with time tag */
+					get_OCI(tvb, &offset, trSignal);
+					get_QDP(tvb, &offset, trSignal);
+					get_CP16Time(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
+					break;
+				case M_PS_NA_1: /* 20   Packed single-point information */
+					get_SCD(tvb, &offset, trSignal);
+					get_QDS(tvb, &offset, trSignal);
+					break;
+				case M_ME_ND_1: /* 21   Measured value, normalized value without quality descriptor */
 					get_NVA(tvb, &offset, trSignal);
 					break;
 				case M_SP_TB_1: /* 30	Single-point information with time tag CP56Time2a */
@@ -2832,6 +3003,23 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					break;
 				case M_IT_TB_1: /* 37	Integrated totals with time tag CP56Time2a */
 					get_BCR(tvb, &offset, trSignal);
+					get_CP56Time(tvb, &offset, trSignal);
+					break;
+				case M_EP_TD_1: /* 38   Event of protection equipment with time tag CP56Time2a */
+					get_SEP(tvb, &offset, trSignal);
+					get_CP16Time(tvb, &offset, trSignal);
+					get_CP56Time(tvb, &offset, trSignal);
+					break;
+				case M_EP_TE_1: /* 39   Packed start events of protection equipment with time tag CP56Time2a */
+					get_SPE(tvb, &offset, trSignal);
+					get_QDP(tvb, &offset, trSignal);
+					get_CP16Time(tvb, &offset, trSignal);
+					get_CP56Time(tvb, &offset, trSignal);
+					break;
+				case M_EP_TF_1: /* 40   Packed output circuit information of protection equipment with time tag CP56Time2a */
+					get_OCI(tvb, &offset, trSignal);
+					get_QDP(tvb, &offset, trSignal);
+					get_CP16Time(tvb, &offset, trSignal);
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
 				case S_IT_TC_1: /* 41   Integrated totals containing time tagged security statistics */
@@ -2906,8 +3094,14 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				case C_CS_NA_1: /* 103   Clock synchronization command  */
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
+				case C_TS_NA_1: /* 104   Test command */
+					get_FBP(tvb, &offset, trSignal);
+					break;
 				case C_RP_NA_1: /* 105   reset process command  */
 					get_QRP(tvb, &offset, trSignal);
+					break;
+				case C_CD_NA_1: /* 106   Delay acquisition command */
+					get_CP16Time(tvb, &offset, trSignal);
 					break;
 				case C_TS_TA_1: /* 107   test command with time tag CP56Time2a */
 					get_TSC(tvb, &offset, trSignal);
@@ -2924,6 +3118,9 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				case P_ME_NC_1: /* 112   Parameter of measured value, short floating-point number */
 					get_FLT(tvb, &offset, trSignal);
 					get_QPM(tvb, &offset, trSignal);
+					break;
+				case P_AC_NA_1: /* 113   Parameter activation */
+					get_QPA(tvb, &offset, trSignal);
 					break;
 				case F_FR_NA_1: /* 120   File ready */
 					get_NOF(tvb, &offset, trSignal);
@@ -3123,7 +3320,7 @@ dissect_iec60870_101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	proto_item	*iec101_item, *ctrlfield_item, *expert_item;
 	proto_tree	*iec101_tree, *ctrlfield_tree;
 	uint8_t		ctrlfield_prm;
-	uint32_t	frametype, linkaddr, data_len, stopchar;
+	uint32_t	frametype, linkaddr, data_len = 0, stopchar;
 	int		offset = 0;
 	struct      asdu_parms parms;
 
@@ -3315,6 +3512,10 @@ proto_register_iec60870_asdu(void)
 		{ &hf_sq,
 		  { "SQ", "iec60870_asdu.sq", FT_BOOLEAN, 8, NULL, F_SQ,
 		    "Sequence", HFILL }},
+
+		{ &hf_cp16time,
+		  { "CP16Time (ms)", "iec60870_asdu.cp16time", FT_UINT16, BASE_DEC, NULL, 0,
+		    NULL, HFILL }},
 
 		{ &hf_cp24time,
 		  { "CP24Time", "iec60870_asdu.cp24time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
@@ -3640,6 +3841,126 @@ proto_register_iec60870_asdu(void)
 		  { "FA", "iec60870_asdu.sof.fa", FT_BOOLEAN, 8, TFS(&tfs_active_waits), 0x80,
 		    NULL, HFILL } },
 
+		{ &hf_sep,
+		  { "SEP", "iec60870_asdu.sep", FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL } },
+
+		{ &hf_sep_es,
+		  { "ES", "iec60870_asdu.sep.es", FT_UINT8, BASE_DEC, VALS(sep_types), 0x03,
+		    "SEP ES", HFILL}},
+
+		{ &hf_sep_ei,
+		  { "EI", "iec60870_asdu.sep.ei", FT_BOOLEAN, 8, TFS(&tfs_elapsed_invalid_valid), 0x08,
+		    "SEP EI", HFILL} },
+
+		{ &hf_sep_bl ,
+		  { "BL", "iec60870_asdu.sep.bl", FT_BOOLEAN, 8, TFS(&tfs_blocked_not_blocked), 0x10,
+		    "SEP BL", HFILL} },
+
+		{ &hf_sep_sb ,
+		  { "SB", "iec60870_asdu.sep.sb", FT_BOOLEAN, 8, TFS(&tfs_substituted_not_substituted), 0x20,
+		    "SEP SB", HFILL} },
+
+		{ &hf_sep_nt ,
+		  { "NT", "iec60870_asdu.sep.nt", FT_BOOLEAN, 8, TFS(&tfs_not_topical_topical), 0x40,
+		    "SEP NT", HFILL} },
+
+		{ &hf_sep_iv ,
+		  { "IV", "iec60870_asdu.sep.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x80,
+		    "SEP IV", HFILL} },
+
+		{ &hf_spe,
+		  { "SPE", "iec60870_asdu.spe", FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL } },
+
+		{ &hf_spe_gs,
+		  { "GS", "iec60870_asdu.spe.gs", FT_BOOLEAN, 8, TFS(&tfs_general_start_no_general_start), 0x01,
+		    "SPE GS", HFILL} },
+
+		{ &hf_spe_sl1,
+		  { "SL1", "iec60870_asdu.spe.sl1", FT_BOOLEAN, 8, TFS(&tfs_start_no_start), 0x02,
+		    "SPE SL1", HFILL} },
+
+		{ &hf_spe_sl2,
+		  { "SL2", "iec60870_asdu.spe.sl2", FT_BOOLEAN, 8, TFS(&tfs_start_no_start), 0x04,
+		    "SPE SL2", HFILL} },
+
+		{ &hf_spe_sl3,
+		  { "SL3", "iec60870_asdu.spe.sl3", FT_BOOLEAN, 8, TFS(&tfs_start_no_start), 0x08,
+		    "SPE SL3", HFILL} },
+
+		{ &hf_spe_sie,
+		  { "SIE", "iec60870_asdu.spe.sie", FT_BOOLEAN, 8, TFS(&tfs_start_no_start), 0x10,
+		    "SPE SIE", HFILL} },
+
+		{ &hf_spe_srd,
+		  { "SRD", "iec60870_asdu.spe.srd", FT_BOOLEAN, 8, TFS(&tfs_start_reverse_no_start_revers), 0x20,
+		    "SPE SRD", HFILL} },
+
+		{ &hf_qdp,
+		  { "QDP", "iec60870_asdu.qdp", FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL } },
+
+		{ &hf_qdp_ei,
+		  { "EI", "iec60870_asdu.qdp.ei", FT_BOOLEAN, 8, TFS(&tfs_elapsed_invalid_valid), 0x08,
+		    "QDP EI", HFILL} },
+
+		{ &hf_qdp_bl ,
+		  { "BL", "iec60870_asdu.qdp.bl", FT_BOOLEAN, 8, TFS(&tfs_blocked_not_blocked), 0x10,
+		    "QDP BL", HFILL} },
+
+		{ &hf_qdp_sb ,
+		  { "SB", "iec60870_asdu.qdp.sb", FT_BOOLEAN, 8, TFS(&tfs_substituted_not_substituted), 0x20,
+		    "QDP SB", HFILL} },
+
+		{ &hf_qdp_nt ,
+		  { "NT", "iec60870_asdu.qdp.nt", FT_BOOLEAN, 8, TFS(&tfs_not_topical_topical), 0x40,
+		    "QDP NT", HFILL} },
+
+		{ &hf_qdp_iv ,
+		  { "IV", "iec60870_asdu.qdp.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x80,
+		    "QDP IV", HFILL} },
+
+		{ &hf_oci,
+		  { "OCI", "iec60870_asdu.oci", FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL } },
+
+		{ &hf_oci_gc,
+		  { "GC", "iec60870_asdu.oci.gc", FT_BOOLEAN, 8, TFS(&tfs_general_command_no_general_command), 0x01,
+		    "OCI GC", HFILL} },
+
+		{ &hf_oci_cl1,
+		  { "CL1", "iec60870_asdu.oci.cl1", FT_BOOLEAN, 8, TFS(&tfs_command_no_command), 0x02,
+		    "OCI CL1", HFILL} },
+
+		{ &hf_oci_cl2,
+		  { "CL2", "iec60870_asdu.oci.cl2", FT_BOOLEAN, 8, TFS(&tfs_command_no_command), 0x04,
+		    "OCI CL2", HFILL} },
+
+		{ &hf_oci_cl3,
+		  { "CL3", "iec60870_asdu.oci.cl3", FT_BOOLEAN, 8, TFS(&tfs_command_no_command), 0x08,
+		    "OCI CL3", HFILL} },
+
+		{ &hf_qpa,
+		  { "QPA", "iec60870_asdu.qpa", FT_UINT8, BASE_DEC, VALS(qpa_types), 0x0,
+		    NULL, HFILL} },
+
+		{ &hf_fbp,
+		  { "FBP", "iec60870_asdu.fbp", FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL} },
+
+		{ &hf_scd,
+		  { "SCD", "iec60870_asdu.scd", FT_UINT32, BASE_HEX, NULL, 0,
+		    NULL, HFILL } },
+
+		{ &hf_scd_st,
+		  { "ST", "iec60870_asdu.scd.st", FT_UINT16, BASE_HEX, NULL, 0x0,
+		    "SCD ST", HFILL} },
+
+		{ &hf_scd_cd,
+		  { "CD", "iec60870_asdu.scd.cd", FT_UINT16, BASE_HEX, NULL, 0x0,
+		    "SCD CD", HFILL} },
+
 		{ &hf_asn,
 		  { "ASDU Segment Sequence Number (ASN)", "iec60870_asdu.asn", FT_UINT8, BASE_DEC, NULL, 0x3F,
 		    NULL, HFILL }},
@@ -3903,6 +4224,11 @@ proto_register_iec60870_asdu(void)
 		&ett_qos,
 		&ett_vti,
 		&ett_sco,
+		&ett_sep,
+		&ett_spe,
+		&ett_qdp,
+		&ett_oci,
+		&ett_scd,
 		&ett_dco,
 		&ett_rco,
 		&ett_qpm,
