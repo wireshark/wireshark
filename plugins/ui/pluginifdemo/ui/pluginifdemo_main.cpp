@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <plugins/epan/pluginifdemo/ui/pluginifdemo_main.h>
+#include "pluginifdemo_main.h"
 #include <ui_pluginifdemo_main.h>
 
 #include <config.h>

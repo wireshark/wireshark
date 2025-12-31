@@ -1935,7 +1935,7 @@ if(ENABLE_PLUGINS)
 	# Build demo plugin, only if asked explicitly
 	if(ENABLE_PLUGIN_IFDEMO)
 		list(APPEND PLUGIN_SRC_DIRS
-			plugins/epan/pluginifdemo
+			plugins/ui/pluginifdemo
 		)
 	endif()
 

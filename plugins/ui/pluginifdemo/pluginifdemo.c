@@ -21,12 +21,11 @@
 
 #include "ui/uihandler.h"
 
-void proto_register_pluginifdemo(void);
-void proto_reg_handoff_pluginifdemo(void);
+void uiqt_register_pluginifdemo(void);
 
 static int proto_pluginifdemo;
 
-void toolbar_cb(void *object, void *item_data, void *user_data);
+void toolbar_cb(void* toolbar_item, void* item_data, void* user_data _U_);
 
 void
 menu_cb(ext_menubar_gui_type gui_type, void *gui_data, void *user_data _U_)
@@ -41,7 +40,7 @@ about_cb(ext_menubar_gui_type gui_type _U_, void *gui_data _U_, void *user_data 
 }
 
 void
-proto_register_pluginifdemo(void)
+uiqt_register_pluginifdemo(void)
 {
 
 #if 0
@@ -134,12 +133,6 @@ void toolbar_cb(void *toolbar_item, void *item_data, void *user_data _U_)
     }
 
     g_free(message);
-}
-
-void
-proto_reg_handoff_pluginifdemo(void)
-{
-
 }
 
 /*

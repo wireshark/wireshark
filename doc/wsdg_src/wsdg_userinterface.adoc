@@ -280,7 +280,7 @@ _ui/qt/proto_tree.cpp_ for an example of this.
 
 To demonstrate the functionality of the plugin interface options, a
 demonstration plugin exists (pluginifdemo). See <<ChapterPlugins>> and
-_plugins/epan/pluginifdemo_.
+_plugins/ui/pluginifdemo_.
 
 https://www.kdab.com/development-resources/qt-tools/gammaray/[GammaRay] lets you inspect
 the internals of a running Qt application similar to $$Spy++$$ on Windows.
