@@ -40,6 +40,7 @@ typedef struct _plugin {
 #define TYPE_DIR_EPAN       "epan"
 #define TYPE_DIR_WIRETAP    "wiretap"
 #define TYPE_DIR_CODECS     "codecs"
+#define TYPE_DIR_UI         "ui"
 
 static GSList *plugins_module_list;
 
@@ -54,6 +55,8 @@ type_to_dir(plugin_type_e type)
         return TYPE_DIR_WIRETAP;
     case WS_PLUGIN_CODEC:
         return TYPE_DIR_CODECS;
+    case WS_PLUGIN_UI:
+        return TYPE_DIR_UI;
     default:
         ws_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
         break;
@@ -78,6 +81,8 @@ flags_to_str(uint32_t flags)
         return "tap listener";
     else if (flags & WS_PLUGIN_DESC_DFILTER)
         return "dfilter";
+    else if (flags & WS_PLUGIN_DESC_UI)
+        return "ui";
     else
         return "unknown";
 }

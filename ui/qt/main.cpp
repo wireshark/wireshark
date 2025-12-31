@@ -78,6 +78,7 @@
 #include "ui/software_update.h"
 #include "ui/taps.h"
 #include "ui/profile.h"
+#include "ui/plugins/include/uiqt_plugin.h"
 
 #include "ui/qt/conversation_dialog.h"
 #include "ui/qt/utils/color_utils.h"
@@ -837,6 +838,9 @@ int main(int argc, char *qt_argv[])
     /* Register all audio codecs. */
     codecs_init(application_configuration_environment_prefix());
 
+    /* Register any UI plugins */
+    uiqt_plugin_init(application_configuration_environment_prefix());
+
     // Read the dynamic part of the recent file. This determines whether or
     // not the recent list appears in the main window so the earlier we can
     // call this the better.
@@ -1207,6 +1211,7 @@ clean_exit:
 #endif
     col_cleanup(&CaptureFile::globalCapFile()->cinfo);
     codecs_cleanup();
+    uiqt_plugin_cleanup();
     wtap_cleanup();
     free_progdirs();
     commandline_options_free();

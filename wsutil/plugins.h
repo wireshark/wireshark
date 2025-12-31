@@ -25,7 +25,8 @@ typedef void plugins_t;
 typedef enum {
     WS_PLUGIN_EPAN,
     WS_PLUGIN_WIRETAP,
-    WS_PLUGIN_CODEC
+    WS_PLUGIN_CODEC,
+    WS_PLUGIN_UI
 } plugin_type_e;
 
 #define WS_PLUGIN_DESC_DISSECTOR    (1UL << 0)
@@ -34,6 +35,7 @@ typedef enum {
 #define WS_PLUGIN_DESC_EPAN         (1UL << 3)
 #define WS_PLUGIN_DESC_TAP_LISTENER (1UL << 4)
 #define WS_PLUGIN_DESC_DFILTER      (1UL << 5)
+#define WS_PLUGIN_DESC_UI           (1UL << 6)
 
 WS_DLL_PUBLIC plugins_t *plugins_init(plugin_type_e type, const char* app_env_var_prefix);
 

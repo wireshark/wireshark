@@ -1851,11 +1851,15 @@ add_subdirectory( doc )
 
 if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
+	add_subdirectory( ui/plugins )
 elseif(BUILD_wireshark AND USE_qt6)
 	message(VERBOSE "To use Qt5 instead of Qt6 use CMake option USE_qt6=OFF.")
 endif()
 
 if(BUILD_stratoshark AND QT_FOUND)
+	if(NOT BUILD_wireshark)
+		add_subdirectory( ui/plugins )
+	endif()
 	add_subdirectory( ui/stratoshark )
 endif()
 
@@ -3008,6 +3012,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	set(wireshark_LIBS
 		ui
 		qtui
+		uiqt_plugin
 		capchild
 		caputils
 		iface_monitor
@@ -3123,6 +3128,7 @@ if(BUILD_stratoshark AND QT_FOUND)
 	set(stratoshark_LIBS
 		ui
 		ui_stratoshark
+		uiqt_plugin
 		capchild
 		caputils
 		iface_monitor

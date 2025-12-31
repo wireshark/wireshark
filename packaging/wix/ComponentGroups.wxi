@@ -27,6 +27,9 @@
         <Component Id="cmpLibwsutil_dll" Guid="*">
           <File Id="filLibwsutil_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwsutil.dll" />
         </Component>
+        <Component Id="cmpLibuiqt_plugin_dll" Guid="*">
+          <File Id="filLibuiqt_plugin_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libuiqt_plugin.dll" />
+        </Component>
         <Component Id="cmpCOPYING_txt" Guid="*">
           <File Id="filCOPYING_txt" KeyPath="yes" Source="$(var.Staging.Dir)\COPYING.txt" />
         </Component>
@@ -70,6 +73,7 @@
         <ComponentRef Id="cmpWiretap_dll" />
         <ComponentRef Id="cmpLibwireshark_dll" />
         <ComponentRef Id="cmpLibwsutil_dll" />
+        <ComponentRef Id="cmpLibuiqt_plugin_dll" />
         <ComponentRef Id="cmpCOPYING_txt" />
         <ComponentRef Id="cmpREADME_txt" />
         <ComponentRef Id="cmpWka" />

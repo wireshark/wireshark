@@ -7,7 +7,7 @@ its functionality to be extended without changing the source code itself.  Using
 available APIs gives you the means to do this.
 
 Currently plugin APIs are available for dissectors (epan), capture file types
-(wiretap) and media decoders (codecs). This chapter focuses primarily on
+(wiretap), media decoders (codecs) and UI (for Qt). This chapter focuses primarily on
 dissector plugins; most of the descriptions are applicable to the other plugin
 types as well.
 

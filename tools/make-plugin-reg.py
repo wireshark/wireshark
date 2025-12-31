@@ -54,6 +54,7 @@ regs = {
         'wtap_register': set(),
         'codec_register': set(),
         'register_tap_listener': set(),
+        'uiqt_register': set(),
         }
 
 # For those that don't know Python, r"" indicates a raw string,
@@ -68,6 +69,8 @@ codec_reg_regex = r"\bcodec_register_(?P<symbol>[\w]+)\s*\(\s*void\s*\)\s*{"
 
 tap_reg_regex = r"\bregister_tap_listener_(?P<symbol>[\w]+)\s*\(\s*void\s*\)\s*{"
 
+ui_reg_regex = r"\buiqt_register_(?P<symbol>[\w]+)\s*\(\s*void\s*\)\s*{"
+
 # This table drives the pattern-matching and symbol-harvesting
 patterns = [
         ( 'proto_reg', re.compile(proto_regex, re.MULTILINE | re.ASCII) ),
@@ -75,6 +78,7 @@ patterns = [
         ( 'wtap_register', re.compile(wtap_reg_regex, re.MULTILINE | re.ASCII) ),
         ( 'codec_register', re.compile(codec_reg_regex, re.MULTILINE | re.ASCII) ),
         ( 'register_tap_listener', re.compile(tap_reg_regex, re.MULTILINE | re.ASCII) ),
+        ( 'uiqt_register', re.compile(ui_reg_regex, re.MULTILINE | re.ASCII) ),
         ]
 
 # Grep
@@ -93,7 +97,11 @@ for filename in filenames:
     file.close()
 
 # Make sure we actually processed something
-if (len(regs['proto_reg']) < 1 and len(regs['wtap_register']) < 1 and len(regs['codec_register']) < 1 and len(regs['register_tap_listener']) < 1):
+if (len(regs['proto_reg']) < 1 and
+    len(regs['wtap_register']) < 1 and
+    len(regs['codec_register']) < 1 and
+    len(regs['register_tap_listener']) < 1 and
+    len(regs['uiqt_register']) < 1):
     print("No plugin registrations found")
     sys.exit(1)
 
@@ -103,6 +111,7 @@ regs['handoff_reg'] = sorted(regs['handoff_reg'])
 regs['wtap_register'] = sorted(regs['wtap_register'])
 regs['codec_register'] = sorted(regs['codec_register'])
 regs['register_tap_listener'] = sorted(regs['register_tap_listener'])
+regs['uiqt_register'] = sorted(regs['uiqt_register'])
 
 reg_code = ""
 
@@ -128,6 +137,10 @@ if registertype == "plugin_codec":
     reg_code += "#include \"wsutil/codecs.h\"\n\n"
 if registertype == "plugin_tap":
     reg_code += "#include \"epan/tap.h\"\n\n"
+if registertype == "plugin_ui":
+    reg_code += "#include \"ui/plugins/include/uiqt_plugin.h\"\n\n"
+    #Temporary until plugin elements don't need a protocol ID
+    reg_code += "#include \"epan/proto.h\"\n\n"
 
 for symbol in regs['proto_reg']:
     reg_code += "void proto_register_%s(void);\n" % (symbol)
@@ -139,12 +152,15 @@ for symbol in regs['codec_register']:
     reg_code += "void codec_register_%s(void);\n" % (symbol)
 for symbol in regs['register_tap_listener']:
     reg_code += "void register_tap_listener_%s(void);\n" % (symbol)
+for symbol in regs['uiqt_register']:
+    reg_code += "void uiqt_register_%s(void);\n" % (symbol)
 
 DESCRIPTION_FLAG = {
     'plugin': 'WS_PLUGIN_DESC_DISSECTOR',
     'plugin_wtap': 'WS_PLUGIN_DESC_FILE_TYPE',
     'plugin_codec': 'WS_PLUGIN_DESC_CODEC',
-    'plugin_tap': 'WS_PLUGIN_DESC_TAP_LISTENER'
+    'plugin_tap': 'WS_PLUGIN_DESC_TAP_LISTENER',
+    'plugin_ui': 'WS_PLUGIN_DESC_UI'
 }
 
 reg_code += """
@@ -188,6 +204,11 @@ if registertype == "plugin_tap":
         reg_code += "    static tap_plugin plug_%s;\n\n" % (symbol)
         reg_code += "    plug_%s.register_tap_listener = register_tap_listener_%s;\n" % (symbol, symbol)
         reg_code += "    tap_register_plugin(&plug_%s);\n" % (symbol)
+if registertype == "plugin_ui":
+    for symbol in regs['uiqt_register']:
+        reg_code += "    static qtui_plugin plug_%s;\n\n" % (symbol)
+        reg_code += "    plug_%s.register_qtui_module = uiqt_register_%s;\n" % (symbol, symbol)
+        reg_code += "    uiqt_register_plugin(&plug_%s);\n" % (symbol)
 
 reg_code += "}\n"
 

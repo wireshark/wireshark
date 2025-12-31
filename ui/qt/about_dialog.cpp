@@ -118,6 +118,8 @@ static void plugins_add_description(const char *name, const char *version,
         plugin_types << QObject::tr("Tap Listener");
     if (flags & WS_PLUGIN_DESC_DFILTER)
         plugin_types << QObject::tr("Display Filter");
+    if (flags & WS_PLUGIN_DESC_UI)
+        plugin_types << QObject::tr("User Interface");
     if (plugin_types.empty())
         plugin_types << QObject::tr("Unknown");
     QStringList plugin_row = QStringList() << name << version << plugin_types.join(", ") << filename;

@@ -65,7 +65,7 @@ Homepage: https://www.wireshark.org/
 Package: wireshark-common
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark0 (>= ${binary:Version}),
- libwiretap0 (>= ${binary:Version}), debconf, libcap2-bin [linux-any]
+ libwiretap0 (>= ${binary:Version}), libuiqt_plugin0 (>= ${binary:Version}), debconf, libcap2-bin [linux-any]
 Recommends: wireshark (>= ${binary:Version}) | tshark (>= ${binary:Version})
 Breaks: wireshark (<< 2.0.0~),
         wireshark-gtk (<< 3.0.0),
@@ -277,3 +277,13 @@ Description: network packet capture library -- development files
  capture.
  .
  This package contains the static library and the C header files.
+
+Package: libuiqt_plugin0
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}
+Description: Qt-based UI plugin library -- shared library
+ QtUIPlugin, part of the Wireshark project, is a library that allows one to
+ create UI extensions through menu options
