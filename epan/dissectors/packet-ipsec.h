@@ -11,8 +11,6 @@
 #ifndef __PACKET_IPSEC_H__
 #define __PACKET_IPSEC_H__
 
-#include "cfile.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
