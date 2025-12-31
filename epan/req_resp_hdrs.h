@@ -51,9 +51,9 @@ static inline bool
 starts_with_chunk_size(tvbuff_t* tvb, const int offset, packet_info* pinfo)
 {
 	unsigned chunk_size = 0;
-	int linelen = tvb_find_line_end(tvb, offset, tvb_reported_length_remaining(tvb, offset), NULL, true);
+	unsigned linelen;
 
-	if (linelen < 0)
+	if (!tvb_find_line_end_remaining(tvb, offset, &linelen, NULL))
 		return false;
 
 	char* chunk_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);

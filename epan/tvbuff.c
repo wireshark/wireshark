@@ -4432,77 +4432,48 @@ tvb_ascii_isdigit(tvbuff_t *tvb, const int offset, const int length)
 }
 
 static ws_mempbrk_pattern pbrk_crlf;
-/*
- * Given a tvbuff, an offset into the tvbuff, and a length that starts
- * at that offset (which may be -1 for "all the way to the end of the
- * tvbuff"), find the end of the (putative) line that starts at the
- * specified offset in the tvbuff, going no further than the specified
- * length.
- *
- * Return the length of the line (not counting the line terminator at
- * the end), or, if we don't find a line terminator:
- *
- * if "desegment" is true, return -1;
- *
- * if "desegment" is false, return the amount of data remaining in
- * the buffer.
- *
- * If "next_offset" is not NULL, set "*next_offset" to the offset of the
- * character past the line terminator, or past the end of the buffer if
- * we don't find a line terminator.  (It's not set if we return -1.)
- */
-int
-tvb_find_line_end(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset, const bool desegment)
+
+static bool
+_tvb_find_line_end_length(tvbuff_t *tvb, const unsigned offset, const unsigned limit, unsigned *linelen, unsigned *next_offset)
 {
-	int    eob_offset;
-	int    eol_offset;
-	int    linelen;
-	unsigned char found_needle = 0;
 	static bool compiled = false;
-
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	if (len == -1) {
-		len = _tvb_captured_length_remaining(tvb, offset);
-		/* if offset is past the end of the tvbuff, len is now 0 */
-	}
-
-	eob_offset = offset + len;
+	unsigned eob_offset;
+	unsigned eol_offset;
+	unsigned char found_needle = 0;
 
 	if (!compiled) {
 		ws_mempbrk_compile(&pbrk_crlf, "\r\n");
 		compiled = true;
 	}
 
+	eob_offset = offset + limit;
+
 	/*
 	 * Look either for a CR or an LF.
 	 */
-	eol_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, len, &pbrk_crlf, &found_needle);
-	if (eol_offset == -1) {
+	if (!_tvb_ws_mempbrk_uint8_length(tvb, offset, limit, &pbrk_crlf, &eol_offset, &found_needle)) {
 		/*
 		 * No CR or LF - line is presumably continued in next packet.
 		 */
-		if (desegment) {
-			/*
-			 * Tell our caller we saw no EOL, so they can
-			 * try to desegment and get the entire line
-			 * into one tvbuff.
-			 */
-			return -1;
-		} else {
-			/*
-			 * Pretend the line runs to the end of the tvbuff.
-			 */
-			linelen = eob_offset - offset;
-			if (next_offset)
-				*next_offset = eob_offset;
-		}
+		/*
+		 * Pretend the line runs to the end of the tvbuff.
+		 */
+		if (linelen)
+			*linelen = eob_offset - offset;
+		if (next_offset)
+			*next_offset = eob_offset;
+		/*
+		 * Tell our caller we saw no EOL, so they can try to
+		 * desegment and get the entire line into one tvbuff.
+		 */
+		return false;
 	} else {
 		/*
 		 * Find the number of bytes between the starting offset
 		 * and the CR or LF.
 		 */
-		linelen = eol_offset - offset;
+		if (linelen)
+			*linelen = eol_offset - offset;
 
 		/*
 		 * Is it a CR?
@@ -4516,20 +4487,22 @@ tvb_find_line_end(tvbuff_t *tvb, const unsigned offset, int len, int *next_offse
 				 * Dunno - the next byte isn't in this
 				 * tvbuff.
 				 */
-				if (desegment) {
-					/*
-					 * We'll return -1, although that
-					 * runs the risk that if the line
-					 * really *is* terminated with a CR,
-					 * we won't properly dissect this
-					 * tvbuff.
-					 *
-					 * It's probably more likely that
-					 * the line ends with CR-LF than
-					 * that it ends with CR by itself.
-					 */
-					return -1;
-				}
+				if (next_offset)
+					*next_offset = eob_offset;
+				/*
+				 * We'll return false, although that
+				 * runs the risk that if the line
+				 * really *is* terminated with a CR,
+				 * we won't properly dissect this
+				 * tvbuff.
+				 *
+				 * It's probably more likely that
+				 * the line ends with CR-LF than
+				 * that it ends with CR by itself.
+				 *
+				 * XXX - Return a third value?
+				 */
+				return false;
 			} else {
 				/*
 				 * Well, we can at least look at the next
@@ -4552,7 +4525,93 @@ tvb_find_line_end(tvbuff_t *tvb, const unsigned offset, int len, int *next_offse
 		if (next_offset)
 			*next_offset = eol_offset + 1;
 	}
-	return linelen;
+	return true;
+}
+
+/*
+ * Given a tvbuff, an offset into the tvbuff, and a length that starts
+ * at that offset (which may be -1 for "all the way to the end of the
+ * tvbuff"), find the end of the (putative) line that starts at the
+ * specified offset in the tvbuff, going no further than the specified
+ * length.
+ *
+ * Return the length of the line (not counting the line terminator at
+ * the end), or, if we don't find a line terminator:
+ *
+ * if "desegment" is true, return -1;
+ *
+ * if "desegment" is false, return the amount of data remaining in
+ * the buffer.
+ *
+ * If "next_offset" is not NULL, set "*next_offset" to the offset of the
+ * character past the line terminator, or past the end of the buffer if
+ * we don't find a line terminator.  (It's not set if we return -1.)
+ */
+int
+tvb_find_line_end(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset, const bool desegment)
+{
+	unsigned linelen;
+	unsigned abs_next_offset;
+	unsigned limit;
+	int exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (len >= 0 && limit > (unsigned) len) {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
+		limit = (unsigned) len;
+	}
+
+	if (!_tvb_find_line_end_length(tvb, offset, limit, &linelen, &abs_next_offset) && desegment) {
+		return -1;
+	}
+	if (next_offset) {
+		*next_offset = (int)abs_next_offset;
+	}
+	return (int)linelen;
+}
+
+bool
+tvb_find_line_end_remaining(tvbuff_t *tvb, const unsigned offset, unsigned *linelen, unsigned *next_offset)
+{
+	unsigned limit;
+	int exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	return _tvb_find_line_end_length(tvb, offset, limit, linelen, next_offset);
+}
+
+bool
+tvb_find_line_end_length(tvbuff_t *tvb, const unsigned offset, const unsigned maxlength, unsigned *linelen, unsigned *next_offset)
+{
+	unsigned limit;
+	int exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (limit > maxlength) {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
+		limit = maxlength;
+	}
+
+	return _tvb_find_line_end_length(tvb, offset, limit, linelen, next_offset);
 }
 
 static ws_mempbrk_pattern pbrk_crlf_dquote;
