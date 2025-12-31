@@ -65,12 +65,12 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
 
 #.FN_BODY CompressedContent
   tvbuff_t   *next_tvb = NULL, *compr_tvb = NULL;
-  int         save_offset = offset;
+  unsigned    save_offset = offset;
 
   %(DEFAULT_BODY)s
   if (compr_tvb == NULL) {
-    proto_tree_add_expert(top_tree, actx->pinfo, &ei_cdt_unable_compress_content,
-							tvb, save_offset, -1);
+    proto_tree_add_expert_remaining(top_tree, actx->pinfo, &ei_cdt_unable_compress_content,
+							tvb, save_offset);
     col_append_str (actx->pinfo->cinfo, COL_INFO,
                     "[Error: Unable to get compressed content]");
     return offset;
@@ -79,8 +79,8 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
   next_tvb = tvb_child_uncompress_zlib(tvb, compr_tvb, 0, tvb_reported_length (compr_tvb));
 
   if (next_tvb == NULL) {
-    proto_tree_add_expert(top_tree, actx->pinfo, &ei_cdt_unable_uncompress_content,
-							tvb, save_offset, -1);
+    proto_tree_add_expert_remaining(top_tree, actx->pinfo, &ei_cdt_unable_uncompress_content,
+							tvb, save_offset);
     col_append_str (actx->pinfo->cinfo, COL_INFO,
                     "[Error: Unable to uncompress content]");
     return offset;

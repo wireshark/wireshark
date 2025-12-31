@@ -132,7 +132,7 @@ find_oid_by_ctx_id(packet_info *pinfo _U_, uint32_t idx)
 static int
 dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *item;
 	proto_tree *tree;
 	char *oid;
@@ -215,10 +215,10 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	/*  we can't make any additional checking here   */
 	/*  postpone it before dissector will have more information */
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		int old_offset=offset;
+		unsigned old_offset=offset;
 		offset = dissect_acse_ACSE_apdu(false, tvb, offset, &asn1_ctx, tree, -1);
 		if (offset == old_offset) {
-			proto_tree_add_expert(tree, pinfo, &ei_acse_malformed, tvb, offset, -1);
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_acse_malformed, tvb, offset);
 			break;
 		}
 	}

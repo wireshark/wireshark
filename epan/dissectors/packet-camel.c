@@ -7403,8 +7403,8 @@ static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned off
       offset= dissect_ResetTimerSMSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     default:
-      proto_tree_add_expert_format(tree, actx->pinfo, &ei_camel_unknown_invokeData,
-                                   tvb, offset, -1, "Unknown invokeData %d", opcode);
+      proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_camel_unknown_invokeData,
+                                   tvb, offset, "Unknown invokeData %d", opcode);
       /* todo call the asn.1 dissector */
       break;
   }
@@ -7422,8 +7422,8 @@ static unsigned dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, unsign
 	  offset= dissect_InitiateCallAttemptRes_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
-    proto_tree_add_expert_format(tree, actx->pinfo, &ei_camel_unknown_returnResultData,
-	                             tvb, offset, -1, "Unknown returnResultData %d",opcode);
+    proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_camel_unknown_returnResultData,
+	                             tvb, offset, "Unknown returnResultData %d",opcode);
   }
   return offset;
 }
@@ -7445,8 +7445,8 @@ static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigne
       dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
-    proto_tree_add_expert_format(tree, actx->pinfo, &ei_camel_unknown_returnErrorData,
-                                 tvb, offset, -1, "Unknown returnErrorData %d",errorCode);
+    proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_camel_unknown_returnErrorData,
+                                 tvb, offset, "Unknown returnErrorData %d",errorCode);
   }
   return offset;
 }

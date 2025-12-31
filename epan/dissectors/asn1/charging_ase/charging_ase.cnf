@@ -11,6 +11,6 @@ ChargingMessageType
 
 #.FN_BODY ExtensionField/value
 
-	proto_tree_add_expert(tree, actx->pinfo, &ei_charging_ase_extensions_not_dissected, tvb, offset, -1);
+	proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_charging_ase_extensions_not_dissected, tvb, offset);
 	return tvb_reported_length(tvb);
 #.END

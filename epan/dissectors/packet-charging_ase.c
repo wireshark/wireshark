@@ -505,7 +505,7 @@ dissect_charging_ase_CriticalityType(bool implicit_tag _U_, tvbuff_t *tvb _U_, u
 static unsigned
 dissect_charging_ase_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	proto_tree_add_expert(tree, actx->pinfo, &ei_charging_ase_extensions_not_dissected, tvb, offset, -1);
+	proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_charging_ase_extensions_not_dissected, tvb, offset);
 	return tvb_reported_length(tvb);
 
   return offset;
