@@ -234,6 +234,9 @@
 /* Define to 1 if you have the macOS CFPropertyListCreateWithStream function */
 #cmakedefine HAVE_CFPROPERTYLISTCREATEWITHSTREAM 1
 
+/* Define to 1 if you have the `pcap_init' function. */
+#cmakedefine HAVE_PCAP_INIT 1
+
 /* Define to 1 if you have the `pcap_open' function. */
 #cmakedefine HAVE_PCAP_OPEN 1
 

@@ -229,6 +229,7 @@ if(PCAP_FOUND)
     # time, when we load wpcap.dll, and work around their absence or report
     # an error.
     #
+    set(HAVE_PCAP_INIT TRUE)
     set(HAVE_PCAP_OPEN TRUE)
     set(HAVE_PCAP_SETSAMPLING TRUE)
     set(HAVE_PCAP_SET_TSTAMP_PRECISION TRUE)
@@ -244,6 +245,11 @@ if(PCAP_FOUND)
     if( NOT HAVE_PCAP_SET_TSTAMP_PRECISION )
       message(FATAL_ERROR "You need libpcap 1.5 or later")
     endif()
+
+    # pcap_init was introduced in libpcap 1.10, so if it is present we can
+    # assume other things about libpcap, even though, at least for the moment,
+    # we don't use pcap_init itself on non-Windows.
+    check_function_exists( "pcap_init" HAVE_PCAP_INIT )
 
     #
     # macOS Sonoma's libpcap includes stub versions of the remote-
