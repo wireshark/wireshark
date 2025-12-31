@@ -15805,9 +15805,9 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, int offset, uin
 
     } else {
       const char *label;
-      if (((flags & FLAG_RTPS_DATA_D) != 0) || ((flags & FLAG_RTPS_DATA_K) == 0)) {
+      if (((flags & FLAG_RTPS_DATA_D) != 0) && ((flags & FLAG_RTPS_DATA_K) == 0)) {
         label = "serializedData";
-      } else if (((flags & FLAG_RTPS_DATA_D) == 0) || ((flags & FLAG_RTPS_DATA_K) != 0)) {
+      } else if (((flags & FLAG_RTPS_DATA_D) == 0) && ((flags & FLAG_RTPS_DATA_K) != 0)) {
         label = "serializedKey";
       } else {
         /* D==1 && K==1 */
