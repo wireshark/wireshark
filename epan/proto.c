@@ -9439,7 +9439,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		const true_false_string *tfs = (const true_false_string*)hfinfo->strings;
 		if (tfs) {
 			if (strcmp(tfs->false_string, tfs->true_string) == 0) {
-				ws_warning("Field '%s' (%s) has identical true and false strings (\"%s\", \"%s\")",
+				ws_error("Field '%s' (%s) has identical true and false strings (\"%s\", \"%s\")",
 						   hfinfo->name, hfinfo->abbrev,
 						   tfs->false_string, tfs->true_string);
 			}
@@ -9972,7 +9972,7 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 #ifdef ENABLE_CHECK_FILTER
 			while (same_name_hfinfo) {
 				if (!ftype_similar_types(hfinfo->type, same_name_hfinfo->type))
-					ws_warning("'%s' exists multiple times with incompatible types: %s and %s", hfinfo->abbrev, ftype_name(hfinfo->type), ftype_name(same_name_hfinfo->type));
+					ws_error("'%s' exists multiple times with incompatible types: %s and %s", hfinfo->abbrev, ftype_name(hfinfo->type), ftype_name(same_name_hfinfo->type));
 				same_name_hfinfo = same_name_hfinfo->same_name_next;
 			}
 #endif
