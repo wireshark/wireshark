@@ -17,7 +17,7 @@
 #include <QDialog>
 #include <QMutex>
 
-#include <epan/plugin_if.h>
+#include <ui/plugins/include/plugin_if.h>
 
 #include "ws_symbol_export.h"
 

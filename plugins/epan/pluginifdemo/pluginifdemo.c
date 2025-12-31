@@ -16,7 +16,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/plugin_if.h>
+#include <ui/plugins/include/plugin_if.h>
 #include "pluginifdemo.h"
 
 #include "ui/uihandler.h"

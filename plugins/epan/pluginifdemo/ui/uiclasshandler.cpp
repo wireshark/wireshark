@@ -17,12 +17,11 @@
 #include <QApplication>
 #include <QMutex>
 
-#include <epan/plugin_if.h>
-
 #if defined(_WIN32)
 #define _WINSOCKAPI_
 #endif
 
+#include <ui/plugins/include/plugin_if.h>
 #include <ui/qt/main_window.h>
 
 #include "uihandler.h"

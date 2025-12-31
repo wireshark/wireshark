@@ -91,7 +91,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	packet.h
 	packet_info.h
 	params.h
-	plugin_if.h
 	print.h
 	print_stream.h
 	prefs.h
@@ -190,7 +189,6 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	oids.c
 	osi-utils.c
 	packet.c
-	plugin_if.c
 	print.c
 	print_stream.c
 	prefs.c

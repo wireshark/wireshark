@@ -54,7 +54,6 @@ DIAG_ON(frame-larger-than=)
 #include "epan/epan_dissect.h"
 #include "epan/filter_expressions.h"
 #include "epan/prefs.h"
-#include "epan/plugin_if.h"
 #include "epan/uat.h"
 #include "epan/uat-int.h"
 #include <wsutil/value_string.h>
@@ -77,6 +76,7 @@ DIAG_ON(frame-larger-than=)
 #include "ui/ws_ui_util.h"
 #include "ui/all_files_wildcard.h"
 #include "ui/qt/simple_dialog.h"
+#include "ui/plugins/include/plugin_if.h"
 
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/drag_drop_toolbar.h>

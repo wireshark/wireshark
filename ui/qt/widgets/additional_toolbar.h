@@ -10,7 +10,7 @@
 #ifndef UI_QT_ADDITIONAL_TOOLBAR_H_
 #define UI_QT_ADDITIONAL_TOOLBAR_H_
 
-#include <epan/plugin_if.h>
+#include <ui/plugins/include/plugin_if.h>
 
 #include <QToolBar>
 #include <QWidgetAction>

@@ -9,6 +9,7 @@
 
 set(UIPLUGINS_PUBLIC_HEADERS
 	include/uiqt_plugin.h
+	include/plugin_if.h
 )
 
 set(UIPLUGINS_HEADER_FILES
@@ -17,6 +18,7 @@ set(UIPLUGINS_HEADER_FILES
 
 set(UIPLUGINS_FILES
 	uiqt_plugin.c
+	plugin_if.c
 )
 
 set_source_files_properties(
@@ -48,7 +50,7 @@ if(MSVC)
 	set_target_properties(uiqt_plugin PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 endif()
 
-target_link_libraries(uiqt_plugin wsutil ${GLIB2_LIBRARIES})
+target_link_libraries(uiqt_plugin wsutil epan ${GLIB2_LIBRARIES})
 
 install(TARGETS uiqt_plugin
 	EXPORT WiresharkTargets

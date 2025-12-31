@@ -22,7 +22,7 @@
 #include <epan/proto.h>
 #include <wsutil/ws_assert.h>
 
-#include "plugin_if.h"
+#include "include/plugin_if.h"
 
 static GList * menubar_entries;
 static GList * menubar_menunames;

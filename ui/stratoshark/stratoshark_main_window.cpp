@@ -25,7 +25,6 @@ DIAG_ON(frame-larger-than=)
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <epan/prefs.h>
-#include <epan/plugin_if.h>
 
 #include "ui/iface_toolbar.h"
 

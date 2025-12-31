@@ -44,8 +44,8 @@
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_opts.h"
 #endif
+#include "ui/plugins/include/plugin_if.h"
 
-#include <epan/plugin_if.h>
 #include <epan/timestamp.h>
 
 #include <capture/capture_session.h>

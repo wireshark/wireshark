@@ -26,7 +26,7 @@
 #include "ui/ws_ui_util.h"
 
 #include <epan/prefs.h>
-#include <epan/plugin_if.h>
+//#include <epan/plugin_if.h>
 #include <epan/tap.h>
 #include <epan/timestamp.h>
 
