@@ -106,8 +106,8 @@ static int hf_fcp_value;
 static int hf_fcp_file_size;
 static int hf_fcp_file_id;
 static int hf_fcp_df_name;
-static int hf_fcp_file_rfu_1;
-static int hf_fcp_file_rfu_2;
+static int hf_fcp_file_rfu_byte;
+static int hf_fcp_file_rfu;
 static int hf_fcp_file_accessibility;
 static int hf_fcp_file_type;
 static int hf_fcp_file_type_ext;
@@ -2012,9 +2012,9 @@ dissect_fcp_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 		case 0x82: /* File Descriptor */
 			byte = tvb_get_uint8(tvb, offset);
 			if (byte & 0x80) {
-				proto_tree_add_item(value_tree, hf_fcp_file_rfu_1, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(value_tree, hf_fcp_file_rfu_byte, tvb, offset, 1, ENC_NA);
 			} else {
-				proto_tree_add_item(value_tree, hf_fcp_file_rfu_2, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(value_tree, hf_fcp_file_rfu, tvb, offset, 1, ENC_NA);
 				proto_tree_add_item(value_tree, hf_fcp_file_accessibility, tvb, offset, 1, ENC_NA);
 				if ((byte & 0x3F) == 0x38) { /* DF or ADF */
 					proto_tree_add_item(value_tree, hf_fcp_file_type_ext, tvb, offset, 1, ENC_NA);
@@ -3510,12 +3510,12 @@ proto_register_gsm_sim(void)
 			  FT_BYTES, BASE_NONE, NULL, 0,
 			  "Application Identifier", HFILL }
 		},
-		{ &hf_fcp_file_rfu_1,
-			{ "RFU", "gsm_sim.fcp.file_rfu",
-			  FT_UINT8, BASE_HEX, NULL, 0xFF,
+		{ &hf_fcp_file_rfu_byte,
+			{ "RFU", "gsm_sim.fcp.file_rfu_byte",
+			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL }
 		},
-		{ &hf_fcp_file_rfu_2,
+		{ &hf_fcp_file_rfu,
 			{ "RFU", "gsm_sim.fcp.file_rfu",
 			  FT_BOOLEAN, 8, NULL, 0x80,
 			  NULL, HFILL }
