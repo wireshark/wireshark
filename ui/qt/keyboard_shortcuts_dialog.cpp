@@ -281,11 +281,10 @@ QString KeyboardShortcutsDialog::buildShortcutsHtml() const
 
 QString KeyboardShortcutsDialog::applicationVersionLabel() const
 {
-    const bool is_ws = application_flavor_is_wireshark();
     const char *version_info = application_get_vcs_version_info();
     QString version = version_info ? QString::fromUtf8(version_info) : QString();
 
-    QString product_name = is_ws ? QStringLiteral("Wireshark") : QStringLiteral("Stratoshark");
+    QString product_name = application_flavor_name_proper();
     if (version.isEmpty()) {
         return product_name;
     }
