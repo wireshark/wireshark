@@ -59,16 +59,6 @@ WS_DLL_PUBLIC void codecs_init(const char* app_env_var_prefix);
  */
 WS_DLL_PUBLIC void codecs_cleanup(void);
 
-/**
- * @brief Retrieve compile-time version information for codec-related libraries.
- *
- * Appends version details for all libraries linked with `libwscodecs` at build time
- * to the provided `GString`.
- *
- * @param str Pointer to a `GString` that will receive the formatted version info.
- */
-WS_DLL_PUBLIC void codec_get_compiled_version_info(GString *str);
-
 struct codec_handle;
 typedef struct codec_handle *codec_handle_t;
 
