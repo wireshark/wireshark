@@ -2986,8 +2986,7 @@ WS_DLL_PUBLIC int tvb_find_line_end(tvbuff_t *tvb, const unsigned offset, int le
  *
  * If `linelen` is non-null and a line terminator is found, sets `*linelen`
  * to the length of the line, not including the terminator. If no terminator
- * is found and `desegment` is false, sets `*linelen` to the remaining
- * captured length of the buffer.
+ * is found, sets `*linelen` to the remaining captured length of the buffer.
  *
  * If `next_offset` is non-null and a line terminator is found, sets
  * `*next_offset` to the offset immediately following the terminator.
@@ -3012,9 +3011,32 @@ WS_DLL_PUBLIC int tvb_find_line_end(tvbuff_t *tvb, const unsigned offset, int le
  * the ambiguous case of a carriage return at the end of the buffer, under the
  * assumption that protocols are more likely to use CR-LF than CR alone, but
  * linelen will not include the carriage return.
+ *
+ * @see tvb_find_line_end_length
  */
 WS_DLL_PUBLIC bool tvb_find_line_end_remaining(tvbuff_t *tvb, const unsigned offset,
     unsigned *linelen, unsigned *next_offset);
+
+/**
+ * @brief Locate the end of a line in a tvbuff, scanning up to a certain length.
+ *
+ * Scans the given tvbuff_t starting at `offset` for a line terminator,
+ * examining up to `maxlength` bytes or the end of the captured bytes,
+ * whichever comes first.
+ * Returns true if a line terminator is found, false if not.
+ *
+ * @param tvb          The tvbuff_t to scan.
+ * @param offset       The offset in the tvbuff where the line begins.
+ * @param maxlength    The maximum number of bytes to search.
+ * @param linelen      Pointer to receive the line length (not including terminator), or NULL.
+ * @param next_offset  Pointer to receive the offset past the line terminator, or NULL.
+ *
+ * @return true if a line terminator was found, false if not.
+ *
+ * @see tvb_find_line_end_remaining
+ */
+WS_DLL_PUBLIC bool tvb_find_line_end_length(tvbuff_t *tvb, const unsigned offset,
+    const unsigned maxlength, unsigned *linelen, unsigned *next_offset);
 
 /**
  * @brief Locate the end of a line in a tvbuff, ignoring newlines inside quoted strings.
@@ -3039,6 +3061,58 @@ WS_DLL_PUBLIC bool tvb_find_line_end_remaining(tvbuff_t *tvb, const unsigned off
  */
 WS_DLL_PUBLIC int tvb_find_line_end_unquoted(tvbuff_t *tvb, const unsigned offset,
     int len, int *next_offset);
+
+/**
+ * @brief Locate the end of a line in a tvbuff, ignoring newlines within quoted strings.
+ *
+ * Scans the given tvbuff_t starting at `offset` for a line terminator,
+ * examining up to the end of the captured bytes in the tvbuff.
+ * Quoted strings are treated specially- newlines within (double) quotes
+ * are not considered line terminators.
+ * Returns true if a line terminator is found, false if not.
+ *
+ * If `linelen` is non-null and a line terminator is found, sets `*linelen`
+ * to the length of the line, not including the terminator. If no terminator
+ * is found, sets `*linelen` to the remaining captured length of the buffer.
+ *
+ * If `next_offset` is non-null and a line terminator is found, sets
+ * `*next_offset` to the offset immediately following the terminator.
+ * If no terminator is found sets `*next_offset` to the offset immediately
+ * following the captured length of the buffer.
+ *
+ * @param tvb          The tvbuff_t to scan.
+ * @param offset       The offset in the tvbuff where the line begins.
+ * @param linelen      Pointer to receive the line length (not including terminator), or NULL.
+ * @param next_offset  Pointer to receive the offset past the line terminator, or NULL.
+ *
+ * @return true if a line terminator was found, false if not.
+ *
+ * @see tvb_find_line_end_remaining
+ */
+WS_DLL_PUBLIC bool tvb_find_line_end_unquoted_remaining(tvbuff_t *tvb, const unsigned offset,
+    unsigned *linelen, unsigned *next_offset);
+
+/**
+ * @brief Locate the end of a line in a tvbuff, scanning up to a certain length
+ * and ignoring newlines within quoted strings.
+ *
+ * Scans the given tvbuff_t starting at `offset` for a line terminator,
+ * examining up to `maxlength` bytes or the end of the captured bytes,
+ * whichever comes first.
+ * Returns true if a line terminator is found, false if not.
+ *
+ * @param tvb          The tvbuff_t to scan.
+ * @param offset       The offset in the tvbuff where the line begins.
+ * @param maxlength    The maximum number of bytes to search.
+ * @param linelen      Pointer to receive the line length (not including terminator), or NULL.
+ * @param next_offset  Pointer to receive the offset past the line terminator, or NULL.
+ *
+ * @return true if a line terminator was found, false if not.
+ *
+ * @see tvb_find_line_end_unquoted_remaining
+ */
+WS_DLL_PUBLIC bool tvb_find_line_end_unquoted_length(tvbuff_t *tvb, const unsigned offset,
+    const unsigned maxlength, unsigned *linelen, unsigned *next_offset);
 
 /**
  * @brief Skip ASCII whitespace in a tvbuff and return the offset of the first non-whitespace byte.

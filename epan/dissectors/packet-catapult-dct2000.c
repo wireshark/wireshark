@@ -2199,7 +2199,7 @@ static void attach_pdcp_lte_info(packet_info *pinfo, unsigned *outhdr_values,
 /* Attempt to show tty (raw character messages) as text lines. */
 static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    int         next_offset;
+    unsigned    linelen, next_offset;
     proto_tree *tty_tree;
     proto_item *ti;
     int         lines = 0;
@@ -2211,7 +2211,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Show the tty lines one at a time. */
     while (tvb_offset_exists(tvb, offset)) {
         /* Find the end of the line. */
-        int linelen = tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
+        tvb_find_line_end_unquoted_remaining(tvb, offset, &linelen, &next_offset);
 
         /* Extract & add the string. */
         char *string = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);

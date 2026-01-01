@@ -4618,71 +4618,51 @@ tvb_find_line_end_length(tvbuff_t *tvb, const unsigned offset, const unsigned ma
 }
 
 static ws_mempbrk_pattern pbrk_crlf_dquote;
-/*
- * Given a tvbuff, an offset into the tvbuff, and a length that starts
- * at that offset (which may be -1 for "all the way to the end of the
- * tvbuff"), find the end of the (putative) line that starts at the
- * specified offset in the tvbuff, going no further than the specified
- * length.
- *
- * However, treat quoted strings inside the buffer specially - don't
- * treat newlines in quoted strings as line terminators.
- *
- * Return the length of the line (not counting the line terminator at
- * the end), or the amount of data remaining in the buffer if we don't
- * find a line terminator.
- *
- * If "next_offset" is not NULL, set "*next_offset" to the offset of the
- * character past the line terminator, or past the end of the buffer if
- * we don't find a line terminator.
- */
-int
-tvb_find_line_end_unquoted(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset)
+
+static bool
+_tvb_find_line_end_unquoted_length(tvbuff_t *tvb, const unsigned offset, unsigned limit, unsigned *linelen, unsigned *next_offset)
 {
-	int      cur_offset, char_offset;
+	unsigned cur_offset, char_offset;
 	bool     is_quoted;
 	unsigned char   c = 0;
-	int      eob_offset;
-	int      linelen;
+	unsigned eob_offset;
 	static bool compiled = false;
-
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	if (len == -1)
-		len = _tvb_captured_length_remaining(tvb, offset);
+	unsigned len;
+	bool	 found;
 
 	if (!compiled) {
 		ws_mempbrk_compile(&pbrk_crlf_dquote, "\r\n\"");
 		compiled = true;
 	}
 
-	eob_offset = offset + len;
+	eob_offset = offset + limit;
+	len = limit;
 
 	cur_offset = offset;
 	is_quoted  = false;
 	for (;;) {
-			/*
+		/*
 		 * Is this part of the string quoted?
 		 */
 		if (is_quoted) {
 			/*
 			 * Yes - look only for the terminating quote.
 			 */
-			char_offset = tvb_find_uint8(tvb, cur_offset, len,
-				'"');
+			found = _tvb_find_uint8_length(tvb, cur_offset, len, '"', &char_offset);
 		} else {
 			/*
 			 * Look either for a CR, an LF, or a '"'.
 			 */
-			char_offset = tvb_ws_mempbrk_pattern_uint8(tvb, cur_offset, len, &pbrk_crlf_dquote, &c);
+			found = _tvb_ws_mempbrk_uint8_length(tvb, cur_offset, len, &pbrk_crlf_dquote, &char_offset, &c);
 		}
-		if (char_offset == -1) {
+		if (!found) {
 			/*
 			 * Not found - line is presumably continued in
 			 * next packet.
 			 * We pretend the line runs to the end of the tvbuff.
 			 */
-			linelen = eob_offset - offset;
+			if (linelen)
+				*linelen = eob_offset - offset;
 			if (next_offset)
 				*next_offset = eob_offset;
 			break;
@@ -4714,7 +4694,8 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const unsigned offset, int len, int *n
 				 * Find the number of bytes between the
 				 * starting offset and the CR or LF.
 				 */
-				linelen = char_offset - offset;
+				if (linelen)
+					*linelen = char_offset - offset;
 
 				/*
 				 * Is it a CR?
@@ -4756,13 +4737,98 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const unsigned offset, int len, int *n
 			 * next packet.
 			 * We pretend the line runs to the end of the tvbuff.
 			 */
-			linelen = eob_offset - offset;
+			if (linelen)
+				*linelen = eob_offset - offset;
 			if (next_offset)
 				*next_offset = eob_offset;
 			break;
 		}
+		len -= cur_offset - offset;
 	}
-	return linelen;
+	return found;
+}
+
+/*
+ * Given a tvbuff, an offset into the tvbuff, and a length that starts
+ * at that offset (which may be -1 for "all the way to the end of the
+ * tvbuff"), find the end of the (putative) line that starts at the
+ * specified offset in the tvbuff, going no further than the specified
+ * length.
+ *
+ * However, treat quoted strings inside the buffer specially - don't
+ * treat newlines in quoted strings as line terminators.
+ *
+ * Return the length of the line (not counting the line terminator at
+ * the end), or the amount of data remaining in the buffer if we don't
+ * find a line terminator.
+ *
+ * If "next_offset" is not NULL, set "*next_offset" to the offset of the
+ * character past the line terminator, or past the end of the buffer if
+ * we don't find a line terminator.
+ */
+int
+tvb_find_line_end_unquoted(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset)
+{
+	unsigned linelen;
+	unsigned abs_next_offset;
+	unsigned limit;
+	int exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (len >= 0 && limit > (unsigned) len) {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
+		limit = (unsigned) len;
+	}
+
+	_tvb_find_line_end_unquoted_length(tvb, offset, limit, &linelen, &abs_next_offset);
+	if (next_offset) {
+		*next_offset = (int)abs_next_offset;
+	}
+	return (int)linelen;
+}
+
+bool
+tvb_find_line_end_unquoted_remaining(tvbuff_t *tvb, const unsigned offset, unsigned *linelen, unsigned *next_offset)
+{
+	unsigned limit;
+	int exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	return _tvb_find_line_end_unquoted_length(tvb, offset, limit, linelen, next_offset);
+}
+
+bool
+tvb_find_line_end_unquoted_length(tvbuff_t *tvb, const unsigned offset, const unsigned maxlength, unsigned *linelen, unsigned *next_offset)
+{
+	unsigned limit;
+	int exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (limit > maxlength) {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
+		limit = maxlength;
+	}
+
+	return _tvb_find_line_end_unquoted_length(tvb, offset, limit, linelen, next_offset);
 }
 
 /*

@@ -36,9 +36,9 @@ static int dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
     proto_tree  *sipfrag_tree;
     proto_item  *ti;
-    int         offset = 0;
-    int         next_offset;
-    int         linelen;
+    unsigned    offset = 0;
+    unsigned    next_offset;
+    unsigned    linelen;
     char        *string;
     int         lines = 0;
 
@@ -56,7 +56,7 @@ static int dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     while (tvb_offset_exists(tvb, offset))
     {
         /* Find the end of the line. */
-        linelen = tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
+        tvb_find_line_end_unquoted_remaining(tvb, offset, &linelen, &next_offset);
 
         /* For now, add all lines as unparsed strings */
 
