@@ -569,7 +569,7 @@
    <addaction name="actionViewResizeColumns"/>
    <addaction name="actionViewResetLayout"/>
   </widget>
-  <widget class="MainStatusBar" name="statusBar"/>
+  <widget class="StratosharkMainStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="displayFilterToolBar">
    <property name="windowTitle">
     <string>Display Filter Toolbar</string>
@@ -2260,9 +2260,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>MainStatusBar</class>
+   <class>StratosharkMainStatusBar</class>
    <extends>QStatusBar</extends>
-   <header>main_status_bar.h</header>
+   <header>stratoshark_main_status_bar.h</header>
   </customwidget>
   <customwidget>
    <class>StratosharkWelcomePage</class>

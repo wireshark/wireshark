@@ -34,6 +34,7 @@ class MainStatusBar : public QStatusBar
     Q_OBJECT
 public:
     explicit MainStatusBar(QWidget *parent = 0);
+    virtual ~MainStatusBar();
     void showExpert();
     void captureFileClosing();
     void expertUpdate();
@@ -53,6 +54,18 @@ protected:
 
     virtual void changeEvent(QEvent* event);
 
+    virtual void showCaptureStatistics();
+
+protected:
+    capture_file* cap_file_;
+
+    // Capture statistics
+    bool cs_fixed_;
+    uint64_t cs_count_;
+
+    void pushGenericStatus(StatusContext status, const QString& message, const QString& messagetip = QString());
+    void popGenericStatus(StatusContext status);
+
 private:
     QToolButton *expert_button_;
     QToolButton *comment_button_;
@@ -60,18 +73,9 @@ private:
     ProgressFrame progress_frame_;
     LabelStack packet_status_;
     ClickableLabel profile_status_;
-    capture_file *cap_file_;
     QString ready_msg_;
 
-    // Capture statistics
-    bool cs_fixed_;
-    uint64_t cs_count_;
-
-    void showCaptureStatistics();
     void setStatusbarForCaptureFile();
-
-    void pushGenericStatus(StatusContext status, const QString &message, const QString &messagetip = QString());
-    void popGenericStatus(StatusContext status);
 
 signals:
     void showExpertInfo();

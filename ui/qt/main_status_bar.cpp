@@ -14,7 +14,6 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
-#include <app/application_flavor.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/utf8_entities.h>
 
@@ -82,13 +81,13 @@ static const int icon_size = 14; // px
 MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent),
     cap_file_(NULL),
-    #ifdef HAVE_LIBPCAP
-    ready_msg_(tr("Ready to load or capture")),
-    #else
-    ready_msg_(tr("Ready to load file")),
-    #endif
     cs_fixed_(false),
-    cs_count_(0)
+    cs_count_(0),
+#ifdef HAVE_LIBPCAP
+    ready_msg_(tr("Ready to load or capture"))
+#else
+    ready_msg_(tr("Ready to load file"))
+#endif
 {
     QSplitter *splitter = new QSplitter(this);
     QWidget *info_progress = new QWidget(this);
@@ -174,6 +173,12 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 
     connect(&progress_frame_, &ProgressFrame::stopLoading, this, &MainStatusBar::stopLoading);
 }
+
+MainStatusBar::~MainStatusBar()
+{
+
+}
+
 
 void MainStatusBar::showExpert() {
     expertUpdate();
@@ -383,23 +388,12 @@ void MainStatusBar::showCaptureStatistics()
         }
         if (cs_count_ > 0) {
             if (prefs.gui_show_selected_packet && rows.count() == 1) {
-                if (application_flavor_is_wireshark()) {
-                    packets_str.append(tr("Selected Packet: %1 %2 ")
-                                       .arg(rows.at(0))
-                                       .arg(UTF8_MIDDLE_DOT));
-                } else {
-                    packets_str.append(tr("Selected Event: %1 %2 ")
-                                           .arg(rows.at(0))
-                                           .arg(UTF8_MIDDLE_DOT));
-                }
+                packets_str.append(tr("Selected Packet: %1 %2 ")
+                                    .arg(rows.at(0))
+                                    .arg(UTF8_MIDDLE_DOT));
             }
-            if (application_flavor_is_wireshark()) {
-                packets_str.append(tr("Packets: %1")
-                                       .arg(cs_count_));
-            } else {
-                packets_str.append(tr("Events: %1")
-                                       .arg(cs_count_));
-            }
+            packets_str.append(tr("Packets: %1").arg(cs_count_));
+
             if (cap_file_->dfilter) {
                 packets_str.append(tr(" %1 Displayed: %2 (%3%)")
                                        .arg(UTF8_MIDDLE_DOT)
@@ -447,32 +441,18 @@ void MainStatusBar::showCaptureStatistics()
         }
     } else if (cs_fixed_ && cs_count_ > 0) {
         /* There shouldn't be any rows without a cap_file_ but this is benign */
-        if (application_flavor_is_wireshark()) {
-            if (prefs.gui_show_selected_packet && rows.count() == 1) {
-                packets_str.append(tr("Selected Packet: %1 %2 ")
-                    .arg(rows.at(0))
-                    .arg(UTF8_MIDDLE_DOT));
-            }
-            packets_str.append(tr("Packets: %1")
-                .arg(cs_count_));
-        } else {
-            if (prefs.gui_show_selected_packet && rows.count() == 1) {
-                packets_str.append(tr("Selected Event: %1 %2 ")
-                                       .arg(rows.at(0))
-                                       .arg(UTF8_MIDDLE_DOT));
-            }
-            packets_str.append(tr("Events: %1")
-                                   .arg(cs_count_));
+        if (prefs.gui_show_selected_packet && rows.count() == 1) {
+            packets_str.append(tr("Selected Packet: %1 %2 ")
+                .arg(rows.at(0))
+                .arg(UTF8_MIDDLE_DOT));
         }
+        packets_str.append(tr("Packets: %1")
+            .arg(cs_count_));
     }
 #endif // HAVE_LIBPCAP
 
     if (packets_str.isEmpty()) {
-        if (application_flavor_is_wireshark()) {
-            packets_str = tr("No Packets");
-        } else {
-            packets_str = tr("No Events");
-        }
+        packets_str = tr("No Packets");
     }
 
     popGenericStatus(STATUS_CTX_MAIN);
