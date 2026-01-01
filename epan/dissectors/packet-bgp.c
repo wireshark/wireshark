@@ -76,6 +76,7 @@
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/exceptions.h>
 #include <wsutil/str_util.h>
 #include "packet-iana-data.h"
 #include "packet-ip.h"
@@ -4436,6 +4437,8 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t afi,
     if (length > tvb_reported_length_remaining(tvb, offset))
         return -1;
 
+    // XXX - Should call tvb_new_subset_length(tvb, offset, length) here
+
     item = proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_t, tvb, offset,
                                length, ENC_NA);
     proto_item_set_text(item, "%s (%u byte%s)",
@@ -4500,7 +4503,9 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t afi,
             break;
 
         case MCAST_VPN_RTYPE_LEAF_AD:
-            route_key_length = length - ip_length;
+            if (ckd_sub(&route_key_length, length, ip_length)) {
+                THROW(ReportedBoundsError);
+            }
             item = proto_tree_add_item(nlri_tree,
                                        hf_bgp_mcast_vpn_nlri_route_key, tvb,
                                        offset, route_key_length, ENC_NA);
