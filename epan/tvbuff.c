@@ -4291,12 +4291,15 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offse
 static unsigned
 _tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const unsigned offset, const unsigned bufsize, uint8_t* buffer, unsigned *bytes_copied)
 {
+	int	 exception;
 	int      stringlen;
 	unsigned limit;
 	unsigned len = 0;
 
 	/* Only read to end of tvbuff, w/o throwing exception. */
-	validate_offset_and_remaining(tvb, offset, &len);
+	exception = validate_offset_and_remaining(tvb, offset, &len);
+	if (exception)
+		THROW(exception);
 
 	/* There must at least be room for the terminating NUL. */
 	DISSECTOR_ASSERT(bufsize != 0);
@@ -4312,7 +4315,7 @@ _tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const unsigned offset, const unsign
 		return 0;
 	}
 
-	/* check_offset_length() won't throw an exception if we're
+	/* validate_offset_and_remaining() won't throw an exception if we're
 	 * looking at the byte immediately after the end of the tvbuff. */
 	if (len == 0) {
 		THROW(ReportedBoundsError);
