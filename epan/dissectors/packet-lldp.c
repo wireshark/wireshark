@@ -2634,7 +2634,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	uint8_t subType;
 	uint32_t offset = 0;
 	uint8_t tempByte;
-	uint16_t dcbApp, appCount;
+	uint16_t dcbApp;
 
 	proto_tree	*vlan_flags_tree = NULL;
 	proto_tree	*mac_phy_flags = NULL;
@@ -2992,9 +2992,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 		offset++;
 
-		appCount = tvb_reported_length_remaining(tvb, offset)/3;
-
-		while(appCount--) {
+		while(tvb_reported_length_remaining(tvb, offset) >= 3) {
 			dcbApp = tvb_get_ntohs(tvb, offset + 1);
 
 			apptlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3,
