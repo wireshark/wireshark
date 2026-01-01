@@ -3025,6 +3025,17 @@ WS_DLL_PUBLIC bool tvb_find_line_end_remaining(tvbuff_t *tvb, const unsigned off
  * whichever comes first.
  * Returns true if a line terminator is found, false if not.
  *
+ * If `linelen` is non-null and a line terminator is found, sets `*linelen`
+ * to the length of the line, not including the terminator. If no terminator
+ * is found, sets `*linelen` to the length searched (the lesser of `maxlength`
+ * and the remaining captured length of the buffer.)
+ *
+ * If `next_offset` is non-null and a line terminator is found, sets
+ * `*next_offset` to the offset immediately following the terminator.
+ * If no terminator is found sets `*next_offset` to the offset immediately
+ * following the last offset searched (i.e., the lesser of `offset + maxlength`
+ * and the offset past the last captured byte in the buffer.)
+ *
  * @param tvb          The tvbuff_t to scan.
  * @param offset       The offset in the tvbuff where the line begins.
  * @param maxlength    The maximum number of bytes to search.
@@ -3100,6 +3111,17 @@ WS_DLL_PUBLIC bool tvb_find_line_end_unquoted_remaining(tvbuff_t *tvb, const uns
  * examining up to `maxlength` bytes or the end of the captured bytes,
  * whichever comes first.
  * Returns true if a line terminator is found, false if not.
+ *
+ * If `linelen` is non-null and a line terminator is found, sets `*linelen`
+ * to the length of the line, not including the terminator. If no terminator
+ * is found, sets `*linelen` to the length searched (the lesser of `maxlength`
+ * and the remaining captured length of the buffer.)
+ *
+ * If `next_offset` is non-null and a line terminator is found, sets
+ * `*next_offset` to the offset immediately following the terminator.
+ * If no terminator is found sets `*next_offset` to the offset immediately
+ * following the last offset searched (i.e., the lesser of `offset + maxlength`
+ * and the offset past the last captured byte in the buffer.)
  *
  * @param tvb          The tvbuff_t to scan.
  * @param offset       The offset in the tvbuff where the line begins.
@@ -3239,6 +3261,66 @@ static inline unsigned tvb_skip_guint8(tvbuff_t *tvb, unsigned offset, const uns
  * @return The length of the token (excluding terminator), or -1 if desegmenting and no terminator is found.
  */
 WS_DLL_PUBLIC int tvb_get_token_len(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset, const bool desegment);
+
+/**
+ * @brief Determine the length of a token in a tvbuff.
+ *
+ * Scans the given tvbuff_t starting at `offset` for the end of a token,
+ * examining up to the end of the captured bytes.
+ * A token is defined as a sequence of non-separator characters terminated by
+ * a delimiter, where the separators are space, line feed, or carriage return.
+ *
+ * If `tokenlen` is non-null and a delimiter is found, sets `*tokenlen`
+ * to the length of the line, not including the delimter. If no delimiter
+ * is found, sets `*linelen` to the remaining captured length of the buffer.
+ *
+ * If `next_offset` is non-null and a terminator is found, sets `*next_offset` to the offset
+ * immediately following the terminator. If no terminator is found, sets `*next_offset` to
+ * the offset past the last captured byte in the buffer.
+ *
+ * @param tvb          The tvbuff_t to scan.
+ * @param offset       The offset in the tvbuff where the token begins.
+ * @param tokenlen     Pointer to receive the token length, or NULL.
+ * @param next_offset  Pointer to receive the offset past the token terminator, or NULL.
+ *
+ * @return true if a token separator was found, false if not.
+ *
+ * @see tvb_get_token_len_length
+ *
+ * @note This does not skip trailing spaces like get_token_len from strutil.h.
+ * If the token separator is CR followed by a LF, next_offset does not return
+ * the offset after the LF, unlike tvb_find_line_end.
+ */
+WS_DLL_PUBLIC bool tvb_get_token_len_remaining(tvbuff_t *tvb, const unsigned offset, unsigned *tokenlen, unsigned *next_offset);
+
+/**
+ * @brief Determine the length of a token in a tvbuff.
+ *
+ * Scans the given tvbuff_t starting at `offset` for the end of a token,
+ * examining no more than the lesser of `maxlength` and the remaining captured bytes.
+ * A token is defined as a sequence of non-separator characters terminated by
+ * a delimiter, where the separators are space, line feed, or carriage return.
+ *
+ * If `tokenlen` is non-null and a delimiter is found, sets `*tokenlen`
+ * to the length of the line, not including the delimter. If no delimiter
+ * is found, sets `*linelen` to the length searched (i.e., the lesser of
+ * `maxlength` and the remaining captured length of the buffer.)
+ *
+ * If `next_offset` is non-null and a terminator is found, sets `*next_offset`
+ * to the offset immediately following the terminator. If no terminator is found,
+ * sets `*next_offset` to the offset past the last byte examined.
+ *
+ * @param tvb          The tvbuff_t to scan.
+ * @param offset       The offset in the tvbuff where the token begins.
+ * @param maxlength    Maximum number of bytes to search in the buffer.
+ * @param tokenlen     Pointer to receive the token length, or NULL.
+ * @param next_offset  Pointer to receive the offset past the token terminator, or NULL.
+ *
+ * @return true if a token separator was found, false if not.
+ *
+ * @see tvb_get_token_len_remaining
+ */
+WS_DLL_PUBLIC bool tvb_get_token_len_length(tvbuff_t *tvb, const unsigned offset, unsigned maxlength, unsigned *tokenlen, unsigned *next_offset);
 
 /**
  * @brief Compare a string in a tvbuff to a reference string using strncmp semantics.

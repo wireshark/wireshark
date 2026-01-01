@@ -4927,22 +4927,12 @@ tvb_skip_uint8(tvbuff_t *tvb, unsigned offset, const unsigned maxlength, const u
 
 static ws_mempbrk_pattern pbrk_whitespace;
 
-int tvb_get_token_len(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset, const bool desegment)
+static bool
+_tvb_get_token_len_length(tvbuff_t *tvb, const unsigned offset, unsigned limit, unsigned *tokenlen, unsigned *next_offset)
 {
-	int    eob_offset;
-	int    eot_offset;
-	int    tokenlen;
+	unsigned eot_offset;
 	unsigned char found_needle = 0;
 	static bool compiled = false;
-
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	if (len == -1) {
-		len = _tvb_captured_length_remaining(tvb, offset);
-		/* if offset is past the end of the tvbuff, len is now 0 */
-	}
-
-	eob_offset = offset + len;
 
 	if (!compiled) {
 		ws_mempbrk_compile(&pbrk_whitespace, " \r\n");
@@ -4952,44 +4942,124 @@ int tvb_get_token_len(tvbuff_t *tvb, const unsigned offset, int len, int *next_o
 	/*
 	* Look either for a space, CR, or LF.
 	*/
-	eot_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, len, &pbrk_whitespace, &found_needle);
-	if (eot_offset == -1) {
+	if (!_tvb_ws_mempbrk_uint8_length(tvb, offset, limit, &pbrk_whitespace, &eot_offset, &found_needle)) {
 		/*
 		* No space, CR or LF - token is presumably continued in next packet.
 		*/
-		if (desegment) {
-			/*
-			* Tell our caller we saw no whitespace, so they can
-			* try to desegment and get the entire line
-			* into one tvbuff.
-			*/
-			return -1;
-		}
-		else {
-			/*
-			* Pretend the token runs to the end of the tvbuff.
-			*/
-			tokenlen = eob_offset - offset;
-			if (next_offset)
-				*next_offset = eob_offset;
-		}
-	}
-	else {
 		/*
-		* Find the number of bytes between the starting offset
-		* and the space, CR or LF.
+		* Pretend the token runs to the end of the tvbuff.
 		*/
-		tokenlen = eot_offset - offset;
-
-		/*
-		* Return the offset of the character after the last
-		* character in the line, skipping over the last character
-		* in the line terminator.
-		*/
+		if (tokenlen)
+			*tokenlen = eot_offset - offset;
 		if (next_offset)
-			*next_offset = eot_offset + 1;
+			*next_offset = eot_offset;
+		/*
+		* Tell our caller we saw no whitespace, so they can
+		* try to desegment and get the entire line
+		* into one tvbuff.
+		*/
+		return false;
 	}
-	return tokenlen;
+
+	/*
+	* Find the number of bytes between the starting offset
+	* and the space, CR or LF.
+	*/
+	if (tokenlen)
+		*tokenlen = eot_offset - offset;
+
+	/*
+	* Return the offset of the character after the token delimiter,
+	* skipping over the last character in the separator.
+	*
+	* XXX - get_token_len() from strutil.h returns the start offset of
+	* the next token by skipping trailing spaces (but not spaces that
+	* follow a CR or LF, only consecutive spaces). Should we align
+	* the two functions? Most dissectors want to skip extra spaces,
+	* and while the dissector _can_ follow up with tvb_skip_wsp, this
+	* probably causes dissectors to use tvb_get_ptr + get_token_len,
+	* which we want to discourage. OTOH, IMAP, which uses this, says
+	* "in all cases, SP refers to exactly one space. It is NOT permitted
+	* to substitute TAB, insert additional spaces, or otherwise treat
+	* SP as being equivalent to linear whitespace (LWSP)."
+	* https://www.rfc-editor.org/rfc/rfc9051.html#name-formal-syntax
+	*
+	* XXX - skip over CR-LF as a unit like tvb_find_line_end()?
+	* get_token_len() doesn't, probably because most dissectors have
+	* already found the line end before, but it probably makes sense
+	* to do and unlike above it's unlikely it would break any protocol
+	* (and might even fix some.)
+	*/
+	if (next_offset)
+		*next_offset = eot_offset + 1;
+
+	return true;
+}
+
+int tvb_get_token_len(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset, const bool desegment)
+{
+	unsigned tokenlen;
+	unsigned abs_next_offset;
+	unsigned limit;
+	int exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (len >= 0 && limit > (unsigned) len) {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
+		limit = (unsigned) len;
+	}
+
+	if (!_tvb_get_token_len_length(tvb, offset, limit, &tokenlen, &abs_next_offset) && desegment) {
+		return -1;
+	}
+	if (next_offset) {
+		*next_offset = (int)abs_next_offset;
+	}
+	return (int)tokenlen;
+}
+
+bool
+tvb_get_token_len_remaining(tvbuff_t *tvb, const unsigned offset, unsigned *tokenlen, unsigned *next_offset)
+{
+	unsigned limit;
+	int exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	return _tvb_get_token_len_length(tvb, offset, limit, tokenlen, next_offset);
+}
+
+bool
+tvb_get_token_len_length(tvbuff_t *tvb, const unsigned offset, const unsigned maxlength, unsigned *tokenlen, unsigned *next_offset)
+{
+	unsigned limit;
+	int exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (limit > maxlength) {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
+		limit = maxlength;
+	}
+
+	return _tvb_get_token_len_length(tvb, offset, limit, tokenlen, next_offset);
 }
 
 /*
