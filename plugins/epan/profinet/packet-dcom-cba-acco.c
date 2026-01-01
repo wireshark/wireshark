@@ -17,6 +17,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/conversation_filter.h>
 #include <epan/proto_data.h>
+#include <epan/exceptions.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcom.h>
 #include "packet-dcom-cba-acco.h"
@@ -3032,7 +3033,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 
     u32ItemIdx = 1;
     u32HoleIdx = 1;
-    while (u16Count--) {
+    while (u16Count) {
         proto_item *sub_item;
         proto_tree *sub_tree;
         proto_item *item;
@@ -3067,7 +3068,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
         }
 
         /* add callback-item subtree */
-        sub_item = proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_item, tvb, offset, 0, ENC_NA);
+        sub_item = proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_item, tvb, offset, u16Len, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_ICBAAccoCallback_Item);
 
         item_offset = offset;
@@ -3121,7 +3122,9 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
         }
 
         /* user data length is item length without headers */
-        u16DataLen = u16Len - u16HdrLen;
+        if (ckd_sub(&u16DataLen, u16Len, u16HdrLen)) {
+            THROW(ReportedBoundsError);
+        }
 
         /* append text to subtree header */
         if (u8Version == CBA_MRSH_VERSION_DCOM ||
@@ -3137,7 +3140,6 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
                 u32ItemIdx, offset - u16HdrLen, u16Len, u16DataLen,
                 val_to_str(pinfo->pool, u8QC, cba_acco_qc_vals, "Unknown (0x%02x)"), u8QC );
         }
-        proto_item_set_len(sub_item, u16Len);
 
         /* hexdump of user data */
         proto_tree_add_item(sub_tree, hf_cba_acco_cb_item_data, tvb, offset, u16DataLen, ENC_NA);
@@ -3170,6 +3172,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
         }
 
         u32ItemIdx++;
+        u16Count--;
     }
 
     if (u8Version == 1) {
