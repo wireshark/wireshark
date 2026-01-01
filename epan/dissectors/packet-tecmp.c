@@ -2400,7 +2400,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 if (tvb_captured_length_remaining(sub_tvb, offset2) < length2) {
                     expert_add_info(pinfo, ti, &ei_tecmp_payload_length_mismatch);
-                    length2 = MAX(0, MIN(length2, tvb_captured_length_remaining(sub_tvb, offset2)));
+                    length2 = MIN(length2, tvb_captured_length_remaining(sub_tvb, offset2));
                 }
 
                 if (length2 > 0) {
