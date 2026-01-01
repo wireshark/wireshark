@@ -47,7 +47,7 @@ WSLUA_CONSTRUCTOR GcryptCipher_open(lua_State* L) {
 #define WSLUA_ARG_GcryptCipher_open_FLAGS 3 /* Set the flags for this cipher */
     int algo = (int)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_open_ALGORITHM);
     int mode = (int)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_open_MODE);
-    int flags = (int)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_open_FLAGS);
+    unsigned flags = (unsigned)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_open_FLAGS);
     GcryptCipher gcry_cipher = (GcryptCipher)g_malloc(sizeof(gcry_cipher_hd_t));
     gcry_error_t err = gcry_cipher_open(gcry_cipher, algo, mode, flags);
     if (err) {
@@ -120,11 +120,11 @@ WSLUA_METHOD GcryptCipher_info(lua_State* L) {
     ByteArray ba = g_byte_array_new();
     size_t nbytes = 0;
     if (lua_isinteger(L, WSLUA_ARG_GcryptCipher_info_BUFFER_SIZE)) {
-        g_byte_array_set_size(ba, (int) luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_info_BUFFER_SIZE));
+        g_byte_array_set_size(ba, (unsigned)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_info_BUFFER_SIZE));
         pbuffer = ba->data;
     }
     if (lua_isinteger(L, WSLUA_ARG_GcryptCipher_info_NBYTES)) {
-        nbytes = (int)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_info_NBYTES);
+        nbytes = (size_t)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_info_NBYTES);
         pnbytes = (size_t *) &nbytes;
     }
     gcry_error_t err = gcry_cipher_info(*gcry_cipher, what, pbuffer, pnbytes);
@@ -135,7 +135,7 @@ WSLUA_METHOD GcryptCipher_info(lua_State* L) {
     }
     pushByteArray(L, ba);
     if (pnbytes != NULL) {
-        lua_pushinteger(L, (int) nbytes);
+        lua_pushinteger(L, (lua_Integer)nbytes);
     }
     else {
         lua_pushinteger(L, 0);
@@ -193,7 +193,7 @@ WSLUA_METHOD GcryptCipher_encrypt(lua_State* L) {
     } else {
         baout = g_byte_array_new();
         if (bain != NULL) {
-            g_byte_array_set_size(baout, (int) bain->len);
+            g_byte_array_set_size(baout, (unsigned) bain->len);
         }
         pout = baout->data;
         out_length = (size_t) baout->len;
@@ -261,7 +261,7 @@ WSLUA_METHOD GcryptCipher_decrypt(lua_State* L) {
     } else {
         baout = g_byte_array_new();
         if (bain != NULL) {
-            g_byte_array_set_size(baout, (int) bain->len);
+            g_byte_array_set_size(baout, (unsigned) bain->len);
         }
         pout = baout->data;
         out_length = (size_t) baout->len;
@@ -380,7 +380,7 @@ WSLUA_METHOD GcryptCipher_gettag(lua_State* L) {
     size_t tag_size = 0;
     gcry_error_t err = gcry_cipher_info(*gcry_cipher, GCRYCTL_GET_TAGLEN, NULL, &tag_size);
     if (!err) {
-        g_byte_array_set_size(ba, (int)tag_size);
+        g_byte_array_set_size(ba, (unsigned)tag_size);
         err = gcry_cipher_gettag(*gcry_cipher, ba->data, (size_t) ba->len);
     }
     if (err) {
@@ -472,11 +472,11 @@ WSLUA_FUNCTION wslua_gcry_cipher_algo_info(lua_State* L) {
     ByteArray ba = g_byte_array_new();
     size_t nbytes = 0;
     if (lua_isinteger(L, WSLUA_OPTARG_gcry_cipher_algo_info_BUFFER_SIZE)) {
-        g_byte_array_set_size(ba, (int) luaL_checkinteger(L, WSLUA_OPTARG_gcry_cipher_algo_info_BUFFER_SIZE));
+        g_byte_array_set_size(ba, (unsigned) luaL_checkinteger(L, WSLUA_OPTARG_gcry_cipher_algo_info_BUFFER_SIZE));
         pbuffer = ba->data;
     }
     if (lua_isinteger(L, WSLUA_OPTARG_gcry_cipher_algo_info_NBYTES)) {
-        nbytes = (int)luaL_checkinteger(L, WSLUA_OPTARG_gcry_cipher_algo_info_NBYTES);
+        nbytes = (size_t)luaL_checkinteger(L, WSLUA_OPTARG_gcry_cipher_algo_info_NBYTES);
         pnbytes = (size_t *) &nbytes;
     }
     gcry_error_t err = gcry_cipher_algo_info(algo, what, pbuffer, pnbytes);
@@ -491,8 +491,8 @@ WSLUA_FUNCTION wslua_gcry_cipher_algo_info(lua_State* L) {
         return lua_error(L);
     }
     pushByteArray(L, ba);
-    if (!err || (pnbytes != NULL)) {
-        lua_pushinteger(L, (int) nbytes);
+    if (pnbytes != NULL) {
+        lua_pushinteger(L, (lua_Integer) nbytes);
     }
     else {
         lua_pushinteger(L, -1);
