@@ -1742,7 +1742,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    dsp_op_name = "ChainedModify-DN-Argument";
 	    break;
 	  default:
-	    proto_tree_add_expert_format(tree, pinfo, &ei_dsp_unsupported_opcode, tvb, offset, -1,
+	    proto_tree_add_expert_format_remaining(tree, pinfo, &ei_dsp_unsupported_opcode, tvb, offset,
 	        "Unsupported DSP opcode (%d)", session->ros_op & ROS_OP_OPCODE_MASK);
 	    break;
 	  }
@@ -1786,7 +1786,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    dsp_op_name = "ChainedModify-DN-Result";
 	    break;
 	  default:
-	    proto_tree_add_expert(tree, pinfo, &ei_dsp_unsupported_opcode, tvb, offset, -1);
+	    proto_tree_add_expert_remaining(tree, pinfo, &ei_dsp_unsupported_opcode, tvb, offset);
 	    break;
 	  }
 	  break;
@@ -1829,12 +1829,12 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    dsp_op_name = "DSA-Referral";
 	    break;
 	  default:
-	    proto_tree_add_expert(tree, pinfo, &ei_dsp_unsupported_errcode, tvb, offset, -1);
+	    proto_tree_add_expert_remaining(tree, pinfo, &ei_dsp_unsupported_errcode, tvb, offset);
 	    break;
 	  }
 	  break;
 	default:
-	  proto_tree_add_expert(tree, pinfo, &ei_dsp_unsupported_pdu, tvb, offset, -1);
+	  proto_tree_add_expert_remaining(tree, pinfo, &ei_dsp_unsupported_pdu, tvb, offset);
 	  return tvb_captured_length(tvb);
 	}
 
@@ -1845,7 +1845,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    old_offset=offset;
 	    offset=(*dsp_dissector)(false, tvb, offset, &asn1_ctx, tree, -1);
 	    if(offset == old_offset){
-	      proto_tree_add_expert(tree, pinfo, &ei_dsp_zero_pdu, tvb, offset, -1);
+	      proto_tree_add_expert_remaining(tree, pinfo, &ei_dsp_zero_pdu, tvb, offset);
 	      break;
 	    }
 	  }

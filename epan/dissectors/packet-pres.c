@@ -1305,8 +1305,8 @@ static int dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 /*
  * Dissect an PPDU.
  */
-static int
-dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, struct SESSION_DATA_STRUCTURE* local_session)
+static unsigned
+dissect_ppdu(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, struct SESSION_DATA_STRUCTURE* local_session)
 {
 	proto_item *ti;
 	proto_tree *pres_tree;
@@ -1316,13 +1316,13 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, st
 
 	/* do we have spdu type from the session dissector?  */
 	if (local_session == NULL) {
-		proto_tree_add_expert(tree, pinfo, &ei_pres_wrong_spdu_type, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_pres_wrong_spdu_type, tvb, offset);
 		return 0;
 	}
 
 	session = local_session;
 	if (session->spdu_type == 0) {
-		proto_tree_add_expert_format(tree, pinfo, &ei_pres_wrong_spdu_type, tvb, offset, -1,
+		proto_tree_add_expert_format_remaining(tree, pinfo, &ei_pres_wrong_spdu_type, tvb, offset,
 			"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
 		return 0;
 	}
@@ -1373,7 +1373,7 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, st
 static int
 dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-	int offset = 0, old_offset;
+	unsigned offset = 0, old_offset;
 	struct SESSION_DATA_STRUCTURE* session;
 
 	session = ((struct SESSION_DATA_STRUCTURE*)data);

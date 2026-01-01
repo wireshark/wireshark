@@ -956,7 +956,7 @@ dissect_gprscdr_T_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned
   if (obj_id){
     offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-    proto_tree_add_expert(ext_tree, actx->pinfo, &ei_gprscdr_not_dissected, tvb, offset, -1);
+    proto_tree_add_expert_remaining(ext_tree, actx->pinfo, &ei_gprscdr_not_dissected, tvb, offset);
   }
 
 

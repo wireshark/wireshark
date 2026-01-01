@@ -466,8 +466,8 @@ dissect_sv_SampledValues(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offs
 static int
 dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	int offset = 0;
-	int old_offset;
+	unsigned offset = 0;
+	unsigned old_offset;
 	unsigned sv_length = 0;
 	proto_item *item;
 	proto_tree *tree;
@@ -507,7 +507,7 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 		old_offset = offset;
 		offset = dissect_sv_SampledValues(false, tvb, offset, &asn1_ctx , tree, -1);
 		if (offset == old_offset) {
-			proto_tree_add_expert(tree, pinfo, &ei_sv_zero_pdu, tvb, offset, -1);
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_sv_zero_pdu, tvb, offset);
 			break;
 		}
 	}

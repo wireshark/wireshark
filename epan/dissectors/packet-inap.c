@@ -1415,9 +1415,9 @@ static const value_string inap_general_problem_strings[] = {
 #endif
 
 /* Forward declarations */
-static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
-static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
-static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
+static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_);
+static unsigned dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_);
+static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx);
 
 
 const value_string inap_CriticalityType_vals[] = {
@@ -9038,7 +9038,7 @@ TC-Invokable OPERATION ::=
 */
 
 
-static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
 
   switch(opcode){
     case opcode_activateServiceFiltering:  /* activateServiceFiltering */
@@ -9297,8 +9297,8 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
       offset= dissect_SRFCallGapArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     default:
-      proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_invokeData,
-                                   tvb, offset, -1, "Unknown invokeData %d", opcode);
+      proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_inap_unknown_invokeData,
+                                   tvb, offset, "Unknown invokeData %d", opcode);
       /* todo call the asn.1 dissector */
       break;
   }
@@ -9306,7 +9306,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 }
 
 
-static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
+static unsigned dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, unsigned offset,asn1_ctx_t *actx) {
   switch(opcode){
     case opcode_createCallSegmentAssociation:  /* createCallSegmentAssociation */
       offset= dissect_CreateCallSegmentAssociationResultArg_PDU(tvb, actx->pinfo , tree , NULL);
@@ -9327,14 +9327,14 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
       offset= dissect_MessageReceivedArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
-    proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_returnResultData,
-                                 tvb, offset, -1, "Unknown returnResultData %d", opcode);
+    proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_inap_unknown_returnResultData,
+                                 tvb, offset, "Unknown returnResultData %d", opcode);
   }
   return offset;
 }
 
 
-static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
+static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigned offset,asn1_ctx_t *actx) {
   switch(errorCode) {
     case errcode_cancelFailed:  /* cancelFailed */
       offset= dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree , NULL);
@@ -9355,8 +9355,8 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
       offset= dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
-    proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_returnErrorData,
-                                 tvb, offset, -1, "Unknown returnErrorData %d", opcode);
+    proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_inap_unknown_returnErrorData,
+                                 tvb, offset, "Unknown returnErrorData %d", opcode);
   }
   return offset;
 }
@@ -9372,7 +9372,7 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 {
   proto_item		*item=NULL;
   proto_tree		*tree=NULL;
-  int				offset = 0;
+  unsigned		offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 

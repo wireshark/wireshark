@@ -4659,7 +4659,7 @@ static const h450_err_t *get_err(int32_t errcode) {
 static int
 dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   proto_item *hidden_item;
-  int offset = 0;
+  unsigned offset = 0;
   rose_ctx_t *rctx;
   int32_t opcode;
   const h450_op_t *op_ptr;
@@ -4693,7 +4693,7 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = op_ptr->arg_pdu(tvb, pinfo, tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_expert(tree, pinfo, &ei_h450_unsupported_arg_type, tvb, offset, -1);
+      proto_tree_add_expert_remaining(tree, pinfo, &ei_h450_unsupported_arg_type, tvb, offset);
       offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -4704,7 +4704,7 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   proto_item *hidden_item;
-  int offset = 0;
+  unsigned offset = 0;
   rose_ctx_t *rctx;
   int32_t opcode;
   const h450_op_t *op_ptr;
@@ -4738,7 +4738,7 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = op_ptr->res_pdu(tvb, pinfo, tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_expert(tree, pinfo, &ei_h450_unsupported_result_type, tvb, offset, -1);
+      proto_tree_add_expert_remaining(tree, pinfo, &ei_h450_unsupported_result_type, tvb, offset);
       offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -4749,7 +4749,7 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   proto_item *hidden_item;
-  int offset = 0;
+  unsigned offset = 0;
   rose_ctx_t *rctx;
   int32_t errcode;
   const h450_err_t *err_ptr;
@@ -4783,7 +4783,7 @@ dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = err_ptr->err_pdu(tvb, pinfo, tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_expert(tree, pinfo, &ei_h450_unsupported_error_type, tvb, offset, -1);
+      proto_tree_add_expert_remaining(tree, pinfo, &ei_h450_unsupported_error_type, tvb, offset);
       offset += tvb_reported_length_remaining(tvb, offset);
     }
 

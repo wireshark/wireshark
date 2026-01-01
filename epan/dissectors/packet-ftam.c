@@ -4729,8 +4729,8 @@ dissect_ftam_unstructured_binary(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 static int
 dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	int offset = 0;
-	int old_offset;
+	unsigned offset = 0;
+	unsigned old_offset;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
@@ -4748,7 +4748,7 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		old_offset=offset;
 		offset=dissect_ftam_PDU(false, tvb, offset, &asn1_ctx, tree, -1);
 		if(offset == old_offset){
-			proto_tree_add_expert(tree, pinfo, &ei_ftam_zero_pdu, tvb, offset, -1);
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_ftam_zero_pdu, tvb, offset);
 			break;
 		}
 	}

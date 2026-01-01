@@ -463,7 +463,7 @@ dissect_mms(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
             wmem_free(pinfo->pool, asn1_ctx.private_data);
         }
         if (offset == old_offset) {
-            proto_tree_add_expert(tree, pinfo, &ei_mms_zero_pdu, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_mms_zero_pdu, tvb, offset);
             break;
         }
     }

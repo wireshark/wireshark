@@ -368,8 +368,8 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
 static int
 dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-	int offset = 0;
-	int old_offset;
+	unsigned offset = 0;
+	unsigned old_offset;
 	proto_item *item;
 	proto_tree *tree;
 	proto_tree *next_tree=NULL;

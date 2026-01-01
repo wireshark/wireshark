@@ -90,7 +90,7 @@ static const value_string inap_err_code_string_vals[] = {
 # in file packet-inap-table2.c which is included in the template file
 #
 #.TABLE2_HDR
-static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
 
   switch(opcode){
 #.TABLE2_BODY OPERATION.&ArgumentType
@@ -99,8 +99,8 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
       break;
 #.TABLE2_FTR
     default:
-      proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_invokeData,
-                                   tvb, offset, -1, "Unknown invokeData %d", opcode);
+      proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_inap_unknown_invokeData,
+                                   tvb, offset, "Unknown invokeData %d", opcode);
       /* todo call the asn.1 dissector */
       break;
   }
@@ -108,7 +108,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 }
 #.END
 #.TABLE2_HDR
-static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
+static unsigned dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, unsigned offset,asn1_ctx_t *actx) {
   switch(opcode){
 #.TABLE2_BODY OPERATION.&ResultType
     case %(&operationCode)s:  /* %(_ident)s */
@@ -116,14 +116,14 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
       break;
 #.TABLE2_FTR
   default:
-    proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_returnResultData,
-                                 tvb, offset, -1, "Unknown returnResultData %d", opcode);
+    proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_inap_unknown_returnResultData,
+                                 tvb, offset, "Unknown returnResultData %d", opcode);
   }
   return offset;
 }
 #.END
 #.TABLE2_HDR
-static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
+static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigned offset,asn1_ctx_t *actx) {
   switch(errorCode) {
 #.TABLE2_BODY ERROR.&ParameterType
     case %(&errorCode)s:  /* %(_ident)s */
@@ -131,8 +131,8 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
       break;
 #.TABLE2_FTR
   default:
-    proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_returnErrorData,
-                                 tvb, offset, -1, "Unknown returnErrorData %d", opcode);
+    proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_inap_unknown_returnErrorData,
+                                 tvb, offset, "Unknown returnErrorData %d", opcode);
   }
   return offset;
 }
