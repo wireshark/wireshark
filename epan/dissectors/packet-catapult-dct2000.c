@@ -883,13 +883,9 @@ static void dissect_rlc_umts(tvbuff_t *tvb, int offset,
     }
 }
 
-static char* get_key(tvbuff_t*tvb, int offset)
+static char* get_key(wmem_allocator_t *allocator, tvbuff_t*tvb, int offset)
 {
-    static char key[33];
-    for (int n=0; n < 16; n++) {
-        snprintf(&key[n*2], 33-(n*2), "%02x", tvb_get_uint8(tvb, offset+n));
-    }
-    return key;
+    return tvb_bytes_to_str(allocator, tvb, offset, 16);
 }
 
 
@@ -1112,7 +1108,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
                     offset += 2;
                     proto_tree_add_item(sc_tree, hf_catapult_dct2000_ciphering_key,
                                         tvb, offset, 16, ENC_NA);
-                    char *key = get_key(tvb, offset);
+                    char *key = get_key(pinfo->pool, tvb, offset);
 
                     if (!PINFO_FD_VISITED(pinfo)) {
                         if (lte_or_nr == NR) {
@@ -1147,7 +1143,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
                 offset += 2;
                 proto_tree_add_item(sc_tree, hf_catapult_dct2000_integrity_key,
                                     tvb, offset, 16, ENC_NA);
-                char *key = get_key(tvb, offset);
+                char *key = get_key(pinfo->pool, tvb, offset);
 
                 if (!PINFO_FD_VISITED(pinfo)) {
                     if (lte_or_nr == NR) {
@@ -2224,20 +2220,12 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         }
         else {
             /* Otherwise show as $hex */
-            int n, idx;
-            char *hex_string;
             int tty_string_length = tvb_reported_length_remaining(tvb, offset);
-            int hex_string_length = 1+(2*tty_string_length)+1;
-            hex_string = (char *)wmem_alloc(pinfo->pool, hex_string_length);
 
-            idx = snprintf(hex_string, hex_string_length, "$");
+            wmem_strbuf_t *hex_buf = wmem_strbuf_new(pinfo->pool, "$");
+            wmem_strbuf_append(hex_buf, tvb_bytes_to_str(pinfo->pool, tvb, offset, tty_string_length));
 
-            /* Write hex out to new string */
-            for (n=0; n < tty_string_length; n++) {
-                idx += snprintf(hex_string+idx, 3, "%02x",
-                                  tvb_get_uint8(tvb, offset+n));
-            }
-            string = hex_string;
+            string = wmem_strbuf_finalize(hex_buf);
         }
         lines++;
 
