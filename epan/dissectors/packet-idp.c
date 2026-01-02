@@ -56,10 +56,17 @@ static const value_string idp_packet_type_vals[] = {
 	{ IDP_PACKET_TYPE_ERROR,	"Error" },
 	{ IDP_PACKET_TYPE_PEP,		"PEP" },
 	{ IDP_PACKET_TYPE_SPP,		"SPP" },
+	{ IDP_PACKET_TYPE_PUPLOOKUP,    "PUPLookup"},
 	{ 0,				NULL }
 };
 
 static const value_string idp_socket_vals[] = {
+	{ IDP_SOCKET_RIP,               "RIP"},
+	{ IDP_SOCKET_ECHO,              "Echo"},
+	{ IDP_SOCKET_ERROR,             "Error"},
+	{ IDP_SOCKET_COURIER,           "Courier"},
+	{ IDP_SOCKET_TIME,              "Time"},
+	{ IDP_SOCKET_PUPLOOKUP,         "PUPLookup"},
 	{ IDP_SOCKET_SMB,		"SMB" },
 	{ 0,				NULL }
 };
