@@ -4636,11 +4636,11 @@ _tvb_find_line_end_unquoted_length(tvbuff_t *tvb, const unsigned offset, unsigne
 	}
 
 	eob_offset = offset + limit;
-	len = limit;
 
 	cur_offset = offset;
 	is_quoted  = false;
 	for (;;) {
+		len = limit - (cur_offset - offset);
 		/*
 		 * Is this part of the string quoted?
 		 */
@@ -4743,7 +4743,6 @@ _tvb_find_line_end_unquoted_length(tvbuff_t *tvb, const unsigned offset, unsigne
 				*next_offset = eob_offset;
 			break;
 		}
-		len -= cur_offset - offset;
 	}
 	return found;
 }
