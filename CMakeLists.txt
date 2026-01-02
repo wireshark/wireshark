@@ -693,17 +693,8 @@ else() # ! MSVC
 			COMMAND xmllint --xpath "//dict/key[text()=\"short-bundle-version\"]/following-sibling::string/text()" -
 			OUTPUT_VARIABLE _actool_version
 		)
-		set(WIRESHARK_INFO_PLIST_ICONS "\
-	<key>CFBundleIconFile</key>
-	<string>Wireshark.icns</string>")
 		if(_actool_version VERSION_GREATER_EQUAL "26.0")
-			message(STATUS "Enabling Liquid Glass icon support")
 			set(HAVE_LIQUID_GLASS_ICONS True)
-			set(WIRESHARK_INFO_PLIST_ICONS "\
-	<key>CFBundleIconFile</key>
-	<string>Wireshark</string>
-	<key>CFBundleIconName</key>
-	<string>Wireshark</string>")
 		endif()
 		unset(_actool_version)
 	endif()
@@ -2869,11 +2860,6 @@ if(ENABLE_APPLICATION_BUNDLE)
 		MACOSX_PACKAGE_LOCATION .
 	)
 
-	# Wireshark.app/Contents/Resources
-	set(WIRESHARK_BUNDLE_RESOURCE_FILES
-		${CMAKE_SOURCE_DIR}/packaging/macosx/Wiresharkdoc.icns
-	)
-
 	if(HAVE_LIQUID_GLASS_ICONS)
 		# Compile our Liquid Glass icons to an asset catalog
 		# https://successfulsoftware.net/2025/09/26/updating-application-icons-for-macos-26-tahoe-and-liquid-glass/
@@ -2888,7 +2874,10 @@ if(ENABLE_APPLICATION_BUNDLE)
 		#   dyld[16760]: symbol '_kFigCaptionRegionDisplayAlign_Before' missing from root that overrides /System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia. Use of that symbol in /System/Library/PrivateFrameworks/AVFCore.framework/Versions/A/AVFCore is being set to 0xBAD4007.
 		# warnings. The icon assets otherwise seem to work OK.
 		# On Xcode 26.2 on macOS 26.2 the command below returns 0 and generates Assets.car with no warnings.
-		add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/resources/wireshark/Assets.car
+		add_custom_command(
+			OUTPUT
+				${CMAKE_BINARY_DIR}/resources/wireshark/Assets.car
+				${CMAKE_BINARY_DIR}/resources/wireshark/Wireshark.icns
 			COMMAND ${ACTOOL_EXECUTABLE}
 				${CMAKE_SOURCE_DIR}/resources/icons/Wireshark.icon
 				${CMAKE_SOURCE_DIR}/resources/icons/WiresharkCapture.icon
@@ -2903,16 +2892,22 @@ if(ENABLE_APPLICATION_BUNDLE)
 				--minimum-deployment-target ${MIN_MACOS_VERSION}
 				--target-device mac
 				--enable-on-demand-resources NO
-				# --print-contents
+				--print-contents
 		)
-		list(APPEND WIRESHARK_BUNDLE_RESOURCE_FILES
-			${CMAKE_BINARY_DIR}/resources/wireshark/Assets.car
+		add_custom_target(generate-wireshark-assets-car
+			DEPENDS
+				${CMAKE_BINARY_DIR}/resources/wireshark/Assets.car
+				${CMAKE_BINARY_DIR}/resources/wireshark/Wireshark.icns
 		)
-	else()
-		list(APPEND WIRESHARK_BUNDLE_RESOURCE_FILES
-			${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark.icns
-		)
+
 	endif()
+
+	# Wireshark.app/Contents/Resources
+	set(WIRESHARK_BUNDLE_RESOURCE_FILES
+		${CMAKE_SOURCE_DIR}/resources/icons/wireshark/Assets.car
+		${CMAKE_SOURCE_DIR}/resources/icons/wireshark/Wireshark.icns
+		${CMAKE_SOURCE_DIR}/resources/icons/wireshark/Wiresharkdoc.icns
+	)
 
 	set_source_files_properties(${WIRESHARK_BUNDLE_RESOURCE_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources
@@ -2958,7 +2953,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 	)
 	set(STRATOSHARK_BUNDLE_RESOURCE_FILES
 		${CMAKE_BINARY_DIR}/resources/icons/Stratoshark.icns
-		${CMAKE_SOURCE_DIR}/packaging/macosx/Wiresharkdoc.icns
+		${CMAKE_SOURCE_DIR}/resources/icons/wireshark/Wiresharkdoc.icns
 	)
 	set_source_files_properties(${STRATOSHARK_BUNDLE_RESOURCE_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources

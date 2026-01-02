@@ -92,7 +92,7 @@ DIAG_ON(frame-larger-than=)
 #include <QUrl>
 #include <ui/tap-aggregation.h>
 
-#ifdef HAVE_LIQUID_GLASS_ICONS
+#ifdef Q_OS_MAC
 #include <ui/macosx/cocoa_bridge.h>
 #endif
 
@@ -2551,7 +2551,7 @@ void WiresharkMainWindow::setMenusForFileSet(bool enable_list_files) {
 
 void WiresharkMainWindow::setIconForCaptureInProgress(bool capture_in_progress)
 {
-#ifdef HAVE_LIQUID_GLASS_ICONS
+#ifdef Q_OS_MAC
     CocoaBridge::setCaptureIcon(capture_in_progress);
 #else
     const QIcon &icon = capture_in_progress ? mainApp->captureIcon() : mainApp->normalIcon();

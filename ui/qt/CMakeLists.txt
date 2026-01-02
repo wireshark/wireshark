@@ -753,11 +753,7 @@ add_custom_command(
 set(CMAKE_AUTORCC_OPTIONS --format-version 1)
 list(APPEND CMAKE_AUTORCC_OPTIONS -compress-algo zlib)
 
-if(APPLE)
-	if(NOT HAVE_LIQUID_GLASS_ICONS)
-		set(WSICON_QRC ${CMAKE_SOURCE_DIR}/resources/wsicon_mac.qrc)
-	endif()
-else()
+if(NOT APPLE)
 	set(WSICON_QRC ${CMAKE_SOURCE_DIR}/resources/wsicon.qrc)
 endif()
 

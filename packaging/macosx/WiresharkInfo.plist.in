@@ -6,7 +6,10 @@
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>Wireshark</string>
-@WIRESHARK_INFO_PLIST_ICONS@
+	<key>CFBundleIconFile</key>
+	<string>Wireshark</string>
+	<key>CFBundleIconName</key>
+	<string>Wireshark</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.wireshark.Wireshark</string>
 	<key>CFBundleDocumentTypes</key>

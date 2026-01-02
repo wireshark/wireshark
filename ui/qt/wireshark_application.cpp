@@ -15,12 +15,8 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     MainApplication(argc, argv)
 {
     wsApp = this;
-#ifndef HAVE_LIQUID_GLASS_ICONS
-#ifdef Q_OS_MAC
-    Q_INIT_RESOURCE(wsicon_mac);
-#else
+#ifndef Q_OS_MAC
     Q_INIT_RESOURCE(wsicon);
-#endif
 #endif
     setApplicationName("Wireshark");
     setDesktopFileName(QStringLiteral("org.wireshark.Wireshark"));
@@ -33,14 +29,10 @@ WiresharkApplication::~WiresharkApplication()
 
 void WiresharkApplication::initializeIcons()
 {
-#ifndef HAVE_LIQUID_GLASS_ICONS
     // Do this as late as possible in order to allow time for
     // MimeDatabaseInitThread to do its work.
-#ifdef Q_OS_MAC
-    QList<int> icon_sizes = QList<int>() << 1024 << 512 << 256 << 128 << 64 << 32 << 16;
-#else
+#ifndef Q_OS_MAC
     QList<int> icon_sizes = QList<int>() << 256 << 128 << 64 << 48 << 32 << 24 << 16;
-#endif
     if (normal_icon_.isNull()) {
         // We shouldn't be here on Windows or macOS
         foreach (int icon_size, icon_sizes) {
