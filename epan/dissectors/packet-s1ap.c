@@ -9976,13 +9976,13 @@ static unsigned
 dissect_s1ap_RIMInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
+  volatile int saved_offset = offset;
 
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+  saved_offset = dissect_per_octet_string(tvb, saved_offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-
   if (!parameter_tvb)
-    return offset;
+    return saved_offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RIMInformation);
   if ((tvb_reported_length(parameter_tvb)>0)&&(bssgp_handle)){
@@ -11639,12 +11639,13 @@ static unsigned
 dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
+  volatile int saved_offset = offset;
 
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+  saved_offset = dissect_per_octet_string(tvb, saved_offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (!parameter_tvb)
-    return offset;
+    return saved_offset;
 
   if (g_s1ap_dissect_container) {
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);

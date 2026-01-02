@@ -682,10 +682,13 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
+  volatile int saved_offset = offset;
 
-%(DEFAULT_BODY)s
+  saved_offset = dissect_per_octet_string(tvb, saved_offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
+
   if (!parameter_tvb)
-    return offset;
+    return saved_offset;
 
   if (g_s1ap_dissect_container) {
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
@@ -743,11 +746,13 @@ Hysteresis DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Hysteresis_fmt)
 #.FN_BODY RIMInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
+  volatile int saved_offset = offset;
 
-%(DEFAULT_BODY)s
+  saved_offset = dissect_per_octet_string(tvb, saved_offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (!parameter_tvb)
-    return offset;
+    return saved_offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RIMInformation);
   if ((tvb_reported_length(parameter_tvb)>0)&&(bssgp_handle)){
