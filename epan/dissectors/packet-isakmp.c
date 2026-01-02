@@ -450,6 +450,10 @@ static int hf_isakmp_enc_data;
 static int hf_isakmp_enc_iv;
 static int hf_isakmp_enc_icd;
 
+static int hf_isakmp_iketcp_magic;
+static int hf_isakmp_iketcp_length;
+static int hf_isakmp_iketcp_non_esp_marker;
+
 static int ett_isakmp;
 static int ett_isakmp_version;
 static int ett_isakmp_flags;
@@ -481,7 +485,9 @@ static expert_field ei_isakmp_bad_fragment_number;
 static expert_field ei_isakmp_notify_data_3gpp_unknown_device_identity;
 
 static dissector_handle_t eap_handle;
+static dissector_handle_t esp_handle;
 static dissector_handle_t isakmp_handle;
+static dissector_handle_t iketcp_handle;
 
 
 static reassembly_table isakmp_cisco_reassembly_table;
@@ -6453,6 +6459,77 @@ dissect_gspm(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 
 /*
+https://datatracker.ietf.org/doc/html/rfc9329#name-tcp-encapsulated-stream-pre
+
+ 4. TCP-Encapsulated Stream Prefix
+
+Each stream of bytes used for IKE and IPsec encapsulation MUST begin with a fixed sequence of 6 bytes as a magic value
+, containing the characters "IKETCP" as ASCII values.
+
+   0      1      2      3      4      5
++------+------+------+------+------+------+
+| 0x49 | 0x4b | 0x45 | 0x54 | 0x43 | 0x50 |
++------+------+------+------+------+------+
+
+
+*/
+
+#define IKETCP_MAGIC 0x494B45544350
+
+static int
+dissect_iketcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  int offset = 0;
+  uint32_t length;
+  tvbuff_t *payload_tvb;
+
+  /* IKETCP Magic Packet*/
+  if (tvb_get_ntoh48(tvb, 0) == IKETCP_MAGIC) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IKETCP");
+    col_set_str(pinfo->cinfo, COL_INFO, "MAGIC PACKET");
+    proto_tree_add_item(tree, hf_isakmp_iketcp_magic, tvb, offset, 6, ENC_ASCII);
+    offset += 6;
+    return offset;
+  }
+
+  /* Check Non-ESP Marker => ISAKMP */
+  if (tvb_get_ntohs(tvb, 2) == 0) {
+    proto_tree_add_item_ret_uint(tree, hf_isakmp_iketcp_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+    offset += 2;
+    proto_tree_add_item(tree, hf_isakmp_iketcp_non_esp_marker, tvb, offset, 4, ENC_NA);
+    offset += 4;
+    payload_tvb = tvb_new_subset_length(tvb, offset, length);
+    offset = dissect_isakmp(payload_tvb, pinfo, tree, data);
+  } else {
+    proto_tree_add_item_ret_uint(tree, hf_isakmp_iketcp_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+    offset += 2;
+    payload_tvb = tvb_new_subset_length(tvb, offset, length);
+    call_dissector(esp_handle, payload_tvb, pinfo, tree);
+    offset += length;
+  }
+
+  return offset;
+}
+
+static bool
+dissect_iketcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+{
+    conversation_t     *conversation;
+
+    if (tvb_captured_length(tvb) < 6) {
+        return false;
+    }
+
+    if (tvb_get_ntoh48(tvb, 0) != IKETCP_MAGIC) {
+        return false;
+    }
+
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector_from_frame_number(conversation, pinfo->num, iketcp_handle);
+    return true;
+}
+
+/*
  * Protocol initialization
  */
 
@@ -8310,8 +8387,23 @@ proto_register_isakmp(void)
     { &hf_iskamp_notify_data_3gpp_emergency_call_number,
       { "Emergency Number", "isakmp.notify.priv.3gpp.emergency_call_number",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }}
+        NULL, HFILL }},
+
+    /* RFC9329 : IKETCP */
+    { &hf_isakmp_iketcp_magic,
+      { "IKETCP Magic", "isakmp.iketcp.magic",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_iketcp_length,
+      { "Length", "isakmp.iketcp.length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_iketcp_non_esp_marker,
+      { "Non-ESP Marker", "isakmp.iketcp.non_esp_marker",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        "Should be Zero", HFILL }},
   };
+
 
 
   static int *ett[] = {
@@ -8381,6 +8473,7 @@ proto_register_isakmp(void)
                         &addresses_reassembly_table_functions);
 
   isakmp_handle = register_dissector("isakmp", dissect_isakmp, proto_isakmp);
+  iketcp_handle = register_dissector("iketcp", dissect_iketcp, proto_isakmp);
 
   isakmp_module = prefs_register_protocol(proto_isakmp, NULL);
   ikev1_uat = uat_new("IKEv1 Decryption Table",
@@ -8430,6 +8523,8 @@ void
 proto_reg_handoff_isakmp(void)
 {
   eap_handle = find_dissector_add_dependency("eap", proto_isakmp);
+  esp_handle = find_dissector_add_dependency("esp", proto_isakmp);
+  heur_dissector_add("tcp", dissect_iketcp_heur, "IKE over TCP", "iketcp", proto_isakmp, HEURISTIC_ENABLE);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_ISAKMP, isakmp_handle);
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_ISAKMP, isakmp_handle);
 }
