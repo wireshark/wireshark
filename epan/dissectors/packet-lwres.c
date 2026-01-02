@@ -1,5 +1,6 @@
 /* packet-lwres.c
- * Routines for light weight reslover (lwres, part of BIND9) packet disassembly
+ * Routines for lightweight resolver (lwresd, formerly part of BIND9) packet disassembly
+ * lwresd was removed in Bind 9.12. It ran on the IPv4 loopback interface only.
  *
  * Copyright (c) 2003 by Oleg Terletsky <oleg.terletsky@comverse.com>
  *
@@ -170,8 +171,9 @@ static int ett_ns_rec;
 static int ett_ns_rec_item;
 
 
-
+#if 0
 #define LWRES_UDP_PORT 921 /* Not IANA registered */
+#endif
 
 /* Define the lwres proto */
 static int proto_lwres;
@@ -1136,7 +1138,7 @@ proto_register_lwres(void)
 void
 proto_reg_handoff_lwres(void)
 {
-    dissector_add_uint_with_preference("udp.port", LWRES_UDP_PORT, lwres_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", lwres_handle);
 }
 
 /*
