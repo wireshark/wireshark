@@ -74,7 +74,7 @@ struct ptvcursor {
 	uint8_t	     pushed_tree_max;
 	proto_tree  *tree;
 	tvbuff_t    *tvb;
-	int	     offset;
+	unsigned     offset;
 };
 
 #define cVALS(x) (const value_string*)(x)
@@ -281,6 +281,10 @@ proto_tree_add_fake_node(proto_tree *tree, const header_field_info *hfinfo);
 static void
 get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start, int *length,
 		int *item_length, const unsigned encoding);
+
+static void
+get_hfi_length_unsigned(header_field_info * hfinfo, tvbuff_t * tvb, const unsigned start, unsigned* length,
+	unsigned* item_length, const unsigned encoding);
 
 static int
 get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start,
@@ -3397,13 +3401,12 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
-		{
-			if(retval)
-			{
-				*retval = 0;
-			}
-		} );
+	if (length == 0) {
+		if (retval) {
+			*retval = 0;
+		}
+		return NULL;
+	}
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3446,14 +3449,14 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* and uint value retrieved*/
 proto_item *
-ptvcursor_add_ret_uint(ptvcursor_t *ptvc, int hfindex, int length,
+ptvcursor_add_ret_uint(ptvcursor_t *ptvc, int hfindex, unsigned length,
 	      const unsigned encoding, uint32_t *retval)
 {
 	field_info	  *new_fi;
 	header_field_info *hfinfo;
-	int		   item_length;
-	int		   offset;
-	uint32_t		   value;
+	unsigned	   item_length;
+	unsigned	   offset;
+	uint32_t	   value;
 
 	offset = ptvc->offset;
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
@@ -3470,7 +3473,7 @@ ptvcursor_add_ret_uint(ptvcursor_t *ptvc, int hfindex, int length,
 		    hfinfo->abbrev);
 	}
 
-	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
+	get_hfi_length_unsigned(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
 	test_length(hfinfo, ptvc->tvb, offset, item_length, encoding);
 
 	/* I believe it's ok if this is called with a NULL tree */
@@ -3503,14 +3506,14 @@ ptvcursor_add_ret_uint(ptvcursor_t *ptvc, int hfindex, int length,
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* and int value retrieved*/
 proto_item *
-ptvcursor_add_ret_int(ptvcursor_t *ptvc, int hfindex, int length,
+ptvcursor_add_ret_int(ptvcursor_t *ptvc, int hfindex, unsigned length,
 	      const unsigned encoding, int32_t *retval)
 {
 	field_info	  *new_fi;
 	header_field_info *hfinfo;
-	int		   item_length;
-	int		   offset;
-	uint32_t		   value;
+	unsigned	   item_length;
+	unsigned	   offset;
+	uint32_t	   value;
 
 	offset = ptvc->offset;
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
@@ -3526,7 +3529,7 @@ ptvcursor_add_ret_int(ptvcursor_t *ptvc, int hfindex, int length,
 		    hfinfo->abbrev);
 	}
 
-	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
+	get_hfi_length_unsigned(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
 	test_length(hfinfo, ptvc->tvb, offset, item_length, encoding);
 
 	/* I believe it's ok if this is called with a NULL tree */
@@ -3565,10 +3568,10 @@ proto_item*
 ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, wmem_allocator_t *scope, const uint8_t **retval)
 {
 	header_field_info *hfinfo;
-	field_info		*new_fi;
-	const uint8_t	*value;
-	int			item_length;
-	int				offset;
+	field_info	  *new_fi;
+	const uint8_t	  *value;
+	unsigned	  item_length;
+	unsigned	  offset;
 
 	offset = ptvc->offset;
 
@@ -3576,19 +3579,19 @@ ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, int length, const unsigned e
 
 	switch (hfinfo->type) {
 	case FT_STRING:
-		value = get_string_value(scope, ptvc->tvb, offset, length, &item_length, encoding);
+		value = get_string_value(scope, ptvc->tvb, offset, length, (int*)&item_length, encoding);
 		break;
 	case FT_STRINGZ:
-		value = get_stringz_value(scope, ptvc->tree, ptvc->tvb, offset, length, &item_length, encoding);
+		value = get_stringz_value(scope, ptvc->tree, ptvc->tvb, offset, length, (int*)&item_length, encoding);
 		break;
 	case FT_UINT_STRING:
-		value = get_uint_string_value(scope, ptvc->tree, ptvc->tvb, offset, length, &item_length, encoding);
+		value = get_uint_string_value(scope, ptvc->tree, ptvc->tvb, offset, length, (int*)&item_length, encoding);
 		break;
 	case FT_STRINGZPAD:
-		value = get_stringzpad_value(scope, ptvc->tvb, offset, length, &item_length, encoding);
+		value = get_stringzpad_value(scope, ptvc->tvb, offset, length, (int*)&item_length, encoding);
 		break;
 	case FT_STRINGZTRUNC:
-		value = get_stringztrunc_value(scope, ptvc->tvb, offset, length, &item_length, encoding);
+		value = get_stringztrunc_value(scope, ptvc->tvb, offset, length, (int*)&item_length, encoding);
 		break;
 	default:
 		REPORT_DISSECTOR_BUG("field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, or FT_STRINGZTRUNC",
@@ -3613,13 +3616,13 @@ ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, int length, const unsigned e
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* and boolean value retrieved */
 proto_item*
-ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, int length, const unsigned encoding, bool *retval)
+ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, unsigned length, const unsigned encoding, bool *retval)
 {
 	header_field_info *hfinfo;
 	field_info		*new_fi;
-	int			item_length;
-	int				offset;
-	uint64_t			value, bitval;
+	unsigned		item_length;
+	unsigned		offset;
+	uint64_t		value, bitval;
 
 	offset = ptvc->offset;
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
@@ -3629,19 +3632,17 @@ ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, int length, const unsi
 		    hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
-		{
-			if(retval)
-			{
-				*retval = false;
-			}
-		} );
-
+	if (length == 0) {
+		if (retval) {
+			*retval = 0;
+		}
+		return NULL;
+	}
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
 	}
 
-	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
+	get_hfi_length_unsigned(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
 	test_length(hfinfo, ptvc->tvb, offset, item_length, encoding);
 
 	/* I believe it's ok if this is called with a NULL tree */
@@ -4382,7 +4383,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, int length,
 	field_info	  *new_fi;
 	header_field_info *hfinfo;
 	int		   item_length;
-	int		   offset;
+	unsigned	   offset;
 
 	offset = ptvc->offset;
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
@@ -4763,7 +4764,7 @@ ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, int length,
 /* Advance the ptvcursor's offset within its tvbuff without
  * adding anything to the proto_tree. */
 void
-ptvcursor_advance(ptvcursor_t* ptvc, int length)
+ptvcursor_advance(ptvcursor_t* ptvc, unsigned length)
 {
 	if (ckd_add(&ptvc->offset, ptvc->offset, length)) {
 		THROW(ReportedBoundsError);
@@ -6756,6 +6757,41 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start, int *l
 		}
 		if (*item_length < 0) {
 			THROW(ReportedBoundsError);
+		}
+	}
+}
+
+static void
+get_hfi_length_unsigned(header_field_info* hfinfo, tvbuff_t* tvb, const unsigned start, unsigned* length,
+	unsigned* item_length, const unsigned encoding _U_)
+{
+	unsigned length_remaining;
+
+	/*
+	 * We only allow a null tvbuff if the item has a zero length,
+	 * i.e. if there's no data backing it.
+	 */
+	DISSECTOR_ASSERT(tvb != NULL || *length == 0);
+
+
+	*item_length = *length;
+	if (hfinfo->type == FT_PROTOCOL || hfinfo->type == FT_NONE) {
+		/*
+			* These types are for interior nodes of the
+			* tree, and don't have data associated with
+			* them; if the length is negative (XXX - see
+			* above) or goes past the end of the tvbuff,
+			* cut it short at the end of the tvbuff.
+			* That way, if this field is selected in
+			* Wireshark, we don't highlight stuff past
+			* the end of the data.
+			*/
+			/* XXX - what to do, if we don't have a tvb? */
+		if (tvb) {
+			length_remaining = tvb_captured_length_remaining(tvb, start);
+			if (*item_length > 0 && (length_remaining < *item_length)) {
+				*item_length = length_remaining;
+			}
 		}
 	}
 }

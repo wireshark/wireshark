@@ -3685,11 +3685,11 @@ starts where this call finished. The 'encoding' parameter is relevant for
 certain type of fields (See above under proto_tree_add_item()).
 
 proto_item *
-ptvcursor_add_ret_uint(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, uint32_t *retval);
+ptvcursor_add_ret_uint(ptvcursor_t* ptvc, int hf, unsigned length, const unsigned encoding, uint32_t *retval);
     Like ptvcursor_add, but returns uint value retrieved
 
 proto_item *
-ptvcursor_add_ret_int(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, int32_t *retval);
+ptvcursor_add_ret_int(ptvcursor_t* ptvc, int hf, unsigned length, const unsigned encoding, int32_t *retval);
     Like ptvcursor_add, but returns int value retrieved
 
 proto_item *
@@ -3697,7 +3697,7 @@ ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, int length, const unsigned e
     Like ptvcursor_add, but returns string retrieved
 
 proto_item *
-ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, bool *retval);
+ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hf, unsigned length, const unsigned encoding, bool *retval);
     Like ptvcursor_add, but returns boolean value retrieved
 
 proto_item *
@@ -3705,7 +3705,7 @@ ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, int length, const unsigned e
     Like ptvcursor_add, but does not advance the internal cursor.
 
 void
-ptvcursor_advance(ptvcursor_t* ptvc, int length)
+ptvcursor_advance(ptvcursor_t* ptvc, unsigned length)
     Advances the internal cursor without adding anything to the proto_tree.
 
 void

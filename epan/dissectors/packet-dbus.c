@@ -562,7 +562,7 @@ add_uint(dbus_packet_t *packet, int hf) {
 }
 
 static const char *
-add_dbus_string(dbus_packet_t *packet, int hf, int uint_length) {
+add_dbus_string(dbus_packet_t *packet, int hf, unsigned uint_length) {
 	const char *string;
 	int start_offset = ptvcursor_current_offset(packet->cursor);
 	proto_item *pi = ptvcursor_add_ret_string(packet->cursor, hf, uint_length,
