@@ -166,6 +166,10 @@ static int hf_capwap_msg_element_type_maximum_message_length;
 static int hf_capwap_msg_element_type_capwap_local_ipv4_address;
 
 static int hf_capwap_msg_element_type_idle_timeout;
+
+static int hf_capwap_msg_element_type_image_identifier_vendor;
+static int hf_capwap_msg_element_type_image_identifier_data;
+
 static int hf_capwap_msg_element_type_radio_admin_id;
 static int hf_capwap_msg_element_type_radio_admin_state;
 
@@ -2386,6 +2390,16 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_idle_timeout, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         break;
 
+    case TYPE_IMAGE_IDENTIFIER: /* Image Identifier (25) */
+        if (optlen < 5) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "Image Identifier length %u wrong, must be >= 5", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_image_identifier_vendor, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_image_identifier_data, tvb, offset+8, optlen-4, ENC_UTF_8);
+        break;
+
     case TYPE_LOCATION_DATA: /* Location Data (28) */
         if (optlen < 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
@@ -3936,6 +3950,16 @@ proto_register_capwap_control(void)
             { "Idle Timeout (Sec)", "capwap.control.message_element.idle_timeout",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_image_identifier_vendor,
+            { "Vendor Identifier", "capwap.control.message_element.image_identifier.vendor",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              "IANA-assigned SMI Network Management Private Enterprise Code", HFILL }
+        },
+        { &hf_capwap_msg_element_type_image_identifier_data,
+            { "Image Version", "capwap.control.message_element.image_identifier.data",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              "Expected software version to be run on the WTP", HFILL }
         },
         { &hf_capwap_msg_element_type_location_data,
             { "Location Data", "capwap.control.message_element.location_data",
