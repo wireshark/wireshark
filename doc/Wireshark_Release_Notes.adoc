@@ -38,15 +38,17 @@ See the “New and Updated Features” section below for more details.
 
 The following features are either new or have been significantly updated since version 4.6.0:
 
-* The keyboard shortcuts dialog (About Wireshark → Keyboard Shortcuts) has been moved out of of the About dialog to the menu View → Internals → Keyboard Shortcuts and now has a button to print the list of keyboard shortcuts to an HTML file.
-
 // * The Windows installers now ship with Npcap 1.83.
 //   They previously shipped with Npcap 1.79.
 
 // * The Windows installers now ship with Qt 6.8.3.
 //   They previously shipped with Qt 6.5.3.
 
-* Nothing of note.
+* The keyboard shortcuts dialog (menu:About Wireshark[Keyboard Shortcuts]) has been moved out of of the About dialog to the menu:View[Internals,Keyboard Shortcuts] menu and now has a button to print the list of keyboard shortcuts to an HTML file.
+
+* The application icons have been updated and refreshed.
+  The macOS icon now supports Liquid Glass and is sized according to Apple's specifications on older macOS versions.
+  wsbuglink:18131[]
 
 // === Removed Features and Support
 
