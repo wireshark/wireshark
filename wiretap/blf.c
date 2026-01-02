@@ -5375,7 +5375,7 @@ blf_dump_open(wtap_dumper *wdh, int *err, char **err_info) {
 
 static const struct file_type_subtype_info blf_info = {
         "Vector Informatik Binary Logging Format (BLF) logfile", "blf", "blf", NULL,
-        false, BLOCKS_SUPPORTED(blf_blocks_supported),
+        true, BLOCKS_SUPPORTED(blf_blocks_supported),
         blf_dump_can_write_encap, blf_dump_open, NULL
 };
 

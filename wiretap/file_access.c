@@ -2425,6 +2425,10 @@ wtap_dump_open_finish(wtap_dumper *wdh, int *err, char **err_info)
 	/* Can we do a seek on the file descriptor?
 	   If not, note that fact. */
 	if (wdh->compression_type != WS_FILE_UNCOMPRESSED) {
+		/* We've already checked this case in wtap_dump_init_dumper
+		 * via wtap_dump_can_compress, so we shouldn't need to return
+		 * WTAP_ERR_COMPRESSION_NOT_SUPPORTED instead of
+		 * WTAP_ERR_CANT_WRITE_TO_PIPE below. */
 		cant_seek = true;
 	} else {
 		fd = ws_fileno((FILE *)wdh->fh);
