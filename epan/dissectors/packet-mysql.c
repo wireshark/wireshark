@@ -1344,6 +1344,7 @@ static int hf_mysql_fld_unsigned;
 static int hf_mysql_fld_zero_fill;
 static int hf_mysql_exec_field_null;
 static int hf_mysql_null_buffer;
+static int hf_mysql_fld_binary;
 static int hf_mysql_fld_enum;
 static int hf_mysql_fld_auto_increment;
 static int hf_mysql_fld_timestamp;
@@ -1832,6 +1833,7 @@ static int * const mysql_fld_flags[] = {
 	&hf_mysql_fld_blob,
 	&hf_mysql_fld_unsigned,
 	&hf_mysql_fld_zero_fill,
+	&hf_mysql_fld_binary,
 	&hf_mysql_fld_enum,
 	&hf_mysql_fld_auto_increment,
 	&hf_mysql_fld_timestamp,
@@ -5939,6 +5941,11 @@ void proto_register_mysql(void)
 		{ "Row null buffer", "mysql.row.nullbuffer",
 		FT_BYTES, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
+
+		{ &hf_mysql_fld_binary,
+		{ "Binary", "mysql.field.flags.binary",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_BINARY_FLAG,
+		"Field: flag binary", HFILL }},
 
 		{ &hf_mysql_fld_enum,
 		{ "Enum", "mysql.field.flags.enum",
