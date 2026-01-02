@@ -148,13 +148,16 @@ static void
 nlm_print_msgres_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
 	nlm_msg_res_matched_data *md;
+	proto_item *ti;
 
 	md=(nlm_msg_res_matched_data *)wmem_map_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
 	if(md){
 		nstime_t ns;
-		proto_tree_add_uint(tree, hf_nlm_request_in, tvb, 0, 0, md->req_frame);
+		ti = proto_tree_add_uint(tree, hf_nlm_request_in, tvb, 0, 0, md->req_frame);
+		proto_item_set_generated(ti);
 		nstime_delta(&ns, &pinfo->abs_ts, &md->ns);
-		proto_tree_add_time(tree, hf_nlm_time, tvb, 0, 0, &ns);
+		ti = proto_tree_add_time(tree, hf_nlm_time, tvb, 0, 0, &ns);
+		proto_item_set_generated(ti);
 	}
 }
 
@@ -165,7 +168,9 @@ nlm_print_msgres_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 
 	md=(nlm_msg_res_matched_data *)wmem_map_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
 	if(md){
-		proto_tree_add_uint(tree, hf_nlm_reply_in, tvb, 0, 0, md->rep_frame);
+		proto_item *ti;
+		ti = proto_tree_add_uint(tree, hf_nlm_reply_in, tvb, 0, 0, md->rep_frame);
+		proto_item_set_generated(ti);
 	}
 }
 static void
@@ -198,7 +203,10 @@ nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	nlm_msg_res_unmatched_data *old_umd;
 
 	umd.cookie_len=tvb_get_ntohl(tvb, offset);
-	umd.cookie=tvb_get_ptr(tvb, offset+4, -1);
+	if (!tvb_bytes_exist(tvb, offset + 4, umd.cookie_len)) {
+		return;
+	}
+	umd.cookie=tvb_get_ptr(tvb, offset+4, umd.cookie_len);
 
 	/* have we seen this cookie before? */
 	old_umd=(nlm_msg_res_unmatched_data *)wmem_map_lookup(nlm_msg_res_unmatched, (const void *)&umd);
@@ -223,11 +231,16 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	nlm_msg_res_unmatched_data *umd;
 	nlm_msg_res_unmatched_data *old_umd;
 
+	uint32_t cookie_len = tvb_get_ntohl(tvb, offset);
+	if (!tvb_bytes_exist(tvb, offset + 4, cookie_len)) {
+		return;
+	}
+
 	/* allocate and build the unmatched structure for this request */
 	umd = wmem_new(wmem_file_scope(), nlm_msg_res_unmatched_data);
 	umd->req_frame = pinfo->num;
 	umd->ns = pinfo->abs_ts;
-	umd->cookie_len = tvb_get_ntohl(tvb, offset);
+	umd->cookie_len = cookie_len;
 	umd->cookie = (const uint8_t *)tvb_memdup(wmem_file_scope(), tvb, offset+4, umd->cookie_len);
 
 	/* remove any old duplicates */
@@ -240,8 +253,35 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	wmem_map_insert(nlm_msg_res_unmatched, umd, umd);
 }
 
+static void
+nlm_handle_request(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
+{
+	if( (!pinfo->fd->visited) ){
+		nlm_register_unmatched_msg(pinfo, tvb, offset);
+	} else {
+		nlm_print_msgres_request(pinfo, tree, tvb);
+	}
+	/* for the fhandle matching that finds both request and
+	   response packet */
+	if(nfs_fhandle_reqrep_matching){
+		nlm_match_fhandle_request(pinfo, tree);
+	}
+}
 
-
+static void
+nlm_handle_reply(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
+{
+	if( (!pinfo->fd->visited) ){
+		nlm_register_unmatched_res(pinfo, tvb, offset);
+	} else {
+		nlm_print_msgres_reply(pinfo, tree, tvb);
+	}
+	/* for the fhandle matching that finds both request and
+	   response packet */
+	if(nfs_fhandle_reqrep_matching){
+		nlm_match_fhandle_reply(pinfo, tree);
+	}
+}
 
 static const value_string names_nlm_stats[] =
 {
@@ -366,16 +406,7 @@ dissect_nlm_test(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==6){	/* NLM_TEST_MSG */
-			if( (!pinfo->fd->visited) ){
-				nlm_register_unmatched_msg(pinfo, tvb, offset);
-			} else {
-				nlm_print_msgres_request(pinfo, tree, tvb);
-			}
-			/* for the fhandle matching that finds both request and
-			   response packet */
-			if(nfs_fhandle_reqrep_matching){
-				nlm_match_fhandle_request(pinfo, tree);
-			}
+			nlm_handle_request(tvb, offset, pinfo, tree);
 		}
 	}
 
@@ -392,16 +423,7 @@ dissect_nlm_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==7){	/* NLM_LOCK_MSG */
-			if( (!pinfo->fd->visited) ){
-				nlm_register_unmatched_msg(pinfo, tvb, offset);
-			} else {
-				nlm_print_msgres_request(pinfo, tree, tvb);
-			}
-			/* for the fhandle matching that finds both request and
-			   response packet */
-			if(nfs_fhandle_reqrep_matching){
-				nlm_match_fhandle_request(pinfo, tree);
-			}
+			nlm_handle_request(tvb, offset, pinfo, tree);
 		}
 	}
 
@@ -420,16 +442,7 @@ dissect_nlm_cancel(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==8){	/* NLM_CANCEL_MSG */
-			if( (!pinfo->fd->visited) ){
-				nlm_register_unmatched_msg(pinfo, tvb, offset);
-			} else {
-				nlm_print_msgres_request(pinfo, tree, tvb);
-			}
-			/* for the fhandle matching that finds both request and
-			   response packet */
-			if(nfs_fhandle_reqrep_matching){
-				nlm_match_fhandle_request(pinfo, tree);
-			}
+			nlm_handle_request(tvb, offset, pinfo, tree);
 		}
 	}
 
@@ -446,16 +459,7 @@ dissect_nlm_unlock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==9){	/* NLM_UNLOCK_MSG */
-			if( (!pinfo->fd->visited) ){
-				nlm_register_unmatched_msg(pinfo, tvb, offset);
-			} else {
-				nlm_print_msgres_request(pinfo, tree, tvb);
-			}
-			/* for the fhandle matching that finds both request and
-			   response packet */
-			if(nfs_fhandle_reqrep_matching){
-				nlm_match_fhandle_request(pinfo, tree);
-			}
+			nlm_handle_request(tvb, offset, pinfo, tree);
 		}
 	}
 
@@ -470,16 +474,7 @@ dissect_nlm_granted(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==10){	/* NLM_GRANTED_MSG */
-			if( (!pinfo->fd->visited) ){
-				nlm_register_unmatched_msg(pinfo, tvb, offset);
-			} else {
-				nlm_print_msgres_request(pinfo, tree, tvb);
-			}
-			/* for the fhandle matching that finds both request and
-			   response packet */
-			if(nfs_fhandle_reqrep_matching){
-				nlm_match_fhandle_request(pinfo, tree);
-			}
+			nlm_handle_request(tvb, offset, pinfo, tree);
 		}
 	}
 
@@ -499,16 +494,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if(nlm_match_msgres){
 		if(rpc_call->proc==11){	/* NLM_TEST_RES */
-			if( (!pinfo->fd->visited) ){
-				nlm_register_unmatched_res(pinfo, tvb, offset);
-			} else {
-				nlm_print_msgres_reply(pinfo, tree, tvb);
-			}
-			/* for the fhandle matching that finds both request and
-			   response packet */
-			if(nfs_fhandle_reqrep_matching){
-				nlm_match_fhandle_reply(pinfo, tree);
-			}
+			nlm_handle_reply(tvb, offset, pinfo, tree);
 		}
 	}
 
@@ -641,16 +627,7 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, packet_info *pinfo,
 		|| (rpc_call->proc==13)  /* NLM_CANCEL_RES */
 		|| (rpc_call->proc==14)  /* NLM_UNLOCK_RES */
 		|| (rpc_call->proc==15) ){ /* NLM_GRANTED_RES */
-			if( (!pinfo->fd->visited) ){
-				nlm_register_unmatched_res(pinfo, tvb, offset);
-			} else {
-				nlm_print_msgres_reply(pinfo, tree, tvb);
-			}
-			/* for the fhandle matching that finds both request and
-			   response packet */
-			if(nfs_fhandle_reqrep_matching){
-				nlm_match_fhandle_reply(pinfo, tree);
-			}
+			nlm_handle_reply(tvb, offset, pinfo, tree);
 		}
 	}
 
@@ -1146,11 +1123,11 @@ proto_register_nlm(void)
 			"sequence", "nlm.sequence", FT_INT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_request_in, {
-			"Request MSG in", "nlm.msg_in", FT_UINT32, BASE_DEC,
-			NULL, 0, "The RES packet is a response to the MSG in this packet", HFILL }},
+			"Request MSG in", "nlm.msg_in", FT_FRAMENUM, BASE_NONE,
+			FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, "The RES packet is a response to the MSG in this packet", HFILL }},
 		{ &hf_nlm_reply_in, {
-			"Reply RES in", "nlm.res_in", FT_UINT32, BASE_DEC,
-			NULL, 0, "The response to this MSG packet is in this packet", HFILL }},
+			"Reply RES in", "nlm.res_in", FT_FRAMENUM, BASE_NONE,
+			FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, "The response to this MSG packet is in this packet", HFILL }},
 		{ &hf_nlm_time, {
 			"Time from request", "nlm.time", FT_RELATIVE_TIME, BASE_NONE,
 			NULL, 0, "Time between Request and Reply for async NLM calls", HFILL }},
