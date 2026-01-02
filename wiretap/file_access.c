@@ -2270,6 +2270,9 @@ wtap_dump_open(const char *filename, int file_type_subtype,
 		   opening it. */
 		wtap_dump_file_close(wdh);
 		ws_unlink(filename);
+		g_free(wdh->priv);
+		wtap_block_array_free(wdh->interface_data);
+		wtap_block_array_unref(wdh->dsbs_initial);
 		g_free(wdh);
 		return NULL;
 	}
@@ -2332,6 +2335,9 @@ wtap_dump_open_tempfile(const char *tmpdir, char **filenamep, const char *pfx,
 		   opening it. */
 		wtap_dump_file_close(wdh);
 		ws_unlink(*filenamep);
+		g_free(wdh->priv);
+		wtap_block_array_free(wdh->interface_data);
+		wtap_block_array_unref(wdh->dsbs_initial);
 		g_free(wdh);
 		return NULL;
 	}
@@ -2367,6 +2373,9 @@ wtap_dump_fdopen(int fd, int file_type_subtype, ws_compression_type compression_
 
 	if (!wtap_dump_open_finish(wdh, err, err_info)) {
 		wtap_dump_file_close(wdh);
+		g_free(wdh->priv);
+		wtap_block_array_free(wdh->interface_data);
+		wtap_block_array_unref(wdh->dsbs_initial);
 		g_free(wdh);
 		return NULL;
 	}

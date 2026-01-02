@@ -5681,6 +5681,7 @@ cf_save_records(capture_file *cf, const char *fname, unsigned save_format,
         params.idb_inf = NULL;
 
         if (pdh == NULL) {
+            wtap_dump_params_cleanup(&params);
             report_cfile_dump_open_failure(fname, err, err_info, save_format);
             goto fail;
         }
