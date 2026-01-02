@@ -2832,6 +2832,12 @@ wtap_dump_file_tell(wtap_dumper *wdh, int *err)
 {
 	int64_t rval;
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H)
+	/* XXX - The gzip_writer and lz4_writer structs do contain the
+	 * position in the uncompressed data as an int64_t so we could
+	 * return that, but that should be the same as bytes_dumped as
+	 * we can't seek while compressing. (Alternatively we could return
+	 * the position in the compressed file, but that seems less useful.)
+	 */
 	if (wdh->compression_type != WS_FILE_UNCOMPRESSED) {
 		*err = WTAP_ERR_CANT_SEEK_COMPRESSED;
 		return -1;

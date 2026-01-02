@@ -1514,6 +1514,9 @@ static const char * const wtap_errlist[] = {
 	NULL,
 
 	/* WTAP_ERR_CANT_SEEK_COMPRESSED */
+	/* This indicates a bug in the file format's module, because
+	 * the module should have set writing_must_seek to true in its
+	 * file_type_subtype_info */
 	NULL,
 
 	/* WTAP_ERR_DECOMPRESS */

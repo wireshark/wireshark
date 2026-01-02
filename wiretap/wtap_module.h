@@ -221,6 +221,10 @@ WS_DLL_PUBLIC bool wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
  * @param whence Seek origin (e.g., SEEK_SET).
  * @param err Optional error code output.
  * @return New file position on success, -1 on failure.
+ *
+ * @note If a module uses this function, it should set writing_must_seek
+ * to true in its file_type_subtype_info. Seeking is not supported when
+ * writing compressed files.
  */
 WS_DLL_PUBLIC int64_t wtap_dump_file_seek(wtap_dumper *wdh, int64_t offset,
                                           int whence, int *err);
@@ -231,6 +235,11 @@ WS_DLL_PUBLIC int64_t wtap_dump_file_seek(wtap_dumper *wdh, int64_t offset,
  * @param wdh Wiretap dumper handle.
  * @param err Optional error code output.
  * @return Current file position on success, -1 on failure.
+ *
+ * @note If a module uses this function, it should set writing_must_seek
+ * to true in its file_type_subtype_info. If a module never seeks but
+ * needs to know the number of bytes written, use the bytes_dumped
+ * member of wtap_dumper in order to preserve support for compression.
  */
 WS_DLL_PUBLIC int64_t wtap_dump_file_tell(wtap_dumper *wdh, int *err);
 
