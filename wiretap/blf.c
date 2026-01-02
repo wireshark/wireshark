@@ -4051,7 +4051,8 @@ blf_init_file_header(wtap_dumper *wdh, int *err) {
 
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
-    writer_data->fileheader = g_new0(blf_fileheader_t, 1);
+    /* currently only support 144 byte length*/
+    writer_data->fileheader = (blf_fileheader_t*)g_malloc0(144);
 
     /* set magic */
     int i;
