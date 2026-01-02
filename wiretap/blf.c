@@ -4124,6 +4124,9 @@ blf_finalize_file_header(wtap_dumper *wdh, int *err) {
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
     blf_fileheader_t *fileheader = writer_data->fileheader;
     int64_t bytes_written = wtap_dump_file_tell(wdh, err);
+    if (bytes_written == -1 || *err != 0) {
+        return false;
+    }
 
     /* update the header and convert all to LE */
     fileheader->api_version = (((WIRESHARK_VERSION_MAJOR * 100) + WIRESHARK_VERSION_MINOR) * 100 + WIRESHARK_VERSION_MICRO) * 100;
@@ -4181,6 +4184,9 @@ static bool blf_dump_close_logcontainer(wtap_dumper *wdh, int *err, char **err_i
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
     int64_t current_position = wtap_dump_file_tell(wdh, err);
+    if (current_position == -1 || *err != 0) {
+        return false;
+    }
 
     int64_t tmp = wtap_dump_file_seek(wdh, writer_data->logcontainer_start, SEEK_SET, err);
     if (*err != 0 || tmp != 0) {
@@ -4235,6 +4241,9 @@ static bool blf_dump_start_logcontainer(wtap_dumper *wdh, int *err, char **err_i
     fix_endianness_blf_logcontainerheader(&(writer_data->logcontainer_header));
 
     writer_data->logcontainer_start = wtap_dump_file_tell(wdh, err);
+    if (*err != 0) {
+        return false;
+    }
 
     return blf_dump_write_logcontainer(wdh, err, err_info);
 }
@@ -4243,6 +4252,9 @@ static bool blf_dump_check_logcontainer_full(wtap_dumper *wdh, int *err, char **
     const blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
     uint64_t position = (uint64_t)wtap_dump_file_tell(wdh, err);
+    if (*err != 0) {
+        return false;
+    }
     if (position - writer_data->logcontainer_start + length <= LOG_CONTAINER_BUFFER_SIZE) {
         return true;
     }
