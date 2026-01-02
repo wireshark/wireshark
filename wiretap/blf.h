@@ -48,7 +48,7 @@ wtap_open_return_val blf_open(wtap *wth, int *err, char **err_info);
  *
  *    Log container header
  *    Data for contained objects.
- * 
+ *
  * The data in a LOG_CONTAINER object may be compressed using zlib.
  */
 
@@ -96,6 +96,7 @@ typedef struct blf_fileheader {
     blf_date_t end_date;
 
     uint32_t restore_point_offset;
+    uint8_t padding[];
 } blf_fileheader_t;
 
 /* BLF Block Header */
