@@ -20624,7 +20624,14 @@ void QCPColorScaleAxisRectPrivate::draw(QCPPainter *painter)
     mirrorVert = mParentColorScale->mColorAxis.data()->rangeReversed() && (mParentColorScale->type() == QCPAxis::atLeft || mParentColorScale->type() == QCPAxis::atRight);
   }
 
+# if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+  Qt::Orientations orient;
+  orient.setFlag(Qt::Horizontal, mirrorHorz);
+  orient.setFlag(Qt::Vertical, mirrorVert);
+  painter->drawImage(rect().adjusted(0, -1, 0, -1), mGradientImage.flipped(orient));
+# else
   painter->drawImage(rect().adjusted(0, -1, 0, -1), mGradientImage.mirrored(mirrorHorz, mirrorVert));
+# endif
   QCPAxisRect::draw(painter);
 }
 
@@ -26666,7 +26673,14 @@ void QCPColorMap::updateLegendIcon(Qt::TransformationMode transformMode, const Q
   {
     bool mirrorX = (keyAxis()->orientation() == Qt::Horizontal ? keyAxis() : valueAxis())->rangeReversed();
     bool mirrorY = (valueAxis()->orientation() == Qt::Vertical ? valueAxis() : keyAxis())->rangeReversed();
+# if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    Qt::Orientations orient;
+    orient.setFlag(Qt::Horizontal, mirrorX);
+    orient.setFlag(Qt::Vertical, mirrorY);
+    mLegendIcon = QPixmap::fromImage(mMapImage.flipped(orient)).scaled(thumbSize, Qt::KeepAspectRatio, transformMode);
+# else
     mLegendIcon = QPixmap::fromImage(mMapImage.mirrored(mirrorX, mirrorY)).scaled(thumbSize, Qt::KeepAspectRatio, transformMode);
+#endif
   }
 }
 
@@ -26894,7 +26908,14 @@ void QCPColorMap::draw(QCPPainter *painter)
                                   coordsToPixels(mMapData->keyRange().upper, mMapData->valueRange().upper)).normalized();
     localPainter->setClipRect(tightClipRect, Qt::IntersectClip);
   }
+# if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+  Qt::Orientations orient;
+  orient.setFlag(Qt::Horizontal, mirrorX);
+  orient.setFlag(Qt::Vertical, mirrorY);
+  localPainter->drawImage(imageRect, mMapImage.flipped(orient));
+# else
   localPainter->drawImage(imageRect, mMapImage.mirrored(mirrorX, mirrorY));
+# endif
   if (mTightBoundary)
     localPainter->setClipRegion(clipBackup);
   localPainter->setRenderHint(QPainter::SmoothPixmapTransform, smoothBackup);
@@ -30319,7 +30340,16 @@ void QCPItemPixmap::updateScaledPixmap(QRect finalRect, bool flipHorz, bool flip
     {
       mScaledPixmap = mPixmap.scaled(finalRect.size()*devicePixelRatio, mAspectRatioMode, mTransformationMode);
       if (flipHorz || flipVert)
+# if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+      {
+        Qt::Orientations orient;
+        orient.setFlag(Qt::Horizontal, flipHorz);
+        orient.setFlag(Qt::Vertical, flipVert);
+        mScaledPixmap = QPixmap::fromImage(mScaledPixmap.toImage().flipped(orient));
+      }
+# else
         mScaledPixmap = QPixmap::fromImage(mScaledPixmap.toImage().mirrored(flipHorz, flipVert));
+# endif
 #ifdef QCP_DEVICEPIXELRATIO_SUPPORTED
       mScaledPixmap.setDevicePixelRatio(devicePixelRatio);
 #endif
