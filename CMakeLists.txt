@@ -686,7 +686,6 @@ else() # ! MSVC
 			endif()
 			set(MIN_MACOS_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
 		endif()
-		find_program(ICONUTIL_EXECUTABLE iconutil)
 		find_program(ACTOOL_EXECUTABLE actool)
 		execute_process(
 			COMMAND ${ACTOOL_EXECUTABLE} --version
@@ -2900,6 +2899,31 @@ if(ENABLE_APPLICATION_BUNDLE)
 				${CMAKE_BINARY_DIR}/resources/wireshark/Wireshark.icns
 		)
 
+		add_custom_command(
+			OUTPUT
+				${CMAKE_BINARY_DIR}/resources/stratoshark/Assets.car
+				${CMAKE_BINARY_DIR}/resources/stratoshark/Stratoshark.icns
+			COMMAND ${ACTOOL_EXECUTABLE}
+				${CMAKE_SOURCE_DIR}/resources/icons/Stratoshark.icon
+				${CMAKE_SOURCE_DIR}/resources/icons/StratosharkCapture.icon
+				--output-format human-readable-text
+				--compile ${CMAKE_BINARY_DIR}/resources/stratoshark
+				--output-partial-info-plist ${CMAKE_BINARY_DIR}/resources/stratoshark/icon_info.plist --notices --warnings --errors
+				--app-icon Stratoshark
+				--alternate-app-icon StratosharkCapture
+				--skip-app-store-deployment
+				--development-region en
+				--platform macosx
+				--minimum-deployment-target ${MIN_MACOS_VERSION}
+				--target-device mac
+				--enable-on-demand-resources NO
+				--print-contents
+		)
+		add_custom_target(generate-stratoshark-assets-car
+			DEPENDS
+				${CMAKE_BINARY_DIR}/resources/stratoshark/Assets.car
+				${CMAKE_BINARY_DIR}/resources/stratoshark/Stratoshark.icns
+		)
 	endif()
 
 	# Wireshark.app/Contents/Resources
@@ -2945,14 +2969,9 @@ if(ENABLE_APPLICATION_BUNDLE)
 	)
 
 	# Stratoshark.app/Contents/Resources
-	add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/resources/icons/Stratoshark.icns
-		COMMAND ${ICONUTIL_EXECUTABLE}
-			-c icns
-			-o ${CMAKE_BINARY_DIR}/resources/icons/Stratoshark.icns
-			${CMAKE_SOURCE_DIR}/resources/icons/Stratoshark.iconset
-	)
 	set(STRATOSHARK_BUNDLE_RESOURCE_FILES
-		${CMAKE_BINARY_DIR}/resources/icons/Stratoshark.icns
+		${CMAKE_SOURCE_DIR}/resources/icons/stratoshark/Assets.car
+		${CMAKE_SOURCE_DIR}/resources/icons/stratoshark/Stratoshark.icns
 		${CMAKE_SOURCE_DIR}/resources/icons/wireshark/Wiresharkdoc.icns
 	)
 	set_source_files_properties(${STRATOSHARK_BUNDLE_RESOURCE_FILES} PROPERTIES

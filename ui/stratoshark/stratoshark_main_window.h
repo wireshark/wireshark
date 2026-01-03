@@ -206,7 +206,6 @@ private:
     void setMenusForCaptureStopping();
     void setForCapturedPackets(bool have_captured_packets);
     void setMenusForFileSet(bool enable_list_files);
-    void setWindowIcon(const QIcon &icon);
     void updateStyleSheet();
 
     void externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, int depth);

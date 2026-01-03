@@ -2388,11 +2388,6 @@ void StratosharkMainWindow::setMenusForFileSet(bool enable_list_files) {
     main_ui_->actionFileSetPreviousFile->setEnabled(enable_prev);
 }
 
-void StratosharkMainWindow::setWindowIcon(const QIcon &icon) {
-    mainApp->setWindowIcon(icon);
-    QMainWindow::setWindowIcon(icon);
-}
-
 void StratosharkMainWindow::updateForUnsavedChanges() {
     updateTitlebar();
     setMenusForCaptureFile();

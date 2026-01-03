@@ -92,10 +92,6 @@ DIAG_ON(frame-larger-than=)
 #include <QUrl>
 #include <ui/tap-aggregation.h>
 
-#ifdef Q_OS_MAC
-#include <ui/macosx/cocoa_bridge.h>
-#endif
-
 //menu_recent_file_write_all
 
 // If we ever add support for multiple windows this will need to be replaced.
@@ -2547,17 +2543,6 @@ void WiresharkMainWindow::setMenusForFileSet(bool enable_list_files) {
     main_ui_->actionFileSetListFiles->setEnabled(enable_list_files);
     main_ui_->actionFileSetNextFile->setEnabled(enable_next);
     main_ui_->actionFileSetPreviousFile->setEnabled(enable_prev);
-}
-
-void WiresharkMainWindow::setIconForCaptureInProgress(bool capture_in_progress)
-{
-#ifdef Q_OS_MAC
-    CocoaBridge::setCaptureIcon(capture_in_progress);
-#else
-    const QIcon &icon = capture_in_progress ? mainApp->captureIcon() : mainApp->normalIcon();
-    mainApp->setWindowIcon(icon);
-    QMainWindow::setWindowIcon(icon);
-#endif
 }
 
 void WiresharkMainWindow::changeEvent(QEvent* event)

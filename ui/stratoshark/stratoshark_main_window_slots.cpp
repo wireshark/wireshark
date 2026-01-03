@@ -485,7 +485,7 @@ void StratosharkMainWindow::queuedFilterAction(QString action_filter, FilterActi
 #ifdef HAVE_LIBPCAP
 void StratosharkMainWindow::captureCapturePrepared(capture_session *session) {
     setTitlebarForCaptureInProgress();
-    setWindowIcon(mainApp->captureIcon());
+    setIconForCaptureInProgress(true);
     pushLiveCaptureInProgress();
 
     /* Disable menu items that make no sense if you're currently running
@@ -504,7 +504,7 @@ void StratosharkMainWindow::captureCaptureUpdateStarted(capture_session *session
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
     setTitlebarForCaptureInProgress();
-    setWindowIcon(mainApp->captureIcon());
+    setIconForCaptureInProgress(true);
     pushLiveCaptureInProgress();
 
     bool handle_toolbars = (session->session_will_restart ? false : true);
@@ -528,7 +528,7 @@ void StratosharkMainWindow::captureCaptureUpdateFinished(capture_session *sessio
     setForCaptureInProgress(false, handle_toolbars);
     setMenusForCaptureFile();
 
-    setWindowIcon(mainApp->normalIcon());
+    setIconForCaptureInProgress(false);
     popLiveCaptureInProgress();
 
     if (commandline_is_quit_after_capture()) {
@@ -552,7 +552,7 @@ void StratosharkMainWindow::captureCaptureFixedFinished(capture_session *) {
        display packets */
     setMenusForCaptureFile(true);
 
-    setWindowIcon(mainApp->normalIcon());
+    setIconForCaptureInProgress(false);
     popLiveCaptureInProgress();
 
     if (commandline_is_quit_after_capture()) {
@@ -573,7 +573,7 @@ void StratosharkMainWindow::captureCaptureFailed(capture_session *) {
     main_ui_->statusBar->captureFileClosing();
     mainApp->popStatus(WiresharkApplication::FileStatus);
 
-    setWindowIcon(mainApp->normalIcon());
+    setIconForCaptureInProgress(false);
     popLiveCaptureInProgress();
 
     if (commandline_is_quit_after_capture()) {

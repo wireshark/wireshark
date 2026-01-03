@@ -676,17 +676,15 @@ add_custom_command(
 set(CMAKE_AUTORCC_OPTIONS --format-version 1)
 list(APPEND CMAKE_AUTORCC_OPTIONS -compress-algo zlib)
 
-if (APPLE)
-	set(SS_ICON_QRC "ssicon_mac.qrc")
-else()
-	set(SS_ICON_QRC "ssicon.qrc")
+if (NOT APPLE)
+	set(SSICON_QRC ${CMAKE_SOURCE_DIR}/resources/ssicon.qrc)
 endif()
 
 qt_add_resources(STRATOSHARK_QT_QRC
 	${CMAKE_SOURCE_DIR}/resources/about.qrc
 	${CMAKE_SOURCE_DIR}/resources/languages/languages.qrc
 	${CMAKE_SOURCE_DIR}/resources/layout.qrc
-	${CMAKE_SOURCE_DIR}/resources/${SS_ICON_QRC}
+	${SSICON_QRC}
 	${CMAKE_SOURCE_DIR}/resources/stock_icons.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/authors.qrc

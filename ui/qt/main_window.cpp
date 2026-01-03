@@ -33,6 +33,10 @@
 #include "utils/qt_ui_utils.h"
 #include "widgets/display_filter_combo.h"
 
+#ifdef Q_OS_MAC
+#include <ui/macosx/cocoa_bridge.h>
+#endif
+
 // Packet Menu actions
 static QList<QAction *> dynamic_packet_menu_actions;
 
@@ -451,5 +455,16 @@ void MainWindow::updateTitlebar()
         /* We have no capture file. */
         setMainWindowTitle();
     }
+}
+
+void MainWindow::setIconForCaptureInProgress(bool capture_in_progress)
+{
+#ifdef Q_OS_MAC
+    CocoaBridge::setCaptureIcon(capture_in_progress);
+#else
+    const QIcon &icon = capture_in_progress ? mainApp->captureIcon() : mainApp->normalIcon();
+    mainApp->setWindowIcon(icon);
+    QMainWindow::setWindowIcon(icon);
+#endif
 }
 

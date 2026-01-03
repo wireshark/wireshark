@@ -92,6 +92,7 @@ protected:
     void showWelcome();
     void showCapture();
     void setTitlebarForCaptureInProgress();
+    void setIconForCaptureInProgress(bool capture_in_progress);
     virtual void setMenusForCaptureFile(bool force_disable = false) = 0;
 
     CaptureFile capture_file_;
