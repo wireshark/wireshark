@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref https://www.opennetworking.org/sdn-resources/onf-specifications/openflow
+ * Ref https://opennetworking.org/software-defined-standards/specifications/
  */
 
 #include "config.h"
@@ -2439,18 +2439,19 @@ dissect_openflow_action_header_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 
 static int
-dissect_openflow_action_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length _U_)
+dissect_openflow_action_v6(tvbuff_t *parent_tvb, packet_info *pinfo _U_, proto_tree *tree, int parent_offset, uint16_t length)
 {
     proto_tree *act_tree;
+    tvbuff_t *tvb;
     uint16_t act_type;
     uint16_t act_length;
-    int32_t act_end;
+    int32_t offset = 0;
 
-    act_type = tvb_get_ntohs(tvb, offset);
-    act_length = tvb_get_ntohs(tvb, offset + 2);
-    act_end = offset + act_length;
+    act_type = tvb_get_ntohs(parent_tvb, parent_offset);
+    act_length = tvb_get_ntohs(parent_tvb, parent_offset + 2);
+    tvb = tvb_new_subset_length(parent_tvb, parent_offset, act_length);
 
-    act_tree = proto_tree_add_subtree(tree, tvb, offset, act_length, ett_openflow_v6_action, NULL, "Action");
+    act_tree = proto_tree_add_subtree(tree, tvb, 0, act_length, ett_openflow_v6_action, NULL, "Action");
 
     offset = dissect_openflow_action_header_v6(tvb, pinfo, act_tree, offset, length);
 
@@ -2566,9 +2567,9 @@ dissect_openflow_action_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         offset = dissect_openflow_oxm_v6(tvb, pinfo, act_tree, offset, length);
 
         /* padded to 64 bits */
-        if (offset < act_end) {
-            proto_tree_add_item(act_tree, hf_openflow_v6_action_set_field_pad, tvb, offset, act_end - offset, ENC_NA);
-            offset = act_end;
+        if (offset < act_length) {
+            proto_tree_add_item(act_tree, hf_openflow_v6_action_set_field_pad, tvb, offset, act_length - offset, ENC_NA);
+            offset = act_length;
         }
         break;
 
@@ -2623,7 +2624,7 @@ dissect_openflow_action_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         break;
     }
 
-    return offset;
+    return parent_offset + offset;
 }
 
 
