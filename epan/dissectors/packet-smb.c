@@ -9035,16 +9035,16 @@ static const true_false_string tfs_nt_access_mask_synchronize = {
 	"Must be ignored except on named pipes"
 };
 static const true_false_string tfs_nt_access_mask_write_owner = {
-	"Can WRITE OWNER (take ownership)",
-	"Can NOT write owner (take ownership)"
+	"WRITE OWNER access (can take ownership)",
+	"NO write OWNER access (can NOT take ownership)"
 };
 static const true_false_string tfs_nt_access_mask_write_dac = {
-	"OWNER may WRITE the DAC",
-	"Owner may NOT write to the DAC"
+	"WRITE DACL access",
+	"NO write DACL access"
 };
 static const true_false_string tfs_nt_access_mask_read_control = {
-	"READ ACCESS to owner, group and ACL of the SID",
-	"Read access is NOT granted to owner, group and ACL of the SID"
+	"READ OWNER, GROUP and DACL access",
+	"NO read OWNER, GROUP and DACL access"
 };
 static const true_false_string tfs_nt_access_mask_delete = {
 	"DELETE access",
