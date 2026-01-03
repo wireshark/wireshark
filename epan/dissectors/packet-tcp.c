@@ -5024,8 +5024,12 @@ again:
 
             if (!has_gap) {
                 /* Update the maximum expected seqno if no SYN packet was seen
-                 * before, or if the new segment succeeds previous segments. */
-                tcpd->fwd->maxnextseq = nxtseq;
+                 * before, or if the new segment succeeds previous segments.
+                 * Ignore if nxtseq is lower than the current maxnextseq,
+                 * which might happen if we are dealing with an OOO or retransmission.*/
+                if (LT_SEQ(tcpd->fwd->maxnextseq, nxtseq) || tcpd->fwd->maxnextseq == 0) {
+                    tcpd->fwd->maxnextseq = nxtseq;
+                }
 
                 /* If there is no gap, look for any OOO packets that are now
                  * contiguous. */
