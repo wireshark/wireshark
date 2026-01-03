@@ -800,6 +800,11 @@ proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field 
 	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, true, format, ap);
 	va_end(ap);
 
+	/* But make sure it throws an exception *after* adding the item */
+	if (length != -1) {
+		tvb_ensure_bytes_exist(tvb, start, length);
+	}
+
 	return ti;
 }
 
