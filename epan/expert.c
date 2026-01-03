@@ -323,6 +323,7 @@ expert_update_comment_count(uint64_t count)
 		highest_severity = 0;
 }
 
+//coverity[-alloc]
 expert_module_t *expert_register_protocol(int id)
 {
 	expert_module_t *module;
