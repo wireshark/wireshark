@@ -2963,6 +2963,9 @@ dissect_h248_T_terminationId(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned 
 			}else{
 				curr_info.term->str = bytes_to_str_punct(actx->pinfo->pool,curr_info.term->buffer,curr_info.term->len, 0);
 			}
+		} else {
+			curr_info.term->buffer = (uint8_t*)wmem_strdup(actx->pinfo->pool, "");
+			curr_info.term->str = wmem_strdup(actx->pinfo->pool, "?");
 		}
 
 

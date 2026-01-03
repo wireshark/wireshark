@@ -365,6 +365,9 @@ SigParameterV1/value                ABBREV=sig_param_value
 			}else{
 				curr_info.term->str = bytes_to_str_punct(actx->pinfo->pool,curr_info.term->buffer,curr_info.term->len, 0);
 			}
+		} else {
+			curr_info.term->buffer = (uint8_t*)wmem_strdup(actx->pinfo->pool, "");
+			curr_info.term->str = wmem_strdup(actx->pinfo->pool, "?");
 		}
 
 
