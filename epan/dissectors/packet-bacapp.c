@@ -8724,7 +8724,7 @@ fPropertyValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
                                      &tag_no, &tag_info, &lvt);
         }
     } else {
-        proto_tree_add_expert(tree, pinfo, &ei_bacapp_opening_tag, tvb, offset, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_bacapp_opening_tag, tvb, offset);
         offset = tvb_reported_length(tvb);
     }
 

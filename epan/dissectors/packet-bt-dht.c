@@ -236,7 +236,7 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     }
     if (offset <= start_offset)
     {
-      proto_tree_add_expert(sub_tree, pinfo, &ei_int_string, tvb, offset, -1);
+      proto_tree_add_expert_remaining(sub_tree, pinfo, &ei_int_string, tvb, offset);
       /* if offset is not going on, there is no chance to exit the loop, then return*/
       return 0;
     }
@@ -449,7 +449,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   offset   = dissect_bencoded_string(tvb, pinfo, sub_tree, offset, key, false, "Key");
   if (offset == 0 || !*key)
   {
-    proto_tree_add_expert_format(sub_tree, pinfo, &ei_int_string, tvb, offset, -1, "Invalid string for Key");
+    proto_tree_add_expert_format_remaining(sub_tree, pinfo, &ei_int_string, tvb, offset, "Invalid string for Key");
     return 0;
   }
 
@@ -500,7 +500,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       unsigned len;
       int old_offset = offset;
       if (!bencoded_string_length(pinfo, tvb, &offset, &len)) {
-        proto_tree_add_expert_format(sub_tree, pinfo, &ei_int_string, tvb, offset, -1, "Invalid string for value");
+        proto_tree_add_expert_format_remaining(sub_tree, pinfo, &ei_int_string, tvb, offset, "Invalid string for value");
         return 0;
       }
 
@@ -536,7 +536,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (offset == 0)
   {
-    proto_tree_add_expert_format(sub_tree, pinfo, &ei_int_string, tvb, offset, -1, "Invalid string for value");
+    proto_tree_add_expert_format_remaining(sub_tree, pinfo, &ei_int_string, tvb, offset, "Invalid string for value");
     return 0;
   }
 
@@ -600,7 +600,7 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     offset = dissect_bencoded_dict_entry(tvb, pinfo, sub_tree, offset, &key);
     if (offset == 0)
     {
-      proto_tree_add_expert(sub_tree, pinfo, &ei_int_string, tvb, offset, -1);
+      proto_tree_add_expert_remaining(sub_tree, pinfo, &ei_int_string, tvb, offset);
       return 0;
     }
 

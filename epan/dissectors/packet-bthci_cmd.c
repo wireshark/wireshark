@@ -3922,7 +3922,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             break;
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_command_unknown_command, tvb, offset);
             offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -4043,7 +4043,7 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
             break;
 
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_command_unknown_command, tvb, offset);
             offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -4901,7 +4901,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
             break;
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_command_unknown_command, tvb, offset);
             offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -4932,7 +4932,7 @@ dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             break;
 
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_command_unknown_command, tvb, offset);
             offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -5008,7 +5008,7 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             break;
 
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_command_unknown_command, tvb, offset);
             offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -5060,7 +5060,7 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
             break;
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_command_unknown_command, tvb, offset);
             offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -6729,7 +6729,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_command_unknown_command, tvb, offset);
             offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -6941,7 +6941,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     offset = dissect_le_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, bluetooth_data);
                     break;
                 default:
-                    proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_unknown_command, tvb, 3, -1);
+                    proto_tree_add_expert_remaining(bthci_cmd_tree, pinfo, &ei_command_unknown_command, tvb, 3);
                     offset += tvb_reported_length_remaining(tvb, offset);
                     break;
             }
@@ -6964,7 +6964,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     if (ogf != HCI_OGF_VENDOR_SPECIFIC && tvb_reported_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_parameter_unexpected, tvb, offset, -1);
+        proto_tree_add_expert_remaining(bthci_cmd_tree, pinfo, &ei_command_parameter_unexpected, tvb, offset);
         offset += tvb_reported_length_remaining(tvb, offset);
     }
 
