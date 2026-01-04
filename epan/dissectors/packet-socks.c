@@ -921,13 +921,11 @@ server_state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 
 static void
-display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, socks_hash_entry_t *hash_info) {
+display_ping_and_tracert(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, socks_hash_entry_t *hash_info) {
 
 /* Display the ping/trace_route conversation */
 
-    const unsigned char *data, *dataend;
-    const unsigned char *lineend, *eol;
-    int           linelen;
+    unsigned      linelen;
 
                 /* handle the end command */
     if ( pinfo->destport == TCP_PORT_SOCKS){
@@ -941,17 +939,14 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         if ( tree){
             proto_tree_add_item(tree, (hash_info->command  == PING_COMMAND) ? hf_socks_ping_results : hf_socks_traceroute_results, tvb, offset, -1, ENC_NA);
 
-            data = tvb_get_ptr(tvb, offset, -1);
-            dataend = data + tvb_captured_length_remaining(tvb, offset);
-
-            while (data < dataend) {
-
-                lineend = find_line_end(data, dataend, &eol);
-                linelen = (int)(lineend - data);
+            while (tvb_captured_length_remaining(tvb, offset)) {
+                unsigned next_offset;
+                tvb_find_line_end_remaining(tvb, offset, NULL, &next_offset);
+                /* Use the linelen including the line terminator. */
+                linelen = next_offset - offset;
 
                 proto_tree_add_format_text( tree, tvb, offset, linelen);
-                offset += linelen;
-                data = lineend;
+                offset = next_offset;
             }
         }
     }
