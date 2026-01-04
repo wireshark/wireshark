@@ -4391,16 +4391,15 @@ tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const unsigned offset, char *buffer, 
 }
 
 bool
-tvb_ascii_isprint(tvbuff_t *tvb, const int offset, const int length)
+tvb_ascii_isprint(tvbuff_t *tvb, const unsigned offset, const unsigned length)
 {
-	const uint8_t* buf = tvb_get_ptr(tvb, offset, length);
-	unsigned abs_offset, abs_length = length;
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	if (length == -1) {
-		/* tvb_get_ptr has already checked for exceptions. */
-		compute_offset_and_remaining(tvb, offset, &abs_offset, &abs_length);
-	}
-	for (unsigned i = 0; i < abs_length; i++, buf++)
+	/* XXX - Perhaps this function should return false instead of throwing
+	 * an exception. */
+	const uint8_t* buf = ensure_contiguous_unsigned(tvb, offset, length);
+
+	for (unsigned i = 0; i < length; i++, buf++)
 		if (!g_ascii_isprint(*buf))
 			return false;
 
@@ -4408,30 +4407,65 @@ tvb_ascii_isprint(tvbuff_t *tvb, const int offset, const int length)
 }
 
 bool
-tvb_utf_8_isprint(tvbuff_t *tvb, const int offset, const int length)
+tvb_ascii_isprint_remaining(tvbuff_t *tvb, const unsigned offset)
 {
-	const uint8_t* buf = tvb_get_ptr(tvb, offset, length);
-	unsigned abs_offset, abs_length = length;
+	int exception;
+	unsigned length;
 
-	if (length == -1) {
-		/* tvb_get_ptr has already checked for exceptions. */
-		compute_offset_and_remaining(tvb, offset, &abs_offset, &abs_length);
-	}
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	return isprint_utf8_string((const char*)buf, abs_length);
+	exception = validate_offset_and_remaining(tvb, offset, &length);
+	if (exception)
+		THROW(exception);
+
+	const uint8_t* buf = ensure_contiguous_unsigned(tvb, offset, length);
+
+	for (unsigned i = 0; i < length; i++, buf++)
+		if (!g_ascii_isprint(*buf))
+			return false;
+
+	return true;
 }
 
 bool
-tvb_ascii_isdigit(tvbuff_t *tvb, const int offset, const int length)
+tvb_utf_8_isprint(tvbuff_t *tvb, const unsigned offset, const unsigned length)
 {
-	const uint8_t* buf = tvb_get_ptr(tvb, offset, length);
-	unsigned abs_offset, abs_length = length;
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	if (length == -1) {
-		/* tvb_get_ptr has already checked for exceptions. */
-		compute_offset_and_remaining(tvb, offset, &abs_offset, &abs_length);
-	}
-	for (unsigned i = 0; i < abs_length; i++, buf++)
+	/* XXX - Perhaps this function should return false instead of throwing
+	 * an exception. */
+	const uint8_t* buf = ensure_contiguous_unsigned(tvb, offset, length);
+
+	return isprint_utf8_string((const char*)buf, length);
+}
+
+bool
+tvb_utf_8_isprint_remaining(tvbuff_t *tvb, const unsigned offset)
+{
+	int exception;
+	unsigned length;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &length);
+	if (exception)
+		THROW(exception);
+
+	const uint8_t* buf = ensure_contiguous_unsigned(tvb, offset, length);
+
+	return isprint_utf8_string((const char*)buf, length);
+}
+
+bool
+tvb_ascii_isdigit(tvbuff_t *tvb, const unsigned offset, const unsigned length)
+{
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	/* XXX - Perhaps this function should return false instead of throwing
+	 * an exception. */
+	const uint8_t* buf = ensure_contiguous_unsigned(tvb, offset, length);
+
+	for (unsigned i = 0; i < length; i++, buf++)
 		if (!g_ascii_isdigit(*buf))
 			return false;
 

@@ -382,7 +382,7 @@ static int dissect_tlv_policy_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 static int dissect_tlv_logical_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	if (tvb_ascii_isprint(tvb, 0, -1))
+	if (tvb_ascii_isprint_remaining(tvb, 0))
 	{
 		const uint8_t* string_value;
 		proto_tree_add_item_ret_string(tree, hf_nsh_bbf_logical_port_id_str, tvb, 0, -1, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);

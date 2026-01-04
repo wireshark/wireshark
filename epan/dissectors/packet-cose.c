@@ -1096,7 +1096,7 @@ static int dissect_header_kid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     tvbuff_t *val = wscbor_require_bstr(pinfo->pool, chunk);
     proto_item *item_kid = proto_tree_add_cbor_bstr(tree, hf_hdr_kid, pinfo, tvb, chunk);
 
-    if (val && tvb_utf_8_isprint(val, 0, -1)) {
+    if (val && tvb_utf_8_isprint_remaining(val, 0)) {
         proto_tree *tree_kid = proto_item_add_subtree(item_kid, ett_hdr_kid);
         proto_item *kid_text = proto_tree_add_item(tree_kid, hf_hdr_kid_text, val, 0, tvb_reported_length(val), ENC_UTF_8);
         proto_item_set_generated(kid_text);

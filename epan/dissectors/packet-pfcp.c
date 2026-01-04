@@ -11577,7 +11577,7 @@ static int
 dissect_pfcp_enterprise_bbf_logical_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* Octet 7 to (n+4) logical-port-id */
-    if (tvb_ascii_isprint(tvb, 0, -1))
+    if (tvb_ascii_isprint_remaining(tvb, 0))
     {
         const uint8_t* string_value;
         proto_tree_add_item_ret_string(tree, hf_pfcp_bbf_logical_port_id_str, tvb, 0, -1, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
@@ -12467,7 +12467,7 @@ static int
 dissect_pfcp_enterprise_travelping_build_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Octet 7 to (n+4) Travelping Build Id */
-    if (tvb_ascii_isprint(tvb, 0, -1))
+    if (tvb_ascii_isprint_remaining(tvb, 0))
     {
         const uint8_t* string_value;
         proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_build_id_str, tvb, 0, -1, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
@@ -12527,7 +12527,7 @@ static int
 dissect_pfcp_enterprise_travelping_error_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Octet 7 to (n+4) Travelping Error Message */
-    if (tvb_ascii_isprint(tvb, 0, -1))
+    if (tvb_ascii_isprint_remaining(tvb, 0))
     {
         const uint8_t* string_value;
         proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_error_message_str, tvb, 0, -1, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
@@ -12545,7 +12545,7 @@ static int
 dissect_pfcp_enterprise_travelping_file_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Octet 7 to (n+4) Travelping Error Message */
-    if (tvb_ascii_isprint(tvb, 0, -1))
+    if (tvb_ascii_isprint_remaining(tvb, 0))
     {
         const uint8_t* string_value;
         proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_file_name_str, tvb, 0, -1, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
@@ -12578,7 +12578,7 @@ static int
 dissect_pfcp_enterprise_travelping_ipfix_policy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Octet 7 to (n+4) Travelping IPFIX Policy */
-    if (tvb_ascii_isprint(tvb, 0, -1))
+    if (tvb_ascii_isprint_remaining(tvb, 0))
     {
         const uint8_t* string_value;
         proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_ipfix_policy_str, tvb, 0, -1, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
@@ -12596,7 +12596,7 @@ static int
 dissect_pfcp_enterprise_travelping_trace_parent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Octet 7 to (n+4) Travelping Trace Parent */
-    if (tvb_ascii_isprint(tvb, 0, -1))
+    if (tvb_ascii_isprint_remaining(tvb, 0))
     {
         const uint8_t* string_value;
         proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_trace_parent_str, tvb, 0, -1, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
@@ -12614,7 +12614,7 @@ static int
 dissect_pfcp_enterprise_travelping_trace_state(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Octet 7 to (n+4) Travelping Trace State */
-    if (tvb_ascii_isprint(tvb, 0, -1))
+    if (tvb_ascii_isprint_remaining(tvb, 0))
     {
         const uint8_t* string_value;
         proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_trace_state_str, tvb, 0, -1, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
