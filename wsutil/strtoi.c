@@ -286,7 +286,7 @@ bool ws_strtou(const char* str, const char** endptr, unsigned* cint)
 {
 	return ws_basestrtou(str, endptr, cint, 10);
 }
-\
+
 bool ws_hexstrtou(const char* str, const char** endptr, unsigned* cint)
 {
 	return ws_basestrtou(str, endptr, cint, 16);
