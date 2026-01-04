@@ -590,8 +590,8 @@ dissect_pres_T_single_ASN1_type(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsign
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree, actx->private_data);
 	} else {
-		proto_tree_add_expert(tree, actx->pinfo, &ei_pres_dissector_not_available,
-								tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_pres_dissector_not_available,
+								tvb, offset);
 	}
 
 
@@ -611,8 +611,8 @@ dissect_pres_T_octet_aligned(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned 
 		dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &next_tvb);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree, actx->private_data);
 	} else {
-		proto_tree_add_expert(tree, actx->pinfo, &ei_pres_dissector_not_available,
-								tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_pres_dissector_not_available,
+								tvb, offset);
 		  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1433,7 +1433,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		old_offset = offset;
 		offset = dissect_ppdu(tvb, offset, pinfo, parent_tree, session);
 		if (offset <= old_offset) {
-			proto_tree_add_expert(parent_tree, pinfo, &ei_pres_invalid_offset, tvb, offset, -1);
+			proto_tree_add_expert_remaining(parent_tree, pinfo, &ei_pres_invalid_offset, tvb, offset);
 			break;
 		}
 	}

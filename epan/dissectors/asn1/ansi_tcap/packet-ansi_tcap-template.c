@@ -1059,7 +1059,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                 uint8_t family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
                 uint8_t specifier = (uint8_t)(ansi_tcap_private.d.OperationCode_national & 0xff);
                 if(!dissector_try_uint(ansi_tcap_national_opcode_table, ansi_tcap_private.d.OperationCode_national, tvb, actx->pinfo, actx->subtree.top_tree)){
-                        proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_tcap_dissector_not_implemented, tvb, 0, -1,
+                        proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_ansi_tcap_dissector_not_implemented, tvb, 0,
                                         "Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) \n"
                                         "not implemented. Contact Wireshark developers if you want this supported(Spec required)",
                                         ansi_tcap_private.d.OperationCode_national, family, specifier);
@@ -1104,7 +1104,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                     return true;
                 }
         }
-        proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_tcap_dissector_not_implemented, tvb, 0, -1,
+        proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_ansi_tcap_dissector_not_implemented, tvb, 0,
             "Dissector for ANSI TCAP PRIVATE code:%u not implemented.\n"
             "Contact Wireshark developers if you want this supported(Spec required)",
             ansi_tcap_private.d.OperationCode_private);

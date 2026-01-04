@@ -8504,7 +8504,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
         old_offset=offset;
         offset=(*p1_dissector)(false, tvb, offset, &asn1_ctx , tree, hf_p1_index);
         if (offset == old_offset) {
-            proto_tree_add_expert(tree, pinfo, &ei_p1_zero_pdu, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_p1_zero_pdu, tvb, offset);
             break;
         }
     }

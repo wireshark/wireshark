@@ -4390,7 +4390,7 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	session = (struct SESSION_DATA_STRUCTURE*)data;
 
 	if(session->spdu_type == 0 ) {
-		proto_tree_add_expert_format(parent_tree, pinfo, &ei_wrong_spdu_type, tvb, 0, -1,
+		proto_tree_add_expert_format_remaining(parent_tree, pinfo, &ei_wrong_spdu_type, tvb, 0,
 			"Internal error: wrong spdu type %x from session dissector.", session->spdu_type);
 		return 0;
 	}

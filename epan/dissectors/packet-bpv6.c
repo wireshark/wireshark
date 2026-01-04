@@ -51,22 +51,22 @@
 void proto_register_bpv6(void);
 void proto_reg_handoff_bpv6(void);
 
-static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo,
-                                int offset, int payload_length, bool* success);
+static unsigned dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo,
+                                unsigned offset, unsigned payload_length, bool* success);
 
 extern void
-dissect_amp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+dissect_amp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset);
 
 
-static int evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount);
+static int evaluate_sdnv(tvbuff_t *tvb, unsigned offset, unsigned *bytecount);
 
 /// Return an error_info index if not valid
-static int evaluate_sdnv_ei(tvbuff_t *tvb, int offset, int *bytecount, expert_field **error);
+static int evaluate_sdnv_ei(tvbuff_t *tvb, unsigned offset, unsigned *bytecount, expert_field **error);
 
-static int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_sdnv_time);
+static int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, unsigned offset, int hf_sdnv_time);
 
 static int64_t
-evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
+evaluate_sdnv_64(tvbuff_t *tvb, unsigned offset, unsigned *bytecount);
 
 static int proto_bundle;
 static dissector_handle_t bundle_handle;
@@ -372,7 +372,7 @@ static int
 add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_dtn_time)
 {
     nstime_t dtn_time;
-    int      sdnv_length, sdnv2_length;
+    unsigned sdnv_length, sdnv2_length;
     int      sdnv_value;
     int      orig_offset;
 
@@ -401,10 +401,10 @@ add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_dtn_tim
  * Returns bytes in SDNV or 0 if something goes wrong.
  */
 int
-add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_sdnv_time)
+add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, unsigned offset, int hf_sdnv_time)
 {
     nstime_t dtn_time;
-    int      sdnv_length;
+    unsigned sdnv_length;
     int      sdnv_value;
 
     sdnv_value = evaluate_sdnv(tvb, offset, &sdnv_length);
@@ -423,7 +423,7 @@ static int
 add_sdnv_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, int offset, int hf_sdnv)
 {
     proto_item *ti;
-    int         sdnv_length;
+    unsigned    sdnv_length;
     int         sdnv_value;
 
     sdnv_value = evaluate_sdnv(tvb, offset, &sdnv_length);
@@ -653,13 +653,13 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
  * This routine returns 0 if header decoding fails, otherwise the length of the primary
  * header, starting right after version number.
  */
-static int
+static unsigned
 dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *tvb,
                                  uint8_t* pri_hdr_procflags, char **bundle_custodian)
 {
     int bundle_header_length;
-    int offset = 1;             /* Version Number already displayed */
-    int sdnv_length;
+    unsigned offset = 1;             /* Version Number already displayed */
+    unsigned sdnv_length;
     dictionary_data_t dict_data;
 
     proto_item *ti;
@@ -814,8 +814,8 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     uint64_t           bundle_processing_control_flags;
     uint8_t            cosflags;
     int                bundle_header_length;
-    int                offset = 1; /* Version Number already displayed */
-    int                sdnv_length;
+    unsigned           offset = 1; /* Version Number already displayed */
+    unsigned           sdnv_length;
     dictionary_data_t  dict_data;
     int                timestamp_sequence;
     int                creation_timestamp;
@@ -1056,13 +1056,14 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
  * offset is where the header starts.
  * Return new offset, and set lastheader if failure.
  */
-static int
-dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, uint8_t version,
+static unsigned
+dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, uint8_t version,
                        uint8_t pri_hdr_procflags, bool *lastheader)
 {
     proto_item *payload_block, *payload_item, *ti;
     proto_tree *payload_block_tree, *payload_tree;
-    int         sdnv_length, payload_length;
+    unsigned    sdnv_length;
+    int payload_length;
 
     payload_block_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_payload_hdr, &payload_block, "Payload Block");
 
@@ -1184,17 +1185,17 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 /*
  * Return the offset after the Administrative Record or set success = false if analysis fails.
  */
-static int
+static unsigned
 dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo,
-                     int offset, int payload_length, bool* success)
+    unsigned offset, unsigned payload_length, bool* success)
 {
     proto_item *admin_record_item;
     proto_tree *admin_record_tree;
     proto_item *timestamp_sequence_item;
     uint8_t     record_type;
     uint8_t     status;
-    int         start_offset = offset;
-    int         sdnv_length;
+    unsigned    start_offset = offset;
+    unsigned    sdnv_length;
     int         timestamp_sequence;
     int         endpoint_length;
 
@@ -1399,13 +1400,13 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
     case ADMIN_REC_TYPE_AGGREGATE_CUSTODY_SIGNAL:
     {
         proto_item *ti;
-        int payload_bytes_processed = 0;
+        unsigned payload_bytes_processed = 0;
         int right_edge = -1;
         int fill_start;
         int fill_length = -1;
-        int sdnv_length_start = -1;
-        int sdnv_length_gap = -1;
-        int sdnv_length_length = -1;
+        unsigned sdnv_length_start;
+        unsigned sdnv_length_gap;
+        unsigned sdnv_length_length ;
 
         proto_tree_add_item(admin_record_tree, hf_bundle_admin_record_fragment, tvb, offset, 1, ENC_NA);
         ++offset;
@@ -1419,14 +1420,14 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         /* process the first fill */
         fill_start = evaluate_sdnv(tvb, offset, &sdnv_length_start);
         ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_start, tvb, offset, sdnv_length_start, fill_start);
-        if (fill_start < 0 || sdnv_length_start < 0) {
+        if (fill_start < 0 || sdnv_length_start == 0) {
             expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range start SDNV");
             return offset;
         }
         fill_length = evaluate_sdnv(tvb, offset + sdnv_length_start, &sdnv_length_length);
         ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_end, tvb, offset,
                                 sdnv_length_start + sdnv_length_length, fill_start + fill_length - 1);
-        if (fill_length < 0 || sdnv_length_length < 0) {
+        if (fill_length < 0 || sdnv_length_length == 0) {
             expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range length SDNV");
             return tvb_reported_length_remaining(tvb, offset);
         }
@@ -1441,14 +1442,14 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
             int fill_gap;
             fill_gap = evaluate_sdnv(tvb, offset, &sdnv_length_gap);
             ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_start, tvb, offset, sdnv_length_gap, fill_gap);
-            if (fill_gap < 0 || sdnv_length_gap < 0) {
+            if (fill_gap < 0 || sdnv_length_gap == 0) {
                 expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range gap SDNV");
                 return offset;
             }
             fill_length = evaluate_sdnv(tvb, offset + sdnv_length_gap, &sdnv_length_length);
             ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_end, tvb, offset,
                                     sdnv_length_gap + sdnv_length_length, right_edge + fill_gap + fill_length - 1);
-            if (fill_length < 0 || sdnv_length_length < 0) {
+            if (fill_length < 0 || sdnv_length_length == 0) {
                 expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range length SDNV");
                 return tvb_reported_length_remaining(tvb, offset);
             }
@@ -1481,7 +1482,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
 {
     proto_item   *block_item, *ti, *block_flag_replicate_item, *block_flag_eid_reference_item;
     proto_tree   *block_tree;
-    int           sdnv_length;
+    unsigned      sdnv_length;
     int           block_length;
     int           block_overhead;
     int           bundle_age;
@@ -1632,7 +1633,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
 
             params_length = evaluate_sdnv_ei(tvb, offset, &sdnv_length, &ei);
             if (ei) {
-                proto_tree_add_expert(block_tree, pinfo, ei, tvb, offset, -1);
+                proto_tree_add_expert_remaining(block_tree, pinfo, ei, tvb, offset);
                 *lastheader = true;
                 return offset;
             }
@@ -1650,7 +1651,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
                 item_length = evaluate_sdnv_ei(tvb, offset, &sdnv_length, &ei);
                 proto_tree_add_int(param_tree, hf_block_ciphersuite_params_item_length, tvb, offset, sdnv_length, item_length);
                 if (ei) {
-                    proto_tree_add_expert(param_tree, pinfo, ei, tvb, offset, -1);
+                    proto_tree_add_expert_remaining(param_tree, pinfo, ei, tvb, offset);
                     *lastheader = true;
                     return offset;
                 }
@@ -1704,7 +1705,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
             result_item_length = evaluate_sdnv_ei(tvb, offset, &sdnv_length, &ei);
             proto_tree_add_int(result_tree, hf_block_ciphersuite_result_item_length, tvb, offset, sdnv_length, result_item_length);
             if (ei) {
-                proto_tree_add_expert(result_tree, pinfo, ei, tvb, offset, -1);
+                proto_tree_add_expert_remaining(result_tree, pinfo, ei, tvb, offset);
                 *lastheader = true;
                 return offset;
             }
@@ -1848,7 +1849,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
 
 /*3rd arg is number of bytes in field (returned)*/
 static int
-evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount)
+evaluate_sdnv(tvbuff_t *tvb, unsigned offset, unsigned *bytecount)
 {
     uint64_t value = 0;
     *bytecount = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &value, ENC_VARINT_SDNV);
@@ -1864,7 +1865,7 @@ evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount)
 }
 
 static int
-evaluate_sdnv_ei(tvbuff_t *tvb, int offset, int *bytecount, expert_field **error) {
+evaluate_sdnv_ei(tvbuff_t *tvb, unsigned offset, unsigned *bytecount, expert_field **error) {
     int value = evaluate_sdnv(tvb, offset, bytecount);
     *error = (value < 0) ? &ei_bundle_sdnv_length : NULL;
     return value;
@@ -1873,7 +1874,7 @@ evaluate_sdnv_ei(tvbuff_t *tvb, int offset, int *bytecount, expert_field **error
 /* Special Function to evaluate 64 bit SDNVs */
 /*3rd arg is number of bytes in field (returned)*/
 static int64_t
-evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount)
+evaluate_sdnv_64(tvbuff_t *tvb, unsigned offset, unsigned *bytecount)
 {
     uint64_t val = 0;
     *bytecount = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &val, ENC_VARINT_SDNV);
@@ -1889,9 +1890,9 @@ dissect_bpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     proto_item *ti, *ti_bundle_protocol;
     proto_tree *bundle_tree, *primary_tree;
-    int         primary_header_size;
+    unsigned    primary_header_size;
     bool        lastheader = false;
-    int         offset = 0;
+    unsigned    offset = 0;
     uint8_t     version, pri_hdr_procflags;
     /* Custodian from Primary Block, used to validate CTEB */
     char       *bundle_custodian = NULL;

@@ -269,7 +269,7 @@ OPERATION.&ResultType
 
 	if(len == 0) {
 		/* it's an empty set - i.e anonymous  (assuming version is DEFAULTed) */
-		proto_tree_add_expert(tree, actx->pinfo, &ei_dap_anonymous, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_dap_anonymous, tvb, offset);
 
 		col_append_str(actx->pinfo->cinfo, COL_INFO, " anonymous");
 
@@ -289,8 +289,8 @@ OPERATION.&ResultType
 
 #.FN_BODY PagedResultsRequest/queryReference  VAL_PTR=&out_tvb
 	tvbuff_t *out_tvb;
-	int	i;
-	int	len;
+	unsigned	i;
+	unsigned	len;
 
 	%(DEFAULT_BODY)s
 

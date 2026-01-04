@@ -206,7 +206,7 @@ typedef struct {
 // Decode the CBOR object at the given offset in the tvb.
 // The returned cborObj contains the object (with type) and the size
 // (including the CBOR identifier).
-static cborObj cbor_info(tvbuff_t *tvb, int offset)
+static cborObj cbor_info(tvbuff_t *tvb, unsigned offset)
 {
     int tmp = 0;
     cborObj ret;
@@ -332,7 +332,7 @@ static cborObj cbor_info(tvbuff_t *tvb, int offset)
 }
 
 void
-dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int offset)
+dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     uint64_t messages = 0;
     unsigned int i=0;
@@ -362,7 +362,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
     cborObj tmpObj3;
     cborObj tmpObj4;
     int reportHasTimestamp = 0;
-    int report_types_offset = 0;
+    unsigned report_types_offset = 0;
 
     amp_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_amp_proto,
                                        &payload_item, "Payload Data: AMP Protocol");
@@ -394,7 +394,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
         proto_tree_add_bitmask(amp_message_tree, tvb, offset, hf_amp_message_header, ett_amp_message_header,
                                amp_message_header, ENC_BIG_ENDIAN);
         offset += 1;
-        int old_offset;
+        unsigned old_offset;
 
         switch ( ampHeader & 0x07)
         {
@@ -409,7 +409,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
             old_offset = offset;
             offset += (int) tmpObj.uint;
             if (offset < old_offset) {
-                proto_tree_add_expert(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset, -1);
+                proto_tree_add_expert_remaining(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset);
                 return;
             }
             break;
@@ -431,9 +431,9 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
                 proto_tree_add_item(amp_report_set_tree, hf_amp_rx_name, tvb, offset,
                                     (int) tmpObj2.uint, ENC_ASCII|ENC_NA);
                 old_offset = offset;
-                offset += (int) tmpObj2.uint;
+                offset +=  (unsigned)tmpObj2.uint;
                 if (offset < old_offset) {
-                    proto_tree_add_expert(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset, -1);
+                    proto_tree_add_expert_remaining(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset);
                     return;
                 }
             }
@@ -487,7 +487,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
                 old_offset = offset;
                 offset += (int) tmpObj3.uint;
                 if (offset < old_offset) {
-                    proto_tree_add_expert(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset, -1);
+                    proto_tree_add_expert_remaining(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset);
                     return;
                 }
 
@@ -526,7 +526,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
                 report_types_offset = offset;
                 offset += (int) tmpObj3.uint;
                 if (offset < report_types_offset) {
-                    proto_tree_add_expert(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset, -1);
+                    proto_tree_add_expert_remaining(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset);
                     return;
                 }
 

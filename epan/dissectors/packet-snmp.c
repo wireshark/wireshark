@@ -2794,8 +2794,8 @@ dissect_snmp_T_encryptedPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned o
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, actx->pinfo, &error );
 
 		if (! cleartext_tvb) {
-			proto_tree_add_expert_format(encryptedpdu_tree, actx->pinfo, &ei_snmp_failed_decrypted_data_pdu,
-				crypt_tvb, 0, -1, "Failed to decrypt encryptedPDU: %s", error);
+			proto_tree_add_expert_format_remaining(encryptedpdu_tree, actx->pinfo, &ei_snmp_failed_decrypted_data_pdu,
+				crypt_tvb, 0, "Failed to decrypt encryptedPDU: %s", error);
 
 			col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
 
@@ -2805,7 +2805,7 @@ dissect_snmp_T_encryptedPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned o
 			proto_tree* decrypted_tree;
 
 			if (! check_ScopedPdu(cleartext_tvb)) {
-				proto_tree_add_expert(encryptedpdu_tree, actx->pinfo, &ei_snmp_decrypted_data_bad_formatted, cleartext_tvb, 0, -1);
+				proto_tree_add_expert_remaining(encryptedpdu_tree, actx->pinfo, &ei_snmp_decrypted_data_bad_formatted, cleartext_tvb, 0);
 
 				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
 

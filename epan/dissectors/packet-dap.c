@@ -1531,8 +1531,8 @@ dissect_dap_T_newRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offs
 static unsigned
 dissect_dap_T_pagedResultsQueryReference(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	tvbuff_t *out_tvb;
-	int	i;
-	int	len;
+	unsigned	i;
+	unsigned	len;
 
 	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &out_tvb);
@@ -2028,7 +2028,7 @@ dissect_dap_DirectoryBindArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsi
 
 	if(len == 0) {
 		/* it's an empty set - i.e anonymous  (assuming version is DEFAULTed) */
-		proto_tree_add_expert(tree, actx->pinfo, &ei_dap_anonymous, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_dap_anonymous, tvb, offset);
 
 		col_append_str(actx->pinfo->cinfo, COL_INFO, " anonymous");
 

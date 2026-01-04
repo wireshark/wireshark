@@ -332,7 +332,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item      *crc_item;
     proto_tree      *crc_tree = NULL;
     proto_item      *sub_item;
-    int              offset = 0;
+    unsigned         offset = 0;
     uint32_t         command;
     uint32_t         arg0;
     uint32_t         arg1;
@@ -640,7 +640,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (command_data && frame_number == command_data->reassemble_error_in_frame) {
             /* data reassembly error was detected in the first pass. */
-            proto_tree_add_expert(main_tree, pinfo, &ei_invalid_data, tvb, offset, -1);
+            proto_tree_add_expert_remaining(main_tree, pinfo, &ei_invalid_data, tvb, offset);
         }
 
         if ((!pinfo->fd->visited && command_data && command_data->reassemble_data_length < command_data->data_length) || data_length > (uint32_t) tvb_captured_length_remaining(tvb, offset)) { /* need reassemble */
@@ -682,7 +682,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 crc += tvb_get_uint8(tvb, offset + i_offset);
 
             if (crc32 > 0 && crc32 != crc)
-                proto_tree_add_expert(crc_tree, pinfo, &ei_invalid_crc, tvb, offset, -1);
+                proto_tree_add_expert_remaining(crc_tree, pinfo, &ei_invalid_crc, tvb, offset);
 
             if (is_service) {
                 proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_ASCII);

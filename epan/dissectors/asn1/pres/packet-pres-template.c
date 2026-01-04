@@ -327,7 +327,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		old_offset = offset;
 		offset = dissect_ppdu(tvb, offset, pinfo, parent_tree, session);
 		if (offset <= old_offset) {
-			proto_tree_add_expert(parent_tree, pinfo, &ei_pres_invalid_offset, tvb, offset, -1);
+			proto_tree_add_expert_remaining(parent_tree, pinfo, &ei_pres_invalid_offset, tvb, offset);
 			break;
 		}
 	}

@@ -979,7 +979,7 @@ dissect_lcsap_Civic_Address(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *
     if (tvb_strncaseeql(parameter_tvb, 0, "<?xml", 5) == 0) {
       call_dissector(xml_handle, parameter_tvb, actx->pinfo, subtree);
     } else {
-      proto_tree_add_expert(tree, actx->pinfo, &ei_lcsap_civic_data_not_xml, parameter_tvb, 0, -1);
+      proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_lcsap_civic_data_not_xml, parameter_tvb, 0);
     }
   }
 

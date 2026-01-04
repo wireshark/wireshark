@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-void dissect_amp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+void dissect_amp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset);
 
 #ifdef __cplusplus
 }

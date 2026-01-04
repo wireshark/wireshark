@@ -1397,7 +1397,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	if (num_req != 0)
 	{
-		proto_tree_add_expert(tree, pinfo, &ei_ansi_801_short_data, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_ansi_801_short_data, tvb, offset);
 		return;
 	}
 
@@ -1412,7 +1412,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	if (num_rsp != 0)
 	{
-		proto_tree_add_expert(tree, pinfo, &ei_ansi_801_short_data, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_ansi_801_short_data, tvb, offset);
 		return;
 	}
 
@@ -1518,7 +1518,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	if (num_req != 0)
 	{
-		proto_tree_add_expert(tree, pinfo, &ei_ansi_801_short_data, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_ansi_801_short_data, tvb, offset);
 		return;
 	}
 
@@ -1533,7 +1533,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	if (num_rsp != 0)
 	{
-		proto_tree_add_expert(tree, pinfo, &ei_ansi_801_short_data, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_ansi_801_short_data, tvb, offset);
 		return;
 	}
 

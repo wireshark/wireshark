@@ -41,8 +41,8 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree, actx->private_data);
 	} else {
-		proto_tree_add_expert(tree, actx->pinfo, &ei_pres_dissector_not_available,
-								tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_pres_dissector_not_available,
+								tvb, offset);
 	}
 
 #.FN_BODY PDV-list/presentation-data-values/octet-aligned
@@ -55,8 +55,8 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 		dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &next_tvb);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree, actx->private_data);
 	} else {
-		proto_tree_add_expert(tree, actx->pinfo, &ei_pres_dissector_not_available,
-								tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_pres_dissector_not_available,
+								tvb, offset);
 		%(DEFAULT_BODY)s
 	}
 
