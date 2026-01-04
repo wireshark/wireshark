@@ -61,7 +61,7 @@
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>Cerca dreceres</translation>
+        <translation>Dreceres de cerca</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
