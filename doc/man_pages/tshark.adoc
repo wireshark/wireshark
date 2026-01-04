@@ -221,7 +221,7 @@ fills up, *TShark* will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the *-w* option,
 the number of the file and on the creation date and time,
-e.g. outfile_00001_20250714120117.pcap, outfile_00002_20250714120523.pcap, ...
+e.g. outfile_00001_20260714120117.pcap, outfile_00002_20260714120523.pcap, ...
 
 With the __files__ option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
@@ -264,7 +264,7 @@ for standard output, or `stderr` for standard error.
 
 *nametimenum*:__value__ Choose between two save filename templates.  If
 __value__ is 1, make running file number part before start time part; this is
-the original and default behaviour (e.g. log_00001_20250714164426.pcap).  If
+the original and default behaviour (e.g. log_00001_20260714164426.pcap).  If
 __value__ is greater than 1, make start time part before running number part
 (e.g. log_20210828164426_00001.pcap).  The latter makes alphabetical sorting
 order equal to creation time order, and keeps related multiple file sets in

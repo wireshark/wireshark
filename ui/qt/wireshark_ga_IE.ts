@@ -4551,8 +4551,12 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>5 nóiméad</translation>
     </message>
     <message>
+        <source>%1 I/O Graphs: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Graif I/O Wireshark: %1</translation>
+        <translation type="vanished">Graif I/O Wireshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -4560,7 +4564,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Imeachtaí scagtha</translation>
+        <translation type="vanished">Imeachtaí scagtha</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -4568,7 +4572,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>All events</source>
-        <translation>Gach imeacht</translation>
+        <translation type="vanished">Gach imeacht</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4580,11 +4584,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>All Events</source>
-        <translation>Gach Imeacht</translation>
+        <translation type="vanished">Gach Imeacht</translation>
     </message>
     <message>
         <source>All Execs</source>
-        <translation>Gach Execs</translation>
+        <translation type="vanished">Gach Execs</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4596,7 +4600,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>No events in interval</source>
-        <translation>Gan imeachtaí san eatramh</translation>
+        <translation type="vanished">Gan imeachtaí san eatramh</translation>
     </message>
     <message>
         <source>Click to select packet</source>
@@ -4608,11 +4612,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Cliceáil chun imeacht a roghnú</translation>
+        <translation type="vanished">Cliceáil chun imeacht a roghnú</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Imeacht</translation>
+        <translation type="vanished">Imeacht</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -7005,12 +7009,8 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Paicéad Roghnaithe: %1 %2 </translation>
     </message>
     <message>
-        <source>Selected Event: %1 %2 </source>
-        <translation>Teagmhas Roghnaith: %1 %2 </translation>
-    </message>
-    <message>
         <source>Events: %1</source>
-        <translation>Imeachtaí: %1</translation>
+        <translation type="vanished">Imeachtaí: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -7043,7 +7043,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>No Events</source>
-        <translation>Gan Imeachtaí</translation>
+        <translation type="vanished">Gan Imeachtaí</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8352,11 +8352,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
-        <translation>Plotaí Wireshark: %1</translation>
+        <translation type="vanished">Plotaí Wireshark: %1</translation>
     </message>
     <message>
         <source>Stratoshark Plots: %1</source>
-        <translation>Plotaí Stratoshark: %1</translation>
+        <translation type="vanished">Plotaí Stratoshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -8364,7 +8364,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Imeachtaí scagtha</translation>
+        <translation type="vanished">Imeachtaí scagtha</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -8372,7 +8372,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>All events</source>
-        <translation>Gach imeacht</translation>
+        <translation type="vanished">Gach imeacht</translation>
     </message>
     <message>
         <source>Seq. num.</source>
@@ -8380,7 +8380,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Event latency</source>
-        <translation>Moill imeachta</translation>
+        <translation type="vanished">Moill imeachta</translation>
     </message>
     <message>
         <source>Frame num.</source>
@@ -8403,16 +8403,20 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Cliceáil chun pacáiste a roghnú</translation>
     </message>
     <message>
+        <source>%1 Plots: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet</source>
         <translation>Paicéad</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Cliceáil chun imeacht a roghnú</translation>
+        <translation type="vanished">Cliceáil chun imeacht a roghnú</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Imeacht</translation>
+        <translation type="vanished">Imeacht</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -14017,11 +14021,11 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>Tá tú ag sniffing an gliú go seilbh do chóras le chéile ag baint úsáide as Stratoshark </translation>
+        <translation type="vanished">Tá tú ag sniffing an gliú go seilbh do chóras le chéile ag baint úsáide as Stratoshark </translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>Tá tú ag rith Stratoshark</translation>
+        <translation type="vanished">Tá tú ag rith Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

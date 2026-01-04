@@ -4533,8 +4533,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>5 min</translation>
     </message>
     <message>
+        <source>%1 I/O Graphs: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Grafici di I/O di Wireshark: %1</translation>
+        <translation type="vanished">Grafici di I/O di Wireshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -4542,7 +4546,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Eventi filtrati</translation>
+        <translation type="vanished">Eventi filtrati</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -4550,7 +4554,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>All events</source>
-        <translation>Tutti gli eventi</translation>
+        <translation type="vanished">Tutti gli eventi</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4562,11 +4566,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>All Events</source>
-        <translation>Tutti gli eventi</translation>
+        <translation type="vanished">Tutti gli eventi</translation>
     </message>
     <message>
         <source>All Execs</source>
-        <translation>Tutti gli eseguibili</translation>
+        <translation type="vanished">Tutti gli eseguibili</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4578,7 +4582,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>No events in interval</source>
-        <translation>Nessun evento nell&apos;intervallo</translation>
+        <translation type="vanished">Nessun evento nell&apos;intervallo</translation>
     </message>
     <message>
         <source>Click to select packet</source>
@@ -4590,11 +4594,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Fai clic per selezionare l&apos;evento</translation>
+        <translation type="vanished">Fai clic per selezionare l&apos;evento</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Evento</translation>
+        <translation type="vanished">Evento</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6983,12 +6987,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Pacchetto selezionato: %1 %2 </translation>
     </message>
     <message>
-        <source>Selected Event: %1 %2 </source>
-        <translation>Evento selezionato: %1 %2</translation>
-    </message>
-    <message>
         <source>Events: %1</source>
-        <translation>Eventi: %1</translation>
+        <translation type="vanished">Eventi: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -7021,7 +7021,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>No Events</source>
-        <translation>Nessun evento</translation>
+        <translation type="vanished">Nessun evento</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8327,11 +8327,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
-        <translation>Grafici di Wireshark: %1</translation>
+        <translation type="vanished">Grafici di Wireshark: %1</translation>
     </message>
     <message>
         <source>Stratoshark Plots: %1</source>
-        <translation>Grafici di Stratoshark: %1</translation>
+        <translation type="vanished">Grafici di Stratoshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -8339,7 +8339,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Eventi filtrati</translation>
+        <translation type="vanished">Eventi filtrati</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -8347,7 +8347,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>All events</source>
-        <translation>Tutti gli eventi</translation>
+        <translation type="vanished">Tutti gli eventi</translation>
     </message>
     <message>
         <source>Seq. num.</source>
@@ -8355,7 +8355,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Event latency</source>
-        <translation>Latenza dell&apos;evento</translation>
+        <translation type="vanished">Latenza dell&apos;evento</translation>
     </message>
     <message>
         <source>Frame num.</source>
@@ -8378,16 +8378,20 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Fai clic per selezionare il pacchetto</translation>
     </message>
     <message>
+        <source>%1 Plots: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet</source>
         <translation>Pacchetto</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Fai clic per selezionare l&apos;evento</translation>
+        <translation type="vanished">Fai clic per selezionare l&apos;evento</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Evento</translation>
+        <translation type="vanished">Evento</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -13979,11 +13983,11 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>Questo è il collante che tiene insieme il tuo sistema usando Stratoshark</translation>
+        <translation type="vanished">Questo è il collante che tiene insieme il tuo sistema usando Stratoshark</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>Stai eseguendo Stratoshark</translation>
+        <translation type="vanished">Stai eseguendo Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -15456,11 +15460,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;BPv7</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;BPv7</translation>
     </message>
     <message>
         <source>BPv7 PDU and block statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiche PDU e blocchi BPv7</translation>
     </message>
     <message>
         <source>E2AP</source>

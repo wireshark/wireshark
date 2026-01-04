@@ -4550,8 +4550,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>5 минут</translation>
     </message>
     <message>
+        <source>%1 I/O Graphs: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Графики ввода/вывода Wireshark: %1</translation>
+        <translation type="vanished">Графики ввода/вывода Wireshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -4559,7 +4563,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Отфильтрованные события</translation>
+        <translation type="vanished">Отфильтрованные события</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -4567,7 +4571,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All events</source>
-        <translation>Все события</translation>
+        <translation type="vanished">Все события</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4579,11 +4583,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All Events</source>
-        <translation>Все события</translation>
+        <translation type="vanished">Все события</translation>
     </message>
     <message>
         <source>All Execs</source>
-        <translation>Все руководители</translation>
+        <translation type="vanished">Все руководители</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4595,7 +4599,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No events in interval</source>
-        <translation>Нет событий в интервале</translation>
+        <translation type="vanished">Нет событий в интервале</translation>
     </message>
     <message>
         <source>Click to select packet</source>
@@ -4607,11 +4611,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Нажмите, чтобы выбрать событие</translation>
+        <translation type="vanished">Нажмите, чтобы выбрать событие</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Событие</translation>
+        <translation type="vanished">Событие</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -7004,12 +7008,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Выбран пакет: %1 %2 </translation>
     </message>
     <message>
-        <source>Selected Event: %1 %2 </source>
-        <translation>Выбранное событие: %1 %2 </translation>
-    </message>
-    <message>
         <source>Events: %1</source>
-        <translation>События: %1</translation>
+        <translation type="vanished">События: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -7042,7 +7042,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Events</source>
-        <translation>Нет событий</translation>
+        <translation type="vanished">Нет событий</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8321,35 +8321,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark Plots: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stratoshark Plots: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation type="unfinished">Отфильтрованные пакеты</translation>
-    </message>
-    <message>
-        <source>Filtered events</source>
-        <translation type="unfinished">Отфильтрованные события</translation>
     </message>
     <message>
         <source>All packets</source>
         <translation type="unfinished">Все пакеты</translation>
     </message>
     <message>
-        <source>All events</source>
-        <translation type="unfinished">Все события</translation>
-    </message>
-    <message>
         <source>Seq. num.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event latency</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8373,16 +8353,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Щёлкните для выбора пакета</translation>
     </message>
     <message>
+        <source>%1 Plots: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet</source>
         <translation type="unfinished">Пакет</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="unfinished">Нажмите, чтобы выбрать событие</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="unfinished">Событие</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -13947,11 +13923,11 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>С помощью Stratoshark вы обнаруживаете клей, на котором держится ваша система.</translation>
+        <translation type="vanished">С помощью Stratoshark вы обнаруживаете клей, на котором держится ваша система.</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>Вы запускаете Stratoshark</translation>
+        <translation type="vanished">Вы запускаете Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

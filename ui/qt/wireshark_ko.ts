@@ -4516,8 +4516,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>5분</translation>
     </message>
     <message>
+        <source>%1 I/O Graphs: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Wireshark I/O 그래프: %1</translation>
+        <translation type="vanished">Wireshark I/O 그래프: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -4525,7 +4529,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>필터된 이벤트</translation>
+        <translation type="vanished">필터된 이벤트</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -4533,7 +4537,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All events</source>
-        <translation>모든 이벤트</translation>
+        <translation type="vanished">모든 이벤트</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4545,11 +4549,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All Events</source>
-        <translation>모든 이벤트</translation>
+        <translation type="vanished">모든 이벤트</translation>
     </message>
     <message>
         <source>All Execs</source>
-        <translation>모든 실행</translation>
+        <translation type="vanished">모든 실행</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4561,7 +4565,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No events in interval</source>
-        <translation>이 주기 안에 이벤트 없음</translation>
+        <translation type="vanished">이 주기 안에 이벤트 없음</translation>
     </message>
     <message>
         <source>Click to select packet</source>
@@ -4573,11 +4577,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>클릭하여 이벤트 선택</translation>
+        <translation type="vanished">클릭하여 이벤트 선택</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>이벤트</translation>
+        <translation type="vanished">이벤트</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6960,12 +6964,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>선택된 패킷: %1 %2 </translation>
     </message>
     <message>
-        <source>Selected Event: %1 %2 </source>
-        <translation>선택된 이벤트: %1 %2 </translation>
-    </message>
-    <message>
         <source>Events: %1</source>
-        <translation>이벤트: %1</translation>
+        <translation type="vanished">이벤트: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -6998,7 +6998,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Events</source>
-        <translation>이벤트 없음</translation>
+        <translation type="vanished">이벤트 없음</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8271,35 +8271,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark Plots: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stratoshark Plots: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation type="unfinished">필터된 패킷</translation>
-    </message>
-    <message>
-        <source>Filtered events</source>
-        <translation type="unfinished">필터된 이벤트</translation>
     </message>
     <message>
         <source>All packets</source>
         <translation type="unfinished">모든 패킷</translation>
     </message>
     <message>
-        <source>All events</source>
-        <translation type="unfinished">모든 이벤트</translation>
-    </message>
-    <message>
         <source>Seq. num.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event latency</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8323,16 +8303,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">클릭하여 패킷 선택</translation>
     </message>
     <message>
+        <source>%1 Plots: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet</source>
         <translation type="unfinished">패킷</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="unfinished">클릭하여 이벤트 선택</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="unfinished">이벤트</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -13867,14 +13843,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>Wireshark를 사용하여 인터넷을 고정하는 접착제의 냄새를 맡고(스니핑) 있습니다 </translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

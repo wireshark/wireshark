@@ -4512,7 +4512,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">10分钟 {5 ?}</translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
+        <source>%1 I/O Graphs: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4520,15 +4520,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>All packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All events</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4540,14 +4532,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All Execs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>悬停在图片上来查看详情。</translation>
     </message>
@@ -4556,24 +4540,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>间隔期没有分组</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>点击选取分组</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>分组</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="unfinished">事件</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6956,14 +6928,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>所选分组：%1 %2 </translation>
     </message>
     <message>
-        <source>Selected Event: %1 %2 </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Events: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6991,10 +6955,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Packets</source>
         <translation>无分组</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8266,19 +8226,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark Plots: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stratoshark Plots: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filtered events</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8286,15 +8234,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>All events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Seq. num.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event latency</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8318,16 +8258,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">点击选取分组</translation>
     </message>
     <message>
-        <source>Packet</source>
-        <translation type="unfinished">分组</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
+        <source>%1 Plots: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Event</source>
-        <translation type="unfinished">事件</translation>
+        <source>Packet</source>
+        <translation type="unfinished">分组</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -13808,14 +13744,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>你正在使用 Wireshark 嗅探互联网的联机</translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

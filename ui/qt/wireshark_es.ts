@@ -4494,23 +4494,19 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished">10 min {5 ?}</translation>
     </message>
     <message>
+        <source>%1 I/O Graphs: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Gráficas E/S de Wireshark: %1</translation>
+        <translation type="vanished">Gráficas E/S de Wireshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
         <translation>Paquetes filtrados</translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>All packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All events</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4522,14 +4518,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Errores TCP</translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All Execs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>Desplace sobre la gráfica para detalles.</translation>
     </message>
@@ -4538,24 +4526,12 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>No hay paquetes en intervalo</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>Clic para seleccionar paquete</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation type="unfinished">Paquete</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="unfinished">Evento</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6918,14 +6894,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Paquete seleccionado: %1 %2</translation>
     </message>
     <message>
-        <source>Selected Event: %1 %2 </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Events: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation>%1 Seleccionado: %2 (%3%)</translation>
     </message>
@@ -6953,10 +6921,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>No Packets</source>
         <translation>No hay paquetes</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8230,35 +8194,15 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark Plots: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stratoshark Plots: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation type="unfinished">Paquetes filtrados</translation>
-    </message>
-    <message>
-        <source>Filtered events</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>All events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Seq. num.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event latency</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8282,16 +8226,12 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished">Clic para seleccionar paquete</translation>
     </message>
     <message>
-        <source>Packet</source>
-        <translation type="unfinished">Paquete</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
+        <source>%1 Plots: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Event</source>
-        <translation type="unfinished">Evento</translation>
+        <source>Packet</source>
+        <translation type="unfinished">Paquete</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -13805,14 +13745,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>Está absorbiendo el pegamento que mantiene unido internet usando Wireshark</translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

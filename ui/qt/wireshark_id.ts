@@ -4516,8 +4516,12 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>5 mnt</translation>
     </message>
     <message>
+        <source>%1 I/O Graphs: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Grafik I/O Wireshark: %1</translation>
+        <translation type="vanished">Grafik I/O Wireshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -4525,7 +4529,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Kejadian terfilter</translation>
+        <translation type="vanished">Kejadian terfilter</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -4533,7 +4537,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>All events</source>
-        <translation>Semua kejadian</translation>
+        <translation type="vanished">Semua kejadian</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4545,11 +4549,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>All Events</source>
-        <translation>Semua Kejadian</translation>
+        <translation type="vanished">Semua Kejadian</translation>
     </message>
     <message>
         <source>All Execs</source>
-        <translation>Semua Exec</translation>
+        <translation type="vanished">Semua Exec</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4561,7 +4565,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>No events in interval</source>
-        <translation>Tidak ada kejadian dalam interval</translation>
+        <translation type="vanished">Tidak ada kejadian dalam interval</translation>
     </message>
     <message>
         <source>Click to select packet</source>
@@ -4573,11 +4577,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Klik untuk memilih kejadian</translation>
+        <translation type="vanished">Klik untuk memilih kejadian</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Kejadian</translation>
+        <translation type="vanished">Kejadian</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6960,12 +6964,8 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Paket Terpilih: %1 %2 </translation>
     </message>
     <message>
-        <source>Selected Event: %1 %2 </source>
-        <translation>Kejadian Terpilih: %1 %2 </translation>
-    </message>
-    <message>
         <source>Events: %1</source>
-        <translation>Kejadian: %1</translation>
+        <translation type="vanished">Kejadian: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -6998,7 +6998,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>No Events</source>
-        <translation>Tidak Ada Kejadian</translation>
+        <translation type="vanished">Tidak Ada Kejadian</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8301,11 +8301,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
-        <translation>Plot Wireshark: %1</translation>
+        <translation type="vanished">Plot Wireshark: %1</translation>
     </message>
     <message>
         <source>Stratoshark Plots: %1</source>
-        <translation>Plot Stratoshark: %1</translation>
+        <translation type="vanished">Plot Stratoshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -8313,7 +8313,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Kejadian terfilter</translation>
+        <translation type="vanished">Kejadian terfilter</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -8321,7 +8321,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>All events</source>
-        <translation>Semua kejadian</translation>
+        <translation type="vanished">Semua kejadian</translation>
     </message>
     <message>
         <source>Seq. num.</source>
@@ -8329,7 +8329,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Event latency</source>
-        <translation>Latensi kejadian</translation>
+        <translation type="vanished">Latensi kejadian</translation>
     </message>
     <message>
         <source>Frame num.</source>
@@ -8352,16 +8352,20 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Klik untuk memilih paket</translation>
     </message>
     <message>
+        <source>%1 Plots: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet</source>
         <translation>Paket</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Klik untuk memilih kejadian</translation>
+        <translation type="vanished">Klik untuk memilih kejadian</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Kejadian</translation>
+        <translation type="vanished">Kejadian</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -13936,11 +13940,11 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>Anda menyadap perekat yang menyatukan seluruh sistem Anda memakai Stratoshark </translation>
+        <translation type="vanished">Anda menyadap perekat yang menyatukan seluruh sistem Anda memakai Stratoshark </translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>Anda sedang menjalankan Stratoshark </translation>
+        <translation type="vanished">Anda sedang menjalankan Stratoshark </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

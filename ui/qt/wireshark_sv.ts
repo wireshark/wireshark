@@ -4533,8 +4533,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>5 min</translation>
     </message>
     <message>
+        <source>%1 I/O Graphs: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Wireshark I/O-grafer: %1</translation>
+        <translation type="vanished">Wireshark I/O-grafer: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -4542,7 +4546,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Filtrerade händelser</translation>
+        <translation type="vanished">Filtrerade händelser</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -4550,7 +4554,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>All events</source>
-        <translation>Alla händelser</translation>
+        <translation type="vanished">Alla händelser</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4562,11 +4566,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>All Events</source>
-        <translation>Alla händelser</translation>
+        <translation type="vanished">Alla händelser</translation>
     </message>
     <message>
         <source>All Execs</source>
-        <translation>Alla körningar</translation>
+        <translation type="vanished">Alla körningar</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4578,7 +4582,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No events in interval</source>
-        <translation>Inga händelser i intervallet</translation>
+        <translation type="vanished">Inga händelser i intervallet</translation>
     </message>
     <message>
         <source>Click to select packet</source>
@@ -4590,11 +4594,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Klicka för att välja en händelse</translation>
+        <translation type="vanished">Klicka för att välja en händelse</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Händelse</translation>
+        <translation type="vanished">Händelse</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6982,12 +6986,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Välj paket: %1 %2</translation>
     </message>
     <message>
-        <source>Selected Event: %1 %2 </source>
-        <translation>Valda händelser: %1 %2</translation>
-    </message>
-    <message>
         <source>Events: %1</source>
-        <translation>Händelser: %1</translation>
+        <translation type="vanished">Händelser: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -7020,7 +7020,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No Events</source>
-        <translation>Inga händelser</translation>
+        <translation type="vanished">Inga händelser</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8326,11 +8326,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
-        <translation>Wireshark-plottningar: %1</translation>
+        <translation type="vanished">Wireshark-plottningar: %1</translation>
     </message>
     <message>
         <source>Stratoshark Plots: %1</source>
-        <translation>Stratoshark-plottningar: %1</translation>
+        <translation type="vanished">Stratoshark-plottningar: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -8338,7 +8338,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Filtrerade händelser</translation>
+        <translation type="vanished">Filtrerade händelser</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -8346,7 +8346,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>All events</source>
-        <translation>Alla händelser</translation>
+        <translation type="vanished">Alla händelser</translation>
     </message>
     <message>
         <source>Seq. num.</source>
@@ -8354,7 +8354,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Event latency</source>
-        <translation>Händelselatens</translation>
+        <translation type="vanished">Händelselatens</translation>
     </message>
     <message>
         <source>Frame num.</source>
@@ -8377,16 +8377,20 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Klicka för att välja paket</translation>
     </message>
     <message>
+        <source>%1 Plots: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet</source>
         <translation>Paket</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Klicka för att välja händelse</translation>
+        <translation type="vanished">Klicka för att välja händelse</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Händelse</translation>
+        <translation type="vanished">Händelse</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -13938,11 +13942,11 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>Du sniffar på limmet som håller ihop ditt system med hjälp av Stratoshark</translation>
+        <translation type="vanished">Du sniffar på limmet som håller ihop ditt system med hjälp av Stratoshark</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>Du kör Stratoshark </translation>
+        <translation type="vanished">Du kör Stratoshark </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

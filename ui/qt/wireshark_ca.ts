@@ -4533,8 +4533,12 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>5 min</translation>
     </message>
     <message>
+        <source>%1 I/O Graphs: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Gràfics d&apos;E/S del Wireshark: %1</translation>
+        <translation type="vanished">Gràfics d&apos;E/S del Wireshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -4542,7 +4546,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Esdeveniments filtrats</translation>
+        <translation type="vanished">Esdeveniments filtrats</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -4550,7 +4554,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>All events</source>
-        <translation>Tots els esdeveniments</translation>
+        <translation type="vanished">Tots els esdeveniments</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4562,11 +4566,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>All Events</source>
-        <translation>Tots els esdeveniments</translation>
+        <translation type="vanished">Tots els esdeveniments</translation>
     </message>
     <message>
         <source>All Execs</source>
-        <translation>Totes els execucions</translation>
+        <translation type="vanished">Totes els execucions</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4578,7 +4582,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>No events in interval</source>
-        <translation>A l&apos;interval no hi ha esdeveniments</translation>
+        <translation type="vanished">A l&apos;interval no hi ha esdeveniments</translation>
     </message>
     <message>
         <source>Click to select packet</source>
@@ -4590,11 +4594,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Feu-hi clic per a seleccionar l&apos;esdeveniment</translation>
+        <translation type="vanished">Feu-hi clic per a seleccionar l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Esdeveniment</translation>
+        <translation type="vanished">Esdeveniment</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -5502,34 +5506,34 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Dreceres de teclat</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Dreceres de cerca</translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Imprimeix la llista de dreceres</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Tanca</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Copia</translation>
+        <translation>Copia</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Copia la fila</numerusform>
             <numerusform>Copia les files</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 %2</source>
-        <translation type="unfinished">%1 %2</translation>
+        <translation>%1 %2</translation>
     </message>
 </context>
 <context>
@@ -6982,12 +6986,8 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Paquet seleccionat: %1 %2 </translation>
     </message>
     <message>
-        <source>Selected Event: %1 %2 </source>
-        <translation>Esdeveniment seleccionat: %1 %2 </translation>
-    </message>
-    <message>
         <source>Events: %1</source>
-        <translation>Esdeveniments: %1</translation>
+        <translation type="vanished">Esdeveniments: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -7020,7 +7020,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>No Events</source>
-        <translation>Sense esdeveniments</translation>
+        <translation type="vanished">Sense esdeveniments</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -7272,7 +7272,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Search vendor name using a case-insensitive regular expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca el nom del proveïdor fent servir una expressió regular no sensible a majúscules i minúscules.</translation>
     </message>
     <message>
         <source>Vendor Name</source>
@@ -8326,11 +8326,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
-        <translation>Gràfics del Wireshark: %1</translation>
+        <translation type="vanished">Gràfics del Wireshark: %1</translation>
     </message>
     <message>
         <source>Stratoshark Plots: %1</source>
-        <translation>Gràfics de l&apos;Stratoshark: %1</translation>
+        <translation type="vanished">Gràfics de l&apos;Stratoshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -8338,7 +8338,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>Esdeveniments filtrats</translation>
+        <translation type="vanished">Esdeveniments filtrats</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -8346,7 +8346,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>All events</source>
-        <translation>Tots els esdeveniments</translation>
+        <translation type="vanished">Tots els esdeveniments</translation>
     </message>
     <message>
         <source>Seq. num.</source>
@@ -8354,7 +8354,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Event latency</source>
-        <translation>Latència d&apos;esdeveniments</translation>
+        <translation type="vanished">Latència d&apos;esdeveniments</translation>
     </message>
     <message>
         <source>Frame num.</source>
@@ -8377,16 +8377,20 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Feu-hi clic per a seleccionar el paquet</translation>
     </message>
     <message>
+        <source>%1 Plots: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet</source>
         <translation>Paquet</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>Feu-hi clic per a seleccionar l&apos;esdeveniment</translation>
+        <translation type="vanished">Feu-hi clic per a seleccionar l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>Esdeveniment</translation>
+        <translation type="vanished">Esdeveniment</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -13979,11 +13983,11 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>Esteu esnifant el pegament que manté unit el vostre sistema fent servir l&apos;Stratoshark</translation>
+        <translation type="vanished">Esteu esnifant el pegament que manté unit el vostre sistema fent servir l&apos;Stratoshark</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>S&apos;executa l&apos;Stratoshark</translation>
+        <translation type="vanished">S&apos;executa l&apos;Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -15456,11 +15460,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;BPv7</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;BPv7</translation>
     </message>
     <message>
         <source>BPv7 PDU and block statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de blocs i PDU BPv7</translation>
     </message>
     <message>
         <source>E2AP</source>
@@ -15732,11 +15736,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Dreceres de &amp;teclat</translation>
     </message>
     <message>
         <source>Show the current keyboard shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les dreceres de teclat actuals.</translation>
     </message>
     <message>
         <source>MAP Summary</source>

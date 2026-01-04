@@ -4515,8 +4515,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>5分</translation>
     </message>
     <message>
+        <source>%1 I/O Graphs: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Wireshark入出力グラフ: %1</translation>
+        <translation type="vanished">Wireshark入出力グラフ: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -4524,7 +4528,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>フィルタされたイベント</translation>
+        <translation type="vanished">フィルタされたイベント</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -4532,7 +4536,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All events</source>
-        <translation>すべてのイベント</translation>
+        <translation type="vanished">すべてのイベント</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4544,11 +4548,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All Events</source>
-        <translation>すべてのイベント</translation>
+        <translation type="vanished">すべてのイベント</translation>
     </message>
     <message>
         <source>All Execs</source>
-        <translation>全ての Execs</translation>
+        <translation type="vanished">全ての Execs</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4560,7 +4564,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No events in interval</source>
-        <translation>この間隔にイベントはありません</translation>
+        <translation type="vanished">この間隔にイベントはありません</translation>
     </message>
     <message>
         <source>Click to select packet</source>
@@ -4572,11 +4576,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>クリックしてイベントを選んでください</translation>
+        <translation type="vanished">クリックしてイベントを選んでください</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>イベント</translation>
+        <translation type="vanished">イベント</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6959,12 +6963,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>選択されたパケット: %1 %2 </translation>
     </message>
     <message>
-        <source>Selected Event: %1 %2 </source>
-        <translation>選択したイベント: %1 %2 </translation>
-    </message>
-    <message>
         <source>Events: %1</source>
-        <translation>イベント: %1</translation>
+        <translation type="vanished">イベント: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -6997,7 +6997,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Events</source>
-        <translation>イベントなし</translation>
+        <translation type="vanished">イベントなし</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8300,11 +8300,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
-        <translation>Wireshark グラフ: %1</translation>
+        <translation type="vanished">Wireshark グラフ: %1</translation>
     </message>
     <message>
         <source>Stratoshark Plots: %1</source>
-        <translation>Stratoshark 描画: %1</translation>
+        <translation type="vanished">Stratoshark 描画: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -8312,7 +8312,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Filtered events</source>
-        <translation>フィルタされたイベント</translation>
+        <translation type="vanished">フィルタされたイベント</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -8320,7 +8320,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All events</source>
-        <translation>すべてのイベント</translation>
+        <translation type="vanished">すべてのイベント</translation>
     </message>
     <message>
         <source>Seq. num.</source>
@@ -8328,7 +8328,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Event latency</source>
-        <translation>イベント遅延</translation>
+        <translation type="vanished">イベント遅延</translation>
     </message>
     <message>
         <source>Frame num.</source>
@@ -8351,16 +8351,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>クリックしてパケットを選択</translation>
     </message>
     <message>
+        <source>%1 Plots: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet</source>
         <translation>パケット</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation>クリックしてイベントを選択</translation>
+        <translation type="vanished">クリックしてイベントを選択</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation>イベント</translation>
+        <translation type="vanished">イベント</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -13939,11 +13943,11 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>あなたはStratosharkを使ってシステムを互いに繋ぐ膠をキャプチャしています</translation>
+        <translation type="vanished">あなたはStratosharkを使ってシステムを互いに繋ぐ膠をキャプチャしています</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>Stratosharkを起動中です </translation>
+        <translation type="vanished">Stratosharkを起動中です </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
