@@ -3461,7 +3461,7 @@ WS_DLL_PUBLIC char *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tv
  * @see tvb_bytes_to_str_punct
  */
 WS_DLL_PUBLIC char *tvb_bytes_to_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
-    const int offset, const int len);
+    const unsigned offset, const unsigned len);
 
 /**
  * @brief Digit mapping table for BCD decoding.

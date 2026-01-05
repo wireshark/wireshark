@@ -5230,11 +5230,10 @@ tvb_bcd_dig_to_str_be(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, 
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data.
  */
-char *tvb_bytes_to_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
-    const int offset, const int len)
+char *
+tvb_bytes_to_str(wmem_allocator_t *allocator, tvbuff_t *tvb, const unsigned offset, const unsigned len)
 {
-	DISSECTOR_ASSERT(len >= 0);
-	return bytes_to_str(allocator, ensure_contiguous(tvb, offset, len), len);
+	return bytes_to_str(allocator, ensure_contiguous_unsigned(tvb, offset, len), len);
 }
 
 /* Find a needle tvbuff within a haystack tvbuff. */
