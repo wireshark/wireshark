@@ -4305,7 +4305,7 @@ SpoolssGetForm_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		}
 
 		default:
-			proto_tree_add_expert_format(buffer.tree, pinfo, &ei_form_level, buffer.tvb, buffer_offset, -1, "Unknown form info level %d", level);
+			proto_tree_add_expert_format_remaining(buffer.tree, pinfo, &ei_form_level, buffer.tvb, buffer_offset, "Unknown form info level %d", level);
 			break;
 		}
 	}
@@ -4605,7 +4605,7 @@ SpoolssEnumJobs_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				buffer.tree, di, drep);
 			break;
 		default:
-			proto_tree_add_expert_format( buffer.tree, pinfo, &ei_job_info_level, buffer.tvb, 0, -1, "Unknown job info level %d", level);
+			proto_tree_add_expert_format_remaining( buffer.tree, pinfo, &ei_job_info_level, buffer.tvb, 0, "Unknown job info level %d", level);
 			break;
 		}
 
@@ -4736,7 +4736,7 @@ SpoolssGetJob_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			break;
 		case 2:
 		default:
-			proto_tree_add_expert_format( buffer.tree, pinfo, &ei_job_info_level, buffer.tvb, buffer_offset, -1, "Unknown job info level %d", level);
+			proto_tree_add_expert_format_remaining( buffer.tree, pinfo, &ei_job_info_level, buffer.tvb, buffer_offset, "Unknown job info level %d", level);
 			break;
 		}
 	}
@@ -5659,7 +5659,7 @@ SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, unsigned offset,
 			/*break;*/
 			goto done; /*Not entirely implemented*/
 		default:
-			proto_tree_add_expert_format( buffer.tree, pinfo, &ei_driver_info_level, buffer.tvb, buffer_offset, -1, "Unknown driver info level %d", level);
+			proto_tree_add_expert_format_remaining( buffer.tree, pinfo, &ei_driver_info_level, buffer.tvb, buffer_offset, "Unknown driver info level %d", level);
 			goto done;
 		}
 	}
@@ -5766,7 +5766,7 @@ SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, unsigned offset,
 				buffer.tvb, 0, pinfo, buffer.tree, di, drep);
 			break;
 		default:
-			proto_tree_add_expert_format( buffer.tree, pinfo, &ei_driver_info_level, buffer.tvb, 0, -1, "Unknown driver info level %d", level);
+			proto_tree_add_expert_format_remaining( buffer.tree, pinfo, &ei_driver_info_level, buffer.tvb, 0, "Unknown driver info level %d", level);
 			break;
 		}
 	}

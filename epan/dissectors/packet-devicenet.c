@@ -409,7 +409,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                *msg_id_item, *service_item;
     proto_tree *devicenet_tree, *can_tree, *content_tree;
 
-    int offset = 0;
+    unsigned offset = 0;
     uint16_t message_id;
     uint32_t data_length = tvb_reported_length(tvb);
     uint8_t source_mac;
@@ -547,7 +547,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_item(content_tree, hf_devicenet_fragment_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
             /* TODO: Handle fragmentation */
-            proto_tree_add_expert(content_tree, pinfo, &ei_devicenet_frag_not_supported, tvb, offset, -1);
+            proto_tree_add_expert_remaining(content_tree, pinfo, &ei_devicenet_frag_not_supported, tvb, offset);
 
             col_set_str(pinfo->cinfo, COL_INFO,
                         val_to_str_const((tvb_get_uint8(tvb, offset) & 0xC0) >> 6,

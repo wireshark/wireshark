@@ -63,7 +63,7 @@ static dissector_handle_t distcc_handle;
         /* only attempt reassembly if we have the full segment */\
         if(tvb_captured_length_remaining(tvb, offset)==(unsigned)tvb_reported_length_remaining(tvb, offset)){\
             if(parameter>tvb_captured_length_remaining(tvb, offset)){\
-                proto_tree_add_expert_format(tree, pinfo, &ei_distcc_short_pdu, tvb, offset-12, -1, "[Short " x " PDU]");\
+                proto_tree_add_expert_format_remaining(tree, pinfo, &ei_distcc_short_pdu, tvb, offset-12, "[Short " x " PDU]");\
                 pinfo->desegment_offset=offset-12;\
                 pinfo->desegment_len=parameter-tvb_captured_length_remaining(tvb, offset);\
                 return offset+len;\

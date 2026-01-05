@@ -283,7 +283,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   uint32_t findex _U_,
   uint32_t fcount,
   uint16_t seq,
-  int offset,
+  unsigned offset,
   uint16_t plen,
   bool fec _U_,
   uint16_t rsk,
@@ -297,7 +297,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   tvbuff_t *new_tvb=NULL;
 
   if (fcount > MAX_FRAGMENTS) {
-    proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", fcount);
+    proto_tree_add_expert_format_remaining(tree, pinfo, &ei_edcp_reassembly, tvb , 0, "[Reassembly of %d fragments not attempted]", fcount);
     return NULL;
   }
 
@@ -315,7 +315,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     fragment_item *fd;
     fragment_head *fd_head;
 
-    proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly_info, tvb, 0, -1, "want %d, got %d need %d",
+    proto_tree_add_expert_format_remaining(tree, pinfo, &ei_edcp_reassembly_info, tvb, 0, "want %d, got %d need %d",
                            fcount, fragments, rx_min);
     got = (uint32_t *)wmem_alloc(pinfo->pool, fcount*sizeof(uint32_t));
 
@@ -335,18 +335,18 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       uint8_t *dummy_data = (uint8_t*) wmem_alloc0 (pinfo->pool, plen);
       tvbuff_t *dummytvb = tvb_new_real_data(dummy_data, plen, plen);
       /* try and decode with missing fragments */
-      proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly_info, tvb, 0, -1, "want %d, got %d need %d",
+      proto_tree_add_expert_format_remaining(tree, pinfo, &ei_edcp_reassembly_info, tvb, 0, "want %d, got %d need %d",
                                fcount, fragments, rx_min);
       /* fill the fragment table with empty fragments */
       current_findex = 0;
       for(i=0; i<fragments; i++) {
         unsigned next_fragment_we_have = got[i];
         if (next_fragment_we_have > MAX_FRAGMENTS) {
-          proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", next_fragment_we_have);
+          proto_tree_add_expert_format_remaining(tree, pinfo, &ei_edcp_reassembly, tvb , 0, "[Reassembly of %d fragments not attempted]", next_fragment_we_have);
           return NULL;
         }
         if (next_fragment_we_have-current_findex > MAX_FRAG_GAP) {
-          proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly, tvb, 0, -1,
+          proto_tree_add_expert_format_remaining(tree, pinfo, &ei_edcp_reassembly, tvb, 0,
               "[Missing %d consecutive packets. Don't attempt reassembly]",
               next_fragment_we_have-current_findex);
           return NULL;
@@ -410,7 +410,7 @@ dissect_pft_fragmented(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   uint32_t findex,
   uint32_t fcount,
   uint16_t seq,
-  int offset,
+  unsigned offset,
   uint16_t plen,
   bool fec,
   uint16_t rsk,
@@ -466,7 +466,7 @@ static int
 dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 {
   uint16_t plen;
-  int offset = 0;
+  unsigned offset = 0;
   uint16_t seq, payload_len;
   uint32_t findex, fcount;
   proto_tree *pft_tree;
@@ -557,7 +557,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 static int
 dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  int offset = 0;
+  unsigned offset = 0;
   proto_item *ti;
   proto_item *li = NULL;
   proto_item *ci;
