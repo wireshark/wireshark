@@ -5126,7 +5126,7 @@ tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned of
  * i.e. an even number of nibbles are considered.)
  */
 char *
-tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int len, const dgt_set_t *dgt, bool skip_first, bool odd, bool bigendian)
+tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned len, const dgt_set_t *dgt, bool skip_first, bool odd, bool bigendian)
 {
 	const uint8_t *ptr;
 	int           i = 0;
@@ -5135,21 +5135,7 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	if (len == -1) {
-		/*
-		 * Run to the end of the captured data.
-		 *
-		 * XXX - captured, or total?
-		 */
-		/*length = tvb_captured_length(tvb);*/
-		len = tvb->length;
-		if (len < offset) {
-			return (char *)"";
-		}
-		len -= offset;
-	}
-
-	ptr = ensure_contiguous(tvb, offset, len);
+	ptr = ensure_contiguous_unsigned(tvb, offset, len);
 
 	/*
 	 * XXX - map illegal digits (digits that map to 0) to REPLACEMENT
@@ -5207,9 +5193,9 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int
 	return digit_str;
 }
 
-/* XXXX Fix me - needs odd indicator added */
+/* XXXX Fix me - needs odd indicator added (or just use of tvb_get_bcd_string / proto_tree_add_item) */
 const char *
-tvb_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int len, const dgt_set_t *dgt, bool skip_first)
+tvb_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, const unsigned len, const dgt_set_t *dgt, bool skip_first)
 {
 	if (!dgt)
 		dgt = &Dgt0_9_bcd;
@@ -5218,7 +5204,7 @@ tvb_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, con
 }
 
 const char *
-tvb_bcd_dig_to_str_be(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int len, const dgt_set_t *dgt, bool skip_first)
+tvb_bcd_dig_to_str_be(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, const unsigned len, const dgt_set_t *dgt, bool skip_first)
 {
 	if (!dgt)
 		dgt = &Dgt0_9_bcd;

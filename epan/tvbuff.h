@@ -3501,14 +3501,17 @@ dgt_set_t;
  * @param scope       The memory allocator scope for the result.
  * @param tvb         The tvbuff_t to read from.
  * @param offset      The offset in the tvbuff where BCD data begins.
- * @param len         The number of bytes to decode, or -1 to decode to the end.
+ * @param len         The number of bytes to decode.
  * @param dgt         Pointer to a digit set mapping (or NULL for default).
  * @param skip_first  If true, skip the first nibble and start with the second.
  *
  * @return A pointer to the WMEM-allocated string containing the formatted digits.
+ *
+ * @see dgt_set_t
+ * @see tvb_get_bcd_string
  */
 WS_DLL_PUBLIC const char *tvb_bcd_dig_to_str(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const int offset, const int len, const dgt_set_t *dgt,
+    tvbuff_t *tvb, const unsigned offset, const unsigned len, const dgt_set_t *dgt,
     bool skip_first);
 
 /**
@@ -3529,16 +3532,17 @@ WS_DLL_PUBLIC const char *tvb_bcd_dig_to_str(wmem_allocator_t *scope,
  * @param scope       The memory allocator scope for the result.
  * @param tvb         The tvbuff_t to read from.
  * @param offset      The offset in the tvbuff where BCD data begins.
- * @param len         The number of bytes to decode, or -1 to decode to the end.
+ * @param len         The number of bytes to decode.
  * @param dgt         Pointer to a digit set mapping (or NULL for default).
  * @param skip_first  If true, skip the first nibble and start with the second.
  *
  * @return A pointer to the WMEM-allocated string containing the formatted digits.
  *
  * @see dgt_set_t
+ * @see tvb_get_bcd_string
  */
 WS_DLL_PUBLIC const char *tvb_bcd_dig_to_str_be(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const int offset, const int len, const dgt_set_t *dgt,
+    tvbuff_t *tvb, const unsigned offset, const unsigned len, const dgt_set_t *dgt,
     bool skip_first);
 
 /**
@@ -3562,7 +3566,7 @@ WS_DLL_PUBLIC const char *tvb_bcd_dig_to_str_be(wmem_allocator_t *scope,
  * @param scope       The memory allocator scope for the result.
  * @param tvb         The tvbuff_t to read from.
  * @param offset      The offset in the tvbuff where BCD data begins.
- * @param len         The number of bytes to decode, or -1 to decode to the end.
+ * @param len         The number of bytes to decode.
  * @param dgt         Pointer to a digit set mapping (or NULL for default).
  * @param skip_first  If true, skip the first nibble and start with the second.
  * @param odd         If true, skip the high nibble of the last byte.
@@ -3573,7 +3577,7 @@ WS_DLL_PUBLIC const char *tvb_bcd_dig_to_str_be(wmem_allocator_t *scope,
  * @see dgt_set_t
  */
 WS_DLL_PUBLIC char *tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb,
-    const int offset, int len, const dgt_set_t *dgt,
+    const unsigned offset, unsigned len, const dgt_set_t *dgt,
     bool skip_first, bool odd, bool bigendian);
 
 /**
