@@ -1295,11 +1295,11 @@ save_channel(packet_info *pinfo, uint32_t type_protocol, uint32_t channel,
 }
 
 
-static int
-get_type_length(tvbuff_t *tvb, int offset, int *length)
+static unsigned
+get_type_length(tvbuff_t *tvb, unsigned offset, unsigned*length)
 {
-    int     size  = 0;
-    uint8_t byte;
+    unsigned size  = 0;
+    uint8_t  byte;
 
     byte = tvb_get_uint8(tvb, offset);
     offset += 1;
@@ -1334,19 +1334,14 @@ get_type_length(tvbuff_t *tvb, int offset, int *length)
         break;
     }
 
-    if (size < 0) {
-        *length = 0; /* Add expert info? */
-    }
-    else {
-        *length = size;
-    }
+    *length = size;
 
     return offset;
 }
 
 
 static uint32_t
-get_uint_by_size(tvbuff_t *tvb, int off, int size)
+get_uint_by_size(tvbuff_t *tvb, unsigned off, unsigned size)
 {
     switch (size) {
     case 0:
@@ -1362,7 +1357,7 @@ get_uint_by_size(tvbuff_t *tvb, int off, int size)
 
 
 static int32_t
-get_int_by_size(tvbuff_t *tvb, int off, int size)
+get_int_by_size(tvbuff_t *tvb, unsigned off, unsigned size)
 {
     switch (size) {
     case 0:
@@ -1376,8 +1371,8 @@ get_int_by_size(tvbuff_t *tvb, int off, int size)
     }
 }
 
-static int
-dissect_uuid(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int size, bluetooth_uuid_t *uuid)
+static unsigned
+dissect_uuid(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, unsigned offset, unsigned size, bluetooth_uuid_t *uuid)
 {
     proto_item  *item;
 
@@ -1415,18 +1410,18 @@ dissect_uuid(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset
 }
 
 
-static int
+static unsigned
 dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-        int offset)
+        unsigned offset)
 {
     proto_item  *cont_item;
     unsigned length;
 
-    length = tvb_reported_length_remaining(tvb, offset);
+    length = (unsigned)tvb_reported_length_remaining(tvb, offset);
     if (length == 0)  {
-        proto_tree_add_expert(tree, pinfo, &ei_btsdp_continuation_state_none, tvb, offset, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_btsdp_continuation_state_none, tvb, offset);
     } else if (length > 17) {
-        proto_tree_add_expert(tree, pinfo, &ei_btsdp_continuation_state_large, tvb, offset, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_btsdp_continuation_state_large, tvb, offset);
     } else if (length == 1 && tvb_get_uint8(tvb, offset) == 0x00) {
         proto_tree_add_none_format(tree, hf_continuation_state, tvb,
                 offset, -1, "Continuation State: no (00)");
@@ -1465,7 +1460,7 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 #define MAX_CONTINUATION_STATE_LEN 16
 static int
 reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
-        int offset, unsigned tid, bool is_request,
+        unsigned offset, unsigned tid, bool is_request,
         int attribute_list_byte_offset, int attribute_list_byte_count,
         uint32_t pdu_type, tvbuff_t **new_tvb, bool *is_first,
         bool *is_continued, wmem_array_t **uuid_array,
@@ -1524,7 +1519,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
     if (is_first) *is_first = true;
     if (is_continued) *is_continued = true;
 
-    length = tvb_reported_length_remaining(tvb, offset);
+    length = (unsigned)tvb_reported_length_remaining(tvb, offset);
     if (length == 0)  {
         return offset;
     } else if (length > 17) {
@@ -1889,15 +1884,15 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
 }
 
-static int
+static unsigned
 dissect_data_element(proto_tree *tree, proto_tree **next_tree,
-        packet_info *pinfo, tvbuff_t *tvb, int offset)
+        packet_info *pinfo, tvbuff_t *tvb, unsigned offset)
 {
     proto_item  *pitem;
     proto_tree  *ptree;
-    int         new_offset;
-    int         length;
-    int         len;
+    unsigned    new_offset;
+    unsigned    length;
+    unsigned    len;
     uint8_t     type;
     uint8_t     size;
 
@@ -1915,8 +1910,8 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
 
     new_offset = get_type_length(tvb, offset, &length);
 
-    if (tvb_reported_length_remaining(tvb, new_offset) < length) {
-        len = tvb_reported_length_remaining(tvb, offset);
+    if ((unsigned)tvb_reported_length_remaining(tvb, new_offset) < length) {
+        len = (unsigned)tvb_reported_length_remaining(tvb, offset);
     } else {
         len = new_offset - offset + length;
     }
@@ -1932,7 +1927,7 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
     }
 
     pitem = proto_tree_add_item(ptree, hf_data_element_value, tvb, offset, length, ENC_NA);
-    if (length > tvb_reported_length_remaining(tvb, offset)) {
+    if (length > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
         expert_add_info(pinfo, pitem, &ei_data_element_value_large);
         proto_item_append_text(pitem, ": MISSING");
     } else if (length == 0)
@@ -1953,14 +1948,14 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
     return offset;
 }
 
-static int
-findUintAttribute(tvbuff_t *tvb, int service_offset,
-        int number_of_attributes, int attribute_id)
+static unsigned
+findUintAttribute(tvbuff_t *tvb, unsigned service_offset,
+        unsigned number_of_attributes, int attribute_id)
 {
-    int result = 0;
-    int search_length;
-    int search_offset;
-    int i_number_of_attributes;
+    unsigned result = 0;
+    unsigned search_length;
+    unsigned search_offset;
+    unsigned i_number_of_attributes;
     uint16_t attribute;
 
     search_offset = service_offset;
@@ -1987,8 +1982,8 @@ findUintAttribute(tvbuff_t *tvb, int service_offset,
 
 static void
 dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
-        packet_info *pinfo, int offset, int size, wmem_strbuf_t *info_buf,
-        service_info_t  *service_info, int *protocol_order)
+        packet_info *pinfo, unsigned offset, unsigned size, wmem_strbuf_t *info_buf,
+        service_info_t  *service_info, unsigned *protocol_order)
 {
     proto_tree      *feature_tree;
     proto_item      *feature_item;
@@ -1996,13 +1991,13 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
     proto_item      *entry_item;
     proto_tree      *sub_tree;
     proto_tree      *last_tree;
-    int              new_offset;
-    int              list_offset;
-    int              entry_start;
-    int              entry_offset;
-    int              entry_length;
+    unsigned         new_offset;
+    unsigned         list_offset;
+    unsigned         entry_start;
+    unsigned         entry_offset;
+    unsigned         entry_length;
     uint32_t         value;
-    int              length;
+    unsigned         length;
     uint32_t         i_protocol;
     bluetooth_uuid_t uuid;
     service_info_t  *record = NULL;
@@ -2086,8 +2081,8 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
         }
 
         while (entry_offset - entry_start < entry_length) {
-            int value_offset;
-            int len;
+            unsigned value_offset;
+            unsigned len;
 
             dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
             new_offset = get_type_length(tvb, entry_offset, &length);
@@ -2096,7 +2091,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                 wmem_strbuf_append(info_buf, " (");
                 value_offset = new_offset;
                 while (value_offset - new_offset < length) {
-                    int next_offset;
+                    unsigned next_offset;
                     dissect_data_element(sub_tree, &last_tree, pinfo, tvb, value_offset);
                     next_offset = get_type_length(tvb, value_offset, &len);
                     value = get_int_by_size(tvb, next_offset, len / 2);
@@ -2127,10 +2122,10 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 }
 
 
-static int
+static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-        int offset, int attribute, bluetooth_uuid_t service_uuid,
+        unsigned offset, int attribute, bluetooth_uuid_t service_uuid,
         int service_did_vendor_id, int service_did_vendor_id_source,
         int service_hdp_data_exchange_specification,
         service_info_t  *service_info, wmem_strbuf_t **pinfo_buf)
@@ -2142,16 +2137,16 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_tree    *next_tree;
     proto_tree    *sub_tree;
     proto_tree    *last_tree;
-    int            size;
+    unsigned       size;
     uint8_t        byte;
     uint8_t        type;
     uint8_t        size_index;
-    int            start_offset;
-    int            new_offset;
-    int            list_offset;
-    int            list_length;
-    int            entry_offset;
-    int            entry_length;
+    unsigned       start_offset;
+    unsigned       new_offset;
+    unsigned       list_offset;
+    unsigned       list_length;
+    unsigned       entry_offset;
+    unsigned       entry_length;
     bool           found;
     uint16_t       specification_id;
     uint16_t       vendor_id;
@@ -2170,8 +2165,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     uint64_t       value_64;
     bluetooth_uuid_t uuid;
     const char    *uuid_str;
-    int            length;
-    int            protocol_order;
+    unsigned       length;
+    unsigned       protocol_order;
     wmem_strbuf_t *info_buf;
 
     info_buf = wmem_strbuf_create(pinfo->pool);
@@ -3579,9 +3574,9 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
 
 static int
-dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
-        packet_info *pinfo, bluetooth_uuid_t uuid, int service_offset,
-        service_info_t  *service_info, int number_of_attributes, bool attribute_only)
+dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, unsigned offset,
+        packet_info *pinfo, bluetooth_uuid_t uuid, unsigned service_offset,
+        service_info_t  *service_info, unsigned number_of_attributes, bool attribute_only)
 {
     proto_tree          *attribute_tree;
     proto_item          *attribute_item;
@@ -3590,7 +3585,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
     proto_tree          *attribute_value_tree;
     proto_item          *attribute_value_item;
     proto_tree          *next_tree;
-    int                  size = 0;
+    unsigned            size = 0;
     const char          *attribute_name;
     wmem_strbuf_t       *attribute_value = NULL;
     uint16_t             id;
@@ -3600,8 +3595,8 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
     int                  hfx_attribute_id = hf_service_attribute_id_generic;
     const value_string  *name_vals = NULL;
     const char          *profile_specific = "";
-    int                  new_offset;
-    int                  old_offset;
+    unsigned             new_offset;
+    unsigned             old_offset;
     uint8_t              type;
 
     type = tvb_get_uint8(tvb, offset);
@@ -3855,17 +3850,17 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, int offset,
+static unsigned
+dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, unsigned offset,
         packet_info *pinfo, bluetooth_uuid_t *uuid)
 {
     proto_item  *list_item;
     proto_tree  *list_tree;
     proto_tree  *sub_tree;
-    int          start_offset;
-    int          previous_offset;
-    int          service_offset;
-    int          bytes_to_go;
+    unsigned     start_offset;
+    unsigned     previous_offset;
+    unsigned     service_offset;
+    unsigned     bytes_to_go;
     bluetooth_uuid_t empty_uuid;
 
     if (!uuid)
@@ -3892,8 +3887,8 @@ dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 
-static int
-dissect_sdp_error_response(proto_tree *tree, tvbuff_t *tvb, int offset)
+static unsigned
+dissect_sdp_error_response(proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
     proto_tree_add_item(tree, hf_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -3902,22 +3897,22 @@ dissect_sdp_error_response(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 
-static int
-dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, int offset,
+static unsigned
+dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, unsigned offset,
         packet_info *pinfo, bluetooth_uuid_t *service_uuid, btl2cap_data_t *l2cap_data)
 {
     proto_item      *list_item;
     proto_tree      *list_tree;
     proto_tree      *next_tree;
-    int              start_offset = offset;
-    int              search_offset;
-    int              search_length;
-    int              len;
+    unsigned         start_offset = offset;
+    unsigned         search_offset;
+    unsigned         search_length;
+    unsigned         len;
     unsigned         number_of_attributes;
     uint16_t         attribute;
-    int              element_length;
-    int              new_offset;
-    int              service_offset;
+    unsigned         element_length;
+    unsigned         new_offset;
+    unsigned         service_offset;
     bluetooth_uuid_t uuid;
     wmem_tree_key_t  key[10];
     uint32_t         k_interface_id;
@@ -4050,16 +4045,16 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 
-static int
+static unsigned
 dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb,
-        int offset, packet_info *pinfo, int attribute_list_byte_count,
+    unsigned offset, packet_info *pinfo, unsigned attribute_list_byte_count,
         bluetooth_uuid_t *service_uuid, btl2cap_data_t *l2cap_data)
 {
     proto_item   *lists_item;
     proto_tree   *lists_tree;
     proto_tree   *next_tree;
-    int           start_offset;
-    int           len;
+    unsigned      start_offset;
+    unsigned      len;
     unsigned      number_of_attributes;
 
     start_offset = offset;
@@ -4086,13 +4081,13 @@ dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-static int
-dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, int offset,
+static unsigned
+dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, unsigned offset,
         packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
 {
-    int          start_offset;
-    int          bytes_to_go;
-    int          size;
+    unsigned     start_offset;
+    unsigned     bytes_to_go;
+    unsigned     size;
     proto_item   *ti;
     proto_tree   *st;
     proto_tree   *sub_tree = NULL;
@@ -4113,8 +4108,8 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, int offset,
 
     while (bytes_to_go > 0) {
         wmem_strbuf_t  *str = NULL;
-        int             entry_offset;
-        int             entry_size;
+        unsigned        entry_offset;
+        unsigned        entry_size;
         bluetooth_uuid_t uuid;
 
         size = dissect_sdp_type(sub_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, -1, NULL, &str);
@@ -4146,9 +4141,9 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 
-static int
+static unsigned
 dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
-        int offset, packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
+        unsigned offset, packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
 {
     proto_tree   *st;
     proto_item   *ti;
@@ -4283,9 +4278,9 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-static int
+static unsigned
 dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
-        int offset, packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
+    unsigned offset, packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
 {
     uint32_t       record_handle;
     wmem_array_t  *uuid_array;
@@ -4315,9 +4310,9 @@ dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
-        int offset, packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
+        unsigned offset, packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
 {
-    int            attribute_list_byte_count;
+    unsigned       attribute_list_byte_count;
     bool           is_first;
     bool           is_continued;
     tvbuff_t      *new_tvb;
@@ -4379,14 +4374,14 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
-        int offset, packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
+        unsigned offset, packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
 {
     proto_tree     *ptree;
     proto_item     *pitem;
     proto_tree     *next_tree;
-    int             start_offset;
-    int             size;
-    int             bytes_to_go;
+    unsigned        start_offset;
+    unsigned        size;
+    unsigned        bytes_to_go;
     wmem_strbuf_t  *info_buf = NULL;
     bluetooth_uuid_t empty_uuid;
     wmem_array_t   *uuid_array = NULL;
@@ -4407,8 +4402,8 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     proto_item_set_len(pitem, bytes_to_go + (offset - start_offset));
 
     while (bytes_to_go > 0) {
-        int             entry_offset;
-        int             entry_size;
+        unsigned        entry_offset;
+        unsigned        entry_size;
         bluetooth_uuid_t a_uuid;
 
         memset(&a_uuid, 0, sizeof(bluetooth_uuid_t));
@@ -4444,11 +4439,11 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-static int
+static unsigned
 dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
-        int offset, packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
+    unsigned offset, packet_info *pinfo, uint16_t tid, btl2cap_data_t *l2cap_data)
 {
-    int            attribute_list_byte_count;
+    unsigned       attribute_list_byte_count;
     bool           is_first;
     bool           is_continued;
     tvbuff_t      *new_tvb;
@@ -4506,7 +4501,7 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item    *ti;
     proto_tree    *st;
-    int           offset = 0;
+    unsigned      offset = 0;
     uint8_t       pdu_id;
     uint16_t      tid;
     btl2cap_data_t   *l2cap_data;
