@@ -4309,9 +4309,7 @@ elem_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint32_t offse
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_ansi_a_tag_value, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
-
-    value = tvb_get_ntohl(tvb, curr_offset);
+    proto_tree_add_item_ret_uint(tree, hf_ansi_a_tag_value, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &value);
 
     proto_item_append_text(data_p->elem_item, " - (%u)", value);
 

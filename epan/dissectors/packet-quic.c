@@ -4041,9 +4041,7 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
     uint32_t    dcil, scil;
     proto_item  *ti;
 
-    version = tvb_get_ntohl(tvb, offset);
-
-    ti = proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN, &version);
     if ((version & 0x0F0F0F0F) == 0x0a0a0a0a) {
         proto_item_append_text(ti, " (Forcing Version Negotiation)");
     }

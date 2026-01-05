@@ -958,8 +958,7 @@ dissect_rpcap_sampling_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree_add_item (tree, hf_sampling_dummy2, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  value = tvb_get_ntohl (tvb, offset);
-  proto_tree_add_item (tree, hf_sampling_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (tree, hf_sampling_value, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
   offset += 4;
 
   switch (method) {
@@ -995,16 +994,13 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   proto_tree_add_item(tree, hf_timestamp, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
   offset += 8;
 
-  caplen = tvb_get_ntohl (tvb, offset);
-  ti = proto_tree_add_item (tree, hf_caplen, tvb, offset, 4, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item_ret_uint (tree, hf_caplen, tvb, offset, 4, ENC_BIG_ENDIAN, &caplen);
   offset += 4;
 
-  len = tvb_get_ntohl (tvb, offset);
-  proto_tree_add_item (tree, hf_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (tree, hf_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
   offset += 4;
 
-  frame_no = tvb_get_ntohl (tvb, offset);
-  proto_tree_add_item (tree, hf_npkt, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (tree, hf_npkt, tvb, offset, 4, ENC_BIG_ENDIAN, &frame_no);
   offset += 4;
 
   proto_item_append_text (ti, ", Frame %u", frame_no);

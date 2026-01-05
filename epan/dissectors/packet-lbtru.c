@@ -922,8 +922,7 @@ static int dissect_lbtru_ncf_list(tvbuff_t * tvb, int offset, packet_info * pinf
     {
         proto_item * sep_ncf_item = NULL;
 
-        ncf = tvb_get_ntohl(tvb, offset + len);
-        sep_ncf_item = proto_tree_add_item(ncf_tree, hf_lbtru_ncf_list_ncf, tvb, offset + len, sizeof(lbm_uint32_t), ENC_BIG_ENDIAN);
+        sep_ncf_item = proto_tree_add_item_ret_uint(ncf_tree, hf_lbtru_ncf_list_ncf, tvb, offset + len, sizeof(lbm_uint32_t), ENC_BIG_ENDIAN, &ncf);
         if (lbtru_expert_separate_ncfs)
         {
             expert_add_info_format(pinfo, sep_ncf_item, &ei_lbtru_analysis_ncf_ncf, "NCF 0x%08x %s", ncf, val_to_str(pinfo->pool, reason, lbtru_ncf_reason, "Unknown (0x%02x)"));
@@ -983,8 +982,7 @@ static int dissect_lbtru_nak_list(tvbuff_t * tvb, int offset, packet_info * pinf
         proto_item * sep_nak_item = NULL;
         lbm_uint32_t nak;
 
-        nak = tvb_get_ntohl(tvb, offset + len);
-        sep_nak_item = proto_tree_add_item(nak_tree, hf_lbtru_nak_list_nak, tvb, offset + len, sizeof(lbm_uint32_t), ENC_BIG_ENDIAN);
+        sep_nak_item = proto_tree_add_item_ret_uint(nak_tree, hf_lbtru_nak_list_nak, tvb, offset + len, sizeof(lbm_uint32_t), ENC_BIG_ENDIAN, &nak);
         if (lbtru_expert_separate_naks)
         {
             expert_add_info_format(pinfo, sep_nak_item, &ei_lbtru_analysis_nak_nak, "NAK 0x%08x", nak);

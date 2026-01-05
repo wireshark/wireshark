@@ -2837,8 +2837,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ends_with_parameters = true;
             break;
         case LLRP_TYPE_CUSTOM_MESSAGE:
-            vendor = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_item(tree, hf_llrp_vendor, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_llrp_vendor, tvb, offset, 4, ENC_BIG_ENDIAN, &vendor);
             offset += 4;
             /* Do vendor specific dissection */
             switch(vendor) {

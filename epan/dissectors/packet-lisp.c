@@ -1103,8 +1103,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
     /* PROCESS ALTITUDE */
 
-    ti_alt = proto_tree_add_item(tree, hf_lisp_lcaf_geo_alt, tvb, offset, 4, ENC_NA);
-    alt = tvb_get_ntohl(tvb, offset);
+    ti_alt = proto_tree_add_item_ret_uint(tree, hf_lisp_lcaf_geo_alt, tvb, offset, 4, ENC_NA, &alt);
     /* if altitude equals 0x7fffffff then no altitude information encoded */
     if (alt == 0x7fffffff) {
         proto_item_append_text(ti_alt, ": no value encoded");
@@ -1345,8 +1344,7 @@ dissect_lcaf_mcast_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree  *src_tree, *grp_tree;
 
     /* Instance ID (4 bytes) */
-    proto_tree_add_item(tree, hf_lisp_lcaf_mcinfo_iid, tvb, offset, 4, ENC_BIG_ENDIAN);
-    iid = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_lisp_lcaf_mcinfo_iid, tvb, offset, 4, ENC_BIG_ENDIAN, &iid);
     offset += 4;
 
     /* Reserved (2 bytes) */

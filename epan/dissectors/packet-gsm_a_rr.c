@@ -8649,8 +8649,7 @@ de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t off
 
     curr_offset = offset;
 
-    tlli = tvb_get_ntohl(tvb, curr_offset);
-    proto_tree_add_item(tree, hf_gsm_a_rr_tlli, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_gsm_a_rr_tlli, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &tlli);
 
     if(gsm_a_rr_nri_length > 0) {
         /* NRI is in second byte of TLLI */

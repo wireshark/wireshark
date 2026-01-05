@@ -1500,8 +1500,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint1
     {
       uint32_t priority;
 
-      priority = tvb_get_ntohl(tvb, offset+local_offset + icecandidates_offset);
-      proto_tree_add_item(icecandidate_tree, hf_reload_icecandidate_priority, tvb, offset+local_offset + icecandidates_offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint(icecandidate_tree, hf_reload_icecandidate_priority, tvb, offset+local_offset + icecandidates_offset, 4, ENC_BIG_ENDIAN, &priority);
       icecandidate_offset += 4;
       proto_tree_add_item(icecandidate_tree, hf_reload_icecandidate_type, tvb,
                           offset+local_offset+icecandidates_offset+icecandidate_offset, 1, ENC_BIG_ENDIAN);

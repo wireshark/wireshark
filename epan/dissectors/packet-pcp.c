@@ -747,8 +747,7 @@ static int dissect_pcp_message_start(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     col_append_str(pinfo->cinfo, COL_INFO, "[START]");
 
     /* status */
-    status = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(pcp_start_tree, hf_pcp_start_status, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(pcp_start_tree, hf_pcp_start_status, tvb, offset, 4, ENC_BIG_ENDIAN, &status);
     offset += 4;
     if(tvb_reported_length_remaining(tvb, offset) == 0){
         /* Most likely we're in a SSL upgrade if this is the end of the start packet */

@@ -368,8 +368,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     data_len -= 2;
 
     /* Instance ID (4 bytes) */
-    iid = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(message_tree, hf_lisp_tcp_message_iid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(message_tree, hf_lisp_tcp_message_iid, tvb, offset, 4, ENC_BIG_ENDIAN, &iid);
     offset += 4;
     data_len -= 4;
     proto_item_append_text(tim, ", IID: %u", iid);
@@ -378,8 +377,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     case MEMBERSHIP_BASE + 1:
     case MEMBERSHIP_BASE + 2:
         /* Subscribe ID (4 bytes) */
-        sid = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(message_tree, hf_lisp_tcp_message_sid, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(message_tree, hf_lisp_tcp_message_sid, tvb, offset, 4, ENC_BIG_ENDIAN, &sid);
         offset += 4;
         data_len -= 4;
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Sub ID: %u", sid);
@@ -434,8 +432,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     case MEMBERSHIP_BASE + 7:
     case MEMBERSHIP_BASE + 8:
         /* Request ID (4 bytes) */
-        rid = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(message_tree, hf_lisp_tcp_message_rid, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(message_tree, hf_lisp_tcp_message_rid, tvb, offset, 4, ENC_BIG_ENDIAN, &rid);
         offset += 4;
         data_len -= 4;
         proto_item_append_text(tim, ", Req ID: %u", rid);
@@ -483,8 +480,7 @@ dissect_lisp_tcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 "Invalid message length (%u < 8)", len);
     } else if (len > 8) {
         /* Message ID (4 bytes) */
-        id = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(message_tree, hf_lisp_tcp_message_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(message_tree, hf_lisp_tcp_message_id, tvb, offset, 4, ENC_BIG_ENDIAN, &id);
         offset += 4;
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, "; ", "Msg: %u, %s", id, val_to_str(pinfo->pool, type, lisp_tcp_typevals,
                     "Unknown type (%u)"));
@@ -507,8 +503,7 @@ dissect_lisp_tcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     }
 
     /* Message End Marker (4 bytes) */
-    marker = tvb_get_ntohl(tvb, offset);
-    tiem = proto_tree_add_item(message_tree, hf_lisp_tcp_message_end_marker, tvb, offset, 4, ENC_BIG_ENDIAN);
+    tiem = proto_tree_add_item_ret_uint(message_tree, hf_lisp_tcp_message_end_marker, tvb, offset, 4, ENC_BIG_ENDIAN, &marker);
     offset += 4;
 
     if (marker != LISP_MSG_END_MARKER) {
