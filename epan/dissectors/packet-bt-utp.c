@@ -615,8 +615,8 @@ utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_item_set_generated(item);
 #if 0
     } else {
-          item = proto_tree_add_expert_format((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, curr_layer_num),
-                                  tvb, offset, -1,
+          item = proto_tree_add_expert_format_remaining((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, curr_layer_num),
+                                  tvb, offset,
               "PDU Size: %u cut short at %u",plen,captured_length_remaining);
           proto_item_set_generated(item);
     }

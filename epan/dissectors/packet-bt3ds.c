@@ -50,7 +50,7 @@ dissect_bt3ds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_item     *main_item;
     proto_tree     *main_tree;
     proto_item     *sub_item;
-    int             offset = 0;
+    unsigned        offset = 0;
     uint8_t         value;
 
     main_item = proto_tree_add_item(tree, proto_bt3ds, tvb, offset, -1, ENC_NA);
@@ -96,7 +96,7 @@ dissect_bt3ds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     offset += 1;
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_expert(main_tree, pinfo, &ei_unexpected_data, tvb, offset, -1);
+        proto_tree_add_expert_remaining(main_tree, pinfo, &ei_unexpected_data, tvb, offset);
         offset += tvb_reported_length_remaining(tvb, offset);
     }
 

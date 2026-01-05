@@ -82,7 +82,7 @@ test_ath(tvbuff_t *tvb)
 static int
 dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  int offset = 0;
+  unsigned offset = 0;
 
   /* various lengths as reported in the packet itself */
   uint8_t hlen = 0;
@@ -313,7 +313,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       proto_tree_add_item(ath_tree, hf_ath_end, tvb, offset, 8, ENC_ASCII);
 
   } else {
-    proto_tree_add_expert(tree, pinfo, &ei_ath_hmark_invalid, tvb, offset, -1);
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_ath_hmark_invalid, tvb, offset);
     return tvb_captured_length(tvb);
   }
 

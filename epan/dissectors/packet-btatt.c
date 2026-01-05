@@ -11717,7 +11717,7 @@ dissect_btgatt_nordic_uart_rx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static int
 dissect_btgatt_nordic_dfu_control_point(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    int     offset = 0;
+    unsigned offset = 0;
     uint8_t opcode;
     uint8_t request_opcode;
     uint8_t status;
@@ -11778,7 +11778,7 @@ dissect_btgatt_nordic_dfu_control_point(tvbuff_t *tvb, packet_info *pinfo, proto
     }
 
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_expert(tree, pinfo, &ei_btatt_unexpected_data, tvb, offset, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_btatt_unexpected_data, tvb, offset);
         offset = tvb_captured_length(tvb);
     }
 

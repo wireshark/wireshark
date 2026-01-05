@@ -583,7 +583,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, int type_hf,
 				     type);
 		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 				     length);
-		proto_tree_add_expert_format(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4, -1,
+		proto_tree_add_expert_format_remaining(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4,
 					  "Garbage at end of packet: Length = %i <BAD>",
 					  size - 4);
 
@@ -818,7 +818,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, int offset,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 				     length);
-		proto_tree_add_expert_format(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4, -1,
+		proto_tree_add_expert_format_remaining(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4,
 					  "Garbage at end of packet: Length = %i <BAD>",
 					  size - 4);
 		return (-1);
@@ -909,7 +909,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 				     length);
-		proto_tree_add_expert_format(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4, -1,
+		proto_tree_add_expert_format_remaining(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4,
 					  "Garbage at end of packet: Length = %i <BAD>",
 					  size - 4);
 		return (-1);
@@ -1002,7 +1002,7 @@ dissect_collectd_encrypted(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 				     length);
-		proto_tree_add_expert_format(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4, -1,
+		proto_tree_add_expert_format_remaining(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4,
 					  "Garbage at end of packet: Length = %i <BAD>",
 					  size - 4);
 		return (-1);
@@ -1156,8 +1156,8 @@ dissect_collectd_parts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *collectd_t
 		 * at the end of the packet. */
 		if (size < 4)
 		{
-			proto_tree_add_expert_format(collectd_tree, pinfo, &ei_collectd_garbage, tvb,
-						  offset, -1,
+			proto_tree_add_expert_format_remaining(collectd_tree, pinfo, &ei_collectd_garbage, tvb,
+						  offset,
 						  "Garbage at end of packet: Length = %i <BAD>",
 						  size);
 			col_data->pkt_errors++;
