@@ -817,8 +817,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     header_proto = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_sflow_245_header_protocol, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    frame_length = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_245_header_frame_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_245_header_frame_length, tvb, offset, 4, ENC_BIG_ENDIAN, &frame_length);
     offset += 4;
 
     if (version == 5) {
@@ -1260,8 +1259,7 @@ dissect_sflow_5_extended_user(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree_add_item(tree, hf_sflow_5_extended_user_source_character_set, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    src_length = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_5_extended_user_source_user_string_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_5_extended_user_source_user_string_length, tvb, offset, 4, ENC_BIG_ENDIAN, &src_length);
     offset += 4;
 
     /* extract source user info char by char */
@@ -1274,8 +1272,7 @@ dissect_sflow_5_extended_user(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree_add_item(tree, hf_sflow_5_extended_user_destination_character_set, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    dest_length = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_5_extended_user_destination_user_string_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_5_extended_user_destination_user_string_length, tvb, offset, 4, ENC_BIG_ENDIAN, &dest_length);
     offset += 4;
 
     /* extract destination user info char by char */
@@ -1309,8 +1306,7 @@ dissect_sflow_5_extended_url(tvbuff_t *tvb, proto_tree *tree, int offset) {
     }
     offset += 4;
 
-    url_length = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_5_extended_url_url_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_5_extended_url_url_length, tvb, offset, 4, ENC_BIG_ENDIAN, &url_length);
     offset += 4;
 
     /* extract URL char by char */
@@ -1319,8 +1315,7 @@ dissect_sflow_5_extended_url(tvbuff_t *tvb, proto_tree *tree, int offset) {
     /* get the correct offset by adding padding byte count */
     offset += WS_PADDING_TO_4(url_length);
 
-    host_length = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_5_extended_url_host_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_5_extended_url_host_length, tvb, offset, 4, ENC_BIG_ENDIAN, &host_length);
     offset += 4;
 
     /* extract host info char by char */
@@ -1385,8 +1380,7 @@ static int
 dissect_sflow_5_extended_mpls_fec(tvbuff_t *tvb, proto_tree *tree, int offset) {
     uint32_t length;
 
-    length = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_5_extended_mpls_ftn_description_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_5_extended_mpls_ftn_description_length, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
     offset += 4;
 
     /* extract MPLS FTN description char by char */
@@ -1450,8 +1444,7 @@ dissect_sflow_5_extended_80211_payload(tvbuff_t *tvb, proto_tree *tree, int offs
     }
     offset++;
 
-    length = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_5_extended_80211_payload_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_5_extended_80211_payload_length, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
     offset += 4;
 
     /* extract data byte by byte */
@@ -2210,8 +2203,7 @@ dissect_sflow_5_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
             break;
     }
     offset += 4;
-    records = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_flow_sample_flow_record, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_flow_sample_flow_record, tvb, offset, 4, ENC_BIG_ENDIAN, &records);
     offset += 4;
 
     /* start loop processing flow records */
@@ -2271,8 +2263,7 @@ dissect_sflow_5_expanded_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
             break;
     }
     offset += 4;
-    records = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_flow_sample_flow_record, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_flow_sample_flow_record, tvb, offset, 4, ENC_BIG_ENDIAN, &records);
     offset += 4;
 
     /* start loop processing flow records
@@ -2378,15 +2369,13 @@ dissect_sflow_5_counters_sample(tvbuff_t *tvb, proto_tree *tree, int offset, pro
 
     /* grab the flow header.  This will remain in network byte
        order, so must convert each item before use */
-    sequence_number = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_counters_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_counters_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN, &sequence_number);
     proto_item_append_text(parent, ", seq %u", sequence_number);
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_counters_sample_source_id_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_sflow_counters_sample_source_id_index, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    records = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_counters_sample_counters_records, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_counters_sample_counters_records, tvb, offset, 4, ENC_BIG_ENDIAN, &records);
     offset += 4;
 
     /* start loop processing counters records
@@ -2491,8 +2480,7 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
             proto_tree_add_item(sflow_245_sample_tree, hf_sflow_245_sampletype12, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
-            length = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_item(sflow_245_sample_tree, hf_sflow_5_sample_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(sflow_245_sample_tree, hf_sflow_5_sample_length, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
             offset += 4;
 
             switch (format) {

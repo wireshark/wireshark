@@ -3649,9 +3649,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
   /* make a copy of current tree working position which we will use while dissecting other payloads*/
   currtree = tree;
   if (isakmp_version == 1) {
-    doi = tvb_get_ntohl(tvb, offset);
-
-    proto_tree_add_item(tree, hf_isakmp_sa_doi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_isakmp_sa_doi, tvb, offset, 4, ENC_BIG_ENDIAN, &doi);
 
     offset += 4;
     length -= 4;
@@ -4899,8 +4897,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
   offset_end = offset + length;
 
   if (isakmp_version == 1) {
-    doi = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_isakmp_notify_doi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_isakmp_notify_doi, tvb, offset, 4, ENC_BIG_ENDIAN, &doi);
     offset += 4;
     length -= 4;
   }

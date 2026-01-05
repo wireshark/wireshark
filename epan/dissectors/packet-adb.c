@@ -497,8 +497,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     if (is_command) {
-        proto_tree_add_item(main_tree, hf_command, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        command = tvb_get_letohl(tvb, offset);
+        proto_tree_add_item_ret_uint(main_tree, hf_command, tvb, offset, 4, ENC_LITTLE_ENDIAN, &command);
         offset += 4;
 
         col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(command, command_vals, "Unknown command"));

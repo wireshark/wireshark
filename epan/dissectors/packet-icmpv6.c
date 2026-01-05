@@ -4278,8 +4278,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo, proto_tree *tre
         rr_offset +=1;
 
         /* InterfaceIndex */
-        proto_tree_add_item(rm_tree, hf_icmpv6_rr_rm_interfaceindex, tvb, rr_offset, 4, ENC_BIG_ENDIAN);
-        interfaceindex = tvb_get_ntohl(tvb, rr_offset);
+        proto_tree_add_item_ret_uint(rm_tree, hf_icmpv6_rr_rm_interfaceindex, tvb, rr_offset, 4, ENC_BIG_ENDIAN, &interfaceindex);
         rr_offset +=4;
 
         /* MatchedPrefix */

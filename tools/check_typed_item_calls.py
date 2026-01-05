@@ -2171,11 +2171,49 @@ def find_item_extern_declarations(filename, lines):
             items.add(m.group(1))
     return items
 
+def check_double_fetches(filename, contents, items, result):
+    lines = contents.splitlines()
+    contents = '\n'.join(line for line in lines if line.strip())
+
+    line_re = r'([a-zA-Z0-9_= ;\(\)\+\"\-\{\}\*\,\&\+\[\]\!]*?)\n'
+
+    # Look for all calls in this file - note line before and after item added
+    matches = re.finditer(r'\n' + line_re +
+                          r'([\sa-z_\*=]*?)(proto_tree_add_item)\s*\(([a-zA-Z0-9_]+)\s*,\s*([a-zA-Z0-9_]+).*?\)\;\s*\n' +
+                          line_re,
+                          contents, re.MULTILINE | re.DOTALL)
+
+    for m in matches:
+        full_hf_name = m.group(5)
+        hf_name = m.group(5).split('_')[-1]
+
+        prev_line = m.group(1)
+        prev_line_tokens = prev_line.strip().split(' ')
+
+        next_line = m.group(6)
+        next_line_tokens = next_line.strip().split(' ')
+
+        first_prev_token = prev_line_tokens[0]
+        first_next_token = next_line_tokens[0]
+
+        mask_value = 'unknown'
+        if full_hf_name in items:
+            mask_value = items[full_hf_name].mask_value
+
+        # TODO: verify same value of offset for both calls?
+
+        if 'tvb_get_ntohl' in prev_line and hf_name.endswith(first_prev_token) and '=' in prev_line_tokens:
+            result.warn(filename, 'PREV: val=', first_prev_token, 'hfname=', hf_name, 'mask=', mask_value, '- use proto_tree_add_item_ret_uint() ?\n',
+                        m.group(0))
+        elif 'tvb_get_ntohl' in next_line and hf_name.endswith(first_next_token) and '=' in next_line_tokens:
+            result.warn(filename, 'NEXT: val=', first_next_token, 'hfname=', hf_name, 'mask=', mask_value,  '- use proto_tree_add_item_ret_uint() ?\n',
+                        m.group(0))
+
 
 # Run checks on the given dissector file.
 def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False,
               check_missing_items=False, check_bitmask_fields=False, label_vs_filter=False, extra_value_string_checks=False,
-              check_expert_items=False, check_subtrees=False):
+              check_expert_items=False, check_subtrees=False, check_double_fetch=False):
 
     result = Result()
 
@@ -2273,6 +2311,9 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
             for hf in items_defined:
                 items_defined[hf].check_label_vs_filter(reportError=True, reportNumericalMismatch=False)
 
+    if check_double_fetch:
+        check_double_fetches(filename, contents_no_comments, items_defined, result)
+
     for hf in items_defined:
         items_defined[hf].check_boolean_length()
         items_defined[hf].check_string_display()
@@ -2315,6 +2356,9 @@ parser.add_argument('--check-expert-items', action='store_true',
                     help='when set, do extra checks on expert items')
 parser.add_argument('--check-subtrees', action='store_true',
                     help='when set, do extra checks ett variables')
+parser.add_argument('--check-double-fetch', action='store_true',
+                    help='when set, attempt to warn for values being double-fetched')
+
 parser.add_argument('--all-checks', action='store_true',
                     help='when set, apply all checks to selected files')
 
@@ -2332,6 +2376,7 @@ if args.all_checks:
     # args.extra_value_string_checks = True
     args.check_expert_items = True
     # args.check_subtrees = True
+    args.check_double_fetch = True
 
 if args.check_bitmask_fields:
     args.mask = True
@@ -2386,7 +2431,8 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
                                              check_consecutive=args.consecutive, check_missing_items=args.missing_items,
                                              check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter,
                                              extra_value_string_checks=args.extra_value_string_checks,
-                                             check_expert_items=args.check_expert_items, check_subtrees=args.check_subtrees): file for file in files}
+                                             check_expert_items=args.check_expert_items, check_subtrees=args.check_subtrees,
+                                             check_double_fetch=args.check_double_fetch): file for file in files}
     for future in concurrent.futures.as_completed(future_to_file_output):
         if should_exit:
             exit(1)

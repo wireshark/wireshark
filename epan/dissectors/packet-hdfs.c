@@ -114,10 +114,10 @@ static dissector_handle_t hdfs_handle;
    from 2 bytes and then the data.
    Otherwise reads just the data. */
 static void
-dissect_params (tvbuff_t *tvb, proto_tree *hdfs_tree, unsigned offset, int params) {
+dissect_params (tvbuff_t *tvb, proto_tree *hdfs_tree, unsigned offset, unsigned params) {
 
     unsigned length;
-    int i =  0;
+    unsigned i =  0;
     const uint8_t* type_name;
     for (i = 0; i < params; i++) {
 
@@ -182,7 +182,7 @@ dissect_params (tvbuff_t *tvb, proto_tree *hdfs_tree, unsigned offset, int param
    parameter value      : length of the type  */
 static void
 dissect_data (tvbuff_t *tvb, proto_tree *hdfs_tree, unsigned offset) {
-    int params = 0;
+    unsigned params = 0;
     unsigned length = 0;
 
     /* get length */
@@ -201,11 +201,8 @@ dissect_data (tvbuff_t *tvb, proto_tree *hdfs_tree, unsigned offset) {
     if (!(tvb_get_ntohl(tvb, offset - SEND_OFFSET) == SEND_DEC && tvb_get_ntohl(tvb, offset - HEAR_OFFSET) == HEAR_DEC &&
           tvb_get_ntohl(tvb, offset - TBEA_OFFSET) == TBEA_DEC && tvb_get_uint8(tvb, offset - T_OFFSET) == T_DEC)) {
 
-        /* get number of params */
-        params = tvb_get_ntohl(tvb, offset);
-
         /* 4 bytes = # of parameters */
-        proto_tree_add_item(hdfs_tree, hf_hdfs_params, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(hdfs_tree, hf_hdfs_params, tvb, offset, 4, ENC_BIG_ENDIAN, &params);
         offset += 4;
 
         /* go through all params and dissect their type length, type, value length and value */
@@ -513,7 +510,7 @@ static int
 dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     unsigned offset = 0;
-    int success = 0;
+    unsigned success = 0;
     unsigned length = 0;
 
 
@@ -536,8 +533,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             offset += 4;
 
             /* 4 bytes = status -> 0000 = success, 0001 = error, ffff = fatal */
-            success = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_item(hdfs_tree, hf_hdfs_success, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(hdfs_tree, hf_hdfs_success, tvb, offset, 4, ENC_BIG_ENDIAN, &success);
             offset += 4;
 
             if (success != 0) {

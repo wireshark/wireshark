@@ -107,7 +107,7 @@ fcfzs_hash(const void *v)
 static void
 dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 {
-    int numzones, nummbrs, i, j;
+    unsigned numzones, nummbrs, i, j;
     unsigned len;
     proto_item* ti;
 
@@ -133,8 +133,7 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
 
 
         /* Number of zones */
-        numzones = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(tree, hf_fcfzs_numzones, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fcfzs_numzones, tvb, offset, 4, ENC_BIG_ENDIAN, &numzones);
         offset += 4;
 
         /* For each zone... */
@@ -149,9 +148,8 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
             /* Fill Bytes */
             offset += WS_PADDING_TO_4(len);
 
-            nummbrs = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_item(tree, hf_fcfzs_nummbrentries, tvb, offset,
-                                4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_fcfzs_nummbrentries, tvb, offset,
+                                         4, ENC_BIG_ENDIAN, &nummbrs);
 
             offset += 4;
             for (j = 0; j < nummbrs; j++) {

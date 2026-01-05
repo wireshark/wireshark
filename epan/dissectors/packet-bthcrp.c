@@ -255,26 +255,22 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Callback ContextID: %u", context_id);
                 offset += 4;
 
-                proto_tree_add_item(tree, hf_bthcrp_control_callback_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
-                timeout = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_callback_timeout, tvb, offset, 4, ENC_BIG_ENDIAN, &timeout);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Callback Timeout: %u", timeout);
                 offset += 4;
             } else {
-                proto_tree_add_item(tree, hf_bthcrp_control_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
-                timeout = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_timeout, tvb, offset, 4, ENC_BIG_ENDIAN, &timeout);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Timeout: %u", timeout);
                 offset += 4;
 
-                proto_tree_add_item(tree, hf_bthcrp_control_callback_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
-                timeout = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_callback_timeout, tvb, offset, 4, ENC_BIG_ENDIAN, &timeout);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Callback Timeout: %u", timeout);
                 offset += 4;
             }
             break;
         case 0x000A: /* CR_NotificationConnectionAlive */
             if (!is_client_message) {
-                proto_tree_add_item(tree, hf_bthcrp_control_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
-                timeout = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_timeout, tvb, offset, 4, ENC_BIG_ENDIAN, &timeout);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Timeout: %u", timeout);
                 offset += 4;
             }

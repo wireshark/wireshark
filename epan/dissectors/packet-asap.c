@@ -293,8 +293,8 @@ dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tr
   uint32_t type;
   unsigned   length;
 
-  proto_tree_add_item(parameter_tree, hf_policy_type,  parameter_tvb, POLICY_TYPE_OFFSET,  POLICY_TYPE_LENGTH,  ENC_BIG_ENDIAN);
-  type = tvb_get_ntohl(parameter_tvb, POLICY_TYPE_OFFSET);
+  proto_tree_add_item_ret_uint(parameter_tree, hf_policy_type,  parameter_tvb, POLICY_TYPE_OFFSET,  POLICY_TYPE_LENGTH,  ENC_BIG_ENDIAN, &type);
+
   switch (type) {
   case RANDOM_POLICY:
   case ROUND_ROBIN_POLICY:

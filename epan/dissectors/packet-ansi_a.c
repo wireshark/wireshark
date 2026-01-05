@@ -2448,11 +2448,8 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, u
 
         curr_offset++;
 
-        value = tvb_get_ntohl(tvb, curr_offset);
-
-        proto_tree_add_uint(tree, hf_ansi_a_esn,
-            tvb, curr_offset, 4,
-            value);
+        proto_tree_add_item_ret_uint(tree, hf_ansi_a_esn,
+            tvb, curr_offset, 4, ENC_BIG_ENDIAN, &value);
 
         proto_item_append_text(data_p->elem_item, " - %sESN (0x%04x)",
             data_p->meid_configured ? "p" : "",

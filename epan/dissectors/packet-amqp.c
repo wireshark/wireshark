@@ -7901,9 +7901,8 @@ dissect_amqp_0_9_method_basic_deliver(uint16_t channel_num,
     offset += 1 + tvb_get_uint8(tvb, offset);
 
     /*  delivery-tag (longlong)  */
-    proto_tree_add_item(args_tree, hf_amqp_method_basic_deliver_delivery_tag,
-        tvb, offset, 8, ENC_BIG_ENDIAN);
-    delivery_tag = tvb_get_ntoh64(tvb, offset);
+    proto_tree_add_item_ret_uint64(args_tree, hf_amqp_method_basic_deliver_delivery_tag,
+        tvb, offset, 8, ENC_BIG_ENDIAN, &delivery_tag);
     offset += 8;
 
     /*  redelivered (bit)        */
@@ -7965,9 +7964,8 @@ dissect_amqp_0_9_method_basic_get_ok(uint16_t channel_num,
     const uint8_t* str;
 
     /*  delivery-tag (longlong)  */
-    proto_tree_add_item(args_tree, hf_amqp_method_basic_get_ok_delivery_tag,
-        tvb, offset, 8, ENC_BIG_ENDIAN);
-    delivery_tag = tvb_get_ntoh64(tvb, offset);
+    proto_tree_add_item_ret_uint64(args_tree, hf_amqp_method_basic_get_ok_delivery_tag,
+        tvb, offset, 8, ENC_BIG_ENDIAN, &delivery_tag);
     offset += 8;
 
     /*  redelivered (bit)        */
@@ -8022,9 +8020,8 @@ dissect_amqp_0_9_method_basic_ack(uint16_t channel_num,
     int multiple;
 
     /*  delivery-tag (longlong)  */
-    proto_tree_add_item(args_tree, hf_amqp_method_basic_ack_delivery_tag,
-        tvb, offset, 8, ENC_BIG_ENDIAN);
-    delivery_tag = tvb_get_ntoh64(tvb, offset);
+    proto_tree_add_item_ret_uint64(args_tree, hf_amqp_method_basic_ack_delivery_tag,
+        tvb, offset, 8, ENC_BIG_ENDIAN, &delivery_tag);
     offset += 8;
 
     /*  multiple (bit)           */
@@ -8047,9 +8044,8 @@ dissect_amqp_0_9_method_basic_reject(uint16_t channel_num,
     uint64_t delivery_tag;
 
     /*  delivery-tag (longlong)  */
-    proto_tree_add_item(args_tree, hf_amqp_method_basic_reject_delivery_tag,
-        tvb, offset, 8, ENC_BIG_ENDIAN);
-    delivery_tag = tvb_get_ntoh64(tvb, offset);
+    proto_tree_add_item_ret_uint64(args_tree, hf_amqp_method_basic_reject_delivery_tag,
+        tvb, offset, 8, ENC_BIG_ENDIAN, &delivery_tag);
     offset += 8;
 
     /*  requeue (bit)            */
@@ -8107,9 +8103,8 @@ dissect_amqp_0_9_method_basic_nack(uint16_t channel_num,
     int multiple;
 
     /*  delivery-tag (longlong)  */
-    proto_tree_add_item(args_tree, hf_amqp_method_basic_nack_delivery_tag,
-        tvb, offset, 8, ENC_BIG_ENDIAN);
-    delivery_tag = tvb_get_ntoh64(tvb, offset);
+    proto_tree_add_item_ret_uint64(args_tree, hf_amqp_method_basic_nack_delivery_tag,
+        tvb, offset, 8, ENC_BIG_ENDIAN, &delivery_tag);
     offset += 8;
 
     /*  multiple (bit)           */

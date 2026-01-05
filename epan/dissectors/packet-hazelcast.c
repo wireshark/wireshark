@@ -386,8 +386,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     proto_tree_add_item(hcast_tree, hf_hazelcast_responseType, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(hcast_tree, hf_hazelcast_nameLength, tvb, offset, 4, ENC_BIG_ENDIAN);
-    nameLength = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item_ret_uint(hcast_tree, hf_hazelcast_nameLength, tvb, offset, 4, ENC_BIG_ENDIAN, &nameLength);
     offset += 4;
 
     if ( nameLength > 0 ) {

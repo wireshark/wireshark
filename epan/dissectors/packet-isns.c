@@ -840,14 +840,12 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, unsigned offse
     attr_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
             ett_isns_attribute, &attr_item, "Attribute");
 
-    tag = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(attr_tree, hf_isns_attr_tag,
-            tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(attr_tree, hf_isns_attr_tag,
+            tvb, offset, 4, ENC_BIG_ENDIAN, &tag);
     offset +=4;
 
-    len = tvb_get_ntohl(tvb, offset);
-    len_item = proto_tree_add_item(attr_tree, hf_isns_attr_len,
-            tvb, offset, 4, ENC_BIG_ENDIAN);
+    len_item = proto_tree_add_item_ret_uint(attr_tree, hf_isns_attr_len,
+            tvb, offset, 4, ENC_BIG_ENDIAN, &len);
     offset +=4;
 
     proto_item_append_text(attr_item, ": %s", val_to_str_ext_const(tag, &isns_attribute_tags_ext, "Unknown"));

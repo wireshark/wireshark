@@ -5697,8 +5697,7 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
   end_offset = data_offset + data_length;
 
   /* Add Vector item */
-  vector = tvb_get_ntohl(tvb, vector_offset);
-  proto_tree_add_item(ti, hf_acn_dmx_discovery_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(ti, hf_acn_dmx_discovery_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN, &vector);
 
   /* Add Vector item to tree*/
   name = val_to_str(pinfo->pool, vector, acn_dmx_discovery_vector_vals, "not valid (%d)");
@@ -5791,8 +5790,7 @@ dissect_acn_dmx_extension_base_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_i
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_acn_dmx_pdu, 4, 1);
 
   /* Add Vector item */
-  vector = tvb_get_ntohl(tvb, vector_offset);
-  proto_tree_add_item(pdu_tree, hf_acn_dmx_extension_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(pdu_tree, hf_acn_dmx_extension_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN, &vector);
 
   /* Add Vector item to tree*/
   name = val_to_str(pinfo->pool, vector, acn_dmx_extension_vector_vals, "not valid (%d)");
@@ -5863,8 +5861,7 @@ dissect_acn_dmx_base_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_acn_dmx_pdu, 4, 1);
 
   /* Add Vector item */
-  vector = tvb_get_ntohl(tvb, vector_offset);
-  proto_tree_add_item(pdu_tree, hf_acn_dmx_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(pdu_tree, hf_acn_dmx_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN, &vector);
   /* vector_offset +=4; */
 
   /* Add Vector item to tree*/
@@ -6331,8 +6328,7 @@ dissect_acn_llrp_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_llrp_base_pdu, 1, 0);
 
   /* Add Vector item */
-  vector = tvb_get_ntohl(tvb, vector_offset);
-  proto_tree_add_item(pdu_tree, hf_rdmnet_llrp_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(pdu_tree, hf_rdmnet_llrp_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN, &vector);
 
   /* Add Vector item to tree */
   name = val_to_str(pinfo->pool, vector, rdmnet_llrp_vector_vals, "unknown (%d)");
@@ -6397,8 +6393,7 @@ dissect_broker_client_entry_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
   pdu_end = pdu_start + pdu_length;
 
   /* Add Vector item */
-  vector = tvb_get_ntohl(tvb, vector_offset);
-  proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_protocol_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(pdu_tree, hf_rdmnet_broker_client_protocol_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN, &vector);
 
   /* Add Vector item to tree */
   name = val_to_str(pinfo->pool, vector, broker_client_protocol_vals, "unknown (%d)");
@@ -6795,8 +6790,7 @@ dissect_rpt_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_rpt_request_pdu, 1, 0);
 
   /* Add Vector item */
-  vector = tvb_get_ntohl(tvb, vector_offset);
-  proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_request_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(pdu_tree, hf_rdmnet_rpt_request_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN, &vector);
 
   /* Add Vector item to tree */
   name = val_to_str(pinfo->pool, vector, rdmnet_rpt_request_vals, "unknown (%d)");
@@ -6967,8 +6961,7 @@ dissect_rpt_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_rpt_notification_pdu, 1, 0);
 
   /* Add Vector item */
-  vector = tvb_get_ntohl(tvb, vector_offset);
-  proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_notification_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(pdu_tree, hf_rdmnet_rpt_notification_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN, &vector);
 
   /* Add Vector item to tree  "RDM Command" */
   name = val_to_str(pinfo->pool, vector, rdmnet_rpt_notification_vals, "unknown (%d)");
@@ -7015,8 +7008,7 @@ dissect_acn_rpt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_rpt_base_pdu, 1, 0);
 
   /* Add Vector item */
-  vector = tvb_get_ntohl(tvb, vector_offset);
-  proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(pdu_tree, hf_rdmnet_rpt_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN, &vector);
 
   /* Add Vector item to tree */
   name = val_to_str(pinfo->pool, vector, rdmnet_rpt_vector_vals, "unknown (%d)");
@@ -7188,8 +7180,7 @@ dissect_acn_ept_base_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, in
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_ept_base_pdu, 1, 0);
 
   /* Add Vector item */
-  vector = tvb_get_ntohl(tvb, vector_offset);
-  proto_tree_add_item(pdu_tree, hf_rdmnet_ept_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(pdu_tree, hf_rdmnet_ept_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN, &vector);
 
   /* Add Vector item to tree */
   name = val_to_str(pinfo->pool, vector, rdmnet_ept_vector_vals, "unknown (%d)");
