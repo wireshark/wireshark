@@ -2829,11 +2829,11 @@ dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_t
 static int
 dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    int               offset       = 0;
+    unsigned          offset       = 0;
     proto_item       *ti;
     proto_tree       *btl2cap_tree;
     proto_item       *length_item;
-    uint16_t          length;
+    unsigned          length;
     uint16_t          cid;
     uint16_t          psm;
     uint16_t          control;
@@ -3070,7 +3070,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
 
             default:
-                proto_tree_add_expert(btl2cap_cmd_tree, pinfo, &ei_btl2cap_unknown_command_code, tvb, offset, -1);
+                proto_tree_add_expert_remaining(btl2cap_cmd_tree, pinfo, &ei_btl2cap_unknown_command_code, tvb, offset);
                 offset += tvb_reported_length_remaining(tvb, offset);
                 break;
             }

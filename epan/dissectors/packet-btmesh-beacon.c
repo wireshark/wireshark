@@ -146,7 +146,7 @@ dissect_btmesh_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             rfu_bits16 = (tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & 0x0780) >> 7;
             if (rfu_bits16 != 0) {
                 //RFU bits should be 0
-                proto_tree_add_expert(oob_tree, pinfo, &ei_btmesh_beacon_rfu_not_zero, tvb, offset, -1);
+                proto_tree_add_expert_remaining(oob_tree, pinfo, &ei_btmesh_beacon_rfu_not_zero, tvb, offset);
             }
             offset += 2;
 
@@ -167,7 +167,7 @@ dissect_btmesh_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             rfu_bits8 = tvb_get_uint8(tvb, offset) >> 2;
             if (rfu_bits8 != 0) {
                 //RFU bits should be 0
-                proto_tree_add_expert(flags_tree, pinfo, &ei_btmesh_beacon_rfu_not_zero, tvb, offset, -1);
+                proto_tree_add_expert_remaining(flags_tree, pinfo, &ei_btmesh_beacon_rfu_not_zero, tvb, offset);
             }
             offset += 1;
             proto_tree_add_item(sub_tree, hf_btmesh_beacon_network_id, tvb, offset, 8, ENC_NA);
@@ -180,13 +180,13 @@ dissect_btmesh_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         default:
             //Unknown mesh beacon type, display data and flag it
             proto_tree_add_item(sub_tree, hf_btmesh_beacon_unknown_data, tvb, offset, -1, ENC_NA);
-            proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_beacon_unknown_beacon_type, tvb, offset, -1);
+            proto_tree_add_expert_remaining(sub_tree, pinfo, &ei_btmesh_beacon_unknown_beacon_type, tvb, offset);
             offset += tvb_captured_length_remaining(tvb, offset);
         break;
     }
     //There is still some data but all data should be already disssected
     if (tvb_captured_length_remaining(tvb, offset) != 0) {
-        proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_beacon_unknown_payload, tvb, offset, -1);
+        proto_tree_add_expert_remaining(sub_tree, pinfo, &ei_btmesh_beacon_unknown_payload, tvb, offset);
     }
 
     return tvb_reported_length(tvb);
