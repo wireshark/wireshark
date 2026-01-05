@@ -293,14 +293,14 @@ fill_prefs(module_t *module, void *root_ptr)
     }
 
     if (prefs_module_has_submodules(module))
-        return prefs_modules_foreach_submodules(module, fill_prefs, module_item);
+        return prefs_modules_foreach_submodules(module->submodules, fill_prefs, module_item);
 
     return 0;
 }
 
 void PrefsModel::populate()
 {
-    prefs_modules_foreach_submodules(NULL, fill_prefs, (void *)root_);
+    prefs_modules_for_all_modules(fill_prefs, (void *)root_);
 
     //Add the "specially handled" preferences
     PrefsItem *appearance_item, *appearance_subitem, *special_item;

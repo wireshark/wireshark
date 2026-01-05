@@ -5312,7 +5312,7 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
         }
         else
         {
-            prefs_modules_foreach(sharkd_session_process_complete_pref_cb, &data);
+            prefs_modules_foreach(prefs_get_module_tree(), sharkd_session_process_complete_pref_cb, &data);
         }
         sharkd_json_array_close();
     }
@@ -5619,7 +5619,7 @@ sharkd_session_process_dumpconf(char *buf, const jsmntok_t *tokens, int count)
         sharkd_json_result_prologue(rpcid);
 
         sharkd_json_object_open("prefs");
-        prefs_modules_foreach(sharkd_session_process_dumpconf_mod_cb, &data);
+        prefs_modules_foreach(prefs_get_module_tree(), sharkd_session_process_dumpconf_mod_cb, &data);
         sharkd_json_object_close();
 
         sharkd_json_result_epilogue();

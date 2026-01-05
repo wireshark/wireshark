@@ -246,6 +246,10 @@ WS_DLL_PUBLIC GList* prefs_get_list_value(pref_t *pref, pref_source_t source);
 
 WS_DLL_PUBLIC void reset_pref(pref_t *pref);
 
+/** Get the list of all modules with preferences (used for iterating through all preferences)
+ */
+WS_DLL_PUBLIC const wmem_tree_t* prefs_get_module_tree(void);
+
 /** read the preferences file (or similar) and call the callback
  * function to set each key/value pair found
  */

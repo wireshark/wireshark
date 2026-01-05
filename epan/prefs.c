@@ -60,10 +60,6 @@ typedef struct pref_module_alias {
 } module_alias_t;
 
 /* Internal functions */
-static module_t *find_subtree(module_t *parent, const char *tilte);
-static module_t *prefs_register_module_or_subtree(module_t *parent,
-    const char *name, const char *title, const char *description, const char *help,
-    bool is_subtree, void (*apply_cb)(void), bool use_gui);
 static void prefs_register_modules(void);
 static module_t *prefs_find_module_alias(const char *name);
 static prefs_set_pref_e set_pref(char*, const char*, void *, bool);
@@ -71,7 +67,7 @@ static void free_col_info(GList *);
 static void prefs_set_global_defaults(const char** col_fmt, int num_cols);
 static bool prefs_is_column_visible(const char *cols_hidden, int col);
 static bool prefs_is_column_fmt_visible(const char *cols_hidden, fmt_data *cfmt);
-static unsigned prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
+static unsigned prefs_module_list_foreach(const wmem_tree_t *module_list, module_cb callback,
                           void *user_data, bool skip_obsolete);
 static int find_val_for_string(const char *needle, const enum_val_t *haystack, int default_value);
 
@@ -330,6 +326,11 @@ prefs_init(const char** col_fmt, int num_cols)
     prefs_register_modules();
 }
 
+const wmem_tree_t* prefs_get_module_tree(void)
+{
+    return prefs_modules;
+}
+
 /*
  * Free the strings for a string-like preference.
  */
@@ -427,87 +428,45 @@ void prefs_set_gui_theme_is_dark(bool is_dark)
     gui_theme_is_dark = is_dark;
 }
 
-/*
- * Register a module that will have preferences.
- * Specify the module under which to register it or NULL to register it
- * at the top level, the name used for the module in the preferences file,
- * the title used in the tab for it in a preferences dialog box, and a
- * routine to call back when we apply the preferences.
- */
-static module_t *
-prefs_register_module(module_t *parent, const char *name, const char *title,
-                      const char *description, const char *help, void (*apply_cb)(void),
-                      const bool use_gui)
-{
-    return prefs_register_module_or_subtree(parent, name, title, description, help,
-                                            false, apply_cb, use_gui);
-}
-
 static void
-prefs_deregister_module(module_t *parent, const char *name, const char *title)
+prefs_deregister_module(wmem_tree_t* pref_tree, const char *name, const char *title, wmem_tree_t *all_modules)
 {
     /* Remove this module from the list of all modules */
-    module_t *module = (module_t *)wmem_tree_remove_string(prefs_modules, name, WMEM_TREE_STRING_NOCASE);
+    module_t *module = (module_t *)wmem_tree_remove_string(all_modules, name, WMEM_TREE_STRING_NOCASE);
 
     if (!module)
         return;
 
-    if (parent == NULL) {
-        /* Remove from top */
-        wmem_tree_remove_string(prefs_top_level_modules, title, WMEM_TREE_STRING_NOCASE);
-    } else if (parent->submodules) {
-        /* Remove from parent */
-        wmem_tree_remove_string(parent->submodules, title, WMEM_TREE_STRING_NOCASE);
-    }
-
+    wmem_tree_remove_string(pref_tree, title, WMEM_TREE_STRING_NOCASE);
     free_module_prefs(module, NULL);
     wmem_free(wmem_epan_scope(), module);
 }
 
-/*
- * Register a subtree that will have modules under it.
- * Specify the module under which to register it or NULL to register it
- * at the top level and the title used in the tab for it in a preferences
- * dialog box.
- */
-static module_t *
-prefs_register_subtree(module_t *parent, const char *title, const char *description,
-                       void (*apply_cb)(void))
+static void
+prefs_update_existing_subtree(module_t* module, const char* name, const char* description,
+                             const char* help, void (*apply_cb)(void), wmem_tree_t* master_pref_tree)
 {
-    return prefs_register_module_or_subtree(parent, NULL, title, description, NULL,
-                                            true, apply_cb,
-                                            parent ? parent->use_gui : false);
+    module->name = name;
+    module->apply_cb = apply_cb;
+    module->description = description;
+    module->help = help;
+
+    /* Registering it as a module (not just as a subtree) twice is an
+     * error in the code for the same reason as below. */
+    if (prefs_find_module(name) != NULL) {
+        ws_error("Preference module \"%s\" is being registered twice", name);
+    }
+    wmem_tree_insert_string(master_pref_tree, name, module,
+        WMEM_TREE_STRING_NOCASE);
 }
 
-static module_t *
-prefs_register_module_or_subtree(module_t *parent, const char *name,
-                                 const char *title, const char *description,
-                                 const char *help,
-                                 bool is_subtree, void (*apply_cb)(void),
-                                 bool use_gui)
+static module_t*
+prefs_create_module(module_t* parent, const char* name,
+    const char* title, const char* description,
+    const char* help, void (*apply_cb)(void),
+    bool use_gui)
 {
-    module_t *module;
-
-    /* this module may have been created as a subtree item previously */
-    if ((module = find_subtree(parent, title))) {
-        /* the module is currently a subtree */
-        module->name = name;
-        module->apply_cb = apply_cb;
-        module->description = description;
-        module->help = help;
-
-        /* Registering it as a module (not just as a subtree) twice is an
-         * error in the code for the same reason as below. */
-        if (prefs_find_module(name) != NULL) {
-            ws_error("Preference module \"%s\" is being registered twice", name);
-        }
-        wmem_tree_insert_string(prefs_modules, name, module,
-                              WMEM_TREE_STRING_NOCASE);
-
-        return module;
-    }
-
-    module = wmem_new(wmem_epan_scope(), module_t);
+    module_t* module = wmem_new(wmem_epan_scope(), module_t);
     module->name = name;
     module->title = title;
     module->description = description;
@@ -523,64 +482,150 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
     /* A module's preferences affects dissection unless otherwise told */
     module->effect_flags = PREF_EFFECT_DISSECTION;
 
-    /*
-     * Do we have a module name?
+    return module;
+}
+
+/*
+ * Register a module that will have preferences.
+ * Specify the module under which to register it, the name used for the
+ * module in the preferences file, the title used in the tab for it
+ * in a preferences dialog box, and a routine to call back when the
+ * preferences are applied.
+ */
+static module_t*
+prefs_register_module(wmem_tree_t* pref_tree, wmem_tree_t* master_pref_tree, const char* name, const char* title,
+    const char* description, const char* help, void (*apply_cb)(void),
+    const bool use_gui)
+{
+    module_t* module;
+
+    /* this module may have been created as a subtree item previously */
+    if ((module = (module_t*)wmem_tree_lookup_string(pref_tree, title, WMEM_TREE_STRING_NOCASE))) {
+        /* the module is currently a subtree */
+        prefs_update_existing_subtree(module, name, description, help, apply_cb, master_pref_tree);
+        return module;
+    }
+
+    module = prefs_create_module(NULL, name, title, description, help, apply_cb, use_gui);
+
+    /* Accept any letter case to conform with protocol names. ASN1 protocols
+     * don't use lower case names, so we can't require lower case.
      */
-    if (name != NULL) {
-
-        /* Accept any letter case to conform with protocol names. ASN1 protocols
-         * don't use lower case names, so we can't require lower case. */
-        if (module_check_valid_name(name, false) != '\0') {
-                ws_error("Preference module \"%s\" contains invalid characters", name);
-        }
-
-        /*
-         * Make sure there's not already a module with that
-         * name.  Crash if there is, as that's an error in the
-         * code, and the code has to be fixed not to register
-         * more than one module with the same name.
-         *
-         * We search the list of all modules; the subtree stuff
-         * doesn't require preferences in subtrees to have names
-         * that reflect the subtree they're in (that would require
-         * protocol preferences to have a bogus "protocol.", or
-         * something such as that, to be added to all their names).
-         */
-        if (prefs_find_module(name) != NULL)
-            ws_error("Preference module \"%s\" is being registered twice", name);
-
-        /*
-         * Insert this module in the list of all modules.
-         */
-        wmem_tree_insert_string(prefs_modules, name, module, WMEM_TREE_STRING_NOCASE);
-    } else {
-        /*
-         * This has no name, just a title; check to make sure it's a
-         * subtree, and crash if it's not.
-         */
-        if (!is_subtree)
-            ws_error("Preferences module with no name is being registered at the top level");
+    if (module_check_valid_name(name, false) != '\0') {
+        ws_error("Preference module \"%s\" contains invalid characters", name);
     }
 
     /*
-     * Insert this module into the appropriate place in the display
-     * tree.
+     * Make sure there's not already a module with that
+     * name.  Crash if there is, as that's an error in the
+     * code, and the code has to be fixed not to register
+     * more than one module with the same name.
+     *
+     * We search the list of all modules; the subtree stuff
+     * doesn't require preferences in subtrees to have names
+     * that reflect the subtree they're in (that would require
+     * protocol preferences to have a bogus "protocol.", or
+     * something such as that, to be added to all their names).
      */
-    if (parent == NULL) {
-        /*
-         * It goes at the top.
-         */
-        wmem_tree_insert_string(prefs_top_level_modules, title, module, WMEM_TREE_STRING_NOCASE);
-    } else {
-        /*
-         * It goes into the list for this module.
-         */
+    if (wmem_tree_lookup_string(master_pref_tree, name, WMEM_TREE_STRING_NOCASE) != NULL)
+        ws_error("Preference module \"%s\" is being registered twice", name);
 
-        if (parent->submodules == NULL)
-            parent->submodules = wmem_tree_new(wmem_epan_scope());
+    /*
+     * Insert this module in the list of all modules.
+     */
+    wmem_tree_insert_string(master_pref_tree, name, module, WMEM_TREE_STRING_NOCASE);
 
-        wmem_tree_insert_string(parent->submodules, title, module, WMEM_TREE_STRING_NOCASE);
+    /*
+     * It goes at the top.
+     */
+    wmem_tree_insert_string(pref_tree, title, module, WMEM_TREE_STRING_NOCASE);
+
+    return module;
+}
+
+static module_t*
+prefs_register_submodule(module_t* parent, wmem_tree_t* master_pref_tree, const char* name, const char* title,
+    const char* description, const char* help, void (*apply_cb)(void),
+    const bool use_gui)
+{
+    module_t* module;
+
+    /* this module may have been created as a subtree item previously */
+    if ((module = (module_t*)wmem_tree_lookup_string(parent->submodules, title, WMEM_TREE_STRING_NOCASE))) {
+        /* the module is currently a subtree */
+        prefs_update_existing_subtree(module, name, description, help, apply_cb, master_pref_tree);
+        return module;
     }
+
+    module = prefs_create_module(parent, name, title, description, help, apply_cb, use_gui);
+
+    /* Accept any letter case to conform with protocol names. ASN1 protocols
+     * don't use lower case names, so we can't require lower case. */
+    if (module_check_valid_name(name, false) != '\0') {
+        ws_error("Preference module \"%s\" contains invalid characters", name);
+    }
+
+    /*
+     * Make sure there's not already a module with that
+     * name.  Crash if there is, as that's an error in the
+     * code, and the code has to be fixed not to register
+     * more than one module with the same name.
+     *
+     * We search the list of all modules; the subtree stuff
+     * doesn't require preferences in subtrees to have names
+     * that reflect the subtree they're in (that would require
+     * protocol preferences to have a bogus "protocol.", or
+     * something such as that, to be added to all their names).
+     */
+    if (wmem_tree_lookup_string(master_pref_tree, name, WMEM_TREE_STRING_NOCASE) != NULL)
+        ws_error("Preference module \"%s\" is being registered twice", name);
+
+    /*
+     * Insert this module in the list of all modules.
+     */
+    wmem_tree_insert_string(master_pref_tree, name, module, WMEM_TREE_STRING_NOCASE);
+
+    /*
+     * It goes into the list for this module.
+     */
+
+    if (parent->submodules == NULL)
+        parent->submodules = wmem_tree_new(wmem_epan_scope());
+
+    wmem_tree_insert_string(parent->submodules, title, module, WMEM_TREE_STRING_NOCASE);
+
+    return module;
+}
+
+/*
+ * Register a subtree that will have modules under it.
+ * Specify the module under which to register it or NULL to register it
+ * at the top level and the title used in the tab for it in a preferences
+ * dialog box.
+ */
+static module_t*
+prefs_register_subtree(module_t* parent, wmem_tree_t* master_pref_tree, const char* title, const char* description,
+    void (*apply_cb)(void))
+{
+    module_t* module;
+
+    /* this module may have been created as a subtree item previously */
+    if ((module = (module_t*)wmem_tree_lookup_string(parent->submodules, title, WMEM_TREE_STRING_NOCASE))) {
+        /* the module is currently a subtree */
+        prefs_update_existing_subtree(module, NULL, description, NULL, apply_cb, master_pref_tree);
+        return module;
+    }
+
+    module = prefs_create_module(parent, NULL, title, description, NULL, apply_cb, parent->use_gui);
+
+
+    /*
+     * It goes into the list for this module.
+     */
+    if (parent->submodules == NULL)
+        parent->submodules = wmem_tree_new(wmem_epan_scope());
+
+    wmem_tree_insert_string(parent->submodules, title, module, WMEM_TREE_STRING_NOCASE);
 
     return module;
 }
@@ -634,7 +679,7 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
     protocol_t *protocol = find_protocol_by_id(id);
     if (protocol == NULL)
         ws_error("Protocol preferences being registered with an invalid protocol ID");
-    return prefs_register_module(protocols_module,
+    return prefs_register_submodule(protocols_module, prefs_modules,
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
                                  proto_get_protocol_name(id), NULL, apply_cb, true);
@@ -646,9 +691,10 @@ prefs_deregister_protocol (int id)
     protocol_t *protocol = find_protocol_by_id(id);
     if (protocol == NULL)
         ws_error("Protocol preferences being de-registered with an invalid protocol ID");
-    prefs_deregister_module (protocols_module,
+    prefs_deregister_module (protocols_module->submodules,
                              proto_get_protocol_filter_name(id),
-                             proto_get_protocol_short_name(protocol));
+                             proto_get_protocol_short_name(protocol),
+                             prefs_modules);
 }
 
 module_t *
@@ -671,14 +717,14 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
             if ((sep = strchr(ptr, '/')))
                 *sep++ = '\0';
 
-            if (!(new_module = find_subtree(subtree_module, ptr))) {
+            if (!(new_module = (module_t*)wmem_tree_lookup_string(subtree_module->submodules, ptr, WMEM_TREE_STRING_NOCASE))) {
                 /*
                  * There's no such module; create it, with the description
                  * being the name (if it's later registered explicitly
                  * with a description, that will override it).
                  */
                 ptr = wmem_strdup(wmem_epan_scope(), ptr);
-                new_module = prefs_register_subtree(subtree_module, ptr, ptr, NULL);
+                new_module = prefs_register_subtree(subtree_module, prefs_modules, ptr, ptr, NULL);
             }
 
             subtree_module = new_module;
@@ -692,7 +738,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
     protocol = find_protocol_by_id(id);
     if (protocol == NULL)
         ws_error("Protocol subtree being registered with an invalid protocol ID");
-    return prefs_register_module(subtree_module,
+    return prefs_register_submodule(subtree_module, prefs_modules,
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
                                  proto_get_protocol_name(id), NULL, apply_cb, true);
@@ -710,7 +756,7 @@ prefs_register_protocol_obsolete(int id)
     protocol_t *protocol = find_protocol_by_id(id);
     if (protocol == NULL)
         ws_error("Protocol being registered with an invalid protocol ID");
-    module = prefs_register_module(protocols_module,
+    module = prefs_register_submodule(protocols_module, prefs_modules,
                                    proto_get_protocol_filter_name(id),
                                    proto_get_protocol_short_name(protocol),
                                    proto_get_protocol_name(id), NULL, NULL, true);
@@ -734,7 +780,7 @@ module_t *
 prefs_register_stat(const char *name, const char *title,
                     const char *description, void (*apply_cb)(void))
 {
-    return prefs_register_module(stats_module, name, title, description, NULL,
+    return prefs_register_submodule(stats_module, prefs_modules, name, title, description, NULL,
                                  apply_cb, true);
 }
 
@@ -754,7 +800,7 @@ module_t *
 prefs_register_codec(const char *name, const char *title,
                      const char *description, void (*apply_cb)(void))
 {
-    return prefs_register_module(codecs_module, name, title, description, NULL,
+    return prefs_register_submodule(codecs_module, prefs_modules, name, title, description, NULL,
                                  apply_cb, true);
 }
 
@@ -762,12 +808,6 @@ module_t *
 prefs_find_module(const char *name)
 {
     return (module_t *)wmem_tree_lookup_string(prefs_modules, name, WMEM_TREE_STRING_NOCASE);
-}
-
-static module_t *
-find_subtree(module_t *parent, const char *name)
-{
-    return (module_t *)wmem_tree_lookup_string(parent ? parent->submodules : prefs_top_level_modules, name, WMEM_TREE_STRING_NOCASE);
 }
 
 /*
@@ -803,13 +843,10 @@ call_foreach_cb(const void *key _U_, void *value, void *data)
 }
 
 static unsigned
-prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
+prefs_module_list_foreach(const wmem_tree_t *module_list, module_cb callback,
                           void *user_data, bool skip_obsolete)
 {
     call_foreach_t call_data;
-
-    if (module_list == NULL)
-        module_list = prefs_top_level_modules;
 
     call_data.callback = callback;
     call_data.user_data = user_data;
@@ -845,9 +882,9 @@ prefs_module_has_submodules(module_t *module)
  * silently ignored in preference files.
  */
 unsigned
-prefs_modules_foreach(module_cb callback, void *user_data)
+prefs_modules_foreach(const wmem_tree_t* module, module_cb callback, void *user_data)
 {
-    return prefs_module_list_foreach(prefs_modules, callback, user_data, true);
+    return prefs_module_list_foreach(module, callback, user_data, true);
 }
 
 /*
@@ -861,10 +898,15 @@ prefs_modules_foreach(module_cb callback, void *user_data)
  * as this can be used when walking the display tree of modules.
  */
 unsigned
-prefs_modules_foreach_submodules(module_t *module, module_cb callback,
+prefs_modules_foreach_submodules(const wmem_tree_t* module, module_cb callback,
                                  void *user_data)
 {
-    return prefs_module_list_foreach((module)?module->submodules:prefs_top_level_modules, callback, user_data, true);
+    return prefs_module_list_foreach(module, callback, user_data, true);
+}
+
+unsigned prefs_modules_for_all_modules(module_cb callback, void* user_data)
+{
+    return prefs_module_list_foreach(prefs_top_level_modules, callback, user_data, true);
 }
 
 static bool
@@ -3132,7 +3174,7 @@ prefs_register_modules(void)
      * configuration screens for access, but this cuts down on the
      * preference "string compare list" in set_pref()
      */
-    extcap_module = prefs_register_module(NULL, "extcap", "Extcap Utilities",
+    extcap_module = prefs_register_module(prefs_top_level_modules, prefs_modules, "extcap", "Extcap Utilities",
         "Extcap Utilities", NULL, NULL, false);
 
     /* Setting default value to true */
@@ -3148,7 +3190,7 @@ prefs_register_modules(void)
      * configuration screens for access, but this cuts down on the
      * preference "string compare list" in set_pref()
      */
-    gui_module = prefs_register_module(NULL, "gui", "User Interface",
+    gui_module = prefs_register_module(prefs_top_level_modules, prefs_modules, "gui", "User Interface",
         "User Interface", NULL, &gui_callback, false);
     /*
      * The GUI preferences don't affect dissection in general.
@@ -3193,7 +3235,7 @@ prefs_register_modules(void)
 
     prefs_register_obsolete_preference(gui_module, "packet_editor.enabled");
 
-    gui_column_module = prefs_register_subtree(gui_module, "Columns", "Columns", NULL);
+    gui_column_module = prefs_register_subtree(gui_module, prefs_modules, "Columns", "Columns", NULL);
     prefs_set_module_effect_flags(gui_column_module, gui_effect_flags);
     /* For reading older preference files with "column." preferences */
     prefs_register_module_alias("column", gui_column_module);
@@ -3246,7 +3288,7 @@ prefs_register_modules(void)
         "Number of columns in col_list", &custom_cbs, &prefs.num_cols);
 
     /* User Interface : Font */
-    gui_font_module = prefs_register_subtree(gui_module, "Font", "Font", NULL);
+    gui_font_module = prefs_register_subtree(gui_module, prefs_modules, "Font", "Font", NULL);
     prefs_set_module_effect_flags(gui_font_module, gui_effect_flags);
 
     prefs_register_obsolete_preference(gui_font_module, "font_name");
@@ -3258,7 +3300,7 @@ prefs_register_modules(void)
         &prefs.gui_font_name, PREF_STRING, NULL, true);
 
     /* User Interface : Colors */
-    gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
+    gui_color_module = prefs_register_subtree(gui_module, prefs_modules, "Colors", "Colors", NULL);
     unsigned gui_color_effect_flags = gui_effect_flags | PREF_EFFECT_GUI_COLOR;
     prefs_set_module_effect_flags(gui_color_module, gui_color_effect_flags);
 
@@ -3509,7 +3551,7 @@ prefs_register_modules(void)
                                    &prefs.gui_welcome_page_show_recent);
 
     /* User Interface : Layout */
-    gui_layout_module = prefs_register_subtree(gui_module, "Layout", "Layout", gui_layout_callback);
+    gui_layout_module = prefs_register_subtree(gui_module, prefs_modules, "Layout", "Layout", gui_layout_callback);
     /* Adjust the preference effects of layout GUI for better handling of preferences at Wireshark (GUI) level */
     layout_gui_flags = prefs_get_module_effect_flags(gui_layout_module);
     layout_gui_flags |= PREF_EFFECT_GUI_LAYOUT;
@@ -3713,7 +3755,7 @@ prefs_register_modules(void)
      * configuration screens for access, but this cuts down on the
      * preference "string compare list" in set_pref()
      */
-    console_module = prefs_register_module(NULL, "console", "Console",
+    console_module = prefs_register_module(prefs_top_level_modules, prefs_modules, "console", "Console",
         "Console logging and debugging output", NULL, NULL, false);
 
     prefs_register_obsolete_preference(console_module, "log.level");
@@ -3737,7 +3779,7 @@ prefs_register_modules(void)
      * configuration screens for access, but this cuts down on the
      * preference "string compare list" in set_pref()
      */
-    capture_module = prefs_register_module(NULL, "capture", "Capture",
+    capture_module = prefs_register_module(prefs_top_level_modules, prefs_modules, "capture", "Capture",
         "Capture preferences", NULL, apply_aggregation_prefs, false);
     /* Capture preferences don't affect dissection */
     prefs_set_module_effect_flags(capture_module, PREF_EFFECT_CAPTURE);
@@ -3824,7 +3866,7 @@ prefs_register_modules(void)
     aggregation_field_register_uat(capture_module);
 
     /* Name Resolution */
-    nameres_module = prefs_register_module(NULL, "nameres", "Name Resolution",
+    nameres_module = prefs_register_module(prefs_top_level_modules, prefs_modules, "nameres", "Name Resolution",
         "Name Resolution", "ChCustPreferencesSection.html#ChCustPrefsNameSection", addr_resolve_pref_apply, true);
     addr_resolve_pref_init(nameres_module);
     oid_pref_init(nameres_module);
@@ -3834,18 +3876,18 @@ prefs_register_modules(void)
      * None of these have any effect; we keep them as obsolete preferences
      * in order to avoid errors when reading older preference files.
      */
-    printing = prefs_register_module(NULL, "print", "Printing",
+    printing = prefs_register_module(prefs_top_level_modules, prefs_modules, "print", "Printing",
         "Printing", NULL, NULL, false);
     prefs_register_obsolete_preference(printing, "format");
     prefs_register_obsolete_preference(printing, "command");
     prefs_register_obsolete_preference(printing, "file");
 
     /* Codecs */
-    codecs_module = prefs_register_module(NULL, "codecs", "Codecs",
+    codecs_module = prefs_register_module(prefs_top_level_modules, prefs_modules, "codecs", "Codecs",
         "Codecs", NULL, NULL, true);
 
     /* Statistics */
-    stats_module = prefs_register_module(NULL, "statistics", "Statistics",
+    stats_module = prefs_register_module(prefs_top_level_modules, prefs_modules, "statistics", "Statistics",
         "Statistics", "ChCustPreferencesSection.html#_statistics", &stats_callback, true);
 
     prefs_register_uint_preference(stats_module, "update_interval",
@@ -3941,7 +3983,7 @@ prefs_register_modules(void)
 
     module_t *conv_module;
     // avoid using prefs_register_stat to prevent lint complaint about recursion
-    conv_module = prefs_register_module(stats_module, "conv", "Conversations",
+    conv_module = prefs_register_submodule(stats_module, prefs_modules, "conv", "Conversations",
             "Conversations & Endpoints", NULL, NULL, true);
     prefs_register_bool_preference(conv_module, "machine_readable",
             "Display exact (machine-readable) byte counts",
@@ -3950,7 +3992,7 @@ prefs_register_modules(void)
             &prefs.conv_machine_readable);
 
     /* Protocols */
-    protocols_module = prefs_register_module(NULL, "protocols", "Protocols",
+    protocols_module = prefs_register_module(prefs_top_level_modules, prefs_modules, "protocols", "Protocols",
                                              "Protocols", "ChCustPreferencesSection.html#ChCustPrefsProtocolsSection", NULL, true);
 
     prefs_register_bool_preference(protocols_module, "display_hidden_proto_items",
@@ -4006,11 +4048,11 @@ prefs_register_modules(void)
      */
 
     /* taps is now part of the stats module */
-    prefs_register_module(NULL, "taps", "TAPS", "TAPS", NULL, NULL, false);
+    prefs_register_module(prefs_top_level_modules, prefs_modules, "taps", "TAPS", "TAPS", NULL, NULL, false);
     /* packet_list is now part of the protocol (parent) module */
-    prefs_register_module(NULL, "packet_list", "PACKET_LIST", "PACKET_LIST", NULL, NULL, false);
+    prefs_register_module(prefs_top_level_modules, prefs_modules, "packet_list", "PACKET_LIST", "PACKET_LIST", NULL, NULL, false);
     /* stream is now part of the gui module */
-    prefs_register_module(NULL, "stream", "STREAM", "STREAM", NULL, NULL, false);
+    prefs_register_module(prefs_top_level_modules, prefs_modules, "stream", "STREAM", "STREAM", NULL, NULL, false);
 
 }
 
@@ -7022,7 +7064,7 @@ write_module_prefs(module_t *module, void *user_data)
     g_list_foreach(arg.module->prefs, write_pref, &arg);
 
     if (prefs_module_has_submodules(module))
-        return prefs_modules_foreach_submodules(module, write_module_prefs, user_data);
+        return prefs_modules_foreach_submodules(module->submodules, write_module_prefs, user_data);
 
     return 0;
 }
@@ -7155,7 +7197,7 @@ write_prefs(const char* app_env_var_prefix, char **pf_path_return)
     write_module_prefs(gui_module, &write_gui_pref_info);
 
     write_gui_pref_info.is_gui_module = false;
-    prefs_modules_foreach_submodules(NULL, write_module_prefs, &write_gui_pref_info);
+    prefs_module_list_foreach(prefs_top_level_modules, write_module_prefs, &write_gui_pref_info, true);
 
     fclose(pf);
 

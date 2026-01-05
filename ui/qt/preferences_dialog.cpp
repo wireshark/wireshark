@@ -67,7 +67,7 @@ module_prefs_unstash(module_t *module, void *data)
     *must_redissect_p |= module->prefs_changed_flags;
 
     if (prefs_module_has_submodules(module))
-        return prefs_modules_foreach_submodules(module, module_prefs_unstash, data);
+        return prefs_modules_foreach_submodules(module->submodules, module_prefs_unstash, data);
 
     return 0;     /* Keep unstashing. */
 }
@@ -84,7 +84,7 @@ module_prefs_clean_stash(module_t *module, void *)
     }
 
     if (prefs_module_has_submodules(module))
-        return prefs_modules_foreach_submodules(module, module_prefs_clean_stash, Q_NULLPTR);
+        return prefs_modules_foreach_submodules(module->submodules, module_prefs_clean_stash, Q_NULLPTR);
 
     return 0;     /* Keep cleaning modules */
 }
@@ -170,7 +170,7 @@ PreferencesDialog::~PreferencesDialog()
 {
     delete pd_ui_;
     delete searchLineEditTimer;
-    prefs_modules_foreach_submodules(NULL, module_prefs_clean_stash, NULL);
+    prefs_modules_for_all_modules(module_prefs_clean_stash, NULL);
 }
 
 void PreferencesDialog::setPane(const QString module_name)
@@ -385,7 +385,7 @@ void PreferencesDialog::apply()
     //       "stashed" value is sometimes the last valid input, not, e.g., the
     //       input when the dialog was opened.
     // XXX - We're also too enthusiastic about setting must_redissect.
-    prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (void *)&redissect_flags);
+    prefs_modules_for_all_modules(module_prefs_unstash, (void *)&redissect_flags);
 
     extcap_register_preferences();
 

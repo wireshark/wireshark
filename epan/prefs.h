@@ -420,10 +420,11 @@ WS_DLL_PUBLIC bool prefs_module_has_submodules(module_t *module);
  * preferences for dissectors that no longer have preferences to be
  * silently ignored in preference files.
  *
+ * @param module module to act on
  * @param callback the callback to call
  * @param user_data additional data to pass to the callback
  */
-WS_DLL_PUBLIC unsigned prefs_modules_foreach(module_cb callback, void *user_data);
+WS_DLL_PUBLIC unsigned prefs_modules_foreach(const wmem_tree_t* module, module_cb callback, void *user_data);
 
 /**
  * Call a callback function, with a specified argument, for each submodule
@@ -435,12 +436,24 @@ WS_DLL_PUBLIC unsigned prefs_modules_foreach(module_cb callback, void *user_data
  * silently ignored in preference files.  Does not ignore subtrees,
  * as this can be used when walking the display tree of modules.
  *
- * @param module the top-level module to walk through the submodules,
- *               or NULL for the top-level list in the display tree of modules
+ * @param module module to walk through
  * @param callback the callback to call
  * @param user_data additional data to pass to the callback
  */
-WS_DLL_PUBLIC unsigned prefs_modules_foreach_submodules(module_t *module, module_cb callback, void *user_data);
+WS_DLL_PUBLIC unsigned prefs_modules_foreach_submodules(const wmem_tree_t* module, module_cb callback, void *user_data);
+
+/**
+ * Call a callback function, with a specified argument, for all modules.
+ *
+ * Ignores "obsolete" modules; their sole purpose is to allow old
+ * preferences for dissectors that no longer have preferences to be
+ * silently ignored in preference files.  Does not ignore subtrees,
+ * as this can be used when walking the display tree of modules.
+ *
+ * @param callback the callback to call
+ * @param user_data additional data to pass to the callback
+ */
+WS_DLL_PUBLIC unsigned prefs_modules_for_all_modules(module_cb callback, void* user_data);
 
 /**
  * Call the "apply" callback function for each module if any of its
