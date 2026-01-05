@@ -96,6 +96,7 @@
 #define OUI_RUCKUS          0x001392    /* Ruckus Networks */
 #define OUI_SMPTE           0x6897E8    /* Society of Motion Picture and Television Engineers */
 #define OUI_SGDSN           0x6A5C35    /* Secrétariat Général de la Défense et de la Sécurité Nationale http://www.sgdsn.gouv.fr */
+#define OUI_METER           0x848094    /* Meter Inc */
 #define OUI_ONOS            0xA42305    /* Open Networking Laboratory (ONOS) */
 #define OUI_3GPP2           0xCF0002    /* 3GPP2 */
 #define OUI_AVAYA_EXTREME2  0xD88466    /* Avaya Extreme Fabric */
