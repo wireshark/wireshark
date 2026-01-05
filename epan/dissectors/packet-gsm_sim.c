@@ -4208,8 +4208,9 @@ proto_register_gsm_sim(void)
 			  NULL, HFILL },
 		},
 		{ &hf_tp_soft_key_info_max_nb,
+			/* Note: The bitmask 0xff is needed */
 			{ "Maximum number of soft keys available", "gsm_sim.tp.soft_key_info.max_nb",
-			  FT_UINT8, BASE_DEC, NULL, 0,
+			  FT_UINT8, BASE_DEC, NULL, 0xff,
 			  NULL, HFILL }
 		},
 
