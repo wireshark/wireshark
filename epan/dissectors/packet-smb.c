@@ -9030,10 +9030,8 @@ static const true_false_string tfs_nt_access_mask_system_security = {
 	"SYSTEM SECURITY is set",
 	"System security is NOT set"
 };
-static const true_false_string tfs_nt_access_mask_synchronize = {
-	"Must be ignored except on named pipes",
-	"Must be ignored except on named pipes"
-};
+
+
 static const true_false_string tfs_nt_access_mask_write_owner = {
 	"WRITE OWNER access (can take ownership)",
 	"NO write OWNER access (can NOT take ownership)"
@@ -20966,7 +20964,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_nt_access_mask_synchronize,
 		{ "Synchronize", "smb.access.synchronize", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_access_mask_synchronize), 0x00100000, "Windows NT: synchronize access", HFILL }},
+		NULL , 0x00100000, "Windows NT: synchronize access", HFILL }},
 
 	{ &hf_smb_nt_access_mask_write_owner,
 		{ "Write Owner", "smb.access.write_owner", FT_BOOLEAN, 32,
