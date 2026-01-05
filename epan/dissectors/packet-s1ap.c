@@ -3578,7 +3578,7 @@ dissect_s1ap_CELevel(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_CELevel);
-    volatile int saved_offset = offset;
+    volatile uint32_t saved_offset = offset;
     if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
         (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
       TRY {
@@ -7862,7 +7862,7 @@ dissect_s1ap_LastVisitedUTRANCellInformation(tvbuff_t *tvb _U_, uint32_t offset 
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_LastVisitedUTRANCellInformation);
-    volatile int saved_offset = offset;
+    volatile uint32_t saved_offset = offset;
     TRY {
       dissect_ranap_LastVisitedUTRANCell_Item_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
@@ -7911,7 +7911,7 @@ dissect_s1ap_LastVisitedNGRANCellInformation(tvbuff_t *tvb _U_, uint32_t offset 
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_LastVisitedNGRANCellInformation);
-    volatile int saved_offset = offset;
+    volatile uint32_t saved_offset = offset;
     TRY {
       dissect_ngap_LastVisitedNGRANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
@@ -9120,7 +9120,7 @@ dissect_s1ap_NB_IoT_RLF_Report_Container(tvbuff_t *tvb _U_, uint32_t offset _U_,
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_NB_IoT_RLF_Report_Container);
-    volatile int saved_offset = offset;
+    volatile uint32_t saved_offset = offset;
     TRY {
       dissect_lte_rrc_RLF_Report_NB_r16_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
@@ -9976,13 +9976,13 @@ static unsigned
 dissect_s1ap_RIMInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
-  volatile int saved_offset = offset;
 
-  saved_offset = dissect_per_octet_string(tvb, saved_offset, actx, tree, hf_index,
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
+
   if (!parameter_tvb)
-    return saved_offset;
+    return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RIMInformation);
   if ((tvb_reported_length(parameter_tvb)>0)&&(bssgp_handle)){
@@ -10097,7 +10097,7 @@ dissect_s1ap_UE_RLF_Report_Container(tvbuff_t *tvb _U_, uint32_t offset _U_, asn
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container);
-    volatile int saved_offset = offset;
+    volatile uint32_t saved_offset = offset;
     TRY {
       dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
@@ -10126,7 +10126,7 @@ dissect_s1ap_UE_RLF_Report_Container_for_extended_bands(tvbuff_t *tvb _U_, uint3
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container_for_extended_bands);
-    volatile int saved_offset = offset;
+    volatile uint32_t saved_offset = offset;
     TRY {
       dissect_lte_rrc_RLF_Report_v9e0_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
@@ -10175,7 +10175,7 @@ dissect_s1ap_RRC_Container(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *a
   if (g_s1ap_dissect_container) {
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RRCContainer);
-    volatile int saved_offset = offset;
+    volatile uint32_t saved_offset = offset;
 
     switch(s1ap_data->transparent_container_type){
       case SOURCE_TO_TARGET_TRANSPARENT_CONTAINER:
@@ -11639,13 +11639,12 @@ static unsigned
 dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
-  volatile int saved_offset = offset;
 
-  saved_offset = dissect_per_octet_string(tvb, saved_offset, actx, tree, hf_index,
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (!parameter_tvb)
-    return saved_offset;
+    return offset;
 
   if (g_s1ap_dissect_container) {
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
@@ -11660,6 +11659,7 @@ dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_
       handle = lte_rrc_ue_radio_access_cap_info_handle;
     }
     if (handle) {
+      volatile uint32_t saved_offset = offset;
       TRY {
         call_dissector(handle, parameter_tvb, actx->pinfo, subtree);
       }
@@ -11667,6 +11667,7 @@ dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_
         show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
       }
       ENDTRY;
+      offset = saved_offset;
     }
   }
 
@@ -11701,6 +11702,7 @@ dissect_s1ap_UERadioCapabilityForPaging(tvbuff_t *tvb _U_, uint32_t offset _U_, 
       handle = lte_rrc_ue_radio_paging_info_handle;
     }
     if (handle) {
+      volatile uint32_t saved_offset = offset;
       TRY {
         call_dissector(handle, parameter_tvb, actx->pinfo, subtree);
       }
@@ -11708,6 +11710,7 @@ dissect_s1ap_UERadioCapabilityForPaging(tvbuff_t *tvb _U_, uint32_t offset _U_, 
         show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
       }
       ENDTRY;
+      offset = saved_offset;
     }
   }
 
@@ -14814,7 +14817,7 @@ dissect_s1ap_T_uERLFReportContainer(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container);
-    volatile int saved_offset = offset;
+    volatile uint32_t saved_offset = offset;
     TRY {
       dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
