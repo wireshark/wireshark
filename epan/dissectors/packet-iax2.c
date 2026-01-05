@@ -2543,7 +2543,13 @@ static void dissect_payload(tvbuff_t *tvb, uint32_t offset,
   proto_tree_add_item(iax2_tree, hf_iax2_payload_data, sub_tvb, 0, -1, ENC_NA);
 
   iax2_info->payload_len = nbytes;
-  iax2_info->payload_data = tvb_get_ptr(sub_tvb, 0, -1);
+  /* XXX - The IAX2 Analysis Dialog does check if pinfo->fd->pkt_len and
+   * pinfo->fd->cap_len are equal before using this, but it might be safer
+   * to do like the RTP dissector and have the payload_data pointer be NULL
+   * if the lengths aren't equal, and perhaps a boolean indicating that the
+   * the payload data is absent.
+   */
+  iax2_info->payload_data = tvb_get_ptr(sub_tvb, 0, tvb_captured_length(sub_tvb));
 
   /* pass the rest of the block to a subdissector */
   if (iax_packet->call_data)

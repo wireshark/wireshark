@@ -1111,8 +1111,8 @@ tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, size_t
 #if 0
 /* XXX - Is a _remaining variant of this necessary? The user would still need
  * to get the length from tvb_captured_length_remaining() to productively use
- * the (not necessarily null terminated) byte array. But see uses of
- * tvb_get_ptr(...,...,-1) in the repo, which is similar. */
+ * the (not necessarily null terminated) byte array. See also tvb_get_ptr(),
+ * which is similar. */
 void *
 tvb_memdup_remaining(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset)
 {

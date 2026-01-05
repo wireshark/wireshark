@@ -153,7 +153,9 @@ test(tvbuff_t *tvb, const char* name,
 	/* Test boundary case. A BoundsError exception should be thrown. */
 	ex_thrown = false;
 	TRY {
-		tvb_get_ptr(tvb, -1, 2);
+		tvb_get_ptr(tvb, length - 1, 2);
+		/* Note that length 0 throws a BoundsError too, albeit
+		 * for a slightly different reason (on the offset.) */
 	}
 	CATCH(BoundsError) {
 		ex_thrown = true;
@@ -203,29 +205,31 @@ test(tvbuff_t *tvb, const char* name,
 	}
 
 	/* Test boundary case. A BoundsError exception should not be thrown. */
-	ex_thrown = false;
-	TRY {
-		tvb_get_ptr(tvb, -1, length ? 1 : 0);
-	}
-	CATCH(BoundsError) {
-		ex_thrown = true;
-	}
-	CATCH(FragmentBoundsError) {
-		printf("06: Caught wrong exception: FragmentBoundsError\n");
-	}
-	CATCH(ReportedBoundsError) {
-		printf("06: Caught wrong exception: ReportedBoundsError\n");
-	}
-	CATCH_ALL {
-		printf("06: Caught wrong exception: %lu\n", exc->except_id.except_code);
-	}
-	ENDTRY;
+	if (length > 0) {
+		ex_thrown = false;
+		TRY {
+			tvb_get_ptr(tvb, length - 1, 1);
+		}
+		CATCH(BoundsError) {
+			ex_thrown = true;
+		}
+		CATCH(FragmentBoundsError) {
+			printf("06: Caught wrong exception: FragmentBoundsError\n");
+		}
+		CATCH(ReportedBoundsError) {
+			printf("06: Caught wrong exception: ReportedBoundsError\n");
+		}
+		CATCH_ALL {
+			printf("06: Caught wrong exception: %lu\n", exc->except_id.except_code);
+		}
+		ENDTRY;
 
-	if (ex_thrown) {
-		printf("06: Failed TVB=%s BoundsError when retrieving 1 bytes from"
-				" offset -1\n", name);
-		failed = true;
-		return false;
+		if (ex_thrown) {
+			printf("06: Failed TVB=%s BoundsError when retrieving 1 bytes from"
+					" offset -1\n", name);
+			failed = true;
+			return false;
+		}
 	}
 
 

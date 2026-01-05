@@ -1718,8 +1718,9 @@ read_qpack_prefixed_integer(tvbuff_t *tvb, int offset, int prefix,
      * This can throw a ReportedBoundError; in fact, we count on that
      * currently in order to detect QPACK fields split across packets.
      */
-    const uint8_t *buf   = tvb_get_ptr(tvb, offset, -1);
-    const uint8_t *end   = buf + tvb_captured_length_remaining(tvb, offset);
+    unsigned length = tvb_ensure_captured_length_remaining(tvb, offset);
+    const uint8_t *buf   = tvb_get_ptr(tvb, offset, length);
+    const uint8_t *end   = buf + length;
     uint64_t       k     = (uint8_t)((1 << prefix) - 1);
     uint64_t       n     = 0;
     uint64_t       add   = 0;

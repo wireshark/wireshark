@@ -218,10 +218,11 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
 
     follow_record = g_new(follow_record_t,1);
 
-    follow_record->data = g_byte_array_sized_new(tvb_captured_length(next_tvb));
+    unsigned length = tvb_captured_length(next_tvb);
+    follow_record->data = g_byte_array_sized_new(length);
     follow_record->data = g_byte_array_append(follow_record->data,
-                                              tvb_get_ptr(next_tvb, 0, -1),
-                                              tvb_captured_length(next_tvb));
+                                              tvb_get_ptr(next_tvb, 0, length),
+                                              length);
     follow_record->packet_num = pinfo->fd->num;
     follow_record->abs_ts = pinfo->fd->abs_ts;
 

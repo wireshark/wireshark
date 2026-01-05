@@ -2332,7 +2332,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
          * their data.)
          * See "add_packet_to_packet_list()" for details.
          */
-        rtp_info->info_data = tvb_get_ptr(tvb, 0, -1);
+        rtp_info->info_data = tvb_get_ptr(tvb, 0, length);
     } else {
         /*
          * No - packet was cut short at capture time.

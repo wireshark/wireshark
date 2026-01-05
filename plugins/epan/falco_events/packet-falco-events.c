@@ -1169,8 +1169,8 @@ dissect_falco_json_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     // https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
     const char *gcpaudit_keys[] = { "\"insertId\":", "\"logName\":", NULL };
 
-    const uint8_t *tvb_data = tvb_get_ptr(tvb, 0, -1);
     int tvb_len = tvb_captured_length(tvb);
+    const uint8_t *tvb_data = tvb_get_ptr(tvb, 0, tvb_len);
 
     if (has_keys(tvb_data, tvb_len, k8saudit_keys)) {
         source_id = K8SAUDIT_PLUGIN_ID;

@@ -5173,8 +5173,9 @@ follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt 
     // XXX: Ideally, we should also deal with stream retransmission
     // and out of order packets in a similar manner to the TCP dissector,
     // using the offset, plus ACKs and other information.
-    follow_record->data = g_byte_array_sized_new(tvb_captured_length(follow_data->tvb));
-    follow_record->data = g_byte_array_append(follow_record->data, tvb_get_ptr(follow_data->tvb, 0, -1), tvb_captured_length(follow_data->tvb));
+    unsigned length = tvb_captured_length(follow_data->tvb);
+    follow_record->data = g_byte_array_sized_new(length);
+    follow_record->data = g_byte_array_append(follow_record->data, tvb_get_ptr(follow_data->tvb, 0, length), length);
     follow_record->packet_num = pinfo->fd->num;
     follow_record->abs_ts = pinfo->fd->abs_ts;
 

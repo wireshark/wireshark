@@ -370,8 +370,8 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   if(new_tvb && tvb_captured_length(new_tvb) > 0) {
     bool decoded;
     tvbuff_t *dtvb = NULL;
-    const uint8_t *input = tvb_get_ptr(new_tvb, 0, -1);
     uint32_t reassembled_size = tvb_captured_length(new_tvb);
+    const uint8_t *input = tvb_get_ptr(new_tvb, 0, reassembled_size);
     uint8_t *deinterleaved = (uint8_t*) wmem_alloc(pinfo->pool, reassembled_size);
     uint8_t *output = (uint8_t*) wmem_alloc(pinfo->pool, decoded_size);
     rs_deinterleave(input, deinterleaved, plen, fcount);
