@@ -1375,6 +1375,7 @@ static int de_rr_eutran_not_allowed_cells(tvbuff_t *tvb, proto_tree *tree, int b
 /* this function is used for dissecting the H/L presence flags in CSN.1 coded IEs"
    If truncation ( 44.018 section 8.9) is allowed, truncation_length is set to the actual bit length of the CSN.1 string,
    otherwise it is set to 0 */
+/* coverity[+no_checked_return] */
 static bool gsm_rr_csn_HL_flag(tvbuff_t *tvb, proto_tree *tree, unsigned truncation_length, unsigned bit_offset, int hf_bit)
 {
     uint8_t bit_mask        = 0x80 >> (bit_offset % 8);
