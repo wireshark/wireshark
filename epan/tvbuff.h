@@ -2009,7 +2009,7 @@ WS_DLL_PUBLIC uint8_t* tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb
  * @see tvb_get_bits64
  */
 WS_DLL_PUBLIC uint8_t tvb_get_bits8(tvbuff_t *tvb, unsigned bit_offset,
-    const int no_of_bits);
+    const unsigned no_of_bits);
 
 /**
  * @brief Retrieve 1–16 bits from a tvbuff and return them as a uint16_t.
@@ -2033,7 +2033,7 @@ WS_DLL_PUBLIC uint8_t tvb_get_bits8(tvbuff_t *tvb, unsigned bit_offset,
  * @see tvb_get_bits64
  */
 WS_DLL_PUBLIC uint16_t tvb_get_bits16(tvbuff_t *tvb, unsigned bit_offset,
-    const int no_of_bits, const unsigned encoding);
+    const unsigned no_of_bits, const unsigned encoding);
 
 /**
  * @brief Retrieve 1–32 bits from a tvbuff and return them as a uint32_t.
@@ -2057,7 +2057,7 @@ WS_DLL_PUBLIC uint16_t tvb_get_bits16(tvbuff_t *tvb, unsigned bit_offset,
  * @see tvb_get_bits64
  */
 WS_DLL_PUBLIC uint32_t tvb_get_bits32(tvbuff_t *tvb, unsigned bit_offset,
-    const int no_of_bits, const unsigned encoding);
+    const unsigned no_of_bits, const unsigned encoding);
 
 /**
  * @brief Retrieve 1–64 bits from a tvbuff and return them as a uint64_t.
@@ -2081,7 +2081,7 @@ WS_DLL_PUBLIC uint32_t tvb_get_bits32(tvbuff_t *tvb, unsigned bit_offset,
  * @see tvb_get_bits32
  */
 WS_DLL_PUBLIC uint64_t tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset,
-    const int no_of_bits, const unsigned encoding);
+    const unsigned no_of_bits, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for extracting bits from a tvbuff.
@@ -2103,7 +2103,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset,
 WS_DLL_PUBLIC
 WS_DEPRECATED_X("Use tvb_get_bits32() instead")
 uint32_t tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset,
-    const int no_of_bits, const unsigned encoding);
+    const unsigned no_of_bits, const unsigned encoding);
 
 /**
  * @brief Copy a range of bytes from a tvbuff into a pre-allocated target buffer.

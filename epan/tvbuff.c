@@ -47,10 +47,10 @@
 #include <time.h>
 
 static uint64_t
-_tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits);
+_tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const unsigned total_no_of_bits);
 
 static uint64_t
-_tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits);
+_tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const unsigned total_no_of_bits);
 
 static inline unsigned
 _tvb_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset);
@@ -2362,7 +2362,7 @@ tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned bit_of
 
 /* Get 1 - 8 bits */
 uint8_t
-tvb_get_bits8(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits)
+tvb_get_bits8(tvbuff_t *tvb, unsigned bit_offset, const unsigned no_of_bits)
 {
 	DISSECTOR_ASSERT_HINT(no_of_bits <= 8, "Too many bits requested for 8-bit return type");
 	return (uint8_t)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
@@ -2370,7 +2370,7 @@ tvb_get_bits8(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits)
 
 /* Get 1 - 16 bits */
 uint16_t
-tvb_get_bits16(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const unsigned encoding)
+tvb_get_bits16(tvbuff_t *tvb, unsigned bit_offset, const unsigned no_of_bits, const unsigned encoding)
 {
 	DISSECTOR_ASSERT_HINT(no_of_bits <= 16, "Too many bits requested for 16-bit return type");
 	return (uint16_t)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
@@ -2378,7 +2378,7 @@ tvb_get_bits16(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const u
 
 /* Get 1 - 32 bits */
 uint32_t
-tvb_get_bits32(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const unsigned encoding)
+tvb_get_bits32(tvbuff_t *tvb, unsigned bit_offset, const unsigned no_of_bits, const unsigned encoding)
 {
 	DISSECTOR_ASSERT_HINT(no_of_bits <= 32, "Too many bits requested for 32-bit return type");
 	return (uint32_t)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
@@ -2386,7 +2386,7 @@ tvb_get_bits32(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const u
 
 /* Get 1 - 64 bits */
 uint64_t
-tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const unsigned encoding)
+tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const unsigned no_of_bits, const unsigned encoding)
 {
 	DISSECTOR_ASSERT_HINT(no_of_bits <= 64, "Too many bits requested for 64-bit return type");
 
@@ -2406,7 +2406,7 @@ tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const u
  * The function tolerates requests for more than 64 bits, but will only return the least significant 64 bits.
  */
 static uint64_t
-_tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits)
+_tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const unsigned total_no_of_bits)
 {
 	uint64_t value;
 	unsigned	octet_offset = bit_offset >> 3;
@@ -2485,12 +2485,12 @@ _tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits)
  * The function tolerates requests for more than 64 bits, but will only return the least significant 64 bits.
  */
 static uint64_t
-_tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits)
+_tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const unsigned total_no_of_bits)
 {
 	uint64_t value = 0;
 	unsigned octet_offset = bit_offset / 8;
-	int remaining_bits = total_no_of_bits;
-	int shift = 0;
+	unsigned remaining_bits = total_no_of_bits;
+	unsigned shift = 0;
 
 	if (remaining_bits > 64)
 	{
@@ -2553,7 +2553,7 @@ _tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bit
 
 /* Get 1 - 32 bits (should be deprecated as same as tvb_get_bits32??) */
 uint32_t
-tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset, const int no_of_bits, const unsigned encoding)
+tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset, const unsigned no_of_bits, const unsigned encoding)
 {
 	return (uint32_t)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
