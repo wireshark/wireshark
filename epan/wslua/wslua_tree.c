@@ -183,24 +183,15 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
             break;
 
         case FT_STRING:
+        case FT_STRINGZ:
+        case FT_STRINGZPAD:
+        case FT_STRINGZTRUNC:
+        case FT_UINT_STRING:
             {
                 const uint8_t *ret;
                 int len;
                 item = proto_tree_add_item_ret_string_and_length(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
-                                                    NULL, &ret, &len);
-                lua_pushstring(L, (const char*)ret);
-                lua_pushinteger(L, tvbr->offset + len);
-                wmem_free(NULL, (void*)ret);
-            }
-            break;
-
-        case FT_STRINGZ:
-            {
-                const uint8_t *ret;
-                int len;
-                item = proto_tree_add_item_ret_string_and_length(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
-                                                    tvbr->offset, -1, encoding,
                                                     NULL, &ret, &len);
                 lua_pushstring(L, (const char*)ret);
                 lua_pushinteger(L, tvbr->offset + len);
