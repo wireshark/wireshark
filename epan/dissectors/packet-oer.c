@@ -488,7 +488,7 @@ dissect_oer_integer_64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_
 
 /* 11 Encoding of enumerated values */
 uint32_t
-dissect_oer_enumerated(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, uint32_t root_num _U_, uint32_t *value, bool has_extension _U_, uint32_t ext_num _U_, uint32_t *value_map _U_)
+dissect_oer_enumerated(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, uint32_t root_num _U_, uint32_t *value, bool has_extension _U_, uint32_t ext_num _U_, const uint32_t *value_map _U_)
 {
     int old_offset = offset;
     uint32_t val;
