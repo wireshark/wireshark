@@ -146,7 +146,7 @@ tvb_uncompress_brotli(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
         }
     }
 
-    uncompr_tvb = tvb_new_real_data((uint8_t *)uncompr, (unsigned)total_out, (int)total_out);
+    uncompr_tvb = tvb_new_real_data((uint8_t *)uncompr, (unsigned)total_out, (unsigned)total_out);
     tvb_set_free_cb(uncompr_tvb, g_free);
 
     g_free(strmbuf);

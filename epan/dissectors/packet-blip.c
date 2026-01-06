@@ -302,7 +302,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int offset, int 
 			return NULL;
 		} else {
 			tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, (uint8_t *)saved_data->buf,
-				(int)saved_data->size, (int)saved_data->size);
+				(unsigned)saved_data->size, (unsigned)saved_data->size);
 			add_new_data_source(pinfo, decompressedChild, "Decompressed Payload");
 			return decompressedChild;
 		}
@@ -375,7 +375,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int offset, int 
 	size_t bodyLength = decompress_stream->total_out - start;
 	Bytef* shortened_buffer = (Bytef *)wmem_memdup(wmem_file_scope(), decompress_buffer, bodyLength);
 
-	tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, shortened_buffer, (unsigned)bodyLength, (int)bodyLength);
+	tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, shortened_buffer, (unsigned)bodyLength, (unsigned)bodyLength);
 	add_new_data_source(pinfo, decompressedChild, "Decompressed Payload");
 	decompress_result_t* data_to_save = wmem_new0(wmem_file_scope(), decompress_result_t);
 	data_to_save->size = (size_t)bodyLength;

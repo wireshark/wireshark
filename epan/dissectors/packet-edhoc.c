@@ -864,7 +864,7 @@ static bool dissect_edhoc_msg2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                     scratch_raw[ix] ^= tvb_get_uint8(ciphertext_2, (int)ix);
                 }
 
-                tvb_plain = tvb_new_child_real_data(ciphertext_2, scratch_raw, (unsigned)scratch_len, (int)scratch_len);
+                tvb_plain = tvb_new_child_real_data(ciphertext_2, scratch_raw, (unsigned)scratch_len, (unsigned)scratch_len);
                 tvb_set_free_cb(tvb_plain, g_free);
             }
         }

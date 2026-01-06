@@ -173,7 +173,7 @@ base64_to_tvb(tvbuff_t *parent, const char *base64)
   size_t len;
 
   data = g_base64_decode(base64, &len);
-  tvb = tvb_new_child_real_data(parent, data, (int)len, (int)len);
+  tvb = tvb_new_child_real_data(parent, data, (unsigned)len, (unsigned)len);
 
   tvb_set_free_cb(tvb, g_free);
 
@@ -191,7 +191,7 @@ base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length)
     data = g_base64_decode((const char*)tmp, &len);
     wmem_free(NULL, tmp);
 
-    tvb = tvb_new_child_real_data(parent, data, (int)len, (int)len);
+    tvb = tvb_new_child_real_data(parent, data, (unsigned)len, (unsigned)len);
 
     tvb_set_free_cb(tvb, g_free);
 
@@ -209,7 +209,7 @@ base64uri_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length)
     data = g_base64uri_decode((const char*)tmp, &len);
     wmem_free(NULL, tmp);
 
-    tvb = tvb_new_child_real_data(parent, data, (int)len, (int)len);
+    tvb = tvb_new_child_real_data(parent, data, (unsigned)len, (unsigned)len);
 
     tvb_set_free_cb(tvb, g_free);
 

@@ -4265,7 +4265,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       tvbuff_t *al_tvb;
       bool      save_fragmented;
 
-      al_tvb = tvb_new_child_real_data(tvb, al_buffer, (unsigned) (al_buffer_ptr-al_buffer), (int) (al_buffer_ptr-al_buffer));
+      al_tvb = tvb_new_child_real_data(tvb, al_buffer, (unsigned) (al_buffer_ptr-al_buffer), (unsigned) (al_buffer_ptr-al_buffer));
 
       /* Check for fragmented packet */
       save_fragmented = pinfo->fragmented;

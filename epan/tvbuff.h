@@ -239,7 +239,7 @@ WS_DLL_PUBLIC void tvb_set_child_real_data_tvbuff(tvbuff_t *parent,
  * @return A new child tvbuff_t referencing the provided data.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_child_real_data(tvbuff_t *parent,
-    const uint8_t *data, const unsigned length, const int reported_length);
+    const uint8_t *data, const unsigned length, const unsigned reported_length);
 
 /**
  * @brief Create a tvbuff backed by existing data.
@@ -255,7 +255,7 @@ WS_DLL_PUBLIC tvbuff_t *tvb_new_child_real_data(tvbuff_t *parent,
  * @return A pointer to the newly created tvbuff backed by the provided data.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_real_data(const uint8_t *data,
-    const unsigned length, const int reported_length);
+    const unsigned length, const unsigned reported_length);
 
 /**
  * @brief Create a subset tvbuff with an explicitly limited captured length.

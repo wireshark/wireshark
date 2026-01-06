@@ -386,14 +386,14 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* UTF-16BE */
         const uint8_t *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UTF_16|ENC_BIG_ENDIAN);
         size_t l = strlen((const char*)data_str);
-        decoded = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (int)l);
+        decoded = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (unsigned)l);
         add_new_data_source(pinfo, decoded, "Decoded UTF-16BE text");
     }
     else if(try_bom == 0xFFFE) {
         /* UTF-16LE (or possibly UTF-32LE, but Wireshark doesn't support UTF-32) */
         const uint8_t *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UTF_16|ENC_LITTLE_ENDIAN);
         size_t l = strlen((const char*)data_str);
-        decoded = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (int)l);
+        decoded = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (unsigned)l);
         add_new_data_source(pinfo, decoded, "Decoded UTF-16LE text");
     }
     /* Could also test if try_bom is 0xnn00 or 0x00nn to guess endianness if we wanted */
@@ -405,7 +405,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* Encoding string with encoding, either with or without BOM */
         const uint8_t *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), encoding);
         size_t l = strlen((const char*)data_str);
-        decoded = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (int)l);
+        decoded = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (unsigned)l);
         add_new_data_source(pinfo, decoded, wmem_strdup_printf(pinfo->pool, "Decoded %s text", encoding_name));
     }
 
@@ -469,7 +469,7 @@ static bool dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         data_str    = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), enc);
         l           = strlen((const char*)data_str);
-        unicode_tvb = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (int)l);
+        unicode_tvb = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (unsigned)l);
         if (tvbparse_peek(tvbparse_init(pinfo->pool, unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
             add_new_data_source(pinfo, unicode_tvb, "UTF8");
             dissect_xml(unicode_tvb, pinfo, tree, data);

@@ -1906,7 +1906,7 @@ decompress_lz4(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t length, t
             composite_tvb = tvb_new_composite();
         }
         tvb_composite_append(composite_tvb,
-                             tvb_new_child_real_data(tvb, (uint8_t*)decompressed_buffer, (unsigned)out_size, (int)out_size));
+                             tvb_new_child_real_data(tvb, (uint8_t*)decompressed_buffer, (unsigned)out_size, (unsigned)out_size));
         src_offset += src_size; // bump up the offset for the next iteration
         DISSECTOR_ASSERT_HINT(count < MAX_LOOP_ITERATIONS, "MAX_LOOP_ITERATIONS exceeded");
     } while (rc > 0 && count++ < MAX_LOOP_ITERATIONS);

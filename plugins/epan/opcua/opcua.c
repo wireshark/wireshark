@@ -662,7 +662,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                      * the padding (paddin_len+1), and the signature from the plaintext */
                     payload_len = plaintext_len - pad_len - sig_len - 9; /* pad_len 2 = 02 02 02 */
                     /* Now re-setup the tvb buffer to have the new data */
-                    decrypted_tvb = tvb_new_child_real_data(tvb, plaintext, (unsigned)plaintext_len, (int)plaintext_len);
+                    decrypted_tvb = tvb_new_child_real_data(tvb, plaintext, (unsigned)plaintext_len, (unsigned)plaintext_len);
                     add_new_data_source(pinfo, decrypted_tvb, "Decrypted Data");
                     /* process decrypted_tvb from here */
                     tvb = decrypted_tvb;

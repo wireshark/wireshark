@@ -5246,7 +5246,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, int body_offset, packet_
             const char* data_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, body_offset,
                                                         end_offset - body_offset, ws_encoding_id);
             size_t l = strlen(data_str);
-            body_tvb = tvb_new_child_real_data(tvb, (const uint8_t*)data_str, (unsigned)l, (int)l);
+            body_tvb = tvb_new_child_real_data(tvb, (const uint8_t*)data_str, (unsigned)l, (unsigned)l);
             add_new_data_source(pinfo, body_tvb, wmem_strdup_printf(pinfo->pool, "Decoded %s text", encoding_name));
         }
     }
