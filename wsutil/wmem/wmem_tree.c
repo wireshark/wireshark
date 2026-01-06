@@ -1082,6 +1082,12 @@ wmem_tree_foreach(const wmem_tree_t* tree, wmem_foreach_func callback,
     return wmem_tree_foreach_nodes(tree->root, callback, user_data);
 }
 
+wmem_allocator_t*
+wmem_tree_get_data_scope(const wmem_tree_t* tree)
+{
+    return tree->data_allocator;
+}
+
 static void wmem_print_subtree(const wmem_tree_t *tree, uint32_t level, wmem_printer_func key_printer, wmem_printer_func data_printer);
 
 static void

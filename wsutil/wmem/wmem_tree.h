@@ -413,6 +413,18 @@ bool
 wmem_tree_foreach(const wmem_tree_t* tree, wmem_foreach_func callback,
         void *user_data);
 
+/**
+ * @brief return the memory scope used by the data of the tree
+ *
+ * This is intended to help abstract memory use for tree items by having using the
+ * knowledge of the tree's data memory scope to allocate items that will go into
+ * the tree
+ *
+ * @param tree Pointer to the tree that has scope.
+ */
+WS_DLL_PUBLIC
+wmem_allocator_t*
+wmem_tree_get_data_scope(const wmem_tree_t* tree);
 
 /**
  * @brief Print the contents of a tree using optional key and data printer callbacks.
