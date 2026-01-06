@@ -13,7 +13,11 @@
  * TODO Still (Complete compliance with FC-MI):
  * - Decode RNID, RLIR
  */
-
+/* AI generated:
+ * Fibre Channel (FC) Extended Link Services (ELS) is a protocol used for managing communication between ports (Nx_Ports)
+ * within a Fibre Channel fabric. While Basic Link Services are single-frame commands, ELS requests and replies are
+ * transmitted within their own independent Exchanges.
+ */
 #include "config.h"
 
 #include <epan/packet.h>
@@ -654,7 +658,7 @@ static const true_false_string tfs_fc_fcels_cmn_payload = {
 };
 
 static void
-dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags, uint8_t opcode)
+dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, unsigned offset, uint16_t flags, uint8_t opcode)
 {
     static int * const common_flags[] = {
         &hf_fcels_cmn_cios,
@@ -709,7 +713,7 @@ static const true_false_string tfs_fc_fcels_cls_nzctl = {
 
 /* The next 3 routines decode only Class 2 & Class 3 relevant bits */
 static void
-dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags, uint8_t opcode)
+dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, unsigned offset, uint16_t flags, uint8_t opcode)
 {
     static int * const common_flags[] = {
         &hf_fcels_cls_cns,
@@ -764,7 +768,7 @@ static const true_false_string tfs_fc_fcels_fcpflags_wrxr = {
 };
 
 static void
-dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint32_t flags, uint8_t isreq)
+dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, unsigned offset, uint32_t flags, uint8_t isreq)
 {
     static int * const req_flags[] = {
         &hf_fcels_fcpflags_trireq,
@@ -801,7 +805,7 @@ dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint32_t 
 
 
 static void
-dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint32_t flags, int port)
+dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, unsigned offset, uint32_t flags, int port)
 {
     proto_item *item;
     static int * const speed_flags[] = {
@@ -831,7 +835,7 @@ static const true_false_string tfs_fc_fcels_prliloflags_eip = {
 };
 
 static void
-dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int flags, uint8_t opcode)
+dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, unsigned offset, int flags, uint8_t opcode)
 {
     static int * const tprlo_flags[] = {
         &hf_fcels_tprloflags_opav,
@@ -882,7 +886,7 @@ static const true_false_string tfs_fc_fcels_initctl_ackgaa = {
 };
 
 static void
-dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags, uint8_t opcode)
+dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, unsigned offset, uint16_t flags, uint8_t opcode)
 {
     static int * const plogi_flags[] = {
         &hf_fcels_initctl_initial_pa,
@@ -922,7 +926,7 @@ static const value_string rcptctl_category_vals[] = {
 };
 
 static void
-dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t flags, uint8_t opcode)
+dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, unsigned offset, uint16_t flags, uint8_t opcode)
 {
     static int * const plogi_flags[] = {
         &hf_fcels_rcptctl_ack0,
@@ -956,7 +960,7 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     proto_item *ti, uint8_t opcode)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0,
+    unsigned offset = 0,
         svcvld = 0,
         svcclass;
     proto_tree *logi_tree, *cmnsvc_tree;
@@ -1036,7 +1040,7 @@ dissect_fcels_logout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                       uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 5;             /* bypass opcode+rsvd field */
+    unsigned offset = 5;             /* bypass opcode+rsvd field */
     proto_tree *logo_tree;
 
     if (tree) {
@@ -1059,7 +1063,7 @@ dissect_fcels_abtx (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *abtx_tree;
 
     if (tree) {
@@ -1083,7 +1087,7 @@ dissect_fcels_rsi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 4;
+    unsigned offset = 4;
     proto_tree *rsi_tree;
 
     if (tree) {
@@ -1105,7 +1109,7 @@ dissect_fcels_rrq (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *rrq_tree;
 
     if (tree) {
@@ -1126,7 +1130,7 @@ dissect_fcels_rec (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *rec_tree;
 
     if (tree) {
@@ -1178,7 +1182,7 @@ dissect_fcels_adisc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 5;
+    unsigned offset = 5;
     proto_tree *adisc_tree;
 
     if (tree) {
@@ -1198,7 +1202,7 @@ static void
 dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     proto_item *ti)
 {
-    int offset = 4;
+    unsigned offset = 4;
     proto_tree *farp_tree;
 
     if (tree) {
@@ -1246,7 +1250,7 @@ dissect_fcels_rps (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 3;
+    unsigned offset = 3;
     uint8_t flag;
     proto_tree *rps_tree;
 
@@ -1299,7 +1303,7 @@ dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *rpl_tree, *pb_tree;
     int loop;
 
@@ -1337,7 +1341,7 @@ dissect_fcels_fan (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                    uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 5;
+    unsigned offset = 5;
     proto_tree *fan_tree;
 
     if (tree) {
@@ -1357,7 +1361,7 @@ dissect_fcels_rscn (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 1;
+    unsigned offset = 1;
     proto_tree *rscn_tree, *rectree;
     int numrec, plen, i;
 
@@ -1398,7 +1402,7 @@ dissect_fcels_scr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 7;
+    unsigned offset = 7;
     proto_tree *scr_tree;
 
     if (tree) {
@@ -1413,7 +1417,7 @@ static void
 dissect_fcels_rnft (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     uint8_t isreq, proto_item *ti)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint16_t numrec, i;
     proto_tree *rnft_tree, *fc4_tree;
 
@@ -1450,7 +1454,7 @@ dissect_fcels_lsts (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 5;
+    unsigned offset = 5;
     proto_tree *lsts_tree;
 
     if (tree) {
@@ -1482,7 +1486,7 @@ static void
 dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
                               uint8_t isreq, proto_item *ti, uint8_t opcode)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t type;
     proto_tree *prli_tree, *svcpg_tree;
     int num_svcpg, payload_len, i, flag;
@@ -1571,7 +1575,7 @@ dissect_fcels_lirr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 4;
+    unsigned offset = 4;
     proto_tree *lirr_tree;
     uint8_t lirr_fmt;
 
@@ -1601,7 +1605,7 @@ dissect_fcels_srl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                    uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 4;
+    unsigned offset = 4;
     proto_tree *srl_tree;
 
     if (tree) {
@@ -1621,7 +1625,7 @@ dissect_fcels_rpsc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 2;
+    unsigned offset = 2;
     int num_entries, i, cap;
     proto_tree *rpsc_tree;
 
@@ -1649,7 +1653,7 @@ static void
 dissect_fcels_cbind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item *ti)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *cbind_tree=NULL;
 
     if (tree) {
@@ -1684,7 +1688,7 @@ static void
 dissect_fcels_unbind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item *ti)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *cbind_tree=NULL;
 
     if (tree) {
@@ -1715,7 +1719,7 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     uint8_t isreq, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
     int clen;
     proto_tree *rnid_tree;
 
@@ -1782,7 +1786,7 @@ dissect_fcels_lsrjt (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 5;
+    unsigned offset = 5;
     proto_tree *lsrjt_tree;
 
     if (tree) {
@@ -1804,7 +1808,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_item *ti = NULL;
     proto_tree *acc_tree;
     uint8_t isreq = FC_ELS_REQ;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t opcode,
            failed_opcode = 0;
     conversation_t *conversation;
@@ -1932,7 +1936,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (tree && (opcode == FC_ELS_ACC)) {
                     /* No record of what this accept is for. Can't decode */
                     acc_tree = proto_item_add_subtree (ti, ett_fcels_acc);
-                    proto_tree_add_expert(acc_tree, pinfo, &ei_fcels_no_record_of_exchange, tvb, offset, -1);
+                    proto_tree_add_expert_remaining(acc_tree, pinfo, &ei_fcels_no_record_of_exchange, tvb, offset);
                     return 0;
                 }
                 failed_opcode = 0;
@@ -1951,7 +1955,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         /* No record of what this accept is for. Can't decode */
                         acc_tree = proto_item_add_subtree (ti,
                                                            ett_fcels_acc);
-                        proto_tree_add_expert(acc_tree, pinfo, &ei_fcels_no_record_of_exchange, tvb, offset, -1);
+                        proto_tree_add_expert_remaining(acc_tree, pinfo, &ei_fcels_no_record_of_exchange, tvb, offset);
                         return 0;
                     }
                 }
@@ -1965,7 +1969,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if ((cdata == NULL) && (opcode != FC_ELS_LSRJT)) {
                     /* No record of what this accept is for. Can't decode */
                     acc_tree = proto_item_add_subtree (ti, ett_fcels_acc);
-                    proto_tree_add_expert(acc_tree, pinfo, &ei_fcels_no_record_of_els_req, tvb, offset, -1);
+                    proto_tree_add_expert_remaining(acc_tree, pinfo, &ei_fcels_no_record_of_els_req, tvb, offset);
                     return 0;
                 }
             }

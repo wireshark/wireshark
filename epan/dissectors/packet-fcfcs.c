@@ -116,7 +116,7 @@ fcfcs_hash (const void *v)
 static void
 dissect_fcfcs_giel (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16;            /* past the ct header */
+    unsigned offset = 16;            /* past the ct header */
     uint32_t numelem, i;
 
     if (!isreq && tree) {
@@ -133,7 +133,7 @@ dissect_fcfcs_giel (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_giet (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
 
     if (tree) {
         if (isreq) {
@@ -148,7 +148,7 @@ dissect_fcfcs_giet (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gdid (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
 
     if (tree) {
         if (isreq) {
@@ -163,7 +163,7 @@ dissect_fcfcs_gdid (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gmid (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
 
     if (tree) {
         if (isreq) {
@@ -178,7 +178,7 @@ dissect_fcfcs_gmid (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gfn (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
 
     if (tree) {
         if (isreq) {
@@ -193,7 +193,7 @@ dissect_fcfcs_gfn (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gieln (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
 
     if (tree) {
         if (isreq) {
@@ -209,7 +209,7 @@ dissect_fcfcs_gieln (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gmal (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
     uint32_t numelem, i;
 
     if (tree) {
@@ -231,7 +231,7 @@ dissect_fcfcs_gmal (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gieil (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
     unsigned len;
     uint32_t tot_len, prevlen;
 
@@ -269,7 +269,7 @@ dissect_fcfcs_gieil (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
     uint32_t numelem, i;
 
     if (tree) {
@@ -297,7 +297,7 @@ dissect_fcfcs_gpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gpt (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
 
     if (tree) {
         if (isreq) {
@@ -312,7 +312,7 @@ dissect_fcfcs_gpt (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gppn (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
 
     if (tree) {
         if (isreq) {
@@ -327,7 +327,7 @@ dissect_fcfcs_gppn (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gapnl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
     uint32_t numelem, i;
 
     if (tree) {
@@ -352,7 +352,7 @@ dissect_fcfcs_gapnl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gps (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
 
     if (tree) {
         if (isreq) {
@@ -368,13 +368,12 @@ dissect_fcfcs_gps (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gplnl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
     uint32_t numelem, i, len;
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+            proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
         }
@@ -393,13 +392,12 @@ dissect_fcfcs_gplnl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gplt (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
-    int len;
+    unsigned offset = 16; /* past the fcct header */
+    uint32_t len;
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+            proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
         }
@@ -413,13 +411,12 @@ dissect_fcfcs_gplt (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gplml (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
     uint32_t numelem, i, len;
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+            proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
         }
@@ -437,16 +434,15 @@ dissect_fcfcs_gplml (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gnpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
-    int len;
+    unsigned offset = 16; /* past the fcct header */
+    uint32_t len;
 
     if (tree) {
         if (isreq) {
             proto_tree_add_item (tree, hf_fcs_platformnname, tvb, offset, 8, ENC_NA);
         }
         else {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+            proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
         }
@@ -456,7 +452,7 @@ dissect_fcfcs_gnpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gpnl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16; /* past the fcct header */
+    unsigned offset = 16; /* past the fcct header */
     uint32_t numelem, i, len;
 
     if (tree) {
@@ -464,8 +460,7 @@ dissect_fcfcs_gpnl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
             proto_tree_add_item_ret_uint(tree, hf_fcfcs_num_platform_name_entries, tvb, offset, 4, ENC_BIG_ENDIAN, &numelem);
             offset += 4;
             for (i = 0; i < numelem; i++) {
-                len = tvb_get_uint8 (tvb, offset);
-                proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+                proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
                 proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                      len, ENC_NA);
                 offset += 256;
@@ -477,7 +472,7 @@ dissect_fcfcs_gpnl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_rieln (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16;            /* past the fc_ct header */
+    unsigned offset = 16;            /* past the fc_ct header */
 
     if (tree) {
         if (isreq) {
@@ -490,13 +485,12 @@ dissect_fcfcs_rieln (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_rpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16;            /* past the fc_ct header */
+    unsigned offset = 16;            /* past the fc_ct header */
     uint32_t numelem, i, len;
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+            proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
             proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+256, 4,
@@ -521,13 +515,12 @@ dissect_fcfcs_rpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_rpln (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16;            /* past the fc_ct header */
-    int len;
+    unsigned offset = 16;            /* past the fc_ct header */
+    uint32_t len;
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+            proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
             proto_tree_add_item (tree, hf_fcs_platformnname, tvb, offset+256,
@@ -539,13 +532,12 @@ dissect_fcfcs_rpln (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_rplt (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16;            /* past the fc_ct header */
-    int len;
+    unsigned offset = 16;            /* past the fc_ct header */
+    uint32_t len;
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+            proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
             proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+256,
@@ -557,13 +549,12 @@ dissect_fcfcs_rplt (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_rplm (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16;            /* past the fc_ct header */
-    int len;
+    unsigned offset = 16;            /* past the fc_ct header */
+    uint32_t len;
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+            proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
             proto_tree_add_item (tree, hf_fcs_platformaddr, tvb, offset+256,
@@ -575,13 +566,12 @@ dissect_fcfcs_rplm (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_dpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16;            /* past the fc_ct header */
-    int len;
+    unsigned offset = 16;            /* past the fc_ct header */
+    uint32_t len;
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+            proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
         }
@@ -591,7 +581,7 @@ dissect_fcfcs_dpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_dpln (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16;            /* past the fc_ct header */
+    unsigned offset = 16;            /* past the fc_ct header */
 
     if (tree) {
         if (isreq) {
@@ -603,13 +593,12 @@ dissect_fcfcs_dpln (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_dplml (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16;            /* past the fc_ct header */
-    int len;
+    unsigned offset = 16;            /* past the fc_ct header */
+    uint32_t len;
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
+            proto_tree_add_item_ret_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, ENC_BIG_ENDIAN , &len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
         }
@@ -619,9 +608,9 @@ dissect_fcfcs_dplml (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_gcap (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 {
-    int offset = 16;            /* past the fc_ct header */
+    unsigned offset = 16;            /* past the fc_ct header */
     int numrec, i;
-    uint8_t subtype;
+    uint32_t subtype;
 
     if (tree) {
         if (!isreq) {
@@ -630,9 +619,8 @@ dissect_fcfcs_gcap (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
             offset += 4;
             for (i = 0; i < numrec; i++) {
-                subtype = tvb_get_uint8 (tvb, offset);
-                proto_tree_add_uint (tree, hf_fcs_mgmt_subtype, tvb, offset,
-                                     1, subtype);
+                proto_tree_add_item_ret_uint (tree, hf_fcs_mgmt_subtype, tvb, offset,
+                                     1, ENC_BIG_ENDIAN,&subtype);
 
                 proto_tree_add_item (tree, hf_fcs_vnd_capmask, tvb, offset+1,
                                      3, ENC_BIG_ENDIAN);
@@ -653,7 +641,7 @@ dissect_fcfcs_gcap (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 static void
 dissect_fcfcs_rjt (tvbuff_t *tvb, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     if (tree) {
         proto_tree_add_item (tree, hf_fcs_reason, tvb, offset+13, 1, ENC_BIG_ENDIAN);
@@ -669,7 +657,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti;
     proto_tree *fcfcs_tree = NULL;
     fc_ct_preamble cthdr;
@@ -746,7 +734,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                  val_to_str(pinfo->pool, opcode, fc_fcs_opcode_abbrev_val,
                                              "0x%x"));
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_expert(fcfcs_tree, pinfo, &ei_fcfcs_no_record_of_exchange, tvb, 0, -1);
+                proto_tree_add_expert_remaining(fcfcs_tree, pinfo, &ei_fcfcs_no_record_of_exchange, tvb, 0);
                 return 0;
             }
         }
@@ -777,7 +765,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_expert(fcfcs_tree, pinfo, &ei_fcfcs_no_record_of_exchange, tvb, 0, -1);
+                proto_tree_add_expert_remaining(fcfcs_tree, pinfo, &ei_fcfcs_no_record_of_exchange, tvb, 0);
                 return 0;
             }
         }
