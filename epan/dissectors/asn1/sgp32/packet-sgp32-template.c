@@ -16,6 +16,7 @@
 
 #include "packet-ber.h"
 #include "packet-media-type.h"
+#include "packet-e212.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
 #include "packet-sgp22.h"
@@ -32,6 +33,7 @@ static int proto_sgp32;
 #include "packet-sgp32-hf.c"
 
 static int ett_sgp32;
+static int ett_sgp32_rPLMN;
 #include "packet-sgp32-ett.c"
 
 #include "packet-sgp32-fn.c"
@@ -169,6 +171,7 @@ void proto_register_sgp32(void)
 
   static int *ett[] = {
     &ett_sgp32,
+    &ett_sgp32_rPLMN,
 #include "packet-sgp32-ettarr.c"
   };
 

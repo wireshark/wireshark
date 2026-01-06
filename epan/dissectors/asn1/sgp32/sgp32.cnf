@@ -35,6 +35,17 @@ EsipaMessageFromEimToIpa VAL_PTR = &choice
     col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(EsipaMessageFromEimToIpa_choice[choice].value, sgp32_EsipaMessageFromEimToIpa_vals, "Unknown"));
   }
 
+#.FN_BODY GetEimPackageRequest/_untag/rPLMN VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sgp32_rPLMN);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, false);
+  }
+
 #.REGISTER
 ISDRProprietaryApplicationTemplateIoT      N sgp32.request   0xE1
 RetrieveNotificationsListRequest           N sgp32.request   0xBF2B

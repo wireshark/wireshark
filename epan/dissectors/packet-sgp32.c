@@ -21,6 +21,7 @@
 
 #include "packet-ber.h"
 #include "packet-media-type.h"
+#include "packet-e212.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
 #include "packet-sgp22.h"
@@ -359,7 +360,7 @@ static int hf_sgp32_cancelSessionOk;              /* CancelSessionOk */
 static int hf_sgp32_cancelSessionError;           /* T_cancelSessionError */
 static int hf_sgp32_notifyStateChange;            /* NULL */
 static int hf_sgp32_stateChangeCause;             /* StateChangeCause */
-static int hf_sgp32_rPLMN;                        /* OCTET_STRING_SIZE_3 */
+static int hf_sgp32_rPLMN;                        /* T_rPLMN */
 static int hf_sgp32_euiccPackageRequest;          /* EuiccPackageRequest */
 static int hf_sgp32_ipaEuiccDataRequest;          /* IpaEuiccDataRequest */
 static int hf_sgp32_profileDownloadTriggerRequest;  /* ProfileDownloadTriggerRequest */
@@ -409,6 +410,7 @@ static int hf_sgp32_T_resetOptions_resetEimConfigData;
 static int hf_sgp32_T_resetOptions_resetImmediateEnableConfig;
 
 static int ett_sgp32;
+static int ett_sgp32_rPLMN;
 static int ett_sgp32_EuiccPackageRequest_U;
 static int ett_sgp32_EuiccPackageSigned;
 static int ett_sgp32_EuiccPackage;
@@ -4244,9 +4246,19 @@ dissect_sgp32_StateChangeCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigne
 
 
 static unsigned
-dissect_sgp32_OCTET_STRING_SIZE_3(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_sgp32_T_rPLMN(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+
   offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
-                                                   3, 3, hf_index, NULL);
+                                                   3, 3, hf_index, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sgp32_rPLMN);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, false);
+  }
+
 
   return offset;
 }
@@ -4256,7 +4268,7 @@ static const ber_sequence_t GetEimPackageRequest_U_sequence[] = {
   { &hf_sgp32_eidValue      , BER_CLASS_APP, 26, BER_FLAGS_IMPLTAG, dissect_sgp22_Octet16 },
   { &hf_sgp32_notifyStateChange, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_NULL },
   { &hf_sgp32_stateChangeCause, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_StateChangeCause },
-  { &hf_sgp32_rPLMN         , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_OCTET_STRING_SIZE_3 },
+  { &hf_sgp32_rPLMN         , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_T_rPLMN },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -6633,7 +6645,7 @@ void proto_register_sgp32(void)
     { &hf_sgp32_rPLMN,
       { "rPLMN", "sgp32.rPLMN",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_3", HFILL }},
+        NULL, HFILL }},
     { &hf_sgp32_euiccPackageRequest,
       { "euiccPackageRequest", "sgp32.euiccPackageRequest_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6822,6 +6834,7 @@ void proto_register_sgp32(void)
 
   static int *ett[] = {
     &ett_sgp32,
+    &ett_sgp32_rPLMN,
     &ett_sgp32_EuiccPackageRequest_U,
     &ett_sgp32_EuiccPackageSigned,
     &ett_sgp32_EuiccPackage,
