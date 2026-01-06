@@ -89,7 +89,7 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     ui->languageComboBox->model()->sort(0);
 
     for (int i = 0; i < ui->languageComboBox->count(); i += 1) {
-        if (QString(language) == ui->languageComboBox->itemData(i).toString()) {
+        if (QString(get_language_used()) == ui->languageComboBox->itemData(i).toString()) {
             ui->languageComboBox->setCurrentIndex(i);
             break;
         }
@@ -141,7 +141,7 @@ void MainWindowPreferencesFrame::updateWidgets()
     ui->mainToolbarComboBox->setCurrentIndex(prefs_get_enum_value(pref_toolbar_main_style_, pref_stashed));
 
     for (int i = 0; i < ui->languageComboBox->count(); i += 1) {
-        if (QString(language) == ui->languageComboBox->itemData(i).toString()) {
+        if (QString(get_language_used()) == ui->languageComboBox->itemData(i).toString()) {
             ui->languageComboBox->setCurrentIndex(i);
             break;
         }
@@ -221,11 +221,9 @@ void MainWindowPreferencesFrame::on_mainToolbarComboBox_currentIndexChanged(int 
     prefs_set_enum_value(pref_toolbar_main_style_, index, pref_stashed);
 }
 
-void MainWindowPreferencesFrame::on_languageComboBox_currentIndexChanged(int index)
+void MainWindowPreferencesFrame::on_languageComboBox_currentIndexChanged(int index _U_)
 {
-    g_free(language);
-
-    language = qstring_strdup(ui->languageComboBox->itemData(index).toString());
+    set_language_used(ui->languageComboBox->itemData(index).toString().toUtf8().constData());
 }
 
 void MainWindowPreferencesFrame::on_windowTitle_textEdited(const QString &new_title)

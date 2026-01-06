@@ -30,6 +30,16 @@ typedef struct {
     uint16_t blue;  /**< Blue channel (0–65535) */
 } color_t;
 
+/*
+ * Extract the red, green, and blue components of a 24-bit RGB value
+ * and convert them from [0,255] to [0,65535]. Colors are 16 bits
+ * because that's what GdkColor used.
+ * We might want to use a more standard, copy+paste-able color scheme
+ * such as #RRGGBB instead.
+ */
+#define RED_COMPONENT(x)   (uint16_t) (((((x) >> 16) & 0xff) * 65535 / 255))
+#define GREEN_COMPONENT(x) (uint16_t) (((((x) >>  8) & 0xff) * 65535 / 255))
+#define BLUE_COMPONENT(x)  (uint16_t) ( (((x)        & 0xff) * 65535 / 255))
 
 /**
  * @brief Convert a color_t to 24-bit RGB.

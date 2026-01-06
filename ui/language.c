@@ -14,67 +14,98 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <epan/prefs.h>
-#include <epan/prefs-int.h>
+#include <ui/ui_prefs.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
-#include <app/application_flavor.h>
 
 #include "ui/language.h"
-#include "ui/simple_dialog.h"
 
 #define LANGUAGE_FILE_NAME      "language"
 #define LANGUAGE_PREF_LANGUAGE  "language"
 
-char *language;
+static char *language = USE_SYSTEM_LANGUAGE;
+static module_t* language_module;
 
-/* set one user's recent common file key/value pair */
-static prefs_set_pref_e
-read_language_pref(char *key, const char *value,
-                   void *private_data _U_, bool return_range_errors _U_)
+
+char* get_language_used(void)
 {
-    if (strcmp(key, LANGUAGE_PREF_LANGUAGE) == 0) {
-        g_free(language);
-        /*
-         * For backwards compatibility, treat "auto" as meaning "use the
-         * system language".
-         *
-         * To handle the old buggy code that didn't check whether "language"
-         * was null before trying to print it, treat "(null)" - which many,
-         * but *NOT* all, system printfs print for a null pointer (some
-         * printfs, such as the one in Solaris, *crash* with %s and a null
-         * pointer) - as meaning "use the system language".
-         */
-        if (!value || !*value || strcmp(value, "auto") == 0 ||
-            strcmp(value, "(null)") == 0)
-            language = g_strdup(USE_SYSTEM_LANGUAGE);
-        else
-            language = g_strdup(value);
-    }
+    return language;
+}
 
-    return PREFS_SET_OK;
+void set_language_used(const char* lang)
+{
+    wmem_free(language_module->scope, language);
+    language = wmem_strdup(language_module->scope, lang);
+}
+
+
+static pref_t*
+language_deprecated_settings(module_t* module, const char* name)
+{
+        if (strcmp(name, "language") == 0) {
+                return prefs_find_preference(module, LANGUAGE_PREF_LANGUAGE);
+        }
+
+        return NULL;
+}
+
+static void
+language_apply_cb(void)
+{
+    /*
+     * For backwards compatibility, treat "auto" as meaning "use the
+     * system language".
+     *
+     * To handle the old buggy code that didn't check whether "language"
+     * was null before trying to print it, treat "(null)" - which many,
+     * but *NOT* all, system printfs print for a null pointer (some
+     * printfs, such as the one in Solaris, *crash* with %s and a null
+     * pointer) - as meaning "use the system language".
+     */
+    if ((language == NULL) || !*language || strcmp(language, "auto") == 0 ||
+        strcmp(language, "(null)") == 0) {
+        wmem_free(language_module->scope, language);
+        language = wmem_strdup(language_module->scope, USE_SYSTEM_LANGUAGE);
+    }
+}
+
+void language_init(void)
+{
+    language_module = ui_prefs_register_module("ui_language", "Language options", "Language options", NULL, language_apply_cb, language_deprecated_settings);
+    /* Language preferences don't affect dissection */
+    prefs_set_module_effect_flags(language_module, PREF_EFFECT_GUI);
+
+    prefs_register_string_preference(language_module, LANGUAGE_PREF_LANGUAGE, "Language",
+                                    "The language used for displaying application text", (const char**)&language);
+
+}
+
+void language_cleanup(void)
+{
 }
 
 void
-read_language_prefs(void)
+read_language_prefs(const char* app_env_var_prefix)
 {
     char       *rf_path;
     FILE       *rf;
 
-    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false, application_configuration_environment_prefix());
+    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false, app_env_var_prefix);
 
     if ((rf = ws_fopen(rf_path, "r")) != NULL) {
-        read_prefs_file(rf_path, rf, read_language_pref, NULL);
+        read_prefs_file(rf_path, rf, ui_prefs_read_pref, NULL);
 
         fclose(rf);
     }
+
+    prefs_apply(language_module);
 
     g_free(rf_path);
 }
 
 bool
-write_language_prefs(void)
+write_language_prefs(const char* app_env_var_prefix, char** err_info)
 {
     char        *pf_dir_path;
     char        *rf_path;
@@ -88,19 +119,18 @@ write_language_prefs(void)
 
     /* Create the directory that holds personal configuration files, if
         necessary.  */
-    if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        "Can't create directory\n\"%s\"\nfor language file: %s.", pf_dir_path,
-        g_strerror(errno));
+    if (create_persconffile_dir(app_env_var_prefix, &pf_dir_path) == -1) {
+        *err_info = g_strdup_printf("Can't create directory\n\"%s\"\nfor language file: %s.",
+                                    pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
         return false;
     }
+    g_free(pf_dir_path);
 
-    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false, application_configuration_environment_prefix());
+    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false, app_env_var_prefix);
     if ((rf = ws_fopen(rf_path, "w")) == NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        "Can't open recent file\n\"%s\": %s.", rf_path,
-        g_strerror(errno));
+        *err_info = g_strdup_printf("Can't open recent file\n\"%s\": %s.",
+                                    rf_path, g_strerror(errno));
         g_free(rf_path);
         return false;
     }
@@ -112,7 +142,9 @@ write_language_prefs(void)
         "# So be careful, if you want to make manual changes here.\n"
         "\n", rf);
 
-    fprintf(rf, LANGUAGE_PREF_LANGUAGE ": %s\n", language ? language : USE_SYSTEM_LANGUAGE);
+    ui_prefs_write_pref_arg_t pref_args;
+    pref_args.pf = rf;
+    ui_prefs_write_module(language_module, &pref_args);
 
     fclose(rf);
 

@@ -68,6 +68,7 @@
 #include "ui/persfilepath_opt.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
+#include "ui/init.h"
 #include "ui/util.h"
 #include "ui/dissect_opts.h"
 #include "ui/commandline.h"
@@ -589,6 +590,7 @@ int main(int argc, char *qt_argv[])
     }
 
     profile_store_persconffiles(true);
+    ui_init();
     recent_init();
 
     /* Read the profile independent recent file.  We have to do this here so we can */
@@ -680,8 +682,8 @@ int main(int argc, char *qt_argv[])
     ssApp->applyCustomColorsFromRecent();
 
     // Initialize our language
-    read_language_prefs();
-    ssApp->loadLanguage(language);
+    read_language_prefs(application_configuration_environment_prefix());
+    ssApp->loadLanguage(get_language_used());
 
     /* ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_DEBUG, "Translator %s", language); */
 
@@ -1073,6 +1075,7 @@ int main(int argc, char *qt_argv[])
     delete main_w;
 
     recent_cleanup();
+    ui_cleanup();
     epan_cleanup();
 
     extcap_cleanup();

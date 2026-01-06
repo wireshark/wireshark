@@ -67,8 +67,6 @@ static void free_col_info(GList *);
 static void prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, int num_cols);
 static bool prefs_is_column_visible(const char *cols_hidden, int col);
 static bool prefs_is_column_fmt_visible(const char *cols_hidden, fmt_data *cfmt);
-static unsigned prefs_module_list_foreach(const wmem_tree_t *module_list, module_cb callback,
-                          void *user_data, bool skip_obsolete);
 static int find_val_for_string(const char *needle, const enum_val_t *haystack, int default_value);
 
 #define PF_NAME         "preferences"
@@ -208,7 +206,7 @@ struct preference {
     int ordinal;                     /**< ordinal number of this preference */
     pref_type_e type;                /**< type of that preference */
     bool obsolete;                   /**< obsolete preference flag */
-    unsigned int effect_flags;       /**< Flags of types effected by preference (PREF_TYPE_DISSECTION, PREF_EFFECT_CAPTURE, etc).
+    unsigned int effect_flags;       /**< Flags of types effected by preference (PREF_EFFECT_DISSECTION, PREF_EFFECT_CAPTURE, etc).
                                           Flags must be non-zero to ensure saving to disk */
     union {                          /* The Qt preference code assumes that these will all be pointers (and unique) */
         unsigned *uint;
@@ -335,8 +333,8 @@ free_string_like_preference(pref_t *pref)
     pref->default_val.string = NULL;
 }
 
-static void
-free_pref(void *data, void *user_data _U_)
+void
+pref_free_individual(void *data, void *user_data _U_)
 {
     pref_t *pref = (pref_t *)data;
 
@@ -380,7 +378,7 @@ static unsigned
 free_module_prefs(module_t *module, void *data _U_)
 {
     if (module->prefs) {
-        g_list_foreach(module->prefs, free_pref, NULL);
+        g_list_foreach(module->prefs, pref_free_individual, NULL);
         g_list_free(module->prefs);
     }
     module->prefs = NULL;
@@ -485,7 +483,7 @@ prefs_create_module(wmem_allocator_t* scope, module_t* parent, const char* name,
  * in a preferences dialog box, and a routine to call back when the
  * preferences are applied.
  */
-static module_t*
+module_t*
 prefs_register_module(wmem_tree_t* pref_tree, wmem_tree_t* master_pref_tree, const char* name, const char* title,
     const char* description, const char* help, void (*apply_cb)(void),
     const bool use_gui)
@@ -835,7 +833,7 @@ call_foreach_cb(const void *key _U_, void *value, void *data)
     return (call_data->ret != 0);
 }
 
-static unsigned
+unsigned
 prefs_module_list_foreach(const wmem_tree_t *module_list, module_cb callback,
                           void *user_data, bool skip_obsolete)
 {
@@ -5320,14 +5318,6 @@ prefs_has_layout_pane_content (layout_pane_content_e layout_pane_content)
             (prefs.gui_layout_content_3 == layout_pane_content));
 }
 
-/*
- * Extract the red, green, and blue components of a 24-bit RGB value
- * and convert them from [0,255] to [0,65535].
- */
-#define RED_COMPONENT(x)   (uint16_t) (((((x) >> 16) & 0xff) * 65535 / 255))
-#define GREEN_COMPONENT(x) (uint16_t) (((((x) >>  8) & 0xff) * 65535 / 255))
-#define BLUE_COMPONENT(x)  (uint16_t) ( (((x)        & 0xff) * 65535 / 255))
-
 char
 string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
 {
@@ -6549,8 +6539,8 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source)
 /*
  * Write out a single dissector preference.
  */
-static void
-write_pref(void *data, void *user_data)
+void
+pref_write_individual(void *data, void *user_data)
 {
     pref_t *pref = (pref_t *)data;
     write_pref_arg_t *arg = (write_pref_arg_t *)user_data;
@@ -6660,7 +6650,8 @@ count_non_uat_pref(void *data, void *user_data)
     }
 }
 
-static int num_non_uat_prefs(module_t *module)
+int
+prefs_num_non_uat(module_t *module)
 {
     int num = 0;
 
@@ -6686,7 +6677,7 @@ write_module_prefs(module_t *module, void *user_data)
     /* Write a header for the main modules and GUI sub-modules */
     if (((module->parent == NULL) || (module->parent == gui_module)) &&
         ((prefs_module_has_submodules(module)) ||
-         (num_non_uat_prefs(module) > 0) ||
+         (prefs_num_non_uat(module) > 0) ||
          (module->name == NULL))) {
          if ((module->name == NULL) && (module->parent != NULL)) {
             fprintf(gui_pref_arg->pf, "\n####### %s: %s ########\n", module->parent->title, module->title);
@@ -6697,7 +6688,7 @@ write_module_prefs(module_t *module, void *user_data)
 
     arg.module = module;
     arg.pf = gui_pref_arg->pf;
-    g_list_foreach(arg.module->prefs, write_pref, &arg);
+    g_list_foreach(arg.module->prefs, pref_write_individual, &arg);
 
     if (prefs_module_has_submodules(module))
         return prefs_modules_foreach_submodules(module->submodules, write_module_prefs, user_data);

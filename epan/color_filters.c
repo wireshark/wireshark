@@ -44,10 +44,6 @@
  * such as #RRGGBB instead.
  */
 
-#define RED_COMPONENT(x)   (uint16_t) (((((x) >> 16) & 0xff) * 65535 / 255))
-#define GREEN_COMPONENT(x) (uint16_t) (((((x) >>  8) & 0xff) * 65535 / 255))
-#define BLUE_COMPONENT(x)  (uint16_t) ( (((x)        & 0xff) * 65535 / 255))
-
 static int read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb);
 
 /* the currently active filters */

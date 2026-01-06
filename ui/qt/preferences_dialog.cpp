@@ -418,8 +418,12 @@ void PreferencesDialog::apply()
         g_free(err);
     }
 
-    write_language_prefs();
-    mainApp->loadLanguage(QString(language));
+    if (!write_language_prefs(application_configuration_environment_prefix(), &err))
+    {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
+        g_free(err);
+    }
+    mainApp->loadLanguage(QString(get_language_used()));
     /*
      * Apply the protocol preferences first - "gui_prefs_apply()" could
      * cause redissection, and we have to make sure the protocol

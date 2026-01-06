@@ -103,8 +103,9 @@ software_update_init(const char* su_application, const char* su_version) {
     win_sparkle_set_update_check_interval(prefs.gui_update_interval);
     win_sparkle_set_can_shutdown_callback(software_update_can_shutdown_callback);
     win_sparkle_set_shutdown_request_callback(software_update_shutdown_request_callback);
-    if ((language != NULL) && (strcmp(language, "system") != 0)) {
-        win_sparkle_set_lang(language);
+    const char* ws_language = get_language_used();
+    if ((ws_language != NULL) && (strcmp(ws_language, USE_SYSTEM_LANGUAGE) != 0)) {
+        win_sparkle_set_lang(ws_language);
     }
     win_sparkle_init();
 }

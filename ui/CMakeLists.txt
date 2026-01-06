@@ -22,6 +22,7 @@ set(NONGENERATED_UI_SRC
 	firewall_rules.c
 	iface_toolbar.c
 	iface_lists.c
+	init.c
 	io_graph_item.c
 	language.c
 	mcast_stream.c
@@ -49,6 +50,7 @@ set(NONGENERATED_UI_SRC
 	text_import_regex.c
 	time_shift.c
 	util.c
+	ui_prefs.c
 	voip_calls.c
 )
 

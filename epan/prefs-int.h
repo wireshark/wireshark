@@ -46,7 +46,7 @@ struct pref_module {
                                   * use simple GUI controls to change the options.  In general, the "general"
                                   * Wireshark preferences should have this set to false, while the protocol
                                   * modules will have this set to true */
-    unsigned int effect_flags;  /**< Flags of types effected by preference (PREF_TYPE_DISSECTION, PREF_EFFECT_CAPTURE, etc).
+    unsigned int effect_flags;  /**< Flags of types effected by preference (PREF_EFFECT_DISSECTION, PREF_EFFECT_CAPTURE, etc).
                                      These flags will be set in all module's preferences on creation. Flags must be non-zero
                                      to ensure saving to disk */
 };
@@ -172,6 +172,20 @@ void prefs_set_effect_flags_by_name(module_t * module, const char *pref, unsigne
  */
 WS_DLL_PUBLIC
 unsigned int prefs_get_module_effect_flags(module_t * module);
+
+/** Iterate through all modules with preferences
+ *
+ * @param module_list The tree of modules to iterate through
+ * @param callback The callback function to call for each module
+ * @param user_data User data to pass to the callback function
+ * @param skip_obsolete If true, skip obsolete preferences
+ *
+ * @return The return value of the callback function if it returns non-zero,
+ *         otherwise 0
+ */
+WS_DLL_PUBLIC
+unsigned prefs_module_list_foreach(const wmem_tree_t* module_list, module_cb callback,
+    void* user_data, bool skip_obsolete);
 
 /** Set flags for module's preferences effect
  * The intention is to distinguish preferences that affect

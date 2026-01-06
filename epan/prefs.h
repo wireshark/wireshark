@@ -399,6 +399,30 @@ WS_DLL_PUBLIC module_t *prefs_register_protocol_subtree(const char *subtree, int
  */
 WS_DLL_PUBLIC module_t *prefs_register_protocol_obsolete(int id);
 
+/*
+ * Register a module that will have preferences.
+ * Specify the module under which to register it, the name used for the
+ * module in the preferences file, the title used in the tab for it
+ * in a preferences dialog box, and a routine to call back when the
+ * preferences are applied.
+ *
+ * @param pref_tree "Parent" preference tree under which to register this module.
+ * @param master_pref_tree List of all preference modules.
+ * @param name is a name for the module to use on the command line with "-o"
+ *             and in preference files.
+ * @param title the module title in the preferences UI
+ * @param description the description included in the preferences file
+ *                    and shown as tooltip in the GUI, or NULL
+ * @param help The help string associated with the module, or NULL
+ * @param apply_cb Callback routine that is called when preferences are
+ *                      applied. It may be NULL, which inhibits the callback.
+ * @return a preferences module which can be used to register a user 'preference'
+ */
+WS_DLL_PUBLIC module_t*
+prefs_register_module(wmem_tree_t* pref_tree, wmem_tree_t* master_pref_tree, const char* name, const char* title,
+    const char* description, const char* help, void (*apply_cb)(void),
+    const bool use_gui);
+
 /**
  * Callback function for module list scanners.
  */
@@ -965,6 +989,16 @@ char *prefs_pref_type_description(pref_t *pref);
 WS_DLL_PUBLIC
 char *prefs_pref_to_str(pref_t *pref, pref_source_t source);
 
+/** Fetch the number of preferences in a module that are not UATs.
+ *
+ * @param module A preference module.
+ *
+ * @return The number of non-UAT preferences in the module.
+ */
+WS_DLL_PUBLIC
+int prefs_num_non_uat(module_t* module);
+
+
 /** Fetch whether a preference is marked obsolete.
  *
  * @param pref A preference.
@@ -998,6 +1032,22 @@ extern e_prefs *read_prefs(const char* app_env_var_prefix);
  * @return 0 if success, otherwise errno
 */
 WS_DLL_PUBLIC int write_prefs(const char* app_env_var_prefix, char **pf_path_return);
+
+/**
+ * Callback function for writing individual preferences.
+ *
+ * @param data A preference pointer of type pref_t*
+ * @param user_data write_pref_arg_t* pointer
+ */
+WS_DLL_PUBLIC void pref_write_individual(void* data, void* user_data);
+
+/**
+ * Callback function for freeing individual preferences.
+ *
+ * @param data A preference pointer of type pref_t*
+ * @param user_data unused
+ */
+WS_DLL_PUBLIC void pref_free_individual(void* data, void* user_data);
 
 /**
  * Result of setting a preference.
