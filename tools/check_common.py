@@ -169,7 +169,7 @@ class Result:
 
     def error(self, *args):
         print('Error: ' + " ".join(map(str, args)), file=self.out)
-        self.warnings += 1
+        self.errors += 1
 
     def note(self, *args):
         print('Note: ' + " ".join(map(str, args)), file=self.out)

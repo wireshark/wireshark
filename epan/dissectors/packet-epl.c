@@ -5340,10 +5340,9 @@ proto_register_epl(void)
 			{ "NetTime", "epl.soc.nettime",
 				FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }
 		},
-		/* TODO: should this be FT_RELATIVE_TIME? */
 		{ &hf_epl_soc_relativetime,
 			{ "RelativeTime", "epl.soc.relativetime",
-				FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+				FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 
 		/* PReq data fields*/

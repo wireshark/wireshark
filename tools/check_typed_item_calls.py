@@ -230,9 +230,9 @@ class EncodingCheckerBasic:
 
         # Are more encodings allowed?
         if not self.allow_multiple and self.encodings_seen >= 1:
-            result.error(api_check.file + ':' + str(call.line_number),
-                         api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' with encoding', encoding, 'but only one encoding flag allowed for type')
-            # TODO: enable once error count is zero..
+            # Would ideally make this error once confident about result
+            result.warn(api_check.file + ':' + str(call.line_number),
+                        api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' with encoding', encoding, 'but only one encoding flag allowed for type')
 
         # Is this encoding allowed for this type?
         if encoding not in self.allowed_encodings:
@@ -2197,16 +2197,26 @@ def check_double_fetches(filename, contents, items, result):
         first_next_token = next_line_tokens[0]
 
         mask_value = 'unknown'
+        item_type = 'unknown'
         if full_hf_name in items:
             mask_value = items[full_hf_name].mask_value
+            item_type = items[full_hf_name].item_type
 
         # TODO: verify same value of offset for both calls?
 
+        # Make sure item is of an integer type
+        if 'FT_UINT' not in item_type:
+            continue
+
         if 'tvb_get_ntohl' in prev_line and hf_name.endswith(first_prev_token) and '=' in prev_line_tokens:
-            result.warn(filename, 'PREV: val=', first_prev_token, 'hfname=', hf_name, 'mask=', mask_value, '- use proto_tree_add_item_ret_uint() ?\n',
+            result.warn(filename, 'PREV: val=', first_prev_token, 'hfname=', hf_name,
+                        'mask=', mask_value, 'type=', item_type,
+                        '- use proto_tree_add_item_ret_uint() ?\n',
                         m.group(0))
         elif 'tvb_get_ntohl' in next_line and hf_name.endswith(first_next_token) and '=' in next_line_tokens:
-            result.warn(filename, 'NEXT: val=', first_next_token, 'hfname=', hf_name, 'mask=', mask_value,  '- use proto_tree_add_item_ret_uint() ?\n',
+            result.warn(filename, 'NEXT: val=', first_next_token, 'hfname=', hf_name,
+                        'mask=', mask_value, 'type=', item_type,
+                        '- use proto_tree_add_item_ret_uint() ?\n',
                         m.group(0))
 
 

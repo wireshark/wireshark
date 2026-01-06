@@ -347,8 +347,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     case CONTROL_STATE_GREETING:
         proto_tree_add_item(twamp_tree, hf_twamp_control_unused, tvb, offset, 12, ENC_NA);
         offset += 12;
-        modes = tvb_get_ntohl(tvb, offset) & 0x00000007;
-        item = proto_tree_add_item(twamp_tree, hf_twamp_control_modes, tvb, offset, 4, ENC_BIG_ENDIAN);
+        item = proto_tree_add_item_ret_uint(twamp_tree, hf_twamp_control_modes, tvb, offset, 4, ENC_BIG_ENDIAN, &modes);
         proto_item_append_text(item, " (%s%s%s)",
                 (modes & TWAMP_MODE_UNAUTHENTICATED) ? " Unauthenticated " : "",
                 (modes & TWAMP_MODE_AUTHENTICATED) ? "Authenticated " : "",
