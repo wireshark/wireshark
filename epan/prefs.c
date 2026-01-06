@@ -64,7 +64,7 @@ static void prefs_register_modules(void);
 static module_t *prefs_find_module_alias(const char *name);
 static prefs_set_pref_e set_pref(char*, const char*, void *, bool);
 static void free_col_info(GList *);
-static void prefs_set_global_defaults(const char** col_fmt, int num_cols);
+static void prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, int num_cols);
 static bool prefs_is_column_visible(const char *cols_hidden, int col);
 static bool prefs_is_column_fmt_visible(const char *cols_hidden, fmt_data *cfmt);
 static unsigned prefs_module_list_foreach(const wmem_tree_t *module_list, module_cb callback,
@@ -213,6 +213,7 @@ struct preference {
     const char *name;                /**< name of preference */
     const char *title;               /**< title to use in GUI */
     const char *description;         /**< human-readable description of preference */
+    wmem_allocator_t* scope;         /**< memory scope allocator for this preference */
     int ordinal;                     /**< ordinal number of this preference */
     pref_type_e type;                /**< type of that preference */
     bool obsolete;                   /**< obsolete preference flag */
@@ -322,7 +323,7 @@ prefs_init(const char** col_fmt, int num_cols)
     prefs_top_level_modules = wmem_tree_new(wmem_epan_scope());
     prefs_module_aliases = wmem_tree_new(wmem_epan_scope());
 
-    prefs_set_global_defaults(col_fmt, num_cols);
+    prefs_set_global_defaults(wmem_epan_scope(), col_fmt, num_cols);
     prefs_register_modules();
 }
 
@@ -337,9 +338,9 @@ const wmem_tree_t* prefs_get_module_tree(void)
 static void
 free_string_like_preference(pref_t *pref)
 {
-    g_free(*pref->varp.string);
+    wmem_free(pref->scope, *pref->varp.string);
     *pref->varp.string = NULL;
-    g_free(pref->default_val.string);
+    wmem_free(pref->scope, pref->default_val.string);
     pref->default_val.string = NULL;
 }
 
@@ -366,9 +367,9 @@ free_pref(void *data, void *user_data _U_)
         break;
     case PREF_RANGE:
     case PREF_DECODE_AS_RANGE:
-        wmem_free(wmem_epan_scope(), *pref->varp.range);
+        wmem_free(pref->scope, *pref->varp.range);
         *pref->varp.range = NULL;
-        wmem_free(wmem_epan_scope(), pref->default_val.range);
+        wmem_free(pref->scope, pref->default_val.range);
         pref->default_val.range = NULL;
         break;
     case PREF_CUSTOM:
@@ -381,7 +382,7 @@ free_pref(void *data, void *user_data _U_)
         break;
     }
 
-    g_free(pref);
+    wmem_free(pref->scope, pref);
 }
 
 static unsigned
@@ -439,7 +440,7 @@ prefs_deregister_module(wmem_tree_t* pref_tree, const char *name, const char *ti
 
     wmem_tree_remove_string(pref_tree, title, WMEM_TREE_STRING_NOCASE);
     free_module_prefs(module, NULL);
-    wmem_free(wmem_epan_scope(), module);
+    wmem_free(module->scope, module);
 }
 
 static void
@@ -461,17 +462,18 @@ prefs_update_existing_subtree(module_t* module, const char* name, const char* de
 }
 
 static module_t*
-prefs_create_module(module_t* parent, const char* name,
+prefs_create_module(wmem_allocator_t* scope, module_t* parent, const char* name,
     const char* title, const char* description,
     const char* help, void (*apply_cb)(void),
     bool use_gui)
 {
-    module_t* module = wmem_new(wmem_epan_scope(), module_t);
+    module_t* module = wmem_new(scope, module_t);
     module->name = name;
     module->title = title;
     module->description = description;
     module->help = help;
     module->apply_cb = apply_cb;
+    module->scope = scope;
     module->prefs = NULL;    /* no preferences, to start */
     module->parent = parent;
     module->submodules = NULL;    /* no submodules, to start */
@@ -506,7 +508,7 @@ prefs_register_module(wmem_tree_t* pref_tree, wmem_tree_t* master_pref_tree, con
         return module;
     }
 
-    module = prefs_create_module(NULL, name, title, description, help, apply_cb, use_gui);
+    module = prefs_create_module(wmem_tree_get_data_scope(master_pref_tree), NULL, name, title, description, help, apply_cb, use_gui);
 
     /* Accept any letter case to conform with protocol names. ASN1 protocols
      * don't use lower case names, so we can't require lower case.
@@ -557,7 +559,7 @@ prefs_register_submodule(module_t* parent, wmem_tree_t* master_pref_tree, const 
         return module;
     }
 
-    module = prefs_create_module(parent, name, title, description, help, apply_cb, use_gui);
+    module = prefs_create_module(wmem_tree_get_data_scope(master_pref_tree), parent, name, title, description, help, apply_cb, use_gui);
 
     /* Accept any letter case to conform with protocol names. ASN1 protocols
      * don't use lower case names, so we can't require lower case. */
@@ -590,7 +592,7 @@ prefs_register_submodule(module_t* parent, wmem_tree_t* master_pref_tree, const 
      */
 
     if (parent->submodules == NULL)
-        parent->submodules = wmem_tree_new(wmem_epan_scope());
+        parent->submodules = wmem_tree_new(parent->scope);
 
     wmem_tree_insert_string(parent->submodules, title, module, WMEM_TREE_STRING_NOCASE);
 
@@ -616,14 +618,14 @@ prefs_register_subtree(module_t* parent, wmem_tree_t* master_pref_tree, const ch
         return module;
     }
 
-    module = prefs_create_module(parent, NULL, title, description, NULL, apply_cb, parent->use_gui);
+    module = prefs_create_module(wmem_tree_get_data_scope(master_pref_tree), parent, NULL, title, description, NULL, apply_cb, parent->use_gui);
 
 
     /*
      * It goes into the list for this module.
      */
     if (parent->submodules == NULL)
-        parent->submodules = wmem_tree_new(wmem_epan_scope());
+        parent->submodules = wmem_tree_new(parent->scope);
 
     wmem_tree_insert_string(parent->submodules, title, module, WMEM_TREE_STRING_NOCASE);
 
@@ -658,7 +660,7 @@ prefs_register_module_alias(const char *name, module_t *module)
     if (prefs_find_module_alias(name) != NULL)
         ws_error("Preference module alias \"%s\" is being registered twice", name);
 
-    alias = wmem_new(wmem_epan_scope(), module_alias_t);
+    alias = wmem_new(wmem_tree_get_data_scope(prefs_module_aliases), module_alias_t);
     alias->name = name;
     alias->module = module;
 
@@ -710,7 +712,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
     if (subtree) {
         /* take a copy of the buffer, orig keeps a base pointer while ptr
          * walks through the string */
-        orig = ptr = g_strdup(subtree);
+        orig = ptr = wmem_strdup(subtree_module->scope, subtree);
 
         while (ptr && *ptr) {
 
@@ -723,7 +725,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
                  * being the name (if it's later registered explicitly
                  * with a description, that will override it).
                  */
-                ptr = wmem_strdup(wmem_epan_scope(), ptr);
+                ptr = wmem_strdup(wmem_tree_get_data_scope(prefs_modules), ptr);
                 new_module = prefs_register_subtree(subtree_module, prefs_modules, ptr, ptr, NULL);
             }
 
@@ -732,7 +734,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 
         }
 
-        g_free(orig);
+        wmem_free(subtree_module->scope, orig);
     }
 
     protocol = find_protocol_by_id(id);
@@ -977,9 +979,10 @@ register_preference(module_t *module, const char *name, const char *title,
     const char *p;
     const char *name_prefix = (module->name != NULL) ? module->name : module->parent->name;
 
-    preference = g_new(pref_t,1);
+    preference = wmem_new(module->scope, pref_t);
     preference->name = name;
     preference->title = title;
+    preference->scope = module->scope;
     preference->description = description;
     preference->type = type;
     preference->obsolete = obsolete;
@@ -1430,15 +1433,15 @@ register_string_like_preference(module_t *module, const char *name,
      */
     tmp = *var;
     if (*var == NULL) {
-        *var = g_strdup("");
+        *var = wmem_strdup(pref->scope, "");
     } else {
-        *var = g_strdup(*var);
+        *var = wmem_strdup(pref->scope, *var);
     }
     if (free_tmp) {
-        g_free(tmp);
+        wmem_free(pref->scope, tmp);
     }
     pref->varp.string = var;
-    pref->default_val.string = g_strdup(*var);
+    pref->default_val.string = wmem_strdup(pref->scope, *var);
     pref->stashed_val.string = NULL;
     if (type == PREF_CUSTOM) {
         ws_assert(custom_cbs);
@@ -1452,10 +1455,8 @@ register_string_like_preference(module_t *module, const char *name,
 static void
 pref_set_string_like_pref_value(pref_t *pref, const char *value)
 {
-DIAG_OFF(cast-qual)
-    g_free((void *)*pref->varp.string);
-DIAG_ON(cast-qual)
-    *pref->varp.string = g_strdup(value);
+    wmem_free(pref->scope, *pref->varp.string);
+    *pref->varp.string = wmem_strdup(pref->scope, value);
 }
 
 /*
@@ -1472,22 +1473,22 @@ prefs_set_string_value(pref_t *pref, const char* value, pref_source_t source)
         if (*pref->default_val.string) {
             if (strcmp(pref->default_val.string, value) != 0) {
                 changed = prefs_get_effect_flags(pref);
-                g_free(pref->default_val.string);
-                pref->default_val.string = g_strdup(value);
+                wmem_free(pref->scope, pref->default_val.string);
+                pref->default_val.string = wmem_strdup(pref->scope, value);
             }
         } else if (value) {
-            pref->default_val.string = g_strdup(value);
+            pref->default_val.string = wmem_strdup(pref->scope, value);
         }
         break;
     case pref_stashed:
         if (pref->stashed_val.string) {
             if (strcmp(pref->stashed_val.string, value) != 0) {
                 changed = prefs_get_effect_flags(pref);
-                g_free(pref->stashed_val.string);
-                pref->stashed_val.string = g_strdup(value);
+                wmem_free(pref->scope, pref->stashed_val.string);
+                pref->stashed_val.string = wmem_strdup(pref->scope, value);
             }
         } else if (value) {
-            pref->stashed_val.string = g_strdup(value);
+            pref->stashed_val.string = wmem_strdup(pref->scope, value);
         }
         break;
     case pref_current:
@@ -1532,8 +1533,8 @@ const char *prefs_get_string_value(pref_t *pref, pref_source_t source)
 static void
 reset_string_like_preference(pref_t *pref)
 {
-    g_free(*pref->varp.string);
-    *pref->varp.string = g_strdup(pref->default_val.string);
+    wmem_free(pref->scope, *pref->varp.string);
+    *pref->varp.string = wmem_strdup(pref->scope, pref->default_val.string);
 }
 
 /*
@@ -1598,9 +1599,9 @@ prefs_register_range_preference_common(module_t *module, const char *name,
      * If the value is a null pointer, make it an empty range.
      */
     if (*var == NULL)
-        *var = range_empty(wmem_epan_scope());
+        *var = range_empty(preference->scope);
     preference->varp.range = var;
-    preference->default_val.range = range_copy(wmem_epan_scope(), *var);
+    preference->default_val.range = range_copy(preference->scope, *var);
     preference->stashed_val.range = NULL;
 
     return preference;
@@ -1624,17 +1625,17 @@ prefs_set_range_value_work(pref_t *pref, const char *value,
 {
     range_t *newrange;
 
-    if (range_convert_str_work(wmem_epan_scope(), &newrange, value, pref->info.max_value,
+    if (range_convert_str_work(pref->scope, &newrange, value, pref->info.max_value,
                                return_range_errors) != CVT_NO_ERROR) {
         return false;        /* number was bad */
     }
 
     if (!ranges_are_equal(*pref->varp.range, newrange)) {
         *changed_flags |= prefs_get_effect_flags(pref);
-        wmem_free(wmem_epan_scope(), *pref->varp.range);
+        wmem_free(pref->scope, *pref->varp.range);
         *pref->varp.range = newrange;
     } else {
-        wmem_free(wmem_epan_scope(), newrange);
+        wmem_free(pref->scope, newrange);
     }
     return true;
 }
@@ -1647,16 +1648,16 @@ prefs_set_stashed_range_value(pref_t *pref, const char *value)
 {
     range_t *newrange;
 
-    if (range_convert_str_work(wmem_epan_scope(), &newrange, value, pref->info.max_value,
+    if (range_convert_str_work(pref->scope, &newrange, value, pref->info.max_value,
                                true) != CVT_NO_ERROR) {
         return 0;        /* number was bad */
     }
 
     if (!ranges_are_equal(pref->stashed_val.range, newrange)) {
-        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
+        wmem_free(pref->scope, pref->stashed_val.range);
         pref->stashed_val.range = newrange;
     } else {
-        wmem_free(wmem_epan_scope(), newrange);
+        wmem_free(pref->scope, newrange);
     }
     return prefs_get_effect_flags(pref);
 
@@ -1709,22 +1710,22 @@ bool prefs_set_range_value(pref_t *pref, range_t *value, pref_source_t source)
     {
     case pref_default:
         if (!ranges_are_equal(pref->default_val.range, value)) {
-            wmem_free(wmem_epan_scope(), pref->default_val.range);
-            pref->default_val.range = range_copy(wmem_epan_scope(), value);
+            wmem_free(pref->scope, pref->default_val.range);
+            pref->default_val.range = range_copy(pref->scope, value);
             changed = true;
         }
         break;
     case pref_stashed:
         if (!ranges_are_equal(pref->stashed_val.range, value)) {
-            wmem_free(wmem_epan_scope(), pref->stashed_val.range);
-            pref->stashed_val.range = range_copy(wmem_epan_scope(), value);
+            wmem_free(pref->scope, pref->stashed_val.range);
+            pref->stashed_val.range = range_copy(pref->scope, value);
             changed = true;
         }
         break;
     case pref_current:
         if (!ranges_are_equal(*pref->varp.range, value)) {
-            wmem_free(wmem_epan_scope(), *pref->varp.range);
-            *pref->varp.range = range_copy(wmem_epan_scope(), value);
+            wmem_free(pref->scope, *pref->varp.range);
+            *pref->varp.range = range_copy(pref->scope, value);
             changed = true;
         }
         break;
@@ -1766,13 +1767,13 @@ range_t* prefs_get_range_value(const char *module_name, const char* pref_name)
 void
 prefs_range_add_value(pref_t *pref, uint32_t val)
 {
-    range_add_value(wmem_epan_scope(), pref->varp.range, val);
+    range_add_value(pref->scope, pref->varp.range, val);
 }
 
 void
 prefs_range_remove_value(pref_t *pref, uint32_t val)
 {
-    range_remove_value(wmem_epan_scope(), pref->varp.range, val);
+    range_remove_value(pref->scope, pref->varp.range, val);
 }
 
 /*
@@ -1995,8 +1996,8 @@ bool prefs_add_decode_as_value(pref_t *pref, unsigned value, bool replace)
             /* If range has single value, replace it */
             if (((*pref->varp.range)->nranges == 1) &&
                 ((*pref->varp.range)->ranges[0].low == (*pref->varp.range)->ranges[0].high)) {
-                wmem_free(wmem_epan_scope(), *pref->varp.range);
-                *pref->varp.range = range_empty(wmem_epan_scope());
+                wmem_free(pref->scope, *pref->varp.range);
+                *pref->varp.range = range_empty(pref->scope);
             }
         }
 
@@ -2080,14 +2081,14 @@ pref_stash(pref_t *pref, void *unused _U_)
     case PREF_DIRNAME:
     case PREF_PASSWORD:
     case PREF_DISSECTOR:
-        g_free(pref->stashed_val.string);
-        pref->stashed_val.string = g_strdup(*pref->varp.string);
+        wmem_free(pref->scope, pref->stashed_val.string);
+        pref->stashed_val.string = wmem_strdup(pref->scope, *pref->varp.string);
         break;
 
     case PREF_DECODE_AS_RANGE:
     case PREF_RANGE:
-        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
-        pref->stashed_val.range = range_copy(wmem_epan_scope(), *pref->varp.range);
+        wmem_free(pref->scope, pref->stashed_val.range);
+        pref->stashed_val.range = range_copy(pref->scope, *pref->varp.range);
         break;
 
     case PREF_COLOR:
@@ -2164,8 +2165,8 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
     case PREF_DISSECTOR:
         if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-            g_free(*pref->varp.string);
-            *pref->varp.string = g_strdup(pref->stashed_val.string);
+            wmem_free(pref->scope, *pref->varp.string);
+            *pref->varp.string = wmem_strdup(pref->scope, pref->stashed_val.string);
         }
         break;
 
@@ -2206,8 +2207,8 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
                 }
             }
 
-            wmem_free(wmem_epan_scope(), *pref->varp.range);
-            *pref->varp.range = range_copy(wmem_epan_scope(), pref->stashed_val.range);
+            wmem_free(pref->scope, *pref->varp.range);
+            *pref->varp.range = range_copy(pref->scope, pref->stashed_val.range);
 
             if (unstash_data->handle_decode_as) {
                 if ((sub_dissectors != NULL) && (handle != NULL)) {
@@ -2231,8 +2232,8 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
     case PREF_RANGE:
         if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-            wmem_free(wmem_epan_scope(), *pref->varp.range);
-            *pref->varp.range = range_copy(wmem_epan_scope(), pref->stashed_val.range);
+            wmem_free(pref->scope, *pref->varp.range);
+            *pref->varp.range = range_copy(pref->scope, pref->stashed_val.range);
         }
     break;
 
@@ -2285,14 +2286,14 @@ reset_stashed_pref(pref_t *pref) {
     case PREF_DIRNAME:
     case PREF_PASSWORD:
     case PREF_DISSECTOR:
-        g_free(pref->stashed_val.string);
-        pref->stashed_val.string = g_strdup(pref->default_val.string);
+        wmem_free(pref->scope, pref->stashed_val.string);
+        pref->stashed_val.string = wmem_strdup(pref->scope, pref->default_val.string);
         break;
 
     case PREF_DECODE_AS_RANGE:
     case PREF_RANGE:
-        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
-        pref->stashed_val.range = range_copy(wmem_epan_scope(), pref->default_val.range);
+        wmem_free(pref->scope, pref->stashed_val.range);
+        pref->stashed_val.range = range_copy(pref->scope, pref->default_val.range);
         break;
 
     case PREF_PROTO_TCP_SNDAMB_ENUM:
@@ -2340,7 +2341,7 @@ pref_clean_stash(pref_t *pref, void *unused _U_)
     case PREF_PASSWORD:
     case PREF_DISSECTOR:
         if (pref->stashed_val.string != NULL) {
-            g_free(pref->stashed_val.string);
+            wmem_free(pref->scope, pref->stashed_val.string);
             pref->stashed_val.string = NULL;
         }
         break;
@@ -2348,7 +2349,7 @@ pref_clean_stash(pref_t *pref, void *unused _U_)
     case PREF_DECODE_AS_RANGE:
     case PREF_RANGE:
         if (pref->stashed_val.range != NULL) {
-            wmem_free(wmem_epan_scope(), pref->stashed_val.range);
+            wmem_free(pref->scope, pref->stashed_val.range);
             pref->stashed_val.range = NULL;
         }
         break;
@@ -4253,7 +4254,7 @@ print.file: /a/very/long/path/
  * be g_mallocated.
  */
 static void
-prefs_set_global_defaults(const char** col_fmt, int num_cols)
+prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, int num_cols)
 {
     int         i;
     char        *col_name;
@@ -4262,8 +4263,8 @@ prefs_set_global_defaults(const char** col_fmt, int num_cols)
     prefs.restore_filter_after_following_stream = false;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
     /* We try to find the best font in the Qt code */
-    g_free(prefs.gui_font_name);
-    prefs.gui_font_name              = g_strdup("");
+    wmem_free(pref_scope, prefs.gui_font_name);
+    prefs.gui_font_name              = wmem_strdup(pref_scope, "");
     prefs.gui_active_fg.red          =         0;
     prefs.gui_active_fg.green        =         0;
     prefs.gui_active_fg.blue         =         0;
@@ -4290,10 +4291,10 @@ prefs_set_global_defaults(const char** col_fmt, int num_cols)
     prefs.gui_ignored_bg.red         =     65535;
     prefs.gui_ignored_bg.green       =     65535;
     prefs.gui_ignored_bg.blue        =     65535;
-    g_free(prefs.gui_colorized_fg);
-    prefs.gui_colorized_fg           = g_strdup("000000,000000,000000,000000,000000,000000,000000,000000,000000,000000");
-    g_free(prefs.gui_colorized_bg);
-    prefs.gui_colorized_bg           = g_strdup("ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0");
+    wmem_free(pref_scope, prefs.gui_colorized_fg);
+    prefs.gui_colorized_fg           = wmem_strdup(pref_scope, "000000,000000,000000,000000,000000,000000,000000,000000,000000,000000");
+    wmem_free(pref_scope, prefs.gui_colorized_bg);
+    prefs.gui_colorized_bg           = wmem_strdup(pref_scope, "ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0");
     prefs.st_client_fg.red           = 32767;
     prefs.st_client_fg.green         =     0;
     prefs.st_client_fg.blue          =     0;
@@ -4355,11 +4356,11 @@ prefs_set_global_defaults(const char** col_fmt, int num_cols)
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
     prefs.gui_recent_df_entries_max  = 10;
     prefs.gui_recent_files_count_max = 10;
-    g_free(prefs.gui_fileopen_dir);
-    prefs.gui_fileopen_dir           = g_strdup(get_persdatafile_dir());
+    wmem_free(pref_scope, prefs.gui_fileopen_dir);
+    prefs.gui_fileopen_dir           = wmem_strdup(pref_scope, get_persdatafile_dir());
     prefs.gui_fileopen_preview       = 3;
-    g_free(prefs.gui_tlskeylog_command);
-    prefs.gui_tlskeylog_command      = g_strdup("");
+    wmem_free(pref_scope, prefs.gui_tlskeylog_command);
+    prefs.gui_tlskeylog_command      = wmem_strdup(pref_scope, "");
     prefs.gui_ask_unsaved            = true;
     prefs.gui_autocomplete_filter    = true;
     prefs.gui_find_wrap              = true;
@@ -4367,12 +4368,12 @@ prefs_set_global_defaults(const char** col_fmt, int num_cols)
     prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
     prefs.gui_update_interval        = 60*60*24; /* Seconds */
     prefs.gui_debounce_timer         = 400; /* milliseconds */
-    g_free(prefs.gui_window_title);
-    prefs.gui_window_title           = g_strdup("");
-    g_free(prefs.gui_prepend_window_title);
-    prefs.gui_prepend_window_title   = g_strdup("");
-    g_free(prefs.gui_start_title);
-    prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
+    wmem_free(pref_scope, prefs.gui_window_title);
+    prefs.gui_window_title           = wmem_strdup(pref_scope, "");
+    wmem_free(pref_scope, prefs.gui_prepend_window_title);
+    prefs.gui_prepend_window_title   = wmem_strdup(pref_scope, "");
+    wmem_free(pref_scope, prefs.gui_start_title);
+    prefs.gui_start_title            = wmem_strdup(pref_scope, "The World's Most Popular Network Protocol Analyzer");
     prefs.gui_version_placement      = version_both;
     prefs.gui_welcome_page_show_recent = true;
     prefs.gui_layout_type            = layout_type_2;
@@ -4386,8 +4387,8 @@ prefs_set_global_defaults(const char** col_fmt, int num_cols)
     prefs.gui_packet_list_show_minimap = true;
     prefs.gui_packet_list_sortable     = true;
     prefs.gui_packet_list_cached_rows_max = 10000;
-    g_free (prefs.gui_interfaces_hide_types);
-    prefs.gui_interfaces_hide_types = g_strdup("");
+    wmem_free(pref_scope, prefs.gui_interfaces_hide_types);
+    prefs.gui_interfaces_hide_types = wmem_strdup(pref_scope, "");
     prefs.gui_interfaces_show_hidden = false;
     prefs.gui_interfaces_remote_display = true;
     prefs.gui_packet_list_separator = false;
@@ -4513,8 +4514,8 @@ reset_pref(pref_t *pref)
 
     case PREF_RANGE:
     case PREF_DECODE_AS_RANGE:
-        wmem_free(wmem_epan_scope(), *pref->varp.range);
-        *pref->varp.range = range_copy(wmem_epan_scope(), pref->default_val.range);
+        wmem_free(pref->scope, *pref->varp.range);
+        *pref->varp.range = range_copy(pref->scope, pref->default_val.range);
         break;
 
     case PREF_STATIC_TEXT:
@@ -4591,7 +4592,7 @@ prefs_reset(const char* app_env_var_prefix, const char** col_fmt, int num_cols)
     /*
      * Reset the non-dissector preferences.
      */
-    prefs_set_global_defaults(col_fmt, num_cols);
+    prefs_set_global_defaults(wmem_epan_scope(), col_fmt, num_cols);
 
     /*
      * Reset the non-UAT dissector preferences.
@@ -6367,13 +6368,13 @@ set_pref(char *pref_name, const char *value, void *private_data,
             dissector_handle_t handle;
             uint32_t i, j;
 
-            if (range_convert_str_work(wmem_epan_scope(), &newrange, value, pref->info.max_value,
+            if (range_convert_str_work(pref->scope, &newrange, value, pref->info.max_value,
                                        return_range_errors) != CVT_NO_ERROR) {
                 return PREFS_SET_SYNTAX_ERR;        /* number was bad */
             }
 
             if (!ranges_are_equal(*pref->varp.range, newrange)) {
-                wmem_free(wmem_epan_scope(), *pref->varp.range);
+                wmem_free(pref->scope, *pref->varp.range);
                 *pref->varp.range = newrange;
                 containing_module->prefs_changed_flags |= prefs_get_effect_flags(pref);
 
@@ -6408,7 +6409,7 @@ set_pref(char *pref_name, const char *value, void *private_data,
                     }
                 }
             } else {
-                wmem_free(wmem_epan_scope(), newrange);
+                wmem_free(pref->scope, newrange);
             }
             break;
         }

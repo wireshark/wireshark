@@ -304,7 +304,7 @@ static int new_pref(lua_State* L, pref_type_e type) {
              * prefs_register_string_preference() assumes that the
              * variable for the preference points to a static
              * string that is the initial (default) value of the
-             * preference.  It makes a g_strdup()ed copy of that
+             * preference.  It makes a wmem_strdup()ed copy of that
              * string, and assigns a pointer to that string to
              * the variable.
              *

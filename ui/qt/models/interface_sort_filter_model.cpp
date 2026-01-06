@@ -259,7 +259,8 @@ void InterfaceSortFilterModel::setInterfaceTypeVisible(int ifType, bool visible)
         if (new_pref.length() > 0)
             new_pref = new_pref.left(new_pref.length() - 1);
 
-        prefs.gui_interfaces_hide_types = qstring_strdup(new_pref);
+        wmem_free(wmem_epan_scope(), prefs.gui_interfaces_hide_types);
+        prefs.gui_interfaces_hide_types = wmem_strdup(wmem_epan_scope(), new_pref.toUtf8().constData());
 
         prefs_main_write();
     }

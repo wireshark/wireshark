@@ -1202,8 +1202,8 @@ bool CaptureOptionsDialog::saveOptionsToPreferences(capture_options* capture_opt
                 }
                 link_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->active_dlt);
             }
-            g_free(prefs.capture_devices_linktypes);
-            prefs.capture_devices_linktypes = qstring_strdup(link_list.join(","));
+            wmem_free(wmem_epan_scope(), prefs.capture_devices_linktypes);
+            prefs.capture_devices_linktypes = wmem_strdup(wmem_epan_scope(), link_list.join(",").toUtf8().constData());
             break;
         }
         case col_buffer_:
@@ -1219,8 +1219,8 @@ bool CaptureOptionsDialog::saveOptionsToPreferences(capture_options* capture_opt
                 }
                 buffer_size_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->buffer);
             }
-            g_free(prefs.capture_devices_buffersize);
-            prefs.capture_devices_buffersize = qstring_strdup(buffer_size_list.join(","));
+            wmem_free(wmem_epan_scope(), prefs.capture_devices_buffersize);
+            prefs.capture_devices_buffersize = wmem_strdup(wmem_epan_scope(), buffer_size_list.join(",").toUtf8().constData());
             break;
         }
         case col_snaplen_:
@@ -1237,8 +1237,8 @@ bool CaptureOptionsDialog::saveOptionsToPreferences(capture_options* capture_opt
                                 .arg(device->has_snaplen)
                                 .arg(device->has_snaplen ? device->snaplen : WTAP_MAX_PACKET_SIZE_STANDARD);
             }
-            g_free(prefs.capture_devices_snaplen);
-            prefs.capture_devices_snaplen = qstring_strdup(snaplen_list.join(","));
+            wmem_free(wmem_epan_scope(), prefs.capture_devices_snaplen);
+            prefs.capture_devices_snaplen = wmem_strdup(wmem_epan_scope(), snaplen_list.join(",").toUtf8().constData());
             break;
         }
         case col_pmode_:
@@ -1254,8 +1254,8 @@ bool CaptureOptionsDialog::saveOptionsToPreferences(capture_options* capture_opt
                 }
                 pmode_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->pmode);
             }
-            g_free(prefs.capture_devices_pmode);
-            prefs.capture_devices_pmode = qstring_strdup(pmode_list.join(","));
+            wmem_free(wmem_epan_scope(), prefs.capture_devices_pmode);
+            prefs.capture_devices_pmode = wmem_strdup(wmem_epan_scope(), pmode_list.join(",").toUtf8().constData());
             break;
         }
 
@@ -1272,8 +1272,8 @@ bool CaptureOptionsDialog::saveOptionsToPreferences(capture_options* capture_opt
                 }
                 monitor_list << device->name;
             }
-            g_free(prefs.capture_devices_monitor_mode);
-            prefs.capture_devices_monitor_mode = qstring_strdup(monitor_list.join(","));
+            wmem_free(wmem_epan_scope(), prefs.capture_devices_monitor_mode);
+            prefs.capture_devices_monitor_mode = wmem_strdup(wmem_epan_scope(), monitor_list.join(",").toUtf8().constData());
             break;
         }
         // We don't save col_optimize_ to prefs (it's probably rarely changed.)

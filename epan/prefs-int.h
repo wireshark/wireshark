@@ -30,6 +30,7 @@ struct pref_module {
     const char *description;    /**< Description of module (displayed in preferences notebook) */
     const char *help;           /**< Module help page (passed to user_guide_url() to generate a URL) */
     void (*apply_cb)(void);     /**< routine to call when preferences applied */
+    wmem_allocator_t* scope;    /**< memory scope allocator for this module */
     GList *prefs;               /**< list of its preferences */
     struct pref_module *parent; /**< parent module */
     wmem_tree_t *submodules;    /**< list of its submodules */
