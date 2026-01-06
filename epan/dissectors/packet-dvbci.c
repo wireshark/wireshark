@@ -4828,15 +4828,13 @@ dissect_dvbci_cis_payload_tpll_v1(tvbuff_t *data_tvb,
     offset++;
 
     /* manufacturer, name and additional infos are 0-terminated strings */
-    offset_str_end = tvb_find_uint8(data_tvb, offset, -1, 0x0);
-    if (offset_str_end<offset) /* offset_str_end==offset is ok */
+    if (!tvb_find_uint8_remaining(data_tvb, offset, 0x0, &offset_str_end))
         return offset;
     proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_info_manuf,
             data_tvb, offset, offset_str_end-offset, ENC_ASCII);
     offset = offset_str_end+1; /* +1 for 0 termination */
 
-    offset_str_end = tvb_find_uint8(data_tvb, offset, -1, 0x0);
-    if (offset_str_end<offset)
+    if (!tvb_find_uint8_remaining(data_tvb, offset, 0x0, &offset_str_end))
         return offset;
     proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_info_name,
             data_tvb, offset, offset_str_end-offset, ENC_ASCII);
@@ -4846,8 +4844,7 @@ dissect_dvbci_cis_payload_tpll_v1(tvbuff_t *data_tvb,
         it's unclear if both are mandatory
        >1 because the last byte is the tuple end marker */
     while (tvb_reported_length_remaining(data_tvb, offset)>1) {
-        offset_str_end = tvb_find_uint8(data_tvb, offset, -1, 0x0);
-        if (offset_str_end<offset)
+        if (!tvb_find_uint8_remaining(data_tvb, offset, 0x0, &offset_str_end))
             break;
         proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_info_additional,
                 data_tvb, offset, offset_str_end-offset, ENC_ASCII);
