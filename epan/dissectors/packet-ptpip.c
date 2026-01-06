@@ -647,8 +647,7 @@ static void dissect_ptpIP_init_command_ack(tvbuff_t *tvb, packet_info *pinfo, pr
         "Init Command Ack");
 
     /* Grabbing the Connection Number */
-    connectionNumber = tvb_get_letohl(tvb, *offset);
-    proto_tree_add_item(tree, hf_ptpIP_connectionNumber, tvb, *offset, 4,ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_ptpIP_connectionNumber, tvb, *offset, 4,ENC_LITTLE_ENDIAN, &connectionNumber);
     col_append_fstr(
         pinfo->cinfo,
         COL_INFO,
@@ -683,8 +682,7 @@ static void dissect_ptpIP_init_event_request(tvbuff_t *tvb, packet_info *pinfo, 
         "Init Event Request");
 
     /* Grabbing the Connection Number */
-    connectionNumber = tvb_get_letohl(tvb, *offset);
-    proto_tree_add_item(tree, hf_ptpIP_connectionNumber, tvb, *offset, 4,ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_ptpIP_connectionNumber, tvb, *offset, 4,ENC_LITTLE_ENDIAN, &connectionNumber);
     col_append_fstr(
         pinfo->cinfo,
         COL_INFO,
@@ -969,8 +967,7 @@ void dissect_ptp_transactionID(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     uint32_t transactionID;
 
-    transactionID = tvb_get_letohl(tvb, *offset);
-    proto_tree_add_item(tree, hf_ptp_transactionID, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_ptp_transactionID, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &transactionID);
     *offset += 4;
     col_append_fstr(
         pinfo->cinfo,

@@ -237,8 +237,7 @@ static int dissect_counted_values(tvbuff_t *tvb, int offset, int hf_id,  packet_
   proto_item *item;
   uint32_t    length, count, i;
 
-  count = tvb_get_letohl(tvb, offset);
-  proto_tree_add_item(tree, hf_tnef_values_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_tnef_values_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 
   if(count > 1) {
     if(single) {
@@ -252,8 +251,7 @@ static int dissect_counted_values(tvbuff_t *tvb, int offset, int hf_id,  packet_
 
   for(i = 0; i < count; i++) {
 
-    length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_tnef_value_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
     offset += 4;
 
     proto_tree_add_item(tree, hf_id, tvb, offset, length, encoding);
@@ -492,8 +490,7 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   offset = 0;
 
   /* first the signature */
-  signature = tvb_get_letohl(tvb, offset);
-  item = proto_tree_add_item(tree, hf_tnef_signature, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  item = proto_tree_add_item_ret_uint(tree, hf_tnef_signature, tvb, offset, 4, ENC_LITTLE_ENDIAN, &signature);
   offset += 4;
 
   /* check the signature */

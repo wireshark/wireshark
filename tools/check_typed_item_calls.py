@@ -2171,11 +2171,20 @@ def find_item_extern_declarations(filename, lines):
             items.add(m.group(1))
     return items
 
+fetch_functions = [ 'tvb_get_ntohl', 'tvb_get_letohl' ]
+
+def line_has_fetch_function(line):
+    for f in fetch_functions:
+        if f in line:
+            return True
+    return False
+
+
 def check_double_fetches(filename, contents, items, result):
     lines = contents.splitlines()
     contents = '\n'.join(line for line in lines if line.strip())
 
-    line_re = r'([a-zA-Z0-9_= ;\(\)\+\"\-\{\}\*\,\&\+\[\]\!]*?)\n'
+    line_re = r'([\*a-zA-Z0-9_= ;\(\)\+\"\-\{\}\*\,\&\+\[\]\!]*?)\n'
 
     # Look for all calls in this file - note line before and after item added
     matches = re.finditer(r'\n' + line_re +
@@ -2204,19 +2213,38 @@ def check_double_fetches(filename, contents, items, result):
 
         # TODO: verify same value of offset for both calls?
 
-        # Make sure item is of an integer type
-        if 'FT_UINT' not in item_type:
+        # Make sure item is a known integer type
+        if 'FT_UINT' in item_type:
+            signed_type = False
+        elif 'FT_INT' in item_type:
+            signed_type = True
+        else:
             continue
 
-        if 'tvb_get_ntohl' in prev_line and hf_name.endswith(first_prev_token) and '=' in prev_line_tokens:
+        # Need to get a notion of the width
+        if item_type in field_widths:
+            field_width = int(field_widths[item_type] / 8)
+        else:
+            field_width = 0
+
+        if field_width != 4:
+            continue
+
+        # Use width and signedness to decide which combined function to suggest
+        if signed_type:
+            suggest = 'proto_tree_add_item_ret_int'
+        else:
+            suggest = 'proto_tree_add_item_ret_uint'
+
+        if line_has_fetch_function(prev_line) and hf_name.endswith(first_prev_token) and '=' in prev_line_tokens:
             result.warn(filename, 'PREV: val=', first_prev_token, 'hfname=', hf_name,
                         'mask=', mask_value, 'type=', item_type,
-                        '- use proto_tree_add_item_ret_uint() ?\n',
+                        '- use', suggest + '() ?\n',
                         m.group(0))
-        elif 'tvb_get_ntohl' in next_line and hf_name.endswith(first_next_token) and '=' in next_line_tokens:
+        elif line_has_fetch_function(next_line) and hf_name.endswith(first_next_token) and '=' in next_line_tokens:
             result.warn(filename, 'NEXT: val=', first_next_token, 'hfname=', hf_name,
                         'mask=', mask_value, 'type=', item_type,
-                        '- use proto_tree_add_item_ret_uint() ?\n',
+                        '- use', suggest + '() ?\n',
                         m.group(0))
 
 

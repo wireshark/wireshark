@@ -791,9 +791,8 @@ dissect_nvme_tcp_pdu(tvbuff_t *tvb,
     pdo = tvb_get_int8(tvb, offset + 3);
     proto_tree_add_uint(nvme_tcp_tree, hf_nvme_tcp_pdo, tvb, offset + 3, 1,
             pdo);
-    plen = tvb_get_letohl(tvb, offset + 4);
-    proto_tree_add_item(nvme_tcp_tree, hf_nvme_tcp_plen, tvb, offset + 4, 4,
-            ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(nvme_tcp_tree, hf_nvme_tcp_plen, tvb, offset + 4, 4,
+            ENC_LITTLE_ENDIAN, &plen);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, NVME_FABRICS_TCP);
 
     if (pdu_flags & NVME_TCP_F_HDGST) {

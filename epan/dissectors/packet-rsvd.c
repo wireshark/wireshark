@@ -926,8 +926,7 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     offset += 4;
 
     /* Status */
-    status = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(sub_tree, hf_svhdx_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(sub_tree, hf_svhdx_status, tvb, offset, 4, ENC_LITTLE_ENDIAN, &status);
     offset += 4;
 
     /* RequestId */

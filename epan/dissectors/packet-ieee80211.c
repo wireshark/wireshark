@@ -27781,9 +27781,7 @@ dissect_ht_control(packet_info* pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
   uint32_t htc;
   bool is_s1g = sta_is_s1g(pinfo);
 
-  htc = tvb_get_letohl(tvb, offset);
-
-  ti = proto_tree_add_item(tree, hf_ieee80211_htc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  ti = proto_tree_add_item_ret_uint(tree, hf_ieee80211_htc, tvb, offset, 4, ENC_LITTLE_ENDIAN, &htc);
   htc_tree = proto_item_add_subtree(ti, ett_htc_tree);
 
   /* Check the HT vs. VHT bit. */
