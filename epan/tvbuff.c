@@ -3017,6 +3017,77 @@ tvb_ucs_4_strsize(tvbuff_t *tvb, const unsigned offset)
 	return end_offset - offset;
 }
 
+unsigned
+tvb_strsize_enc(tvbuff_t *tvb, const unsigned offset, const unsigned encoding)
+{
+	switch (encoding & ENC_CHARENCODING_MASK) {
+	case ENC_UTF_16:
+	case ENC_UCS_2:
+		return tvb_unicode_strsize(tvb, offset);
+
+	case ENC_UCS_4:
+		return tvb_ucs_4_strsize(tvb, offset);
+
+        case ENC_3GPP_TS_23_038_7BITS_PACKED:
+        case ENC_3GPP_TS_23_038_7BITS_UNPACKED:
+        case ENC_ETSI_TS_102_221_ANNEX_A:
+                REPORT_DISSECTOR_BUG("TS 23.038 7bits has no null character and doesn't support null-terminated strings");
+                break;
+
+	case ENC_ASCII_7BITS:
+		REPORT_DISSECTOR_BUG("Null-terminated strings not implemented for ENC_ASCII_7BITS yet");
+		break;
+
+	case ENC_APN_STR:
+		/* At least as defined in 3GPP TS 23.003 Clause 9.1, null-termination
+		 * does make sense as internal nulls are not allowed. */
+		REPORT_DISSECTOR_BUG("Null-terminated strings are not implemented for ENC_APN_STR");
+		break;
+
+	case ENC_BCD_DIGITS_0_9:
+	case ENC_KEYPAD_ABC_TBCD:
+	case ENC_KEYPAD_BC_TBCD:
+	case ENC_DECT_STANDARD_4BITS_TBCD:
+		REPORT_DISSECTOR_BUG("Null-terminated strings are not supported for BCD encodings.");
+		break;
+
+	case ENC_ASCII:
+	case ENC_UTF_8:
+	case ENC_ISO_8859_1:
+	case ENC_ISO_8859_2:
+	case ENC_ISO_8859_3:
+	case ENC_ISO_8859_4:
+	case ENC_ISO_8859_5:
+	case ENC_ISO_8859_6:
+	case ENC_ISO_8859_7:
+	case ENC_ISO_8859_8:
+	case ENC_ISO_8859_9:
+	case ENC_ISO_8859_10:
+	case ENC_ISO_8859_11:
+	case ENC_ISO_8859_13:
+	case ENC_ISO_8859_14:
+	case ENC_ISO_8859_15:
+	case ENC_ISO_8859_16:
+	case ENC_WINDOWS_1250:
+	case ENC_WINDOWS_1251:
+	case ENC_WINDOWS_1252:
+	case ENC_MAC_ROMAN:
+	case ENC_CP437:
+	case ENC_CP855:
+	case ENC_CP866:
+	case ENC_ISO_646_BASIC:
+	case ENC_EBCDIC:
+	case ENC_EBCDIC_CP037:
+	case ENC_EBCDIC_CP500:
+	case ENC_T61:
+	case ENC_GB18030:
+	case ENC_EUC_KR:
+	case ENC_DECT_STANDARD_8BITS:
+	default:
+		return tvb_strsize(tvb, offset);
+	}
+}
+
 /* Find length of string by looking for end of string ('\0'), up to
  * 'maxlength' characters'; if 'maxlength' is -1, searches to end
  * of tvbuff.

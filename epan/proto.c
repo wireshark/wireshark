@@ -6860,11 +6860,8 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start,
 		}
 		if (length == -1) {
 			/* This can throw an exception */
-			/* XXX - do this without fetching the string? Depends on
-			 * encoding, so we probably need a new function. */
-			wmem_free(NULL, tvb_get_stringz_enc(NULL, tvb, start, (unsigned*)&length, encoding));
+			item_length = tvb_strsize_enc(tvb, start, encoding);
 		}
-		item_length = length;
 		break;
 
 	case FT_UINT_STRING:
