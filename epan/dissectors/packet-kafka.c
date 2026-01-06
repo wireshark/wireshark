@@ -2882,19 +2882,18 @@ dissect_kafka_metadata_broker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
     proto_item *ti;
     proto_tree *subtree;
-    uint32_t    nodeid;
+    int32_t     nodeid;
     int         host_start, host_len;
-    uint32_t    broker_port;
+    int32_t     broker_port;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_broker, &ti, "Broker");
 
-    proto_tree_add_item_ret_uint(subtree, hf_kafka_broker_nodeid, tvb, offset, 4, ENC_BIG_ENDIAN, &nodeid);
+    proto_tree_add_item_ret_int(subtree, hf_kafka_broker_nodeid, tvb, offset, 4, ENC_BIG_ENDIAN, &nodeid);
     offset += 4;
 
     offset = dissect_kafka_string(subtree, hf_kafka_broker_host, tvb, pinfo, offset, api_version >= 9, &host_start, &host_len);
 
-    broker_port = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(subtree, hf_kafka_broker_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_int(subtree, hf_kafka_broker_port, tvb, offset, 4, ENC_BIG_ENDIAN, &broker_port);
     offset += 4;
 
     if (api_version >= 1) {
@@ -2905,7 +2904,7 @@ dissect_kafka_metadata_broker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset = dissect_kafka_tagged_fields(tvb, pinfo, subtree, offset, 0);
     }
 
-    proto_item_append_text(ti, " (node %u: %s:%u)",
+    proto_item_append_text(ti, " (node %d: %s:%d)",
                            nodeid,
                            tvb_get_string_enc(pinfo->pool, tvb,
                            host_start, host_len, ENC_UTF_8),
@@ -3235,22 +3234,21 @@ dissect_kafka_leader_and_isr_request_live_leader(tvbuff_t *tvb, packet_info *pin
 {
     proto_item *subti;
     proto_tree *subtree;
-    uint32_t nodeid;
+    int32_t     nodeid;
     int host_start, host_len;
-    uint32_t broker_port;
+    int32_t broker_port;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_broker, &subti, "Live Leader");
 
     /* id */
-    nodeid = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item_ret_uint(subtree, hf_kafka_broker_nodeid, tvb, offset, 4, ENC_BIG_ENDIAN, &nodeid);
+    proto_tree_add_item_ret_int(subtree, hf_kafka_broker_nodeid, tvb, offset, 4, ENC_BIG_ENDIAN, &nodeid);
     offset += 4;
 
     /* host */
     offset = dissect_kafka_string(subtree, hf_kafka_broker_host, tvb, pinfo, offset,api_version >= 4,  &host_start, &host_len);
 
     /* port */
-    proto_tree_add_item_ret_uint(subtree, hf_kafka_broker_port, tvb, offset, 4, ENC_BIG_ENDIAN, &broker_port);
+    proto_tree_add_item_ret_int(subtree, hf_kafka_broker_port, tvb, offset, 4, ENC_BIG_ENDIAN, &broker_port);
     offset += 4;
 
     if (api_version >= 4) {
@@ -3258,7 +3256,7 @@ dissect_kafka_leader_and_isr_request_live_leader(tvbuff_t *tvb, packet_info *pin
     }
 
     proto_item_set_end(subti, tvb, offset);
-    proto_item_append_text(subti, " (node %u: %s:%u)",
+    proto_item_append_text(subti, " (node %d: %s:%d)",
                            nodeid,
                            tvb_get_string_enc(pinfo->pool, tvb, host_start, host_len, ENC_UTF_8),
                            broker_port);
@@ -5117,13 +5115,12 @@ dissect_kafka_find_coordinator_response_coordinator_v1(tvbuff_t *tvb, packet_inf
     proto_tree *subtree;
     int32_t node_id;
     int host_start, host_len;
-    uint32_t port;
+    int32_t port;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_broker, &subti, "Coordinator");
 
     /* node_id */
-    node_id = (int32_t) tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(subtree, hf_kafka_broker_nodeid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_int(subtree, hf_kafka_broker_nodeid, tvb, offset, 4, ENC_BIG_ENDIAN, &node_id);
     offset += 4;
 
     /* host */
@@ -5131,7 +5128,7 @@ dissect_kafka_find_coordinator_response_coordinator_v1(tvbuff_t *tvb, packet_inf
                                   &host_start, &host_len);
 
      /* port */
-    proto_tree_add_item_ret_uint(subtree, hf_kafka_broker_port, tvb, offset, 4, ENC_BIG_ENDIAN, &port);
+    proto_tree_add_item_ret_int(subtree, hf_kafka_broker_port, tvb, offset, 4, ENC_BIG_ENDIAN, &port);
     offset += 4;
 
     proto_item_set_end(subti, tvb, offset);
@@ -5157,7 +5154,7 @@ dissect_kafka_find_coordinator_response_coordinator_v2(tvbuff_t *tvb, packet_inf
     proto_tree *subtree;
     int32_t node_id;
     int host_start, host_len;
-    uint32_t port;
+    int32_t port;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_broker, &subti, "Coordinator");
 
@@ -5173,7 +5170,7 @@ dissect_kafka_find_coordinator_response_coordinator_v2(tvbuff_t *tvb, packet_inf
                                   &host_start, &host_len);
 
     /* port */
-    proto_tree_add_item_ret_uint(subtree, hf_kafka_broker_port, tvb, offset, 4, ENC_BIG_ENDIAN, &port);
+    proto_tree_add_item_ret_int(subtree, hf_kafka_broker_port, tvb, offset, 4, ENC_BIG_ENDIAN, &port);
     offset += 4;
 
     /* error_code */
@@ -5188,7 +5185,7 @@ dissect_kafka_find_coordinator_response_coordinator_v2(tvbuff_t *tvb, packet_inf
     proto_item_set_end(subti, tvb, offset);
 
     if (node_id >= 0) {
-        proto_item_append_text(subti, " (node %d: %s:%u)",
+        proto_item_append_text(subti, " (node %d: %s:%d)",
                                node_id,
                                tvb_get_string_enc(pinfo->pool, tvb,
                                                   host_start, host_len, ENC_UTF_8),
