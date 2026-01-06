@@ -4568,8 +4568,11 @@ dissect_sensor_cadence(proto_tree *tree, tvbuff_t *tvb, unsigned offset, uint16_
         //Find or guess trigger delta and fast cadence fields length
         trigger_delta_length = find_btmesh_property_length(property_id);
         if (trigger_delta_length == 0) {
-            guessed_property_length = tvb_reported_length_remaining(tvb, offset) - 1;
-            if (guessed_property_length % 4 == 0) {
+            // tvb_reported_length_remaining returns 0 if offset is past the
+            // reported bytes, so we check if there's an odd byte for the
+            // minimal interval a slightly different way.
+            guessed_property_length = tvb_reported_length_remaining(tvb, offset);
+            if (guessed_property_length % 4 == 1) {
                 trigger_delta_length = guessed_property_length/4;
             } else {
                 //Failed to guess fields length
@@ -4583,8 +4586,8 @@ dissect_sensor_cadence(proto_tree *tree, tvbuff_t *tvb, unsigned offset, uint16_
         //Find or guess fast cadence field length
         fast_cadence_length = find_btmesh_property_length(property_id);
         if (fast_cadence_length == 0) {
-            guessed_property_length = tvb_reported_length_remaining(tvb, offset) - 1 - 2 * trigger_delta_length;
-            if (guessed_property_length % 2 == 0) {
+            guessed_property_length = tvb_reported_length_remaining(tvb, offset + 2 * trigger_delta_length);
+            if (guessed_property_length % 2 == 1) {
                 fast_cadence_length = guessed_property_length/2;
             } else {
                 //Failed to guess field length
