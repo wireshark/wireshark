@@ -463,18 +463,22 @@ static int dissect_idn_dmx_sample_values(tvbuff_t *tvb, int offset, proto_tree *
 }
 
 static void set_laser_sample_values_string(tvbuff_t *tvb, int offset, configuration_info *config, char *values) {
+        /* XXX - The specification says that tags can be "followed by precision
+         * tag to extend the numeric range to 16 bit *or higher*." (emphasis
+         * added), so presumably this should handle higher precision. Make sure
+         * to change the size of dic_precision (or test it) when doing so. */
 	int i;
 	int l = 0;
 
-	if((config->dic_precision)[2] == 1)
+	if((config->dic_precision)[1] == 1)
 		l += snprintf(values, MAX_BUFFER, "%5d", tvb_get_uint16(tvb, offset, 2));
 	else
 		l += snprintf(values, MAX_BUFFER, "%5d", tvb_get_uint8(tvb, offset));
 
 	for(i=1; i<config->sample_size && (l < MAX_BUFFER-100); i++){
-		if((config->dic_precision)[i+1] == 1) {
+		if((config->dic_precision)[i] == 1) {
 			//do nothing
-		}else if((config->dic_precision)[i+2] == 1) {
+		}else if((config->dic_precision)[i+1] == 1) {
 			l += snprintf(values+l, MAX_BUFFER-l, " %5d", tvb_get_uint16(tvb, offset+i, 2));
 			i++;
 		}else {
@@ -815,7 +819,7 @@ static int dissect_idn_laser_dictionary(tvbuff_t *tvb, int offset, proto_tree *i
 	proto_tree *gts_tree = proto_tree_add_subtree(idn_tree, tvb, offset, -1, ett_dic_tree, NULL, "Dictionary");
 
 	snprintf(column_str, MAX_BUFFER, "(");
-	for(i=1; i<=config->word_count*2; i++) {
+	for(i=0; i < config->word_count*2; i++) {
 		catsub = tvb_get_uint16(tvb, offset, 2);
 		const int l = (const int)strlen(column_str);
 
@@ -939,7 +943,11 @@ static int dissect_idn_channel_configuration_header(tvbuff_t *tvb, packet_info *
 		config->word_count = word_count;
 		config->sdm = sdm;
 		config->sample_size = 0;
-		config->dic_precision = wmem_alloc0_array(wmem_file_scope(), char, (255*2)+1);
+                /* When getting a sample, the next tag is checked to see if it
+                 * is a precision tag. As a quick hack, just allocate an extra
+                 * array entry that is always 0. (XXX - Change if higher than
+                 * 16-bit precision is supported.) */
+		config->dic_precision = wmem_alloc0_array(wmem_file_scope(), char, (word_count*2)+1);
 		config->sample_column_string = wmem_alloc0_array(wmem_file_scope(), char, MAX_BUFFER);
 		config->count = wmem_alloc0_array(wmem_file_scope(), int, word_count+1);
 		config->base = wmem_alloc0_array(wmem_file_scope(), int, word_count+1);
