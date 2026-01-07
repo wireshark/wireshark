@@ -12,7 +12,6 @@
 #define __PACKET_H__
 
 #include <wsutil/array.h>
-#include <wiretap/wtap_opttypes.h>
 #include "proto.h"
 #include "range.h"
 #include "tvbuff.h"
@@ -26,6 +25,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+struct wtap_block;
+typedef struct wtap_block* wtap_block_t;
 
 
 /** @defgroup packet General Packet Dissection
