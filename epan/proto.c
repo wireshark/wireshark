@@ -12902,7 +12902,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 					out = hfinfo_number_value_format(hf, buf, (int32_t) integer32);
 				}
 				proto_item_append_text(item, "%s: %s", hf->name, out);
-				if (hf->display & BASE_UNIT_STRING) {
+				if (hf->strings && hf->display & BASE_UNIT_STRING) {
 					proto_item_append_text(item, "%s", unit_name_string_get_value((uint32_t) tmpval, (const unit_name_string*)hf->strings));
 				}
 				first = false;
