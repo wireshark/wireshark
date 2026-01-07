@@ -131,7 +131,7 @@ secrets_export_dsb(const char* name, capture_file* cf);
  * Export the data for secrets as a character string from a single registered protocol.
  *
  * @param name Registered protocol abbreviation
- * @param secrets Returned secret data. Caller is responsibile for g_ allocated memory returned
+ * @param secrets Returned secret data. Caller is responsible for g_ allocated memory returned
  * @param secrets_len Returned length of secrets data
  * @param num_secrets Number of secrets in the data
  * @return Enumerated value for success or possible errors

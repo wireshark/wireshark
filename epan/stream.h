@@ -1,6 +1,6 @@
 /** @file
  *
- * Definititions for handling circuit-switched protocols
+ * Definitions for handling circuit-switched protocols
  * which are handled as streams, and don't have lengths
  * and IDs such as are required for reassemble.h
  *

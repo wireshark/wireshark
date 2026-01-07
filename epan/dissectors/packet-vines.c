@@ -291,7 +291,7 @@ enum {
 	PKTTYPE_DGRAM = 0,	/* Unreliable datagram */
 	PKTTYPE_DATA = 1,	/* User Data */
 	PKTTYPE_ERR = 2,	/* Error */
-	PKTTYPE_DISC = 3,	/* Diconnect Request */
+	PKTTYPE_DISC = 3,	/* Disconnect Request */
 	PKTTYPE_PROBE = 4,	/* Probe (retransmit) */
 	PKTTYPE_ACK = 5	/* Acknowledgement */
 };

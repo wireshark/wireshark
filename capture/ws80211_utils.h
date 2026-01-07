@@ -92,7 +92,7 @@ struct ws80211_iface_info {
 /*
  * List of error types.
  * WS80211_ERROR is a generic error that might have a platform-specific
- * error mssage that depends on the last failed operation.
+ * error message that depends on the last failed operation.
  */
 #define WS80211_OK                  0
 #define WS80211_ERROR_NOT_SUPPORTED 1

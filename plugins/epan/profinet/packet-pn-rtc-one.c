@@ -43,7 +43,7 @@
  *
  * This file is used as a "addon" for packet-dcerpc-pn-io.c. Within "packet-dcerpc-pn-io.c"
  * the defined structures in "packet-pn.h" will be filled with all necessary information.
- * Those informations will be used in thise file to dissect cyclic PNIO RTC1 and PROFIsafe
+ * That information will be used in this file to dissect cyclic PNIO RTC1 and PROFIsafe
  * frames. Furthermore since RTC1 is a special frame type of PNIO, this dissection uses the
  * already defined protocol PNIO.
  *

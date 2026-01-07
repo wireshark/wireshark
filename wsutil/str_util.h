@@ -113,7 +113,7 @@ char*
 wmem_ascii_strdown(wmem_allocator_t *allocator, const char *str, ssize_t len);
 
 /**
- *  @brief In-place converstion of upper-case ASCII letters to lower-case.
+ *  @brief In-place conversion of upper-case ASCII letters to lower-case.
  *
  *  Convert all upper-case ASCII letters to their ASCII lower-case
  *  equivalents, in place, with a simple non-locale-dependent
@@ -134,7 +134,7 @@ WS_DLL_PUBLIC
 char *ascii_strdown_inplace(char *str);
 
 /**
- *  @brief In-place converstion of lower-case ASCII letters to upper-case.
+ *  @brief In-place conversion of lower-case ASCII letters to upper-case.
  *
  * Convert all lower-case ASCII letters to their ASCII upper-case
  *  equivalents, in place, with a simple non-locale-dependent

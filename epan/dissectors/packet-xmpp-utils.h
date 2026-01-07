@@ -116,24 +116,24 @@ typedef struct _xmpp_reqresp_transaction_t {
     uint32_t resp_frame;
 } xmpp_transaction_t;
 
-/** Function that is responsibe for request/response tracking in IQ packets.
+/** Function that is responsible for request/response tracking in IQ packets.
  * Each IQ set/get packet should have the response in other IQ result/error packet.
  * Both packet should have the same id attribute. Function saves in wmem_tree pairs of
  * packet id and struct xmpp_transaction_t.
  */
 extern void xmpp_iq_reqresp_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info);
 
-/** Function that is responsibe for jingle session tracking in IQ packets.
+/** Function that is responsible for jingle session tracking in IQ packets.
  * Function saves in wmem_tree pairs of packet's id and Jingle session's id.
  */
 extern void xmpp_jingle_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info);
 
-/** Function that is responsibe for ibb(in band bytestreams) session tracking in IQ packets.
+/** Function that is responsible for ibb(in band bytestreams) session tracking in IQ packets.
  * Function saves in wmem_tree pairs of packet's id and In-Band Bytestreams session's id.
  */
 extern void xmpp_ibb_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info);
 
-/** Function that is responsibe for GTalk session(voice/video) tracking in IQ packets.
+/** Function that is responsible for GTalk session(voice/video) tracking in IQ packets.
  * Function saves in wmem_tree pairs of packet's id and GTalk session's id.
  */
 extern void xmpp_gtalk_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info);
@@ -152,7 +152,7 @@ extern void xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xm
 extern void xmpp_cdata(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element, int hf);
 
 /** Function is similar to xmpp_cdata. But it display items only as a text and it is
- * compatibile with function display_elems
+ * compatible with function display_elems
  */
 extern void xmpp_simple_cdata_elem(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 

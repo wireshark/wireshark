@@ -146,7 +146,7 @@
 	X(DROP_REASON_BRIDGE_BAD_PROTO,             DROPTAP_BSD,     DROPTAP_BRIDGE,   6,  "Bridge bad protocol")                    \
 	X(DROP_REASON_BRIDGE_MAC_NAT_FAILURE,       DROPTAP_BSD,     DROPTAP_BRIDGE,   7,  "Bridge NAT failure")                     \
 	X(DROP_REASON_BRIDGE_HOST_FILTER,           DROPTAP_BSD,     DROPTAP_BRIDGE,   8,  "Bridge host filter")                     \
-	X(DROP_REASON_BRIDGE_HWASSIST,              DROPTAP_BSD,     DROPTAP_BRIDGE,   9,  "Bridge HW assisst")                      \
+	X(DROP_REASON_BRIDGE_HWASSIST,              DROPTAP_BSD,     DROPTAP_BRIDGE,   9,  "Bridge HW assist")                      \
 	X(DROP_REASON_BRIDGE_NOREF,                 DROPTAP_BSD,     DROPTAP_BRIDGE,   10, "Bridge noref")                           \
 	X(DROP_REASON_BRIDGE_PF,                    DROPTAP_BSD,     DROPTAP_BRIDGE,   11, "Bridge PF")                              \
 	X(DROP_REASON_BRIDGE_LOOP,                  DROPTAP_BSD,     DROPTAP_BRIDGE,   12, "Bridge loop")                            \
@@ -260,7 +260,7 @@
 	X(DROP_REASON_IP6_BAD_ND_STATE,             DROPTAP_BSD,     DROPTAP_IP6,  12, "IPv6 Bad ND state")                          \
 	X(DROP_REASON_IP6_ONLY,                     DROPTAP_BSD,     DROPTAP_IP6,  13, "IPv6 Only")                                  \
 	X(DROP_REASON_IP6_ADDR_UNSPECIFIED,         DROPTAP_BSD,     DROPTAP_IP6,  14, "IPv6 Address is unspecified")                \
-	X(DROP_REASON_IP6_FRAG_OVERLAPPING,         DROPTAP_BSD,     DROPTAP_IP6,  15, "IPv6 Fragment overlaping")                   \
+	X(DROP_REASON_IP6_FRAG_OVERLAPPING,         DROPTAP_BSD,     DROPTAP_IP6,  15, "IPv6 Fragment overlapping")                   \
 	X(DROP_REASON_IP6_FRAG_MIXED_CE,            DROPTAP_BSD,     DROPTAP_IP6,  16, "IPv6 Fragment mixed CE bits")                \
 	X(DROP_REASON_IP6_RA_NOT_LL,                DROPTAP_BSD,     DROPTAP_IP6,  17, "IPv6 RA src is not LL")                      \
 	X(DROP_REASON_IP6_RA_BAD_LLADDR_LEN,        DROPTAP_BSD,     DROPTAP_IP6,  18, "IPv6 RA bad LL length")                      \

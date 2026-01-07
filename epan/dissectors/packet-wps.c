@@ -1757,7 +1757,7 @@ proto_register_wps(void)
 {
   static hf_register_info hf[] = {
 
-    /* These data-elements are sent in EAP-Pakets using expanded types */
+    /* These data-elements are sent in EAP-Packets using expanded types */
     /* (see RFC3748 Section 5.7) */
     /* Paket dissections is done here and not in (packet-eap) as */
     /* both (tlvs and fields named eap.wps.*) are defined by */

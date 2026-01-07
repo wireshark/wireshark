@@ -3333,7 +3333,7 @@ WS_DLL_PUBLIC int tvb_get_token_len(tvbuff_t *tvb, const unsigned offset, int le
  * a delimiter, where the separators are space, line feed, or carriage return.
  *
  * If `tokenlen` is non-null and a delimiter is found, sets `*tokenlen`
- * to the length of the line, not including the delimter. If no delimiter
+ * to the length of the line, not including the delimiter. If no delimiter
  * is found, sets `*linelen` to the remaining captured length of the buffer.
  *
  * If `next_offset` is non-null and a terminator is found, sets `*next_offset` to the offset

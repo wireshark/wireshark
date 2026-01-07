@@ -1583,7 +1583,7 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, unsigned offset, uint32_t inLength, char 
 	/* we must have at least the space for the zero termination */
 	DISSECTOR_ASSERT(outLength >= 1);
 
-	/* determine length and printablility of the string */
+	/* determine length and printability of the string */
 	for(u32Idx = 0; u32Idx < inLengthWithoutNullDelimiter; u32Idx+=2) {
 		/* the marshalling direction of a WCHAR is fixed! */
 		u8Tmp1 = tvb_get_uint8(tvb, offset+u32Idx);

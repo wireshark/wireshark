@@ -5042,7 +5042,7 @@ decode_mp_next_hop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint16_t
             break;
         case AFNUM_BGP_LS:
             /* RFC 7752 section 3.4 "BGP Next-Hop Information" explains that
-             * the next-hop address length field specifes the next-hop address
+             * the next-hop address length field specifies the next-hop address
              * family. "If the next-hop length is 4, then the next hop is an
              * IPv4 address; if the next-hop length is 16, then it is a global
              * IPv6 address; and if the next-hop length is 32, then there is
@@ -13318,7 +13318,7 @@ proto_register_bgp(void)
         { "Ignore remarking", "bgp.ext_com_qos.flags.ignore_remarking", FT_BOOLEAN, 8,
           TFS(&tfs_yes_no), 0x08, NULL, HFILL}},
       { &hf_bgp_ext_com_qos_flags_agg_marking,
-        { "Aggregation of markins", "bgp.ext_com_qos.flags.agg_marking", FT_BOOLEAN, 8,
+        { "Aggregation of markings", "bgp.ext_com_qos.flags.agg_marking", FT_BOOLEAN, 8,
           TFS(&tfs_yes_no), 0x04, NULL, HFILL}},
       { &hf_bgp_ext_com_cos_flags,
         { "Flags byte", "bgp.ext_com_cos.flags", FT_UINT8, BASE_HEX,
@@ -14710,7 +14710,7 @@ proto_register_bgp(void)
       &bgp_desegment);
     prefs_register_bool_preference(bgp_module, "ext_msg",
       "Allow BGP Extended Messages",
-      "Whether the BGP dissector should allow pakets with a length exceeding 4096 octets.",
+      "Whether the BGP dissector should allow packets with a length exceeding 4096 octets.",
       &bgp_ext_msg);
     prefs_register_enum_preference(bgp_module, "asn_len",
       "Length of the AS number",

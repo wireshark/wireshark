@@ -165,7 +165,7 @@ compatible_encoding_args = {
                           # 'ENC_STR_NUM',       # Should also have at least one ENC_SEP_* flag!
                           # 'ENC_STRING',        # OR of previous 2 values
 
-                          'ENC_LITTLE_ENDIAN'  # Only meaniningful for some encodings (ENC_UTF_16, ENC_UCS_2, ENC_UCS_4)
+                          'ENC_LITTLE_ENDIAN'  # Only meaningful for some encodings (ENC_UTF_16, ENC_UCS_2, ENC_UCS_4)
                           ]),
 
     'FT_CHAR':      set(['ENC_ASCII', 'ENC_VARIANT_QUIC', 'ENC_ASCII_7BITS']),  # TODO: others?

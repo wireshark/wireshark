@@ -19,7 +19,7 @@
 #include "packet-dcerpc.h"
 
 /*
- * The NDR routines are for use by dcerpc subdissetors.  They're
+ * The NDR routines are for use by dcerpc subdissectors.  They're
  * primarily for making sure things are aligned properly according
  * to the rules of NDR.
  */
