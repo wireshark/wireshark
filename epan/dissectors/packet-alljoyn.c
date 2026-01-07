@@ -515,16 +515,12 @@ handle_message_sasl(tvbuff_t    *tvb,
     command = find_sasl_command(tvb, offset);
 
     if(command) {
-        /* This gives us the offset into the buffer of the terminating character of
-         * the command, the '\n'. + 1 to get the number of bytes used for the
-         * command in the buffer. tvb_find_uint8() returns -1 if not found so the + 1
-         * will result in a newline_offset of 0 if not found.
-         */
-        int newline_offset = tvb_find_uint8(tvb, offset + command->length, -1, '\n') + 1;
+        unsigned param_len, next_offset;
 
+        /* The terminating character of the command is an '\n'. */
         /* If not found see if we should request another segment. */
-        if(0 == newline_offset) {
-            if((unsigned)tvb_captured_length_remaining(tvb, offset) < MAX_SASL_PACKET_LENGTH &&
+        if(!tvb_find_line_end_remaining(tvb, offset + command->length, &param_len, &next_offset)) {
+            if(tvb_captured_length_remaining(tvb, offset) < MAX_SASL_PACKET_LENGTH &&
                 set_pinfo_desegment(pinfo, offset, DESEGMENT_ONE_MORE_SEGMENT)) {
 
                 /* Return the length of the buffer we successfully parsed. */
@@ -533,24 +529,18 @@ handle_message_sasl(tvbuff_t    *tvb,
                 /* If we can't desegment then return 0 meaning we didn't do anything. */
                 return_value = 0;
             }
-
-            return return_value;
-        }
-
-        if(newline_offset > 0) {
-            int length = command->length;
+        } else {
 
             col_add_fstr(pinfo->cinfo, COL_INFO, "SASL-%s", command->text);
 
             /* Add a subtree/row for the command. */
-            proto_tree_add_item(message_tree, hf_alljoyn_sasl_command, tvb, offset, length, ENC_ASCII);
-            offset += length;
-            length = newline_offset - offset;
+            proto_tree_add_item(message_tree, hf_alljoyn_sasl_command, tvb, offset, command->length, ENC_ASCII);
+            offset += command->length;
 
             /* Add a subtree for the parameter. */
-            proto_tree_add_item(message_tree, hf_alljoyn_sasl_parameter, tvb, offset, length, ENC_ASCII);
+            proto_tree_add_item(message_tree, hf_alljoyn_sasl_parameter, tvb, offset, param_len, ENC_ASCII);
 
-            return_value = newline_offset;
+            return_value = next_offset;
         }
     }
 

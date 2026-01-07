@@ -2642,8 +2642,8 @@ s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
     tv.secs = mktime(&mt);
     tv.nsecs = msec * 1000000;
     if (mt.tm_mon >= 0 && mt.tm_mon <= 11) {
-        item = proto_tree_add_time_format(tree, hf_s7comm_data_ts, tvb, offset, timestamp_size, &tv,
-            "S7 Timestamp: %s %2d, %d %02d:%02d:%02d.%03d", mon_names[mt.tm_mon], mt.tm_mday,
+        item = proto_tree_add_time_format_value(tree, hf_s7comm_data_ts, tvb, offset, timestamp_size, &tv,
+            "%s %2d, %d %02d:%02d:%02d.%03d", mon_names[mt.tm_mon], mt.tm_mday,
             mt.tm_year + 1900, mt.tm_hour, mt.tm_min, mt.tm_sec,
             msec);
         time_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
@@ -5477,8 +5477,7 @@ s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
             /* File path and file data aren't always there */
             if (dlength > 24) {
                 if (subfunc == S7COMM_NCPRG_FUNCDOWNLOADBLOCK || subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD || subfunc == S7COMM_NCPRG_FUNCUPLOAD) {
-                    string_end_offset = tvb_find_uint8(tvb, offset, dlength-8-16, 0x0a);
-                    if (string_end_offset > 0) {
+                    if (tvb_find_uint8_length(tvb, offset, dlength-8-16, 0x0a, &string_end_offset)) {
                         string_len = string_end_offset - offset + 1;    /* include 0x0a */
                         proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_filepath, tvb, offset, string_len, ENC_ASCII);
                         offset += string_len;
