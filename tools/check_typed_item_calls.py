@@ -214,10 +214,24 @@ compatible_encoding_args['FT_STRINGZ'] = compatible_encoding_args['FT_STRING']
 compatible_encoding_multiple_flags_allowed = set(['FT_ABSOLUTE_TIME', 'FT_RELATIVE_TIME', 'FT_STRING', 'FT_STRINGZ'])
 
 
+# item type -> set<encodings>
+unsupported_encoding_args = {
+    'FT_STRINGZ':   set(['ENC_BCD_DIGITS_0_9',
+                         'ENC_KEYPAD_ABC_TBCD',
+                         'ENC_KEYPAD_BC_TBCD',
+                         'ENC_DECT_STANDARD_4BITS_TBCD',
+                         'ENC_3GPP_TS_23_038_7BITS_PACKED',
+                         'ENC_3GPP_TS_23_038_7BITS_UNPACKED',
+                         'ENC_ETSI_TS_102_221_ANNEX_A',
+                         'ENC_ASCII_7BITS',
+                         'ENC_APN_STR'])
+}
+
 class EncodingCheckerBasic:
-    def __init__(self, type, allowed_encodings, allow_multiple):
+    def __init__(self, type, allowed_encodings, unsupported_encodings, allow_multiple):
         self.type = type
         self.allowed_encodings = allowed_encodings
+        self.unsupported_encodings = unsupported_encodings
         self.allow_multiple = allow_multiple
         self.encodings_seen = 0
 
@@ -243,6 +257,13 @@ class EncodingCheckerBasic:
             result.warn(api_check.file + ':' + str(call.line_number),
                         api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' - with bad encoding - ' + '"' + encoding + '"', '-',
                         compatible_encoding_args[type], 'allowed')
+
+        # Warn if encoding not supported for this type
+        if encoding in self.unsupported_encodings:
+            result.warn(api_check.file + ':' + str(call.line_number),
+                        api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' - with unsupported encoding - ' + '"' + encoding + '"')
+
+
         self.encodings_seen += 1
 
 
@@ -251,7 +272,8 @@ class EncodingCheckerBasic:
 def create_enc_checker(type):
     if type in compatible_encoding_args:
         allow_multiple = type in compatible_encoding_multiple_flags_allowed
-        checker = EncodingCheckerBasic(type, compatible_encoding_args[type], allow_multiple)
+        checker = EncodingCheckerBasic(type, compatible_encoding_args[type],
+                                       unsupported_encoding_args[type] if type in unsupported_encoding_args else set(), allow_multiple)
         return checker
     else:
         return None
