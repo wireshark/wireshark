@@ -500,7 +500,7 @@ static char* freq_to_str(float freq)
 }
 
 static int
-dissect_data_shifting_command_parameters(uint8_t cmd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+dissect_data_shifting_command_parameters(uint8_t cmd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
                                          ftdi_mpsse_info_t *mpsse_info, command_data_t **cmd_data)
 {
     int          offset_start = offset;
@@ -546,7 +546,7 @@ dissect_data_shifting_command_parameters(uint8_t cmd, tvbuff_t *tvb, packet_info
 }
 
 static int
-dissect_set_data_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
+dissect_set_data_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
                                  const char *signal_names[8], const char *pin_prefix, unsigned num_pins)
 {
     static const int *value_bits_hf[] = {
@@ -614,7 +614,7 @@ dissect_set_data_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pi
 }
 
 static int
-dissect_cpumode_parameters(uint8_t cmd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+dissect_cpumode_parameters(uint8_t cmd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
                            ftdi_mpsse_info_t *mpsse_info, command_data_t **cmd_data)
 {
     int          offset_start = offset;
@@ -647,7 +647,7 @@ dissect_cpumode_parameters(uint8_t cmd, tvbuff_t *tvb, packet_info *pinfo, proto
 }
 
 static int
-dissect_clock_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, ftdi_mpsse_info_t *mpsse_info)
+dissect_clock_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, ftdi_mpsse_info_t *mpsse_info)
 {
     int          offset_start = offset;
     uint32_t     value;
@@ -676,7 +676,7 @@ dissect_clock_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static int
-dissect_clock_n_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, ftdi_mpsse_info_t *mpsse_info _U_)
+dissect_clock_n_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, ftdi_mpsse_info_t *mpsse_info _U_)
 {
     uint32_t length = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint_format(tree, hf_mpsse_length_uint8, tvb, offset, 1, length, "Length: %d clock%s", length + 1, plurality(length + 1, "", "s"));
@@ -684,7 +684,7 @@ dissect_clock_n_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pin
 }
 
 static int
-dissect_clock_n_times_8_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, ftdi_mpsse_info_t *mpsse_info _U_)
+dissect_clock_n_times_8_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, ftdi_mpsse_info_t *mpsse_info _U_)
 {
     uint32_t length = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_uint_format(tree, hf_mpsse_length_uint16, tvb, offset, 2, length, "Length: %d clocks", (length + 1) * 8);
@@ -766,7 +766,7 @@ get_data_bit_pin_prefix(bool is_high_byte, ftdi_mpsse_info_t *mpsse_info, unsign
 }
 
 static int
-dissect_io_open_drain_enable_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, ftdi_mpsse_info_t *mpsse_info _U_)
+dissect_io_open_drain_enable_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, ftdi_mpsse_info_t *mpsse_info _U_)
 {
     static const int *low_byte_bits_hf[] = {
         &hf_mpsse_open_drain_enable_low_b0,
@@ -832,7 +832,7 @@ dissect_io_open_drain_enable_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_i
 }
 
 static int
-dissect_non_data_shifting_command_parameters(uint8_t cmd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+dissect_non_data_shifting_command_parameters(uint8_t cmd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
                                              ftdi_mpsse_info_t *mpsse_info, command_data_t **cmd_data)
 {
     const char *pin_prefix         = NULL;
@@ -873,10 +873,10 @@ dissect_non_data_shifting_command_parameters(uint8_t cmd, tvbuff_t *tvb, packet_
     }
 }
 
-static int estimated_command_parameters_length(uint8_t cmd, tvbuff_t *tvb, packet_info *pinfo, int offset,
+static unsigned estimated_command_parameters_length(uint8_t cmd, tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
                                                 ftdi_mpsse_info_t *mpsse_info, command_data_t **cmd_data)
 {
-    int parameters_length = 0;
+    unsigned parameters_length = 0;
 
     if (!is_valid_command(cmd, mpsse_info))
     {
@@ -954,7 +954,7 @@ static int estimated_command_parameters_length(uint8_t cmd, tvbuff_t *tvb, packe
 }
 
 static uint8_t
-dissect_command_code(uint8_t cmd, const char *cmd_str, tvbuff_t *tvb, proto_tree *tree, int offset, ftdi_mpsse_info_t *mpsse_info _U_)
+dissect_command_code(uint8_t cmd, const char *cmd_str, tvbuff_t *tvb, proto_tree *tree, unsigned offset, ftdi_mpsse_info_t *mpsse_info _U_)
 {
     proto_item        *cmd_item;
     proto_tree        *cmd_tree;
@@ -986,21 +986,21 @@ dissect_command_code(uint8_t cmd, const char *cmd_str, tvbuff_t *tvb, proto_tree
 }
 
 static int
-dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, bool *need_reassembly,
+dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool *need_reassembly,
                 ftdi_mpsse_info_t *mpsse_info, command_data_t **cmd_data)
 {
     uint8_t      cmd;
     const char  *cmd_str;
-    int          offset_start = offset;
-    int          parameters_length;
-    int          dissected;
+    unsigned     offset_start = offset;
+    unsigned     parameters_length;
+    unsigned     dissected;
     proto_item  *cmd_with_parameters;
     proto_tree  *cmd_tree;
 
     cmd = tvb_get_uint8(tvb, offset);
     cmd_str = get_command_string(cmd, mpsse_info);
     parameters_length = estimated_command_parameters_length(cmd, tvb, pinfo, offset + 1, mpsse_info, cmd_data);
-    if (tvb_reported_length_remaining(tvb, offset + 1) < parameters_length)
+    if ((unsigned)tvb_reported_length_remaining(tvb, offset + 1) < parameters_length)
     {
         *need_reassembly = true;
         return 0;
@@ -1047,7 +1047,7 @@ dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 
 
 static int
-dissect_read_data_bits_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
+dissect_read_data_bits_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
                                 const char *signal_names[8], const char *pin_prefix, unsigned num_pins)
 {
     static const int *value_bits_hf[] = {
@@ -1084,14 +1084,14 @@ dissect_read_data_bits_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 }
 
 static int
-dissect_cpumode_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+dissect_cpumode_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_mpsse_cpumode_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     return 1;
 }
 
 static int
-dissect_non_data_shifting_command_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, command_data_t *cmd_data)
+dissect_non_data_shifting_command_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, command_data_t *cmd_data)
 {
     const char *pin_prefix         = NULL;
     unsigned    num_pins           = 0;
@@ -1115,9 +1115,9 @@ dissect_non_data_shifting_command_response(tvbuff_t *tvb, packet_info *pinfo, pr
     }
 }
 static int
-dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, command_data_t *cmd_data)
+dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, command_data_t *cmd_data)
 {
-    int          offset_start = offset;
+    unsigned    offset_start = offset;
 
     if (pinfo->fd->visited)
     {
@@ -1171,12 +1171,12 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     return offset - offset_start;
 }
 
-static int
-dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, bool *need_reassembly,
+static unsigned
+dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool *need_reassembly,
                  command_data_t *cmd_data)
 {
     const char  *cmd_str;
-    int          offset_start = offset;
+    unsigned     offset_start = offset;
     proto_item  *rsp_data;
     proto_tree  *rsp_tree;
     proto_item  *command_in;
@@ -1267,7 +1267,7 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     bool               need_reassembly = false;
     ftdi_mpsse_info_t *mpsse_info = (ftdi_mpsse_info_t *)data;
-    int                offset = 0;
+    unsigned           offset = 0;
     proto_item        *main_item;
     proto_tree        *main_tree;
 
@@ -1322,7 +1322,7 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         {
             if (!iter)
             {
-                proto_tree_add_expert(main_tree, pinfo, &ei_response_without_command, tvb, offset, -1);
+                proto_tree_add_expert_remaining(main_tree, pinfo, &ei_response_without_command, tvb, offset);
                 offset += tvb_reported_length_remaining(tvb, offset);
             }
             else
@@ -1342,14 +1342,14 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         }
         else
         {
-            proto_tree_add_expert(main_tree, pinfo, &ei_reassembly_unavailable, tvb, offset, -1);
+            proto_tree_add_expert_remaining(main_tree, pinfo, &ei_reassembly_unavailable, tvb, offset);
         }
         offset += tvb_reported_length_remaining(tvb, offset);
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0)
     {
-        proto_tree_add_expert(main_tree, pinfo, &ei_undecoded, tvb, offset, -1);
+        proto_tree_add_expert_remaining(main_tree, pinfo, &ei_undecoded, tvb, offset);
     }
 
     return tvb_reported_length(tvb);

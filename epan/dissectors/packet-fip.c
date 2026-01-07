@@ -423,7 +423,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     while ((rlen > 0) && tvb_bytes_exist(tvb, desc_offset, 2)) {
         dlen = tvb_get_uint8(tvb, desc_offset + 1) * FIP_BPW;
         if (!dlen) {
-            proto_tree_add_expert(fip_tree, pinfo, &ei_fip_descriptors, tvb, desc_offset, -1);
+            proto_tree_add_expert_remaining(fip_tree, pinfo, &ei_fip_descriptors, tvb, desc_offset);
             break;
         }
         if (!tvb_bytes_exist(tvb, desc_offset, dlen) || dlen > rlen) {

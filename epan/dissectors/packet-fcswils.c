@@ -446,7 +446,7 @@ typedef struct _fcswils_func_table_t {
 
 static dissector_handle_t fcsp_handle;
 
-static int get_zoneobj_len(tvbuff_t *tvb, int offset);
+static unsigned get_zoneobj_len(tvbuff_t *tvb, unsigned offset);
 
 /*
  * Hash Functions
@@ -472,15 +472,15 @@ fcswils_hash(const void *v)
 }
 
 static char *
-zonenm_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
+zonenm_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset)
 {
     int len = tvb_get_uint8(tvb, offset);
     return (char*)tvb_get_string_enc(scope, tvb, offset+4, len, ENC_ASCII);
 }
 
 /* Offset points to the start of the zone object */
-static int
-get_zoneobj_len(tvbuff_t *tvb, int offset)
+static unsigned
+get_zoneobj_len(tvbuff_t *tvb, unsigned offset)
 {
     int    numrec, numrec1;
     uint8_t objtype;
@@ -520,7 +520,7 @@ get_zoneobj_len(tvbuff_t *tvb, int offset)
 
 #define MAX_INTERCONNECT_ELEMENT_INFO_LEN  252
 static int
-dissect_swils_interconnect_element_info(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_swils_interconnect_element_info(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
 
     int len, max_len = MAX_INTERCONNECT_ELEMENT_INFO_LEN;
@@ -554,7 +554,7 @@ dissect_swils_interconnect_element_info(tvbuff_t *tvb, proto_tree *tree, int off
 }
 
 static void
-dissect_swils_ess_capability(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_swils_ess_capability(tvbuff_t *tvb, proto_tree *tree, unsigned offset,
                              uint8_t srvr_type)
 {
     if (tree) {
@@ -615,11 +615,11 @@ dissect_swils_ess_capability(tvbuff_t *tvb, proto_tree *tree, int offset,
     return;
 }
 
-static int
-dissect_swils_ess_capability_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
+static unsigned
+dissect_swils_ess_capability_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned offset)
 {
-    int         i = 0, num_entries = 0, len = 0, total_len = 0;
-    uint8_t     type, subtype, srvr_type;
+    unsigned    i = 0, num_entries = 0, len = 0, total_len = 0;
+    uint32_t     type, subtype, srvr_type;
     proto_tree *capinfo_tree = NULL;
 
     if (tree) {
@@ -646,9 +646,8 @@ dissect_swils_ess_capability_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
         }
 
         proto_tree_add_item(capinfo_tree, hf_swils_ess_cap_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(capinfo_tree, hf_swils_ess_cap_subtype, tvb, offset+1,
-                            1, ENC_BIG_ENDIAN);
-        subtype = tvb_get_uint8(tvb, offset+1);
+        proto_tree_add_item_ret_uint(capinfo_tree, hf_swils_ess_cap_subtype, tvb, offset+1,
+                            1, ENC_BIG_ENDIAN, &subtype);
 
         if (type != FCCT_GSTYPE_VENDOR) {
             srvr_type = get_gs_server(type, subtype);
@@ -704,7 +703,7 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *elp_tree, uint8
     /* Set up structures needed to add the protocol subtree and manage it */
     /* Response i.e. SW_ACC for an ELP has the same format as the request */
     /* We skip the initial 4 bytes as we don't care about the opcode */
-    int          offset = 4;
+    unsigned    offset = 4;
     const char *flags;
     uint16_t isl_flwctrl_mode;
     uint8_t clsf_svcparm[6], cls1_svcparm[2], cls2_svcparm[2], cls3_svcparm[2];
@@ -855,13 +854,12 @@ dissect_swils_efp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *efp_tree, uint8
     proto_tree  *lrec_tree;
     proto_item  *rec_item;
     int          num_listrec = 0;
-    int          offset      = 1; /* Skip opcode */
-    uint8_t      reclen;
+    unsigned     offset      = 1; /* Skip opcode */
+    uint32_t      reclen;
     uint16_t     payload_len;
     uint8_t      rec_type;
 
-    reclen = tvb_get_uint8(tvb, offset);
-    rec_item = proto_tree_add_uint(efp_tree, hf_swils_efp_record_len, tvb, offset, 1, reclen);
+    rec_item = proto_tree_add_item_ret_uint(efp_tree, hf_swils_efp_record_len, tvb, offset, 1, ENC_BIG_ENDIAN , &reclen);
     offset += 1;
     payload_len = tvb_get_ntohs(tvb, offset);
     if (payload_len < FC_SWILS_EFP_SIZE) {
@@ -915,7 +913,7 @@ static void
 dissect_swils_dia(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *dia_tree, uint8_t isreq _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
 
     if (dia_tree) {
         proto_tree_add_item(dia_tree, hf_swils_dia_switch_name, tvb, offset+4,
@@ -927,8 +925,8 @@ static void
 dissect_swils_rdi(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rdi_tree, uint8_t isreq)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
-    int i, plen, numrec;
+    unsigned offset = 0;
+    unsigned i, plen, numrec;
 
     if (rdi_tree) {
         plen = tvb_get_ntohs(tvb, offset+2);
@@ -954,7 +952,7 @@ dissect_swils_rdi(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rdi_tree, u
 }
 
 static void
-dissect_swils_fspf_hdr(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_swils_fspf_hdr(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_tree *fspfh_tree;
 
@@ -976,7 +974,7 @@ dissect_swils_fspf_hdr(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_swils_fspf_lsrechdr(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_swils_fspf_lsrechdr(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_swils_lsrh_lsr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_swils_lsrh_lsr_age, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -989,7 +987,7 @@ dissect_swils_fspf_lsrechdr(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_swils_fspf_ldrec(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_swils_fspf_ldrec(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_swils_ldrec_linkid, tvb, offset+1, 3, ENC_NA);
     proto_tree_add_item(tree, hf_swils_ldrec_out_pidx, tvb, offset+5, 3, ENC_BIG_ENDIAN);
@@ -999,7 +997,7 @@ dissect_swils_fspf_ldrec(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_swils_fspf_lsrec(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_swils_fspf_lsrec(tvbuff_t *tvb, proto_tree *tree, unsigned offset,
                          int num_lsrec)
 {
     int         i, j, num_ldrec;
@@ -1035,7 +1033,7 @@ static void
 dissect_swils_hello(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *hlo_tree, uint8_t isreq _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
 
     if (hlo_tree) {
         dissect_swils_fspf_hdr(tvb, hlo_tree, offset);
@@ -1052,7 +1050,7 @@ static void
 dissect_swils_lsupdate(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *lsu_tree, uint8_t isreq _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
     int num_lsrec;
 
     if (lsu_tree) {
@@ -1100,7 +1098,7 @@ static void
 dissect_swils_rscn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rscn_tree, uint8_t isreq)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int         offset = 0;
+    unsigned     offset = 0;
     proto_tree *dev_tree;
     int         numrec, i;
 
@@ -1154,7 +1152,7 @@ dissect_swils_rscn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rscn_tree,
  */
 
 static void
-dissect_swils_zone_mbr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zmbr_tree, int offset)
+dissect_swils_zone_mbr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zmbr_tree, unsigned offset)
 {
     uint8_t mbrtype;
     int     idlen;
@@ -1209,7 +1207,7 @@ dissect_swils_zone_mbr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zmbr_tree,
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_swils_zone_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zobj_tree, int offset)
+dissect_swils_zone_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zobj_tree, unsigned offset)
 {
     proto_tree *zmbr_tree;
     int         mbrlen, numrec, i, objtype;
@@ -1249,7 +1247,7 @@ static void
 dissect_swils_mergereq(tvbuff_t *tvb, packet_info* pinfo, proto_tree *mr_tree, uint8_t isreq)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int         offset = 0;
+    unsigned    offset = 0;
     proto_tree *zobjlist_tree, *zobj_tree;
     int         numrec, i, zonesetlen, objlistlen, objlen;
     char       *str;
@@ -1325,7 +1323,7 @@ static void
 dissect_swils_aca(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *aca_tree, uint8_t isreq)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
     int numrec, plen, i;
 
     if (aca_tree) {
@@ -1358,7 +1356,7 @@ static void
 dissect_swils_rca(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rca_tree, uint8_t isreq)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
 
     if (rca_tree) {
         if (!isreq) {
@@ -1452,7 +1450,7 @@ static void
 dissect_swils_ufc(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *ufc_tree, uint8_t isreq)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
 
     if (ufc_tree) {
         if (!isreq) {
@@ -1518,7 +1516,7 @@ static void
 dissect_swils_swrjt(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *swrjt_tree, uint8_t isreq _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0;
+    unsigned offset = 0;
 
     if (swrjt_tree) {
         proto_tree_add_item(swrjt_tree, hf_swils_rjt, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -1531,10 +1529,10 @@ dissect_swils_swrjt(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *swrjt_tre
 static void
 dissect_swils_ess(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *ess_tree, uint8_t isreq _U_)
 {
-    int         offset      = 0;
-    int16_t     numcapobj   = 0;
-    int         len         = 0;
-    int         capobjlen   = 0;
+    unsigned    offset      = 0;
+    uint32_t    numcapobj   = 0;
+    uint32_t    len         = 0;
+    unsigned    capobjlen   = 0;
     proto_tree *ieinfo_tree;
 
     if (!ess_tree) {
@@ -1542,8 +1540,7 @@ dissect_swils_ess(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *ess_tree, u
     }
 
     proto_tree_add_item(ess_tree, hf_swils_ess_rev, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ess_tree, hf_swils_ess_len, tvb, offset+8, 4, ENC_BIG_ENDIAN);
-    len = tvb_get_ntohl(tvb, offset+8);
+    proto_tree_add_item_ret_uint(ess_tree, hf_swils_ess_len, tvb, offset+8, 4, ENC_BIG_ENDIAN, &len);
 
     ieinfo_tree = proto_tree_add_subtree(ess_tree, tvb, offset+12,
                              MAX_INTERCONNECT_ELEMENT_INFO_LEN+4,
@@ -1552,8 +1549,7 @@ dissect_swils_ess(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *ess_tree, u
     len -= 256;                /* the interconnect obj above is 256 bytes */
     offset += 268;
 
-    proto_tree_add_item(ess_tree, hf_swils_ess_numobj, tvb, offset, 2, ENC_BIG_ENDIAN);
-    numcapobj = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint(ess_tree, hf_swils_ess_numobj, tvb, offset, 2, ENC_BIG_ENDIAN, &numcapobj);
 
     len -= 4;                  /* 2B numcapobj + 2B rsvd */
     offset += 4;
@@ -1570,7 +1566,7 @@ static void
 dissect_swils_mrra(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, uint8_t isreq)
 {
 
-    int offset = 0;
+    unsigned offset = 0;
 
     if (!tree) {
         return;
@@ -1659,7 +1655,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_item          *ti            = NULL;
     uint8_t              opcode;
     uint8_t              failed_opcode = 0;
-    int                  offset        = 0;
+    unsigned             offset        = 0;
     conversation_t      *conversation;
     fcswils_conv_data_t *cdata;
     fcswils_conv_key_t   ckey, *req_key;
@@ -1723,7 +1719,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         if (!conversation) {
             if (tree && (opcode == FC_SWILS_SWACC)) {
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_expert_format(swils_tree, pinfo, &ei_swils_no_exchange, tvb, 0, -1, "No record of Exchg. Unable to decode SW_ACC");
+                proto_tree_add_expert_format_remaining(swils_tree, pinfo, &ei_swils_no_exchange, tvb, 0, "No record of Exchg. Unable to decode SW_ACC");
                 return 0;
             }
         }
@@ -1742,7 +1738,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             if (tree) {
                 if ((cdata == NULL) && (opcode != FC_SWILS_SWRJT)) {
                     /* No record of what this accept is for. Can't decode */
-                    proto_tree_add_expert_format(swils_tree, pinfo, &ei_swils_no_exchange, tvb, 0, -1, "No record of SW_ILS Req. Unable to decode SW_ACC");
+                    proto_tree_add_expert_format_remaining(swils_tree, pinfo, &ei_swils_no_exchange, tvb, 0, "No record of SW_ILS Req. Unable to decode SW_ACC");
                     return 0;
                 }
             }
