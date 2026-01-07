@@ -709,32 +709,6 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
     proto_tree *rule_tree;
     Rule_t *rule = alert->matched_rule;
 
-    /* May need to move to reassembled frame to show there instead of here */
-
-    if (snort_alert_in_reassembled_frame && pinfo->fd->visited && (tree != NULL)) {
-        unsigned reassembled_frame = get_reassembled_in_frame(tree);
-
-        if (reassembled_frame && (reassembled_frame != pinfo->num)) {
-            Alerts_t *alerts;
-
-            /* Look up alerts for this frame */
-            alerts = (Alerts_t*)wmem_tree_lookup32(current_session.alerts_tree, pinfo->num);
-
-            if (!alerts->alerts[0].reassembled_frame) {
-                /* Update all alerts from this frame! */
-                for (n=0; n < alerts->num_alerts; n++) {
-
-                    /* Set forward/back frame numbers */
-                    alerts->alerts[n].original_frame = pinfo->num;
-                    alerts->alerts[n].reassembled_frame = reassembled_frame;
-
-                    /* Add these alerts to reassembled frame */
-                    add_alert_to_session_tree(reassembled_frame, &alerts->alerts[n]);
-                }
-            }
-        }
-    }
-
     /* Can only find start if we have the rule and know the protocol */
     unsigned content_start_match = 0;
     unsigned payload_start = 0;
@@ -1225,6 +1199,27 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /* Now look up stored alerts for this packet number, and display if found */
     if (current_session.alerts_tree && (alerts = (Alerts_t*)wmem_tree_lookup32(current_session.alerts_tree, pinfo->fd->num))) {
         unsigned n;
+
+        /* May need to move to reassembled frame to show there instead of here */
+
+        if (snort_alert_in_reassembled_frame && pinfo->fd->visited && (tree != NULL)) {
+            unsigned reassembled_frame = get_reassembled_in_frame(tree);
+
+            if (reassembled_frame && (reassembled_frame != pinfo->num)) {
+                if (!alerts->alerts[0].reassembled_frame) {
+                    /* Update all alerts from this frame! */
+                    for (n=0; n < alerts->num_alerts; n++) {
+
+                        /* Set forward/back frame numbers */
+                        alerts->alerts[n].original_frame = pinfo->num;
+                        alerts->alerts[n].reassembled_frame = reassembled_frame;
+
+                        /* Add these alerts to reassembled frame */
+                        add_alert_to_session_tree(reassembled_frame, &alerts->alerts[n]);
+                    }
+                }
+            }
+        }
 
         for (n=0; n < alerts->num_alerts; n++) {
             snort_show_alert(tree, tvb, pinfo, &(alerts->alerts[n]));
