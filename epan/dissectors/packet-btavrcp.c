@@ -1465,8 +1465,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 unsigned  number_of_attributes;
                 uint64_t      identifier;
 
-                proto_tree_add_item(tree, hf_btavrcp_identifier, tvb, offset, 8, ENC_BIG_ENDIAN);
-                identifier = tvb_get_ntoh64(tvb, offset);
+                proto_tree_add_item_ret_uint64(tree, hf_btavrcp_identifier, tvb, offset, 8, ENC_BIG_ENDIAN, &identifier);
                 offset += 8;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - 0x%08X%08X", (unsigned) (identifier >> 32), (unsigned) (identifier & 0xFFFFFFFF));
@@ -1780,8 +1779,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_btavrcp_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
                 scope = tvb_get_uint8(tvb, offset);
                 offset += 1;
-                proto_tree_add_item(tree, hf_btavrcp_uid, tvb, offset, 8, ENC_BIG_ENDIAN);
-                uid = tvb_get_ntoh64(tvb, offset);
+                proto_tree_add_item_ret_uint64(tree, hf_btavrcp_uid, tvb, offset, 8, ENC_BIG_ENDIAN, &uid);
                 offset += 8;
                 proto_tree_add_item(tree, hf_btavrcp_uid_counter, tvb, offset, 2, ENC_BIG_ENDIAN);
                 uid_counter = tvb_get_ntohs(tvb, offset);

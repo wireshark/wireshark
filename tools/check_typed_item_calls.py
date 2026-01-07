@@ -2193,7 +2193,7 @@ def find_item_extern_declarations(filename, lines):
             items.add(m.group(1))
     return items
 
-fetch_functions = [ 'tvb_get_ntohl', 'tvb_get_letohl' ]
+fetch_functions = [ 'tvb_get_ntohl', 'tvb_get_letohl', 'tvb_get_ntoh64', 'tvb_get_letoh64' ]
 
 def line_has_fetch_function(line):
     for f in fetch_functions:
@@ -2249,14 +2249,21 @@ def check_double_fetches(filename, contents, items, result):
         else:
             field_width = 0
 
-        if field_width != 4:
+        if field_width != 4 and field_width != 8:
             continue
 
         # Use width and signedness to decide which combined function to suggest
-        if signed_type:
-            suggest = 'proto_tree_add_item_ret_int'
+        if field_width == 4:
+            if signed_type:
+                suggest = 'proto_tree_add_item_ret_int'
+            else:
+                suggest = 'proto_tree_add_item_ret_uint'
         else:
-            suggest = 'proto_tree_add_item_ret_uint'
+            if signed_type:
+                suggest = 'proto_tree_add_item_ret_int64'
+            else:
+                suggest = 'proto_tree_add_item_ret_uint64'
+
 
         if line_has_fetch_function(prev_line) and hf_name.endswith(first_prev_token) and '=' in prev_line_tokens:
             result.warn(filename, 'PREV: val=', first_prev_token, 'hfname=', hf_name,
