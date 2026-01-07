@@ -816,6 +816,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-erldp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-esio.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-esis.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-esun.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-etag.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-etch.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-eth.c
