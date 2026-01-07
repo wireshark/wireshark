@@ -1048,20 +1048,21 @@ dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 {
 	proto_item *ti = NULL, *tf;
 	proto_tree *field_tree;
-	int32_t current_offset = 1;
-	uint8_t fopts_length = (tvb_get_uint8(tvb, current_offset + 4) & LORAWAN_FRAME_FOPTSLEN_MASK);
+	uint32_t current_offset = 1;
+	uint64_t fctrl;
+	uint8_t fopts_length;
 	uint8_t fport = 0;
+	uint32_t dev_address, fcnt;
 
 	/* Frame header */
-	tf = proto_tree_add_item(tree, hf_lorawan_frame_header_type, tvb, current_offset, 7 + fopts_length, ENC_NA);
+	tf = proto_tree_add_item(tree, hf_lorawan_frame_header_type, tvb, current_offset, 7, ENC_NA);
 	field_tree = proto_item_add_subtree(tf, ett_lorawan_frame_header);
-	proto_tree_add_item(field_tree, hf_lorawan_frame_header_address_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
-	uint32_t dev_address = tvb_get_uint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(field_tree, hf_lorawan_frame_header_address_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN, &dev_address);
 	current_offset += 4;
-	proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_frame_header_frame_control_type, ett_lorawan_frame_header_control, hfx_lorawan_frame_header_frame_control, ENC_NA);
+	proto_tree_add_bitmask_ret_uint64(field_tree, tvb, current_offset, hf_lorawan_frame_header_frame_control_type, ett_lorawan_frame_header_control, hfx_lorawan_frame_header_frame_control, ENC_NA, &fctrl);
+	fopts_length = fctrl & LORAWAN_FRAME_FOPTSLEN_MASK;
 	current_offset++;
-	proto_tree_add_item(field_tree, hf_lorawan_frame_header_frame_counter_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
-	uint32_t fcnt = tvb_get_uint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(field_tree, hf_lorawan_frame_header_frame_counter_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN, &fcnt);
 	current_offset += 2;
 
 	/*
@@ -1071,6 +1072,7 @@ dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 	 */
 
 	if (fopts_length > 0) {
+		proto_item_set_len(tf, 7 + fopts_length);
 		tvbuff_t *next_tvb = tvb_new_subset_length(tvb, current_offset, fopts_length);
 		current_offset += dissect_lorawan_mac_commands(next_tvb, pinfo, tree, uplink);
 	}
@@ -1086,7 +1088,7 @@ dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 		/* TODO?: error, not allowed */
 	}
 
-	uint8_t frmpayload_length = tvb_captured_length_remaining(tvb, current_offset) - 4;
+	uint32_t frmpayload_length = tvb_captured_length_remaining(tvb, current_offset + 4);
 	if (frmpayload_length > 0) {
 		ti = proto_tree_add_item(tree, hf_lorawan_frame_payload_type, tvb, current_offset, frmpayload_length, ENC_NA);
 	}
