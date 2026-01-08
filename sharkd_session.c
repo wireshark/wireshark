@@ -6162,8 +6162,6 @@ sharkd_session_main(int mode_setting)
     uat_get_table_by_name("MaxMind Database Paths")->post_update_cb();
 #endif
 
-    set_resolution_synchrony(true);
-
     while (fgets(buf, sizeof(buf), stdin))
     {
         /* every command is line separated JSON */
