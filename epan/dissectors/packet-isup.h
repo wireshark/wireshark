@@ -160,7 +160,7 @@ WS_DLL_PUBLIC value_string_ext isup_calling_partys_category_value_ext;
  * Export dissection of some parameters
  */
 WS_DLL_PUBLIC
-void dissect_nsap(tvbuff_t *parameter_tvb, packet_info* pinfo, int offset, int len, proto_tree *parameter_tree);
+void dissect_nsap(tvbuff_t *parameter_tvb, packet_info* pinfo, unsigned offset, unsigned len, proto_tree *parameter_tree);
 WS_DLL_PUBLIC
 void dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item);
 WS_DLL_PUBLIC
@@ -180,7 +180,7 @@ void dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, packet_info
 void dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item);
 void dissect_isup_generic_digits_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_);
 
-extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len);
+extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigned len);
 
 /* PUBLIC_HEADER: This is used by custom dissectors and should be in the "install" target */
 void dissect_japan_isup_additonal_user_cat(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item);

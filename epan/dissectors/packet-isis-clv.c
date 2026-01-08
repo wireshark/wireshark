@@ -65,12 +65,12 @@ isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tv
         arealen = tvb_get_uint8(tvb, offset);
         length--;
         if (length<=0) {
-            proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, expert, tvb, offset,
                 "short address (no length for payload)");
             return;
         }
         if ( arealen > length) {
-            proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, expert, tvb, offset,
                 "short address, packet says %d, we have %d left",
                 arealen, length );
             return;
@@ -123,7 +123,7 @@ isis_dissect_instance_identifier_clv(proto_tree *tree, packet_info* pinfo, tvbuf
 
     length--;
     if (length<=0) {
-        proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
+        proto_tree_add_expert_format_remaining(tree, pinfo, expert, tvb, offset,
             "short address (no length for payload)");
         return;
     }
@@ -219,7 +219,7 @@ isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *
     }
 
     if ( auth_unsupported ) {
-        proto_tree_add_expert(tree, pinfo, auth_expert, tvb, offset, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, auth_expert, tvb, offset);
     }
 }
 
@@ -316,7 +316,7 @@ isis_dissect_ip_int_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, exp
 
     while ( length > 0 ) {
         if ( length < 4 ) {
-            proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, expert, tvb, offset,
                 "Short IP interface address (%d vs 4)",length );
             return;
         }
@@ -360,7 +360,7 @@ isis_dissect_ipv6_int_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, e
 
     while ( length > 0 ) {
         if ( length < 16 ) {
-            proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, expert, tvb, offset,
                 "Short IPv6 interface address (%d vs 16)",length );
             return;
         }
@@ -401,7 +401,7 @@ isis_dissect_te_router_id_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tv
     }
 
     if ( length != 4 ) {
-        proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
+        proto_tree_add_expert_format_remaining(tree, pinfo, expert, tvb, offset,
             "malformed Traffic Engineering Router ID (%d vs 4)",length );
         return;
     }
@@ -505,7 +505,7 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
             break;
 
         if ( len < length ) {
-            proto_tree_add_expert_format(tree, pinfo, expert_short_len, tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, expert_short_len, tvb, offset,
                 "Short CLV header (%d vs %d)",
                 length, len );
             return;

@@ -8,7 +8,7 @@
  */
 #include "packet-gtp.h"
 
-extern void dissect_gtpv2_ie_common(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, uint8_t message_type, session_args_t* args, uint8_t parent_ie);
+extern void dissect_gtpv2_ie_common(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, unsigned offset, uint8_t message_type, session_args_t* args, uint8_t parent_ie);
 
 extern void dissect_gtpv2_apn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint16_t length _U_, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_);
 extern void dissect_gtpv2_ambr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_);
@@ -26,7 +26,7 @@ extern void dissect_gtpv2_epc_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 extern void dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_);
 extern void dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_);
 /* PUBLIC_HEADER: This is used by custom dissectors and should be in the "install" target */
-extern char* dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, bool is_5gs);
+extern char* dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, bool is_5gs);
 int dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 WS_DLL_PUBLIC void dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_);
 

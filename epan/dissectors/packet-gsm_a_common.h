@@ -363,8 +363,8 @@ extern const char* get_gsm_a_msg_string(wmem_allocator_t* pool, int pdu_type, in
         SEV_elem_funcs = nas_5gs_updp_elem_fcn; \
         break; \
     default: \
-        proto_tree_add_expert_format(tree, pinfo, ei_unknown, \
-            tvb, curr_offset, -1, \
+        proto_tree_add_expert_format_remaining(tree, pinfo, ei_unknown, \
+            tvb, curr_offset, \
             "Unknown PDU type (%u) gsm_a_common", SEV_pdu_type); \
         return(consumed); \
     }

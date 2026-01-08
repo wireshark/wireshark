@@ -4442,14 +4442,14 @@ static int dissect_lbmr_pser(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 /*----------------------------------------------------------------------------*/
 /* LBMR Queue Management dissection functions.                                */
 /*----------------------------------------------------------------------------*/
-int lbmr_dissect_umq_qmgmt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+unsigned lbmr_dissect_umq_qmgmt(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     uint8_t pckt_type = 0;
-    int curr_offset = 0;
+    unsigned curr_offset = 0;
     uint16_t dep16;
     uint16_t idx;
     uint8_t flags_val = 0;
-    int len_dissected = 0;
+    unsigned len_dissected = 0;
     static int * const flags[] =
     {
         &hf_qmgmt_flags_i_flag,

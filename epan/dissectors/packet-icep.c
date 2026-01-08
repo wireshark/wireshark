@@ -767,7 +767,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, uint32_t offset,
 
     if ( num_reqs == 0 ) {
 
-        proto_tree_add_expert(icep_tree, pinfo, &ei_icep_empty_batch, tvb, offset, -1);
+        proto_tree_add_expert_remaining(icep_tree, pinfo, &ei_icep_empty_batch, tvb, offset);
         col_append_str(pinfo->cinfo, COL_INFO, " (empty batch requests sequence)");
 
         return;

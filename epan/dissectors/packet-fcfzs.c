@@ -568,7 +568,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                 val_to_str(pinfo->pool, opcode, fc_fzs_opcode_val,
                                            "0x%x"));
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_expert_format(fcfzs_tree, pinfo, &ei_fcfzs_no_exchange, tvb, 0, -1,
+                proto_tree_add_expert_format_remaining(fcfzs_tree, pinfo, &ei_fcfzs_no_exchange, tvb, 0,
                                     "No record of Exchg. Unable to decode MSG_ACC");
                 return 0;
             }
@@ -598,7 +598,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_expert_format(fcfzs_tree, pinfo, &ei_fcfzs_no_exchange, tvb, 0, -1,
+                proto_tree_add_expert_format_remaining(fcfzs_tree, pinfo, &ei_fcfzs_no_exchange, tvb, 0,
                                     "No record of Exchg. Unable to decode MSG_ACC/RJT");
                 return 0;
             }

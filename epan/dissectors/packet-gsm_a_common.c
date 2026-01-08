@@ -1701,8 +1701,8 @@ uint16_t elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint8_t ie
 
         /* idx is out of range */
         if (elem_name == NULL) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_unknown_element,
-                tvb, curr_offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_gsm_a_unknown_element,
+                tvb, curr_offset,
                 "Unknown - aborting dissection%s", (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
             return consumed;
         }
@@ -1775,8 +1775,8 @@ uint16_t elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint
 
         /* idx is out of range */
         if (elem_name == NULL) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_unknown_element,
-                tvb, curr_offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_gsm_a_unknown_element,
+                tvb, curr_offset,
                 "Unknown - aborting dissection%s", (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
             return consumed;
         }

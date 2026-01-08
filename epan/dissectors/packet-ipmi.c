@@ -1202,7 +1202,7 @@ ipmi_getcmd(ipmi_netfn_t *nf, uint32_t cmd)
 void
 ipmi_notimpl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_expert(tree, pinfo, &ei_impi_parser_not_implemented, tvb, 0, -1);
+	proto_tree_add_expert_remaining(tree, pinfo, &ei_impi_parser_not_implemented, tvb, 0);
 }
 
 void

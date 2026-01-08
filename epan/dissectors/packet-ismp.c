@@ -231,7 +231,7 @@ ipx_addr_to_str(wmem_allocator_t *scope, const uint32_t net, const uint8_t *ad)
 
 /* Function to dissect EDP portion of ISMP message */
 static void
-dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp_tree)
+dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *ismp_tree)
 {
 	/* local variables used for EDP dissection */
 	int neighbors_count = 0;
@@ -400,7 +400,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			}
 			if (neighbors_count != num_neighbors)
 			{
-				proto_tree_add_expert(edp_tree, pinfo, &ei_ismp_malformed, tvb, offset, -1);
+				proto_tree_add_expert_remaining(edp_tree, pinfo, &ei_ismp_malformed, tvb, offset);
 				return;
 			}
 		}
@@ -415,7 +415,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			offset += 2;
 		}
 		else if (tvb_reported_length_remaining(tvb, offset) > 0) {
-			proto_tree_add_expert(edp_tree, pinfo, &ei_ismp_malformed, tvb, offset, -1);
+			proto_tree_add_expert_remaining(edp_tree, pinfo, &ei_ismp_malformed, tvb, offset);
 			return;
 		}
 		else
@@ -482,7 +482,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				tuples_count++;
 			}
 			if (tuples_count != num_tuples)
-				proto_tree_add_expert(edp_tree, pinfo, &ei_ismp_malformed, tvb, offset, -1);
+				proto_tree_add_expert_remaining(edp_tree, pinfo, &ei_ismp_malformed, tvb, offset);
 
 			return;
 		}
@@ -493,7 +493,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 static int
 dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint16_t message_type = 0;
 	uint8_t code_length = 0;
 	uint8_t weird_stuff[3] = { 0x42, 0x42, 0x03 };

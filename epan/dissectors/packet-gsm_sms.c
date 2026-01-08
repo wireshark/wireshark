@@ -2541,8 +2541,8 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
     {
         if (length <= (offset - saved_offset))
         {
-            proto_tree_add_expert(tree, pinfo, &ei_gsm_sms_short_data,
-                tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_sms_short_data,
+                tvb, offset);
             return;
         }
 
@@ -2556,8 +2556,8 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
     {
         if (length <= (offset - saved_offset))
         {
-            proto_tree_add_expert(tree, pinfo, &ei_gsm_sms_short_data,
-                tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_sms_short_data,
+                tvb, offset);
             return;
         }
 
@@ -2571,8 +2571,8 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
     {
         if (length <= (offset - saved_offset))
         {
-            proto_tree_add_expert(tree, pinfo, &ei_gsm_sms_short_data,
-                tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_sms_short_data,
+                tvb, offset);
             return;
         }
 
@@ -2712,8 +2712,8 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
 
     if (pi & 0x01) {
         if (length <= (offset - saved_offset)) {
-            proto_tree_add_expert(tree, pinfo, &ei_gsm_sms_short_data,
-                tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_sms_short_data,
+                tvb, offset);
             return;
         }
 
@@ -2727,8 +2727,8 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
     {
         if (length <= (offset - saved_offset))
         {
-            proto_tree_add_expert(tree, pinfo, &ei_gsm_sms_short_data,
-                tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_sms_short_data,
+                tvb, offset);
             return;
         }
 
@@ -2742,8 +2742,8 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
     {
         if (length <= (offset - saved_offset))
         {
-            proto_tree_add_expert(tree, pinfo, &ei_gsm_sms_short_data,
-                tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_sms_short_data,
+                tvb, offset);
             return;
         }
 
@@ -2827,8 +2827,8 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
     {
         if (length <= (offset - saved_offset))
         {
-            proto_tree_add_expert(tree, pinfo, &ei_gsm_sms_short_data,
-                tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_sms_short_data,
+                tvb, offset);
             return;
         }
 
@@ -2841,8 +2841,8 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
     {
         if (length <= (offset - saved_offset))
         {
-            proto_tree_add_expert(tree, pinfo, &ei_gsm_sms_short_data,
-                tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_sms_short_data,
+                tvb, offset);
             return;
         }
 
@@ -2855,8 +2855,8 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
     {
         if (length <= (offset - saved_offset))
         {
-            proto_tree_add_expert(tree, pinfo, &ei_gsm_sms_short_data,
-                tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_sms_short_data,
+                tvb, offset);
             return;
         }
 
@@ -3006,8 +3006,8 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (msg_fcn == NULL)
         {
-            proto_tree_add_expert(gsm_sms_tree, pinfo, &ei_gsm_sms_message_dissector_not_implemented,
-                tvb, offset, -1);
+            proto_tree_add_expert_remaining(gsm_sms_tree, pinfo, &ei_gsm_sms_message_dissector_not_implemented,
+                tvb, offset);
         }
         else
         {

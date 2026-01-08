@@ -122,7 +122,7 @@ dissect_snp_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
     uint16_t checksum, cacl_checksum=0;
 
     if ( length != 2 ) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_csnp_short_clv, tvb, offset, -1,
+        proto_tree_add_expert_format_remaining(tree, pinfo, &ei_isis_csnp_short_clv, tvb, offset,
             "incorrect checksum length (%u), should be (2)", length );
             return;
     }
@@ -163,7 +163,7 @@ dissect_snp_lsp_entries_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 
     while ( length > 0 ) {
         if ( length < 2+isis->system_id_len+2+4+2 ) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_isis_csnp_short_clv, tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_isis_csnp_short_clv, tvb, offset,
                 "Short SNP header entry (%d vs %d)", length, 2+isis->system_id_len+2+4+2 );
             return;
         }

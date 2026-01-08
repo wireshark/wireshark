@@ -54,7 +54,7 @@ typedef struct lbmpdm_msg_hdr_stct_t
 #define L_LBMPDM_MSG_HDR_T_DEF_ID SIZEOF(lbmpdm_msg_hdr_t, def_id)
 #define O_LBMPDM_MSG_HDR_T_LEN OFFSETOF(lbmpdm_msg_hdr_t, len)
 #define L_LBMPDM_MSG_HDR_T_LEN SIZEOF(lbmpdm_msg_hdr_t, len)
-#define L_LBMPDM_MSG_HDR_T (int) sizeof(lbmpdm_msg_hdr_t)
+#define L_LBMPDM_MSG_HDR_T sizeof(lbmpdm_msg_hdr_t)
 
 /*---------------------*/
 /* PDM segment header. */
@@ -1145,7 +1145,7 @@ static bool check_lbmpdm_encoding(tvbuff_t * tvb, int offset, int * encoding)
     return (result);
 }
 
-bool lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, uint32_t* length)
+bool lbmpdm_verify_payload(tvbuff_t * tvb, unsigned offset, int * encoding, uint32_t* length)
 {
     uint8_t next_header;
     uint32_t len = 0;
@@ -1178,7 +1178,7 @@ bool lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, uint32_t*
     return true;
 }
 
-int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, uint64_t channel)
+unsigned lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, uint64_t channel)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -1186,13 +1186,13 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_tree * segments_tree = NULL;
     proto_item * pi = NULL;
     uint8_t next_hdr;
-    int dissected_len = 0;
+    unsigned dissected_len = 0;
     int encoding;
-    int msglen = 0;
-    int len_remaining = 0;
-    int ofs = 0;
-    int segment_len = 0;
-    int datalen = 0;
+    unsigned msglen = 0;
+    unsigned len_remaining = 0;
+    unsigned ofs = 0;
+    unsigned segment_len = 0;
+    unsigned datalen = 0;
     uint32_t raw_msglen = 0;
     lbmpdm_msg_definition_id_t msgid;
 
@@ -1200,7 +1200,7 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
     {
         return 0;
     }
-    msglen = (int)raw_msglen;
+    msglen = raw_msglen;
 
     msgid.channel = channel;
     msgid.offset_table = NULL;
@@ -1261,7 +1261,7 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
 
 int lbmpdm_get_minimum_length(void)
 {
-    return (L_LBMPDM_MSG_HDR_T);
+    return (int)(L_LBMPDM_MSG_HDR_T);
 }
 
 /* Register all the bits needed with the filtering engine */

@@ -348,7 +348,7 @@ dissect_grpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, grpc_co
                 pinfo->desegment_len = GRPC_MESSAGE_HEAD_LEN - (tvb_len - offset);
                 return offset;
             }
-            proto_tree_add_expert_format(tree, pinfo, &ei_grpc_body_malformed, tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_grpc_body_malformed, tvb, offset,
                      "GRPC Malformed message data: only %u bytes left, need at least %u bytes.", tvb_len - offset, GRPC_MESSAGE_HEAD_LEN);
             break;
         }
@@ -361,7 +361,7 @@ dissect_grpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, grpc_co
                 pinfo->desegment_len = GRPC_MESSAGE_HEAD_LEN + message_length - (tvb_len - offset);
                 return offset;
             }
-            proto_tree_add_expert_format(tree, pinfo, &ei_grpc_body_malformed, tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_grpc_body_malformed, tvb, offset,
                      "GRPC Malformed message data: only %u bytes left, need at least %u bytes.", tvb_len - offset, GRPC_MESSAGE_HEAD_LEN + message_length);
             break;
         }

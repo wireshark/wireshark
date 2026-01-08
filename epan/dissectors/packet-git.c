@@ -74,7 +74,7 @@ static const value_string sideband_vals[] = {
 /* desegmentation of Git over TCP */
 static bool git_desegment = true;
 
-static bool get_packet_length(tvbuff_t *tvb, packet_info* pinfo, int offset,
+static bool get_packet_length(tvbuff_t *tvb, packet_info* pinfo, unsigned offset,
                                   uint16_t *length)
 {
   char *lenstr = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
@@ -109,7 +109,7 @@ get_git_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 */
 static bool
 dissect_pkt_line(tvbuff_t *tvb, packet_info *pinfo, proto_tree *git_tree,
-                 int *offset)
+                 unsigned *offset)
 {
   uint16_t plen;
 
@@ -170,7 +170,7 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 {
   proto_tree             *git_tree;
   proto_item             *ti;
-  int offset = 0;
+  unsigned offset = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
@@ -198,13 +198,13 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
  * dissectors, adds the packs to the git subtree and returns the amount
  * of consumed bytes in the tvb buffer.
 */
-static int
+static unsigned
 dissect_http_pkt_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hfindex)
 {
   proto_tree             *git_tree;
   proto_item             *ti;
-  int offset = 0;
-  int total_len = 0;
+  unsigned offset = 0;
+  unsigned total_len = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
@@ -220,7 +220,7 @@ dissect_http_pkt_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
   while (offset < total_len) {
     /* Add expert info if there is trouble parsing part-way through */
     if (!dissect_pkt_line(tvb, pinfo, git_tree, &offset)) {
-      proto_tree_add_expert(git_tree, pinfo, &ei_git_malformed, tvb, offset, -1);
+      proto_tree_add_expert_remaining(git_tree, pinfo, &ei_git_malformed, tvb, offset);
       break;
     }
   }

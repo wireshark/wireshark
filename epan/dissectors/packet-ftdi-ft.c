@@ -1391,7 +1391,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             /* Report any potentially undissected response data */
             if (tvb_reported_length_remaining(tvb, offset) > 0)
             {
-                proto_tree_add_expert(main_tree, pinfo, &ei_undecoded, tvb, offset, -1);
+                proto_tree_add_expert_remaining(main_tree, pinfo, &ei_undecoded, tvb, offset);
             }
         }
     }

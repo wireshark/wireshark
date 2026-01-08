@@ -9179,7 +9179,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
   }
   else
   {
-    proto_tree_add_expert_format(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_invalid, tvb, bit_offset >> 3, -1, "GPRS block with invalid coding scheme (%d) for RLC Control",
+    proto_tree_add_expert_format_remaining(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_invalid, tvb, bit_offset >> 3, "GPRS block with invalid coding scheme (%d) for RLC Control",
                         data->block_format);
   }
 }
@@ -9189,7 +9189,7 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
   if (data->flags & GSM_RLC_MAC_EGPRS_FANR_FLAG)
   {
-    proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, tvb, 0, -1);
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, tvb, 0);
   }
   else
   {
@@ -9226,7 +9226,7 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         break;
 
       default:
-        proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_egprs_header_type_not_handled, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_rlcmac_egprs_header_type_not_handled, tvb, 0);
         break;
     }
     rlc_mac->u.egprs_dl_header_info.bsn1 = data->u.DL_Data_Block_EGPRS_Header.BSN1;
@@ -9249,7 +9249,7 @@ dissect_ec_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
   if (data->flags & GSM_RLC_MAC_EGPRS_FANR_FLAG)
   {
-    proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, tvb, 0, -1);
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, tvb, 0);
   }
   else
   {
@@ -9278,7 +9278,7 @@ dissect_ec_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       case RLCMAC_HDR_TYPE_1_EC:
       case RLCMAC_HDR_TYPE_2_EC:
       default:
-        proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_egprs_header_type_not_handled, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_rlcmac_egprs_header_type_not_handled, tvb, 0);
         break;
     }
     rlc_mac->u.egprs_dl_header_info.bsn1 = data->u.DL_Data_Block_EGPRS_Header.BSN1;
@@ -9467,7 +9467,7 @@ dissect_ul_pacch_access_burst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   }
   else
   {
-    proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_unknown_pacch_access_burst, tvb, 0, -1);
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_rlcmac_unknown_pacch_access_burst, tvb, 0);
     call_data_dissector(tvb, pinfo, tree);
   }
 }
@@ -9553,7 +9553,7 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
   }
   else
   {
-    proto_tree_add_expert_format(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_invalid, tvb, bit_offset >> 3, -1, "GPRS UL block with Coding Scheme CS%d and incompatible payload type",
+    proto_tree_add_expert_format_remaining(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_invalid, tvb, bit_offset >> 3, "GPRS UL block with Coding Scheme CS%d and incompatible payload type",
                         data->block_format &0x0F);
   }
 }
@@ -9562,7 +9562,7 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
   if (data->flags & GSM_RLC_MAC_EGPRS_FANR_FLAG)
   {
-    proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, tvb, 0, -1);
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, tvb, 0);
   }
   else
   {
@@ -9597,7 +9597,7 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         break;
 
       default:
-        proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_egprs_header_type_not_handled, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_rlcmac_egprs_header_type_not_handled, tvb, 0);
         break;
     }
 
@@ -9619,7 +9619,7 @@ dissect_ec_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
   if (data->flags & GSM_RLC_MAC_EGPRS_FANR_FLAG)
   {
-    proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, tvb, 0, -1);
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, tvb, 0);
   }
   else
   {
@@ -9646,7 +9646,7 @@ dissect_ec_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       case RLCMAC_HDR_TYPE_1_EC:
       case RLCMAC_HDR_TYPE_2_EC:
       default:
-        proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_egprs_header_type_not_handled, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_gsm_rlcmac_egprs_header_type_not_handled, tvb, 0);
         break;
     }
 
@@ -9825,7 +9825,7 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
     default:
-      proto_tree_add_expert_format(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_unknown, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", rlc_dl->block_format);
+      proto_tree_add_expert_format_remaining(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_unknown, tvb, 0, "GSM RLCMAC unknown coding scheme (%d)", rlc_dl->block_format);
       break;
   }
 
@@ -9915,7 +9915,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         break;
 
     default:
-      proto_tree_add_expert_format(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_unknown, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", rlc_ul->block_format);
+      proto_tree_add_expert_format_remaining(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_unknown, tvb, 0, "GSM RLCMAC unknown coding scheme (%d)", rlc_ul->block_format);
       break;
   }
 

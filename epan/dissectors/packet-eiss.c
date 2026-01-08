@@ -230,7 +230,7 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 
 		return (3+tmp);
 	} else {
-		proto_tree_add_expert(tree, pinfo, &ei_eiss_unknown_descriptor, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_eiss_unknown_descriptor, tvb, offset);
 
 		/* skip the rest of the section... for now */
 		return 1000;

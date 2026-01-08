@@ -1293,7 +1293,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	for (int i = 0; i < len; i++) {
 		char c = hex_ascii[i];
 		if (!g_ascii_isxdigit(c)) {
-			proto_tree_add_expert_format(sub_tree, pinfo, &ei_json_3gpp_encoding_error, suppfeat_tvb, 0, -1, "Invalid char pos=%d value=%02x", i, c);
+			proto_tree_add_expert_format_remaining(sub_tree, pinfo, &ei_json_3gpp_encoding_error, suppfeat_tvb, 0, "Invalid char pos=%d value=%02x", i, c);
 			return;
 		}
 	}
@@ -1343,7 +1343,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 		dissect_3gpp_supportfeatures_nudm_pp(suppfeat_tvb, sub_tree, pinfo, offset, len, hex_ascii);
 
 	} else {
-		proto_tree_add_expert(tree, pinfo, &ei_json_3gpp_data_not_decoded, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_json_3gpp_data_not_decoded, tvb, offset);
 	}
 
 	return;

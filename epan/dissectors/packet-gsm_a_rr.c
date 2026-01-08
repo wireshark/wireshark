@@ -4807,7 +4807,7 @@ de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, ui
     if (gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, hf_gsm_a_rr_additions_in_release_6_present))
     { /* Additions in release 6 */
         bit_offset += 1;
-        proto_tree_add_expert_format(subtree, pinfo, &ei_gsm_a_rr_data_not_dissected, tvb, bit_offset>>3, -1, "Additions in Release 6: Data (Not decoded)");
+        proto_tree_add_expert_format_remaining(subtree, pinfo, &ei_gsm_a_rr_data_not_dissected, tvb, bit_offset>>3, "Additions in Release 6: Data (Not decoded)");
     }
 
     /* Truncation allowed (see 44.018 section 8.9 */
@@ -4881,7 +4881,8 @@ static uint16_t
 de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
     uint32_t     curr_offset = offset;
-    uint8_t      oct8, second_oct8;
+    uint32_t      oct8;
+    uint8_t       second_oct8;
 
     /* Octet 2 */
     /* Channel Type */
@@ -4892,8 +4893,7 @@ de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
     curr_offset +=1;
 
     /* Octet 3 */
-    oct8 = tvb_get_uint8(tvb, curr_offset);
-    proto_tree_add_item(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &oct8);
     if ((oct8 & 0x10) == 0x10)
     {
         /* Hopping sequence */
