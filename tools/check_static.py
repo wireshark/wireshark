@@ -266,6 +266,7 @@ called = CalledSymbols()
 
 call_files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'), include_generated=True)
 call_files.append(os.path.join('epan', 'dissectors', 'dissectors.c'))
+call_files.append(os.path.join('epan', 'dissectors', 'event-dissectors.c'))
 call_files += findFilesInFolder(os.path.join('ui', 'qt'))
 call_files += findFilesInFolder(os.path.join('ui', 'cli'))
 
