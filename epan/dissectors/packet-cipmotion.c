@@ -1207,7 +1207,7 @@ dissect_cyclic_wt(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t siz
    proto_tree_add_item(header_tree, hf_cip_cyclic_read_blk, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
 
    /* Display the remainder of the cyclic write data if there is any */
-   if ( (size - 4) > 0 )
+   if ( size > 4 )
    {
       proto_tree_add_item(header_tree, hf_cip_cyclic_wrt_data, tvb, offset + 4, size - 4, ENC_NA);
    }
@@ -1408,7 +1408,7 @@ dissect_get_axis_attr_list_request(tvbuff_t* tvb, proto_tree* tree, uint32_t off
    }
 }
 
-static int dissect_motion_attribute(packet_info *pinfo, tvbuff_t* tvb, int offset, uint32_t attribute_id,
+static unsigned dissect_motion_attribute(packet_info *pinfo, tvbuff_t* tvb, int offset, uint32_t attribute_id,
    uint32_t instance_id, proto_item* attr_item, proto_tree* attr_tree, uint8_t dimension, uint32_t attribute_size)
 {
    const attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
@@ -1489,7 +1489,7 @@ dissect_set_axis_attr_list_request(packet_info *pinfo, tvbuff_t* tvb, proto_tree
          attribute_start += 4;
       }
 
-      int parsed_len = dissect_motion_attribute(pinfo, tvb, local_offset + attribute_start, attribute_id,
+      unsigned parsed_len = dissect_motion_attribute(pinfo, tvb, local_offset + attribute_start, attribute_id,
          instance_id, attr_item, attr_tree, dimension, attribute_size);
 
       // Display the raw attribute data if configured. Otherwise, just show the remaining unparsed data.
@@ -1497,7 +1497,7 @@ dissect_set_axis_attr_list_request(packet_info *pinfo, tvbuff_t* tvb, proto_tree
       {
          proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start, attribute_size, ENC_NA);
       }
-      else if ((attribute_size - parsed_len) > 0)
+      else if (attribute_size > parsed_len)
       {
          proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start + parsed_len, attribute_size - parsed_len, ENC_NA);
       }
@@ -1776,7 +1776,7 @@ dissect_get_axis_attr_list_response(packet_info* pinfo, tvbuff_t* tvb, proto_tre
             proto_tree_add_item(attr_tree, hf_get_axis_attr_list_data_elements, tvb, local_offset + 6, 2, ENC_LITTLE_ENDIAN);
          }
 
-         int parsed_len = dissect_motion_attribute(pinfo, tvb, local_offset + attribute_start, attribute_id,
+         unsigned parsed_len = dissect_motion_attribute(pinfo, tvb, local_offset + attribute_start, attribute_id,
             instance_id, attr_item, attr_tree, dimension, attribute_size);
 
          // Display the raw attribute data if configured. Otherwise, just show the remaining unparsed data
@@ -1784,7 +1784,7 @@ dissect_get_axis_attr_list_response(packet_info* pinfo, tvbuff_t* tvb, proto_tre
          {
             proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start, attribute_size, ENC_NA);
          }
-         else if ((attribute_size - parsed_len) > 0)
+         else if (attribute_size > parsed_len)
          {
             proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start + parsed_len, attribute_size - parsed_len, ENC_NA);
          }
