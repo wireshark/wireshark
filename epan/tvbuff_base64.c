@@ -181,12 +181,21 @@ base64_to_tvb(tvbuff_t *parent, const char *base64)
 }
 
 tvbuff_t*
-base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length)
+base64_tvb_to_new_tvb(tvbuff_t* parent, unsigned offset, unsigned length)
 {
     tvbuff_t* tvb;
     uint8_t* data, *tmp;
     size_t len;
 
+    /* g_base64_decode only requires NULL termination, not a valid UTF-8
+     * or ASCII string (it silently skips over invalid bytes, we don't
+     * check that either). So tvb_get_raw_bytes_as_string() would work,
+     * but we would need to check the length before allocating the buffer
+     * to avoid a memory leak (or push a CLEANUP function on exception).
+     *
+     * We could also implement our own function that took a length and
+     * didn't require NULL termination.
+     */
     tmp = tvb_get_string_enc(NULL, parent, offset, length, ENC_ASCII);
     data = g_base64_decode((const char*)tmp, &len);
     wmem_free(NULL, tmp);
@@ -199,7 +208,7 @@ base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length)
 }
 
 tvbuff_t*
-base64uri_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length)
+base64uri_tvb_to_new_tvb(tvbuff_t* parent, unsigned offset, unsigned length)
 {
     tvbuff_t* tvb;
     uint8_t* data, *tmp;
