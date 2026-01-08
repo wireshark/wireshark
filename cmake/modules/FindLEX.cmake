@@ -11,6 +11,7 @@ find_program(LEX_EXECUTABLE
     lex
   PATHS
     ${CHOCOLATEY_BIN_PATH}
+    ${WIN_FLEX_BISON_DIR}
     /bin
     /usr/bin
     /usr/local/bin

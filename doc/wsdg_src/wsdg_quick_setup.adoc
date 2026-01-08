@@ -345,8 +345,6 @@ You can install Chocolatey packages using the command `choco install` (or its sh
 
 [source,cmd]
 ----
-rem Flex is required.
-choco install -y winflexbison3
 rem Git, CMake, Python, etc are also required, but can be installed
 rem via their respective installation packages.
 choco install -y git cmake python3
@@ -562,24 +560,6 @@ choco install -y xsltproc
 ----
 
 // winget has no Asciidoctor, xsltproc, or DocBook packages.
-
-===== Install winflexbison
-
-Get the winFlexBison installer from
-https://sourceforge.net/projects/winflexbison/
-and install into the default location.
-Ensure the directory containing win_flex.exe is on your path.
-
-Alternatively you can install Winflexbison using Chocolatey:
-
-[source,cmd]
-----
-choco install -y winflexbison3
-----
-
-Chocolatey ensures win_flex.exe is on your path.
-
-// winget has no bison package.
 
 ===== Only if needed: Install Perl
 

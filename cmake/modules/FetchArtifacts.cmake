@@ -30,6 +30,7 @@ elseif(WIN32)
   set(asciidoctor_version "2.0.23-1")
   set(Asciidoctor_ROOT ${ARTIFACTS_DIR}/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws)
   set(WIRESHARK_XML_CATALOG_PATH ${Asciidoctor_ROOT}/etc/xml/catalog.xml)
+  set(WIN_FLEX_BISON_DIR ${ARTIFACTS_DIR}/win_flex_bison)
 else()
   message(FATAL_ERROR "No artifacts for this system")
 endif()
@@ -137,6 +138,7 @@ function(update_artifacts)
       ${ARTIFACTS_DIR}/xxhash-*-windows-ws
       ${ARTIFACTS_DIR}/zlib-ng-*-windows-ws
       ${ARTIFACTS_DIR}/zstd-*-windows-ws
+      ${WIN_FLEX_BISON_DIR}
     )
     if (artifact_dirs)
       file(REMOVE_RECURSE ${artifact_dirs})
@@ -220,6 +222,9 @@ elseif(WIN32)
     add_artifact(xxhash/xxhash-0.8.3-1-x64-windows-ws.zip 35e5adca66137150de17458c41f6b65fa8abb5a46cfb91deaaaa24df08121082)
     add_artifact(zlib-ng/zlib-ng-2.2.3-1-x64-windows-ws.zip 8b4e5ba1b61688eccb7e315c2f4ce1ef0c4301172f265bd41455e1df6a5a9522)
     add_artifact(zstd/zstd-1.5.7-x64-windows-ws.zip cdce6d578ece3a14873572b1bffd54b42443ddb97386df9e4552ab7c17b2097d)
+
+    file(MAKE_DIRECTORY ${WIN_FLEX_BISON_DIR})
+    add_external_artifact(https://github.com/lexxmark/winflexbison/releases/download/v2.5.25/win_flex_bison-2.5.25.zip 8d324b62be33604b2c45ad1dd34ab93d722534448f55a16ca7292de32b6ac135 win_flex_bison)
 
     if(need_falco_libs)
       add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.22.2-1-x64-ws.7z fdf6ce6329f981087653c01ca2dea41512f9c225996a5d649ecd3b265106bbbb)
