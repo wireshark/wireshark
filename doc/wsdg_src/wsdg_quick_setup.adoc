@@ -310,7 +310,7 @@ _wireshark-dev_ mailing list explaining your problem. Include the output from
 A quick setup guide for Windows development with recommended configurations.
 
 [#ChSetupWindowsMSVC]
-==== Using Microsoft Visual Studio[[ChSetupWin32]]
+==== Using Microsoft Visual Studio (recommended) [[ChSetupWin32]]
 
 [WARNING]
 ====
@@ -328,83 +328,97 @@ Known traps are:
 
 ====
 
-[#ChSetupChocolatey]
-
-===== Recommended: Install Chocolatey
-
-https://chocolatey.org/[Chocolatey] is a native package manager for
-Windows. There are https://chocolatey.org/packages[packages] for most of
-the software listed below. Along with traditional Windows packages it
-supports the Python Package Index.
-
-One caveat is that Chocolatey https://github.com/chocolatey/choco/issues/1803[will not install Arm64 packages].
-If you're running on Arm64 you might want to install the native CMake, Git, and Python packages by hand.
-
-Chocolatey tends to install packages into its own path (%ChocolateyInstall%), although packages are free to use their own preferences.
-You can install Chocolatey packages using the command `choco install` (or its shorthand, `cinst`), e.g.
-
-[source,cmd]
-----
-rem Git, CMake, Python, etc are also required, but can be installed
-rem via their respective installation packages.
-choco install -y git cmake python3
-----
-
+While this is a huge download, the Community Editions of Visual Studio are free (as in beer) and include the (great) Visual Studio integrated debugger.
+Visual Studio is also used to create official Wireshark builds for Windows, so it will likely have fewer development-related problems.
 
 [#ChSetupMSVC]
 
 ===== Install Microsoft Visual Studio
 
-Download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=17[“Microsoft Visual Studio 2022 Community Edition”].
-The examples below are for Visual Studio 2022 but can be adapted for Visual Studio 2019.
-These are small utilities that download all the other required parts (which are quite large).
+Download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Stable&version=VS18[“Microsoft Visual Studio 2026 Community Edition”].
+The examples below are for Visual Studio 2026 but can be adapted for Visual Studio 2022 or 2019.
 
-Check the checkbox for “Desktop development with {cpp}” and then uncheck
-all the optional components other than
+Check the checkbox for “Desktop development with {cpp}”. The default component list is fine. You may uncheck components that you don't require, but keep at least:
 
-* “MSVC ... VS 2022 {cpp}” item with the “... build tools (Latest)”
-* “Windows 11 SDK”
+* “MSVC Build Tools for x64/x86 (Latest)”
+* “Windows 11 SDK (XXXXX)”
 * “{cpp} CMake tools for Windows”
-* “MSVC ... Spectre-mitigated libs” (optional)
-
-(unless you want to use them for purposes other than Wireshark).
-
-You can alternatively use Chocolatey to install Visual Studio, using the Visual Studio Community and Native Desktop workload packages.
-Note that this includes Visual Studio’s CMake component.
-
-[source,cmd]
-----
-choco install -y visualstudio2022community visualstudio2022-workload-nativedesktop
-----
-
-// winget has basic VS 2022 and 2019 packages, but no native desktop workload packages.
-// https://github.com/microsoft/winget-pkgs/tree/master/manifests/m/Microsoft/VisualStudio
-
-You can use other Microsoft C compiler variants, but VS2022 is used to
-build the development releases for Windows and is the preferred option
-on Windows.  It’s possible to compile Wireshark with a wide range of
-Microsoft C compiler variants.  For details see <<ChToolsMSChain>>.
-
-You may have to do this as Administrator.
 
 It might be possible to build Wireshark using https://clang.llvm.org/docs/MSVCCompatibility.html[clang-cl], but this has not been tested.
 Compiling with plain gcc or Clang is not recommended and will certainly not work (at least not without a lot of advanced tweaking).
 For further details on this topic, see <<ChToolsGNUChain>>. This may change in future as releases of Visual Studio add more cross-platform support.
 
-// XXX - mention the compiler and PSDK web installers -
-// which significantly reduce download size - and find out the
-// required components
+[#ChSetupPython]
 
-Why is this recommended?
-While this is a huge download, the Community Editions of Visual Studio are free (as in beer) and include the Visual Studio integrated debugger.
-Visual Studio 2022 is also used to create official Wireshark builds for Windows, so it will likely have fewer development-related problems.
+===== Install Python
+
+Get a Python 3 installer from https://python.org/download/[] and install Python.
+Its installation location varies depending on the options selected in the installer and on the version of Python that you are installing.
+
+[#ChSetupGit]
+
+===== Install Git
+
+The official command-line installer is available at https://git-scm.com/download/win.
+
+While installing, select :
+
+* (recommended) Select components : Uncheck "Windows integration"
+
+* Adjusting your PATH environment : _Git from the command line and also from 3rd-party software_. Do *not* select the _Use Git and optional Unix tools from the Windows Command Prompt_ option.
+
+* (recommended) Choosing the SSH executable : Use external OpenSSH
+
+* (recommended) Choosing HTTPS transport backend : Use the native Windows Secure Channel library
+
+* (recommended) Configure the line ending conversions : Checkout Windows-style, commit Unix-style line endings
+
+* Configuring the terminal emulator : _Use Windows' default console window_
+
+* (recommended) Choose a credential helper : None
 
 [#ChSetupQt]
 
 ===== Install Qt
 
-The main Wireshark application uses the Qt windowing toolkit. To install
-Qt, go to the
+The main Wireshark application uses the Qt windowing toolkit.
+
+[TIP]
+.Qt’s LTS branch
+====
+As of of Qt 6, the Qt Company does not provide binary packages of Long Term Support (LTS)
+releases for open source use, and source packages are provided at a one year delay from
+the commercial LTS release. Thus the LTS branch is likely not an available option.
+
+To avoid unexpected bugs and regressions, we generally recommend using the same version of
+Qt used in the official Wireshark packages. For the current stable release at the time of
+this writing, that is {windows-qt6-lts-version}. If you use another version, note that the
+last patch release of a Qt minor version is generally more stable than the first release of
+the next minor version, e.g. Qt 6.9.3 vs 6.10.0.
+====
+
+[#ChSetupQtAqt]
+
+====== Install Qt using AQt (recommended)
+
+Using the official Qt installer (see <<ChSetupQtOfficial>>) requires creating an account.
+A workaround is to use https://github.com/miurahr/aqtinstall/releases[Another (unofficial) Qt CLI Installer] instead.
+
+You can choose installation folder of Qt. In the following example, we're using _C:\Development\Qt_
+
+[source,cmd,subs="attributes+"]
+----
+mkdir C:\Development\Qt
+cd C:\Development\Qt
+curl.exe -LOJ https://github.com/miurahr/aqtinstall/releases/download/v3.3.0/aqt_x64.exe
+.\aqt_x64.exe install-qt windows desktop {windows-qt6-lts-version} win64_msvc2022_64 -m qt5compat debug_info qtmultimedia
+----
+
+[#ChSetupQtOfficial]
+
+====== Install Qt using the official installer
+
+Go to the
 https://www.qt.io/download-qt-installer-oss["Download Qt for open source
 use” page],
 select "Download the Qt Online Installer" in the "Looking for Qt Binaries"
@@ -430,158 +444,18 @@ Optionally, under "Additional Libraries" also select the following components:
 You can deselect all of the other the components such as “Qt Charts” or “Android xxxx”
 as they aren’t required.
 
-The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{windows-qt6-lts-version}\msvc2022_64_
-Alternatively you can also use the environment variable WIRESHARK_QT6_PREFIX_PATH.
+[#ChSetupSetEnvVariables]
 
-====== Install Qt using AQt
+===== Configure environment variables
 
-If you don't want register for the Qt Online Installer for Windows, an alternate possibility can be to use https://github.com/miurahr/aqtinstall/releases[Another (unofficial) Qt CLI Installer].
+You need to set two configuration variables to be able to build wireshark:
 
-To achieve the recommended configuration above, download the latest release and copy `aqt.exe` into _C:\Qt{backslash}_.
+* WIRESHARK_BASE_DIR : where the third party libraries will be downloaded, e.g. `C:\Development\wireshark-third-party`
+* WIRESHARK_QT6_PREFIX_PATH (or CMAKE_PREFIX_PATH) (see `https://doc.qt.io/qt-6/cmake-get-started.html`) : pointing towards the Qt installation directory, e.g. `C:\Development\Qt{backslash}{windows-qt6-lts-version}\msvc2022_64`
 
-Then just run the following command to launch the installation.
+The easiest way is to set those variables globally, search for "Edit the System Environment Variables" in Windows > Environment Variables
 
-[source,cmd,subs="attributes+"]
-----
-.\aqt.exe install-qt windows desktop {windows-qt6-lts-version} win64_msvc2022_64 -m qt5compat debug_info qtmultimedia
-----
-
-[#ChSetupPython]
-
-===== Install Python
-
-Get a Python 3 installer from https://python.org/download/[] and install Python.
-Its installation location varies depending on the options selected in the installer and on the version of Python that you are installing.
-At the time of this writing the latest version of Python is 3.10, and common installation directories are
-_C:\Users{backslash}**username**\AppData\Local\Programs\Python\Python310_, _C:\Program Files\Python310_, and _C:\Python310_.
-
-Alternatively you can install Python using Chocolatey:
-
-[source,cmd]
-----
-choco install -y python3
-----
-
-// Not sure how to document Chocolatey's installation location other than "could be anywhere, LOL"
-// https://community.chocolatey.org/packages/python3/#discussion
-Chocolatey will likely install Python in one of the locations above, or possibly in _C:\Tools\Python3_.
-
-// winget has Python 3 packages.
-// https://github.com/microsoft/winget-pkgs/tree/master/manifests/p/Python/Python/3
-
-[#ChSetupGit]
-
-===== Install Git
-
-Please note that the following is not required to build Wireshark but can be
-quite helpful when working with the sources.
-
-Working with the Git source repositories is highly recommended, as described in
-<<ChSrcObtain>>. It is much easier to update a personal source tree (local repository) with Git
-rather than downloading a zip file and merging new sources into a personal
-source tree by hand. It also makes first-time setup easy and enables the
-Wireshark build process to determine your current source code revision.
-
-There are several ways in which Git can be installed. Most packages are
-available at the URLs below or via https://chocolatey.org/[Chocolatey].
-Note that many of the GUI interfaces depend on the command line version.
-
-If installing the Windows version of git select the
-_Use Git from the Windows Command Prompt_ (in chocolatey the _/GitOnlyOnPath_
-option). Do *not* select the _Use Git and optional Unix tools from the Windows Command Prompt_
-option (in chocolatey the _/GitAndUnixToolsOnPath_ option).
-
-====== The Official Windows Installer
-
-The official command-line installer is available at https://git-scm.com/download/win.
-
-====== Git Extensions
-
-Git Extensions is a native Windows graphical Git client for
-Windows. You can download the installer from
-https://github.com/gitextensions/gitextensions/releases/latest.
-
-====== TortoiseGit
-
-TortoiseGit is a native Windows graphical Git
-similar to TortoiseSVN. You can download the installer from
-https://tortoisegit.org/download/.
-
-====== Command Line client via Chocolatey
-
-The command line client can be installed (and updated) using Chocolatey:
-[source,cmd]
-----
-choco install -y git
-----
-
-// winget has git.
-// https://github.com/microsoft/winget-pkgs/tree/master/manifests/g/Git/Git
-
-====== Others
-
-A list of other GUI interfaces for Git can be found at
-https://git-scm.com/downloads/guis
-
-
-[#ChSetupCMake]
-
-===== Install CMake
-
-While CMake is required to build Wireshark, it might have been installed as a component of either Visual Studio or Qt.
-If that’s the case you can skip this step.
-If you do want or need to install CMake, you can get it from https://cmake.org/download/[].
-Installing CMake into the default location is recommended.
-Ensure the directory containing cmake.exe is added to your path.
-
-Alternatively you can install it using Chocolatey:
-
-[source,cmd]
-----
-choco install -y cmake
-----
-
-// winget has CMake.
-// https://github.com/microsoft/winget-pkgs/tree/master/manifests/k/Kitware/CMake
-
-Chocolatey ensures cmake.exe is on your path.
-
-[#ChSetupXsltproc]
-
-===== Install Xsltproc
-
-Asciidoctor, xsltproc, and DocBook are required to build the documentation.
-CMake will download a pre-built version of Asciidoctor and DocBook on Windows, but xsltproc must be installed manually.
-You can install it using Chocolatey:
-
-[source,cmd]
-----
-choco install -y xsltproc
-----
-
-// winget has no Asciidoctor, xsltproc, or DocBook packages.
-
-===== Only if needed: Install Perl
-
-As discussed in the <<ChToolsWindowsPerl,Tool Reference>>, you should avoid installing Perl on Windows unless you have a specific need for it.
-
-If you do need Perl you can get an installer from
-https://strawberryperl.com/
-or
-https://www.activestate.com/
-and install it into the default location.
-
-Alternatively you can install Perl using Chocolatey:
-
-[source,cmd]
-----
-choco install -y strawberryperl
-# ...or...
-choco install -y activeperl
-----
-
-// winget has StrawberryPerl.
-// https://github.com/microsoft/winget-pkgs/tree/master/manifests/s/StrawberryPerl/StrawberryPerl
+image::images/win-setup-env.png[{screenshot-attrs}]
 
 ===== Install and Prepare Sources
 
@@ -589,14 +463,10 @@ choco install -y activeperl
 .Make sure everything works
 ====
 It’s a good idea to make sure Wireshark compiles and runs at least once before
-you start hacking the Wireshark sources for your own project. This example uses
-Git Extensions but any other Git client should work as well.
+you start hacking the Wireshark sources for your own project.
 ====
 
-*Download sources* Download Wireshark sources into
-_C:\Development\wireshark_ using either the command line or Git Extensions:
-
-Using the command line:
+*Download the wireshark sources* into `C:\Development\wireshark` using either the command line :
 
 [source,cmd]
 ----
@@ -604,60 +474,15 @@ cd C:\Development
 git clone https://gitlab.com/wireshark/wireshark.git
 ----
 
-Using Git extensions:
-
-. Open the Git Extensions application. By default Git Extensions
-   will show a validation checklist at startup. If anything needs to
-   be fixed do so now. You can bring up the checklist at any time
-   via menu:Tools[Settings].
-
-. In the main screen select _Clone repository_. Fill in the following:
-+
-Repository to clone: *`https://gitlab.com/wireshark/wireshark.git`*
-+
-Destination: Your top-level development directory, e.g. _C:\Development_.
-+
-Subdirectory to create: Anything you’d like. Usually _wireshark_.
-+
-[TIP]
-.Check your paths
-====
-Make sure your repository path doesn't contain spaces.
-====
-
-. Click the btn:[Clone] button. Git Extensions should start cloning the
-  Wireshark repository.
-
 [#ChSetupPrepareCommandCom]
 
 ===== Open a Visual Studio Command Prompt
 
-From the Start Menu (or Start Screen), navigate to the “Visual Studio 2022” folder and choose the https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#developer_command_prompt_shortcuts[Command Prompt] appropriate for the build you wish to make, e.g. “x64 Native Tools Command Prompt for VS 2022” for a 64-bit version.
-Depending on your version of Windows the Command Prompt list might be directly under “Visual Studio 2022” or you might have to dig for it under multiple folders, e.g. menu:Visual Studio 2022[Visual Studio Tools,Windows Desktop Command Prompts].
+From the Start Menu (or Start Screen), open the “Windows Terminal”, then ”Developer PowerShell for VS 18” using the dropdown.
 
-You can set up a build environment in your own command prompt by running the appropriate `vcvarsall.bat` or `vcvars__ARCHITECTURE__.bat` command.
-See https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#use-the-developer-tools-in-an-existing-command-window[Use the Microsoft C++ toolset from the command line] for details.
-If you're working from a PowerShell prompt you need to ensure that any environment variables set by the batch script are propagated back to your PowerShell environment:
+image::images/win-setup-vs18shell.png[{screenshot-attrs}]
 
-// https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
-// https://gitlab.kitware.com/cmake/cmake/-/blob/master/.gitlab/ci/vcvarsall.ps1
-[source,cmd,subs="attributes+"]
-----
-cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsarm64.bat`" && set" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
-----
-
-[TIP]
-.Pin the items to the Task Bar
-====
-Pin the Command Prompt you use to the Task Bar for easy access.
-====
-
-All subsequent operations take place in this Command Prompt window.
-
-. Set environment variables to control the build.
-+
---
-Set the following environment variables, using paths and values suitable for your installation:
+If you have not already done so globally in <<ChSetupSetEnvVariables>>, you can set the following environment variables, using paths and values suitable for your installation :
 
 [source,cmd,subs="attributes+"]
 ----
@@ -672,28 +497,11 @@ set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 Setting these variables could be added to a batch file to be run after you open the Visual Studio Tools Command Prompt.
 They can also be passed directly to CMake, e.g. `cmake -DWIRESHARK_BASE_DIR=...`
 
-[TIP]
-.Qt’s LTS branch
-====
-As of of Qt 6, the Qt Company does not provide binary packages of Long Term Support (LTS)
-releases for open source use, and source packages are provided at a one year delay from
-the commercial LTS release. Thus the LTS branch is likely not an available option.
+=====  Create (if required) and change to the correct build directory.
 
-To avoid unexpected bugs and regressions, we generally recommend using the same version of
-Qt used in the official Wireshark packages. For the current stable release at the time of
-this writing, that is {windows-qt6-lts-version}. If you use another version, note that the
-last patch release of a Qt minor version is generally more stable than the first release of
-the next minor version, e.g. Qt 6.9.3 vs 6.10.0.
-====
-
---
-
-. Create and change to the correct build directory.
 CMake is best used in an out-of-tree build configuration where the build is done in a separate directory from the source tree, leaving the source tree in a pristine state.
 64 and 32 bit builds require a separate build directory.
-Create (if required) and change to the appropriate build directory.
-+
---
+
 // XXX Our CI builds are in-tree in <src dir>/build.
 [source,cmd]
 ----
@@ -703,7 +511,6 @@ cd C:\Development\wsbuild64
 to create and jump into the build directory.
 
 The build directory can be deleted at any time and the build files regenerated as detailed in <<ChWindowsGenerate>>.
---
 
 [#ChWindowsGenerate]
 
@@ -712,21 +519,16 @@ The build directory can be deleted at any time and the build files regenerated a
 CMake is used to process the CMakeLists.txt files in the source tree and produce build files appropriate
 for your system.
 
-You can generate Visual Studio solution files to build either from within Visual Studio, or from the command
-line with MSBuild. CMake can also generate other build types but they aren't supported.
+To generate the build files enter the following at the Visual Studio command prompt (adjusting the path to the Wireshark source tree as required) :
+[source,cmd]
+----
+cd C:\Development\wsbuild64
+cmake -G "Visual Studio 18 2026" -A x64 ..\wireshark
+----
 
 The initial generation step is only required the first time a build directory is created. Subsequent
 builds will regenerate the build files as required.
 
-If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
-
-To generate the build files enter the following at the Visual Studio command prompt:
-[source,cmd]
-----
-cmake -G "Visual Studio 17 2022" -A x64 ..\wireshark
-----
-
-Adjusting the path to the Wireshark source tree as required.
 To use a different generator modify the `-G` parameter.
 `cmake -G` lists all the CMake supported generators, but only Visual Studio is supported for Wireshark builds.
 32-bit builds are no longer supported.
@@ -751,17 +553,15 @@ the environment variables `WIRESHARK_BASE_DIR` and `CMAKE_PREFIX_PATH`.
 
 Now it’s time to build Wireshark!
 
-. If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
+. Nagivate to `C:\Development\wsbuild64`
 
-. Run
+. Open `Wireshark.sln`
+
+. Choose the `RelWithDebInfo` configuration
 +
---
-[source,cmd,subs="attributes+"]
-----
-msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln
-----
-to build Wireshark.
---
+image::images/win-setup-selectenv.png[{screenshot-attrs}]
++
+. Press Ctrl+Shift+B or Build > Build Solution
 
 . Wait for Wireshark to compile. This will take a while, and there will be a lot of text output in the command prompt window
 
@@ -771,27 +571,57 @@ to build Wireshark.
 version, e.g.: Version {wireshark-version}-myprotocol123
 congratulations! You have compiled your own version of Wireshark!
 
-You may also open the Wireshark solution file (_Wireshark.sln_) in the Visual Studio IDE and build there.
+You may also build Wireshark from Visual Studio command line, using :
+
+[source,cmd,subs="attributes+"]
+----
+cd C:\Development\wsbuild64
+msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln
+----
 
 TIP: If compilation fails for suspicious reasons after you changed some source
-files try to clean the build files by running `msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln /t:Clean`
+files try to clean the build files by doing `Build > Clean solution` (or running `msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln /t:Clean`)
 and then building the solution again.
 
 The build files produced by CMake will regenerate themselves if required by changes in the source tree.
 
-===== Debug Environment Setup
+====== Debug Environment Setup
 
 You can debug using the Visual Studio Debugger or WinDbg. See the section
 on using the <<ChToolsDebugger, Debugger Tools>>.
 
-===== Optional: Create User’s and Developer’s Guide
+===== Optional: Building the User’s and Developer’s Guide
 
 To build the Wireshark User's Guide and the Wireshark Developer's Guide,
-build the `all_guides` target, e.g.  `msbuild doc\all_guides.vcxproj`.
-Detailed information to build these guides can be found in the file
-_doc\README.documentation.adoc_ in the Wireshark sources.
+build the `all_guides` target, e.g.
 
-===== Optional: Create a Wireshark Installer
+[source,cmd,subs="attributes+"]
+----
+cd C:\Development\wsbuild64
+msbuild doc\all_guides.vcxproj
+----
+
+Detailed information to build these guides can be found in the file
+`doc\README.documentation.adoc` in the Wireshark sources.
+
+Building the documentation requires `Xsltproc` as an additional dependency :
+
+[#ChSetupXsltproc]
+
+====== Install Xsltproc
+
+Asciidoctor, xsltproc, and DocBook are required to build the documentation.
+CMake will download a pre-built version of Asciidoctor and DocBook on Windows, but xsltproc must be installed manually.
+You can install it using Chocolatey (https://chocolatey.org/install):
+
+[source,cmd]
+----
+choco install -y xsltproc
+----
+
+// winget has no Asciidoctor, xsltproc, or DocBook packages.
+
+===== Optional: Creating a Wireshark Installer
 
 Note: You should have successfully built Wireshark
 before doing the following.
@@ -825,6 +655,29 @@ packaging\nsis\wireshark-{wireshark-version}-myprotocol123-x64.exe
 
 to test your new installer.
 It’s a good idea to test on a different machine than the developer machine.
+
+// ====== Only if needed: Install Perl
+//
+// As discussed in the <<ChToolsWindowsPerl,Tool Reference>>, you should avoid installing Perl on Windows unless you have a specific need for it.
+//
+// If you do need Perl you can get an installer from
+// https://strawberryperl.com/
+// or
+// https://www.activestate.com/
+// and install it into the default location.
+//
+// Alternatively you can install Perl using Chocolatey:
+//
+// [source,cmd]
+// ----
+// choco install -y strawberryperl
+// # ...or...
+// choco install -y activeperl
+// ----
+
+// winget has StrawberryPerl.
+// https://github.com/microsoft/winget-pkgs/tree/master/manifests/s/StrawberryPerl/StrawberryPerl
+
 
 [#ChSetupMSYS2]
 
@@ -887,7 +740,7 @@ the build using MSVC:
 
 [#ChSetupWSL2]
 
-==== Using WSL2 on a Windows Host (Beginner Friendly)
+==== Using WSL2 on a Windows Host
 
 Using WSL2 on a Windows machine can provide a quick and easy way for beginners
 to get started. This section will focus on using the official Debian

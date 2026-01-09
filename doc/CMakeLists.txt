@@ -411,10 +411,13 @@ set(WSDG_GRAPHICS
 	wsdg_src/images/note.svg
 	wsdg_src/images/tip.svg
 	wsdg_src/images/warning.svg
+	wsdg_src/images/win-setup-env.png
+	wsdg_src/images/win-setup-selectenv.png
+	wsdg_src/images/win-setup-vs18shell.png
 	wsdg_src/images/ws-capture_internals.dia
 	wsdg_src/images/ws-capture_internals.png
 	wsdg_src/images/ws-capture-sync.dia
-	wsdg_src/images/ws-capture-sync.png
+	wsdg_src/images/ws-capture-sync.dia
 	wsdg_src/images/ws-capture-sync.png
 	wsdg_src/images/ws-function-blocks.dia
 	wsdg_src/images/ws-function-blocks.svg
