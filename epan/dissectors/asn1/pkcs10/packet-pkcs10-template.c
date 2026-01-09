@@ -27,6 +27,7 @@
 #define PSNAME "PKCS10"
 #define PFNAME "pkcs10"
 
+void proto_reg_handoff_pkcs10(void);
 void proto_register_pkcs10(void);
 
 static dissector_handle_t csr_handle;

@@ -12,8 +12,6 @@
 #ifndef PACKET_CMP_H
 #define PACKET_CMP_H
 
-void proto_reg_handoff_cmp(void);
-
 #include "packet-cmp-exp.h"
 
 #endif  /* PACKET_CMP_H */

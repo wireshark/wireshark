@@ -18,8 +18,6 @@
 #ifndef PACKET_PKCS10_H
 #define PACKET_PKCS10_H
 
-void proto_reg_handoff_pkcs10(void);
-
 unsigned dissect_pkcs10_CertificationRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 #endif  /* PACKET_PKCS10_H */

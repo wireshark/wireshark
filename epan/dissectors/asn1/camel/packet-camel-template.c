@@ -49,6 +49,9 @@
 #define PSNAME "CAMEL"
 #define PFNAME "camel"
 
+void proto_reg_handoff_camel(void);
+void proto_register_camel(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_camel;
 static int date_format = 1; /*assume european date format */

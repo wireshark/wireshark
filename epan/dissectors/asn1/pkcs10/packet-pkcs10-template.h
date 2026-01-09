@@ -13,8 +13,6 @@
 #ifndef PACKET_PKCS10_H
 #define PACKET_PKCS10_H
 
-void proto_reg_handoff_pkcs10(void);
-
 #include "packet-pkcs10-exp.h"
 
 #endif  /* PACKET_PKCS10_H */

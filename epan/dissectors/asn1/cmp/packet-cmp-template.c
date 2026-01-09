@@ -36,6 +36,7 @@
 
 #define TCP_PORT_CMP 829
 
+void proto_reg_handoff_cmp(void);
 void proto_register_cmp(void);
 
 static dissector_handle_t cmp_http_handle;
