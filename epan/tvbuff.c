@@ -5351,6 +5351,44 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, const int haystack_of
 	return -1;
 }
 
+/* Find a needle tvbuff within a haystack tvbuff. */
+bool
+tvb_find_tvb_remaining(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, const unsigned haystack_offset, unsigned *found_offset)
+{
+	const uint8_t *haystack_data;
+	const uint8_t *needle_data;
+	const unsigned   needle_len = needle_tvb->length;
+	const uint8_t *location;
+	int exception;
+	unsigned haystack_rem_length;
+
+	DISSECTOR_ASSERT(haystack_tvb && haystack_tvb->initialized);
+	DISSECTOR_ASSERT(needle_tvb && needle_tvb->initialized);
+
+	if (haystack_tvb->length < 1 || needle_tvb->length < 1) {
+		return false;
+	}
+
+	exception = validate_offset_and_remaining(haystack_tvb, haystack_offset, &haystack_rem_length);
+	if (exception)
+		THROW(exception);
+
+	/* Get pointers to the tvbuffs' data. */
+	haystack_data = ensure_contiguous_unsigned(haystack_tvb, haystack_offset, haystack_rem_length);
+	needle_data   = ensure_contiguous_unsigned(needle_tvb, 0, needle_len);
+
+	location = ws_memmem(haystack_data, haystack_rem_length,
+			needle_data, needle_len);
+
+	if (location) {
+		if (found_offset)
+			*found_offset = (unsigned) (location - haystack_data) + haystack_offset;
+		return true;
+	}
+
+	return false;
+}
+
 unsigned
 tvb_raw_offset(tvbuff_t *tvb)
 {

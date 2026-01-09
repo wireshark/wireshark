@@ -301,7 +301,7 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b, bool *contains)
 	TRY {
 		/* First see if tvb exists for both sides */
 		if ((fv_a->value.protocol.tvb != NULL) && (fv_b->value.protocol.tvb != NULL)) {
-			if (tvb_find_tvb(fv_a->value.protocol.tvb, fv_b->value.protocol.tvb, 0) > -1) {
+			if (tvb_find_tvb_remaining(fv_a->value.protocol.tvb, fv_b->value.protocol.tvb, 0, NULL)) {
 				yes = true;
 			}
 		} else {

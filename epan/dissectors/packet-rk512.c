@@ -218,12 +218,11 @@ dissect_rk512(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 static bool
 dissect_rk512_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-	int signature_start, offset;
+	unsigned signature_start, offset;
 	uint16_t block_type;
 	tvbuff_t* rk512_tvb;
 
-	signature_start = tvb_find_tvb(tvb, tvb_header_signature, 0);
-	if (signature_start == -1) {
+	if (!tvb_find_tvb_remaining(tvb, tvb_header_signature, 0, &signature_start)) {
 		return false;
 	}
 

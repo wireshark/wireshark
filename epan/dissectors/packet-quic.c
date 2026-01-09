@@ -4552,10 +4552,10 @@ quic_get_message_tvb(tvbuff_t *tvb, const unsigned offset, const quic_cid_t *dci
         }
     } else {
         if (quic_gso_heur_dcid_len && (dcid->len >= quic_gso_heur_dcid_len)) {
+            unsigned needle_pos;
             unsigned dcid_offset = offset + 1;
             tvbuff_t *needle_tvb = tvb_new_subset_length(tvb, dcid_offset, dcid->len);
-            int needle_pos = tvb_find_tvb(tvb, needle_tvb, dcid_offset + dcid->len);
-            if (needle_pos != -1) {
+            if (tvb_find_tvb_remaining(tvb, needle_tvb, dcid_offset + dcid->len, &needle_pos)) {
                 return tvb_new_subset_length(tvb, offset, needle_pos - offset - 1);
             }
         }

@@ -3598,7 +3598,7 @@ dissect_verification_trailer_impl(packet_info *pinfo, tvbuff_t *tvb, int stub_of
 {
     unsigned remaining = tvb_captured_length_remaining(tvb, stub_offset);
     unsigned offset;
-    int signature_start;
+    unsigned signature_start;
     int payload_length;
     typedef enum {
         SEC_VT_COMMAND_BITMASK_1    = 0x0001,
@@ -3630,8 +3630,7 @@ dissect_verification_trailer_impl(packet_info *pinfo, tvbuff_t *tvb, int stub_of
     }
     offset += stub_offset;
 
-    signature_start = tvb_find_tvb(tvb, tvb_trailer_signature, offset);
-    if (signature_start == -1) {
+    if (!tvb_find_tvb_remaining(tvb, tvb_trailer_signature, offset, &signature_start)) {
         return -1;
     }
     payload_length = signature_start - stub_offset;

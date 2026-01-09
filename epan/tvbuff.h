@@ -3626,6 +3626,24 @@ WS_DLL_PUBLIC char *tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 WS_DLL_PUBLIC int tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
     const int haystack_offset);
 
+/**
+ * @brief Search for a sub-tvbuff within another tvbuff starting at a given offset.
+ *
+ * Scans the contents of `haystack_tvb` starting at `haystack_offset` for the first
+ * occurrence of the full contents of `needle_tvb`. If found, found_offset (if not
+ * NULL) is set to the offset of the match relative to the beginning of `haystack_tvb`
+ * (not relative to `haystack_offset`)
+ *
+ * @param haystack_tvb     The tvbuff_t to search within.
+ * @param needle_tvb       The tvbuff_t to search for.
+ * @param haystack_offset  The offset in `haystack_tvb` where the search begins.
+ * @param found_offset     The offset in `haystack_tvb` where the match was found.
+ *
+ * @return true if a match was found, false if not.
+ */
+WS_DLL_PUBLIC bool tvb_find_tvb_remaining(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
+    const unsigned haystack_offset, unsigned *found_offset);
+
 /* From tvbuff_zlib.c */
 /**
  * @brief Deprecated interface for uncompressing data from a tvbuff using zlib.
