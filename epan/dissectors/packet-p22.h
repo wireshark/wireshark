@@ -17,6 +17,8 @@
 #ifndef PACKET_P22_H
 #define PACKET_P22_H
 
+#include <epan/asn1.h>
+
 extern const value_string p22_InformationObject_vals[];
 extern const value_string p22_NonReceiptReasonField_vals[];
 extern const value_string p22_DiscardReasonField_vals[];

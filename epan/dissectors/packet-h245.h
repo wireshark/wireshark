@@ -109,11 +109,7 @@ struct _h223_mux_element {
 #include <epan/packet_info.h>
 #include "packet-per.h"
 
-typedef void (*h223_set_mc_handle_t) ( packet_info* pinfo, uint8_t mc, h223_mux_element* me);
-WS_DLL_PUBLIC void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );
-
-typedef void (*h223_add_lc_handle_t) ( packet_info* pinfo, uint16_t lc, h223_lc_params* params);
-WS_DLL_PUBLIC void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
+#include <epan/asn1.h>
 
 extern const value_string h245_Capability_vals[];
 extern const value_string DataProtocolCapability_vals[];
@@ -130,6 +126,13 @@ unsigned dissect_h245_H223LogicalChannelParameters(tvbuff_t *tvb _U_, uint32_t o
 unsigned dissect_h245_TransportAddress(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 unsigned dissect_h245_UnicastAddress(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 unsigned dissect_h245_MulticastAddress(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+typedef void (*h223_set_mc_handle_t) ( packet_info* pinfo, uint8_t mc, h223_mux_element* me);
+WS_DLL_PUBLIC void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );
+
+typedef void (*h223_add_lc_handle_t) ( packet_info* pinfo, uint16_t lc, h223_lc_params* params);
+WS_DLL_PUBLIC void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
+
 void dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 

@@ -151,9 +151,8 @@
 #define ub_universal_surname_length    64
 #define ub_x121_address_length         16
 
-void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, bool report_unknown_cont_type);
-const char* p1_get_last_oraddress(asn1_ctx_t* actx);
-int dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data);
+#include <epan/asn1.h>
+
 extern const value_string p1_Credentials_vals[];
 extern const value_string p1_SecurityProblem_vals[];
 extern const value_string p1_ContentType_vals[];
@@ -205,5 +204,8 @@ unsigned dissect_p1_G3FacsimileNonBasicParameters(bool implicit_tag _U_, tvbuff_
 unsigned dissect_p1_TeletexNonBasicParameters(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 unsigned dissect_p1_SecurityLabel(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_p1_MessageSecurityLabel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, bool report_unknown_cont_type);
+const char* p1_get_last_oraddress(asn1_ctx_t* actx);
+int dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data);
 
 #endif  /* PACKET_P1_H */

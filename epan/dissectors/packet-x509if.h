@@ -17,6 +17,8 @@
 #ifndef PACKET_X509IF_H
 #define PACKET_X509IF_H
 
+#include <epan/asn1.h>
+
 extern const value_string x509if_Name_vals[];
 extern const value_string x509if_Refinement_vals[];
 extern const value_string x509if_AttributeUsage_vals[];

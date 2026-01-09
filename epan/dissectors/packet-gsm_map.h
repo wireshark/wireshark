@@ -68,6 +68,8 @@ typedef struct {
   uint32_t tcap_src_tid;
 } gsm_map_packet_info_t;
 
+#include <epan/asn1.h>
+
 
 /* --- Module Remote-Operations-Information-Objects --- --- ---               */
 

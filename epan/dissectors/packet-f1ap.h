@@ -16,6 +16,8 @@
 #ifndef PACKET_F1AP_H
 #define PACKET_F1AP_H
 
+#include <epan/asn1.h>
+
 int dissect_f1ap_NRPRACHConfig_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 #endif  /* PACKET_F1AP_H */

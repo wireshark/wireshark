@@ -17,6 +17,8 @@
 #ifndef PACKET_X509CE_H
 #define PACKET_X509CE_H
 
+#include <epan/asn1.h>
+
 extern const value_string x509ce_GeneralName_vals[];
 extern const value_string x509ce_CRLReason_vals[];
 extern const value_string x509ce_StatusReferral_vals[];

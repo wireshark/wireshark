@@ -17,6 +17,8 @@
 #ifndef PACKET_X509SAT_H
 #define PACKET_X509SAT_H
 
+#include <epan/asn1.h>
+
 extern const value_string x509sat_DirectoryString_vals[];
 extern const value_string x509sat_Criteria_vals[];
 extern const value_string x509sat_ZonalResult_vals[];

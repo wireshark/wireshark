@@ -17,6 +17,8 @@
 #ifndef PACKET_Q932_H
 #define PACKET_Q932_H
 
+#include <epan/asn1.h>
+
 extern const value_string q932_PresentedAddressScreened_vals[];
 extern const value_string q932_PresentedAddressUnscreened_vals[];
 extern const value_string q932_PresentedNumberScreened_vals[];

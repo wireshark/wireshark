@@ -16,6 +16,8 @@
 #ifndef PACKET_XnAP_H
 #define PACKET_XnAP_H
 
+#include <epan/asn1.h>
+
 int dissect_xnap_IntendedTDD_DL_ULConfiguration_NR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 #endif  /* PACKET_XnAP_H */

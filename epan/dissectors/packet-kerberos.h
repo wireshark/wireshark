@@ -113,6 +113,8 @@ void read_keytab_file_from_preferences(void);
 }
 #endif /* __cplusplus */
 
+#include <epan/asn1.h>
+
 
 /* enumerated values for Applications */
 #define KERBEROS_APPLICATIONS_TICKET   1

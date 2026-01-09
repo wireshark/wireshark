@@ -17,6 +17,8 @@
 #ifndef PACKET_H235_H
 #define PACKET_H235_H
 
+#include <epan/asn1.h>
+
 extern const value_string h235_AuthenticationMechanism_vals[];
 extern const value_string h235_CryptoToken_vals[];
 unsigned dissect_h235_TimeStamp(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

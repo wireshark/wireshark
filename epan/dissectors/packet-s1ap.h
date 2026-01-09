@@ -28,6 +28,8 @@ extern const value_string s1ap_serialNumber_gs_vals[];
 
 void dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, uint8_t dcs, int hf_nb_pages, int hf_decoded_page);
 
+#include <epan/asn1.h>
+
 extern const value_string s1ap_Cause_vals[];
 extern const value_string s1ap_CauseMisc_vals[];
 extern const value_string s1ap_CauseProtocol_vals[];

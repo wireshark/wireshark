@@ -17,6 +17,8 @@
 #ifndef PACKET_CMIP_H
 #define PACKET_CMIP_H
 
+#include <epan/asn1.h>
+
 extern const value_string cmip_ObjectClass_vals[];
 extern const value_string cmip_ObjectInstance_vals[];
 extern const value_string cmip_AdministrativeState_vals[];

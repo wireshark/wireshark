@@ -27,6 +27,8 @@ extern void t124_set_top_tree(proto_tree *tree);
 extern void register_t124_ns_dissector(const char *nsKey, dissector_t dissector, int proto);
 extern void register_t124_sd_dissector(packet_info *pinfo, uint32_t channelId, dissector_t dissector, int proto);
 
+#include <epan/asn1.h>
+
 extern const value_string t124_ConnectGCCPDU_vals[];
 unsigned dissect_t124_ConnectData(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 unsigned dissect_t124_ConnectGCCPDU(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

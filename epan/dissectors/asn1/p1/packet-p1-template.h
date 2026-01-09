@@ -14,9 +14,9 @@
 
 #include "packet-p1-val.h"
 
+#include "packet-p1-exp.h"
 void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, bool report_unknown_cont_type);
 const char* p1_get_last_oraddress(asn1_ctx_t* actx);
 int dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data);
-#include "packet-p1-exp.h"
 
 #endif  /* PACKET_P1_H */

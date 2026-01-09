@@ -104,13 +104,14 @@ struct _h223_mux_element {
 #include <epan/packet_info.h>
 #include "packet-per.h"
 
+#include "packet-h245-exp.h"
+
 typedef void (*h223_set_mc_handle_t) ( packet_info* pinfo, uint8_t mc, h223_mux_element* me);
 WS_DLL_PUBLIC void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );
 
 typedef void (*h223_add_lc_handle_t) ( packet_info* pinfo, uint16_t lc, h223_lc_params* params);
 WS_DLL_PUBLIC void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
 
-#include "packet-h245-exp.h"
 void dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 

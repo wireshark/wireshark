@@ -25,6 +25,9 @@
 #define id_at_attributeCertificate     id_at".58"
 #define id_at_attributeCertificateRevocationList id_at".59"
 #define ub_user_identifier             256
+
+#include <epan/asn1.h>
+
 extern const value_string x509af_Version_vals[];
 extern const value_string x509af_Time_vals[];
 WS_DLL_PUBLIC unsigned dissect_x509af_Certificate(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

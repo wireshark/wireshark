@@ -17,6 +17,8 @@
 #ifndef PACKET_H450_ROS_H
 #define PACKET_H450_ROS_H
 
+#include <epan/asn1.h>
+
 extern const value_string h450_ros_ROS_vals[];
 unsigned dissect_h450_ros_ROS(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 

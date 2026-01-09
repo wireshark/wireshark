@@ -18,6 +18,8 @@
 #ifndef PACKET_INAP_H
 #define PACKET_INAP_H
 
+#include <epan/asn1.h>
+
 extern const value_string inap_CriticalityType_vals[];
 extern const value_string inap_BothwayThroughConnectionInd_vals[];
 extern const value_string inap_LegID_vals[];

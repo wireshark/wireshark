@@ -161,6 +161,8 @@ struct tcapsrt_info_t {
   uint8_t ope;
 };
 
+#include "packet-tcap-exp.h"
+
 /**
  * Initialize the Message Info used by the main dissector
  * Data are linked to a TCAP transaction
@@ -205,7 +207,5 @@ extern void delete_ansi_tcap_subdissector(uint32_t ssn, dissector_handle_t disse
 WS_DLL_PUBLIC void delete_itu_tcap_subdissector(uint32_t ssn, dissector_handle_t dissector);
 
 extern void call_tcap_dissector(dissector_handle_t, tvbuff_t*, packet_info*, proto_tree*);
-
-#include "packet-tcap-exp.h"
 
 #endif  /* PACKET_tcap_H */

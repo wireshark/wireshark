@@ -17,6 +17,8 @@
 #ifndef PACKET_DAP_H
 #define PACKET_DAP_H
 
+#include <epan/asn1.h>
+
 extern const value_string dap_FamilyGrouping_vals[];
 extern const value_string dap_ContextSelection_vals[];
 extern const value_string dap_Filter_vals[];

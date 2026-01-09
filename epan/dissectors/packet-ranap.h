@@ -16,6 +16,9 @@
 
 #ifndef PACKET_RANAP_H
 #define PACKET_RANAP_H
+
+#include <epan/asn1.h>
+
 extern const value_string ranap_Service_Handover_vals[];
 unsigned dissect_ranap_EncryptionInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 unsigned dissect_ranap_IntegrityProtectionInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

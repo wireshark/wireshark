@@ -18,6 +18,8 @@
 #ifndef PACKET_ESS_H
 #define PACKET_ESS_H
 
+#include <epan/asn1.h>
+
 int dissect_ess_ESSSecurityLabel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 #endif  /* PACKET_ESS_H */

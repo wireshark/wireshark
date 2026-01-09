@@ -78,6 +78,8 @@ void t38_add_address(packet_info *pinfo,
                      const char *setup_method, uint32_t setup_frame_number);
 
 
+#include <epan/asn1.h>
+
 extern const value_string t38_T30_indicator_vals[];
 extern const value_string t38_T30_data_vals[];
 

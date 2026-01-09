@@ -22,6 +22,8 @@
 #ifndef PACKET_FTAM_H
 #define PACKET_FTAM_H
 
+#include <epan/asn1.h>
+
 extern const value_string ftam_Date_and_Time_Attribute_vals[];
 extern const value_string ftam_Object_Availability_Attribute_vals[];
 extern const value_string ftam_Object_Size_Attribute_vals[];

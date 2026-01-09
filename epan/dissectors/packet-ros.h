@@ -17,6 +17,8 @@
 #ifndef PACKET_ROS_H
 #define PACKET_ROS_H
 
+#include <epan/asn1.h>
+
 extern const value_string ros_ROS_vals[];
 extern const value_string ros_InvokeId_vals[];
 extern const value_string ros_Code_vals[];

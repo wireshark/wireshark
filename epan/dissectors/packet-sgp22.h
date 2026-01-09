@@ -37,6 +37,8 @@
 #define id_rsp_totalPartialCrlNumber   id_rspExt".2"
 #define id_rsp_partialCrlNumber        id_rspExt".3"
 
+#include <epan/asn1.h>
+
 extern const value_string sgp22_IconType_vals[];
 extern const value_string sgp22_ProfileState_vals[];
 extern const value_string sgp22_ProfileClass_vals[];

@@ -17,6 +17,8 @@
 #ifndef PACKET_QSIG_H
 #define PACKET_QSIG_H
 
+#include <epan/asn1.h>
+
 
 /* --- Module General-Error-List --- --- ---                                  */
 

@@ -27,6 +27,8 @@ unsigned dissect_pkix1explicit_AlgorithmIdentifier(bool implicit_tag, tvbuff_t *
 unsigned dissect_pkix1explicit_SubjectPublicKeyInfo(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 
+#include <epan/asn1.h>
+
 extern const value_string pkix1explicit_Version_vals[];
 extern const value_string pkix1explicit_Time_vals[];
 extern const value_string pkix1explicit_TerminalType_vals[];
