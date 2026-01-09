@@ -17,7 +17,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Choco install
-        run: choco install -y --force --no-progress asciidoctorj xsltproc docbook-bundle nsis cmake
+        run: choco install -y --force --no-progress xsltproc nsis cmake
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
