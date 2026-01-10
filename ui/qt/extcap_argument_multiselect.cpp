@@ -35,10 +35,6 @@ ExtArgMultiSelect::ExtArgMultiSelect(extcap_arg * argument, QObject *parent) :
 
 ExtArgMultiSelect::~ExtArgMultiSelect()
 {
-    if (treeView != 0)
-        delete treeView;
-    if (viewModel != 0)
-        delete viewModel;
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -116,6 +112,10 @@ void ExtArgMultiSelect::checkItemsWalker(QStandardItem * item, QStringList defau
 QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
 {
     QStringList checked;
+    QLineEdit* searchBox;
+    QVBoxLayout* layout;
+    TreeSortFilterProxyModel* tableProxyModel;
+    QWidget* pane = new QWidget(parent);
 
     QList<QStandardItem *> items = valueWalker(values, checked);
     if (items.length() == 0)
@@ -127,7 +127,8 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
         checked = QString(*_argument->pref_valptr).split(",", Qt::SkipEmptyParts);
     }
 
-    viewModel = new QStandardItemModel();
+    /* Source model : contains the data */
+    viewModel = new QStandardItemModel(this);
     QList<QStandardItem *>::const_iterator iter = items.constBegin();
     while (iter != items.constEnd())
     {
@@ -135,8 +136,16 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
         ++iter;
     }
 
-    treeView = new QTreeView(parent);
-    treeView->setModel(viewModel);
+    /* Proxy model : filters the data */
+    tableProxyModel = new TreeSortFilterProxyModel(this);
+    tableProxyModel->setSourceModel(viewModel);
+
+    searchBox = new QLineEdit();
+    searchBox->setClearButtonEnabled(true);
+    searchBox->setPlaceholderText("Search");
+
+    treeView = new QTreeView();
+    treeView->setModel(tableProxyModel);
 
     /* Shows at minimum 6 entries at most desktops */
     treeView->setMinimumHeight(100);
@@ -149,8 +158,26 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
         checkItemsWalker(((QStandardItemModel*)viewModel)->item(row), checked);
 
     connect(viewModel, &QStandardItemModel::itemChanged, this, &ExtArgMultiSelect::valueChanged);
+    connect(searchBox, &QLineEdit::textChanged, this, [tableProxyModel](const QString& text) {
+        tableProxyModel->setFilterRegularExpression(QRegularExpression(text, QRegularExpression::PatternOption::CaseInsensitiveOption));
+    });
 
-    return treeView;
+    layout = new QVBoxLayout(pane);
+    layout->addWidget(searchBox);
+    layout->addWidget(treeView);
+    pane->setLayout(layout);
+
+    return pane;
+}
+
+bool TreeSortFilterProxyModel::filterAcceptsRow(int sourceRow,
+    const QModelIndex& sourceParent) const
+{
+    /* Only apply filter on leaves. */
+    if (sourceModel()->hasChildren(sourceModel()->index(sourceRow, 0, sourceParent)))
+        return true;
+
+    return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
 }
 
 QStringList ExtArgMultiSelect::checkedValues()
@@ -323,7 +350,6 @@ QWidget* ExtArgTable::createEditor(QWidget* parent)
     connect(addAction, &QAction::triggered, this, &ExtArgTable::addKnown);
     connect(addActionCustom, &QAction::triggered, this, &ExtArgTable::addCustom);
     connect(removeAction, &QAction::triggered, this, &ExtArgTable::removeSelected);
-    pane->setLayout(paneLayout);
     return pane;
 }
 

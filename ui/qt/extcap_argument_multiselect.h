@@ -23,11 +23,20 @@
 #include <QToolBar>
 #include <QDialog>
 #include <QMap>
+#include <QSortFilterProxyModel>
 
 #include <extcap_parser.h>
 #include <extcap_argument.h>
 
 #include "extcap_options_dialog.h"
+
+class TreeSortFilterProxyModel : public QSortFilterProxyModel
+{
+public:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+
+    using QSortFilterProxyModel::QSortFilterProxyModel;
+};
 
 class ExtArgMultiSelect : public ExtcapArgument
 {
@@ -55,7 +64,6 @@ protected:
 
 private:
     QTreeView * treeView;
-
 };
 
 
