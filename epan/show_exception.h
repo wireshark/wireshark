@@ -12,6 +12,8 @@
 #ifndef __SHOW_EXCEPTION_H__
 #define __SHOW_EXCEPTION_H__
 
+#include <epan/proto.h>
+
 /*
  * Called to register the pseudo-protocols used for exceptions.
  */
