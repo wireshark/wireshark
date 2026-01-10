@@ -209,7 +209,8 @@ QString ExtArgMultiSelect::defaultValue()
 {
     QStringList checked;
 
-    valueWalker(values, checked);
+    QList<QStandardItem *> items = valueWalker(values, checked);
+    qDeleteAll(items);
 
     return checked.join(QString(','));
 }
