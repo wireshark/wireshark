@@ -226,6 +226,12 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	return SCAN_FAILED;
 }
 
+<LAYER><<EOF>>				{
+	update_location(yyextra, yytext);
+	FAIL("The layer number or range was missing.");
+	return SCAN_FAILED;
+}
+
 <INITIAL,LAYER>"["		{
 	BEGIN(RANGE);
 	return simple(TOKEN_LBRACKET);

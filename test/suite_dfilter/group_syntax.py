@@ -439,6 +439,14 @@ class TestDfilterLayer:
         dfilter = 'ip.dst#[-5] == 2.2.2.2'
         checkDFilterCount(dfilter, 1)
 
+    def test_layer_invalid_1(self, checkDFilterFail):
+        dfilter = r"ip.dst#"
+        checkDFilterFail(dfilter, "layer number or range was missing")
+
+    def test_layer_invalid_2(self, checkDFilterFail):
+        dfilter = r"ip.dst#ip"
+        checkDFilterFail(dfilter, "Expected digit or \"[\"")
+
 class TestDfilterQuantifiers:
     trace_file = "ipoipoip.pcap"
 
