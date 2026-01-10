@@ -16,6 +16,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#ifndef PACKET_T38_H
+#define PACKET_T38_H
+
 #include "ws_symbol_export.h"
 
 #define MAX_T38_DATA_ITEMS 4
@@ -78,5 +81,4 @@ void t38_add_address(packet_info *pinfo,
 extern const value_string t38_T30_indicator_vals[];
 extern const value_string t38_T30_data_vals[];
 
-
-
+#endif  /* PACKET_T38_H */
