@@ -1189,6 +1189,7 @@ void Iax2AnalysisDialog::saveCsv(Iax2AnalysisDialog::StreamDirection direction)
             QTreeWidgetItem *ti = ui->reverseTreeWidget->topLevelItem(row);
             if (ti->type() != iax2_analysis_type_) continue;
             Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>(ti);
+            if (ra_ti == nullptr) continue;
             QStringList values;
             foreach (QVariant v, ra_ti->rowData()) {
                 if (!v.isValid()) {

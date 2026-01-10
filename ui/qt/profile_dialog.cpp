@@ -336,7 +336,7 @@ void ProfileDialog::updateWidgets()
     }
 
     /* Ensure, that the ok button is disabled, if an invalid name is used or if duplicate global profiles exist */
-    if (model_ && model_->rowCount() > 0)
+    if (model_->rowCount() > 0)
     {
         msg.clear();
         for (int row = 0; row < model_->rowCount() && enable_ok; row++)
