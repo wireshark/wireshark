@@ -15,7 +15,6 @@
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
-#include "packet-logotypecertextn.h"
 #include "packet-x509af.h"
 
 #define PNAME  "Logotype Certificate Extensions"

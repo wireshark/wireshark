@@ -24,7 +24,6 @@
 
 #include "packet-x509if.h"
 
-#include "packet-p772.h"
 #include "packet-p1.h"
 #include "packet-p22.h"
 

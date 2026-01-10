@@ -16,7 +16,6 @@
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
-#include "packet-pkixqualified.h"
 #include "packet-x509af.h"
 #include "packet-x509ce.h"
 #include "packet-x509sat.h"

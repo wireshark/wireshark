@@ -22,7 +22,6 @@
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
-#include "packet-pkixproxy.h"
 
 #define PNAME  "PKIXProxy (RFC3820)"
 #define PSNAME "PKIXPROXY"

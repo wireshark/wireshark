@@ -21,7 +21,6 @@
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
-#include "packet-smrse.h"
 
 #define PNAME  "Short Message Relaying Service"
 #define PSNAME "SMRSE"

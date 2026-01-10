@@ -24,8 +24,6 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 
-#include "packet-acp133.h"
-
 #define PNAME  "ACP133 Attribute Syntaxes"
 #define PSNAME "ACP133"
 #define PFNAME "acp133"
