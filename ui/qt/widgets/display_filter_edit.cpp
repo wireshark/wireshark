@@ -573,19 +573,27 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
     completer()->setCompletionPrefix(field_word);
 
     // Only add fields to completion if a field is valid at this position.
-    // Try to compile preamble and check error message.
+    // If the preamble has changed, try to compile it and check the error.
     if (preamble != filter_word_preamble_) {
         df_error_t *df_err = NULL;
         dfilter_t *test_df = NULL;
-        if (preamble.size() > 0) {
-            dfilter_compile_full(qUtf8Printable(preamble), &test_df, &df_err,
-                                            DF_EXPAND_MACROS, __func__);
-        }
-        if (test_df == NULL || (df_err != NULL && df_err->code == DF_ERROR_UNEXPECTED_END)) {
-            // Unexpected end of expression means "expected identifier (field) or literal".
+        if (preamble.size() == 0) {
+            // A field can start a filter.
             autocomplete_accepts_field_ = true;
         }
+        else if (!dfilter_compile_full(qUtf8Printable(preamble), &test_df, &df_err,
+                                               DF_EXPAND_MACROS, __func__)) {
+            // Unexpected end of expression means "expected identifier (field) or literal".
+            // Other errors indicate that the current token can't be a field.
+            if (df_err->code == DF_ERROR_UNEXPECTED_END) {
+                autocomplete_accepts_field_ = true;
+            } else {
+                autocomplete_accepts_field_ = false;
+            }
+        }
         else {
+            // A field is *not* grammatical after a valid non-empty filter.
+            // Some other operator is expected first.
             autocomplete_accepts_field_ = false;
         }
         dfilter_free(test_df);
