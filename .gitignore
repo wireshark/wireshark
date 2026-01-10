@@ -36,8 +36,13 @@ epan/dissectors/xcbproto
 epan/dissectors/packet-ncp2222.c
 epan/dissectors/dissectors.c
 epan/dissectors/dissectors.in.txt
+epan/dissectors/event-dissectors.c
+epan/dissectors/event-dissectors.in.txt
 epan/dtd_parse.c
 epan/dtd_preparse.c
+epan/protobuf_lang_parser.c
+epan/protobuf_lang_parser.h
+epan/protobuf_lang_parser.out
 epan/uat_load.c
 epan/wslua/declare_wslua.h
 epan/wslua/register_wslua.c
@@ -50,10 +55,21 @@ plugins/codecs/*/plugin.c
 plugins/epan/mate/mate_parser.c
 tools/lemon/lemon
 tshark-tap-register.c
-wiretap/ascend.c
-wiretap/ascend.h
+wiretap/ascend_parser.c
+wiretap/ascend_parser.h
+wiretap/ascend_parser.out
+wiretap/busmaster_parser.c
+wiretap/busmaster_parser.h
+wiretap/busmaster_parser.out
 wiretap/k12text.c
+wiretap/wtap_modules.c
+wiretap/wtap_modules.in.txt
 wireshark-tap-register.c
+wireshark_autogen/
+wsutil/path_config.h
+# Version headers
+/ws_version.h
+/vcs_version.h
 
 # CMake #
 ##################
@@ -62,6 +78,7 @@ CMakeCache.txt
 CMakeFiles
 CMakeUserPresets.json
 cmake_install.cmake
+cmake_uninstall.cmake
 CPackConfig.cmake
 CPackSourceConfig.cmake
 lib/
@@ -77,6 +94,10 @@ epan/dissectors/asn1/*/*-stamp
 epan/dissectors/pidl/*-stamp
 epan/dissectors/dcerpc/*-stamp
 _download
+# Wireshark uses only CMake-generated Makefiles
+Makefile
+/config.h
+packaging/source/git-export-release.sh
 
 # Doc #
 ########
@@ -95,16 +116,20 @@ doc/wsluarm
 doc/wsluarm_src/
 wsar_html/
 wsar_html.zip
+/doxygen.cfg
 
 # Qt #
 ######
 /ui/qt/__/
 /ui/qt/*.qm
 /ui/qt/**/moc_*.cpp
-/ui/qt/i18n.qrc
+/ui/qt/authors.*
+/ui/qt/i18n.qrc*
 /ui/qt/qrc_*.cpp
+/ui/qt/qtui_autogen/
 /ui/qt/ui_*.h
 *.ui.autosave
+/.qt/
 
 # Windows Stuff #
 #################
@@ -141,9 +166,12 @@ wireshark-win??-libs*/
 # macOS Stuff
 .DS_Store
 macosx-support-libs
-packaging/macosx/Info.plist
+packaging/macosx/osx-app.sh
 packaging/macosx/osx-dmg.sh
 packaging/macosx/PkgInfo
+packaging/macosx/WiresharkInfo.plist
+packaging/macosx/wireshark-app.dmgbuild
+packaging/macosx/wireshark-dsym.dmgbuild
 
 # clangd #
 ##########
@@ -155,6 +183,9 @@ CMakeLists.txt.user*
 
 # Debian packaging
 /debian/
+
+# RPM packaging
+packaging/rpm/SPECS
 
 # Misc #
 ########
