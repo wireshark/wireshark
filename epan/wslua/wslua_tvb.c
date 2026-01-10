@@ -1076,8 +1076,7 @@ WSLUA_METHOD TvbRange_strsize(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_strsize_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
     unsigned encoding = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_strsize_ENCODING, ENC_ASCII|ENC_NA);
-    int offset;
-    gunichar2 uchar;
+    const char* error = NULL;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1085,30 +1084,22 @@ WSLUA_METHOD TvbRange_strsize(lua_State* L) {
         return 0;
     }
 
-    switch (encoding & ENC_CHARENCODING_MASK) {
+    /* XXX - This leaks outside the length of the TvbRange to scan the entire
+     * underlying tvbuffer. It has always done that, but that does seem odd. */
+    TRY {
+        lua_pushinteger(L, tvb_strsize_enc(tvbr->tvb->ws_tvb, tvbr->offset, encoding));
+    } CATCH(DissectorError) {
+        /* Presumably an unsupported encoding */
+        error = lua_pushstring(L, GET_MESSAGE);
+    } CATCH_BOUNDS_ERRORS {
+        error = lua_pushstring(L, "Out of bounds");
+    } ENDTRY;
 
-    case ENC_UTF_16:
-    case ENC_UCS_2:
-        offset = tvbr->offset;
-        do {
-            if (!tvb_bytes_exist (tvbr->tvb->ws_tvb, offset, 2)) {
-                luaL_error(L,"out of bounds");
-                return 0;
-            }
-            /* Endianness doesn't matter when looking for null */
-            uchar = tvb_get_ntohs (tvbr->tvb->ws_tvb, offset);
-            offset += 2;
-        } while (uchar != 0);
-        lua_pushinteger(L, tvb_unicode_strsize(tvbr->tvb->ws_tvb, tvbr->offset));
-        break;
-
-    default:
-        if (!tvb_find_uint8_remaining(tvbr->tvb->ws_tvb, tvbr->offset, 0, NULL)) {
-            luaL_error(L,"out of bounds");
-            return 0;
-        }
-        lua_pushinteger(L, tvb_strsize(tvbr->tvb->ws_tvb, tvbr->offset));
-        break;
+    if (error) {
+        /* By converting the exceptions into Lua errors, we also add
+         * the Lua traceback. */
+        WSLUA_ERROR(TvbRange_strsize, lua_tostring(L, 1));
+        return 0;
     }
 
     WSLUA_RETURN(1); /* Length of the zero terminated string. */
