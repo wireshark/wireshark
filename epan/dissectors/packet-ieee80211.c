@@ -29053,7 +29053,7 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   uint8_t multi_link_type = multi_link_control & 0x0007;
   uint16_t present = multi_link_control >> 4;
   int elt = 0, hf_index;
-  int local_link_ids[16];
+  wmem_strbuf_t *link_id_list = wmem_strbuf_create(pinfo->pool);
   int is_ap;
 
   control = proto_tree_add_item(tree, hf_ieee80211_eht_multi_link_control, tvb,
@@ -29380,9 +29380,6 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                            multi_link_type, &link_id);
 
       offset += overhead; /* Account for the overhead in the subelt */
-      if (link_id != -1) {
-        local_link_ids[elt] = link_id;
-      }
       break;
     case 221:
       /* Add an expert info saying there are none so far? */
@@ -29393,18 +29390,13 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
       break;
     }
     if (link_id != -1) {
+      wmem_strbuf_append_printf(link_id_list, (elt == 0) ? "%d" : "_%d", link_id);
       elt++;
     }
   }
   proto_tree_add_uint(tree, hf_index, tvb, 0, 0, elt);
 
   if (elt) {
-    wmem_strbuf_t *link_id_list = wmem_strbuf_new_sized(pinfo->pool, elt * 2);
-    for (int i = 0; i < elt; i++) {
-      if (local_link_ids[i] != -1) {
-        wmem_strbuf_append_printf(link_id_list, (i == 0) ? "%d" : "_%d", local_link_ids[i]);
-      }
-    }
     proto_tree_add_string(tree, hf_ieee80211_eht_multi_link_link_id_list, tvb,
                           0, 0, link_id_list->str);
   }
