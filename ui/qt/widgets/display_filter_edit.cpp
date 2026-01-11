@@ -57,16 +57,7 @@
 #define DEFAULT_MODIFIER "Ctrl-"
 #endif
 
-// ':' is not a legal field character, but it appears inside literals and
-// having it as a token character will keep field completion from being
-// offered in a place where it is syntactically impossible.
-//
-// The other place ':' is used in the grammar is to separate display filter
-// macros from their argument lists in the ${macro:arg;arg} format. Adding
-// ':' here means that the first argument of the list won't have a completion
-// pop-up. (We don't do completion for the macro names, maybe we should?)
-// ${macro;arg;arg} is allowed now, though.
-static const QString fld_abbrev_chars_ = ":-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+static const QString fld_abbrev_chars_ = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
 DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type) :
     SyntaxLineEdit(parent),
@@ -574,6 +565,11 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
 
     // Only add fields to completion if a field is valid at this position.
     // If the preamble has changed, try to compile it and check the error.
+    // XXX - We only do completion for field names. It would be nice to
+    // have completion for other expected tokens, e.g., macro names. Also
+    // nice, but harder, would be able to suggest value string entries.
+    // (Display filter functions are grammatically the same as fields
+    // and do work.)
     if (preamble != filter_word_preamble_) {
         df_error_t *df_err = NULL;
         dfilter_t *test_df = NULL;

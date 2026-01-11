@@ -263,7 +263,12 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 					state = OUTSIDE;
 				} else if ( c == '\0') {
 					if (error != NULL)
-						*error = df_error_new_msg("end of filter in the middle of a macro expression");
+						/* A generic error, because DF_ERROR_UNEXPECTED_END
+						 * is used to indicate that a field is grammatically
+						 * possible. (XXX - Have an error that indicates a
+						 * macro name token is expected?)
+						 */
+						*error = df_error_new_msg("end of filter in the middle of a macro expression name");
 					goto on_error;
 				} else {
 					/* XXX - Spaces or other whitespace after the macro name but
@@ -299,7 +304,8 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 				switch(c) {
 					case '\0':
 						if (error != NULL)
-							*error = df_error_new_msg("end of filter in the middle of a macro expression");
+							/* A macro argument can be a field. */
+							*error = df_error_new_printf(DF_ERROR_UNEXPECTED_END, NULL, "%s", "end of filter in the middle of a macro expression");
 						goto on_error;
 					case ';':
 					case ',':
@@ -320,7 +326,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 							break;
 						} else {
 							if (error != NULL)
-								*error = df_error_new_msg("end of filter in the middle of a macro expression");
+								*error = df_error_new_printf(DF_ERROR_UNEXPECTED_END, NULL, "%s", "end of filter in the middle of a macro expression");
 							goto on_error;
 						}
 					case '}':
