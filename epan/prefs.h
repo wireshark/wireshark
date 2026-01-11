@@ -265,7 +265,6 @@ typedef struct _e_prefs {
   unsigned     gui_update_interval;
   unsigned     gui_debounce_timer;
   char        *saved_at_version;
-  bool         unknown_prefs; /* unknown or obsolete pref(s) */
   bool         gui_packet_list_separator;
   bool         gui_packet_header_column_definition;
   bool         gui_packet_list_hover_style; /* Enable/Disable mouse-over colorization */

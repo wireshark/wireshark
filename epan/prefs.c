@@ -79,15 +79,6 @@ static char *cols_hidden_list;
 static char *cols_hidden_fmt_list;
 static bool gui_theme_is_dark;
 
-/*
- * XXX - variables to allow us to attempt to interpret the first
- * "mgcp.{tcp,udp}.port" in a preferences file as
- * "mgcp.{tcp,udp}.gateway_port" and the second as
- * "mgcp.{tcp,udp}.callagent_port".
- */
-static int mgcp_tcp_port_count;
-static int mgcp_udp_port_count;
-
 e_prefs prefs;
 
 static const enum_val_t gui_console_open_type[] = {
@@ -4726,13 +4717,6 @@ read_prefs(const char* app_env_var_prefix)
      * report the error.
      */
     if (pf != NULL) {
-        /*
-         * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
-         * seen.
-         */
-        mgcp_tcp_port_count = 0;
-        mgcp_udp_port_count = 0;
-
         /* We succeeded in opening it; read it. */
         err = read_prefs_file(gpf_path, pf, set_pref, NULL);
         if (err != 0) {
@@ -4757,12 +4741,6 @@ read_prefs(const char* app_env_var_prefix)
 
     /* Read the user's preferences file, if it exists. */
     if ((pf = ws_fopen(pf_path, "r")) != NULL) {
-        /*
-         * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
-         * seen.
-         */
-        mgcp_tcp_port_count = 0;
-        mgcp_udp_port_count = 0;
 
         /* We succeeded in opening it; read it. */
         err = read_prefs_file(pf_path, pf, set_pref, NULL);
@@ -4876,7 +4854,6 @@ read_prefs_file(const char *pf_path, FILE *pf,
                         case PREFS_SET_NO_SUCH_PREF:
                             ws_warning("No such preference \"%s\" at line %d of\n%s %s",
                                        cur_var->str, pline, pf_path, hint);
-                            prefs.unknown_prefs = true;
                             break;
 
                         case PREFS_SET_OBSOLETE:
@@ -4893,7 +4870,6 @@ read_prefs_file(const char *pf_path, FILE *pf,
                              */
                             ws_warning("Obsolete preference \"%s\" at line %d of\n%s %s",
                                        cur_var->str, pline, pf_path, hint);
-                            prefs.unknown_prefs = true;
                             break;
                         }
                     } else {
@@ -4962,11 +4938,11 @@ read_prefs_file(const char *pf_path, FILE *pf,
             case PREFS_SET_NO_SUCH_PREF:
                 ws_warning("No such preference \"%s\" at line %d of\n%s %s",
                            cur_var->str, pline, pf_path, hint);
-                prefs.unknown_prefs = true;
                 break;
 
             case PREFS_SET_OBSOLETE:
-                prefs.unknown_prefs = true;
+                ws_warning("Obsolete preference \"%s\" at line %d of\n%s %s",
+                    cur_var->str, pline, pf_path, hint);
                 break;
             }
         } else {
@@ -5040,16 +5016,6 @@ prefs_set_pref(char *prefarg, char **errmsg)
 {
     char *p, *colonp;
     prefs_set_pref_e ret;
-
-    /*
-     * Set the counters of "mgcp.{tcp,udp}.port" entries we've
-     * seen to values that keep us from trying to interpret them
-     * as "mgcp.{tcp,udp}.gateway_port" or "mgcp.{tcp,udp}.callagent_port",
-     * as, from the command line, we have no way of guessing which
-     * the user had in mind.
-     */
-    mgcp_tcp_port_count = -1;
-    mgcp_udp_port_count = -1;
 
     *errmsg = NULL;
 
@@ -5353,10 +5319,6 @@ prefs_has_layout_pane_content (layout_pane_content_e layout_pane_content)
             (prefs.gui_layout_content_2 == layout_pane_content) ||
             (prefs.gui_layout_content_3 == layout_pane_content));
 }
-
-#define PRS_GUI_FILTER_LABEL             "gui.filter_expressions.label"
-#define PRS_GUI_FILTER_EXPR              "gui.filter_expressions.expr"
-#define PRS_GUI_FILTER_ENABLED           "gui.filter_expressions.enabled"
 
 /*
  * Extract the red, green, and blue components of a 24-bit RGB value
@@ -5844,63 +5806,13 @@ set_pref(char *pref_name, const char *value, void *private_data,
     bool     bval;
     int      enum_val;
     char     *dotp, *last_dotp;
-    static char *filter_label = NULL;
-    static bool filter_enabled = false;
     module_t *module, *containing_module, *target_module;
     pref_t   *pref;
     bool converted_pref = false;
 
     target_module = (module_t*)private_data;
 
-    //The PRS_GUI field names are here for backwards compatibility
-    //display filters have been converted to a UAT.
-    if (strcmp(pref_name, PRS_GUI_FILTER_LABEL) == 0) {
-        /* Assume that PRS_GUI_FILTER_EXPR follows this preference. In case of
-         * malicious preference files, free the previous value to limit the size
-         * of leaked memory.  */
-        g_free(filter_label);
-        filter_label = g_strdup(value);
-    } else if (strcmp(pref_name, PRS_GUI_FILTER_ENABLED) == 0) {
-        filter_enabled = (strcmp(value, "TRUE") == 0) ? true : false;
-    } else if (strcmp(pref_name, PRS_GUI_FILTER_EXPR) == 0) {
-        /* Comments not supported for "old" preference style */
-        filter_expression_new(filter_label, value, "", filter_enabled);
-        g_free(filter_label);
-        filter_label = NULL;
-        /* Remember to save the new UAT to file. */
-        prefs.filter_expressions_old = true;
-    } else if (strcmp(pref_name, "gui.version_in_start_page") == 0) {
-        /* Convert deprecated value to closest current equivalent */
-        if (g_ascii_strcasecmp(value, "true") == 0) {
-            prefs.gui_version_placement = version_both;
-        } else {
-            prefs.gui_version_placement = version_neither;
-        }
-    } else if (strcmp(pref_name, "name_resolve") == 0 ||
-               strcmp(pref_name, "capture.name_resolve") == 0) {
-        /*
-         * Handle the deprecated name resolution options.
-         *
-         * "TRUE" and "FALSE", for backwards compatibility, are synonyms for
-         * RESOLV_ALL and RESOLV_NONE.
-         *
-         * Otherwise, we treat it as a list of name types we want to resolve.
-         */
-        if (g_ascii_strcasecmp(value, "true") == 0) {
-            gbl_resolv_flags.mac_name = true;
-            gbl_resolv_flags.network_name = true;
-            gbl_resolv_flags.transport_name = true;
-        }
-        else if (g_ascii_strcasecmp(value, "false") == 0) {
-            disable_name_resolution();
-        }
-        else {
-            /* start out with none set */
-            disable_name_resolution();
-            if (string_to_name_resolve(value, &gbl_resolv_flags) != '\0')
-                return PREFS_SET_SYNTAX_ERR;
-        }
-    } else if (deprecated_heur_dissector_pref(pref_name, value)) {
+    if (deprecated_heur_dissector_pref(pref_name, value)) {
          /* Handled within deprecated_heur_dissector_pref() if found */
     } else if (deprecated_enable_dissector_pref(pref_name, value)) {
          /* Handled within deprecated_enable_dissector_pref() if found */
@@ -5910,89 +5822,63 @@ set_pref(char *pref_name, const char *value, void *private_data,
         /* Handled on the command line within ws_log_parse_args() */
         return PREFS_SET_OK;
     } else {
-        /* Handle deprecated "global" options that don't have a module
-         * associated with them
-         */
-        if ((strcmp(pref_name, "name_resolve_concurrency") == 0) ||
-            (strcmp(pref_name, "name_resolve_load_smi_modules") == 0)  ||
-            (strcmp(pref_name, "name_resolve_suppress_smi_errors") == 0)) {
-            module = nameres_module;
-            dotp = pref_name;
-        } else {
-            /* To which module does this preference belong? */
-            module = NULL;
-            last_dotp = pref_name;
-            while (!module) {
-                dotp = strchr(last_dotp, '.');
-                if (dotp == NULL) {
-                    /* Either there's no such module, or no module was specified.
-                       In either case, that means there's no such preference. */
-                    return PREFS_SET_NO_SUCH_PREF;
-                }
-                *dotp = '\0'; /* separate module and preference name */
-                module = prefs_find_module(pref_name);
+        /* To which module does this preference belong? */
+        module = NULL;
+        last_dotp = pref_name;
+        while (!module) {
+            dotp = strchr(last_dotp, '.');
+            if (dotp == NULL) {
+                /* Either there's no such module, or no module was specified.
+                    In either case, that means there's no such preference. */
+                return PREFS_SET_NO_SUCH_PREF;
+            }
+            *dotp = '\0'; /* separate module and preference name */
+            module = prefs_find_module(pref_name);
 
+            /*
+             * XXX - "Diameter" rather than "diameter" was used in earlier
+             * versions of Wireshark; if we didn't find the module, and its name
+             * was "Diameter", look for "diameter" instead.
+             *
+             * In addition, the BEEP protocol used to be the BXXP protocol,
+             * so if we didn't find the module, and its name was "bxxp",
+             * look for "beep" instead.
+             *
+             * Also, the preferences for GTP v0 and v1 were combined under
+             * a single "gtp" heading, and the preferences for SMPP were
+             * moved to "smpp-gsm-sms" and then moved to "gsm-sms-ud".
+             * However, SMPP now has its own preferences, so we just map
+             * "smpp-gsm-sms" to "gsm-sms-ud", and then handle SMPP below.
+             *
+             * We also renamed "dcp" to "dccp", "x.25" to "x25", "x411" to "p1"
+             * and "nsip" to "gprs_ns".
+             *
+             * The SynOptics Network Management Protocol (SONMP) is now known by
+             * its modern name, the Nortel Discovery Protocol (NDP).
+             */
+            if (module == NULL) {
                 /*
-                 * XXX - "Diameter" rather than "diameter" was used in earlier
-                 * versions of Wireshark; if we didn't find the module, and its name
-                 * was "Diameter", look for "diameter" instead.
-                 *
-                 * In addition, the BEEP protocol used to be the BXXP protocol,
-                 * so if we didn't find the module, and its name was "bxxp",
-                 * look for "beep" instead.
-                 *
-                 * Also, the preferences for GTP v0 and v1 were combined under
-                 * a single "gtp" heading, and the preferences for SMPP were
-                 * moved to "smpp-gsm-sms" and then moved to "gsm-sms-ud".
-                 * However, SMPP now has its own preferences, so we just map
-                 * "smpp-gsm-sms" to "gsm-sms-ud", and then handle SMPP below.
-                 *
-                 * We also renamed "dcp" to "dccp", "x.25" to "x25", "x411" to "p1"
-                 * and "nsip" to "gprs_ns".
-                 *
-                 * The SynOptics Network Management Protocol (SONMP) is now known by
-                 * its modern name, the Nortel Discovery Protocol (NDP).
+                 * See if there's a backwards-compatibility name
+                 * that maps to this module.
                  */
+                module = prefs_find_module_alias(pref_name);
                 if (module == NULL) {
                     /*
-                     * See if there's a backwards-compatibility name
-                     * that maps to this module.
+                     * There's no alias for the module; see if the
+                     * module name matches any protocol aliases.
                      */
-                    module = prefs_find_module_alias(pref_name);
-                    if (module == NULL) {
-                        /*
-                         * There's no alias for the module; see if the
-                         * module name matches any protocol aliases.
-                         */
-                        header_field_info *hfinfo = proto_registrar_get_byalias(pref_name);
-                        if (hfinfo) {
-                            module = (module_t *) wmem_tree_lookup_string(prefs_modules, hfinfo->abbrev, WMEM_TREE_STRING_NOCASE);
-                        }
-                    }
-                    if (module == NULL) {
-                        /*
-                         * There aren't any aliases.  Was the module
-                         * removed rather than renamed?
-                         */
-                        if (strcmp(pref_name, "etheric") == 0 ||
-                            strcmp(pref_name, "isup_thin") == 0) {
-                            /*
-                             * The dissectors for these protocols were
-                             * removed as obsolete on 2009-07-70 in change
-                             * 739bfc6ff035583abb9434e0e988048de38a8d9a.
-                             */
-                            return PREFS_SET_OBSOLETE;
-                        }
-                    }
-                    if (module) {
-                        converted_pref = true;
-                        prefs.unknown_prefs = true;
+                    header_field_info *hfinfo = proto_registrar_get_byalias(pref_name);
+                    if (hfinfo) {
+                        module = (module_t *) wmem_tree_lookup_string(prefs_modules, hfinfo->abbrev, WMEM_TREE_STRING_NOCASE);
                     }
                 }
-                *dotp = '.';                /* put the preference string back */
-                dotp++;                     /* skip past separator to preference name */
-                last_dotp = dotp;
+                if (module) {
+                    converted_pref = true;
+                }
             }
+            *dotp = '.';                /* put the preference string back */
+            dotp++;                     /* skip past separator to preference name */
+            last_dotp = dotp;
         }
 
         /* The pref is located in the module or a submodule.
@@ -6001,8 +5887,6 @@ set_pref(char *pref_name, const char *value, void *private_data,
         pref = prefs_find_preference_with_submodule(module, dotp, &containing_module);
 
         if (pref == NULL) {
-            prefs.unknown_prefs = true;
-
             /* "gui" prefix was added to column preferences for better organization
              * within the preferences file
              */
@@ -6012,259 +5896,10 @@ set_pref(char *pref_name, const char *value, void *private_data,
                  * containing_module. It would not be useful. */
                 pref = prefs_find_preference(module, pref_name);
             }
-            else if (strcmp(module->name, "mgcp") == 0) {
-                /*
-                 * XXX - "mgcp.display raw text toggle" and "mgcp.display dissect tree"
-                 * rather than "mgcp.display_raw_text" and "mgcp.display_dissect_tree"
-                 * were used in earlier versions of Wireshark; if we didn't find the
-                 * preference, it was an MGCP preference, and its name was
-                 * "display raw text toggle" or "display dissect tree", look for
-                 * "display_raw_text" or "display_dissect_tree" instead.
-                 *
-                 * "mgcp.tcp.port" and "mgcp.udp.port" are harder to handle, as both
-                 * the gateway and callagent ports were given those names; we interpret
-                 * the first as "mgcp.{tcp,udp}.gateway_port" and the second as
-                 * "mgcp.{tcp,udp}.callagent_port", as that's the order in which
-                 * they were registered by the MCCP dissector and thus that's the
-                 * order in which they were written to the preferences file.  (If
-                 * we're not reading the preferences file, but are handling stuff
-                 * from a "-o" command-line option, we have no clue which the user
-                 * had in mind - they should have used "mgcp.{tcp,udp}.gateway_port"
-                 * or "mgcp.{tcp,udp}.callagent_port" instead.)
-                 */
-                if (strcmp(dotp, "display raw text toggle") == 0)
-                    pref = prefs_find_preference(module, "display_raw_text");
-                else if (strcmp(dotp, "display dissect tree") == 0)
-                    pref = prefs_find_preference(module, "display_dissect_tree");
-                else if (strcmp(dotp, "tcp.port") == 0) {
-                    mgcp_tcp_port_count++;
-                    if (mgcp_tcp_port_count == 1) {
-                        /* It's the first one */
-                        pref = prefs_find_preference(module, "tcp.gateway_port");
-                    } else if (mgcp_tcp_port_count == 2) {
-                        /* It's the second one */
-                        pref = prefs_find_preference(module, "tcp.callagent_port");
-                    }
-                    /* Otherwise it's from the command line, and we don't bother
-                       mapping it. */
-                } else if (strcmp(dotp, "udp.port") == 0) {
-                    mgcp_udp_port_count++;
-                    if (mgcp_udp_port_count == 1) {
-                        /* It's the first one */
-                        pref = prefs_find_preference(module, "udp.gateway_port");
-                    } else if (mgcp_udp_port_count == 2) {
-                        /* It's the second one */
-                        pref = prefs_find_preference(module, "udp.callagent_port");
-                    }
-                    /* Otherwise it's from the command line, and we don't bother
-                       mapping it. */
-                }
-            } else if (strcmp(module->name, "smb") == 0) {
-                /* Handle old names for SMB preferences. */
-                if (strcmp(dotp, "smb.trans.reassembly") == 0)
-                    pref = prefs_find_preference(module, "trans_reassembly");
-                else if (strcmp(dotp, "smb.dcerpc.reassembly") == 0)
-                    pref = prefs_find_preference(module, "dcerpc_reassembly");
-            } else if (strcmp(module->name, "ndmp") == 0) {
-                /* Handle old names for NDMP preferences. */
-                if (strcmp(dotp, "ndmp.desegment") == 0)
-                    pref = prefs_find_preference(module, "desegment");
-            } else if (strcmp(module->name, "diameter") == 0) {
-                /* Handle old names for Diameter preferences. */
-                if (strcmp(dotp, "diameter.desegment") == 0)
-                    pref = prefs_find_preference(module, "desegment");
-            } else if (strcmp(module->name, "pcli") == 0) {
-                /* Handle old names for PCLI preferences. */
-                if (strcmp(dotp, "pcli.udp_port") == 0)
-                    pref = prefs_find_preference(module, "udp_port");
-            } else if (strcmp(module->name, "artnet") == 0) {
-                /* Handle old names for ARTNET preferences. */
-                if (strcmp(dotp, "artnet.udp_port") == 0)
-                    pref = prefs_find_preference(module, "udp_port");
-            } else if (strcmp(module->name, "mapi") == 0) {
-                /* Handle old names for MAPI preferences. */
-                if (strcmp(dotp, "mapi_decrypt") == 0)
-                    pref = prefs_find_preference(module, "decrypt");
-            } else if (strcmp(module->name, "fc") == 0) {
-                /* Handle old names for Fibre Channel preferences. */
-                if (strcmp(dotp, "reassemble_fc") == 0)
-                    pref = prefs_find_preference(module, "reassemble");
-                else if (strcmp(dotp, "fc_max_frame_size") == 0)
-                    pref = prefs_find_preference(module, "max_frame_size");
-            } else if (strcmp(module->name, "fcip") == 0) {
-                /* Handle old names for Fibre Channel-over-IP preferences. */
-                if (strcmp(dotp, "desegment_fcip_messages") == 0)
-                    pref = prefs_find_preference(module, "desegment");
-                else if (strcmp(dotp, "fcip_port") == 0)
-                    pref = prefs_find_preference(module, "target_port");
-            } else if (strcmp(module->name, "gtp") == 0) {
-                /* Handle old names for GTP preferences. */
-                if (strcmp(dotp, "gtpv0_port") == 0)
-                    pref = prefs_find_preference(module, "v0_port");
-                else if (strcmp(dotp, "gtpv1c_port") == 0)
-                    pref = prefs_find_preference(module, "v1c_port");
-                else if (strcmp(dotp, "gtpv1u_port") == 0)
-                    pref = prefs_find_preference(module, "v1u_port");
-                else if (strcmp(dotp, "gtp_dissect_tpdu") == 0)
-                    pref = prefs_find_preference(module, "dissect_tpdu");
-                else if (strcmp(dotp, "gtpv0_dissect_cdr_as") == 0)
-                    pref = prefs_find_preference(module, "v0_dissect_cdr_as");
-                else if (strcmp(dotp, "gtpv0_check_etsi") == 0)
-                    pref = prefs_find_preference(module, "v0_check_etsi");
-                else if (strcmp(dotp, "gtpv1_check_etsi") == 0)
-                    pref = prefs_find_preference(module, "v1_check_etsi");
-            } else if (strcmp(module->name, "ip") == 0) {
-                /* Handle old names for IP preferences. */
-                if (strcmp(dotp, "ip_summary_in_tree") == 0)
-                    pref = prefs_find_preference(module, "summary_in_tree");
-            } else if (strcmp(module->name, "iscsi") == 0) {
-                /* Handle old names for iSCSI preferences. */
-                if (strcmp(dotp, "iscsi_port") == 0)
-                    pref = prefs_find_preference(module, "target_port");
-            } else if (strcmp(module->name, "lmp") == 0) {
-                /* Handle old names for LMP preferences. */
-                if (strcmp(dotp, "lmp_version") == 0)
-                    pref = prefs_find_preference(module, "version");
-            } else if (strcmp(module->name, "mtp3") == 0) {
-                /* Handle old names for MTP3 preferences. */
-                if (strcmp(dotp, "mtp3_standard") == 0)
-                    pref = prefs_find_preference(module, "standard");
-                else if (strcmp(dotp, "net_addr_format") == 0)
-                    pref = prefs_find_preference(module, "addr_format");
-            } else if (strcmp(module->name, "nlm") == 0) {
-                /* Handle old names for NLM preferences. */
-                if (strcmp(dotp, "nlm_msg_res_matching") == 0)
-                    pref = prefs_find_preference(module, "msg_res_matching");
-            } else if (strcmp(module->name, "ppp") == 0) {
-                /* Handle old names for PPP preferences. */
-                if (strcmp(dotp, "ppp_fcs") == 0)
-                    pref = prefs_find_preference(module, "fcs_type");
-                else if (strcmp(dotp, "ppp_vj") == 0)
-                    pref = prefs_find_preference(module, "decompress_vj");
-            } else if (strcmp(module->name, "rsvp") == 0) {
-                /* Handle old names for RSVP preferences. */
-                if (strcmp(dotp, "rsvp_process_bundle") == 0)
-                    pref = prefs_find_preference(module, "process_bundle");
-            } else if (strcmp(module->name, "tcp") == 0) {
+            else if (strcmp(module->name, "tcp") == 0) {
                 /* Handle old names for TCP preferences. */
-                if (strcmp(dotp, "tcp_summary_in_tree") == 0)
-                    pref = prefs_find_preference(module, "summary_in_tree");
-                else if (strcmp(dotp, "tcp_analyze_sequence_numbers") == 0)
-                    pref = prefs_find_preference(module, "analyze_sequence_numbers");
-                else if (strcmp(dotp, "tcp_relative_sequence_numbers") == 0)
-                    pref = prefs_find_preference(module, "relative_sequence_numbers");
-                else if (strcmp(dotp, "dissect_experimental_options_with_magic") == 0)
+                if (strcmp(dotp, "dissect_experimental_options_with_magic") == 0)
                     pref = prefs_find_preference(module, "dissect_experimental_options_rfc6994");
-            } else if (strcmp(module->name, "udp") == 0) {
-                /* Handle old names for UDP preferences. */
-                if (strcmp(dotp, "udp_summary_in_tree") == 0)
-                    pref = prefs_find_preference(module, "summary_in_tree");
-            } else if (strcmp(module->name, "ndps") == 0) {
-                /* Handle old names for NDPS preferences. */
-                if (strcmp(dotp, "desegment_ndps") == 0)
-                    pref = prefs_find_preference(module, "desegment_tcp");
-            } else if (strcmp(module->name, "http") == 0) {
-                /* Handle old names for HTTP preferences. */
-                if (strcmp(dotp, "desegment_http_headers") == 0)
-                    pref = prefs_find_preference(module, "desegment_headers");
-                else if (strcmp(dotp, "desegment_http_body") == 0)
-                    pref = prefs_find_preference(module, "desegment_body");
-            } else if (strcmp(module->name, "smpp") == 0) {
-                /* Handle preferences that moved from SMPP. */
-                module_t *new_module = prefs_find_module("gsm-sms-ud");
-                if (new_module) {
-                    if (strcmp(dotp, "port_number_udh_means_wsp") == 0) {
-                        pref = prefs_find_preference(new_module, "port_number_udh_means_wsp");
-                        containing_module = new_module;
-                    } else if (strcmp(dotp, "try_dissect_1st_fragment") == 0) {
-                        pref = prefs_find_preference(new_module, "try_dissect_1st_fragment");
-                        containing_module = new_module;
-                    }
-                }
-            } else if (strcmp(module->name, "asn1") == 0) {
-                /* Handle old generic ASN.1 preferences (it's not really a
-                   rename, as the new preferences support multiple ports,
-                   but we might as well copy them over). */
-                if (strcmp(dotp, "tcp_port") == 0)
-                    pref = prefs_find_preference(module, "tcp_ports");
-                else if (strcmp(dotp, "udp_port") == 0)
-                    pref = prefs_find_preference(module, "udp_ports");
-                else if (strcmp(dotp, "sctp_port") == 0)
-                    pref = prefs_find_preference(module, "sctp_ports");
-            } else if (strcmp(module->name, "llcgprs") == 0) {
-                if (strcmp(dotp, "ignore_cipher_bit") == 0)
-                    pref = prefs_find_preference(module, "autodetect_cipher_bit");
-            } else if (strcmp(module->name, "erf") == 0) {
-                if (strcmp(dotp, "erfeth") == 0) {
-                    /* Handle the old "erfeth" preference; map it to the new
-                       "ethfcs" preference, and map the values to those for
-                       the new preference. */
-                    pref = prefs_find_preference(module, "ethfcs");
-                    if (strcmp(value, "ethfcs") == 0 || strcmp(value, "Ethernet with FCS") == 0)
-                        value = "TRUE";
-                    else if (strcmp(value, "eth") == 0 || strcmp(value, "Ethernet") == 0)
-                        value = "FALSE";
-                    else if (strcmp(value, "raw") == 0 || strcmp(value, "Raw data") == 0)
-                        value = "TRUE";
-                } else if (strcmp(dotp, "erfatm") == 0) {
-                    /* Handle the old "erfatm" preference; map it to the new
-                       "aal5_type" preference, and map the values to those for
-                       the new preference. */
-                    pref = prefs_find_preference(module, "aal5_type");
-                    if (strcmp(value, "atm") == 0 || strcmp(value, "ATM") == 0)
-                        value = "guess";
-                    else if (strcmp(value, "llc") == 0 || strcmp(value, "LLC") == 0)
-                        value = "llc";
-                    else if (strcmp(value, "raw") == 0 || strcmp(value, "Raw data") == 0)
-                        value = "guess";
-                } else if (strcmp(dotp, "erfhdlc") == 0) {
-                    /* Handle the old "erfhdlc" preference; map it to the new
-                       "hdlc_type" preference, and map the values to those for
-                       the new preference. */
-                    pref = prefs_find_preference(module, "hdlc_type");
-                    if (strcmp(value, "chdlc") == 0 || strcmp(value, "Cisco HDLC") == 0)
-                        value = "chdlc";
-                    else if (strcmp(value, "ppp") == 0 || strcmp(value, "PPP serial") == 0)
-                        value = "ppp";
-                    else if (strcmp(value, "fr") == 0 || strcmp(value, "Frame Relay") == 0)
-                        value = "frelay";
-                    else if (strcmp(value, "mtp2") == 0 || strcmp(value, "SS7 MTP2") == 0)
-                        value = "mtp2";
-                    else if (strcmp(value, "raw") == 0 || strcmp(value, "Raw data") == 0)
-                        value = "guess";
-                }
-            } else if (strcmp(module->name, "eth") == 0) {
-                /* "eth.qinq_ethertype" has been changed(restored) to "vlan.qinq.ethertype" */
-                if (strcmp(dotp, "qinq_ethertype") == 0) {
-                    module_t *new_module = prefs_find_module("vlan");
-                    if (new_module) {
-                        pref = prefs_find_preference(new_module, "qinq_ethertype");
-                        containing_module = new_module;
-                    }
-                }
-            } else if (strcmp(module->name, "taps") == 0) {
-                /* taps preferences moved to "statistics" module */
-                if (strcmp(dotp, "update_interval") == 0)
-                    pref = prefs_find_preference(stats_module, dotp);
-            } else if (strcmp(module->name, "packet_list") == 0) {
-                /* packet_list preferences moved to protocol module */
-                if (strcmp(dotp, "display_hidden_proto_items") == 0)
-                    pref = prefs_find_preference(protocols_module, dotp);
-            } else if (strcmp(module->name, "stream") == 0) {
-                /* stream preferences moved to gui color module */
-                if ((strcmp(dotp, "client.fg") == 0) ||
-                    (strcmp(dotp, "client.bg") == 0) ||
-                    (strcmp(dotp, "server.fg") == 0) ||
-                    (strcmp(dotp, "server.bg") == 0))
-                    pref = prefs_find_preference(gui_color_module, pref_name);
-            } else if (strcmp(module->name, "nameres") == 0) {
-                if (strcmp(pref_name, "name_resolve_concurrency") == 0) {
-                    pref = prefs_find_preference(nameres_module, pref_name);
-                } else if (strcmp(pref_name, "name_resolve_load_smi_modules") == 0) {
-                    pref = prefs_find_preference(nameres_module, "load_smi_modules");
-                } else if (strcmp(pref_name, "name_resolve_suppress_smi_errors") == 0) {
-                    pref = prefs_find_preference(nameres_module, "suppress_smi_errors");
-                }
             } else if (strcmp(module->name, "extcap") == 0) {
                 /* Handle the old "sshdump.remotesudo" preference; map it to the new
                   "sshdump.remotepriv" preference, and map the boolean values to the
