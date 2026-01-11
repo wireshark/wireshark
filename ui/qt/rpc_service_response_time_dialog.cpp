@@ -141,7 +141,7 @@ TapParameterDialog *RpcServiceResponseTimeDialog::createDceRpcSrtDialog(QWidget 
 
     // dcerpc,srt,<uuid>,<major version>.<minor version>[,<filter>]
     QStringList args_l = QString(opt_arg).split(',');
-    if (args_l.length() > 1) {
+    if (args_l.length() > 1 && !args_l[0].isEmpty()) {
         // XXX Switch to QUuid.
         unsigned d1, d2, d3, d4_0, d4_1, d4_2, d4_3, d4_4, d4_5, d4_6, d4_7;
         if (sscanf(args_l[0].toUtf8().constData(),
@@ -192,7 +192,7 @@ TapParameterDialog *RpcServiceResponseTimeDialog::createOncRpcSrtDialog(QWidget 
 
     // rpc,srt,<program>,<version>[,<filter>
     QStringList args_l = QString(opt_arg).split(',');
-    if (args_l.length() > 1) {
+    if (args_l.length() > 1 && !args_l[0].isEmpty()) {
         bool ok = false;
         program_num = args_l[0].toInt(&ok);
         if (!ok) {
