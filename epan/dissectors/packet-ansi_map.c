@@ -16006,9 +16006,9 @@ static stat_tap_table_item stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "
 static void ansi_map_stat_init(stat_tap_table_ui* new_stat)
 {
     const char *table_name = "ANSI MAP Operation Statistics";
-    int num_fields = array_length(stat_fields);
+    unsigned num_fields = array_length(stat_fields);
     stat_tap_table *table;
-    int i = 0;
+    unsigned i = 0;
     stat_tap_table_item_type items[array_length(stat_fields)];
 
     table = stat_tap_find_table(new_stat, table_name);
@@ -16022,7 +16022,8 @@ static void ansi_map_stat_init(stat_tap_table_ui* new_stat)
     table = stat_tap_init_table(table_name, num_fields, 0, "ansi_map.op_code");
     stat_tap_add_table(new_stat, table);
 
-    /* Add a fow for each value type */
+    memset(items, 0, sizeof(items));
+    /* Add a row for each value type */
     while (ansi_map_opr_code_strings[i].strptr)
     {
         items[OPCODE_COLUMN].type = TABLE_ITEM_UINT;

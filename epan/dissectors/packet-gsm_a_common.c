@@ -3604,15 +3604,10 @@ static stat_tap_table_item gsm_a_stat_fields[] = {
 
 static void gsm_a_stat_init(stat_tap_table_ui* new_stat, const char *table_title, const value_string *msg_strings)
 {
-    int num_fields = array_length(gsm_a_stat_fields);
+    unsigned num_fields = array_length(gsm_a_stat_fields);
     stat_tap_table* table;
     unsigned i;
     stat_tap_table_item_type items[array_length(gsm_a_stat_fields)];
-
-    items[IEI_COLUMN].type = TABLE_ITEM_UINT;
-    items[MSG_NAME_COLUMN].type = TABLE_ITEM_STRING;
-    items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
-    items[COUNT_COLUMN].value.uint_value = 0;
 
     table = stat_tap_find_table(new_stat, table_title);
     if (table) {
@@ -3621,6 +3616,12 @@ static void gsm_a_stat_init(stat_tap_table_ui* new_stat, const char *table_title
         }
         return;
     }
+
+    memset(items, 0, sizeof(items));
+    items[IEI_COLUMN].type = TABLE_ITEM_UINT;
+    items[MSG_NAME_COLUMN].type = TABLE_ITEM_STRING;
+    items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+    items[COUNT_COLUMN].value.uint_value = 0;
 
     table = stat_tap_init_table(table_title, num_fields, 0, NULL);
     stat_tap_add_table(new_stat, table);

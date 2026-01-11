@@ -10665,15 +10665,10 @@ static stat_tap_table_item bsmap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RI
 static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat)
 {
     const char *table_name = "ANSI A-I/F BSMAP Statistics";
-    int num_fields = array_length(bsmap_stat_fields);
+    unsigned num_fields = array_length(bsmap_stat_fields);
     stat_tap_table *table;
-    int i = 0;
+    unsigned i = 0;
     stat_tap_table_item_type items[array_length(bsmap_stat_fields)];
-
-    items[IEI_COLUMN].type = TABLE_ITEM_UINT;
-    items[MESSAGE_NAME_COLUMN].type = TABLE_ITEM_STRING;
-    items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
-    items[COUNT_COLUMN].value.uint_value = 0;
 
     table = stat_tap_find_table(new_stat, table_name);
     if (table) {
@@ -10682,6 +10677,12 @@ static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat)
         }
         return;
     }
+
+    memset(items, 0, sizeof(items));
+    items[IEI_COLUMN].type = TABLE_ITEM_UINT;
+    items[MESSAGE_NAME_COLUMN].type = TABLE_ITEM_STRING;
+    items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+    items[COUNT_COLUMN].value.uint_value = 0;
 
     table = stat_tap_init_table(table_name, num_fields, 0, NULL);
     stat_tap_add_table(new_stat, table);
