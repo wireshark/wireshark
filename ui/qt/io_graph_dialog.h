@@ -236,6 +236,10 @@ private slots:
     void on_actionMoveLeft1_triggered();
     void on_actionMoveRight1_triggered();
     void on_actionMoveDown1_triggered();
+    void on_actionMoveUp100_triggered();
+    void on_actionMoveLeft100_triggered();
+    void on_actionMoveRight100_triggered();
+    void on_actionMoveDown100_triggered();
     void on_actionGoToPacket_triggered();
     void on_actionDragZoom_triggered();
     void on_actionToggleTimeOrigin_triggered();

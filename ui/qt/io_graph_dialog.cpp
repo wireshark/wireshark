@@ -339,6 +339,10 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_
     ctx_menu_.addAction(ui->actionMoveLeft1);
     ctx_menu_.addAction(ui->actionMoveUp1);
     ctx_menu_.addAction(ui->actionMoveDown1);
+    ctx_menu_.addAction(ui->actionMoveRight100);
+    ctx_menu_.addAction(ui->actionMoveLeft100);
+    ctx_menu_.addAction(ui->actionMoveUp100);
+    ctx_menu_.addAction(ui->actionMoveDown100);
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionGoToPacket);
     ctx_menu_.addSeparator();
@@ -728,7 +732,7 @@ void IOGraphDialog::captureFileClosing()
 
 void IOGraphDialog::keyPressEvent(QKeyEvent *event)
 {
-    int pan_pixels = event->modifiers() & Qt::ShiftModifier ? 1 : 10;
+    int pan_pixels = event->modifiers() & Qt::ShiftModifier ? 1 : event->modifiers() & Qt::AltModifier ? 100 : 10;
 
     switch(event->key()) {
     case Qt::Key_Minus:
@@ -1875,6 +1879,26 @@ void IOGraphDialog::on_actionMoveRight1_triggered()
 void IOGraphDialog::on_actionMoveDown1_triggered()
 {
     panAxes(0, -1);
+}
+
+void IOGraphDialog::on_actionMoveUp100_triggered()
+{
+    panAxes(0, 100);
+}
+
+void IOGraphDialog::on_actionMoveLeft100_triggered()
+{
+    panAxes(-100, 0);
+}
+
+void IOGraphDialog::on_actionMoveRight100_triggered()
+{
+    panAxes(100, 0);
+}
+
+void IOGraphDialog::on_actionMoveDown100_triggered()
+{
+    panAxes(0, -100);
 }
 
 void IOGraphDialog::on_actionGoToPacket_triggered()
