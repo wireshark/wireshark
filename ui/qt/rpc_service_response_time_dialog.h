@@ -12,11 +12,11 @@
 
 #include "service_response_time_dialog.h"
 
+class QUuid;
 class QComboBox;
 
 struct _guid_key;
 struct _dcerpc_uuid_value;
-struct _e_guid_t;
 struct _rpc_prog_info_value;
 
 class RpcServiceResponseTimeDialog : public ServiceResponseTimeDialog
@@ -38,7 +38,7 @@ public:
     void addOncRpcProgram(uint32_t program, struct _rpc_prog_info_value *value);
     void addOncRpcProgramVersion(uint32_t program, uint32_t version);
 
-    void setDceRpcUuidAndVersion(struct _e_guid_t *uuid, int version);
+    void setDceRpcUuidAndVersion(const QUuid &uuid, int version);
     void setOncRpcProgramAndVersion(int program, int version);
     void setRpcNameAndVersion(const QString &program_name, int version);
 

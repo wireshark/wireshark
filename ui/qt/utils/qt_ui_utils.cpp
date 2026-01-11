@@ -14,6 +14,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <epan/addr_resolv.h>
+#include <epan/guid-utils.h>
 #include <epan/range.h>
 #include <epan/to_str.h>
 #include <wsutil/value_string.h>
@@ -171,6 +172,13 @@ const QString time_t_to_qstring(time_t ti_time)
     QDateTime date_time = QDateTime::fromSecsSinceEpoch(qint64(ti_time));
     QString time_str = date_time.toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
     return time_str;
+}
+
+QUuid e_guid_t_to_quuid(const e_guid_t &guid)
+{
+    return QUuid(guid.data1, guid.data2, guid.data3,
+        guid.data4[0], guid.data4[1], guid.data4[2], guid.data4[3],
+        guid.data4[4], guid.data4[5], guid.data4[6], guid.data4[7]);
 }
 
 QString html_escape(const QString plain_string) {

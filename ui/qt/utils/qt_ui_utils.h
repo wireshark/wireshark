@@ -25,6 +25,7 @@
 #include "ui/rtp_stream.h"
 
 #include <QString>
+#include <QUuid>
 
 class QAction;
 class QFont;
@@ -40,6 +41,7 @@ extern "C" {
 
 struct _address;
 struct epan_range;
+struct _e_guid_t;
 
 #ifdef __cplusplus
 }
@@ -178,6 +180,14 @@ const QString file_size_to_qstring(const int64_t size);
  * @return A QString representation of the date time value.
  */
 const QString time_t_to_qstring(time_t ti_time);
+
+/** Convert a e_guid_t value to a QUuid.
+ *
+ * @param guid The value to convert.
+ *
+ * @return A QUuid instance created from the e_guid_t.
+ */
+QUuid e_guid_t_to_quuid(const struct _e_guid_t &guid);
 
 /** Escape HTML metacharacters in a string.
  *

@@ -16,17 +16,16 @@
 #include "rpc_service_response_time_dialog.h"
 
 #include <algorithm>
-#include <stdio.h>
 
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-rpc.h>
-#include <epan/guid-utils.h>
 #include <epan/uuid_types.h>
 #include <epan/to_str.h>
 #include <epan/srt_table.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
+#include <QUuid>
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -136,30 +135,14 @@ TapParameterDialog *RpcServiceResponseTimeDialog::createDceRpcSrtDialog(QWidget 
     QString filter;
     bool have_args = false;
     QString program_name;
-    e_guid_t uuid;
+    QUuid uuid;
     int version = 0;
 
     // dcerpc,srt,<uuid>,<major version>.<minor version>[,<filter>]
     QStringList args_l = QString(opt_arg).split(',');
     if (args_l.length() > 1 && !args_l[0].isEmpty()) {
-        // XXX Switch to QUuid.
-        unsigned d1, d2, d3, d4_0, d4_1, d4_2, d4_3, d4_4, d4_5, d4_6, d4_7;
-        if (sscanf(args_l[0].toUtf8().constData(),
-                  "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                  &d1, &d2, &d3,
-                  &d4_0, &d4_1, &d4_2, &d4_3, &d4_4, &d4_5, &d4_6, &d4_7) == 11) {
-                  uuid.data1 = d1;
-                  uuid.data2 = d2;
-                  uuid.data3 = d3;
-                  uuid.data4[0] = d4_0;
-                  uuid.data4[1] = d4_1;
-                  uuid.data4[2] = d4_2;
-                  uuid.data4[3] = d4_3;
-                  uuid.data4[4] = d4_4;
-                  uuid.data4[5] = d4_5;
-                  uuid.data4[6] = d4_6;
-                  uuid.data4[7] = d4_7;
-        } else {
+        uuid = QUuid(args_l[0]);
+        if (uuid.isNull()) {
             program_name = args_l[0];
         }
         version = args_l[1].split('.')[0].toInt();
@@ -172,7 +155,7 @@ TapParameterDialog *RpcServiceResponseTimeDialog::createDceRpcSrtDialog(QWidget 
 
     if (have_args) {
         if (program_name.isEmpty()) {
-            dce_rpc_dlg->setDceRpcUuidAndVersion(&uuid, version);
+            dce_rpc_dlg->setDceRpcUuidAndVersion(uuid, version);
         } else {
             dce_rpc_dlg->setRpcNameAndVersion(program_name, version);
         }
@@ -253,11 +236,11 @@ void RpcServiceResponseTimeDialog::addOncRpcProgramVersion(uint32_t program, uin
     }
 }
 
-void RpcServiceResponseTimeDialog::setDceRpcUuidAndVersion(_e_guid_t *uuid, int version)
+void RpcServiceResponseTimeDialog::setDceRpcUuidAndVersion(const QUuid& uuid, int version)
 {
     bool found = false;
     for (int pi = 0; pi < program_combo_->count(); pi++) {
-        if (guid_cmp(uuid, &(dce_name_to_uuid_key_[program_combo_->itemText(pi)]->guid)) == 0) {
+        if (uuid == e_guid_t_to_quuid(dce_name_to_uuid_key_[program_combo_->itemText(pi)]->guid)) {
             program_combo_->setCurrentIndex(pi);
 
             for (int vi = 0; vi < version_combo_->count(); vi++) {
