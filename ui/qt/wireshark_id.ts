@@ -3998,7 +3998,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Tunjukkan teks sebagai pengodean frame</translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -9649,7 +9649,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished">CCCH</translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
@@ -13438,7 +13438,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
-        <translation type="unfinished">Tabel yang Dapat Diakses Pengguna yang Tak Dikenal</translation>
+        <translation>Tabel yang Dapat Diakses Pengguna yang Tak Dikenal</translation>
     </message>
     <message>
         <source>Open </source>
