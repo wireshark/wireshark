@@ -4133,7 +4133,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Jungkitkan seret / zum tetikus&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Jungkitkan asal waktu tangkap / sesi&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Jungkitkan bidik silang&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Spasi&lt;/th&gt;&lt;td&gt;Jungkitkan bidik silang&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -4517,27 +4517,15 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>%1 I/O Graphs: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Grafik I/O Wireshark: %1</translation>
+        <translation>Grafik I/O %1: %2</translation>
     </message>
     <message>
         <source>Filtered packets</source>
         <translation>Paket terfilter</translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Kejadian terfilter</translation>
-    </message>
-    <message>
         <source>All packets</source>
         <translation>Semua paket</translation>
-    </message>
-    <message>
-        <source>All events</source>
-        <translation type="vanished">Semua kejadian</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4548,14 +4536,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Galat TCP</translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="vanished">Semua Kejadian</translation>
-    </message>
-    <message>
-        <source>All Execs</source>
-        <translation type="vanished">Semua Exec</translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>Apungkan pada grafik untuk rincian.</translation>
     </message>
@@ -4564,24 +4544,12 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Tidak ada paket dalam interval</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="vanished">Tidak ada kejadian dalam interval</translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>Klik untuk memilih paket</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Paket</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Klik untuk memilih kejadian</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Kejadian</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -5489,33 +5457,33 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Pintasan Papan Ketik</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Cari Pintasan</translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Cetak Daftar Pintasan</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutup</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Salin</translation>
+        <translation>Salin</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Salin Baris</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 %2</source>
-        <translation type="unfinished">%1 %2</translation>
+        <translation>%1 %2</translation>
     </message>
 </context>
 <context>
@@ -6469,27 +6437,27 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
-&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
+&lt;h3&gt;Pintasan papan ketik yang berharga dan menghemat waktu luar biasa&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zoom in&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zoom out&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Perbesar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Perkecil&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset grafik ke keadaan awalnya&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Move up 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Move up 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Pindah kanan 10 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Pindah kiri 10 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Pindah naik 10 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Pindah turun 10 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Pindah kanan 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Pindah kiri 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Pindah naik 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Pindah turun 1 piksel&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Ke paket di bawah kursor&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Toggle mouse drag / zoom&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Toggle crosshairs&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Jungkitkan zum / seret tetikus&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Jungkitkan asal waktu tangkap / sesi&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Spasi&lt;/th&gt;&lt;td&gt;Jungkitkan pembidik silang&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -6964,10 +6932,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Paket Terpilih: %1 %2 </translation>
     </message>
     <message>
-        <source>Events: %1</source>
-        <translation type="vanished">Kejadian: %1</translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 Dipilih: %2 (%3%)</translation>
     </message>
@@ -6995,10 +6959,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>No Packets</source>
         <translation>Tidak Ada Paket</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="vanished">Tidak Ada Kejadian</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -7249,7 +7209,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Search vendor name using a case-insensitive regular expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cari nama vendor memakai ekspresi reguler tanpa membedakan besar kecil huruf.</translation>
     </message>
     <message>
         <source>Vendor Name</source>
@@ -8300,36 +8260,16 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Penanda</translation>
     </message>
     <message>
-        <source>Wireshark Plots: %1</source>
-        <translation type="vanished">Plot Wireshark: %1</translation>
-    </message>
-    <message>
-        <source>Stratoshark Plots: %1</source>
-        <translation type="vanished">Plot Stratoshark: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Paket terfilter</translation>
-    </message>
-    <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Kejadian terfilter</translation>
     </message>
     <message>
         <source>All packets</source>
         <translation>Semua paket</translation>
     </message>
     <message>
-        <source>All events</source>
-        <translation type="vanished">Semua kejadian</translation>
-    </message>
-    <message>
         <source>Seq. num.</source>
         <translation>Nmr. urut.</translation>
-    </message>
-    <message>
-        <source>Event latency</source>
-        <translation type="vanished">Latensi kejadian</translation>
     </message>
     <message>
         <source>Frame num.</source>
@@ -8353,19 +8293,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>%1 Plots: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Plot %1: %2</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Paket</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Klik untuk memilih kejadian</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Kejadian</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -9722,6 +9654,10 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <source>Display Filter</source>
         <translation>Filter Tampilan</translation>
     </message>
+    <message>
+        <source>User Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject::QObject::QObject</name>
@@ -10543,7 +10479,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the timestamps as time of day (checked) or seconds since beginning of capture (unchecked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lihat stempel waktu sebagai waktu hari ini (dicentang) atau detik sejak awal penangkapan (tak dicentang).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Time of Day</source>
@@ -10567,7 +10503,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Export audio of all unmuted selected channels or export payload of one channel.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekspor audio dari semua kanal tak dibisukan yang dipilih atau ekspor payload dari satu kanal.</translation>
     </message>
     <message>
         <source>From &amp;cursor</source>
@@ -10860,7 +10796,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Mendekode stream...</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10913,7 +10849,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Resampling waveform…</source>
         <oldsource>Resampling waveform...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Mencuplik ulang bentuk gelombang...</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -12265,7 +12201,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Percent-Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Persen-Pengodean</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>
@@ -12917,14 +12853,14 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
 
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Up&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Stream selanjutnya&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Dn&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Stream sebelumnya&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;Balik arah (pertukarkan titik akhir TCP )&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;Balik arah (pertukarkan titik akhir TCP)&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Ke paket di bawah kursor&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Jungkitkan seret / zum tetikus&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;s&lt;/th&gt;&lt;td&gt;Jungkitkan nomor urutan relatif / absolut&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Jungkitkan asal waktu tangkap / sesi&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;u&lt;/th&gt;&lt;td&gt;Jungkitkan unit SI sumbu&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Jungkitkan pembidik silang&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Spasi&lt;/th&gt;&lt;td&gt;Jungkitkan pembidik silang&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;1&lt;/th&gt;&lt;td&gt;Grafik Round Trip Time&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;2&lt;/th&gt;&lt;td&gt;Grafik Throughput&lt;/td&gt;&lt;/th&gt;
@@ -13585,7 +13521,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
-        <translation type="unfinished">Tabel yang Dapat Diakses Pengguna yang Tak Dikenal</translation>
+        <translation>Tabel yang Dapat Diakses Pengguna yang Tak Dikenal</translation>
     </message>
     <message>
         <source>Open </source>
@@ -13937,14 +13873,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>Anda menyadap perekat yang menyatukan saluran ke Internet memakai Wireshark </translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="vanished">Anda menyadap perekat yang menyatukan seluruh sistem Anda memakai Stratoshark </translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="vanished">Anda sedang menjalankan Stratoshark </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -15069,7 +14997,7 @@ a:hover {
     </message>
     <message>
         <source>Shrink the main window text</source>
-        <translation type="unfinished"></translation>
+        <translation>Perkecil teks jendela utama</translation>
     </message>
     <message>
         <source>Return the main window text to its normal size</source>
@@ -15421,7 +15349,7 @@ a:hover {
     </message>
     <message>
         <source>BPv7 PDU and block statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistik blok dan PDU BPv7</translation>
     </message>
     <message>
         <source>E2AP</source>
@@ -15693,11 +15621,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Pintasan Papan &amp;Ketik</translation>
     </message>
     <message>
         <source>Show the current keyboard shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan pintasan papan tik saat ini</translation>
     </message>
     <message>
         <source>MAP Summary</source>

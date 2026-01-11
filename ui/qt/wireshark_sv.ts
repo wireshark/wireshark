@@ -4537,24 +4537,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Wireshark I/O-grafer: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Filtrerade paket</translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Filtrerade händelser</translation>
-    </message>
-    <message>
         <source>All packets</source>
         <translation>Alla paket</translation>
-    </message>
-    <message>
-        <source>All events</source>
-        <translation type="vanished">Alla händelser</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4565,14 +4553,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>TCP-fel</translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="vanished">Alla händelser</translation>
-    </message>
-    <message>
-        <source>All Execs</source>
-        <translation type="vanished">Alla körningar</translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>Håll över grafen för detaljer.</translation>
     </message>
@@ -4581,24 +4561,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Inga paket i intervallet</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="vanished">Inga händelser i intervallet</translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>Klicka för att välja ett paket</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Paket</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Klicka för att välja en händelse</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Händelse</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6986,10 +6954,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Välj paket: %1 %2</translation>
     </message>
     <message>
-        <source>Events: %1</source>
-        <translation type="vanished">Händelser: %1</translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation>%1 valda: %2 (%3 %)</translation>
     </message>
@@ -7017,10 +6981,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>No Packets</source>
         <translation>Inga paket</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="vanished">Inga händelser</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8325,36 +8285,16 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Markörer</translation>
     </message>
     <message>
-        <source>Wireshark Plots: %1</source>
-        <translation type="vanished">Wireshark-plottningar: %1</translation>
-    </message>
-    <message>
-        <source>Stratoshark Plots: %1</source>
-        <translation type="vanished">Stratoshark-plottningar: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Filtrerade paket</translation>
-    </message>
-    <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Filtrerade händelser</translation>
     </message>
     <message>
         <source>All packets</source>
         <translation>Alla paket</translation>
     </message>
     <message>
-        <source>All events</source>
-        <translation type="vanished">Alla händelser</translation>
-    </message>
-    <message>
         <source>Seq. num.</source>
         <translation>Sek.num.</translation>
-    </message>
-    <message>
-        <source>Event latency</source>
-        <translation type="vanished">Händelselatens</translation>
     </message>
     <message>
         <source>Frame num.</source>
@@ -8383,14 +8323,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Packet</source>
         <translation>Paket</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Klicka för att välja händelse</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Händelse</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -9754,6 +9686,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Display Filter</source>
         <translation>Visningsfilter</translation>
+    </message>
+    <message>
+        <source>User Interface</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13939,14 +13875,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>Du luktar på limmet som håller samman Internet med Wireshark</translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="vanished">Du sniffar på limmet som håller ihop ditt system med hjälp av Stratoshark</translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="vanished">Du kör Stratoshark </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

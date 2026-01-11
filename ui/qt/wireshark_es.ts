@@ -4498,10 +4498,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Gráficas E/S de Wireshark: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Paquetes filtrados</translation>
     </message>
@@ -9586,6 +9582,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Display Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User Interface</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -4537,24 +4537,12 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Gráficos de I/O do Wireshark: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Pacotes filtrados</translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Eventos filtrados</translation>
-    </message>
-    <message>
         <source>All packets</source>
         <translation>Todos os pacotes</translation>
-    </message>
-    <message>
-        <source>All events</source>
-        <translation type="vanished">Todos os Eventos</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4565,14 +4553,6 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Erros TCP</translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="vanished">Todos os eventos</translation>
-    </message>
-    <message>
-        <source>All Execs</source>
-        <translation type="vanished">Todas as Execuções</translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>Passe o mouse sobre o gráfico para detalhes.</translation>
     </message>
@@ -4581,24 +4561,12 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Nenhum pacote no intervalo</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="vanished">Nenhum evento no intervalo</translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>Clique para selecionar o pacote</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Pacote</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Clique para selecionar o evento</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Evento</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6990,10 +6958,6 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Pacote Selecionado: %1 %2 </translation>
     </message>
     <message>
-        <source>Events: %1</source>
-        <translation type="vanished">Eventos: %1</translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 Selecionados: %2 (%3%)</translation>
     </message>
@@ -7021,10 +6985,6 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     <message>
         <source>No Packets</source>
         <translation>Sem Pacotes</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="vanished">Sem Eventos</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -9700,6 +9660,10 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message>
         <source>Display Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User Interface</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13886,14 +13850,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>Você está farejando a cola que mantém a Internet unida usando o Wireshark </translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="vanished">Você está farejando a cola que mantém seu sistema unido usando o Stratoshark </translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="vanished">Você está executando o Stratoshark </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

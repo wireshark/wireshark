@@ -4537,24 +4537,12 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Gràfics d&apos;E/S del Wireshark: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Paquets filtrats</translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Esdeveniments filtrats</translation>
-    </message>
-    <message>
         <source>All packets</source>
         <translation>Tots els paquets</translation>
-    </message>
-    <message>
-        <source>All events</source>
-        <translation type="vanished">Tots els esdeveniments</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4565,14 +4553,6 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Errors TCP</translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="vanished">Tots els esdeveniments</translation>
-    </message>
-    <message>
-        <source>All Execs</source>
-        <translation type="vanished">Totes els execucions</translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>Mou el ratolí per sobre del gràfic per a més detalls.</translation>
     </message>
@@ -4581,24 +4561,12 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>A l&apos;interval no hi ha paquets</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="vanished">A l&apos;interval no hi ha esdeveniments</translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>Feu-hi clic per a seleccionar el paquet</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Paquet</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Feu-hi clic per a seleccionar l&apos;esdeveniment</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Esdeveniment</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6986,10 +6954,6 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Paquet seleccionat: %1 %2 </translation>
     </message>
     <message>
-        <source>Events: %1</source>
-        <translation type="vanished">Esdeveniments: %1</translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 de seleccionats: %2 (%3%)</translation>
     </message>
@@ -7017,10 +6981,6 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>No Packets</source>
         <translation>No hi ha paquets.</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="vanished">Sense esdeveniments</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8325,36 +8285,16 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Marcadors</translation>
     </message>
     <message>
-        <source>Wireshark Plots: %1</source>
-        <translation type="vanished">Gràfics del Wireshark: %1</translation>
-    </message>
-    <message>
-        <source>Stratoshark Plots: %1</source>
-        <translation type="vanished">Gràfics de l&apos;Stratoshark: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Paquets filtrats</translation>
-    </message>
-    <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Esdeveniments filtrats</translation>
     </message>
     <message>
         <source>All packets</source>
         <translation>Tots els paquets</translation>
     </message>
     <message>
-        <source>All events</source>
-        <translation type="vanished">Tots els esdeveniments</translation>
-    </message>
-    <message>
         <source>Seq. num.</source>
         <translation>Núm. de seq.</translation>
-    </message>
-    <message>
-        <source>Event latency</source>
-        <translation type="vanished">Latència d&apos;esdeveniments</translation>
     </message>
     <message>
         <source>Frame num.</source>
@@ -8383,14 +8323,6 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Packet</source>
         <translation>Paquet</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Feu-hi clic per a seleccionar l&apos;esdeveniment</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Esdeveniment</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -9754,6 +9686,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Display Filter</source>
         <translation>Filtre de visualització</translation>
+    </message>
+    <message>
+        <source>User Interface</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13980,14 +13916,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>Esteu esnifant el pegament que manté unida la Internet fent servir el Wireshark</translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="vanished">Esteu esnifant el pegament que manté unit el vostre sistema fent servir l&apos;Stratoshark</translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="vanished">S&apos;executa l&apos;Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

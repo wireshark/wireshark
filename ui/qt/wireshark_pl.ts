@@ -4544,24 +4544,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Wireshark wykresy I/O: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Filtrowane pakiety</translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Filtrowane zdarzenia</translation>
-    </message>
-    <message>
         <source>All packets</source>
         <translation>Wszystkie pakiety</translation>
-    </message>
-    <message>
-        <source>All events</source>
-        <translation type="vanished">Wszystkie zdarzenia</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4572,10 +4560,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Błędy TCP</translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="vanished">Wszystkie zdarzenia</translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>Przesuń kursor nad wykresem by zobaczyć szczegóły.</translation>
     </message>
@@ -4584,24 +4568,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Brak pakietów w zadanym czasie</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="vanished">Brak zdarzeń w danym czasie</translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>Kliknij by wybrać pakiet</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Pakiet</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Kliknij, aby wybrać zdarzenie</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Zdarzenie</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6995,10 +6967,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Wybrany pakiet: %1 %2</translation>
     </message>
     <message>
-        <source>Events: %1</source>
-        <translation type="vanished">Zdarzenie: %1</translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 Wybranych: %2 (%3%)</translation>
     </message>
@@ -7026,10 +6994,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Packets</source>
         <translation>Brak pakietów</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="vanished">Brak zdarzeń</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -9714,6 +9678,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User Interface</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13905,10 +13873,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>Dzięki Wiresharkowi podglądasz fundamenty współczesnego  Internetu.</translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="vanished">Używasz programu Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

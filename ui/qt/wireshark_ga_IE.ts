@@ -4555,24 +4555,12 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Graif I/O Wireshark: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Paicéid scagtha</translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Imeachtaí scagtha</translation>
-    </message>
-    <message>
         <source>All packets</source>
         <translation>Gach paicéad</translation>
-    </message>
-    <message>
-        <source>All events</source>
-        <translation type="vanished">Gach imeacht</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4583,14 +4571,6 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Earráidí TCP</translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="vanished">Gach Imeacht</translation>
-    </message>
-    <message>
-        <source>All Execs</source>
-        <translation type="vanished">Gach Execs</translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>Hover thar an graf le haghaidh sonraí.</translation>
     </message>
@@ -4599,24 +4579,12 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Gan paicéid san eatramh</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="vanished">Gan imeachtaí san eatramh</translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>Cliceáil chun paicéad a roghnú</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Paicéad</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Cliceáil chun imeacht a roghnú</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Imeacht</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -7009,10 +6977,6 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Paicéad Roghnaithe: %1 %2 </translation>
     </message>
     <message>
-        <source>Events: %1</source>
-        <translation type="vanished">Imeachtaí: %1</translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 Roghnaithe: %2 (%3%)</translation>
     </message>
@@ -7040,10 +7004,6 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>No Packets</source>
         <translation>Gan Paicéid</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="vanished">Gan Imeachtaí</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -8351,36 +8311,16 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Marcóirí</translation>
     </message>
     <message>
-        <source>Wireshark Plots: %1</source>
-        <translation type="vanished">Plotaí Wireshark: %1</translation>
-    </message>
-    <message>
-        <source>Stratoshark Plots: %1</source>
-        <translation type="vanished">Plotaí Stratoshark: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Paicéid scagtha</translation>
-    </message>
-    <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Imeachtaí scagtha</translation>
     </message>
     <message>
         <source>All packets</source>
         <translation>Gach paicéad</translation>
     </message>
     <message>
-        <source>All events</source>
-        <translation type="vanished">Gach imeacht</translation>
-    </message>
-    <message>
         <source>Seq. num.</source>
         <translation>Uimh. Sraith.</translation>
-    </message>
-    <message>
-        <source>Event latency</source>
-        <translation type="vanished">Moill imeachta</translation>
     </message>
     <message>
         <source>Frame num.</source>
@@ -8409,14 +8349,6 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Packet</source>
         <translation>Paicéad</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Cliceáil chun imeacht a roghnú</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Imeacht</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -9788,6 +9720,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Display Filter</source>
         <translation>Scagaire Taispeána</translation>
+    </message>
+    <message>
+        <source>User Interface</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14018,14 +13954,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>Tá tú ag sniffing an gliú go seilbh ar an Idirlíon le chéile ag baint úsáide as Wireshark </translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="vanished">Tá tú ag sniffing an gliú go seilbh do chóras le chéile ag baint úsáide as Stratoshark </translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="vanished">Tá tú ag rith Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

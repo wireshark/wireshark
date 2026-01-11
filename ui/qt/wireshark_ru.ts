@@ -4554,24 +4554,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Графики ввода/вывода Wireshark: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Отфильтрованные пакеты</translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Отфильтрованные события</translation>
-    </message>
-    <message>
         <source>All packets</source>
         <translation>Все пакеты</translation>
-    </message>
-    <message>
-        <source>All events</source>
-        <translation type="vanished">Все события</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4582,14 +4570,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Ошибки TCP</translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="vanished">Все события</translation>
-    </message>
-    <message>
-        <source>All Execs</source>
-        <translation type="vanished">Все руководители</translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>Поместите указатель мыши над графиком для получения дополнительной информации.</translation>
     </message>
@@ -4598,24 +4578,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Пакеты в интервале отсутствуют</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="vanished">Нет событий в интервале</translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>Щёлкните для выбора пакета</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Пакет</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Нажмите, чтобы выбрать событие</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Событие</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -7008,10 +6976,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Выбран пакет: %1 %2 </translation>
     </message>
     <message>
-        <source>Events: %1</source>
-        <translation type="vanished">События: %1</translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 Выбрано: %2 (%3%)</translation>
     </message>
@@ -7039,10 +7003,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Packets</source>
         <translation>Пакеты отсутствуют</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="vanished">Нет событий</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -9729,6 +9689,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User Interface</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13920,14 +13884,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>Все составные звенья Интернета анализировать поможет Wireshark </translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="vanished">С помощью Stratoshark вы обнаруживаете клей, на котором держится ваша система.</translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="vanished">Вы запускаете Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

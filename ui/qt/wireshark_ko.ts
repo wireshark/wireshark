@@ -4520,24 +4520,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Wireshark I/O 그래프: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>필터된 패킷</translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="vanished">필터된 이벤트</translation>
-    </message>
-    <message>
         <source>All packets</source>
         <translation>모든 패킷</translation>
-    </message>
-    <message>
-        <source>All events</source>
-        <translation type="vanished">모든 이벤트</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4548,14 +4536,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>TCP 오류</translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="vanished">모든 이벤트</translation>
-    </message>
-    <message>
-        <source>All Execs</source>
-        <translation type="vanished">모든 실행</translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>자세한 정보를 보려면 그래프 위에 마우스를 올리십시오.</translation>
     </message>
@@ -4564,24 +4544,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>이 주기 안에 패킷 없음</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="vanished">이 주기 안에 이벤트 없음</translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>클릭하여 패킷 선택</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>패킷</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">클릭하여 이벤트 선택</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">이벤트</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6964,10 +6932,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>선택된 패킷: %1 %2 </translation>
     </message>
     <message>
-        <source>Events: %1</source>
-        <translation type="vanished">이벤트: %1</translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 선택됨: %2(%3%)</translation>
     </message>
@@ -6995,10 +6959,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Packets</source>
         <translation>패킷 없음</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="vanished">이벤트 없음</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -9662,6 +9622,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User Interface</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

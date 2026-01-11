@@ -4537,24 +4537,12 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Graphiques E/S Wireshark : %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Paquets filtrés</translation>
     </message>
     <message>
-        <source>Filtered events</source>
-        <translation type="vanished">Événements filtrés</translation>
-    </message>
-    <message>
         <source>All packets</source>
         <translation>Tous les paquets</translation>
-    </message>
-    <message>
-        <source>All events</source>
-        <translation type="vanished">Tous les événements</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4565,14 +4553,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Erreurs TCP</translation>
     </message>
     <message>
-        <source>All Events</source>
-        <translation type="vanished">Tous les Événements</translation>
-    </message>
-    <message>
-        <source>All Execs</source>
-        <translation type="vanished">Tous les Exécutables</translation>
-    </message>
-    <message>
         <source>Hover over the graph for details.</source>
         <translation>Survolez le graphique pour plus de détails.</translation>
     </message>
@@ -4581,24 +4561,12 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Aucun paquet dans l&apos;intervale</translation>
     </message>
     <message>
-        <source>No events in interval</source>
-        <translation type="vanished">Aucun événement dans l’intervalle</translation>
-    </message>
-    <message>
         <source>Click to select packet</source>
         <translation>Cliquez pour sélectionner le paquet</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Paquet</translation>
-    </message>
-    <message>
-        <source>Click to select event</source>
-        <translation type="vanished">Cliquez pour sélectionner l&apos;événement</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation type="vanished">Événement</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -6985,10 +6953,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Paquet sélectionné : %1 %2 </translation>
     </message>
     <message>
-        <source>Events: %1</source>
-        <translation type="vanished">Événements : %1</translation>
-    </message>
-    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 Sélectionnés : %2 (%3%)</translation>
     </message>
@@ -7016,10 +6980,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>No Packets</source>
         <translation>Pas de paquets</translation>
-    </message>
-    <message>
-        <source>No Events</source>
-        <translation type="vanished">Pas d&apos;Événements</translation>
     </message>
     <message>
         <source>From Zip File…</source>
@@ -9694,6 +9654,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Display Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User Interface</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13879,14 +13843,6 @@ a:hover {
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
         <translation>Vous reniflez la colle qui maintient Internet ensemble à l&apos;aide de Wireshark </translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="vanished">Vous reniflez la colle qui maintient votre système ensemble à l&apos;aide de Stratoshark</translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="vanished">Vous exécutez Stratoshark </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>

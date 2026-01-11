@@ -4520,10 +4520,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark I/O Graphs: %1</source>
-        <translation type="vanished">Wireshark G/Ç Grafikleri: %1</translation>
-    </message>
-    <message>
         <source>Filtered packets</source>
         <translation>Filtrelenmiş paketler</translation>
     </message>
@@ -9626,6 +9622,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User Interface</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
