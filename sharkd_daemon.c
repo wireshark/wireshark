@@ -35,6 +35,7 @@
 
 #ifndef _WIN32
 #include <sys/un.h>
+#include <sys/wait.h>
 #include <netinet/tcp.h>
 #endif
 
@@ -422,6 +423,19 @@ sharkd_loop(int argc _U_, char* argv[])
 
         /* wireshark is not ready for handling multiple capture files in single process, so fork(), and handle it in separate process */
 #ifndef _WIN32
+        /* wait for completed child processes to avoid zombie processes consuming slots in the kernel process table */
+        while (1)
+        {
+            pid_t current_pid;
+            current_pid = waitpid(-1, NULL, WNOHANG);
+            /* if a child was successfully waited for, current_pid will be a positive value indicated the pid of the child process */
+            /* other values indicate either an error, or that no child is available to be waited for */
+            if (current_pid < 1)
+            {
+                break;
+            }
+        }
+
         pid = fork();
         if (pid == 0)
         {
