@@ -1486,7 +1486,7 @@ typedef struct {
 /* Won't be called with numBundPrb=0 */
 static void ext11_work_out_bundles(unsigned startPrbc,
                                    unsigned numPrbc,
-                                   unsigned numBundPrb,             /* number of PRBs pre (full) bundle */
+                                   unsigned numBundPrb,             /* number of PRBs per (full) bundle */
                                    ext11_settings_t *settings)
 {
     /* Allocation configured by ext 6 */
@@ -1533,11 +1533,15 @@ static void ext11_work_out_bundles(unsigned startPrbc,
 
             /* For each bundle within identified rbgSize block */
             for (unsigned m=0; !reached_orphan && m < bundles_per_entry; m++) {
+
                 settings->bundles[bundles_set].start = startPrbc+prb_start+(m*numBundPrb);
+
                 /* Start already beyond end, so doesn't count. */
                 if (settings->bundles[bundles_set].start > (startPrbc+numPrbc-1)) {
-                    break;
+                    settings->num_bundles = bundles_set;
+                    return;
                 }
+
                 /* Bundle consists of numBundPrb bundles */
                 /* TODO: may involve PRBs from >1 rbg blocks.. */
                 settings->bundles[bundles_set].end = startPrbc+prb_start+((m+1)*numBundPrb)-1;
@@ -2743,6 +2747,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 beamId_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
                 offset += 2;
 
+                /* beamId might get invalidated by e.g., ext-6, ext-11, so unused value will still be shown here.. */
                 proto_item_append_text(sectionHeading, ", BeamId: %d", beamId);
                 break;
 
@@ -2763,6 +2768,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 add_reserved_field(c_section_tree, hf_oran_reserved_8bits, tvb, offset, 1);
                 offset += 1;
 
+                /* beamId might get invalidated by e.g., ext-6, ext-11, so unused value will still be shown here.. */
                 proto_item_append_text(sectionHeading, ", BeamId: %d, FreqOffset: %d \u0394f", beamId, freqOffset);
                 break;
             }
