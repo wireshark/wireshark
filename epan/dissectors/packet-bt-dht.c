@@ -51,6 +51,10 @@ static int hf_bt_dht_peer;
 static int hf_bt_dht_nodes;
 static int hf_bt_dht_node;
 static int hf_bt_dht_id;
+static int hf_version;
+static int hf_version_client;
+static int hf_version_number;
+static int hf_version_raw;
 
 static int hf_ip;
 static int hf_ip6;
@@ -70,6 +74,7 @@ static int ett_bencoded_dict_entry;
 static int ett_bt_dht_error;
 static int ett_bt_dht_peers;
 static int ett_bt_dht_nodes;
+static int ett_bt_dht_version;
 
 /* some keys use short name in packet */
 static const value_string short_key_name_value_string[] = {
@@ -89,6 +94,25 @@ static const value_string short_val_name_value_string[] = {
   { 'q', "Request" },
   { 'r', "Response" },
   { 0, NULL }
+};
+
+struct client_data {
+  const size_t version_length;
+  const char *encoded_name;
+  const char *client_name;
+  const char * (*client_version)(packet_info *pinfo, tvbuff_t *tvb, unsigned offset);
+};
+
+static const char *
+dissect_client_version_libtorrent(packet_info *pinfo, tvbuff_t *tvb, const unsigned int offset);
+
+static const struct client_data client_data[] = {
+  { 4, "LT", "libtorrent", dissect_client_version_libtorrent },
+  { 4, "UT", "uTorrent", NULL },
+  { 4, "lt", "rTorrent", NULL },
+  { 6, "MO", "Monotorrent", NULL },
+  { 4, "XDHT", "XDHT", NULL },
+  { 0, NULL, NULL, NULL }
 };
 
 static const char dict_str[] = "Dictionary...";
@@ -430,6 +454,83 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
   return offset;
 }
 
+static const char *
+dissect_client_version_libtorrent(packet_info *pinfo, tvbuff_t *tvb, const unsigned int offset)
+{
+  const uint8_t version_major = tvb_get_uint8(tvb, offset + 2);
+  const uint8_t version_minor = tvb_get_uint8(tvb, offset + 3) >> 4;
+  const uint8_t version_tiny = tvb_get_uint8(tvb, offset + 3) & 0x0F;
+  return wmem_strdup_printf(pinfo->pool, "%d.%d.%d", version_major, version_minor, version_tiny);
+}
+
+static void
+dissect_client_version(packet_info *pinfo, tvbuff_t *tvb, const unsigned int offset,
+                       const unsigned int version_length, int *name_bytes,
+                       const char **client_name, const char **client_version)
+{
+  *name_bytes = 0;
+  *client_name = NULL;
+  *client_version = NULL;
+
+  for (const struct client_data *client = client_data; client->encoded_name; client++) {
+    if (version_length != client->version_length) {
+      continue;
+    }
+
+    const int name_length = (int)strlen(client->encoded_name);
+    if (tvb_strneql(tvb, offset, client->encoded_name, name_length) != 0) {
+      continue;
+    }
+
+    *name_bytes = name_length;
+    *client_name = client->client_name;
+    if (client->client_version != NULL) {
+      *client_version = client->client_version(pinfo, tvb, offset);
+    }
+
+    return;
+  }
+}
+
+static bool
+dissect_version(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const unsigned int key_offset,
+                unsigned int *offset)
+{
+  unsigned int version_length;
+  if (!bencoded_string_length(pinfo, tvb, offset, &version_length)) {
+    return false;
+  }
+  const unsigned int version_start = *offset;
+
+  int name_bytes = 0;
+  const char * client_name = NULL;
+  const char * client_version = NULL;
+  dissect_client_version(pinfo, tvb, version_start, version_length, &name_bytes, &client_name, &client_version);
+
+  proto_item *ti = proto_tree_add_none_format(tree, hf_version, tvb, key_offset,
+                                              version_start - key_offset + version_length,
+                                              "Client version");
+  if (client_name != NULL) {
+    proto_item_append_text(ti, ": %s", client_name);
+  }
+  if (client_version != NULL) {
+    proto_item_append_text(ti, " %s", client_version);
+  }
+
+  proto_tree *sub_tree = proto_item_add_subtree(ti, ett_bt_dht_version);
+  if (client_name != NULL) {
+    proto_tree_add_string(sub_tree, hf_version_client, tvb, version_start, name_bytes, client_name);
+  }
+  if (client_version != NULL) {
+    proto_tree_add_string(sub_tree, hf_version_number, tvb, version_start + name_bytes,
+                          version_length - name_bytes, client_version);
+  }
+  proto_tree_add_item(sub_tree, hf_version_raw, tvb, version_start, version_length, ENC_NA);
+
+  *offset += version_length;
+  return true;
+}
+
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char **key)
@@ -456,6 +557,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (tvb_captured_length_remaining(tvb, offset) == 0)
     return 0;
 
+  bool hide_dict_entry = false;
   /* If it is a dict, then just do recursion */
   switch (tvb_get_uint8(tvb, offset))
   {
@@ -524,12 +626,20 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset = dissect_bencoded_string(tvb, pinfo, sub_tree, old_offset, &val, true, "Value");
       }
     }
+    else if (strcmp(*key, "v") == 0)
+    {
+      hide_dict_entry = true;
+      dissect_bencoded_string(tvb, pinfo, sub_tree, offset, &val, true, "Value");
+      if (!dissect_version(tvb, pinfo, tree, orig_offset, &offset)) {
+        return 0;
+      }
+    }
     else
     {
       /* some need to return hex string */
       tohex = strcmp(*key, "id") == 0 || strcmp(*key, "target") == 0
            || strcmp(*key, "info_hash") == 0 || strcmp(*key, "t") == 0
-           || strcmp(*key, "v") == 0 || strcmp(*key, "token") == 0;
+           || strcmp(*key, "token") == 0;
       offset = dissect_bencoded_string(tvb, pinfo, sub_tree, offset, &val, tohex, "Value");
     }
   }
@@ -557,6 +667,10 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   proto_item_set_text(ti, "%s: %s", printable_key, val);
   proto_item_set_len(ti, offset - orig_offset);
+
+  if (hide_dict_entry) {
+    proto_item_set_hidden(ti);
+  }
 
   return offset;
 }
@@ -759,6 +873,22 @@ proto_register_bt_dht(void)
       { "ID", "bt-dht.id",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
+    { &hf_version,
+      { "Client version", "bt-dht.version",
+        FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_version_client,
+      { "Client name", "bt-dht.version.client",
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_version_number,
+      { "Client version", "bt-dht.version.version",
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_version_raw,
+      { "Raw version bytes", "bt-dht.version.raw",
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
     { &hf_ip,
       { "IP", "bt-dht.ip",
         FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
@@ -796,6 +926,7 @@ proto_register_bt_dht(void)
     &ett_bt_dht_error,
     &ett_bt_dht_peers,
     &ett_bt_dht_nodes,
+    &ett_bt_dht_version,
     &ett_bencoded_dict_entry
   };
 
