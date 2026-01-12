@@ -1718,6 +1718,7 @@ desegment_quic_stream(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
     uint32_t seq = (uint32_t)stream_info->stream_offset;
     const uint32_t nxtseq = seq + (uint32_t)length;
     uint32_t reassembly_id = 0;
+    bool first_pdu = true;
 
     // XXX fix the tvb accessors below such that no new tvb is needed.
     tvb = tvb_new_subset_length(tvb, 0, offset + length);
@@ -1751,14 +1752,30 @@ again:
      */
     if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(stream->multisegment_pdus, seq)) &&
             nxtseq <= msp->nxtpdu) {
-        // XXX: This also happens the second time through the data for an MSP normally
         // TODO show expert info for retransmission? Additional checks may be
         // necessary here to tell a retransmission apart from other (normal?)
         // conditions. See also similar code in packet-tcp.c.
+        bool is_retransmission = false;
+
+        if (msp->first_frame != pinfo->num) {
+            is_retransmission = true;
 #if 0
-        proto_tree_add_debug_text(tree, "TODO retransmission expert info frame %d stream_id=%" PRIu64 " offset=%d visited=%d reassembly_id=0x%08x",
+            proto_tree_add_debug_text(tree, "TODO retransmission expert info frame %d stream_id=%" PRIu64 " offset=%d visited=%d reassembly_id=0x%08x",
                 pinfo->num, stream->stream_id, offset, PINFO_FD_VISITED(pinfo), reassembly_id);
 #endif
+        }
+        if (!is_retransmission) {
+            fh = fragment_get(&quic_reassembly_table, pinfo, msp->first_frame, stream_info);
+            if (fh != NULL && fh->reassembled_in != 0 && fh->reassembled_in != pinfo->num) {
+                proto_item *item = proto_tree_add_uint(tree, hf_quic_reassembled_in, tvb, 0,
+                                                       0, fh->reassembled_in);
+                proto_item_set_generated(item);
+                if (first_pdu) {
+                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[QUIC PDU reassembled in %u]",
+                        fh->reassembled_in);
+                }
+            }
+        }
         return;
     }
     /* Else, find the most previous PDU starting before this sequence number */
@@ -1944,8 +1961,10 @@ again:
                 another_pdu_follows = 0;
                 offset += last_fragment_len;
                 seq += last_fragment_len;
-                if (tvb_captured_length_remaining(tvb, offset) > 0)
+                if (tvb_captured_length_remaining(tvb, offset) > 0) {
+                    first_pdu = false;
                     goto again;
+                }
             } else {
                 proto_item *frag_tree_item;
                 proto_tree *parent_tree = proto_tree_get_parent(tree);
@@ -2017,6 +2036,10 @@ again:
             proto_item *item = proto_tree_add_uint(tree, hf_quic_reassembled_in, tvb, 0,
                                                    0, fh->reassembled_in);
             proto_item_set_generated(item);
+            if (first_pdu) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[QUIC PDU reassembled in %u]",
+                    fh->reassembled_in);
+            }
         }
 
         /* TODO: Show what's left in the packet as a raw QUIC "segment", like
@@ -2032,6 +2055,7 @@ again:
         pinfo->can_desegment = 2;
         offset += another_pdu_follows;
         seq += another_pdu_follows;
+        first_pdu = false;
         goto again;
     }
 }
