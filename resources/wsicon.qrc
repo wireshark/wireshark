@@ -5,14 +5,12 @@
         <file alias="wsiconcap32.png">icons/wsiconcap32.png</file>
         <file alias="wsiconcap48.png">icons/wsiconcap48.png</file>
         <file alias="wsiconcap64.png">icons/wsiconcap64.png</file>
-        <file alias="wsiconcap128.png">icons/wsiconcap128.png</file>
         <file alias="wsiconcap256.png">icons/wsiconcap256.png</file>
         <file alias="wsicon16.png">icons/wsicon16.png</file>
         <file alias="wsicon24.png">icons/wsicon24.png</file>
         <file alias="wsicon32.png">icons/wsicon32.png</file>
         <file alias="wsicon48.png">icons/wsicon48.png</file>
         <file alias="wsicon64.png">icons/wsicon64.png</file>
-        <file alias="wsicon128.png">icons/wsicon128.png</file>
         <file alias="wsicon256.png">icons/wsicon256.png</file>
     </qresource>
 </RCC>

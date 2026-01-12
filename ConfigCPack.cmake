@@ -44,7 +44,7 @@ set(CPACK_PACKAGE_DESCRIPTION
 )
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Network protocol analyzer")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://www.wireshark.org/")
-set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/resources/icons/wiresharkinst.ico")
+set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/resources/icons/wireshark.ico")
 set(CPACK_PACKAGE_CONTACT "Wireshark-Dev Mailing List <wireshark-dev@wireshark.org>")
 
 set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION})

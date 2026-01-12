@@ -118,7 +118,7 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/resources/icons/wireshark.ico ${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/AppInfo/appicon.ico
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/resources/icons/wsicon16.png ${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/AppInfo/appicon_16.png
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/resources/icons/wsicon32.png ${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/AppInfo/appicon_32.png
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/resources/icons/wsicon128.png ${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/AppInfo/appicon_128.png
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/resources/icons/wsicon256.png ${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/AppInfo/appicon_256.png
 		COMMAND ${PORTABLEAPPS_LAUNCHER_GENERATOR_EXECUTABLE} ${_portableapps_native}
 	)
 
