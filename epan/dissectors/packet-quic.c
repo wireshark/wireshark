@@ -1989,9 +1989,10 @@ again:
                         deseg_seq, nxtseq+pinfo->desegment_len, stream->multisegment_pdus);
                 }
 
-                /* add this segment as the first one for this new pdu */
+                /* Add this segment as the first one for this new pdu.
+                 * Use the the new MSP's reassembly ID (its first frame). */
                 fragment_add(&quic_reassembly_table, tvb, deseg_offset,
-                             pinfo, reassembly_id, stream_info,
+                             pinfo, msp->first_frame, stream_info,
                              0, nxtseq - deseg_seq,
                              nxtseq < msp->nxtpdu);
             }
@@ -2000,8 +2001,8 @@ again:
              * the MSP should already be created. Retrieve it to see if we
              * know what later frame the PDU is reassembled in.
              */
-            if (((struct tcp_multisegment_pdu *)wmem_tree_lookup32(stream->multisegment_pdus, deseg_seq))) {
-                fh = fragment_get(&quic_reassembly_table, pinfo, reassembly_id, stream_info);
+            if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(stream->multisegment_pdus, deseg_seq))) {
+                fh = fragment_get(&quic_reassembly_table, pinfo, msp->first_frame, stream_info);
             }
         }
     }
