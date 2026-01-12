@@ -1036,8 +1036,10 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
         break;
 
     default:
-            // All other types have kinda "extra padding"
-        proto_tree_add_item(tree, hf_srt_addinfo, tvb, 16, 4, ENC_BIG_ENDIAN);
+        /* KEEPALIVE, CGWARNING, SHUTDOWN, ACKACK, and PEERERROR
+         * have no Control Information Field (CIF) beyond the 16-byte header.
+         * See https://datatracker.ietf.org/doc/html/draft-sharabayko-srt-01
+         */
         break;
     }
 }
