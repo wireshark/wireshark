@@ -48,6 +48,9 @@ static int hf_fortinet_fgcp_hb_tlv_value;
 static int hf_fortinet_fgcp_hb_tlv_vcluster_id;
 static int hf_fortinet_fgcp_hb_tlv_priority;
 static int hf_fortinet_fgcp_hb_tlv_override;
+static int hf_fortinet_fgcp_hb_tlv_ha_checksum_global;
+static int hf_fortinet_fgcp_hb_tlv_ha_checksum_vdom;
+static int hf_fortinet_fgcp_hb_tlv_ha_checksum_root;
 
 //static int hf_fortinet_fgcp_hb_unknown;
 static int hf_fortinet_fgcp_hb_unknown_uint16;
@@ -77,11 +80,13 @@ static const value_string fortinet_fgcp_hb_mode_vals[] = {
 #define HB_TLV_VCLUSTER_ID      0x0B
 #define HB_TLV_PRIORITY         0x0C
 #define HB_TLV_OVERRIDE         0x0D
+#define HB_TLV_HA_CHECKSUM      0x3C
 
 static const value_string fortinet_fgcp_hb_tlv_vals[] = {
     { HB_TLV_END_OF_TLV, "End of TLV" },
     { HB_TLV_PRIORITY, "Port Priority" },
     { HB_TLV_OVERRIDE, "Override" },
+    { HB_TLV_HA_CHECKSUM, "HA Checksum" },
     { 0, NULL }
 };
 
@@ -228,6 +233,15 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     }
                     offset += 1;
                     }
+                break;
+                case HB_TLV_HA_CHECKSUM:{
+                    proto_tree_add_item(tlv_tree, hf_fortinet_fgcp_hb_tlv_ha_checksum_global, tvb, offset, 16, ENC_NA);
+                    offset += 16;
+                    proto_tree_add_item(tlv_tree, hf_fortinet_fgcp_hb_tlv_ha_checksum_vdom, tvb, offset, 16, ENC_NA);
+                    offset += 16;
+                    proto_tree_add_item(tlv_tree, hf_fortinet_fgcp_hb_tlv_ha_checksum_root, tvb, offset, 16, ENC_NA);
+                    offset += 16;
+                }
                 break;
                 default:
                     offset += len;
@@ -387,6 +401,21 @@ proto_register_fortinet_fgcp(void)
         { &hf_fortinet_fgcp_hb_tlv_override,
             { "Override", "fortinet_fgcp.hb.tlv.override",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_fortinet_fgcp_hb_tlv_ha_checksum_global,
+            { "HA Checksum Global", "fortinet_fgcp.hb.tlv.ha_checksum.global",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_fortinet_fgcp_hb_tlv_ha_checksum_vdom,
+            { "HA Checksum VDOM", "fortinet_fgcp.hb.tlv.ha_checksum.vdom",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_fortinet_fgcp_hb_tlv_ha_checksum_root,
+            { "HA Checksum Root", "fortinet_fgcp.hb.tlv.ha_checksum.root",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         /*
