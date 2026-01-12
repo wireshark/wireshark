@@ -4219,8 +4219,11 @@ static bool bluetooth_gatt_has_no_parameter(uint8_t opcode)
             opcode == ATT_OPCODE_HANDLE_VALUE_CONFIRMATION;
 }
 
+/* Given the opcode and direction of an ATT PDU in a transaction,
+ * determine the direction of all PDUs sent by the server involved in that ATT transaction.
+ * This essentially lets the caller know if the server is local (Host) or remote. */
 static int
-get_handle_db_direction(uint8_t opcode, int direction)
+get_server_direction(uint8_t opcode, int direction)
 {
     if (is_readable_request(opcode) || is_writeable_request(opcode) || opcode == ATT_OPCODE_HANDLE_VALUE_CONFIRMATION || opcode == ATT_OPCODE_WRITE_REQUEST)
         return !direction;
@@ -4230,6 +4233,22 @@ get_handle_db_direction(uint8_t opcode, int direction)
         return direction;
 
     return direction;
+}
+
+/* Given the direction of a PDU sent by an ATT server, determine that server's BD_ADDR. */
+static void
+get_server_bdaddr_from_direction(btl2cap_data_t *l2cap_data, int direction, uint32_t *server_bd_addr_oui, uint32_t *server_bd_addr_id)
+{
+    if (direction == P2P_DIR_SENT) {
+        /* The packet was sent by the local Host's server */
+        *server_bd_addr_oui = 0;
+        *server_bd_addr_id = 0;
+    }
+    else {
+        /* The packet was sent by a remote Host's server */
+        *server_bd_addr_oui = l2cap_data->remote_bd_addr_oui;
+        *server_bd_addr_id = l2cap_data->remote_bd_addr_id;
+    }
 }
 
 static request_data_t *
@@ -4405,8 +4424,8 @@ save_handle(packet_info *pinfo, bluetooth_uuid_t uuid, uint32_t handle,
     }
 
     if (!pinfo->fd->visited && l2cap_data) {
-        wmem_tree_key_t  key[6];
-        uint32_t         frame_number, direction;
+        wmem_tree_key_t  key[7];
+        uint32_t         frame_number, direction, server_bd_addr_oui, server_bd_addr_id;
         handle_data_t   *handle_data;
 
         frame_number = pinfo->num;
@@ -4417,18 +4436,25 @@ save_handle(packet_info *pinfo, bluetooth_uuid_t uuid, uint32_t handle,
             direction = !direction;
         }
 
+        /* Presently, pinfo is assumed to always hold a PDU sent by a server (responses, indications, etc.).
+         * The handles in such PDUs always belong to said server. Therefore it is possible to derive
+         * the server's BD_ADDR, by looking at the packet's direction. */
+        get_server_bdaddr_from_direction(l2cap_data, direction, &server_bd_addr_oui, &server_bd_addr_id);
+
         key[0].length = 1;
         key[0].key    = &l2cap_data->interface_id;
         key[1].length = 1;
         key[1].key    = &l2cap_data->adapter_id;
         key[2].length = 1;
-        key[2].key    = &direction;
+        key[2].key    = &server_bd_addr_oui;
         key[3].length = 1;
-        key[3].key    = &handle;
+        key[3].key    = &server_bd_addr_id;
         key[4].length = 1;
-        key[4].key    = &frame_number;
-        key[5].length = 0;
-        key[5].key    = NULL;
+        key[4].key    = &handle;
+        key[5].length = 1;
+        key[5].key    = &frame_number;
+        key[6].length = 0;
+        key[6].key    = NULL;
 
         handle_data = wmem_new(wmem_file_scope(), handle_data_t);
         handle_data->uuid = uuid;
@@ -4442,8 +4468,8 @@ bluetooth_uuid_t
 get_gatt_bluetooth_uuid_from_handle(packet_info *pinfo, uint32_t handle, uint8_t opcode,
     btl2cap_data_t *l2cap_data)
 {
-    wmem_tree_key_t  key[5];
-    uint32_t         frame_number, direction;
+    wmem_tree_key_t  key[6];
+    uint32_t         frame_number, direction, server_bd_addr_oui, server_bd_addr_id;
     handle_data_t   *handle_data;
     wmem_tree_t     *sub_wmemtree;
     bluetooth_uuid_t uuid;
@@ -4452,18 +4478,22 @@ get_gatt_bluetooth_uuid_from_handle(packet_info *pinfo, uint32_t handle, uint8_t
 
     if (l2cap_data) {
         frame_number = pinfo->num;
-        direction = get_handle_db_direction(opcode, pinfo->p2p_dir);
+        direction = get_server_direction(opcode, pinfo->p2p_dir);
+
+        get_server_bdaddr_from_direction(l2cap_data, direction, &server_bd_addr_oui, &server_bd_addr_id);
 
         key[0].length = 1;
         key[0].key    = &l2cap_data->interface_id;
         key[1].length = 1;
         key[1].key    = &l2cap_data->adapter_id;
         key[2].length = 1;
-        key[2].key    = &direction;
+        key[2].key    = &server_bd_addr_oui;
         key[3].length = 1;
-        key[3].key    = &handle;
-        key[4].length = 0;
-        key[4].key    = NULL;
+        key[3].key    = &server_bd_addr_id;
+        key[4].length = 1;
+        key[4].key    = &handle;
+        key[5].length = 0;
+        key[5].key    = NULL;
 
         sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
         handle_data = (sub_wmemtree) ? (handle_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
@@ -4479,8 +4509,8 @@ static uint16_t
 get_gatt_service_handle_from_handle(packet_info *pinfo, uint32_t handle,
     btl2cap_data_t *l2cap_data)
 {
-    wmem_tree_key_t  key[5];
-    uint32_t         frame_number, direction;
+    wmem_tree_key_t  key[6];
+    uint32_t         frame_number, direction, server_bd_addr_oui, server_bd_addr_id;
     handle_data_t   *handle_data;
     wmem_tree_t     *sub_wmemtree;
 
@@ -4488,16 +4518,20 @@ get_gatt_service_handle_from_handle(packet_info *pinfo, uint32_t handle,
         frame_number = pinfo->num;
         direction = pinfo->p2p_dir;
 
+        get_server_bdaddr_from_direction(l2cap_data, direction, &server_bd_addr_oui, &server_bd_addr_id);
+
         key[0].length = 1;
         key[0].key    = &l2cap_data->interface_id;
         key[1].length = 1;
         key[1].key    = &l2cap_data->adapter_id;
         key[2].length = 1;
-        key[2].key    = &direction;
+        key[2].key    = &server_bd_addr_oui;
         key[3].length = 1;
-        key[3].key    = &handle;
-        key[4].length = 0;
-        key[4].key    = NULL;
+        key[3].key    = &server_bd_addr_id;
+        key[4].length = 1;
+        key[4].key    = &handle;
+        key[5].length = 0;
+        key[5].key    = NULL;
 
         while (handle > 0) {
             sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
@@ -4518,8 +4552,8 @@ static uint16_t
 get_gatt_char_decl_handle_from_handle(packet_info *pinfo, uint32_t handle,
     btl2cap_data_t *l2cap_data)
 {
-    wmem_tree_key_t  key[5];
-    uint32_t         frame_number, direction;
+    wmem_tree_key_t  key[6];
+    uint32_t         frame_number, direction, server_bd_addr_oui, server_bd_addr_id;
     handle_data_t   *handle_data;
     wmem_tree_t     *sub_wmemtree;
 
@@ -4527,16 +4561,20 @@ get_gatt_char_decl_handle_from_handle(packet_info *pinfo, uint32_t handle,
         frame_number = pinfo->num;
         direction = pinfo->p2p_dir;
 
+        get_server_bdaddr_from_direction(l2cap_data, direction, &server_bd_addr_oui, &server_bd_addr_id);
+
         key[0].length = 1;
         key[0].key    = &l2cap_data->interface_id;
         key[1].length = 1;
         key[1].key    = &l2cap_data->adapter_id;
         key[2].length = 1;
-        key[2].key    = &direction;
+        key[2].key    = &server_bd_addr_oui;
         key[3].length = 1;
-        key[3].key    = &handle;
-        key[4].length = 0;
-        key[4].key    = NULL;
+        key[3].key    = &server_bd_addr_id;
+        key[4].length = 1;
+        key[4].key    = &handle;
+        key[5].length = 0;
+        key[5].key    = NULL;
 
         while (handle > 0) {
             sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
@@ -4560,8 +4598,8 @@ static bluetooth_uuid_t
 get_service_uuid_from_handle(packet_info *pinfo, uint32_t handle, uint8_t opcode,
         btl2cap_data_t *l2cap_data)
 {
-    wmem_tree_key_t  key[5];
-    uint32_t         frame_number, direction;
+    wmem_tree_key_t  key[6];
+    uint32_t         frame_number, direction, server_bd_addr_oui, server_bd_addr_id;
     handle_data_t   *handle_data;
     wmem_tree_t     *sub_wmemtree;
     bluetooth_uuid_t uuid;
@@ -4570,18 +4608,22 @@ get_service_uuid_from_handle(packet_info *pinfo, uint32_t handle, uint8_t opcode
 
     if (l2cap_data) {
         frame_number = pinfo->num;
-        direction = get_handle_db_direction(opcode, pinfo->p2p_dir);
+        direction = get_server_direction(opcode, pinfo->p2p_dir);
+
+        get_server_bdaddr_from_direction(l2cap_data, direction, &server_bd_addr_oui, &server_bd_addr_id);
 
         key[0].length = 1;
         key[0].key    = &l2cap_data->interface_id;
         key[1].length = 1;
         key[1].key    = &l2cap_data->adapter_id;
         key[2].length = 1;
-        key[2].key    = &direction;
+        key[2].key    = &server_bd_addr_oui;
         key[3].length = 1;
-        key[3].key    = &handle;
-        key[4].length = 0;
-        key[4].key    = NULL;
+        key[3].key    = &server_bd_addr_id;
+        key[4].length = 1;
+        key[4].key    = &handle;
+        key[5].length = 0;
+        key[5].key    = NULL;
 
         while (handle > 0) {
             sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
@@ -4603,8 +4645,8 @@ static bluetooth_uuid_t
 get_characteristic_uuid_from_handle(packet_info *pinfo, uint32_t handle, uint8_t opcode,
         btl2cap_data_t *l2cap_data)
 {
-    wmem_tree_key_t  key[5];
-    uint32_t         frame_number, direction;
+    wmem_tree_key_t  key[6];
+    uint32_t         frame_number, direction, server_bd_addr_oui, server_bd_addr_id;
     handle_data_t   *handle_data;
     wmem_tree_t     *sub_wmemtree;
     bluetooth_uuid_t uuid;
@@ -4613,18 +4655,22 @@ get_characteristic_uuid_from_handle(packet_info *pinfo, uint32_t handle, uint8_t
 
     if (l2cap_data) {
         frame_number = pinfo->num;
-        direction = get_handle_db_direction(opcode, pinfo->p2p_dir);
+        direction = get_server_direction(opcode, pinfo->p2p_dir);
+
+        get_server_bdaddr_from_direction(l2cap_data, direction, &server_bd_addr_oui, &server_bd_addr_id);
 
         key[0].length = 1;
         key[0].key    = &l2cap_data->interface_id;
         key[1].length = 1;
         key[1].key    = &l2cap_data->adapter_id;
         key[2].length = 1;
-        key[2].key    = &direction;
+        key[2].key    = &server_bd_addr_oui;
         key[3].length = 1;
-        key[3].key    = &handle;
-        key[4].length = 0;
-        key[4].key    = NULL;
+        key[3].key    = &server_bd_addr_id;
+        key[4].length = 1;
+        key[4].key    = &handle;
+        key[5].length = 0;
+        key[5].key    = NULL;
 
         while (handle > 0) {
             sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
