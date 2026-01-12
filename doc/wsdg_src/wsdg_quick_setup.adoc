@@ -553,7 +553,7 @@ the environment variables `WIRESHARK_BASE_DIR` and `CMAKE_PREFIX_PATH`.
 
 Now it’s time to build Wireshark!
 
-. Nagivate to `C:\Development\wsbuild64`
+. Navigate to `C:\Development\wsbuild64`
 
 . Open `Wireshark.sln`
 
