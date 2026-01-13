@@ -506,7 +506,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, uint32_t bit_offset, uint32_t no_of_bits)
 	 * special treatment.
 	 */
 	if (_tvb_captured_length_remaining(tvb, byte_offset) > datalen) {
-		data = ensure_contiguous(tvb, byte_offset, datalen + 1); /* tvb_get_ptr */
+		data = ensure_contiguous_unsigned(tvb, byte_offset, datalen + 1); /* tvb_get_ptr */
 
 		/* Do this allocation AFTER tvb_get_ptr() (which could throw an exception) */
 		buf = (uint8_t *)g_malloc(datalen);
@@ -515,7 +515,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, uint32_t bit_offset, uint32_t no_of_bits)
 		for (i = 0; i < datalen; i++)
 			buf[i] = (data[i] << left) | (data[i+1] >> right);
 	} else {
-		data = ensure_contiguous(tvb, byte_offset, datalen); /* tvb_get_ptr() */
+		data = ensure_contiguous_unsigned(tvb, byte_offset, datalen); /* tvb_get_ptr() */
 
 		/* Do this allocation AFTER tvb_get_ptr() (which could throw an exception) */
 		buf = (uint8_t *)g_malloc(datalen);
@@ -569,7 +569,7 @@ tvb_new_octet_right_aligned(tvbuff_t *tvb, uint32_t bit_offset, uint32_t no_of_b
 		src_len = dst_len;
 	}
 
-	data = ensure_contiguous(tvb, byte_offset, src_len); /* tvb_get_ptr */
+	data = ensure_contiguous_unsigned(tvb, byte_offset, src_len); /* tvb_get_ptr */
 
 	/* Do this allocation AFTER tvb_get_ptr() (which could throw an exception) */
 	buf = (uint8_t *)g_malloc(dst_len);
@@ -3245,7 +3245,7 @@ tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const unsi
 	const uint8_t *ptr, *p;
 	unsigned      stringlen;
 
-	ptr = ensure_contiguous(tvb, offset, size);
+	ptr = ensure_contiguous_unsigned(tvb, offset, size);
 	for (p = ptr, stringlen = 0; stringlen < size && *p != '\0'; p++, stringlen++)
 		;
 	return format_text_wsp(allocator, (const char*)ptr, stringlen);
