@@ -27,6 +27,18 @@ enum section_c_types {
 #define HIGHEST_EXTTYPE 29  /* Highest supported exttype */
 #define MAX_SECTION_IDs 32  /* i.e. how many may be reported from one frame */
 
+/* 8.3.3.15 Compression schemes */
+#define COMP_NONE                             0
+#define COMP_BLOCK_FP                         1
+#define COMP_BLOCK_SCALE                      2
+#define COMP_U_LAW                            3
+#define COMP_MODULATION                       4
+#define BFP_AND_SELECTIVE_RE                  5
+#define MOD_COMPR_AND_SELECTIVE_RE            6
+#define BFP_AND_SELECTIVE_RE_WITH_MASKS       7
+#define MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS 8
+
+
 typedef struct oran_tap_info {
     /* Key info */
     bool     userplane;
@@ -54,8 +66,11 @@ typedef struct oran_tap_info {
 
     uint32_t ul_delay_in_us;
     uint32_t ul_delay_configured_max;
-    /* TODO: compression/bitwidth, mu/scs, slots, Section IDs, beams? */
+    /* TODO: compression/bitwidth, beams? */
     /* N.B. bitwidth, method, but each section could potentially have different udcompHdr.. */
+
+    uint32_t compression_methods;
+    uint32_t compression_width;      /* TODO: support multiple widths? */
 } oran_tap_info;
 
 /*

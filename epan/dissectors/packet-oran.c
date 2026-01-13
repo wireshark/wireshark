@@ -697,17 +697,6 @@ static unsigned pref_sample_bit_width_uplink   = 14;
 static unsigned pref_sample_bit_width_downlink = 14;
 static unsigned pref_sample_bit_width_sinr   = 14;
 
-/* 8.3.3.15 Compression schemes */
-#define COMP_NONE                             0
-#define COMP_BLOCK_FP                         1
-#define COMP_BLOCK_SCALE                      2
-#define COMP_U_LAW                            3
-#define COMP_MODULATION                       4
-#define BFP_AND_SELECTIVE_RE                  5
-#define MOD_COMPR_AND_SELECTIVE_RE            6
-#define BFP_AND_SELECTIVE_RE_WITH_MASKS       7
-#define MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS 8
-
 /* TODO: these ideally should be per-flow too */
 static int pref_iqCompressionUplink = COMP_BLOCK_FP;
 static int pref_iqCompressionDownlink = COMP_BLOCK_FP;
@@ -743,7 +732,7 @@ static unsigned us_allowed_for_ul_in_symbol = 0;
 /* Reassemble U-Plane (at Radio Transport layer) */
 static bool do_radio_transport_layer_reassembly = true;
 
-static const enum_val_t dl_compression_options[] = {
+const enum_val_t dl_compression_options[] = {
     { "COMP_NONE",                             "No Compression",                                                             COMP_NONE },
     { "COMP_BLOCK_FP",                         "Block Floating Point Compression",                                           COMP_BLOCK_FP },
     { "COMP_BLOCK_SCALE",                      "Block Scaling Compression",                                                  COMP_BLOCK_SCALE },
@@ -5126,7 +5115,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 /* bit_width and comp_meth are out params */
 static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
                              bool ignore,
-                             unsigned *bit_width, unsigned *comp_meth, proto_item **comp_meth_ti)
+                             unsigned *bit_width, unsigned *comp_meth, proto_item **comp_meth_ti,
+                             oran_tap_info *tap_info)
 {
     /* Subtree */
     proto_item *udcomphdr_ti = proto_tree_add_string_format(tree, hf_oran_udCompHdr,
@@ -5145,6 +5135,11 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     *comp_meth_ti = proto_tree_add_item_ret_uint(udcomphdr_tree, hf_oran_udCompHdrMeth, tvb, offset, 1, ENC_NA, &ud_comp_meth);
     if (comp_meth) {
         *comp_meth = ud_comp_meth;
+    }
+
+    if (!ignore) {
+        tap_info->compression_methods |= (1 << ud_comp_meth);
+        tap_info->compression_width = MAX(tap_info->compression_width, hdr_iq_width);
     }
 
     /* Summary */
@@ -5671,7 +5666,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             /* udCompHdr */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
                                        (direction==1), /* ignore for DL */
-                                       &bit_width, &comp_meth, &comp_meth_ti);
+                                       &bit_width, &comp_meth, &comp_meth_ti, tap_info);
             /* reserved (8 bits) */
             add_reserved_field(section_tree, hf_oran_reserved_8bits, tvb, offset, 1);
             offset += 1;
@@ -5693,7 +5688,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             /* udCompHdr */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
                                        (direction==1), /* ignore for DL */
-                                       &bit_width, &comp_meth, &comp_meth_ti);
+                                       &bit_width, &comp_meth, &comp_meth_ti, tap_info);
             break;
 
         case SEC_C_CH_INFO:     /* Section Type 6 */
@@ -6743,6 +6738,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         expert_add_info_format(pinfo, ti, &ei_oran_ul_uplane_symbol_too_long,
                                                "UL U-Plane Tx took longer (%u us) than limit set in preferences (%u us)",
                                                total_gap, us_allowed_for_ul_in_symbol);
+                        proto_item_append_text(timingHeader, "  (%uus since first frame seen for symbol)", total_gap);
                     }
 
                     /* Show how many frames were received */
@@ -6853,7 +6849,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* 7.5.2.10 */
             /* Extract these values to inform how wide IQ samples in each PRB will be. */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, false, &sample_bit_width,
-                                       &compression, &ud_comp_meth_item);
+                                       &compression, &ud_comp_meth_item, tap_info);
 
             /* Not part of udCompHdr */
             uint32_t reserved;
@@ -6883,6 +6879,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item *cplane_ti = proto_tree_add_uint(section_tree, hf_oran_ul_cplane_ud_comp_hdr_frame, tvb, offset, 0, cplane_state->ul_ud_comp_hdr_frame);
                 proto_item_set_generated(cplane_ti);
             }
+
+            tap_info->compression_methods |= (1 << compression);
+            tap_info->compression_width = sample_bit_width;
         }
 
         /* Consider fragmentation after first section header */
