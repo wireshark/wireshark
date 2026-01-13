@@ -32,10 +32,43 @@ This release fixes an API/ABI change that was introduced in Wireshark 4.6.1, whi
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2025-09[] {notable}
+* wssalink:2026-01[] {notable}
+BLF file parser crash.
+wsbuglink:20880[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 516ba22c34
+// Fixed in release-4.6: 4d879508dc
+// Fixed in release-4.4: c99f118869
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-787
+// * Out-of-bounds heap write in blf_pull_logcontainer_into_memory. wsbuglink:20880[].
+
+* wssalink:2026-02[] {notable}
+IEEE 802.11 dissector crash.
+wsbuglink:20939[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 4b48ee36f1
+// Fixed in release-4.2: e3ea9fb6e7
+// Fixed in release-4.0: 5bfd4035f5
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-787
+// * OSS-Fuzz 474458885: Stack-buffer-overflow in dissect_multi_link. wsbuglink:20939[].
+
+* wssalink:2026-03[] {notable}
+SOME/IP-SD dissector crash.
+wsbuglink:20945[].
+// cveidlink:2026-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.6: xxx
+// Fixed in release-4.4: xxx
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-787
+// * SOME/IP-SD buffer overflow. wsbuglink:20945[].
+
+// * wssalink:2026-04[] {notable}
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
-// cveidlink:2025-xxx[].
+// cveidlink:2026-xxx[].
 // Fixed in master: xxx
 // Fixed in release-4.6: xxx
 // Fixed in release-4.4: xxx
@@ -49,6 +82,15 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 // Bugs with the {notable} attribute show up in the "What's Changed" box on the download page.
 //* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to. wsbuglink:5000[] {notable}
+
+* Wireshark 4.6.0 build fails on Solaris: pcapio.c:441:21: error: request for member '_flag' in something not a structure or union. wsbuglink:20773[].
+* RTP Player streams cannot be stopped. wsbuglink:20879[].
+* Missing data in pinfo->cinfo in HomePlug message CM_ATTEN_CHAR.IND. wsbuglink:20893[].
+* maxmind_db: crash when switching from a profile where it's disabled to one where it's enabled. wsbuglink:20903[].
+* Compilation warning or error if CFLAGS defines _FORTIFY_SOURCE to other than 3 without first undefining it. wsbuglink:20904[].
+* IEEE 802.11: Incorrect parsing of QoS and Mesh Control Field when the frame body contains an A-MSDU. wsbuglink:20905[].
+* OSS-Fuzz 473164101: Heap-buffer-overflow in dissect_idn_laser_data. wsbuglink:20936[].
+* Bug in decoding 5G NAS message - Extended CAG information list IE. wsbuglink:20946[].
 
 // == Known Bugs
 
@@ -65,18 +107,38 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.2.. | rg packet- | sort -u)
+// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.3.. | rg packet- | sort -u)
 [commaize]
 --
+DCT2000
+DHCP
+H.248
+H.265
+HomePlug AV
+HTTP3
+IDN
+IEEE 802.11
+LTE RRC
+NAS-5GS
+PKCS12
+QUIC
+RTPS
+SOME/IP-SD
+SSH
+Thrift
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+3GPP TS 32.423 Trace
+BLF
+NetScreen
+Viavi Observer
+--
 
 === New and Updated File Format Decoding Support
 
