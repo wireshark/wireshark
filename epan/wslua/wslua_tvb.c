@@ -293,17 +293,12 @@ WSLUA_METAMETHOD Tvb__eq(lua_State* L) {
     /* it is not an error if their ds_tvb are different... they're just not equal */
     if (len_l == len_r)
     {
-        const char* lp = (const char*)tvb_get_ptr(tvb_l->ws_tvb, 0, len_l);
-        const char* rp = (const char*)tvb_get_ptr(tvb_r->ws_tvb, 0, len_r);
-        int i = 0;
+        const uint8_t* lp = tvb_get_ptr(tvb_l->ws_tvb, 0, len_l);
+        const uint8_t* rp = tvb_get_ptr(tvb_r->ws_tvb, 0, len_r);
 
-        for (; i < len_l; ++i) {
-            if (lp[i] != rp[i]) {
-                lua_pushboolean(L,0);
-                return 1;
-            }
-        }
-        lua_pushboolean(L,1);
+        int ret = memcmp(lp, rp, len_l) == 0 ? 1 : 0;
+
+        lua_pushboolean(L,ret);
     } else {
         lua_pushboolean(L,0);
     }
