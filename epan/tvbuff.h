@@ -4094,7 +4094,7 @@ WS_DLL_PUBLIC tvbuff_t* base64uri_tvb_to_new_tvb(tvbuff_t* parent, unsigned offs
  * @return A wmem_strbuf_t containing the decoded string, or NULL on failure.
  */
 WS_DLL_PUBLIC wmem_strbuf_t* tvb_get_hpack_huffman_strbuf(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const int offset, const int len);
+    tvbuff_t *tvb, const unsigned offset, const unsigned len);
 
 /**
  * @brief Decode HPACK Huffman-encoded data from a tvbuff region and attach the result to a parent tvbuff.
@@ -4115,7 +4115,7 @@ WS_DLL_PUBLIC wmem_strbuf_t* tvb_get_hpack_huffman_strbuf(wmem_allocator_t *scop
  * @see tvb_get_hpack_huffman_strbuf
  */
 WS_DLL_PUBLIC tvbuff_t* tvb_child_uncompress_hpack_huff(tvbuff_t *parent,
-    int offset, int length);
+    unsigned offset, unsigned length);
 
 /**
  * @brief Extract a variable-length integer from a tvbuff using the specified encoding.

@@ -1802,7 +1802,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             if (opcode & QPACK_OPCODE_INSERT_INDEXED) {
                 unsigned        name_idx_len    = 0;
                 uint64_t        name_idx        = 0;
-                int             val_offset      = 0;
+                unsigned        val_offset      = 0;
                 uint64_t        val_len         = 0;
                 bool            val_huffman     = false;
                 const uint8_t   *val_str        = NULL;
@@ -1831,6 +1831,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 if (varint_len == 0) {
                     THROW(ScsiBoundsError);
                 }
+                /* XXX - If val_len > UINT32_MAX, fail with expert info? */
                 offset       += varint_len;
                 val_offset    = offset;
                 offset       += (uint32_t)val_len;
@@ -1848,7 +1849,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 if (val_huffman) {
                     proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_indexed_hval,
                         tvb, val_offset, (uint32_t)val_len, ENC_NA);
-                    decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, (int)val_offset, (int)val_len);
+                    decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, val_offset, (unsigned)val_len);
                     if (decoded_tvb) {
                         add_new_data_source(pinfo, decoded_tvb, "Decoded QPACK Value");
                         proto_tree_add_item_ret_string(opcode_tree, hf_http3_qpack_encoder_opcode_insert_indexed_val,
@@ -1890,6 +1891,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 if (varint_len == 0) {
                     THROW(ScsiBoundsError);
                 }
+                /* XXX - If name_len > UINT32_MAX, fail with expert info? */
                 offset      += varint_len;
                 name_offset  = offset;
                 offset      += (uint32_t)name_len;
@@ -1899,6 +1901,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 if (varint_len == 0) {
                     THROW(ScsiBoundsError);
                 }
+                /* XXX - If val_len > UINT32_MAX, fail with expert info? */
                 offset       += varint_len;
                 val_offset   = offset;
                 offset      += (uint32_t)val_len;
@@ -1914,7 +1917,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 if (name_huffman) {
                     proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_hname,
                         tvb, name_offset,(uint32_t)name_len, ENC_NA);
-                    decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, (int)name_offset, (int)name_len);
+                    decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, name_offset, (unsigned)name_len);
                     if (decoded_tvb) {
                         add_new_data_source(pinfo, decoded_tvb, "Decoded QPACK Name");
                         proto_tree_add_item_ret_string(opcode_tree, hf_http3_qpack_encoder_opcode_insert_name,
@@ -1928,7 +1931,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 if (val_huffman) {
                     proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_hval,
                         tvb, val_offset,(uint32_t)val_len, ENC_NA);
-                    decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, (int)val_offset, (int)val_len);
+                    decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, val_offset, (unsigned)val_len);
                     if (decoded_tvb) {
                         add_new_data_source(pinfo, decoded_tvb, "Decoded QPACK Value");
                         proto_tree_add_item_ret_string(opcode_tree, hf_http3_qpack_encoder_opcode_insert_val,

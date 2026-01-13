@@ -48,13 +48,13 @@ get_hpack_huffman_strbuf(wmem_allocator_t *scope, const uint8_t *ptr, size_t len
 }
 
 wmem_strbuf_t *
-tvb_get_hpack_huffman_strbuf(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int len)
+tvb_get_hpack_huffman_strbuf(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, const unsigned len)
 {
     return get_hpack_huffman_strbuf(scope, tvb_get_ptr(tvb, offset, len), len);
 }
 
 tvbuff_t*
-tvb_child_uncompress_hpack_huff(tvbuff_t* parent, int offset, int length)
+tvb_child_uncompress_hpack_huff(tvbuff_t* parent, unsigned offset, unsigned length)
 {
     tvbuff_t* tvb = NULL;
     wmem_strbuf_t *strbuf;
