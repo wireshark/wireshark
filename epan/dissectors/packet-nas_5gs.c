@@ -2260,9 +2260,10 @@ dissect_nas_5gs_mm_cag_information_list(tvbuff_t* tvb, proto_tree* tree, packet_
         dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, true);
         curr_offset += 3;
         if (is_ext) {
-            proto_tree_add_bits_item(sub_tree, hf_nas_5gs_spare_bits, tvb, (curr_offset << 3), 5, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(sub_tree, hf_nas_5gs_spare_bits, tvb, (curr_offset << 3), 4, ENC_BIG_ENDIAN);
             proto_tree_add_item_ret_boolean(sub_tree, hf_nas_5gs_mm_cag_info_entry_caili, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &caili);
             proto_tree_add_item_ret_boolean(sub_tree, hf_nas_5gs_mm_cag_info_entry_lci, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &lci);
+            proto_tree_add_bits_item(sub_tree, hf_nas_5gs_spare_bits, tvb, (curr_offset << 3) + 6, 1, ENC_BIG_ENDIAN);
         } else {
             proto_tree_add_bits_item(sub_tree, hf_nas_5gs_spare_bits, tvb, (curr_offset << 3), 7, ENC_BIG_ENDIAN);
             caili = false;
@@ -12902,12 +12903,12 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_cag_info_entry_lci,
         { "Length of CAG-ID without additional information list (LCI)",   "nas-5gs.mm.cag_info.entry.lci",
-            FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x04,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_cag_info_entry_caili,
         { "CAG-ID with additional information list indicator (CAILI)",   "nas-5gs.mm.cag_info.entry.caili",
-            FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x08,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_cag_info_entry_cag_without_add_info_list_len,
