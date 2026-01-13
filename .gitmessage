@@ -5,8 +5,13 @@
 # - ...
 # - ...
 
+# If this fixes an issue, you can automatically close it with the
+# "Fixes" or "Closes" keywords.
+# Fixes #10000
+
 AI-Assisted: yes|no [tool(s)]
 # Required: declare whether AI was used (e.g., "AI-Assisted: yes (Claude)").
+
 # Examples:
 #   CMake: Allow users to override _FORTIFY_SOURCE
 #   tools/check_spelling.py: Speed up using ProcessPoolExecutor
