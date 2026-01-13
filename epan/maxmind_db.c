@@ -660,6 +660,22 @@ maxmind_db_pref_init(module_t *nameres)
             " with \".mmdb\".",
             maxmind_db_paths_uat);
 
+    if (!mmdb_ipv4_map) {
+        mmdb_ipv4_map = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
+    }
+
+    if (!mmdb_ipv6_map) {
+        mmdb_ipv6_map = wmem_map_new(wmem_epan_scope(), ipv6_oat_hash, ipv6_equal);
+    }
+
+    if (!mmdb_str_chunk) {
+        mmdb_str_chunk = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+    }
+
+    if (!mmdb_ipv6_chunk) {
+        mmdb_ipv6_chunk = wmem_map_new(wmem_epan_scope(), ipv6_oat_hash, ipv6_equal);
+    }
+
     /* This ensures that prefs_apply_all calls maxmind_db_pref_apply() even
      * if the configuration profile and command line don't change the
      * maxmind_geoip preference (or any other nameres preference) from its
