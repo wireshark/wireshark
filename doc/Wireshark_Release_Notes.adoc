@@ -65,7 +65,18 @@ wsbuglink:20945[].
 // CWE-787
 // * SOME/IP-SD buffer overflow. wsbuglink:20945[].
 
-// * wssalink:2026-04[] {notable}
+* wssalink:2026-04[] {notable}
+HTTP3 dissector infinite loop.
+wsbuglink:20944[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 3c819272a9
+// Fixed in release-4.6: 3d11a14bf5
+// Fixed in release-4.4: n/a
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-835
+// * Wireshark hangs when loading this PCAPNG and decrypting. wsbuglink:20944[].
+
+// * wssalink:2026-05[] {notable}
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
 // cveidlink:2026-xxx[].
