@@ -4693,22 +4693,26 @@ de_nas_5gs_mm_nsag_info(tvbuff_t* tvb _U_, proto_tree* tree _U_, packet_info* pi
     while ((curr_offset - offset) < len) {
         proto_item *item;
         proto_tree *subtree;
-        uint32_t nsag_len, s_nssai_len, tai_len;
+        uint32_t nsag_len, s_nssai_len, tai_len, nsag_start;
 
         subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_nsag_info, &item, "NSSRG values for S-NSSAI %u", i);
         proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_nsag_info_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &nsag_len);
         curr_offset++;
         proto_item_set_len(item, nsag_len + 1);
+        nsag_start = curr_offset;
         proto_tree_add_item(subtree, hf_nas_5gs_mm_nsag_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
         proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_nsag_info_s_nssai_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &s_nssai_len);
         curr_offset++;
         curr_offset += de_nas_5gs_cmn_s_nssai(tvb, subtree, pinfo, curr_offset, s_nssai_len, NULL, 0);
         proto_tree_add_item(subtree, hf_nas_5gs_mm_nsag_prio, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
-        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_nsag_tais_list_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &tai_len);
-        curr_offset++;
-        if (tai_len) {
-            curr_offset += de_nas_5gs_mm_5gs_ta_id_list(tvb, subtree, pinfo, curr_offset, tai_len, NULL, 0);
+        if ((curr_offset - nsag_start) < nsag_len) {
+            proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_nsag_tais_list_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &tai_len);
+            curr_offset++;
+            if (tai_len) {
+                curr_offset += de_nas_5gs_mm_5gs_ta_id_list(tvb, subtree, pinfo, curr_offset, tai_len, NULL, 0);
+            }
         }
         i++;
     }
@@ -9959,7 +9963,7 @@ de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             offset += length;
             break;
         case 0x90:
-            /* For "connection capabilities” type, the traffic descriptor component value field shall be encoded as
+            /* For "connection capabilities" type, the traffic descriptor component value field shall be encoded as
                a sequence of one octet for number of network capabilities followed by one or more octets,
                each containing a connection capability identifier encoded as follows:
                Bits
