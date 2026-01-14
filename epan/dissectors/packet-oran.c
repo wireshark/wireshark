@@ -2317,7 +2317,7 @@ static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_wi
             float csf_to_add = 0.0;
             if (csf) {
                 /* Unshift the constellation point */
-                csf_to_add = (float)2.0 / (1 << (iq_width));
+                csf_to_add = (float)1.0 / (1 << (iq_width));
             }
             iqSampleFx += csf_to_add;
 
