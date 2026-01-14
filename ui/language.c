@@ -125,7 +125,6 @@ write_language_prefs(const char* app_env_var_prefix, char** err_info)
         g_free(pf_dir_path);
         return false;
     }
-    g_free(pf_dir_path);
 
     rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false, app_env_var_prefix);
     if ((rf = ws_fopen(rf_path, "w")) == NULL) {
