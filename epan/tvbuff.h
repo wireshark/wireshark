@@ -2185,8 +2185,8 @@ WS_DLL_PUBLIC void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb,
  *
  * @return A pointer to the data, or a newly allocated contiguous copy.
  */
-WS_DLL_PUBLIC const uint8_t *tvb_get_ptr(tvbuff_t *tvb, const int offset,
-    const int length);
+WS_DLL_PUBLIC const uint8_t *tvb_get_ptr(tvbuff_t *tvb, const unsigned offset,
+    const unsigned length);
 
 /**
  * @brief Find the first occurrence of a byte value in a tvbuff.

@@ -1132,9 +1132,9 @@ tvb_memdup_remaining(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offs
 #endif
 
 const uint8_t*
-tvb_get_ptr(tvbuff_t *tvb, const int offset, const int length)
+tvb_get_ptr(tvbuff_t *tvb, const unsigned offset, const unsigned length)
 {
-	return ensure_contiguous(tvb, offset, length);
+	return ensure_contiguous_unsigned(tvb, offset, length);
 }
 
 /* ---------------- */

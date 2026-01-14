@@ -154,8 +154,8 @@ test(tvbuff_t *tvb, const char* name,
 	ex_thrown = false;
 	TRY {
 		tvb_get_ptr(tvb, length - 1, 2);
-		/* Note that length 0 throws a BoundsError too, albeit
-		 * for a slightly different reason (on the offset.) */
+		/* Note that length 0 throws a ReportedBoundsError,
+		 * for a slightly different reason (offset overflow.) */
 	}
 	CATCH(BoundsError) {
 		ex_thrown = true;
@@ -164,7 +164,11 @@ test(tvbuff_t *tvb, const char* name,
 		printf("04: Caught wrong exception: FragmentBoundsError\n");
 	}
 	CATCH(ReportedBoundsError) {
-		printf("04: Caught wrong exception: ReportedBoundsError\n");
+		if (length == 0) {
+			ex_thrown = true;
+		} else {
+			printf("04: Caught wrong exception: ReportedBoundsError\n");
+		}
 	}
 	CATCH_ALL {
 		printf("04: Caught wrong exception: %lu\n", exc->except_id.except_code);

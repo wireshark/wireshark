@@ -4835,6 +4835,9 @@ proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, int start,
 
 	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_BYTES);
 
+	if (start_ptr == NULL)
+		start_ptr = tvb_get_ptr(tvb, start, length);
+
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
 	proto_tree_set_bytes(PNODE_FINFO(pi), start_ptr, length);
 
@@ -4875,9 +4878,6 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_item	  *pi;
 	va_list		   ap;
 
-	if (start_ptr == NULL)
-		start_ptr = tvb_get_ptr(tvb, start, length);
-
 	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
 
 	TRY_TO_FAKE_THIS_REPR_NESTED(pi);
@@ -4896,9 +4896,6 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-
-	if (start_ptr == NULL)
-		start_ptr = tvb_get_ptr(tvb, start, length);
 
 	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
 
