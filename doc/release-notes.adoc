@@ -22,40 +22,8 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2026-01[] {notable}
-BLF file parser crash.
-wsbuglink:20880[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 516ba22c34
-// Fixed in release-4.6: 4d879508dc
-// Fixed in release-4.4: c99f118869
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-787
-// * Out-of-bounds heap write in blf_pull_logcontainer_into_memory. wsbuglink:20880[].
 
-* wssalink:2026-02[] {notable}
-IEEE 802.11 dissector crash.
-wsbuglink:20939[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 4b48ee36f1
-// Fixed in release-4.2: e3ea9fb6e7
-// Fixed in release-4.0: 5bfd4035f5
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-787
-// * OSS-Fuzz 474458885: Stack-buffer-overflow in dissect_multi_link. wsbuglink:20939[].
-
-* wssalink:2026-03[] {notable}
-SOME/IP-SD dissector crash.
-wsbuglink:20945[].
-// cveidlink:2026-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-787
-// * SOME/IP-SD buffer overflow. wsbuglink:20945[].
-
-// * wssalink:2026-04[] {notable}
+// * wssalink:2026-05[] {notable}
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
 // cveidlink:2026-xxx[].
@@ -130,17 +98,55 @@ There is no updated file format support in this release.
 
 == Prior Versions
 
+Wireshark 4.4.13 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.4.13.html[release notes]
+for details:
+
+* wssalink:2026-01[]
+BLF file parser crash.
+wsbuglink:20880[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 516ba22c34
+// Fixed in release-4.6: 4d879508dc
+// Fixed in release-4.4: c99f118869
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-787
+// * Out-of-bounds heap write in blf_pull_logcontainer_into_memory. wsbuglink:20880[].
+
+* wssalink:2026-02[]
+IEEE 802.11 dissector crash.
+wsbuglink:20939[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 4b48ee36f1
+// Fixed in release-4.2: e3ea9fb6e7
+// Fixed in release-4.0: 5bfd4035f5
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-787
+// * OSS-Fuzz 474458885: Stack-buffer-overflow in dissect_multi_link. wsbuglink:20939[].
+
+* wssalink:2026-03[]
+SOME/IP-SD dissector crash.
+wsbuglink:20945[].
+// cveidlink:2026-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.6: xxx
+// Fixed in release-4.4: xxx
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-787
+// * SOME/IP-SD buffer overflow. wsbuglink:20945[].
+
 Wireshark 4.4.12 included the following changes.
 See the
 https://www.wireshark.org/docs/relnotes/wireshark-4.4.12.html[release notes]
 for details:
 
-* wssalink:2025-07[] {notable}
+* wssalink:2025-07[]
 HTTP3 dissector crash.
 wsbuglink:20860[].
 cveidlink:2025-13945[].
 
-* wssalink:2025-08[] {notable}
+* wssalink:2025-08[]
 MEGACO dissector infinite loop.
 wsbuglink:20884[].
 cveidlink:2025-13945[].
@@ -171,11 +177,11 @@ https://www.wireshark.org/docs/relnotes/wireshark-4.4.10.html[release notes]
 for details:
 
 * Using wslog parameters in command line applications leads to freeing invalid memory. wsbuglink:20500[].
-* On macOS a lower resolution Wireshark icon is displayed in the App Switcher and Launchpad. sbuglink:20544[]. {notable}
+* On macOS a lower resolution Wireshark icon is displayed in the App Switcher and Launchpad. sbuglink:20544[].
 // misdissection, but no crash.
 * Fuzz job crash: fuzz-2025-08-06-10932469456.pcap. wsbuglink:20666[].
-* Encoding on NAS5GS- NASDL Transport Message-Multiple Container contains inconsistencies. wsbuglink:20679]. {notable}
-* Bad resolver in Delegated Credential (RFC 9345) of TLS 1.3 CertificateRequest message. wsbuglink:20728]. {notable}
+* Encoding on NAS5GS- NASDL Transport Message-Multiple Container contains inconsistencies. wsbuglink:20679].
+* Bad resolver in Delegated Credential (RFC 9345) of TLS 1.3 CertificateRequest message. wsbuglink:20728].
 * Fuzz job UTF-8 encoding issue: fuzz-2025-10-03-11586692659.pcap. wsbuglink:20744[].
 
 Wireshark 4.4.9 included the following changes.
@@ -185,7 +191,7 @@ for details:
 
 * RDM Product Detail List ID Disect incorrect. wsbuglink:20612[].
 * SCCP LUDT segmentation decoding fails. wsbuglink:20647[].
-* Ciscodump fails to start capture on Cisco IOS. wsbuglink:20655[]. {notable}
+* Ciscodump fails to start capture on Cisco IOS. wsbuglink:20655[].
 * [BACnet] WritePropertyMultiple closing context tag 1 not showing. wsbuglink:20665[].
 * Bug in LZ77 decoder; reads a 16-bit length when it should read a 32-bit length. wsbuglink:20671[].
 
