@@ -1,0 +1,866 @@
+commit e969ea7249
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 13 17:07:40 2026 -0800
+
+    Update the release notes [skip ci]
+
+commit ad34eebdf0
+Author: Martin Mathieson <martin.r.mathieson@googlemail.com>
+Date:   Wed Jan 14 10:15:25 2026 +0000
+
+    Fix Ixia/Keysight netflow field session-ip-scrambling-key-hash
+
+commit bd7a47d4c6
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Jan 14 10:19:13 2026 +0100
+
+    NAS 5GS: fix NSAG information dissection
+
+    Fixes #20949
+
+    (cherry picked from commit 1878ef96518ed4e772ee64af66bc8b375300545f)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 9e31589c9b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 13 14:47:03 2026 -0800
+
+    Prep for 4.6.3 [skip ci]
+
+commit ce7ca4fd28
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 12 17:01:48 2026 -0800
+
+    SOME/IP-SD: Fix a buffer overflow
+
+    Make sure we don't write past the end of our option port array. Make our
+    option count unsigned.
+
+    Fixes #20945
+
+    (cherry picked from commit 55ec8b3db4968c97115f014fb5974206cdf57454)
+
+commit 762263eaa8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jan 13 12:22:06 2026 +0000
+
+    MaxMindDB: Ensure that the maps are created on init
+
+    This is not the same as starting the mmdbresolv process.
+
+    It's still probably the case that the various idle dissection should
+    not go on while the packet list is frozen, but this change by itself
+    fixes #20903. The idle dissection (and the dissection on a timer for
+    the minimap/intelligent scroll bar) may cause problems elsewhere.
+
+    (cherry picked from commit 4ae9f408060c31a6123e9e2f1d72d151b4aae45a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 497d6b7d6a
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Jan 13 09:50:40 2026 +0100
+
+    NAS 5GS: fix extended CAG information list dissection
+
+    Some bits were inverted. Fixes #20946
+
+    (cherry picked from commit f3ef7faabddbaaab92406461dd65b149227f0db0)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 3d11a14bf5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jan 12 06:56:46 2026 -0500
+
+    HTTP/3: Fix prefixed integer handling
+
+    Use the TVB API instead of retrieving a raw pointer. This causes
+    ReportedBoundsError to be thrown when instructions are fragmented
+    in the middle of a prefixed integer, which is what we want (we
+    handle that as needing to request reassembly.)
+
+    When the prefixed integer (a type of varint) decoding fails because
+    it's larger than the largest supported value, fail at that point.
+    The previous code returned -1, which was being added to the offset
+    and resulting in an infinite loop in some error cases.
+
+    Prevent the hang in #20944.
+
+    (cherry picked from commit 3c819272a94c1fb900a63fcccdfa6d4fe155a249)
+
+commit c0f0f51f29
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jan 12 15:27:52 2026 +0000
+
+    QUIC: Update reassembly ID for a new MSP
+
+    When a QUIC frame has more than one MSP, the reassembly id for the
+    second MSP has to be used when adding or looking it up, instead of
+    the original reassembly id of the first MSP.
+
+    Fixes reassembly of the file in #20944 in most cases, outside of issues
+    with out of order UDP packets / QUIC packets.
+
+    (cherry picked from commit 562c3c070c6f58d01904d42338489b1a64ad7655)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 8572fd91c2
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Jan 12 08:15:16 2026 +0100
+
+    exported_pdu: Always add column strings
+
+    Always add the column protocol and information string to the columns
+    regardless of next_proto_type.
+
+    (cherry picked from commit 0c2df45162ed52b667e68109d95062e3bf5a56be)
+
+commit e3ea9fb6e7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 10 08:33:35 2026 -0500
+
+    ieee80211: Avoid using a fixed array for multi-link per-STA subelements
+
+    Since this processes to the end of the TVB, there might be more than 16.
+    Simplify the logic and only test for a set link_id in one place. This
+    also gets rid of a possible use of an uninitialized value on error.
+
+    Fix #20939, OSS-Fuzz 474458885
+
+    (backported from commit 4b48ee36f1829d6d3d009bf9871af523ce8e3ace)
+
+commit 2c4a7f8601
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 11 10:19:04 2026 +0000
+
+    [Automatic update for 2026-01-11]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0423bcad01
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 9 08:25:35 2026 -0500
+
+    GitHub Actions: Don't get asciidoctor and docbook-bundle from chocolatey
+
+    This is redundant since they're downloaded via FetchArtifacts since
+    commit 96f2046eab31b5eb32c1a8766df93e9178481560
+
+    (backported from commit e633d5d25ed11feafdafddda03ee4f5e5d3246bf)
+
+commit 82c03ecbe0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 30 17:33:19 2025 -0500
+
+    GitHub Actions: Don't bother installing Perl
+
+    It just creates issues, and it's not needed for a build if we're
+    not regenerating various dissectors or running scripts. The WSDG
+    recommends against installing it for a simple build.
+
+    (backported from commit 0d2ffe6a82a8bbf8d15cf7572a2b3da95a049ab1)
+
+commit 0a540d3927
+Author: Zach Chadwick <zachad@qacafe.com>
+Date:   Thu Jan 8 09:04:21 2026 -0500
+
+    Sharkd: Bugfix remove forced synchronous DNS resolution
+
+    (cherry picked from commit 34708ff0ff4193d5bf69b53a92af6cb581212a92)
+
+    9c23a510 Sharkd: Bugfix to remove forced synchronous DNS resolution
+
+    Co-authored-by: Zach Chadwick <zachad@qacafe.com>
+
+commit bdaf02e7b8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jan 6 19:32:06 2026 +0000
+
+    IDN: Use the 0 array index to avoid a buffer overrun
+
+    Instead of starting a loop variable at 1 and ignoring index 0 of the
+    precision array, start at 0 and test with less than. This fixes a
+    buffer overrun.
+
+    Add some comments.
+
+    Fix #20936
+
+    (cherry picked from commit 06a915ef8c901e9d0eaf55cde4bd50cdbbe5696c)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit d44906d9e4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 4 10:18:49 2026 +0000
+
+    [Automatic update for 2026-01-04]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 7049460848
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 3 12:57:09 2026 +0000
+
+    H.248: Fix a NULL pointer dereference
+
+    dissect_ber_octet_string can return a non-NULL 0 zero length tvb.
+    The code here checks for a zero length, but doesn't assign anything
+    to curr_info.term->buffer or curr_info.term->str in the zero-length
+    case, unlike in the NULL tvb case, where a zero length is also
+    assigned.
+
+    Use the same default values for the zero-length tvb case.
+
+    Fixes a NULL pointer dereference in #20932
+
+    (cherry picked from commit 2988e4b91c5a44445abbe6815b7b66995774c912)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 7c5f4bc38c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 2 07:50:56 2026 -0500
+
+    BLF: Writing must seek
+
+    The BLF format seeks around while writing, in particular because
+    the file header has to be updated with the total file size. Set
+    this appropriately so we'll fail at the beginning and not allow
+    writing when compressed (which will otherwise fail when one of the
+    seeks or tells fail.)
+
+    (backported from commit ab795cfb5e302bd0ae0435038092f263806771a6)
+
+commit b4d172445d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 2 19:09:06 2026 +0000
+
+    CMake: Update docbook to archived site URL
+
+    The docbook.org website was updated, the URL we've used to download
+    the zip archive of dockbook has changed. (Can we get what we need
+    from the GitHub site like the other two docbook archives?)
+
+    (cherry picked from commit 2be6899941c73a4406a459b6677d0aa0929477a0)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b5314a5f26
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 2 11:42:10 2026 +0000
+
+    blf: Avoid buffer overrun when dumping
+
+    The blf_fileheader_t struct, as defined in blf.h, is 80
+    bytes on platforms with 64-bit alignment and 76 bytes with
+    32-bit alignment. (Luckily, the only difference is at the
+    very last member.)
+
+    It has a field to indicate the length of the header, and the
+    wiretap module always sets that to 144 bytes and tries to write
+    144 bytes usng the blf_fileheader_t struct. That doesn't work
+    when using g_new; it's a buffer overrun.
+
+    Add a flexible array member for padding on the end, and use
+    g_malloc0 to allocate the 144 bytes we're going to write.
+
+    The buffer overrun can be seen by using ASAN (remember to
+    Export Specified Packets, because a Save As from one blf file
+    to another of the entire file will really just do a binary copy.)
+
+    (cherry picked from commit cc297ad8f3adf437e88a3684e68c30dada071290)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 2258e6af1e
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Jan 1 11:03:05 2026 +0000
+
+    Happy New Year 2026
+
+    (cherry picked from commit 6fd52d7432accfb0a491f479c0181abdc381859a)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 63aa0ddb23
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Dec 29 11:44:31 2025 +0000
+
+    Qt: Have hover highlighting setting correctly initially
+
+    Since the hex data source context menu is created on demand now,
+    the hover highlighting setting needs to be read from recent upon
+    creation of the widget, instead of waiting to be set to the correct
+    value when the context menu is set up.
+
+    Fixup 6aaf9baf8d350dff79f8e12da82ea24bde075e0f
+
+    (cherry picked from commit f42b85fb0631484211d6c826c0cba2d9ab53f245)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 37252f5a89
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Dec 28 21:39:55 2025 +0000
+
+    thrift: Check for failure in dissect_thrift_t_map
+
+    dissect_thrift_t_field_header can return a failure value that
+    needs to be checked here as done elseewhere in the dissector.
+
+    Coverity CID 1677843
+
+    (cherry picked from commit 5d3b200a7a42a99d9ee1ad759a461d2e52e77b93)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0232728c89
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 28 10:18:13 2025 +0000
+
+    [Automatic update for 2025-12-28]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit b9c60d6df9
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Dec 28 09:57:01 2025 +0000
+
+    DHCP: More processor architectures
+
+    (cherry picked from commit 0f1bafc72e01516dc7b1c6252ae8ccac6fdf4a49)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit d63429b48d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Dec 27 20:43:42 2025 +0000
+
+    DCT2000: Fix uninitialized variable
+
+    In the unlikely case of a frame going from IPv4 to IPv6, fix the
+    test of which address length is checked in one place.
+
+    Coverity CID 1677954
+
+    (cherry picked from commit 8aec610670a1f2b8fdf1b9a6b5059719edd3fbcc)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 34aba12266
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 24 08:28:22 2025 -0500
+
+    compressed file writing: Deal with platforms where ferror is a macro
+
+    If ferror is a macro (that doesn't cast its parameter) then we have to
+    cast the WFILE_T (a void*) to FILE * when calling ferror on the
+    noncompressed file.
+
+    Fix #20773
+
+    (backported due to commit 40b552fee6cc9f2ed11d42ed43ca313343d7c9d8
+    moving the compressed file writing after 4.6)
+
+commit fef1f993e3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 23 15:59:50 2025 +0000
+
+    dfilter: Convert FT_SCALAR to FT_UINT64 for non Number types
+
+    Character constants, and literals and strings (the latter two if
+    there's a value string) can be converted to FT_INT64 but not
+    FT_DOUBLE. So if a FT_SCALAR is requested, try to convert to
+    FT_INT64. This prevents some crashes with filters that try to
+    divide a FT_ABSOLUTE_TIME or FT_RELATIVE_TIME by character constants,
+    literals, or strings:
+
+    frame.time_relative > ${frame.time_relative} / 0.:5
+    frame.time_relative > ${frame.time_relative} / "foo"
+    frame.time_relative > ${frame.time_relative} / '\x47'
+
+    Before:
+            [(none) ERROR] epan/ftypes/ftypes.c:503 -- fvalue_new(): assertion failed: ftype < FT_NUM_TYPES
+
+    [Compiled in Debug mode; a different error if compiled in Release mode
+    where asserts are not compiled in]
+
+    for all three.
+
+    After:
+    $ ./run/dftest $(cat bad-filter-crash2)
+    Filter:
+     frame.time_relative > ${frame.time_relative} / "foo"
+
+    Error: Signed integer (64 bits) cannot be converted from a string ("foo").
+      frame.time_relative > ${frame.time_relative} / "foo"
+                                                     ^~~~~
+
+    for the first two and success for the third:
+
+    ./run/dftest $(cat bad-filter-crash3)
+    Filter:
+     frame.time_relative > ${frame.time_relative} / '\x47'
+
+    Instructions:
+     0000 READ_TREE        frame.time_relative -> R0
+     0001 IF_FALSE_GOTO    6
+     0002 READ_REFERENCE   ${frame.time_relative} -> R1
+     0003 IF_FALSE_GOTO    6
+     0004 DIVIDE           R1 / 71          -> R2
+     0005 ANY_GT           R0 > R2
+     0006 RETURN
+
+    The error messages are perhaps not ideal, but this is better than
+    crashing.
+
+    (cherry picked from commit 86e6a478b071b068f718742bdfa57eb72e9d5b4d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit ae8c03640f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Dec 22 01:14:18 2025 +0000
+
+    RTPS: Fix memory safety by using a subset tvb
+
+    RTPS header extensions have a reported length (octetsToNextHeader),
+    and an implicit length implied by the presence of various feature flags.
+
+    Take a subset TVB using the reported length so that we throw exceptions
+    if that is inconsistent with the implicit length, instead of running
+    past the header extension or, worse, overrunning the decryption buffer
+    obtained via tvb_memcpy when zeroing out the length and checksum.
+
+    Fixes some memory errors seen under valgrind and ASAN with fuzzed data
+    with RTPS encryption enabled.
+
+    Fixup f9163a3ce118d72a4f7cdaad74c77f8aac7e9de1
+
+    (cherry picked from commit eea3a3b04d6526d891a4e4f72fd6db16513e3a71)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b5a89db63a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Dec 22 00:28:18 2025 +0000
+
+    H.265: Fix unintentional integer truncation
+
+    Rec. ITU-T H.265 5.2 Arithmetic operators
+
+            / Integer division with truncation of the result toward zero.
+            ÷ Used to denote division in mathematical equations where no
+                    truncation or rounding is intended
+
+    7.4.3.2.1 General sequence parameter set RBSP semantics
+
+            PicWidthInCtbsY = Ceil( pic_width_in_luma_samples ÷ CtbSizeY ) (7-15)
+            PicHeightInCtbsY = Ceil( pic_height_in_luma_samples ÷ CtbSizeY ) (7-17)
+
+    As this indicates that no truncation or rounding is intended, cast to double
+    first to avoid integer truncation.
+
+    Coverity CID 1450796
+
+    (cherry picked from commit 34a022afe8f88b3ea282a38428be10fd0fc7bbef)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 94126470fd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 21 10:18:33 2025 +0000
+
+    [Automatic update for 2025-12-21]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit c583e7a636
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Dec 20 19:49:35 2025 +0000
+
+    Falco events: Updates for Falco libs 0.22.0
+
+    We now need to call sinsp_evt::init_from_raw() to initialize an event.
+
+    (cherry picked from commit 062d01fc8dbeaaaeee5215c36bec062ce0134885)
+
+    Co-authored-by: Gerald Combs <gerald@wireshark.org>
+
+commit 7f15973018
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Dec 20 14:08:19 2025 +0000
+
+    RTPS: Use tvb_memdup
+
+    When storing in a pinfo->pool structure, use tvb_memdup instead of
+    tvb_get_ptr followed by g_memdup2 and freeing the memory. This also
+    means that we don't have to conditionally free depending on whether
+    it was pinfo->pool (and zeroed out in several places) vs a direct
+    pointer via tvb_get_ptr (slightly unsafe but presumably a bit faster.)
+
+    (cherry picked from commit 0ad98e5dd73c059e03617d50c77baed72c58a4d7)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 5c16aca23d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Dec 20 11:51:17 2025 +0000
+
+    Qt: Fix QCustomPlot adaptive sampling in one more place
+
+    The fix in 92e652ebfaa65fc31747cf1036fa4ca6832d4527 made two correct
+    changes in one branch but missed one of the changes in the second
+    branch. Make a change to avoid a possibility of dividing by zero.
+
+    (cherry picked from commit 74f51240d0af7c262e26a0776cdcb98e3ed7a6c5)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 50c633dfc8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Dec 14 16:00:13 2025 +0000
+
+    netscreen: Fix return value of parse_netscreen_packet in one case
+
+    Commit 6a140eca7b78b230f1f90a739a32257476513c78 changed a return
+    value from an int, with -1 representing failure, to a boolean, but
+    -1 is still returned in one place.
+
+    Thanks to Fatih Çelik for reporting this.
+
+    (cherry picked from commit d801ac3b780c809b859cde019cd196e5dad95aa4)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 41b08ab3ff
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Sun Dec 14 13:41:47 2025 +0100
+
+    GitLab-CI: Increase macOS aqtinstall timeout from default 5 s
+
+    The default connection timeout for aqtinstall is 5 secs. Try bumping
+    it up a bit, as it seems to fairly often successfully connect and
+    download 4 Qt6 modules while timing out to the same mirror on a fifth.
+
+    https://github.com/miurahr/aqtinstall/blob/master/docs/cli.rst
+
+    (cherry picked from commit 84c9e9c43cd828b87be4f49afb96929f8c6b23b1)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 7385340b37
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 14 10:18:14 2025 +0000
+
+    [Automatic update for 2025-12-14]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d3fb78a1b9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Dec 13 02:13:01 2025 +0000
+
+    Qt: Use QAudioSink::reset in RtpAudioStream
+
+    https://doc.qt.io/qt-6/qaudiosink.html
+
+    Compare QAudioSink::reset()
+
+            Immediately halts audio output and discards any audio data currently in
+            the buffers. All pending audio data pushed to QIODevice is ignored.
+
+    and QAudioSink::stop()
+
+            Stops the audio output, detaching from the system resource. Note: On
+            Linux, and Darwin, this operation synchronously drains the underlying
+            audio buffer, which may cause delays accordingly to the buffer payload.
+            To reset all the buffers immediately, use the method reset instead.
+
+    On Linux, I do not notice a difference in whether the audio continues to
+    play whether stop() or reset() is used, but on Windows, in Qt 6.9 and
+    later (after some rewrites, according to Qt's git repository), the audio
+    (that has already been pushed to the QIODevice buffer, I reckon) continues
+    to play after stop() but halts immediately with reset().
+
+    Also, initialize all the members (Coverity CID 1477332) while here.
+
+    Fix #20879
+
+    (cherry picked from commit 36a19a1be7bb63496624f04fa53a2e77216f2e5e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 67e6783acf
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Dec 12 02:32:39 2025 +0000
+
+    ieee80211: Look for Mesh Control field in the proper place in a A-MSDU
+
+    IEEE Std 802.11-2020 9.2.4.7.3 Mesh Control Field:
+            When the frame body contains an A-MSDU, the Mesh Control field is
+            located in the A-MSDU subframe header as shown in Figure 9-70.
+
+    For our heuristics, retrieve the Mesh Control field from the first
+    A-MSDU. Add the Mesh Control field in its proper location(s).
+    (Note that by retrieving the mesh control length as it's dissected
+    and setting the item to that, we cover the rare case of the Mesh
+    Control variable length being different in different subframes.)
+
+    Fix #20905
+
+    (cherry picked from commit f373e628b580467d6f2c21882a942dbbd50fdf05)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit da0ea526a2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Dec 12 12:09:04 2025 +0000
+
+    Add jtckdint.h to wireshark.h
+
+    Adding this header only include makes C23/C++26 checked integer
+    arithmetic always available, similar to including inttypes.h
+    and stdbool.h everywhere.
+
+    (cherry picked from commit f3196bd3b1716ad4d83da278ac514973d142057d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f676426de2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Dec 12 12:10:15 2025 +0000
+
+    jtckdint: Workaround C _Generic lvalue conversion
+
+    The controlling expression of a C11 _Generic undergoes lvalue
+    conversion (unlike, say, C++ templates):
+
+    https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2396.htm#dr_481
+
+    Which means that the volatile qualifier is removed. This results,
+    with the current implementation, in undefined behavior when writing
+    to a volatile result through a non-volatile pointer, and a MSVC
+    C4090 warning.
+
+    https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4090
+
+    It is not UB or a problem to cast to a volatile pointer to add the
+    qualifier (other than possible small performance implications), so
+    do that. A more complicated rewrite of the macros could eliminate
+    the need to do that.
+
+    C++ (as it uses templates), any C or C++ library using the C23 standard
+    header, and any use the gcc/clang built-ins are unaffected by this
+    change.
+
+    (cherry picked from commit 233f65478221b7b8338467e499648608b68da989)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 75938716b5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Dec 11 20:36:43 2025 +0000
+
+    CMake: Allow users to override _FORTIFY_SOURCE without them undefining
+
+    Because _FORTIFY_SOURCE is a preprocessor define, compilers warn about
+    redefining it to a different level. We prepend our options to
+    CMAKE_C_FLAGS (set from CFLAGS) (65e3f5c25ee48e5b736ddbdf04fb2a31601ce8c1).
+
+    Some Linux distributions (e.g., Ubuntu) set -D_FORTIFY_SOURCE via GCC
+    spec files or Clang configuration files, which take place before our
+    options even with the prepending. For that reason, we have to undefine
+    it before setting it.
+
+    Some Linux distributions (e.g., Yocto) and perhaps some users set
+    -D_FORTIFY_SOURCE without undefining it first (others, like Fedora/Red
+    Hat, undefine it first). Search the flags to set if it is defined before
+    trying to define ours. We don't warn about not setting this, but then
+    again we let users turn off other warnings and compilation options
+    without a message as well.
+
+    Fix #20904
+
+    (cherry picked from commit 9420063c7eb222b61cff9ce7eadf180541aed638)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c4b9c62ff7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Dec 8 13:31:21 2025 +0000
+
+    observer: Fix saving files
+
+    The tlv_time_info struct does not need to contain the type and length
+    fields, which are already contained in the tlv_header struct. They
+    are never initialized, and their size is erroneously used to increase
+    the TLV size indicated in the TLV header that is written before the
+    extra type and length fields. This causes any file written by libwiretap
+    to fail to open, with a message like:
+
+            The file "observer_bad.bfr" appears to be damaged or corrupt.
+            (Observer: bad record (time information TLV length 12 != 8))
+
+    Cf. with the other tlv value structures, like tlv_network_load,
+    tlv_wireless_info, and tlv_capture_start_stop, none of which contain
+    the T or L from the TLV, just the V.
+
+    Fix writing Network Instruments/JDSU/Viavi Observer files
+
+    Coverity CID 1499434
+
+    (cherry picked from commit 7ce96f017a72299f92e175a7732532382f4951ca)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0cace41e7b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Dec 7 12:55:42 2025 +0000
+
+    nettrace_3gpp_32_423: Fix use of proxy src port
+
+    Presumably it should fall back to the proxy src port and use
+    that as the source port. Possible copy and paste error.
+
+    Fixup e713550f5fd7fbaaf58f0e85905e9f1468a4eff8
+
+    Coverity CID 1659229
+
+    (cherry picked from commit 78cf5630e36d55cae6c2255f52fa842e67bbcb98)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit bd5a8cb793
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 7 10:18:23 2025 +0000
+
+    [Automatic update for 2025-12-07]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 2508c9274f
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sun Dec 7 06:14:07 2025 +0100
+
+    LTE RRC: Fix dissection of NR RRC ReportList
+
+    The RACH-ReportNR-r18 is a SEQUENCE, so this VAL_PTR has no effect.
+    What's intended is to retrieve the rach-ReportListNR-r18 OCTET_STRING
+    value within in the sequence as a tvb VAL_PTR and dissect that.
+
+    Coverity CID 1610346
+
+    (cherry picked from commit 9cb1d4864520908d046fb7a58579758aabe4083c)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 025f397865
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Dec 5 15:36:57 2025 +0000
+
+    Homeplug AV: Add to COL_INFO even with a non-NULL tree
+
+    The Homeplug AV dissector does a lot of checking for a NULL tree.
+    In one path, text is appended to COL_INFO only when there *is* a
+    NULL tree, but we can have a non-NULL tree and also need to fill
+    in the columns in a number of situations, notably if there are
+    custom columns.
+
+    Append the text in the other code path. Just get rid of the NULL
+    tree check, any savings are minimal due to the NULL tree checks
+    inside the API.
+
+    Fix #20893
+
+    (cherry picked from commit 30bc529ecf09788cc3db94e636d50bfe45bb4385)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e502c94a5d
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Fri Dec 5 12:30:10 2025 +0100
+
+    wsutil: Restore removed ws_base32_decode() to fix ABI breakage
+
+commit 858f1401e6
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Dec 4 19:23:55 2025 +0000
+
+    Acknowledge jtckdint
+
+    We switched from using the non C23 compatible safe-math implementation
+    to the C23 checked arithmetic compatible jtckdint implementation and
+    should update the Acknowledgments window.
+
+    (cherry picked from commit ee19790b1c0be7da46332ebdf8e7f1422e546cf9)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4d879508dc
+Author: Darius Davis <darius-wireshark@free-range.com.au>
+Date:   Mon Dec 1 17:47:28 2025 +1000
+
+    BLF: Validate length of uncompressed segments.
+
+    When a container's data is not compressed, its actual length should equal the
+    length of the data stored in the file.
+
+    Fixes #20880.
+
+    (cherry picked from commit 516ba22c34bd62468c2967ac476146bc03482679)
+
+commit 9ef6ec3896
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 3 17:54:20 2025 +0000
+
+    pkcs12: Put a maximum limit on hash iterations willing to perform
+
+    iterationCount is defined in the ASN.1 for pkcs12 (RFC 8081) as
+    an unbounded Integer (either (1..MAX) in one place, or with no
+    value constraint in another, though the latter is silly as negative
+    numbers make no sense.) We should have a sanity check on it to avoid
+    endless hashing that consumes an incredible amout of time (especially
+    as the iteration_count value is eventually cast to unsigned, so a -1
+    becomes whatever the maximum size of that unsigned variable is).
+
+    RFC 8081 Section 4.2 Iteration Count says:
+
+       Choosing a reasonable value for the iteration count depends on
+       environment and circumstances, and varies from application to
+       application.  This document follows the recommendations made in FIPS
+       Special Publication 800-132 [NISTSP132], which says
+
+          The iteration count shall be  selected as large as possible, as
+          long as the time required to generate the key using the entered
+          password is acceptable for the users. [...] A minimum iteration
+          count of 1,000 is recommended.  For especially critical keys, or
+          for very powerful systems or systems where user-perceived
+          performance is not critical, an iteration count of 10,000,000 may
+          be appropriate.
+
+    While a user may want to decrypt "especially critical keys", OTOH
+    generally "user-perceived performance" is of a concern.
+
+    This puts a limit of 10,000,000 instead of allowing 2*32 as we've been
+    doing, though we could make it an unsigned preference at some point.
+
+    This also happens to fix a pointer-sign warning by changing the variable
+    to unsigned earlier (as opposed to casting it when calling
+    generate_key_or_iv).
+
+    Ping #20175
+
+    (cherry picked from commit ab257c76541d984143943a8e61c0f8930511409d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e0145b0e19
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 3 12:10:34 2025 -0800
+
+    Version: 4.6.2 → 4.6.3 [skip ci]

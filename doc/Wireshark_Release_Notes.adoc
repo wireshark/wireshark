@@ -28,8 +28,6 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 === Bug Fixes
 
-This release fixes an API/ABI change that was introduced in Wireshark 4.6.1, which caused a compatibility issue with plugins built for Wireshark 4.6.0. wsbuglink:20881[].
-
 The following vulnerabilities have been fixed:
 
 * wssalink:2026-01[] {notable}
@@ -96,6 +94,7 @@ The following bugs have been fixed:
 
 * Wireshark 4.6.0 build fails on Solaris: pcapio.c:441:21: error: request for member '_flag' in something not a structure or union. wsbuglink:20773[].
 * RTP Player streams cannot be stopped. wsbuglink:20879[].
+* Additional ABI/API compatibility fixes. wsbuglink:20881[].
 * Missing data in pinfo->cinfo in HomePlug message CM_ATTEN_CHAR.IND. wsbuglink:20893[].
 * maxmind_db: crash when switching from a profile where it's disabled to one where it's enabled. wsbuglink:20903[].
 * Compilation warning or error if CFLAGS defines _FORTIFY_SOURCE to other than 3 without first undefining it. wsbuglink:20904[].
