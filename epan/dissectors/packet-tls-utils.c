@@ -1493,6 +1493,10 @@ const value_string tls13_signature_algorithm[] = {
     { 0x0601, "rsa_pkcs1_sha512" },
     { 0x0603, "ecdsa_secp521r1_sha512" },
     { 0x0620, "rsa_pkcs1_sha512_legacy" }, /* draft-davidben-tls13-pkcs1-01 */
+    { 0x0704, "eccsi_sha256" }, /* draft-wang-tls-raw-public-key-with-ibc-02 */
+    { 0x0705, "iso_ibs1" }, /* draft-wang-tls-raw-public-key-with-ibc-02 */
+    { 0x0706, "iso_ibs2" }, /* draft-wang-tls-raw-public-key-with-ibc-02 */
+    { 0x0707, "iso_chinese_ibs" }, /* draft-wang-tls-raw-public-key-with-ibc-02 */
     { 0x0708, "sm2sig_sm3" },
     { 0x0709, "gostr34102012_256a" }, /* RFC9367 */
     { 0x070a, "gostr34102012_256b" }, /* RFC9367 */
@@ -1512,8 +1516,23 @@ const value_string tls13_signature_algorithm[] = {
     { 0x081a, "ecdsa_brainpoolP256r1tls13_sha256" }, /* RFC8734 */
     { 0x081b, "ecdsa_brainpoolP384r1tls13_sha384" }, /* RFC8734 */
     { 0x081c, "ecdsa_brainpoolP512r1tls13_sha512" }, /* RFC8734 */
+    { 0x0904, "mldsa44" }, /* draft-ietf-tls-mldsa-00 */
+    { 0x0905, "mldsa65" }, /* draft-ietf-tls-mldsa-00 */
+    { 0x0906, "mldsa87" }, /* draft-ietf-tls-mldsa-00 */
+    { 0x0911, "slhdsa_sha2_128s" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x0912, "slhdsa_sha2_128f" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x0913, "slhdsa_sha2_192s" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x0914, "slhdsa_sha2_192f" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x0915, "slhdsa_sha2_256s" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x0916, "slhdsa_sha2_256f" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x0917, "slhdsa_shake_128s" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x0918, "slhdsa_shake_128f" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x0919, "slhdsa_shake_192s" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x091a, "slhdsa_shake_192f" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x091b, "slhdsa_shake_256s" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x091c, "slhdsa_shake_256f" }, /* draft-reddy-tls-slhdsa-01 */
     /* PQC digital signature algorithms from OQS-OpenSSL,
-        see https://github.com/open-quantum-safe/openssl/blob/OQS-OpenSSL_1_1_1-stable/oqs-template/oqs-sig-info.md */
+        see https://github.com/open-quantum-safe/oqs-provider/blob/main/oqs-template/oqs-sig-info.md */
     { 0xfea0, "dilithium2" },
     { 0xfea1, "p256_dilithium2" },
     { 0xfea2, "rsa3072_dilithium2" },
