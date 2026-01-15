@@ -19,6 +19,8 @@
 #include <epan/tvbuff.h>
 #include <epan/tfs.h>
 #include <epan/etypes.h>
+#include <epan/reassemble.h>
+#include <epan/proto_data.h>
 
 #include <wiretap/ttl.h>
 
@@ -26,6 +28,11 @@ static int proto_ttl;
 
 static bool pref_dissect_next_layer;
 static dissector_handle_t eth_handle;
+static dissector_handle_t ttl_from_file_handle;
+static dissector_handle_t ttl_in_eth_handle;
+static reassembly_table ttl_reassembly_table;
+
+static GHashTable* segmented_frames_info_ht = NULL;
 
 static int hf_ttl_trace_data_entry;
 static int hf_ttl_trace_data_entry_size;
@@ -119,6 +126,9 @@ static int hf_ttl_trace_data_entry_status_info_fr_cas;
 static int hf_ttl_trace_data_entry_status_info_fr_mts;
 static int hf_ttl_trace_data_entry_status_info_fr_wup;
 static int hf_ttl_trace_data_entry_status_info_fr_res5;
+static int hf_ttl_trace_data_entry_status_info_segment_unused;
+static int hf_ttl_trace_data_entry_status_info_segment_frame_id;
+static int hf_ttl_trace_data_entry_status_info_segment_frame_number;
 
 static int hf_ttl_trace_data_entry_timestamp;
 static int hf_ttl_trace_data_entry_unparsed;
@@ -143,8 +153,12 @@ static int hf_ttl_trace_data_entry_fr_eray_ccsv_register;
 static int hf_ttl_trace_data_entry_fr_eray_ccev_register;
 static int hf_ttl_trace_data_entry_fr_eray_swnit_register;
 static int hf_ttl_trace_data_entry_fr_eray_acs_register;
+static int hf_ttl_trace_data_entry_segment_key;
+static int hf_ttl_trace_data_entry_segment_size;
+static int hf_ttl_trace_data_entry_segment_type;
 
 static expert_field ei_ttl_entry_size_too_short;
+static expert_field ei_ttl_segmented_entry_status_reserved;
 
 static int ett_ttl_trace_data_entry;
 static int ett_ttl_trace_data_entry_dest_addr;
@@ -158,6 +172,8 @@ static int ett_ttl_trace_data_entry_status_info_fr_error_flags;
 static int ett_ttl_trace_data_entry_status_info_fr_pulse_flags;
 static int ett_ttl_trace_data_entry_payload;
 static int ett_ttl_eth_phy_status;
+
+REASSEMBLE_ITEMS_DEFINE(ttl, "TTL");
 
 static const value_string hf_ttl_trace_data_entry_type_vals[] = {
     { TTL_BUS_DATA_ENTRY,           "Bus Data Entry" },
@@ -686,6 +702,14 @@ static const value_string hf_ttl_trace_data_entry_status_info_fr_type_vals[] = {
     { 0, NULL }
 };
 
+static const value_string hf_ttl_trace_data_entry_segmented_type_vals[] = {
+    { TTL_SEGMENTED_MESSAGE_ENTRY_TYPE_INVALID,         "Invalid" },
+    { TTL_SEGMENTED_MESSAGE_ENTRY_TYPE_FIRMWARE,        "Firmware" },
+    { TTL_SEGMENTED_MESSAGE_ENTRY_TYPE_CONFIGURATION,   "Configuration" },
+    { TTL_SEGMENTED_MESSAGE_ENTRY_TYPE_NESTED_FRAME,    "Nested Frame" },
+    { 0, NULL }
+};
+
 static const true_false_string tfs_recognized_not_recognized = {
     "Recognized",
     "Not Recognized"
@@ -1096,6 +1120,125 @@ dissect_ttl_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
     return offset - orig_offset;
 }
 
+typedef struct {
+    uint32_t    full_size;
+    uint32_t    type;
+} ttl_segmented_info_t;
+
+static int
+dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_tree* parent_tree, int offset, int size,
+    proto_item* root, proto_tree* status_tree, int status_pos, uint16_t src, bool ttl_over_eth) {
+    proto_item*     ti;
+    fragment_head*  fh;
+    tvbuff_t*       next_tvb = NULL;
+    uint32_t        key;
+    uint16_t        status;
+    uint8_t         frame_num;
+    uint8_t         seg_frame_id;
+    int             orig_offset = offset;
+    bool            update_col_info, more_frag;
+
+    status = tvb_get_uint16(tvb, status_pos, ENC_LITTLE_ENDIAN);
+
+    if (status == 0xFFFF) {
+        expert_add_info(pinfo, root, &ei_ttl_segmented_entry_status_reserved);
+    }
+    else {
+        proto_tree_add_item(tree, hf_ttl_trace_data_entry_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN | ENC_TIME_USECS);
+        offset += 8;
+
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_segment_unused, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_segment_frame_id, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_segment_frame_number, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
+
+        frame_num = status & 0x000f;
+        seg_frame_id = (status >> 4) & 0x000f;
+        key = ((uint32_t)seg_frame_id << 16) | src;
+
+        ti = proto_tree_add_uint(tree, hf_ttl_trace_data_entry_segment_key, tvb, 0, 0, key);
+        proto_item_set_generated(ti);
+
+        ttl_segmented_info_t* stored_info = p_get_proto_data(wmem_file_scope(), pinfo, proto_ttl, 0xffffffff);
+
+        if (stored_info) {
+            if (frame_num == 0) {
+                proto_tree_add_item(tree, hf_ttl_trace_data_entry_segment_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(tree, hf_ttl_trace_data_entry_segment_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+            more_frag = stored_info->full_size > (unsigned)(size - (offset - orig_offset));
+        }
+        else {
+            fh = fragment_get(&ttl_reassembly_table, pinfo, key, NULL);
+
+            if (frame_num == 0) {
+                // New fragment header, check if we have a reassemly in progress
+                if (fh && !(fh->flags & FD_DEFRAGMENTED)) {
+                    // If we're here, we were missing fragments
+                    tvb_free(fragment_delete(&ttl_reassembly_table, pinfo, key, NULL));
+                    fh = NULL;
+                    g_hash_table_remove(segmented_frames_info_ht, GUINT_TO_POINTER(key));
+                }
+
+                ttl_segmented_info_t* new_info = g_new(ttl_segmented_info_t, 1);
+
+                proto_tree_add_item_ret_uint(tree, hf_ttl_trace_data_entry_segment_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &new_info->full_size);
+                offset += 4;
+                proto_tree_add_item_ret_uint(tree, hf_ttl_trace_data_entry_segment_type, tvb, offset, 4, ENC_LITTLE_ENDIAN, &new_info->type);
+                offset += 4;
+
+                g_hash_table_insert(segmented_frames_info_ht, GUINT_TO_POINTER(key), new_info);
+
+                stored_info = new_info;
+
+                more_frag = new_info->full_size > (unsigned)(size - (offset - orig_offset));
+            }
+            else {
+                stored_info = g_hash_table_lookup(segmented_frames_info_ht, GUINT_TO_POINTER(key));
+
+                more_frag = fh && stored_info && stored_info->full_size > (fh->contiguous_len + (unsigned)(size - (offset - orig_offset)));
+            }
+
+            if (stored_info) {
+                ttl_segmented_info_t* new_info = wmem_new0(wmem_file_scope(), ttl_segmented_info_t);
+                new_info->full_size = stored_info->full_size;
+                new_info->type = stored_info->type;
+
+                p_set_proto_data(wmem_file_scope(), pinfo, proto_ttl, 0xffffffff, new_info);
+            }
+
+            if (!more_frag) {
+                g_hash_table_remove(segmented_frames_info_ht, GUINT_TO_POINTER(key));
+            }
+        }
+
+        fh = fragment_add_seq_check(&ttl_reassembly_table, tvb, offset, pinfo, key, NULL,
+            frame_num, size - (offset - orig_offset), more_frag);
+
+        next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled TTL", fh, &ttl_fragment_items, &update_col_info, tree);
+
+        if (next_tvb == NULL) {
+            if (fh && fh->reassembled_in != pinfo->num) {
+                col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", fh->reassembled_in);
+            }
+
+            call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, parent_tree);
+            return tvb_captured_length(tvb);
+        }
+
+        if (stored_info && stored_info->type == TTL_SEGMENTED_MESSAGE_ENTRY_TYPE_NESTED_FRAME) {
+            call_dissector(ttl_over_eth ? ttl_in_eth_handle : ttl_from_file_handle, next_tvb, pinfo, parent_tree);
+        }
+        else {
+            call_data_dissector(next_tvb, pinfo, parent_tree);
+        }
+
+    }
+
+    return size;
+}
+
 static int
 dissect_ttl_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, bool ttl_over_eth) {
     proto_tree* entry_subtree, * status_subtree;
@@ -1148,9 +1291,12 @@ dissect_ttl_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, bool ttl
             offset += dissect_ttl_bus_data_entry(tvb, pinfo, entry_subtree, offset, (int)size - offset,
                 root_ti, status_subtree, 6, src_addr, ttl_over_eth);
             break;
+        case TTL_SEGMENTED_MESSAGE_ENTRY:
+            offset += dissect_ttl_segmented_message_entry(tvb, pinfo, entry_subtree, tree, offset, (int)size - offset,
+                root_ti, status_subtree, 6, src_addr, ttl_over_eth);
+            break;
         case TTL_COMMAND_ENTRY:
         case TTL_JOURNAL_ENTRY:
-        case TTL_SEGMENTED_MESSAGE_ENTRY:
         case TTL_SEND_FRAME_ENTRY:
         case TTL_PADDING_ENTRY:
         case TTL_SOFTWARE_DATA_ENTRY:
@@ -1178,10 +1324,19 @@ dissect_ttl_from_file(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
     return dissect_ttl_common(tvb, pinfo, tree, false);
 }
 
+static void ttl_shutdown(void) {
+    g_hash_table_destroy(segmented_frames_info_ht);
+    segmented_frames_info_ht = NULL;
+}
+
 void
 proto_register_ttl(void) {
     module_t* module;
     expert_module_t* expert_ttl;
+
+    register_shutdown_routine(&ttl_shutdown);
+
+    segmented_frames_info_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
     static hf_register_info hf[] = {
         { &hf_ttl_trace_data_entry,
@@ -1371,6 +1526,12 @@ proto_register_ttl(void) {
             { "Wake-Up Pattern", "ttl.trace_data.entry.status_info.fr_flags.wup", FT_BOOLEAN, 16, TFS(&tfs_recognized_not_recognized), 0x8000, NULL, HFILL } },
         { &hf_ttl_trace_data_entry_status_info_fr_res5,
             { "Reserved", "ttl.trace_data.entry.status_info.fr_res5", FT_UINT16, BASE_HEX, NULL, 0xfff8, NULL, HFILL } },
+        { &hf_ttl_trace_data_entry_status_info_segment_unused,
+            { "Segmented Message Unused", "ttl.trace_data.entry.status_info.segment_unused", FT_UINT16, BASE_DEC_HEX, NULL, 0xff00, NULL, HFILL } },
+        { &hf_ttl_trace_data_entry_status_info_segment_frame_id,
+            { "Segmented Message Frame ID", "ttl.trace_data.entry.status_info.segment_frame_id", FT_UINT16, BASE_DEC_HEX, NULL, 0xf0, NULL, HFILL } },
+        { &hf_ttl_trace_data_entry_status_info_segment_frame_number,
+            { "Segmented Message Frame Number", "ttl.trace_data.entry.status_info.segment_frame_number", FT_UINT16, BASE_DEC_HEX, NULL, 0xf, NULL, HFILL } },
 
         { &hf_ttl_trace_data_entry_timestamp,
             { "Timestamp", "ttl.trace_data.entry.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL } },
@@ -1398,6 +1559,12 @@ proto_register_ttl(void) {
             { "FlexRay Eray SWNIT Register", "ttl.trace_data.entry.fr_swnit", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_ttl_trace_data_entry_fr_eray_acs_register,
             { "FlexRay Eray ACS Register", "ttl.trace_data.entry.fr_acs", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_ttl_trace_data_entry_segment_key,
+            { "Segmented Entry Key", "ttl.trace_data.entry.segment_key", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_ttl_trace_data_entry_segment_size,
+            { "Segmented Entry Total Size", "ttl.trace_data.entry.segment_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_ttl_trace_data_entry_segment_type,
+            { "Segmented Entry Type", "ttl.trace_data.entry.segment_type", FT_UINT32, BASE_HEX, VALS(hf_ttl_trace_data_entry_segmented_type_vals), 0x0, NULL, HFILL}},
 
         { &hf_ttl_trace_data_entry_unparsed,
             { "Unparsed Data", "ttl.trace_data.entry.unparsed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -1420,12 +1587,18 @@ proto_register_ttl(void) {
             { "MDIO Register", "ttl.trace_data.entry.eth_phy_status.reg_addr", FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL } },
         { &hf_ttl_eth_phy_status_data,
             { "MDIO Data", "ttl.trace_data.entry.eth_phy_status.data", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        REASSEMBLE_INIT_HF_ITEMS(ttl, "TTL", "ttl"),
     };
 
     static ei_register_info ei[] = {
         { &ei_ttl_entry_size_too_short,
             { "ttl.trace_data.entry_size_too_short", PI_MALFORMED, PI_ERROR,
                 "entry size is too short",
+                EXPFILL }},
+        { &ei_ttl_segmented_entry_status_reserved,
+            { "ttl.trace_data.entry.segmented_message_entry.status_reserved", PI_PROTOCOL, PI_WARN,
+                "reserved value for segmented data entry status",
                 EXPFILL }},
     };
 
@@ -1442,6 +1615,8 @@ proto_register_ttl(void) {
         &ett_ttl_trace_data_entry_status_info_fr_pulse_flags,
         &ett_ttl_trace_data_entry_payload,
         &ett_ttl_eth_phy_status,
+
+        REASSEMBLE_INIT_ETT_ITEMS(ttl),
     };
 
     proto_ttl = proto_register_protocol("TTL Format", "TTL", "ttl");
@@ -1453,6 +1628,8 @@ proto_register_ttl(void) {
 
     register_dissector("ttl", dissect_ttl_from_file, proto_ttl);
 
+    reassembly_table_register(&ttl_reassembly_table, &addresses_reassembly_table_functions);
+
     module = prefs_register_protocol(proto_ttl, NULL);
     prefs_register_bool_preference(module, "dissect_next_layer",
         "Dissect next layer",
@@ -1462,7 +1639,8 @@ proto_register_ttl(void) {
 
 void
 proto_reg_handoff_ttl(void) {
-    dissector_handle_t ttl_in_eth_handle = create_dissector_handle(dissect_ttl_over_eth, proto_ttl);
+    ttl_from_file_handle = create_dissector_handle(dissect_ttl_from_file, proto_ttl);
+    ttl_in_eth_handle = create_dissector_handle(dissect_ttl_over_eth, proto_ttl);
     dissector_add_uint("ethertype", ETHERTYPE_TTL, ttl_in_eth_handle);
     eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_ttl);
 }
