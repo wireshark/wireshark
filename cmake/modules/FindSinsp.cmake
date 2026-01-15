@@ -13,6 +13,7 @@
 #  SINSP_FOUND          - True if libsinsp found.
 #  SINSP_INCLUDE_DIRS   - Where to find sinsp.h, scap.h, etc.
 #  SINSP_LINK_LIBRARIES - List of libraries when using libsinsp.
+#  SINSP_DEBUG_LINK_LIBRARIES - List of debug libraries when using libsinsp on Windows.
 
 # You must manually set the following variables:
 #  FALCO_PLUGINS        - Paths to plugins built from https://github.com/falcosecurity/plugins/.
@@ -68,6 +69,13 @@ if(NOT SINSP_FOUND)
     /usr/local/lib
   )
 
+if(WIN32)
+  find_library(_sinsp_debug_link_libs NO_CACHE
+    NAMES sinsp
+    HINTS "${SINSP_HINTS}/debug/lib"
+  )
+endif()
+
   if (NOT SINSP_VERSION)
     find_file(_sinsp_pkgconfig NO_CACHE
       libsinsp.pc
@@ -107,6 +115,22 @@ if(NOT SINSP_FOUND)
       unset(_lib)
     endif()
   endforeach()
+
+  if(WIN32)
+    set(_dep_debug_libs jsoncpp re2 tbb12_debug zlibstaticd)
+    foreach(_scap_lib ${_scap_libs} ${_dep_debug_libs})
+      find_library(_lib NO_CACHE
+        NAMES ${_scap_lib}
+        HINTS "${SINSP_HINTS}/debug/lib"
+        PATH_SUFFIXES falcosecurity
+      )
+      if (_lib)
+        list(APPEND _sinsp_debug_link_libs ${_lib})
+        unset(_lib)
+      endif()
+    endforeach()
+  endif()
+
   unset(_scap_libs)
   unset(_scap_lib)
 
@@ -200,9 +224,17 @@ if(NOT SINSP_FOUND)
     list(REMOVE_DUPLICATES _sinsp_include_dirs)
     set(SINSP_INCLUDE_DIRS ${_sinsp_include_dirs} CACHE PATH "Paths to libsinsp and libscap headers")
     set(SINSP_LINK_LIBRARIES ${_sinsp_link_libs} CACHE PATH "Paths to libsinsp, libscap, etc.")
+    # The Debug libraries link to MSVCRTD.lib on Windows, and so we need to
+    # track them separately there. We don't need to do that elsewhere.
+    if(WIN32)
+      set(SINSP_DEBUG_LINK_LIBRARIES ${_sinsp_debug_link_libs} CACHE PATH "Paths to debug versions of libsinsp, libscap, etc.")
+    else()
+      set(SINSP_DEBUG_LINK_LIBRARIES ${SINSP_LINK_LIBRARIES} CACHE PATH "Paths to libsinsp, libscap, etc.")
+    endif()
     set(SINSP_FOUND 1)
     unset(_sinsp_include_dirs)
     unset(_sinsp_link_libs)
+    unset(_sinsp_debug_link_libs)
   endif()
 
 endif()
@@ -247,6 +279,7 @@ if(SINSP_FOUND)
 else()
   set(SINSP_INCLUDE_DIRS)
   set(SINSP_LINK_LIBRARIES)
+  set(SINSP_DEBUG_LINK_LIBRARIES)
   set(SINSP_VERSION)
   set(SINSP_VERSION_MAJOR)
   set(SINSP_VERSION_MINOR)
