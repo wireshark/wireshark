@@ -1527,37 +1527,33 @@ ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 if(BUILD_wireshark OR BUILD_stratoshark)
 	# We don't use any QVulkan* classes, so tell Qt's CMake modules not to look for Vulkan.
 	set(CMAKE_DISABLE_FIND_PACKAGE_WrapVulkanHeaders ON)
-	if(USE_qt6)
-		set(qtver 6)
-		if(DEFINED ENV{WIRESHARK_QT6_PREFIX_PATH})
-			list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT6_PREFIX_PATH})
-		endif()
+	set(qtver 6)
+	if(DEFINED ENV{WIRESHARK_QT6_PREFIX_PATH})
+		list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT6_PREFIX_PATH})
+	endif()
 
-		find_package(Qt6 6.2 REQUIRED
-			COMPONENTS
-				Core
-				Concurrent
-				Core5Compat
-				Gui
-				LinguistTools
-				Network
-				PrintSupport
-				Svg
-				Widgets
-			OPTIONAL_COMPONENTS
-				DBus
-				Multimedia
-		)
+	find_package(Qt6 6.2 REQUIRED
+		COMPONENTS
+			Core
+			Concurrent
+			Core5Compat
+			Gui
+			LinguistTools
+			Network
+			PrintSupport
+			Svg
+			Widgets
+		OPTIONAL_COMPONENTS
+			DBus
+			Multimedia
+	)
 
-		if (WIN32 AND Qt6Widgets_VERSION VERSION_LESS 6.5.3)
-			message(WARNING "Qt 6.5.3 or later is required.")
-		endif()
-		if (APPLE AND Qt6Widgets_VERSION VERSION_LESS 6.5.3)
-			message(WARNING "Qt 6.5.3 or later is required.")
-		endif()
-	else() # USE_qt6
-		message(FATAL_ERROR "Support for building with Qt 5 has been removed.")
-	endif() # USE_qt6
+	if (WIN32 AND Qt6Widgets_VERSION VERSION_LESS 6.5.3)
+		message(WARNING "Qt 6.5.3 or later is required.")
+	endif()
+	if (APPLE AND Qt6Widgets_VERSION VERSION_LESS 6.5.3)
+		message(WARNING "Qt 6.5.3 or later is required.")
+	endif()
 
 	set(QT_FOUND ON)
 	if(WIN32)
@@ -1714,7 +1710,7 @@ if (QT_FOUND)
 	# Use qmake to find windeployqt and macdeployqt. Ideally one of
 	# the modules in ${QTDIR}/lib/cmake would do this for us.
 	if(WIN32)
-		if (USE_qt6 AND USE_MSYSTEM)
+		if (USE_MSYSTEM)
 			set(_windeployqt_name "windeployqt-qt6")
 		else()
 			set(_windeployqt_name "windeployqt")
@@ -1964,7 +1960,7 @@ add_subdirectory( doc )
 if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
 	add_subdirectory( ui/plugins )
-elseif(BUILD_wireshark AND USE_qt6)
+elseif(BUILD_wireshark)
 	message(WARNING "Building Wireshark requested but Qt 6.2 or later not found.")
 endif()
 

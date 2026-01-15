@@ -789,9 +789,7 @@ void TrafficTree::widenColumnToContents(int col)
 }
 
 
-void TrafficTree::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-    const QList<int>
-    )
+void TrafficTree::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int>)
 {
     for (int col = topLeft.column(); col <= bottomRight.column(); ++col) {
         widenColumnToContents(col);

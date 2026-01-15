@@ -1030,8 +1030,7 @@ void LineNumberArea::mouseReleaseEvent(QMouseEvent *event)
 
     if (richBp)
     {
-        QPoint globalPos =
-            event->globalPosition().toPoint();
+        QPoint globalPos = event->globalPosition().toPoint();
         emit codeEditor->breakpointGutterMenuRequested(codeEditor->filename, lineNo, globalPos);
     }
     else

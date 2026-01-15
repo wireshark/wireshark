@@ -421,7 +421,7 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
     //
     // It's not clear if this is a bug or just how things work under Qt6.
     // Either way, it's easy to work around.
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 3)
+
     // Must match the DisplayFilterEdit stylesheet.
     int pad = style()->pixelMetric(QStyle::PM_DefaultFrameWidth) + 1;
     QRect full_cr = cr.adjusted(-pad, 0, -1, 0);
@@ -444,7 +444,6 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
     }
 
     painter.fillRect(full_cr, bg);
-#endif
 
     QLineEdit::paintEvent(event);
 
