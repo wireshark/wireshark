@@ -264,11 +264,11 @@ interfaces, the capture file will be saved in pcapng format, even if
 *-P* is specified.
 --
 
---ifdescr> <description>::
+--ifdescr <description>::
 Use __description__ as the description in the capture file for the
 interface or pipe specified before it with *-i*.
 
---ifname> <name>::
+--ifname <name>::
 Use __name__ as the name in the capture file for the interface or
 pipe specified before it with *-i*.
 
@@ -451,7 +451,7 @@ this option. If the capture link type is not set specifically,
 the default capture link type is used if provided.
 --
 
---capture-comment  <comment>::
+--capture-comment <comment>::
 +
 --
 Add a capture comment to the output file, if supported by the output
