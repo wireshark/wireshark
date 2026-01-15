@@ -268,11 +268,11 @@ interfaces, the capture file will be saved in pcapng format, even if
 *-P* is specified.
 --
 
---ifdescr> <description>::
+--ifdescr <description>::
 Use __description__ as the description in the capture file for the
 interface or pipe specified before it with *-i*.
 
---ifname> <name>::
+--ifname <name>::
 Use __name__ as the name in the capture file for the interface or
 pipe specified before it with *-i*.
 
@@ -464,7 +464,7 @@ Set the application flavor.
 Make the *-D* option output and other behavior suitable for packet capture or system call and log capture.
 The default flavor is "wireshark".
 
---capture-comment  <comment>::
+--capture-comment <comment>::
 +
 --
 Add a capture comment to the output file, if supported by the output
