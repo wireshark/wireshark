@@ -246,10 +246,10 @@ static const value_string mp4ves_video_object_type_indication_vals[] = {
 	{ 0,	NULL }
 };
 /* 6.2.2.1 User data */
-static int
-dissect_mp4ves_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
+static unsigned
+dissect_mp4ves_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned bit_offset)
 {
-	int start_bit_offset;
+	unsigned start_bit_offset;
 
 	/* user_data_start_code */
 	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, ENC_BIG_ENDIAN);
@@ -273,11 +273,11 @@ while (!bytealigned())
 one_bit
 }
 */
-static int
-dissect_mp4ves_next_start_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
+static unsigned
+dissect_mp4ves_next_start_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned bit_offset)
 {
 	uint8_t zero_bit;
-	int start_bit_offset;
+	unsigned start_bit_offset;
 
 	start_bit_offset = bit_offset;
 
@@ -316,8 +316,8 @@ video_signal_type() {
 }
 #endif
 
-static int
-dissect_mp4ves_visual_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
+static unsigned
+dissect_mp4ves_visual_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned bit_offset)
 {
 	uint8_t video_signal_type, colour_description;
 
@@ -380,11 +380,11 @@ static const value_string mp4ves_video_object_layer_shape_vals[] = {
 	{ 0,	NULL }
 };
 
-static int
-dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
+static unsigned
+dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned bit_offset)
 {
 	uint32_t dword;
-	int current_bit_offset;
+	unsigned current_bit_offset;
 	uint8_t octet, is_object_layer_identifier, aspect_ratio_info, vol_control_parameters, vbv_parameters;
 	uint8_t video_object_layer_shape, video_object_layer_verid = 0;
 
@@ -529,8 +529,8 @@ VisualObject() {
 		next_start_code()
 }
 */
-static int
-dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+static unsigned
+dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned bit_offset)
 {
 	uint8_t is_visual_object_identifier, visual_object_type;
 	uint32_t dword;
@@ -584,7 +584,7 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
 		bit_offset+= 8;
 		if(tvb_reported_length_remaining(tvb,(bit_offset>>3))<=0){
-			proto_tree_add_expert(tree, pinfo, &ei_mp4ves_config_too_short, tvb, 0, -1);
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_mp4ves_config_too_short, tvb, 0);
 			return -1;
 		}
 		/*
@@ -596,8 +596,8 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return bit_offset;
 }
 
-static int
-dissect_mp4ves_VisualObjectSequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+static unsigned
+dissect_mp4ves_VisualObjectSequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned bit_offset)
 {
 	uint32_t dword;
 
@@ -671,7 +671,7 @@ dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 static int
 dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int bit_offset = 0;
+	unsigned bit_offset = 0;
 	proto_item *item;
 	proto_tree *mp4ves_tree;
 	uint32_t dword;
@@ -777,7 +777,7 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 static int
 dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint16_t lvl;
 	const char *p = NULL;
 	asn1_ctx_t *actx;
@@ -799,7 +799,7 @@ dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int
 dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint16_t lvl;
 	const char *p = NULL;
 	asn1_ctx_t *actx;

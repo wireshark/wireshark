@@ -312,7 +312,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     unsigned    channel_type;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
-        proto_tree_add_expert(tree, pinfo, &ei_mpls_pw_ach_error_processing_message, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_mpls_pw_ach_error_processing_message, tvb, 0);
         return tvb_captured_length(tvb);
     }
 
@@ -398,7 +398,7 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
-        proto_tree_add_expert(tree, pinfo, &ei_mpls_pw_mcw_error_processing_message, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_mpls_pw_mcw_error_processing_message, tvb, 0);
         return tvb_captured_length(tvb);
     }
 
@@ -499,7 +499,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         offset += 4;
 
         if ((label == MPLS_LABEL_GACH) && !bos) {
-            proto_tree_add_expert(tree, pinfo, &ei_mpls_invalid_label, tvb, 0, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_mpls_invalid_label, tvb, 0);
         }
 
         if ((label == MPLS_LABEL_GACH) && bos) {

@@ -28,7 +28,7 @@ extern int proto_mac_nr;
 /* Main dissection function. */
 static int dissect_mac_nr_framed(tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *tree, void *data _U_) {
-    int offset = 0;
+    unsigned offset = 0;
     struct mac_nr_info *p_mac_nr_info;
     tvbuff_t *mac_tvb;
     bool infoAlreadySet = false;

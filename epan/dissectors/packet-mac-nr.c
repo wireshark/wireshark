@@ -1320,7 +1320,7 @@ static const true_false_string msgb_s_vals = {
 /* Forward declarations */
 static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*);
 
-static int dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+static unsigned dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                   proto_item *pdu_ti, uint32_t offset,
                                   mac_nr_info *p_mac_nr_info,
                                   mac_3gpp_tap_info *tap_info);
@@ -1392,7 +1392,7 @@ call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo
 /* Dissect BCCH PDU */
 static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          proto_item *pdu_ti,
-                         int offset,
+                         unsigned offset,
                          mac_nr_info *p_mac_nr_info,
                          mac_3gpp_tap_info *tap_info _U_)
 {
@@ -1437,7 +1437,7 @@ static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Dissect PCCH PDU */
 static void dissect_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                         proto_item *pdu_ti, int offset,
+                         proto_item *pdu_ti, unsigned offset,
                          mac_nr_info *p_mac_nr_info _U_,
                          mac_3gpp_tap_info *tap_info _U_)
 {
@@ -1470,7 +1470,7 @@ static void dissect_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /* Common to RAR and MSGB */
-static int dissect_fallbackrar(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset,
+static unsigned dissect_fallbackrar(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset,
                                proto_item *ti, proto_item *pdu_ti, uint32_t rapid)
 {
     /* 1 reserved bit */
@@ -1972,7 +1972,7 @@ static bool lookup_rlc_bearer_from_lcid(uint16_t ueid,
 /* Helper function to call RLC dissector for SDUs (where channel params are known) */
 static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                proto_item *pdu_ti,
-                               int offset, uint16_t data_length,
+                               unsigned offset, uint16_t data_length,
                                uint8_t mode, uint8_t direction, uint16_t ueid,
                                uint8_t bearerType, uint8_t bearerId,
                                uint8_t sequenceNumberLength,
@@ -2058,7 +2058,7 @@ mac_nr_pcmax_f_c_fmt(char *s, uint32_t v)
 
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
-static int dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+static unsigned dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                   proto_item *pdu_ti, uint32_t offset,
                                   mac_nr_info *p_mac_nr_info,
                                   mac_3gpp_tap_info *tap_info)
@@ -3272,7 +3272,7 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Can't dissect anything without it... */
     if (p_mac_nr_info == NULL) {
-        proto_tree_add_expert(mac_nr_tree, pinfo, &ei_mac_nr_no_per_frame_data, tvb, offset, -1);
+        proto_tree_add_expert_remaining(mac_nr_tree, pinfo, &ei_mac_nr_no_per_frame_data, tvb, offset);
         return 0;
     }
 
@@ -3406,7 +3406,7 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
 static bool dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, void *data _U_)
 {
-    int         offset = 0;
+    unsigned     offset = 0;
     mac_nr_info *p_mac_nr_info;
     tvbuff_t    *mac_tvb;
 
@@ -3423,7 +3423,7 @@ static bool dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     if (tvb_strneql(tvb, offset, MAC_NR_START_STRING, strlen(MAC_NR_START_STRING)) != 0) {
         return false;
     }
-    offset += (int)strlen(MAC_NR_START_STRING);
+    offset += (unsigned)strlen(MAC_NR_START_STRING);
 
     /* If redissecting, use previous info struct (if available) */
     p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_nr, 0);
@@ -3454,10 +3454,10 @@ static bool dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
 /* Dissect context fields in the format described in packet-mac-nr.h.
    Return true if the necessary information was successfully found */
 bool dissect_mac_nr_context_fields(struct mac_nr_info  *p_mac_nr_info, tvbuff_t *tvb,
-                                       packet_info *pinfo, proto_tree *tree, int *p_offset)
+                                       packet_info *pinfo, proto_tree *tree, unsigned *p_offset)
 {
-    int     offset = *p_offset;
-    uint8_t tag = 0;
+    unsigned offset = *p_offset;
+    uint8_t  tag = 0;
 
     /* Read fixed fields */
     p_mac_nr_info->radioType = tvb_get_uint8(tvb, offset++);

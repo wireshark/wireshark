@@ -3463,7 +3463,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	}
 
 	if(tvb_reported_length_remaining(tvb, offset)) {
-		proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length_excess, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_lldp_bad_length_excess, tvb, offset);
 	}
 	return offset;
 }

@@ -102,7 +102,7 @@ static int
 dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct mplsinfo *mplsinfo;
-    int              offset          = 0;
+    unsigned         offset          = 0;
     proto_tree      *mpls_y1711_tree;
     int              functype;
     tvbuff_t        *data_tvb;
@@ -132,7 +132,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
          * ITU-T Y.1711, 5.3: PDUs must have a minimum payload length of
          * 44 bytes
          */
-        proto_tree_add_expert(tree, pinfo, &ei_mpls_y1711_minimum_payload, tvb, offset, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_mpls_y1711_minimum_payload, tvb, offset);
         data_tvb = tvb_new_subset_remaining(tvb, offset);
         call_data_dissector(data_tvb, pinfo, tree);
 
@@ -289,7 +289,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     break;
 
     default:
-        proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_unknown_pdu, tvb, offset - 1, -1);
+        proto_tree_add_expert_remaining(mpls_y1711_tree, pinfo, &ei_mpls_y1711_unknown_pdu, tvb, offset - 1);
         return offset;
     }
 

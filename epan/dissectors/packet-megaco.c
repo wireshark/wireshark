@@ -926,7 +926,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             break;
         default :
-            proto_tree_add_expert_format(tree, pinfo, &ei_megaco_error_descriptor_transaction_list, tvb, 0, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_megaco_error_descriptor_transaction_list, tvb, 0,
                     "Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",
                         tvb_format_text(pinfo->pool, tvb,tvb_previous_offset,2),tvb_previous_offset);
             return tvb_captured_length(tvb);

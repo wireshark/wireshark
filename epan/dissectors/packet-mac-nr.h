@@ -146,7 +146,7 @@ void set_mac_nr_srb4_in_use(uint16_t ueid);
 
 /* Function to attempt to populate p_mac_lte_info using framing definition above */
 bool dissect_mac_nr_context_fields(struct mac_nr_info  *p_mac_nr_info, tvbuff_t *tvb,
-                                       packet_info *pinfo, proto_tree *tree, int *p_offset);
+                                       packet_info *pinfo, proto_tree *tree, unsigned *p_offset);
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

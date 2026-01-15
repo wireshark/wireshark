@@ -66,7 +66,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
     proto_item *ti, *version_item, *version2_item, *reserved_item;
     proto_tree *isis_tree = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t isis_version, isis_version2, isis_reserved;
     uint8_t isis_type;
     isis_data_t subdissector_data;
@@ -150,7 +150,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     if (!dissector_try_uint_with_data(isis_dissector_table, isis_type, tvb,
                                 pinfo, tree, true, &subdissector_data))
     {
-        proto_tree_add_expert(tree, pinfo, &ei_isis_type, tvb, offset, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_isis_type, tvb, offset);
     }
     return tvb_captured_length(tvb);
 } /* dissect_isis */

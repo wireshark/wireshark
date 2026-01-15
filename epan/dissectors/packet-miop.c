@@ -142,8 +142,8 @@ static int dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
       ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, ENC_NA);
       miop_tree = proto_item_add_subtree (ti, ett_miop);
-      proto_tree_add_expert_format(miop_tree, pinfo, &ei_miop_version_not_supported,
-                               tvb, 0, -1,
+      proto_tree_add_expert_format_remaining(miop_tree, pinfo, &ei_miop_version_not_supported,
+                               tvb, 0,
                                "MIOP version %u.%u not supported",
                                version_major, version_minor);
       return 5;
