@@ -10118,9 +10118,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Stream %1 Delta</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source> %1 streams, </source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source> %Ln stream(s), </source>
+        <translation>
+            <numerusform> %Ln stream, </numerusform>
+            <numerusform> %Ln streams, </numerusform>
+        </translation>
     </message>
     <message>
         <source>Save one stream CSV</source>
@@ -10758,9 +10761,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Double click on cell to change audio routing</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>%1 streams</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>%Ln stream(s)</source>
+        <translation>
+            <numerusform>%Ln stream</numerusform>
+            <numerusform>%Ln streams</numerusform>
+        </translation>
     </message>
     <message>
         <source>, %1 selected</source>
@@ -11115,13 +11121,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>as YAML</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>%1 streams</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>%Ln stream(s)</source>
+        <translation>
+            <numerusform>%Ln stream</numerusform>
+            <numerusform>%Ln streams</numerusform>
+        </translation>
     </message>
-    <message>
-        <source>, %1 selected, %2 total packets</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>, %1 selected, %Ln total packet(s)</source>
+        <translation>
+            <numerusform>, %1 selected, %Ln total packet</numerusform>
+            <numerusform>, %1 selected, %Ln total packets</numerusform>
+        </translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>

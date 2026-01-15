@@ -541,7 +541,7 @@ void RtpAnalysisDialog::updateWidgets()
     ui->actionNextProblem->setEnabled(enable_nav);
 
     if (enable_nav) {
-        hint.append(tr(" %1 streams, ").arg(tabs_.count()));
+        hint.append(tr(" %Ln stream(s), ", "", static_cast<int>(tabs_.count())));
         hint.append(tr(" G: Go to packet, N: Next problem packet"));
     }
 

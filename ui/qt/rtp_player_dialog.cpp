@@ -1233,7 +1233,7 @@ void RtpPlayerDialog::updateHintLabel()
     qsizetype selected = ui->streamTreeWidget->selectedItems().count();
     int not_muted = 0;
 
-    hint += tr("%1 streams").arg(row_count);
+    hint += tr("%Ln stream(s)", "", row_count);
 
     if (row_count > 0) {
         if (selected > 0) {
