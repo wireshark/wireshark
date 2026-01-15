@@ -178,7 +178,7 @@ reset_stat_node(stat_node *node)
     case STAT_DT_FLOAT:
         node->total.float_total = 0;
         node->minvalue.float_min = FLT_MAX;
-        node->maxvalue.float_max = FLT_MIN;
+        node->maxvalue.float_max = -FLT_MAX;
         break;
     }
     node->st_flags = 0;
@@ -239,7 +239,7 @@ stats_tree_reinit(void *p)
     case STAT_DT_FLOAT:
         st->root.total.float_total = 0;
         st->root.minvalue.float_min = FLT_MAX;
-        st->root.maxvalue.float_max = FLT_MIN;
+        st->root.maxvalue.float_max = -FLT_MAX;
         break;
     }
     st->root.st_flags = 0;
@@ -378,7 +378,7 @@ stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
         break;
     case STAT_DT_FLOAT:
         st->root.minvalue.float_min = FLT_MAX;
-        st->root.maxvalue.float_max = FLT_MIN;
+        st->root.maxvalue.float_max = -FLT_MAX;
         break;
     }
 
@@ -507,7 +507,7 @@ new_stat_node(stats_tree *st, const char *name, int parent_id, stat_node_datatyp
         break;
     case STAT_DT_FLOAT:
         node->minvalue.float_min = FLT_MAX;
-        node->maxvalue.float_max = FLT_MIN;
+        node->maxvalue.float_max = -FLT_MAX;
         break;
     }
     node->st_flags = parent_id?0:ST_FLG_ROOTCHILD;
