@@ -335,7 +335,7 @@ endif()
 if(BUILD_falcodump AND SINSP_FOUND)
 	set(falcodump_LIBS
 		wsutil
-		${SINSP_LINK_LIBRARIES}
+		$<IF:$<CONFIG:Debug>,${SINSP_DEBUG_LINK_LIBRARIES},${SINSP_LINK_LIBRARIES}>
 		${CMAKE_DL_LIBS}
 		${GCRYPT_LIBRARIES}
 	)

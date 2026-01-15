@@ -51,7 +51,7 @@ endif()
 
 target_link_libraries(falco-events
 	epan
-	${SINSP_LINK_LIBRARIES}
+	$<IF:$<CONFIG:Debug>,${SINSP_DEBUG_LINK_LIBRARIES},${SINSP_LINK_LIBRARIES}>
 )
 
 install_plugin(falco-events epan)
