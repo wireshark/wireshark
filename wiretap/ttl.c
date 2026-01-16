@@ -1767,11 +1767,6 @@ ttl_read_can_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
         }
         can_id = GUINT32_FROM_LE(can_id);
         size -= sizeof(uint32_t);
-
-        if (size == 0 && !(status & TTL_CAN_STATUS_RTR_BIT_MASK)) {
-            /* No more data, and it's not a remote transmission frame */
-            return TTL_CORRUPTED;
-        }
     }
 
     if (error_code) {
