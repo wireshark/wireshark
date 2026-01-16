@@ -555,6 +555,45 @@ WS_DLL_PUBLIC pref_t *prefs_find_preference(module_t * module, const char *pref)
 WS_DLL_PUBLIC void prefs_register_uint_preference(module_t *module, const char *name,
     const char *title, const char *description, unsigned base, unsigned *var);
 
+/**
+ * Register a preference with an integer value.
+ * @param module the preferences module returned by prefs_register_protocol() or
+ *               prefs_register_protocol_subtree()
+ * @param name the preference's identifier. This is appended to the name of the
+ *             protocol, with a "." between them, to create a unique identifier.
+ *             The identifier should not include the protocol name, as
+ *             the preference file will already have it. Make sure that
+ *             only lower-case ASCII letters, numbers, underscores and
+ *             dots appear in the preference name.
+ * @param title the title in the preferences dialog
+ * @param description the description included in the preferences file
+ *                    and shown as tooltip in the GUI, or NULL
+ * @param var pointer to the storage location that is updated when the
+ *                    field is changed in the preference dialog box
+ */
+WS_DLL_PUBLIC void prefs_register_int_preference(module_t* module, const char* name,
+    const char* title, const char* description, int* var);
+
+/**
+* Register a preference with a float (double) value.
+* @param module the preferences module returned by prefs_register_protocol() or
+*               prefs_register_protocol_subtree()
+* @param name the preference's identifier. This is appended to the name of the
+*             protocol, with a "." between them, to create a unique identifier.
+*             The identifier should not include the protocol name, as
+*             the preference file will already have it. Make sure that
+*             only lower-case ASCII letters, numbers, underscores and
+*             dots appear in the preference name.
+* @param title the title in the preferences dialog
+* @param description the description included in the preferences file
+*                    and shown as tooltip in the GUI, or NULL
+* @param num_decimal the number of decimal places to display for a value
+* @param var pointer to the storage location that is updated when the
+*                    field is changed in the preference dialog box
+*/
+WS_DLL_PUBLIC void prefs_register_float_preference(module_t* module, const char* name,
+    const char* title, const char* description, unsigned num_decimal, double* var);
+
 /*
  * prefs_register_ callers must conform to the following:
  *
@@ -687,6 +726,61 @@ WS_DLL_PUBLIC void prefs_register_filename_preference(module_t *module, const ch
  */
 WS_DLL_PUBLIC void prefs_register_directory_preference(module_t *module, const char *name,
     const char *title, const char *description, const char **var);
+
+/**
+ * Register a preference with a comma-delimited string values.
+ *
+ * This is currently not support in the UI for dissector use
+ * (internal UI preferences only)
+ * @param module the preferences module returned by prefs_register_protocol() or
+ *               prefs_register_protocol_subtree()
+ * @param name the preference's identifier. This is appended to the name of the
+ *             protocol, with a "." between them, to create a unique identifier.
+ *             The identifier should not include the protocol name, as the name in
+ *             the preference file will already have it. Make sure that
+ *             only lower-case ASCII letters, numbers, underscores and
+ *             dots appear in the preference name.
+ * @param title Field's title in the preferences dialog
+ * @param description description to include in the preferences file
+ *                    and shown as tooltip in the GUI, or NULL
+ * @param var pointer to the storage location that is updated when the
+ *                    field is changed in the preference dialog box. Note that
+ *          the given pointer is overwritten
+ *          with a pointer to a new copy of the list during the
+ *          preference registration. The passed-in string may be
+ *          freed, but you must keep another pointer to the string
+ *          in order to free it
+ */
+WS_DLL_PUBLIC void prefs_register_list_string_preference(module_t* module, const char* name,
+    const char* title, const char* description, wmem_list_t** var);
+
+/**
+ * Register a preference that has multiple string values
+ * This looks like multiple instances of the same preference in the file
+ *
+ * This is currently not support in the UI for dissector use
+ * (internal UI preferences only)
+ * @param module the preferences module returned by prefs_register_protocol() or
+ *               prefs_register_protocol_subtree()
+ * @param name the preference's identifier. This is appended to the name of the
+ *             protocol, with a "." between them, to create a unique identifier.
+ *             The identifier should not include the protocol name, as the name in
+ *             the preference file will already have it. Make sure that
+ *             only lower-case ASCII letters, numbers, underscores and
+ *             dots appear in the preference name.
+ * @param title Field's title in the preferences dialog
+ * @param description description to include in the preferences file
+ *                    and shown as tooltip in the GUI, or NULL
+ * @param var pointer to the storage location that is updated when the
+ *                    field is changed in the preference dialog box. Note that
+ *          the given pointer is overwritten
+ *          with a pointer to a new copy of the list during the
+ *          preference registration. The passed-in string may be
+ *          freed, but you must keep another pointer to the string
+ *          in order to free it
+ */
+WS_DLL_PUBLIC void prefs_register_multiple_string_preference(module_t* module, const char* name,
+    const char* title, const char* description, wmem_list_t** var);
 
 /**
  * Register a preference with a ranged value.

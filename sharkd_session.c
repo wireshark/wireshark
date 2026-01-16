@@ -5485,6 +5485,14 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, void *d)
                     sharkd_json_value_anyf("ub", "%u", prefs_get_uint_base(pref));
                 break;
 
+            case PREF_INT:
+                sharkd_json_value_anyf("d", "%d", prefs_get_int_value(pref, pref_current));
+                break;
+
+            case PREF_FLOAT:
+                sharkd_json_value_anyf("f", "%.*f", prefs_get_uint_base(pref), prefs_get_float_value(pref, pref_current));
+                break;
+
             case PREF_BOOL:
                 sharkd_json_value_anyf("b", prefs_get_bool_value(pref, pref_current) ? "1" : "0");
                 break;

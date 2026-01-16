@@ -212,6 +212,8 @@ struct preference {
         unsigned *uint;
         bool *boolp;
         int *enump;
+        int* intp;
+        double* floatp;
         char **string;
         range_t **range;
         struct epan_uat* uat;
@@ -222,6 +224,8 @@ struct preference {
         unsigned uint;
         bool boolval;
         int enumval;
+        int intval;
+        double floatval;
         char *string;
         range_t *range;
         color_t color;
@@ -231,6 +235,8 @@ struct preference {
         unsigned uint;
         bool boolval;
         int enumval;
+        int intval;
+        double floatval;
         char *string;
         range_t *range;
         color_t color;
@@ -342,6 +348,8 @@ pref_free_individual(void *data, void *user_data _U_)
     case PREF_BOOL:
     case PREF_ENUM:
     case PREF_UINT:
+    case PREF_INT:
+    case PREF_FLOAT:
     case PREF_STATIC_TEXT:
     case PREF_UAT:
     case PREF_COLOR:
@@ -1179,6 +1187,37 @@ prefs_register_uint_preference(module_t *module, const char *name,
  * XXX Add a prefs_register_{uint16|port}_preference which sets max_value?
  */
 
+
+/*
+ * Register a preference with an integer value.
+ */
+void
+prefs_register_int_preference(module_t* module, const char* name,
+    const char* title, const char* description, int* var)
+{
+    pref_t* preference;
+
+    preference = register_preference(module, name, title, description,
+        PREF_INT, false);
+    preference->varp.intp = var;
+    preference->default_val.intval = *var;
+}
+
+/*
+ * Register a preference with a float (doube) value.
+ */
+void prefs_register_float_preference(module_t* module, const char* name,
+    const char* title, const char* description, unsigned num_decimal, double* var)
+{
+    pref_t* preference;
+
+    preference = register_preference(module, name, title, description,
+        PREF_FLOAT, false);
+    preference->varp.floatp = var;
+    preference->default_val.floatval = *var;
+    ws_assert(num_decimal <= 10);
+    preference->info.base = num_decimal;
+}
 
 /*
  * Register a "custom" preference with a unsigned integral value.
@@ -2064,6 +2103,14 @@ pref_stash(pref_t *pref, void *unused _U_)
         pref->stashed_val.enumval = *pref->varp.enump;
         break;
 
+    case PREF_INT:
+        pref->stashed_val.intval = *pref->varp.intp;
+        break;
+
+    case PREF_FLOAT:
+        pref->stashed_val.floatval = *pref->varp.floatp;
+        break;
+
     case PREF_STRING:
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
@@ -2113,6 +2160,20 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
         if (*pref->varp.uint != pref->stashed_val.uint) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
             *pref->varp.uint = pref->stashed_val.uint;
+        }
+        break;
+
+    case PREF_INT:
+        if (*pref->varp.intp != pref->stashed_val.intval) {
+            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+            *pref->varp.intp = pref->stashed_val.intval;
+        }
+        break;
+
+    case PREF_FLOAT:
+        if (*pref->varp.floatp != pref->stashed_val.floatval) {
+            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+            *pref->varp.floatp = pref->stashed_val.floatval;
         }
         break;
 
@@ -2261,6 +2322,14 @@ reset_stashed_pref(pref_t *pref) {
         pref->stashed_val.uint = pref->default_val.uint;
         break;
 
+    case PREF_INT:
+        pref->stashed_val.intval = pref->default_val.intval;
+        break;
+
+    case PREF_FLOAT:
+        pref->stashed_val.floatval = pref->default_val.floatval;
+        break;
+
     case PREF_BOOL:
         pref->stashed_val.boolval = pref->default_val.boolval;
         break;
@@ -2315,11 +2384,9 @@ pref_clean_stash(pref_t *pref, void *unused _U_)
     switch (pref->type) {
 
     case PREF_UINT:
-        break;
-
+    case PREF_INT:
+    case PREF_FLOAT:
     case PREF_BOOL:
-        break;
-
     case PREF_ENUM:
         break;
 
@@ -4483,6 +4550,14 @@ reset_pref(pref_t *pref)
         *pref->varp.uint = pref->default_val.uint;
         break;
 
+    case PREF_INT:
+        *pref->varp.intp = pref->default_val.intval;
+        break;
+
+    case PREF_FLOAT:
+        *pref->varp.floatp = pref->default_val.floatval;
+        break;
+
     case PREF_BOOL:
         *pref->varp.boolp = pref->default_val.boolval;
         break;
@@ -5066,6 +5141,105 @@ unsigned prefs_get_uint_value(pref_t *pref, pref_source_t source)
 
     return 0;
 }
+
+unsigned int prefs_set_int_value(pref_t* pref, int value, pref_source_t source)
+{
+    int changed = 0;
+    switch (source)
+    {
+    case pref_default:
+        if (pref->default_val.intval != value) {
+            pref->default_val.intval = value;
+            changed = prefs_get_effect_flags(pref);
+        }
+        break;
+    case pref_stashed:
+        if (pref->stashed_val.intval != value) {
+            pref->stashed_val.intval = value;
+            changed = prefs_get_effect_flags(pref);
+        }
+        break;
+    case pref_current:
+        if (*pref->varp.intp != value) {
+            *pref->varp.intp = value;
+            changed = prefs_get_effect_flags(pref);
+        }
+        break;
+    default:
+        ws_assert_not_reached();
+        break;
+    }
+
+    return changed;
+}
+
+int prefs_get_int_value(pref_t* pref, pref_source_t source)
+{
+    switch (source)
+    {
+    case pref_default:
+        return pref->default_val.intval;
+    case pref_stashed:
+        return pref->stashed_val.intval;
+    case pref_current:
+        return *pref->varp.intp;
+    default:
+        ws_assert_not_reached();
+        break;
+    }
+
+    return 0;
+}
+
+unsigned int prefs_set_float_value(pref_t* pref, double value, pref_source_t source)
+{
+    int changed = 0;
+    switch (source)
+    {
+    case pref_default:
+        if (pref->default_val.floatval != value) {
+            pref->default_val.floatval = value;
+            changed = prefs_get_effect_flags(pref);
+        }
+        break;
+    case pref_stashed:
+        if (pref->stashed_val.floatval != value) {
+            pref->stashed_val.floatval = value;
+            changed = prefs_get_effect_flags(pref);
+        }
+        break;
+    case pref_current:
+        if (*pref->varp.floatp != value) {
+            *pref->varp.floatp = value;
+            changed = prefs_get_effect_flags(pref);
+        }
+        break;
+    default:
+        ws_assert_not_reached();
+        break;
+    }
+
+    return changed;
+}
+
+double prefs_get_float_value(pref_t* pref, pref_source_t source)
+{
+    switch (source)
+    {
+    case pref_default:
+        return pref->default_val.floatval;
+    case pref_stashed:
+        return pref->stashed_val.floatval;
+    case pref_current:
+        return *pref->varp.floatp;
+    default:
+        ws_assert_not_reached();
+        break;
+    }
+
+    return 0;
+}
+
 
 const char *prefs_get_password_value(pref_t *pref, pref_source_t source)
 {
@@ -5794,7 +5968,8 @@ set_pref(char *pref_name, const char *value, void *private_data,
     unsigned cval;
     unsigned uval;
     bool     bval;
-    int      enum_val;
+    int      enum_val, ival;
+    double   fval;
     char     *dotp, *last_dotp;
     module_t *module, *containing_module, *target_module;
     pref_t   *pref;
@@ -5941,6 +6116,27 @@ set_pref(char *pref_name, const char *value, void *private_data,
                 *pref->varp.uint = uval;
             }
             break;
+
+        case PREF_INT:
+            if (!ws_strtoi32(value, NULL, &ival))
+                return PREFS_SET_SYNTAX_ERR;        /* number was bad */
+            if (*pref->varp.intp != ival) {
+                containing_module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+                *pref->varp.intp = ival;
+            }
+            break;
+
+        case PREF_FLOAT:
+            fval = g_ascii_strtod(value, NULL);
+            if (errno == ERANGE)
+                return PREFS_SET_SYNTAX_ERR;        /* number was bad */
+
+            if (*pref->varp.floatp != fval) {
+                containing_module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+                *pref->varp.floatp = fval;
+            }
+            break;
+
         case PREF_BOOL:
             /* XXX - give an error if it's neither "true" nor "false"? */
             if (g_ascii_strcasecmp(value, "true") == 0)
@@ -6112,6 +6308,14 @@ prefs_pref_type_name(pref_t *pref)
             }
             break;
 
+        case PREF_INT:
+            type_name = "Integer";
+            break;
+
+        case PREF_FLOAT:
+            type_name = "Float";
+            break;
+
         case PREF_BOOL:
             type_name = "Boolean";
             break;
@@ -6250,6 +6454,14 @@ prefs_pref_type_description(pref_t *pref)
             }
             break;
 
+        case PREF_INT:
+            type_desc = "A decimal number";
+            break;
+
+        case PREF_FLOAT:
+            type_desc = "A floating point number";
+            break;
+
         case PREF_BOOL:
             type_desc = "true or false (case-insensitive)";
             break;
@@ -6353,6 +6565,16 @@ prefs_pref_is_default(pref_t *pref)
 
     case PREF_UINT:
         if (pref->default_val.uint == *pref->varp.uint)
+            return true;
+        break;
+
+    case PREF_INT:
+        if (pref->default_val.intval == *pref->varp.intp)
+            return true;
+        break;
+
+    case PREF_FLOAT:
+        if (pref->default_val.floatval == *pref->varp.floatp)
             return true;
         break;
 
@@ -6460,6 +6682,11 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source)
             }
             break;
         }
+        case PREF_INT:
+            return ws_strdup_printf("%d", *(int*)valp);
+
+        case PREF_FLOAT:
+            return ws_strdup_printf("%.*f", pref->info.base, *(double*)valp);
 
         case PREF_BOOL:
             return g_strdup((*(bool *) valp) ? "TRUE" : "FALSE");

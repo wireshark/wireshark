@@ -133,6 +133,8 @@ ui_prefs_read_pref(char* pref_name, const char* value, void* private_data _U_, b
     unsigned cval;
     unsigned uval;
     bool     bval;
+    int      ival;
+    double   fval;
     char* dotp, * last_dotp;
     module_t* module = NULL;
     pref_t* pref = NULL;
@@ -201,6 +203,17 @@ ui_prefs_read_pref(char* pref_name, const char* value, void* private_data _U_, b
         if (!ws_basestrtou32(value, NULL, &uval, prefs_get_uint_base(pref)))
             return PREFS_SET_SYNTAX_ERR;        /* number was bad */
         module->prefs_changed_flags |= prefs_set_uint_value(pref, uval, pref_current);
+        break;
+    case PREF_INT:
+        if (!ws_strtoi32(value, NULL, &ival))
+            return PREFS_SET_SYNTAX_ERR;        /* number was bad */
+        module->prefs_changed_flags |= prefs_set_int_value(pref, ival, pref_current);
+        break;
+    case PREF_FLOAT:
+        fval = g_ascii_strtod(value, NULL);
+        if (errno == ERANGE)
+            return PREFS_SET_SYNTAX_ERR;        /* number was bad */
+        module->prefs_changed_flags |= prefs_set_float_value(pref, fval, pref_current);
         break;
     case PREF_BOOL:
         /* XXX - give an error if it's neither "true" nor "false"? */

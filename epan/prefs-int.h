@@ -94,7 +94,9 @@ typedef enum {
     PREF_OPEN_FILENAME,
     PREF_PASSWORD,              // (3)
     PREF_PROTO_TCP_SNDAMB_ENUM, // (4)
-    PREF_DISSECTOR              // (5)
+    PREF_DISSECTOR,             // (5)
+    PREF_INT,
+    PREF_FLOAT
 } pref_type_e;
 
 /*
@@ -230,6 +232,11 @@ WS_DLL_PUBLIC unsigned int prefs_set_uint_value(pref_t *pref, unsigned value, pr
 WS_DLL_PUBLIC unsigned prefs_get_uint_base(pref_t *pref);
 WS_DLL_PUBLIC unsigned prefs_get_uint_value(pref_t *pref, pref_source_t source);
 
+WS_DLL_PUBLIC unsigned int prefs_set_int_value(pref_t* pref, int value, pref_source_t source);
+WS_DLL_PUBLIC int prefs_get_int_value(pref_t* pref, pref_source_t source);
+
+WS_DLL_PUBLIC unsigned int prefs_set_float_value(pref_t* pref, double value, pref_source_t source);
+WS_DLL_PUBLIC double prefs_get_float_value(pref_t* pref, pref_source_t source);
 
 WS_DLL_PUBLIC unsigned int prefs_set_enum_value(pref_t *pref, int value, pref_source_t source);
 WS_DLL_PUBLIC unsigned int prefs_set_enum_string_value(pref_t *pref, const char *value, pref_source_t source);

@@ -103,6 +103,20 @@ public:
 };
 REGISTER_PREFERENCE_TYPE(PREF_UINT, UIntPreference)
 
+class IntPreference : public StringPreference
+{
+public:
+    IntPreference(QObject* parent = Q_NULLPTR) : StringPreference(parent) {}
+};
+REGISTER_PREFERENCE_TYPE(PREF_INT, IntPreference)
+
+class FloatPreference : public StringPreference
+{
+public:
+    FloatPreference(QObject* parent = Q_NULLPTR) : StringPreference(parent) {}
+};
+REGISTER_PREFERENCE_TYPE(PREF_FLOAT, FloatPreference)
+
 class EnumPreference : public WiresharkPreference
 {
 public:

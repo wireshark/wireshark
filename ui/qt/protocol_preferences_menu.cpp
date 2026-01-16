@@ -264,6 +264,8 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
         break;
     }
     case PREF_UINT:
+    case PREF_INT:
+    case PREF_FLOAT:
     case PREF_STRING:
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:

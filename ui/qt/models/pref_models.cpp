@@ -540,6 +540,24 @@ bool AdvancedPrefsModel::setData(const QModelIndex &dataindex, const QVariant &v
                 prefs_set_uint_value(item->getPref(), new_val, pref_stashed);
             }
             break;
+        case PREF_INT:
+        {
+            bool ok = true;
+            int new_val = value.toInt(&ok);
+
+            if (ok)
+                prefs_set_int_value(item->getPref(), new_val, pref_stashed);
+        }
+        break;
+        case PREF_FLOAT:
+        {
+            bool ok = true;
+            double new_val = value.toDouble(&ok);
+
+            if (ok)
+                prefs_set_float_value(item->getPref(), new_val, pref_stashed);
+        }
+        break;
         case PREF_BOOL:
             prefs_invert_bool_value(item->getPref(), pref_stashed);
             break;

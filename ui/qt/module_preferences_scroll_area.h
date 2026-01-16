@@ -41,6 +41,8 @@ private:
 
 private slots:
     void uintLineEditTextEdited(const QString &new_str);
+    void intLineEditTextEdited(const QString& new_str);
+    void floatLineEditTextEdited(const QString& new_str);
     void boolCheckBoxToggled(bool checked);
     void enumRadioButtonToggled(bool checked);
     void enumComboBoxCurrentIndexChanged(int index);
