@@ -82,16 +82,16 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 {
     proto_tree *tree, *subtree, *timetree;
     proto_item *ti;
-    int tvb_len = tvb_captured_length(tvb);
+    unsigned tvb_len = tvb_captured_length(tvb);
     unsigned pkt_num = 1;
     static const uint8_t shebang[] = {'#', '!'};
     static const char rtpplay[] = "rtpplay";
     static const char rtpver[] = "1.0";
-    int offset = 0;
-    int i = 0;
-    int slash = 0;
-    int eol = 0;
-    int space = 0;
+    unsigned offset = 0;
+    unsigned i = 0;
+    unsigned slash = 0;
+    unsigned eol = 0;
+    unsigned space = 0;
     const char *str = NULL;
     uint16_t txt_port = 0;
     uint32_t bin_port = 0;
@@ -106,9 +106,9 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
         return 0;
     if (0 != tvb_memeql(tvb, 0, shebang, sizeof(shebang)))
         return 0;
-    if (-1 == (eol = tvb_find_uint8(tvb, 0, -1, '\n')) ||
-            -1 == (slash = tvb_find_uint8(tvb, 0, eol, '/')) ||
-            -1 == (space = tvb_find_uint8(tvb, 0, slash, ' '))) {
+    if ((!tvb_find_uint8_remaining(tvb, 0, '\n', &eol)) ||
+             (!tvb_find_uint8_length(tvb, 0, eol, '/', &slash)) ||
+             (!tvb_find_uint8_length(tvb, 0, slash, ' ', &space))) {
         return 0;
     }
 
