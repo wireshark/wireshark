@@ -1944,11 +1944,7 @@ proto_register_raknet(void)
     /*
      * Register the protocol with Wireshark.
      */
-    proto_raknet = proto_register_protocol (
-            "RakNet game networking protocol", /* name */
-            "RakNet", /* short name */
-            "raknet"  /* abbrev */
-            );
+    proto_raknet = proto_register_protocol ("RakNet game networking protocol", "RakNet", "raknet");
 
     /*
      * Register expert support.

@@ -470,11 +470,7 @@ bool wscbor_skip_if_errors(wmem_allocator_t *alloc, tvbuff_t *tvb, int *offset, 
 }
 
 void wscbor_init(void) {
-    proto_wscbor = proto_register_protocol(
-        "CBOR Item Decoder",
-        "CBOR Item Decoder",
-        "_ws.wscbor"
-    );
+    proto_wscbor = proto_register_protocol("CBOR Item Decoder", "CBOR Item Decoder", "_ws.wscbor");
 
     expert_module_t *expert_wscbor = expert_register_protocol(proto_wscbor);
     /* This isn't really a protocol, it's an error indication;

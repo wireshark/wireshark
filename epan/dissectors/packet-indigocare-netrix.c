@@ -639,11 +639,7 @@ proto_register_netrix(void)
 		&ett_netrix_unknown
 	};
 
-	proto_netrix = proto_register_protocol (
-		"Netrix Communication Protocol",	/* name */
-		"Netrix",				/* short name */
-		"netrix"				/* abbrev */
-	);
+	proto_netrix = proto_register_protocol ("Netrix Communication Protocol", "Netrix", "netrix");
 
 	proto_register_field_array(proto_netrix, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

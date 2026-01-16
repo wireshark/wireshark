@@ -385,11 +385,7 @@ proto_register_tfp(void)
 	};
 
 	/* defining the protocol and its names */
-	proto_tfp = proto_register_protocol (
-		"Tinkerforge Protocol",
-		"TFP",
-		"tfp"
-	);
+	proto_tfp = proto_register_protocol ("Tinkerforge Protocol", "TFP", "tfp");
 
 	proto_register_field_array(proto_tfp, hf_tfp, array_length(hf_tfp));
 	proto_register_subtree_array(ett, array_length(ett));

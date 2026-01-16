@@ -185,11 +185,7 @@ proto_register_ap(void)
             {&hf_ap_datlg, {"DATLG", "sinecap.datlg", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "Data length", HFILL}},
     };
 
-    proto_ap = proto_register_protocol (
-            "SINEC AP Telegram",    /* name        */
-            "SINEC AP",             /* short name  */
-            "sinecap"               /* filter_name */
-    );
+    proto_ap = proto_register_protocol ("SINEC AP Telegram", "SINEC AP", "sinecap");
 
     static int *ett[] = {
             &ett_ap,

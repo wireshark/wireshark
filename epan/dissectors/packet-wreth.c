@@ -1978,11 +1978,7 @@ void proto_register_wreth(void)
         &ett_wreth
     };
 
-    wreth_proto = proto_register_protocol (
-        "WSE remote ethernet", /* name       */
-        "WRETH",               /* short name */
-        "wreth"                /* abbrev     */
-    );
+    wreth_proto = proto_register_protocol ("WSE remote ethernet", "WRETH", "wreth");
     proto_register_field_array(wreth_proto, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     wreth_handle = register_dissector("wreth", dissect_wreth, wreth_proto);

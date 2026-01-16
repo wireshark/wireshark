@@ -557,11 +557,7 @@ void proto_register_pdc(void)
 		&ett_pdc_simpdu_var
 	};
 
-	proto_pdc = proto_register_protocol (
-		"PDC Protocol",	/* name       */
-		"PDC",		/* short name */
-		"pdc"		/* abbrev     */
-		);
+	proto_pdc = proto_register_protocol ("PDC Protocol", "PDC", "pdc");
 
 	/*Required Function Calls to register the header fields and subtrees used*/
 	proto_register_field_array(proto_pdc, hf, array_length(hf));

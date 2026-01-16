@@ -448,11 +448,7 @@ proto_register_hpfeeds(void)
     module_t *hpfeeds_module;
     expert_module_t* expert_hpfeeds;
 
-    proto_hpfeeds = proto_register_protocol (
-        "HPFEEDS HoneyPot Feeds Protocol", /* name */
-        "HPFEEDS",      /* short name */
-        "hpfeeds"       /* abbrev     */
-        );
+    proto_hpfeeds = proto_register_protocol ("HPFEEDS HoneyPot Feeds Protocol", "HPFEEDS", "hpfeeds");
 
     heur_subdissector_list = register_heur_dissector_list_with_description("hpfeeds", "HPFEEDS Publish payload", proto_hpfeeds);
 

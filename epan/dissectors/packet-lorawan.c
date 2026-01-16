@@ -1844,11 +1844,7 @@ proto_register_lorawan(void)
 
 	expert_module_t* expert_lorawan;
 
-	proto_lorawan = proto_register_protocol (
-		"LoRaWAN Protocol",	/* name */
-		"LoRaWAN",		/* short name */
-		"lorawan"		/* abbrev */
-	);
+	proto_lorawan = proto_register_protocol ("LoRaWAN Protocol", "LoRaWAN", "lorawan");
 
 	lorawan_handle = register_dissector("lorawan", dissect_lorawan, proto_lorawan);
 

@@ -733,11 +733,7 @@ proto_register_elcom(void)
         };
 
         /* Register the protocol name and description */
-        proto_elcom = proto_register_protocol (
-                                               "ELCOM Communication Protocol",
-                                               "ELCOM",
-                                               "elcom"
-                                               );
+        proto_elcom = proto_register_protocol ("ELCOM Communication Protocol", "ELCOM", "elcom");
 
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_elcom, hf, array_length(hf));

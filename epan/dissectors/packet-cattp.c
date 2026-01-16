@@ -547,11 +547,7 @@ proto_register_cattp(void)
     module_t *cattp_module;
     expert_module_t* expert_cattp;
 
-    proto_cattp = proto_register_protocol (
-                      "ETSI Card Application Toolkit Transport Protocol",    /* name */
-                      CATTP_SHORTNAME, /* short name */
-                      "cattp"          /* abbrev */
-                  );
+    proto_cattp = proto_register_protocol ("ETSI Card Application Toolkit Transport Protocol", CATTP_SHORTNAME, "cattp");
 
     proto_register_field_array(proto_cattp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

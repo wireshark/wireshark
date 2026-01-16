@@ -1609,11 +1609,7 @@ void proto_register_dplay(void)
         &ett_dplay_type29_spp,
     };
 
-    proto_dplay = proto_register_protocol (
-        "DirectPlay Protocol",
-        "DPLAY",
-        "dplay"
-        );
+    proto_dplay = proto_register_protocol ("DirectPlay Protocol", "DPLAY", "dplay");
     proto_register_field_array(proto_dplay, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

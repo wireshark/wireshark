@@ -559,11 +559,7 @@ proto_register_vp8(void)
         { &ei_vp8_first_partition_plus, { "vp8.first_partition_plus", PI_REASSEMBLE, PI_CHAT, "This frame contains all of first partition and also bytes from other partitions", EXPFILL }},
     };
 
-    proto_vp8 = proto_register_protocol (
-        "VP8", /* name       */
-        "VP8",      /* short name */
-        "vp8"       /* abbrev     */
-        );
+    proto_vp8 = proto_register_protocol ("VP8", "VP8", "vp8");
 
     proto_register_field_array(proto_vp8, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

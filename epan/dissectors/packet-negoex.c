@@ -596,11 +596,7 @@ proto_register_negoex(void)
   };
   /*module_t *negoex_module = NULL; */
 
-  proto_negoex = proto_register_protocol (
-    "SPNEGO Extended Negotiation Security Mechanism", /* name */
-    "NEGOEX",  /* short name */
-    "negoex"   /* abbrev */
-    );
+  proto_negoex = proto_register_protocol ("SPNEGO Extended Negotiation Security Mechanism", "NEGOEX", "negoex");
   proto_register_field_array(proto_negoex, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

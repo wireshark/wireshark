@@ -6902,8 +6902,7 @@ proto_register_pcep(void)
     expert_module_t* expert_pcep;
 
     /*Register the protocol name and description*/
-    proto_pcep = proto_register_protocol (
-        "Path Computation Element communication Protocol", "PCEP", "pcep");
+    proto_pcep = proto_register_protocol ("Path Computation Element communication Protocol", "PCEP", "pcep");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_pcep, pcepf_info, array_length(pcepf_info));

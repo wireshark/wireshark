@@ -52,13 +52,9 @@ register_show_exception(void)
 	expert_module_t* expert_unreassembled;
 
 	proto_short = proto_register_protocol("Short Frame", "Short frame", "_ws.short");
-	proto_dissector_bug = proto_register_protocol("Dissector Bug",
-	    "Dissector bug", "_ws.dissector_bug");
-	proto_malformed = proto_register_protocol("Malformed Packet",
-	    "Malformed packet", "_ws.malformed");
-	proto_unreassembled = proto_register_protocol(
-	    "Unreassembled Fragmented Packet",
-	    "Unreassembled fragmented packet", "_ws.unreassembled");
+	proto_dissector_bug = proto_register_protocol("Dissector Bug", "Dissector bug", "_ws.dissector_bug");
+	proto_malformed = proto_register_protocol("Malformed Packet", "Malformed packet", "_ws.malformed");
+	proto_unreassembled = proto_register_protocol("Unreassembled Fragmented Packet", "Unreassembled fragmented packet", "_ws.unreassembled");
 
 	expert_dissector_bug = expert_register_protocol(proto_dissector_bug);
 	expert_register_field_array(expert_dissector_bug, ei_dissector_bug_set, array_length(ei_dissector_bug_set));

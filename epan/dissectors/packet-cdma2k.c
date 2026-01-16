@@ -5462,11 +5462,7 @@ void proto_register_cdma2k(void)
 
     expert_module_t* expert_cdma2k;
 
-    proto_cdma2k = proto_register_protocol (
-        "CDMA2K",        /* name */
-        "CDMA2K",        /* short name */
-        "cdma2k"         /* abbrev */
-    );
+    proto_cdma2k = proto_register_protocol ("CDMA2K", "CDMA2K", "cdma2k");
 
     cdma2k_handle = register_dissector("cdma2k", dissect_cdma2k, proto_cdma2k);
 

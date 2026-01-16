@@ -2068,11 +2068,7 @@ void proto_register_idn(void) {
 			"SCM doesn't match configured SDM", EXPFILL } },
 	};
 
-	proto_idn = proto_register_protocol (
-		"Ilda Digital Network Protocol",
-		"IDN",
-		"idn"
-	);
+	proto_idn = proto_register_protocol ("Ilda Digital Network Protocol", "IDN", "idn");
 
 	proto_register_field_array(proto_idn, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

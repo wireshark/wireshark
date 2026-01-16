@@ -1252,11 +1252,7 @@ proto_register_doip(void)
         UAT_END_FIELDS
     };
 
-    proto_doip = proto_register_protocol (
-                                          "DoIP (ISO13400) Protocol", /* name       */
-                                          "DoIP",                     /* short name */
-                                          "doip"                      /* abbrev     */
-                                          );
+    proto_doip = proto_register_protocol ("DoIP (ISO13400) Protocol", "DoIP", "doip");
 
     proto_register_field_array(proto_doip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

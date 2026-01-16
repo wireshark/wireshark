@@ -579,11 +579,7 @@ proto_register_openvpn(void)
   };
   module_t *openvpn_module;
 
-  proto_openvpn = proto_register_protocol (
-    PNAME,   /* name       */
-    PSNAME,  /* short name */
-    PFNAME   /* abbrev     */
-    );
+  proto_openvpn = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
   proto_register_field_array(proto_openvpn, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

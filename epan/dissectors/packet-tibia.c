@@ -2598,11 +2598,7 @@ proto_register_tibia(void)
         },
     };
 
-    proto_tibia = proto_register_protocol (
-            "Tibia Protocol", /* name */
-            "Tibia",          /* short name */
-            "tibia"           /* abbrev */
-            );
+    proto_tibia = proto_register_protocol ("Tibia Protocol", "Tibia", "tibia");
     proto_register_field_array(proto_tibia, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     tibia_handle = register_dissector("tibia", dissect_tibia_tcp, proto_tibia);

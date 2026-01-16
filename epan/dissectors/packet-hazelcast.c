@@ -543,11 +543,7 @@ void proto_register_hazelcast(void) {
     module_t *hazelcast_module;
 
 
-    proto_hazelcast = proto_register_protocol (
-        "Hazelcast Wire Protocol", /* name */
-        "HAZELCAST",      /* short name */
-        "hzlcst"       /* abbrev     */
-        );
+    proto_hazelcast = proto_register_protocol ("Hazelcast Wire Protocol", "HAZELCAST", "hzlcst");
 
     proto_register_field_array(proto_hazelcast, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -1795,11 +1795,7 @@ void proto_register_uci(void)
 
     module_t *module_uci;
 
-    proto_uci = proto_register_protocol (
-        "UWB UCI Protocol", /* name        */
-        "UCI",          /* short name  */
-        "uci"           /* filter_name */
-        );
+    proto_uci = proto_register_protocol ("UWB UCI Protocol", "UCI", "uci");
 
     proto_register_field_array(proto_uci, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

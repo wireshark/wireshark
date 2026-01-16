@@ -3713,11 +3713,7 @@ proto_register_ntlmssp(void)
   module_t *ntlmssp_module;
   expert_module_t* expert_ntlmssp;
 
-  proto_ntlmssp = proto_register_protocol (
-    "NTLM Secure Service Provider", /* name */
-    "NTLMSSP",  /* short name */
-    "ntlmssp"   /* abbrev */
-    );
+  proto_ntlmssp = proto_register_protocol ("NTLM Secure Service Provider", "NTLMSSP", "ntlmssp");
   proto_register_field_array (proto_ntlmssp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
   expert_ntlmssp = expert_register_protocol(proto_ntlmssp);

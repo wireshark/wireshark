@@ -1766,11 +1766,7 @@ proto_register_jfif(void)
     expert_module_t* expert_jfif;
 
     /* Register the protocol name and description */
-    proto_jfif = proto_register_protocol(
-        "JPEG File Interchange Format",
-        "JFIF (JPEG) image",
-        "image-jfif"
-        );
+    proto_jfif = proto_register_protocol("JPEG File Interchange Format", "JFIF (JPEG) image", "image-jfif");
 
     /* Required function calls to register the header fields
      * and subtrees used */

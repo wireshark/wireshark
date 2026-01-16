@@ -2561,10 +2561,7 @@ void proto_register_atn_ulcs (void)
         &ett_atn_ulcs
     };
 
-    proto_atn_ulcs = proto_register_protocol (
-        ATN_ULCS_PROTO ,
-        "ATN-ULCS",
-        "atn-ulcs");
+    proto_atn_ulcs = proto_register_protocol (ATN_ULCS_PROTO, "ATN-ULCS", "atn-ulcs");
 
     proto_register_field_array (
         proto_atn_ulcs,

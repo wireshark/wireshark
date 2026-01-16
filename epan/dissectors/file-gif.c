@@ -545,11 +545,7 @@ proto_register_gif(void)
     expert_module_t* expert_gif;
 
     /* Register the protocol name and description */
-    proto_gif = proto_register_protocol(
-            "Compuserve GIF",
-            "GIF image",
-            "image-gif"
-    );
+    proto_gif = proto_register_protocol("Compuserve GIF", "GIF image", "image-gif");
 
     /* Required function calls to register the header fields
      * and subtrees used */

@@ -4303,11 +4303,7 @@ proto_register_omron_fins(void)
     expert_module_t* expert_omron_fins;
 
     /* Register the protocol name and description */
-    proto_omron_fins = proto_register_protocol (
-            "OMRON FINS Protocol", /* name       */
-            "OMRON FINS",          /* short name */
-            "omron"                /* abbrev     */
-            );
+    proto_omron_fins = proto_register_protocol ("OMRON FINS Protocol", "OMRON FINS", "omron");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_omron_fins, hf, array_length(hf));

@@ -282,11 +282,7 @@ proto_register_icall(void)
 		&ett_icall_unknown
 	};
 
-	proto_icall = proto_register_protocol (
-		"iCall Communication Protocol",	/* name */
-		"iCall",			/* short name */
-		"icall"				/* abbrev */
-	);
+	proto_icall = proto_register_protocol ("iCall Communication Protocol", "iCall", "icall");
 
 	proto_register_field_array(proto_icall, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

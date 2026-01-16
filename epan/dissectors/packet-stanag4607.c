@@ -2168,11 +2168,7 @@ proto_register_stanag4607(void)
 
 	expert_module_t* expert_4607;
 
-	proto_stanag4607 = proto_register_protocol (
-	    "STANAG 4607 (GMTI Format)", /* name       */
-	    "STANAG 4607",      /* short name */
-	    "s4607"       /* abbrev     */
-	);
+	proto_stanag4607 = proto_register_protocol ("STANAG 4607 (GMTI Format)", "STANAG 4607", "s4607");
 
 	proto_register_field_array(proto_stanag4607, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

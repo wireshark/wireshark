@@ -82,8 +82,7 @@ static int dissect_mac_nr_framed(tvbuff_t *tvb, packet_info *pinfo,
 
 void proto_register_mac_nr_framed(void) {
     /* Register protocol. */
-    proto_mac_nr_framed = proto_register_protocol(
-        "mac-nr-framed", "MAC-NR-FRAMED", "mac-nr-framed");
+    proto_mac_nr_framed = proto_register_protocol("mac-nr-framed", "MAC-NR-FRAMED", "mac-nr-framed");
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("mac-nr-framed", dissect_mac_nr_framed,

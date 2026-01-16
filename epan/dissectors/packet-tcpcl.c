@@ -2359,11 +2359,7 @@ proto_register_tcpcl(void)
 {
     expert_module_t *expert_tcpcl;
 
-    proto_tcpcl = proto_register_protocol(
-        "DTN TCP Convergence Layer Protocol",
-        "TCPCL",
-        "tcpcl"
-    );
+    proto_tcpcl = proto_register_protocol("DTN TCP Convergence Layer Protocol", "TCPCL", "tcpcl");
 
     proto_tcpcl_exts = proto_register_protocol_in_name_only(
         "TCPCL Extension Subdissectors",

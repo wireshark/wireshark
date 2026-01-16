@@ -382,11 +382,7 @@ void proto_register_bpsec(void) {
         {&ei_value_partial_decode, {"bpsec.value_partial_decode", PI_UNDECODED, PI_WARN, "Value data not fully dissected", EXPFILL}},
     };
 
-    proto_bpsec = proto_register_protocol(
-        "DTN Bundle Protocol Security",
-        "BPSec",
-        "bpsec"
-    );
+    proto_bpsec = proto_register_protocol("DTN Bundle Protocol Security", "BPSec", "bpsec");
 
     proto_register_field_array(proto_bpsec, fields, array_length(fields));
     proto_register_subtree_array(ett, array_length(ett));

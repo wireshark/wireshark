@@ -107,11 +107,7 @@ static int dissect_rtag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
  */
 void proto_register_rtag(void)
 {
-      proto_rtag = proto_register_protocol (
-	   "802.1cb R-TAG", /* name        */
-	   "R-TAG",         /* short name  */
-	   "rtag"           /* filter_name */
-	  );
+      proto_rtag = proto_register_protocol ("802.1cb R-TAG", "R-TAG", "rtag");
 
       proto_register_field_array(proto_rtag, rtag_breakdown,
 				 array_length(rtag_breakdown));

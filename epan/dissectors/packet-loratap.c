@@ -6,7 +6,7 @@
  * LoRaTap encapsulation, version 1
  * By Ales Povalac <alpov@alpov.net>
  * Copyright 2022 Ales Povalac
- * 
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -411,11 +411,7 @@ proto_register_loratap(void)
 		&ett_loratap_rssi
 	};
 
-	proto_loratap = proto_register_protocol (
-		"LoRaTap header",	/* name */
-		"LoRaTap",		/* short name */
-		"loratap"		/* abbrev */
-	);
+	proto_loratap = proto_register_protocol ("LoRaTap header", "LoRaTap", "loratap");
 
 	loratap_handle = register_dissector("loratap", dissect_loratap, proto_loratap);
 	proto_register_field_array(proto_loratap, hf, array_length(hf));

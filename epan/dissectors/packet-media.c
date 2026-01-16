@@ -105,11 +105,7 @@ proto_register_media(void)
         &ett_media
     };
 
-    proto_media = proto_register_protocol (
-        "Media Type",   /* name */
-        "Media",        /* short name */
-        "media"         /* abbrev */
-        );
+    proto_media = proto_register_protocol ("Media Type", "Media", "media");
     register_dissector("media", dissect_media, proto_media);
     heur_subdissector_list = register_heur_dissector_list_with_description("media", "Media type", proto_media);
     proto_register_field_array(proto_media, hf, array_length(hf));

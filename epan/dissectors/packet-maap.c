@@ -186,11 +186,7 @@ proto_register_maap(void)
     static int *ett[] = { &ett_maap };
 
     /* Register the protocol name and description */
-    proto_maap = proto_register_protocol (
-        "IEEE 1722 MAAP Protocol", /* name */
-        "MAAP", /* short name */
-        "maap" /* abbrev */
-        );
+    proto_maap = proto_register_protocol ("IEEE 1722 MAAP Protocol", "MAAP", "maap");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_maap, hf, array_length(hf));

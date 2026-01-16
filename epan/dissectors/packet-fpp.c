@@ -914,11 +914,7 @@ proto_register_fpp(void)
 
     expert_module_t* expert_fpp;
 
-    proto_fpp = proto_register_protocol (
-        "IEEE 802.3br Frame Preemption Protocol",
-        "Frame Preemption Protocol",
-        "fpp"
-    );
+    proto_fpp = proto_register_protocol ("IEEE 802.3br Frame Preemption Protocol", "Frame Preemption Protocol", "fpp");
 
     proto_register_field_array(proto_fpp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

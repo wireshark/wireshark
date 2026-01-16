@@ -37,10 +37,7 @@ ftypes_register_pseudofields(void)
 {
 	static int proto_ftypes;
 
-	proto_ftypes = proto_register_protocol(
-				"Wireshark Field/Fundamental Types",
-				"Wireshark FTypes",
-				"_ws.ftypes");
+	proto_ftypes = proto_register_protocol("Wireshark Field/Fundamental Types", "Wireshark FTypes", "_ws.ftypes");
 
 	ftype_register_pseudofields_bytes(proto_ftypes);
 	ftype_register_pseudofields_double(proto_ftypes);

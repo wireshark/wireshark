@@ -1161,11 +1161,7 @@ proto_register_p4rpc(void)
     };
 
     // Finally, register our protocol
-    proto_p4rpc = proto_register_protocol (
-        "P4RPC (Perforce Protocol)", // protocol long name
-        "P4RPC",          // protocol short name
-        "p4rpc"           // protocol filter_name
-    );
+    proto_p4rpc = proto_register_protocol ("P4RPC (Perforce Protocol)", "P4RPC", "p4rpc");
 
     // register our variables
     proto_register_field_array( proto_p4rpc, hf, array_length(hf) );

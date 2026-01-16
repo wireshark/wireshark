@@ -160,11 +160,7 @@ common_register_data(void)
 
 	module_t *module_data;
 
-	proto_data = proto_register_protocol (
-		"Data",		/* name */
-		"Data",		/* short name */
-		"data"		/* abbrev */
-		);
+	proto_data = proto_register_protocol ("Data", "Data", "data");
 
 	data_handle = register_dissector("data", dissect_data, proto_data);
 

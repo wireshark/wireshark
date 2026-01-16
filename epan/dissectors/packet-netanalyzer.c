@@ -545,10 +545,7 @@ void proto_register_netanalyzer(void)
 
   expert_module_t* expert_netanalyzer;
 
-  proto_netanalyzer = proto_register_protocol (
-    "netANALYZER",            /* name */
-    "netANALYZER",            /* short name */
-    "netanalyzer" );          /* abbrev */
+  proto_netanalyzer = proto_register_protocol ("netANALYZER", "netANALYZER", "netanalyzer");
 
   proto_register_field_array(proto_netanalyzer, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

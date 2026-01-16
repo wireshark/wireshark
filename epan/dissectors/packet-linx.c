@@ -805,11 +805,7 @@ proto_register_linx(void)
 
 	expert_module_t* expert_linx;
 
-	proto_linx = proto_register_protocol (
-		"ENEA LINX",	/* name */
-		"LINX",		/* short name */
-		"linx"		/* abbrev */
-		);
+	proto_linx = proto_register_protocol ("ENEA LINX", "LINX", "linx");
 
 	/* Protocol Registering data structures. */
 	proto_register_field_array(proto_linx, hf, array_length(hf));
