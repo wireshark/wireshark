@@ -764,20 +764,22 @@ static int* const ttl_trace_data_entry_status_info_fr_pulse_flags[] = {
     NULL
 };
 
+#define TVB_STATUS_POS  6
+
 void proto_register_ttl(void);
 void proto_reg_handoff_ttl(void);
 
-static int
-dissect_ttl_dest_addr_ret(proto_tree* tree, tvbuff_t* tvb, int offset, uint16_t* ret) {
-    uint32_t    addr, cascade, device;
+static unsigned
+dissect_ttl_dest_addr_ret(proto_tree* tree, tvbuff_t* tvb, unsigned offset, uint16_t* ret) {
+    uint16_t    addr, cascade, device;
     proto_tree* addr_subtree;
     proto_item* ti;
 
-    ti = proto_tree_add_item_ret_uint(tree, hf_ttl_trace_data_entry_dest_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &addr);
+    ti = proto_tree_add_item_ret_uint16(tree, hf_ttl_trace_data_entry_dest_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &addr);
     addr_subtree = proto_item_add_subtree(ti, ett_ttl_trace_data_entry_dest_addr);
-    proto_tree_add_item_ret_uint(addr_subtree, hf_ttl_trace_data_entry_dest_addr_cascade, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cascade);
+    proto_tree_add_item_ret_uint16(addr_subtree, hf_ttl_trace_data_entry_dest_addr_cascade, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cascade);
     if (cascade == 0) {
-        proto_tree_add_item_ret_uint(addr_subtree, hf_ttl_trace_data_entry_dest_addr_device_logger, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
+        proto_tree_add_item_ret_uint16(addr_subtree, hf_ttl_trace_data_entry_dest_addr_device_logger, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
         switch (device) {
         case TTL_LOGGER_DEVICE_FPGA:
             proto_tree_add_item(addr_subtree, hf_ttl_trace_data_entry_dest_addr_function_fpga, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -809,7 +811,7 @@ dissect_ttl_dest_addr_ret(proto_tree* tree, tvbuff_t* tvb, int offset, uint16_t*
         }
     }
     else {
-        proto_tree_add_item_ret_uint(addr_subtree, hf_ttl_trace_data_entry_dest_addr_device_tap, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
+        proto_tree_add_item_ret_uint16(addr_subtree, hf_ttl_trace_data_entry_dest_addr_device_tap, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
         switch (device) {
         case TTL_TAP_DEVICE_PT15_FPGA:
             proto_tree_add_item(addr_subtree, hf_ttl_trace_data_entry_dest_addr_function_pt15_fpga, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -836,22 +838,22 @@ dissect_ttl_dest_addr_ret(proto_tree* tree, tvbuff_t* tvb, int offset, uint16_t*
     }
 
     if (ret) {
-        *ret = (uint16_t)addr;
+        *ret = addr;
     }
     return 2;
 }
 
-static int
-dissect_ttl_src_addr_ret(proto_tree* tree, tvbuff_t* tvb, int offset, uint16_t* ret) {
-    uint32_t    addr, cascade, device;
+static unsigned
+dissect_ttl_src_addr_ret(proto_tree* tree, tvbuff_t* tvb, unsigned offset, uint16_t* ret) {
+    uint16_t    addr, cascade, device;
     proto_tree* addr_subtree;
     proto_item* ti;
 
-    ti = proto_tree_add_item_ret_uint(tree, hf_ttl_trace_data_entry_src_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &addr);
+    ti = proto_tree_add_item_ret_uint16(tree, hf_ttl_trace_data_entry_src_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &addr);
     addr_subtree = proto_item_add_subtree(ti, ett_ttl_trace_data_entry_src_addr);
-    proto_tree_add_item_ret_uint(addr_subtree, hf_ttl_trace_data_entry_src_addr_cascade, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cascade);
+    proto_tree_add_item_ret_uint16(addr_subtree, hf_ttl_trace_data_entry_src_addr_cascade, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cascade);
     if (cascade == 0) {
-        proto_tree_add_item_ret_uint(addr_subtree, hf_ttl_trace_data_entry_src_addr_device_logger, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
+        proto_tree_add_item_ret_uint16(addr_subtree, hf_ttl_trace_data_entry_src_addr_device_logger, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
         switch (device) {
         case TTL_LOGGER_DEVICE_FPGA:
             proto_tree_add_item(addr_subtree, hf_ttl_trace_data_entry_src_addr_function_fpga, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -883,7 +885,7 @@ dissect_ttl_src_addr_ret(proto_tree* tree, tvbuff_t* tvb, int offset, uint16_t* 
         }
     }
     else {
-        proto_tree_add_item_ret_uint(addr_subtree, hf_ttl_trace_data_entry_src_addr_device_tap, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
+        proto_tree_add_item_ret_uint16(addr_subtree, hf_ttl_trace_data_entry_src_addr_device_tap, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
         switch (device) {
         case TTL_TAP_DEVICE_PT15_FPGA:
             proto_tree_add_item(addr_subtree, hf_ttl_trace_data_entry_src_addr_function_pt15_fpga, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -910,37 +912,36 @@ dissect_ttl_src_addr_ret(proto_tree* tree, tvbuff_t* tvb, int offset, uint16_t* 
     }
 
     if (ret) {
-        *ret = (uint16_t)addr;
+        *ret = addr;
     }
     return 2;
 }
 
-static int
-dissect_ttl_eth_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, int size,
-    proto_tree* status_tree, int status_pos, uint16_t src) {
+static unsigned
+dissect_ttl_eth_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
+    tvbuff_t* status_tvb, proto_tree* status_tree, uint16_t src) {
     proto_item* ti;
     proto_tree* subtree, * payload_subtree;
-    int         orig_offset = offset;
     uint16_t    status;
     uint8_t     cascade = (src >> 10) & 0x7;
+    unsigned    offset = 0;
     bool        valid;
 
-    status = tvb_get_uint16(tvb, status_pos, ENC_LITTLE_ENDIAN);
+    status = tvb_get_uint16(status_tvb, TVB_STATUS_POS, ENC_LITTLE_ENDIAN);
 
     if (status != TTL_ETH_STATUS_PHY_STATUS) {
         proto_tree_add_item(tree, hf_ttl_trace_data_entry_eth_unused, tvb, offset, 2, ENC_NA);
         offset += 2;
-        size -= 2;
     }
 
-    ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry_payload, tvb, offset, size, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry_payload, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
     payload_subtree = proto_item_add_subtree(ti, ett_ttl_trace_data_entry_payload);
     proto_item_prepend_text(ti, "%s ", val_to_str_const(status, hf_ttl_trace_data_entry_status_info_eth_type_vals, "Unknown"));
 
-    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_eth_type, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_uint(status_tree, hf_ttl_trace_data_entry_status_info_eth_type, status_tvb, TVB_STATUS_POS, 2, status);
 
     if (status == TTL_ETH_STATUS_PHY_STATUS) {
-        while (size >= 4) {
+        while (tvb_reported_length_remaining(tvb, offset) >= 4) {
             ti = proto_tree_add_item(payload_subtree, hf_ttl_eth_phy_status, tvb, offset, 4, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_ttl_eth_phy_status);
             proto_tree_add_item_ret_boolean(subtree, hf_ttl_eth_phy_status_valid, tvb, offset + 3, 1, ENC_NA, &valid);
@@ -957,56 +958,51 @@ dissect_ttl_eth_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
             proto_tree_add_item(subtree, hf_ttl_eth_phy_status_data, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
             offset += 4;
-            size -= 4;
         }
+        return offset;
     }
     else {
         if (pref_dissect_next_layer && eth_handle) {
-            tvbuff_t* new_tvb = tvb_new_subset_length(tvb, offset, size);
-            call_dissector(eth_handle, new_tvb, pinfo, payload_subtree);
+            call_dissector(eth_handle, tvb_new_subset_remaining(tvb, offset), pinfo, payload_subtree);
         }
-        offset += size;
+        return tvb_reported_length(tvb);
     }
-
-    return offset - orig_offset;
 }
 
-static int
-dissect_ttl_can_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int size,
-    proto_tree* status_tree, int status_pos) {
+static unsigned
+dissect_ttl_can_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree,
+    tvbuff_t* status_tvb, proto_tree* status_tree) {
     proto_item* ti;
-    int         orig_offset = offset;
+    unsigned    offset = 0;
 
-    proto_tree_add_bitmask(status_tree, tvb, status_pos, hf_ttl_trace_data_entry_status_info_can_flags,
+    proto_tree_add_bitmask(status_tree, status_tvb, TVB_STATUS_POS, hf_ttl_trace_data_entry_status_info_can_flags,
         ett_ttl_trace_data_entry_status_info_can_flags, ttl_trace_data_entry_status_info_can_flags, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_can_error_code, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_can_res, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_can_dlc, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_can_error_code, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_can_res, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_can_dlc, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
 
     proto_tree_add_item(tree, hf_ttl_trace_data_entry_can_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    size -= 4;
 
-    ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry_payload, tvb, offset, size, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry_payload, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
     proto_item_prepend_text(ti, "CAN ");
-    offset += size;
 
-    return offset - orig_offset;
+    return tvb_reported_length(tvb);
 }
 
-static int
-dissect_ttl_lin_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int size,
-    proto_tree* status_tree, int status_pos) {
+static unsigned
+dissect_ttl_lin_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree,
+    tvbuff_t* status_tvb, proto_tree* status_tree) {
     proto_item* ti;
     proto_tree* subtree;
-    int         orig_offset = offset;
+    unsigned    offset = 0, size = tvb_reported_length(tvb);
 
-    ti = proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_lin_pid, tvb, status_pos, 1, ENC_NA);
+    ti = proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_lin_pid, status_tvb, TVB_STATUS_POS, 1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_ttl_trace_data_entry_status_info_lin_pid);
-    proto_tree_add_item(subtree, hf_ttl_trace_data_entry_status_info_lin_parity, tvb, status_pos, 1, ENC_NA);
-    proto_tree_add_item(subtree, hf_ttl_trace_data_entry_status_info_lin_id, tvb, status_pos, 1, ENC_NA);
-    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_lin_unused, tvb, status_pos + 1, 1, ENC_NA);
-    proto_tree_add_bitmask(status_tree, tvb, status_pos + 1, hf_ttl_trace_data_entry_status_info_lin_flags,
+    proto_tree_add_item(subtree, hf_ttl_trace_data_entry_status_info_lin_parity, status_tvb, TVB_STATUS_POS, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_ttl_trace_data_entry_status_info_lin_id, status_tvb, TVB_STATUS_POS, 1, ENC_NA);
+    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_lin_unused, status_tvb, TVB_STATUS_POS + 1, 1, ENC_NA);
+    proto_tree_add_bitmask(status_tree, status_tvb, TVB_STATUS_POS + 1, hf_ttl_trace_data_entry_status_info_lin_flags,
         ett_ttl_trace_data_entry_status_info_lin_flags, ttl_trace_data_entry_status_info_lin_flags, ENC_NA);
 
     if (size > 1) {
@@ -1015,37 +1011,36 @@ dissect_ttl_lin_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree
         offset += (size - 1);
 
         proto_tree_add_item(tree, hf_ttl_trace_data_entry_lin_checksum, tvb, offset, 1, ENC_NA);
-        offset += 1;
     }
 
-    return offset - orig_offset;
+    return size;
 }
 
-static int
-dissect_ttl_flexray_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int size,
-    proto_tree* status_tree, int status_pos) {
+static unsigned
+dissect_ttl_flexray_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree,
+    tvbuff_t* status_tvb, proto_tree* status_tree) {
     proto_item* ti;
-    int         orig_offset = offset;
     uint16_t    status;
     uint8_t     type;
+    unsigned    offset = 0, size;
 
-    status = tvb_get_uint16(tvb, status_pos, ENC_LITTLE_ENDIAN);
+    status = tvb_get_uint16(status_tvb, TVB_STATUS_POS, ENC_LITTLE_ENDIAN);
 
     type = status & TTL_FLEXRAY_ITEM_MASK;
 
-    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_type, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_type, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
 
     if (type == TTL_FLEXRAY_ITEM_REGULAR_FRAME || type == TTL_FLEXRAY_ITEM_ABORTED_FRAME) {
-        proto_tree_add_bitmask(status_tree, tvb, status_pos, hf_ttl_trace_data_entry_status_info_fr_error_flags,
+        proto_tree_add_bitmask(status_tree, status_tvb, TVB_STATUS_POS, hf_ttl_trace_data_entry_status_info_fr_error_flags,
             ett_ttl_trace_data_entry_status_info_fr_error_flags, ttl_trace_data_entry_status_info_fr_error_flags, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_res1, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_res2, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_res1, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_res2, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
     }
     else if (type == TTL_FLEXRAY_ITEM_0_PULSE || type == TTL_FLEXRAY_ITEM_1_PULSE) {
-        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_res3, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_bitmask(status_tree, tvb, status_pos, hf_ttl_trace_data_entry_status_info_fr_pulse_flags,
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_res3, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_bitmask(status_tree, status_tvb, TVB_STATUS_POS, hf_ttl_trace_data_entry_status_info_fr_pulse_flags,
             ett_ttl_trace_data_entry_status_info_fr_pulse_flags, ttl_trace_data_entry_status_info_fr_pulse_flags, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_res4, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_res4, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
 
         proto_tree_add_item(tree, hf_ttl_trace_data_entry_fr_low_phase_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
@@ -1053,7 +1048,7 @@ dissect_ttl_flexray_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
         offset += 2;
     }
     else if (type == TTL_FLEXRAY_ITEM_ERROR_INFORMATION) {
-        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_res5, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_fr_res5, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
 
         proto_tree_add_item(tree, hf_ttl_trace_data_entry_fr_eray_eir_register, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -1071,45 +1066,41 @@ dissect_ttl_flexray_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
         offset += 4;
     }
 
-    size -= (offset - orig_offset);
+    size = tvb_reported_length_remaining(tvb, offset);
 
     if (size > 0) {
         ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry_payload, tvb, offset, size, ENC_NA);
         proto_item_prepend_text(ti, "FlexRay ");
-        offset += size;
     }
 
-    return offset - orig_offset;
+    return tvb_reported_length(tvb);
 }
 
-static int
-dissect_ttl_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, int size,
-    proto_item* root, proto_tree* status_tree, int status_pos, uint16_t src, bool ttl_over_eth) {
-    int         orig_offset = offset;
-
-    proto_tree_add_item(tree, hf_ttl_trace_data_entry_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN | ENC_TIME_USECS);
-    offset += 8;
+static unsigned
+dissect_ttl_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* root,
+    tvbuff_t* status_tvb, proto_tree* status_tree, uint16_t src, bool ttl_over_eth) {
+    unsigned    offset = 0;
 
     switch (ttl_get_address_iface_type(src)) {
     case WTAP_ENCAP_ETHERNET:
         proto_item_append_text(root, " (Ethernet)");
         if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (Ethernet)");
-        offset += dissect_ttl_eth_bus_data_entry(tvb, pinfo, tree, offset, size - (offset - orig_offset), status_tree, status_pos, src);
+        offset += dissect_ttl_eth_bus_data_entry(tvb, pinfo, tree, status_tvb, status_tree, src);
         break;
     case WTAP_ENCAP_SOCKETCAN:
         proto_item_append_text(root, " (CAN)");
         if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (CAN)");
-        offset += dissect_ttl_can_bus_data_entry(tvb, pinfo, tree, offset, size - (offset - orig_offset), status_tree, status_pos);
+        offset += dissect_ttl_can_bus_data_entry(tvb, pinfo, tree, status_tvb, status_tree);
         break;
     case WTAP_ENCAP_LIN:
         proto_item_append_text(root, " (LIN)");
         if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (LIN)");
-        offset += dissect_ttl_lin_bus_data_entry(tvb, pinfo, tree, offset, size - (offset - orig_offset), status_tree, status_pos);
+        offset += dissect_ttl_lin_bus_data_entry(tvb, pinfo, tree, status_tvb, status_tree);
         break;
     case WTAP_ENCAP_FLEXRAY:
         proto_item_append_text(root, " (FlexRay)");
         if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (FlexRay)");
-        offset += dissect_ttl_flexray_bus_data_entry(tvb, pinfo, tree, offset, size - (offset - orig_offset), status_tree, status_pos);
+        offset += dissect_ttl_flexray_bus_data_entry(tvb, pinfo, tree, status_tvb, status_tree);
         break;
     default:
         proto_item_append_text(root, " (Unsupported)");
@@ -1117,7 +1108,7 @@ dissect_ttl_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
         break;
     }
 
-    return offset - orig_offset;
+    return offset;
 }
 
 typedef struct {
@@ -1125,31 +1116,27 @@ typedef struct {
     uint32_t    type;
 } ttl_segmented_info_t;
 
-static int
-dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_tree* parent_tree, int offset, int size,
-    proto_item* root, proto_tree* status_tree, int status_pos, uint16_t src, bool ttl_over_eth) {
+static unsigned
+dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* root,
+    tvbuff_t* status_tvb, proto_tree* status_tree, uint16_t src, bool ttl_over_eth, proto_tree* parent_tree) {
     proto_item*     ti;
     fragment_head*  fh;
     tvbuff_t*       next_tvb = NULL;
     uint32_t        key;
     uint16_t        status;
-    uint8_t         frame_num;
-    uint8_t         seg_frame_id;
-    int             orig_offset = offset;
+    uint8_t         frame_num, seg_frame_id;
+    unsigned        offset = 0;
     bool            update_col_info, more_frag;
 
-    status = tvb_get_uint16(tvb, status_pos, ENC_LITTLE_ENDIAN);
+    status = tvb_get_uint16(status_tvb, TVB_STATUS_POS, ENC_LITTLE_ENDIAN);
 
     if (status == 0xFFFF) {
         expert_add_info(pinfo, root, &ei_ttl_segmented_entry_status_reserved);
     }
     else {
-        proto_tree_add_item(tree, hf_ttl_trace_data_entry_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN | ENC_TIME_USECS);
-        offset += 8;
-
-        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_segment_unused, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_segment_frame_id, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_segment_frame_number, tvb, status_pos, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_segment_unused, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_segment_frame_id, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_segment_frame_number, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
 
         frame_num = status & 0x000f;
         seg_frame_id = (status >> 4) & 0x000f;
@@ -1167,7 +1154,7 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
                 proto_tree_add_item(tree, hf_ttl_trace_data_entry_segment_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
             }
-            more_frag = stored_info->full_size > (unsigned)(size - (offset - orig_offset));
+            more_frag = stored_info->full_size > tvb_reported_length_remaining(tvb, offset);
         }
         else {
             fh = fragment_get(&ttl_reassembly_table, pinfo, key, NULL);
@@ -1192,12 +1179,12 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 
                 stored_info = new_info;
 
-                more_frag = new_info->full_size > (unsigned)(size - (offset - orig_offset));
+                more_frag = new_info->full_size > tvb_reported_length_remaining(tvb, offset);
             }
             else {
                 stored_info = g_hash_table_lookup(segmented_frames_info_ht, GUINT_TO_POINTER(key));
 
-                more_frag = fh && stored_info && stored_info->full_size > (fh->contiguous_len + (unsigned)(size - (offset - orig_offset)));
+                more_frag = fh && stored_info && stored_info->full_size > (fh->contiguous_len + tvb_reported_length_remaining(tvb, offset));
             }
 
             if (stored_info) {
@@ -1214,7 +1201,7 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
         }
 
         fh = fragment_add_seq_check(&ttl_reassembly_table, tvb, offset, pinfo, key, NULL,
-            frame_num, size - (offset - orig_offset), more_frag);
+            frame_num, tvb_reported_length_remaining(tvb, offset), more_frag);
 
         next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled TTL", fh, &ttl_fragment_items, &update_col_info, tree);
 
@@ -1224,10 +1211,8 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
             }
 
             call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, parent_tree);
-            return tvb_captured_length(tvb);
         }
-
-        if (stored_info && stored_info->type == TTL_SEGMENTED_MESSAGE_ENTRY_TYPE_NESTED_FRAME) {
+        else if (stored_info && stored_info->type == TTL_SEGMENTED_MESSAGE_ENTRY_TYPE_NESTED_FRAME) {
             call_dissector(ttl_over_eth ? ttl_in_eth_handle : ttl_from_file_handle, next_tvb, pinfo, parent_tree);
         }
         else {
@@ -1236,19 +1221,21 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 
     }
 
-    return size;
+    return tvb_reported_length(tvb);
 }
 
-static int
+static unsigned
 dissect_ttl_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, bool ttl_over_eth) {
     proto_tree* entry_subtree, * status_subtree;
     proto_item* ti, * root_ti;
-    int         offset = 0;
-    uint32_t    status;
-    uint16_t    entry_size_type;
-    uint16_t    size;
-    uint16_t    src_addr;
+    tvbuff_t*   new_buf;
+    uint16_t    entry_size_type, size, src_addr;
     uint8_t     type;
+    unsigned    offset = 0;
+
+    if (tvb_reported_length_remaining(tvb, offset) < 2) {
+        return offset;  // Can't even read the first two bytes telling us the size and type
+    }
 
     entry_size_type = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
     type = entry_size_type >> 12;
@@ -1271,44 +1258,63 @@ dissect_ttl_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, bool ttl
     proto_tree_add_item(entry_subtree, hf_ttl_trace_data_entry_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(entry_subtree, hf_ttl_trace_data_entry_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
+
+    if (tvb_reported_length_remaining(tvb, offset) < 2) {
+        expert_add_info(pinfo, root_ti, &ei_ttl_entry_size_too_short);
+        return offset;
+    }
+
     proto_tree_add_bitmask(entry_subtree, tvb, offset, hf_ttl_trace_data_entry_meta1, ett_ttl_trace_data_entry_meta1, ttl_trace_data_entry_meta1, ENC_LITTLE_ENDIAN);
     offset += dissect_ttl_dest_addr_ret(entry_subtree, tvb, offset, NULL);
+
+    if (tvb_reported_length_remaining(tvb, offset) < 2) {
+        expert_add_info(pinfo, root_ti, &ei_ttl_entry_size_too_short);
+        return offset;
+    }
+
     ti = proto_tree_add_item(entry_subtree, hf_ttl_trace_data_entry_meta2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_item_set_hidden(ti);
     proto_tree_add_item(entry_subtree, hf_ttl_trace_data_entry_ackmode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += dissect_ttl_src_addr_ret(entry_subtree, tvb, offset, &src_addr);
 
-    ti = proto_tree_add_item_ret_uint(entry_subtree, hf_ttl_trace_data_entry_status_information, tvb, offset, 2, ENC_LITTLE_ENDIAN, &status);
+    if (tvb_reported_length_remaining(tvb, offset) < 2) {
+        expert_add_info(pinfo, root_ti, &ei_ttl_entry_size_too_short);
+        return offset;
+    }
+
+    ti = proto_tree_add_item(entry_subtree, hf_ttl_trace_data_entry_status_information, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     status_subtree = proto_item_add_subtree(ti, ett_ttl_trace_data_entry_status_information);
     offset += 2;
 
-    if (size < sizeof(ttl_entryheader_t)) {
+    if (tvb_reported_length_remaining(tvb, offset) < 8) {
         expert_add_info(pinfo, root_ti, &ei_ttl_entry_size_too_short);
+        return offset;
     }
-    else {
-        switch (type) {
-        case TTL_BUS_DATA_ENTRY:
-            offset += dissect_ttl_bus_data_entry(tvb, pinfo, entry_subtree, offset, (int)size - offset,
-                root_ti, status_subtree, 6, src_addr, ttl_over_eth);
-            break;
-        case TTL_SEGMENTED_MESSAGE_ENTRY:
-            offset += dissect_ttl_segmented_message_entry(tvb, pinfo, entry_subtree, tree, offset, (int)size - offset,
-                root_ti, status_subtree, 6, src_addr, ttl_over_eth);
-            break;
-        case TTL_COMMAND_ENTRY:
-        case TTL_JOURNAL_ENTRY:
-        case TTL_SEND_FRAME_ENTRY:
-        case TTL_PADDING_ENTRY:
-        case TTL_SOFTWARE_DATA_ENTRY:
-        case TTL_DROPPED_FRAMES_ENTRY:
-        default:
-            break;
-        }
+
+    proto_tree_add_item(entry_subtree, hf_ttl_trace_data_entry_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN | ENC_TIME_USECS);
+    offset += 8;
+
+    new_buf = tvb_new_subset_length(tvb, offset, size - offset);
+    switch (type) {
+    case TTL_BUS_DATA_ENTRY:
+        offset += dissect_ttl_bus_data_entry(new_buf, pinfo, entry_subtree, root_ti, tvb, status_subtree, src_addr, ttl_over_eth);
+        break;
+    case TTL_SEGMENTED_MESSAGE_ENTRY:
+        offset += dissect_ttl_segmented_message_entry(new_buf, pinfo, entry_subtree, root_ti, tvb, status_subtree, src_addr, ttl_over_eth, tree);
+        break;
+    case TTL_COMMAND_ENTRY:
+    case TTL_JOURNAL_ENTRY:
+    case TTL_SEND_FRAME_ENTRY:
+    case TTL_PADDING_ENTRY:
+    case TTL_SOFTWARE_DATA_ENTRY:
+    case TTL_DROPPED_FRAMES_ENTRY:
+    default:
+        break;
     }
 
     if (offset < size) {
-        proto_tree_add_item(entry_subtree, hf_ttl_trace_data_entry_unparsed, tvb, offset, (int)size - offset, ENC_NA);
-        offset += (int)size - offset;
+        proto_tree_add_item(entry_subtree, hf_ttl_trace_data_entry_unparsed, tvb, offset, size - offset, ENC_NA);
+        offset = size;
     }
 
     return offset;

@@ -20,6 +20,8 @@
 
 #include <string.h>
 #include <epan/dissectors/packet-socketcan.h>
+#include <epan/dissectors/packet-lin.h>
+#include <epan/dissectors/packet-flexray.h>
 #include <wsutil/wslog.h>
 #include <wsutil/report_message.h>
 #include <wsutil/filesystem.h>
@@ -143,18 +145,6 @@ ttl_free_reassembled_entry(void* data) {
         g_free(data);
     }
 }
-
-#ifndef OPT_EPB_FLAGS
-    #define OPT_EPB_FLAGS   0x0002  /* Copied from pcapng.c */
-#endif
-
-#ifndef FLEXRAY_FRAME
-    #define FLEXRAY_FRAME   0x01    /* Copied from packet-flexray.c */
-#endif
-
-#ifndef FLEXRAY_SYMBOL
-    #define FLEXRAY_SYMBOL  0x02    /* Copied from packet-flexray.c */
-#endif
 
 static void
 fix_endianness_ttl_fileheader(ttl_fileheader_t* header) {
@@ -1695,7 +1685,7 @@ ttl_add_eth_dir_option(wtap_rec* rec, uint16_t status) {
         break;
     }
 
-    wtap_block_add_uint32_option(rec->block, OPT_EPB_FLAGS, opt);
+    wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, opt);
 }
 
 static ttl_result_t
@@ -1736,7 +1726,7 @@ static void
 ttl_add_can_dir_option(wtap_rec* rec) {
     uint32_t opt = PACK_FLAGS_DIRECTION_INBOUND;    /* For the moment, we only support this */
 
-    wtap_block_add_uint32_option(rec->block, OPT_EPB_FLAGS, opt);
+    wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, opt);
 }
 
 static const uint8_t canfd_dlc_to_length[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64 };
@@ -1850,7 +1840,7 @@ static void
 ttl_add_lin_dir_option(wtap_rec* rec) {
     uint32_t opt = PACK_FLAGS_DIRECTION_INBOUND;    /* For the moment, we only support this */
 
-    wtap_block_add_uint32_option(rec->block, OPT_EPB_FLAGS, opt);
+    wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, opt);
 }
 
 static ttl_result_t
@@ -1871,7 +1861,7 @@ ttl_read_lin_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
     lin_header[1] = 0; /* reserved */
     lin_header[2] = 0; /* reserved */
     lin_header[3] = 0; /* reserved */
-    lin_header[4] = dlc << 4;   /* dlc (4bit) | type (2bit) | checksum type (2bit) */
+    lin_header[4] = (dlc << 4) | (LIN_MSG_TYPE_FRAME << 2); /* dlc (4bit) | type (2bit) | checksum type (2bit) */
     lin_header[5] = status & TTL_LIN_STATUS_PID_MASK;  /* parity (2bit) | id (6bit) */
     lin_header[6] = 0; /* checksum */
     lin_header[7] = 0; /* errors */
@@ -1919,7 +1909,7 @@ static void
 ttl_add_flexray_dir_option(wtap_rec* rec) {
     uint32_t opt = PACK_FLAGS_DIRECTION_INBOUND;    /* For the moment, we only support this */
 
-    wtap_block_add_uint32_option(rec->block, OPT_EPB_FLAGS, opt);
+    wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, opt);
 }
 
 static ttl_result_t
@@ -2508,13 +2498,13 @@ ttl_is_master_slave_relation_correct(uint16_t master, uint16_t slave) {
 }
 
 static bool
-ttl_parse_masters_pref_file(ttl_t* ttl, const char* path) {
+ttl_parse_masters_pref_file(GHashTable* ht, const char* path) {
     FILE*       fp;
     char        line[MAX_LINELEN];
     char*       cp;
     uint16_t    addr, tmp;
 
-    if (path == NULL) {
+    if (ht == NULL || path == NULL) {
         return false;
     }
 
@@ -2552,11 +2542,11 @@ ttl_parse_masters_pref_file(ttl_t* ttl, const char* path) {
 
         if (tmp) {  /* The address is coupled to the master */
             if (addr != 0 && ttl_is_master_slave_relation_correct(addr - 1, addr)) {
-                g_hash_table_insert(ttl->address_to_master_ht, GUINT_TO_POINTER(addr), GUINT_TO_POINTER(addr - 1));
+                g_hash_table_insert(ht, GUINT_TO_POINTER(addr), GUINT_TO_POINTER(addr - 1));
             }
         }
         else {  /* The address is independent from the master */
-            g_hash_table_insert(ttl->address_to_master_ht, GUINT_TO_POINTER(addr), GUINT_TO_POINTER(addr));
+            g_hash_table_insert(ht, GUINT_TO_POINTER(addr), GUINT_TO_POINTER(addr));
         }
     }
 
@@ -2575,16 +2565,16 @@ ttl_parse_masters_pref_file(ttl_t* ttl, const char* path) {
  * independent interface for the logger and coupled interface for the taps).
  */
 static bool
-ttl_init_masters_from_pref_file(ttl_t* ttl, const char* app_env_var_prefix) {
+ttl_init_masters_from_pref_file(GHashTable* ht, const char* app_env_var_prefix) {
     char*   pref_file;
     bool    ret;
 
     pref_file = get_persconffile_path(TTL_ADDRESS_MASTER_PREFS, true, app_env_var_prefix);
-    ret = ttl_parse_masters_pref_file(ttl, pref_file);
+    ret = ttl_parse_masters_pref_file(ht, pref_file);
     g_free(pref_file);
     if (!ret) {
         pref_file = get_persconffile_path(TTL_ADDRESS_MASTER_PREFS, false, app_env_var_prefix);
-        ret = ttl_parse_masters_pref_file(ttl, pref_file);
+        ret = ttl_parse_masters_pref_file(ht, pref_file);
         g_free(pref_file);
     }
 
@@ -2592,14 +2582,14 @@ ttl_init_masters_from_pref_file(ttl_t* ttl, const char* app_env_var_prefix) {
 }
 
 static bool
-ttl_parse_names_pref_file(ttl_t* ttl, const char* path) {
+ttl_parse_names_pref_file(GHashTable* ht, const char* path) {
     FILE*       fp;
     char        line[MAX_LINELEN];
     char*       cp;
     uint16_t    addr, tmp;
     char*       name;
 
-    if (path == NULL) {
+    if (ht == NULL || path == NULL) {
         return false;
     }
 
@@ -2633,7 +2623,7 @@ ttl_parse_names_pref_file(ttl_t* ttl, const char* path) {
         cp = strtok(NULL, " \t");
         if (cp != NULL && strlen(cp) != 0) {
             name = ws_strdup(cp);
-            g_hash_table_insert(ttl->address_to_name_ht, GUINT_TO_POINTER(addr), name);
+            g_hash_table_insert(ht, GUINT_TO_POINTER(addr), name);
         }
     }
 
@@ -2649,16 +2639,16 @@ ttl_parse_names_pref_file(ttl_t* ttl, const char* path) {
  * ttl_add_interface_name() starting from the interface address.
  */
 static bool
-ttl_init_names_from_pref_file(ttl_t* ttl, const char* app_env_var_prefix) {
+ttl_init_names_from_pref_file(GHashTable* ht, const char* app_env_var_prefix) {
     char*   pref_file;
     bool    ret;
 
     pref_file = get_persconffile_path(TTL_ADDRESS_NAME_PREFS, true, app_env_var_prefix);
-    ret = ttl_parse_names_pref_file(ttl, pref_file);
+    ret = ttl_parse_names_pref_file(ht, pref_file);
     g_free(pref_file);
     if (!ret) {
         pref_file = get_persconffile_path(TTL_ADDRESS_NAME_PREFS, false, app_env_var_prefix);
-        ret = ttl_parse_names_pref_file(ttl, pref_file);
+        ret = ttl_parse_names_pref_file(ht, pref_file);
         g_free(pref_file);
     }
 
@@ -2787,8 +2777,8 @@ ttl_open(wtap* wth, int* err, char** err_info) {
         }
     }
 
-    ttl_init_masters_from_pref_file(ttl, wth->app_env_var_prefix);
-    ttl_init_names_from_pref_file(ttl, wth->app_env_var_prefix);
+    ttl_init_masters_from_pref_file(ttl->address_to_master_ht, wth->app_env_var_prefix);
+    ttl_init_names_from_pref_file(ttl->address_to_name_ht, wth->app_env_var_prefix);
 
     wth->priv = (void*)ttl;
     wth->file_encap = WTAP_ENCAP_NONE;
