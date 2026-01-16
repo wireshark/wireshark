@@ -102,12 +102,12 @@ static ws_mempbrk_pattern pbrk_whitespace;
 #define UDP_PORT_CUPS  631
 #define PROTO_TAG_CUPS "CUPS"
 
-static unsigned get_hex_uint(tvbuff_t *tvb, int offset, int *next_offset);
-static bool skip_space(tvbuff_t *tvb, int offset, int *next_offset);
-static const char* get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
-    int *next_offset, unsigned *len);
-static const char* get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
-    int *next_offset, unsigned *len);
+static unsigned get_hex_uint(tvbuff_t *tvb, unsigned offset, unsigned *next_offset);
+static bool skip_space(tvbuff_t *tvb, unsigned offset, unsigned *next_offset);
+static const char* get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset,
+    unsigned *next_offset, unsigned *len);
+static const char* get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset,
+    unsigned *next_offset, unsigned *len);
 
 /**********************************************************************/
 
@@ -117,8 +117,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree   *cups_tree = NULL;
     proto_tree   *ptype_subtree = NULL;
     proto_item   *ti = NULL;
-    int           offset = 0;
-    int           next_offset;
+    unsigned      offset = 0;
+    unsigned      next_offset;
     unsigned      len;
     const char   *str;
     cups_ptype_t  ptype;
@@ -219,9 +219,9 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 }
 
 static unsigned
-get_hex_uint(tvbuff_t *tvb, int offset, int *next_offset)
+get_hex_uint(tvbuff_t *tvb, unsigned offset, unsigned *next_offset)
 {
-    int c;
+    char c;
     unsigned u = 0;
 
     while (g_ascii_isxdigit(c = tvb_get_uint8(tvb, offset))) {
@@ -235,10 +235,10 @@ get_hex_uint(tvbuff_t *tvb, int offset, int *next_offset)
     return u;
 }
 
-static bool
-skip_space(tvbuff_t *tvb, int offset, int *next_offset)
+WS_WARN_UNUSED static bool
+skip_space(tvbuff_t *tvb, unsigned offset, unsigned *next_offset)
 {
-    int c;
+    char c;
 
     while ((c = tvb_get_uint8(tvb, offset)) == ' ')
         offset++;
@@ -250,18 +250,17 @@ skip_space(tvbuff_t *tvb, int offset, int *next_offset)
     return true;
 }
 
-static const char*
-get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_offset, unsigned *len)
+WS_WARN_UNUSED static const char*
+get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned *next_offset, unsigned *len)
 {
-    int c;
+    char c;
     const char* s = NULL;
     unsigned l = 0;
-    int o;
+    unsigned o;
 
     c = tvb_get_uint8(tvb, offset);
     if (c == '"') {
-        o = tvb_find_uint8(tvb, offset+1, -1, '"');
-        if (o != -1) {
+        if (tvb_find_uint8_remaining(tvb, offset+1, '"', &o)) {
             offset++;
             l = o - offset;
             s = (char *)tvb_get_string_enc(scope, tvb, offset, l, ENC_UTF_8);
@@ -275,15 +274,14 @@ get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_
     return s;
 }
 
-static const char*
-get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_offset, unsigned *len)
+WS_WARN_UNUSED static const char*
+get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned *next_offset, unsigned *len)
 {
     const char* s = NULL;
     unsigned l = 0;
-    int o;
+    unsigned o;
 
-    o = tvb_ws_mempbrk_pattern_uint8(tvb, offset, -1, &pbrk_whitespace, NULL);
-    if (o != -1) {
+    if (tvb_ws_mempbrk_uint8_remaining(tvb, offset, &pbrk_whitespace, &o, NULL)) {
         l = o - offset;
         s = (char*)tvb_get_string_enc(scope, tvb, offset, l, ENC_UTF_8);
         offset = o;
