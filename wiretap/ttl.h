@@ -22,6 +22,8 @@ WS_DLL_PUBLIC uint16_t ttl_get_master_address(GHashTable* ht, uint16_t addr);
 WS_DLL_PUBLIC const char* ttl_get_cascade_name(uint16_t addr);
 WS_DLL_PUBLIC const char* ttl_get_device_name(uint16_t addr);
 WS_DLL_PUBLIC const char* ttl_get_function_name(uint16_t addr);
+WS_DLL_PUBLIC bool ttl_init_masters_from_pref_file(GHashTable* ht, const char* app_env_var_prefix);
+WS_DLL_PUBLIC bool ttl_init_names_from_pref_file(GHashTable* ht, const char* app_env_var_prefix);
 
 #define ttl_addr_get_cascade(x)     (((x) >> 10) & 0x7)
 #define ttl_addr_get_device(x)      (((x) >> 6) & 0xf)

@@ -21,6 +21,7 @@
 #include <epan/etypes.h>
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
+#include <epan/dissectors/packet-lin.h>
 
 #include <wiretap/ttl.h>
 
@@ -33,6 +34,8 @@ static dissector_handle_t ttl_in_eth_handle;
 static reassembly_table ttl_reassembly_table;
 
 static GHashTable* segmented_frames_info_ht = NULL;
+static GHashTable* address_to_master_ht;
+static GHashTable* address_to_name_ht;
 
 static int hf_ttl_trace_data_entry;
 static int hf_ttl_trace_data_entry_size;
@@ -991,23 +994,37 @@ dissect_ttl_can_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree
 }
 
 static unsigned
-dissect_ttl_lin_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree,
-    tvbuff_t* status_tvb, proto_tree* status_tree) {
+dissect_ttl_lin_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
+    tvbuff_t* status_tvb, proto_tree* status_tree, uint16_t src) {
     proto_item* ti;
-    proto_tree* subtree;
+    proto_tree* subtree, * payload_subtree;
+    uint32_t    id;
     unsigned    offset = 0, size = tvb_reported_length(tvb);
 
     ti = proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_lin_pid, status_tvb, TVB_STATUS_POS, 1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_ttl_trace_data_entry_status_info_lin_pid);
     proto_tree_add_item(subtree, hf_ttl_trace_data_entry_status_info_lin_parity, status_tvb, TVB_STATUS_POS, 1, ENC_NA);
-    proto_tree_add_item(subtree, hf_ttl_trace_data_entry_status_info_lin_id, status_tvb, TVB_STATUS_POS, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(subtree, hf_ttl_trace_data_entry_status_info_lin_id, status_tvb, TVB_STATUS_POS, 1, ENC_NA, &id);
     proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_lin_unused, status_tvb, TVB_STATUS_POS + 1, 1, ENC_NA);
     proto_tree_add_bitmask(status_tree, status_tvb, TVB_STATUS_POS + 1, hf_ttl_trace_data_entry_status_info_lin_flags,
         ett_ttl_trace_data_entry_status_info_lin_flags, ttl_trace_data_entry_status_info_lin_flags, ENC_NA);
 
     if (size > 1) {
         ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry_payload, tvb, offset, size - 1, ENC_NA);
+        payload_subtree = proto_item_add_subtree(ti, ett_ttl_trace_data_entry_payload);
         proto_item_prepend_text(ti, "LIN ");
+
+        if (pref_dissect_next_layer) {
+            const char* iface_name = g_hash_table_lookup(address_to_name_ht, GUINT_TO_POINTER(src));
+            lin_info_t lininfo = {
+                .id = id,
+                .bus_id = lin_get_bus_id_from_interface_name(iface_name),
+                .len = size - 1
+            };
+
+            dissect_lin_message(tvb_new_subset_length(tvb, offset, size - 1), pinfo, payload_subtree, &lininfo);
+        }
+
         offset += (size - 1);
 
         proto_tree_add_item(tree, hf_ttl_trace_data_entry_lin_checksum, tvb, offset, 1, ENC_NA);
@@ -1095,7 +1112,7 @@ dissect_ttl_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
     case WTAP_ENCAP_LIN:
         proto_item_append_text(root, " (LIN)");
         if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (LIN)");
-        offset += dissect_ttl_lin_bus_data_entry(tvb, pinfo, tree, status_tvb, status_tree);
+        offset += dissect_ttl_lin_bus_data_entry(tvb, pinfo, tree, status_tvb, status_tree, src);
         break;
     case WTAP_ENCAP_FLEXRAY:
         proto_item_append_text(root, " (FlexRay)");
@@ -1333,6 +1350,10 @@ dissect_ttl_from_file(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
 static void ttl_shutdown(void) {
     g_hash_table_destroy(segmented_frames_info_ht);
     segmented_frames_info_ht = NULL;
+    g_hash_table_destroy(address_to_master_ht);
+    address_to_master_ht = NULL;
+    g_hash_table_destroy(address_to_name_ht);
+    address_to_name_ht = NULL;
 }
 
 void
@@ -1343,6 +1364,8 @@ proto_register_ttl(void) {
     register_shutdown_routine(&ttl_shutdown);
 
     segmented_frames_info_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
+    address_to_master_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+    address_to_name_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
     static hf_register_info hf[] = {
         { &hf_ttl_trace_data_entry,
@@ -1624,6 +1647,9 @@ proto_register_ttl(void) {
 
         REASSEMBLE_INIT_ETT_ITEMS(ttl),
     };
+
+    ttl_init_masters_from_pref_file(address_to_master_ht, epan_get_environment_prefix());
+    ttl_init_names_from_pref_file(address_to_name_ht, epan_get_environment_prefix());
 
     proto_ttl = proto_register_protocol("TTL Format", "TTL", "ttl");
     expert_ttl = expert_register_protocol(proto_ttl);

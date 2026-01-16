@@ -2564,8 +2564,7 @@ ttl_parse_masters_pref_file(GHashTable* ht, const char* path) {
  * by ttl_lookup_interface() according to the default behaviour (currently,
  * independent interface for the logger and coupled interface for the taps).
  */
-static bool
-ttl_init_masters_from_pref_file(GHashTable* ht, const char* app_env_var_prefix) {
+bool ttl_init_masters_from_pref_file(GHashTable* ht, const char* app_env_var_prefix) {
     char*   pref_file;
     bool    ret;
 
@@ -2638,8 +2637,7 @@ ttl_parse_names_pref_file(GHashTable* ht, const char* path) {
  * is used. If also that is not present, a meaningful name is generated in
  * ttl_add_interface_name() starting from the interface address.
  */
-static bool
-ttl_init_names_from_pref_file(GHashTable* ht, const char* app_env_var_prefix) {
+bool ttl_init_names_from_pref_file(GHashTable* ht, const char* app_env_var_prefix) {
     char*   pref_file;
     bool    ret;
 
