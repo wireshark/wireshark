@@ -6688,7 +6688,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
 
     num_bearers = 0;
 
-    while ((len - (curr_offset - offset)) > 0)
+    while (len > (curr_offset - offset))
     {
         orig_offset = curr_offset;
 
