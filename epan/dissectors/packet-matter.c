@@ -747,5 +747,9 @@ proto_register_matter(void)
 void
 proto_reg_handoff_matter(void)
 {
+    /* Register default Matter ports 5540 for automatic dissection */
+    dissector_add_uint("udp.port", 5540, matter_handle);
+
+    /* Allow decode-as for other ports */
     dissector_add_for_decode_as("udp.port", matter_handle);
 }

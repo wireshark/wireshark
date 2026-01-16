@@ -20,6 +20,8 @@
 #include <config.h>
 
 #include <epan/packet.h>
+#include <epan/reassemble.h>
+#include <epan/decode_as.h>
 #include "packet-btatt.h"
 
 void proto_register_btatt_matter(void);
@@ -27,7 +29,12 @@ void proto_reg_handoff_btatt_matter(void);
 
 static int proto_matter_btp;
 static dissector_handle_t matter_btp_handle;
+static dissector_handle_t matter_handle;
 static dissector_handle_t matter_tlv_handle;
+static dissector_table_t matter_btp_payload_table;
+static reassembly_table matter_btp_reassembly_table;
+static int ett_matter_btp_fragment;
+static int ett_matter_btp_fragments;
 
 static int hf_matter_btp_flags;
 static int hf_matter_btp_flags_handshake;
@@ -55,6 +62,17 @@ static int hf_matter_btp_length;
 static int hf_matter_btp_payload;
 static int hf_matter_btp_ad;
 static int hf_matter_btp_ad_tlv_tag;
+static int hf_matter_btp_fragment;
+static int hf_matter_btp_fragments;
+static int hf_matter_btp_fragment_overlap;
+static int hf_matter_btp_fragment_overlap_conflict;
+static int hf_matter_btp_fragment_multiple_tails;
+static int hf_matter_btp_fragment_too_long_fragment;
+static int hf_matter_btp_fragment_error;
+static int hf_matter_btp_fragment_count;
+static int hf_matter_btp_reassembled_in;
+static int hf_matter_btp_reassembled_length;
+static int hf_matter_btp_reassembled_data;
 
 static int ett_matter_btp;
 static int ett_matter_btp_flags;
@@ -92,6 +110,28 @@ static const value_string btp_opcode_vals[] = {
 static const value_string btp_ad_tag_vals[] = {
     { MATTER_BTP_AD_TAG_ROTATING_ID, "Rotating Device Identifier" },
     { 0, NULL }
+};
+
+static const fragment_items btp_matter_frag_items = {
+    /* Fragment subtrees */
+    &ett_matter_btp_fragment,
+    &ett_matter_btp_fragments,
+    /* Fragment fields */
+    &hf_matter_btp_fragments,
+    &hf_matter_btp_fragment,
+    &hf_matter_btp_fragment_overlap,
+    &hf_matter_btp_fragment_overlap_conflict,
+    &hf_matter_btp_fragment_multiple_tails,
+    &hf_matter_btp_fragment_too_long_fragment,
+    &hf_matter_btp_fragment_error,
+    &hf_matter_btp_fragment_count,
+    /* "Reassembled in" field */
+    &hf_matter_btp_reassembled_in,
+    /* Reassembled length field */
+    &hf_matter_btp_reassembled_length,
+    &hf_matter_btp_reassembled_data,
+    /* Tag */
+    "BTP-Matter fragments"
 };
 
 // Dissect the Additional Data characteristic using Matter-defined TLV encoding.
@@ -270,7 +310,54 @@ dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, vo
         offset += 2;
     }
 
-    proto_tree_add_item(tree, hf_matter_btp_payload, tvb, offset, -1, ENC_NA);
+    tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
+    int payload_length = tvb_reported_length(payload_tvb);
+
+    proto_tree_add_bytes_format(tree, hf_matter_btp_payload, tvb, offset, -1, NULL,
+                                "Matter BTP Fragment (%d bytes)", payload_length);
+
+    tvbuff_t *reassembled_tvb = NULL;
+
+    /* Reassemble fragmented packets */
+    if (flags & (MATTER_BTP_FLAGS_BEGINNING | MATTER_BTP_FLAGS_CONTINUING | MATTER_BTP_FLAGS_ENDING)) {
+        fragment_head *frag_msg = NULL;
+
+        /* Create unique reassembly ID from handle and direction */
+        uint32_t reassembly_id = att_handle;
+        if (pinfo->p2p_dir == P2P_DIR_RECV) {
+            reassembly_id |= 0x80000000;
+        }
+
+        pinfo->fragmented = true;
+
+        frag_msg = fragment_add_seq_next(&matter_btp_reassembly_table, tvb, offset, pinfo,
+                                        reassembly_id, NULL,
+                                        tvb_reported_length(payload_tvb),
+                                        !(flags & MATTER_BTP_FLAGS_ENDING));
+
+        reassembled_tvb = process_reassembled_data(tvb, offset, pinfo,
+                                                  "Reassembled BTP-Matter", frag_msg,
+                                                  &btp_matter_frag_items, NULL, tree);
+
+        if (reassembled_tvb) {
+            payload_tvb = reassembled_tvb;
+        }
+    }
+
+    /* Try subdissectors for complete payloads, fall back to Matter */
+    const bool has_segment_flags = flags & (MATTER_BTP_FLAGS_BEGINNING | MATTER_BTP_FLAGS_CONTINUING | MATTER_BTP_FLAGS_ENDING);
+    const bool single_segment = has_segment_flags &&
+        ((flags & (MATTER_BTP_FLAGS_BEGINNING | MATTER_BTP_FLAGS_ENDING)) ==
+         (MATTER_BTP_FLAGS_BEGINNING | MATTER_BTP_FLAGS_ENDING));
+    const bool payload_complete = (reassembled_tvb != NULL) || single_segment || !has_segment_flags;
+
+    if (payload_complete) {
+        int parsed_bytes = dissector_try_payload_with_data(matter_btp_payload_table, payload_tvb, pinfo, root, true, NULL);
+        if (parsed_bytes <= 0 && matter_handle) {
+            /* Fall back to Matter if no subdissector handled it */
+            call_dissector(matter_handle, payload_tvb, pinfo, root);
+        }
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -409,6 +496,61 @@ proto_register_btatt_matter(void)
             FT_UINT8, BASE_HEX, VALS(btp_ad_tag_vals), 0x0,
             NULL, HFILL}
         },
+        {&hf_matter_btp_fragment,
+            {"BTP-Matter Fragment", "btp-matter.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_matter_btp_fragment_overlap,
+            {"Fragment Overlap", "btp-matter.fragment.overlap",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment overlaps with other fragments", HFILL}
+        },
+        {&hf_matter_btp_fragment_overlap_conflict,
+            {"Fragment Overlap Conflict", "btp-matter.fragment.overlap.conflict",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Overlapping fragments have conflicting data", HFILL}
+        },
+        {&hf_matter_btp_fragment_multiple_tails,
+            {"Multiple Tail Fragments Found", "btp-matter.fragment.multiple_tails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Multiple fragments with ending flag", HFILL}
+        },
+        {&hf_matter_btp_fragment_too_long_fragment,
+            {"Fragment Too Long", "btp-matter.fragment.too_long_fragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment extends past end of packet", HFILL}
+        },
+        {&hf_matter_btp_fragment_error,
+            {"Defragmentation Error", "btp-matter.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_matter_btp_fragment_count,
+            {"Fragment Count", "btp-matter.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_matter_btp_reassembled_in,
+            {"Reassembled in", "btp-matter.reassembled_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "This fragment is reassembled in this frame", HFILL}
+        },
+        {&hf_matter_btp_reassembled_length,
+            {"Reassembled Length", "btp-matter.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The total length of the reassembled payload", HFILL}
+        },
+        {&hf_matter_btp_fragments,
+            {"Fragments", "btp-matter.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "BTP-Matter Fragments", HFILL}
+        },
+        {&hf_matter_btp_reassembled_data,
+            {"Reassembled Data", "btp-matter.reassembled_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
     };
 
     /* Setup protocol subtree array */
@@ -417,6 +559,8 @@ proto_register_btatt_matter(void)
         &ett_matter_btp_flags,
         &ett_matter_btp_versions,
         &ett_matter_btp_ad,
+        &ett_matter_btp_fragment,
+        &ett_matter_btp_fragments,
     };
 
     /* Register the protocol name and description */
@@ -426,11 +570,22 @@ proto_register_btatt_matter(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_matter_btp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Initialize reassembly table for fragmented packets */
+    reassembly_table_register(&matter_btp_reassembly_table, &addresses_reassembly_table_functions);
+
+    /* Register decode-as table for payload */
+    matter_btp_payload_table = register_decode_as_next_proto(proto_matter_btp, "btp-matter.payload",
+        "BTP-Matter payload", NULL);
 }
 
 void
 proto_reg_handoff_btatt_matter(void)
 {
+    matter_handle = find_dissector_add_dependency("matter", proto_matter_btp);
     matter_tlv_handle = find_dissector_add_dependency("matter.tlv", proto_matter_btp);
     dissector_add_uint("btatt.service", MATTER_GATT_SRV_UUID, matter_btp_handle);
+
+    /* Add Matter as the default payload dissector */
+    dissector_add_for_decode_as("btp-matter.payload", matter_handle);
 }
