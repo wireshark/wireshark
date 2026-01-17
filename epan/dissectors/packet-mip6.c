@@ -33,6 +33,7 @@
  * RFC 6705, Localized Routing for Proxy Mobile IPv6
  * RFC 6757, Access Network Identifier (ANI) Option for Proxy Mobile IPv6
  * RFC 7148, Prefix Delegation Support for Proxy Mobile IPv6
+ * RFC 8371, Mobile Node Identifier Types for MIPv6
  *
  */
 
@@ -446,6 +447,14 @@ static const value_string fmip6_lla_optcode_value[] = {
 /* Mobile Node Identifier Option code */
 static const value_string mip6_mnid_subtype_value[] = {
     {   1, "Network Access Identifier (NAI)" },
+    {   2, "IPv6 Address" },
+    {   3, "IMSI" },
+    {   4, "P-TMSI" },
+    {   5, "EUI-48 Address" },
+    {   6, "EUI-64 Address" },
+    {   7, "GUTI" },
+    {   8, "DUID" },
+    /* 9 - 15 "Reserved" */
     {   0, NULL }
 };
 
@@ -2259,7 +2268,7 @@ dissect_mip6_opt_mnid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     proto_item* ti;
     unsigned option_len = tvb_reported_length(tvb)-2;
     unsigned offset = 2;
-    const uint8_t *str;
+    char *str;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_mnid, ett_mip6_opt_mnid, &ti, option_len, MIP6_MNID_MINLEN);
 
@@ -2267,8 +2276,9 @@ dissect_mip6_opt_mnid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
             offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    if (option_len - offset > 0) {
-        proto_tree_add_item_ret_string(opt_tree, hf_mip6_mnid_identifier, tvb, offset, option_len - 1, ENC_UTF_8|ENC_NA, pinfo->pool, &str);
+    if (option_len > 1) {
+        /* XXX - Handle each known subtype appropriately. */
+        proto_tree_add_item_ret_display_string(opt_tree, hf_mip6_mnid_identifier, tvb, offset, option_len - 1, ENC_NA, pinfo->pool, &str);
         proto_item_append_text(ti, ": %s", str);
     }
 
@@ -4399,7 +4409,7 @@ proto_register_mip6(void)
     },
     { &hf_mip6_mnid_identifier,
       { "Identifier", "mip6.mnid.identifier",
-        FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_BYTES, BASE_SHOW_UTF_8_PRINTABLE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_mip6_opt_auth_sub_type,
