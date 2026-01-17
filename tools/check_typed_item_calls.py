@@ -2389,131 +2389,132 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     return result
 
 
-#################################################################
-# Main logic.
+if __name__ == '__main__':
+    #################################################################
+    # Main logic.
 
-# command-line args.  Controls which dissector files should be checked.
-# If no args given, will just scan epan/dissectors folder.
-parser = argparse.ArgumentParser(description='Check calls in dissectors')
-parser.add_argument('--file', action='append',
-                    help='specify individual dissector file to test')
-parser.add_argument('--folder', action='store', default='',
-                    help='specify folder to test')
-parser.add_argument('--commits', action='store',
-                    help='last N commits to check')
-parser.add_argument('--open', action='store_true',
-                    help='check open files')
-parser.add_argument('--mask', action='store_true',
-                    help='when set, check mask field too')
-parser.add_argument('--mask-exact-width', action='store_true',
-                    help='when set, check width of mask against field width')
-parser.add_argument('--label', action='store_true',
-                    help='when set, check label field too')
-parser.add_argument('--consecutive', action='store_true',
-                    help='when set, copy copy/paste errors between consecutive items')
-parser.add_argument('--missing-items', action='store_true',
-                    help='when set, look for used items that were never registered')
-parser.add_argument('--check-bitmask-fields', action='store_true',
-                    help='when set, attempt to check arrays of hf items passed to add_bitmask() calls')
-parser.add_argument('--label-vs-filter', action='store_true',
-                    help='when set, check whether label matches last part of filter')
-parser.add_argument('--extra-value-string-checks', action='store_true',
-                    help='when set, do extra checks on parsed value_strings')
-parser.add_argument('--check-expert-items', action='store_true',
-                    help='when set, do extra checks on expert items')
-parser.add_argument('--check-subtrees', action='store_true',
-                    help='when set, do extra checks ett variables')
-parser.add_argument('--check-double-fetch', action='store_true',
-                    help='when set, attempt to warn for values being double-fetched')
+    # command-line args.  Controls which dissector files should be checked.
+    # If no args given, will just scan epan/dissectors folder.
+    parser = argparse.ArgumentParser(description='Check calls in dissectors')
+    parser.add_argument('--file', action='append',
+                        help='specify individual dissector file to test')
+    parser.add_argument('--folder', action='store', default='',
+                        help='specify folder to test')
+    parser.add_argument('--commits', action='store',
+                        help='last N commits to check')
+    parser.add_argument('--open', action='store_true',
+                        help='check open files')
+    parser.add_argument('--mask', action='store_true',
+                        help='when set, check mask field too')
+    parser.add_argument('--mask-exact-width', action='store_true',
+                        help='when set, check width of mask against field width')
+    parser.add_argument('--label', action='store_true',
+                        help='when set, check label field too')
+    parser.add_argument('--consecutive', action='store_true',
+                        help='when set, copy copy/paste errors between consecutive items')
+    parser.add_argument('--missing-items', action='store_true',
+                        help='when set, look for used items that were never registered')
+    parser.add_argument('--check-bitmask-fields', action='store_true',
+                        help='when set, attempt to check arrays of hf items passed to add_bitmask() calls')
+    parser.add_argument('--label-vs-filter', action='store_true',
+                        help='when set, check whether label matches last part of filter')
+    parser.add_argument('--extra-value-string-checks', action='store_true',
+                        help='when set, do extra checks on parsed value_strings')
+    parser.add_argument('--check-expert-items', action='store_true',
+                        help='when set, do extra checks on expert items')
+    parser.add_argument('--check-subtrees', action='store_true',
+                        help='when set, do extra checks ett variables')
+    parser.add_argument('--check-double-fetch', action='store_true',
+                        help='when set, attempt to warn for values being double-fetched')
 
-parser.add_argument('--all-checks', action='store_true',
-                    help='when set, apply all checks to selected files')
-
-
-args = parser.parse_args()
-
-# Turn all checks on.
-if args.all_checks:
-    args.mask = True
-    args.mask_exact_width = True
-    args.consecutive = True
-    args.check_bitmask_fields = True
-    args.label = True
-    args.label_vs_filter = True
-    # args.extra_value_string_checks = True
-    args.check_expert_items = True
-    # args.check_subtrees = True
-    args.check_double_fetch = True
-
-if args.check_bitmask_fields:
-    args.mask = True
+    parser.add_argument('--all-checks', action='store_true',
+                        help='when set, apply all checks to selected files')
 
 
-# Get files from wherever command-line args indicate.
-files = []
+    args = parser.parse_args()
 
-if args.file:
-    # Add specified file(s)
-    for f in args.file:
-        if not os.path.isfile(f):
-            print('Chosen file', f, 'does not exist.')
+    # Turn all checks on.
+    if args.all_checks:
+        args.mask = True
+        args.mask_exact_width = True
+        args.consecutive = True
+        args.check_bitmask_fields = True
+        args.label = True
+        args.label_vs_filter = True
+        # args.extra_value_string_checks = True
+        args.check_expert_items = True
+        # args.check_subtrees = True
+        args.check_double_fetch = True
+
+    if args.check_bitmask_fields:
+        args.mask = True
+
+
+    # Get files from wherever command-line args indicate.
+    files = []
+
+    if args.file:
+        # Add specified file(s)
+        for f in args.file:
+            if not os.path.isfile(f):
+                print('Chosen file', f, 'does not exist.')
+                exit(1)
+            else:
+                files.append(f)
+    elif args.folder:
+        # Add all files from a given folder.
+        folder = args.folder
+        if not os.path.isdir(folder):
+            print('Folder', folder, 'not found!')
             exit(1)
-        else:
-            files.append(f)
-elif args.folder:
-    # Add all files from a given folder.
-    folder = args.folder
-    if not os.path.isdir(folder):
-        print('Folder', folder, 'not found!')
-        exit(1)
-    # Find files from folder.
-    print('Looking for files in', folder)
-    files = findDissectorFilesInFolder(folder, recursive=True)
-elif args.commits:
-    files = getFilesFromCommits(args.commits)
-elif args.open:
-    # Unstaged changes.
-    files = getFilesFromOpen()
-else:
-    # Find all dissector files.
-    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
-    files += findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
-
-
-# If scanning a subset of files, list them here.
-print('Examining:')
-if args.file or args.commits or args.open:
-    if files:
-        print(' '.join(files), '\n')
+        # Find files from folder.
+        print('Looking for files in', folder)
+        files = findDissectorFilesInFolder(folder, recursive=True)
+    elif args.commits:
+        files = getFilesFromCommits(args.commits)
+    elif args.open:
+        # Unstaged changes.
+        files = getFilesFromOpen()
     else:
-        print('No files to check.\n')
-else:
-    print('All dissector modules\n')
+        # Find all dissector files.
+        files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
+        files += findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
 
 
-# Now check the chosen files
-with concurrent.futures.ProcessPoolExecutor() as executor:
-    future_to_file_output = {executor.submit(checkFile, file,
-                                             check_mask=args.mask, mask_exact_width=args.mask_exact_width, check_label=args.label,
-                                             check_consecutive=args.consecutive, check_missing_items=args.missing_items,
-                                             check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter,
-                                             extra_value_string_checks=args.extra_value_string_checks,
-                                             check_expert_items=args.check_expert_items, check_subtrees=args.check_subtrees,
-                                             check_double_fetch=args.check_double_fetch): file for file in files}
-    for future in concurrent.futures.as_completed(future_to_file_output):
-        if should_exit:
-            exit(1)
-        # File is done - show any output and update warning, error counts
-        result = future.result()
-        output = result.out.getvalue()
-        if len(output):
-            print(output)
+    # If scanning a subset of files, list them here.
+    print('Examining:')
+    if args.file or args.commits or args.open:
+        if files:
+            print(' '.join(files), '\n')
+        else:
+            print('No files to check.\n')
+    else:
+        print('All dissector modules\n')
 
-        warnings_found += result.warnings
-        errors_found += result.errors
 
-# Show summary.
-print(warnings_found, 'warnings')
-if errors_found:
-    print(errors_found, 'errors')
-    exit(1)
+    # Now check the chosen files
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        future_to_file_output = {executor.submit(checkFile, file,
+                                                 check_mask=args.mask, mask_exact_width=args.mask_exact_width, check_label=args.label,
+                                                 check_consecutive=args.consecutive, check_missing_items=args.missing_items,
+                                                 check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter,
+                                                 extra_value_string_checks=args.extra_value_string_checks,
+                                                 check_expert_items=args.check_expert_items, check_subtrees=args.check_subtrees,
+                                                 check_double_fetch=args.check_double_fetch): file for file in files}
+        for future in concurrent.futures.as_completed(future_to_file_output):
+            if should_exit:
+                exit(1)
+            # File is done - show any output and update warning, error counts
+            result = future.result()
+            output = result.out.getvalue()
+            if len(output):
+                print(output)
+
+            warnings_found += result.warnings
+            errors_found += result.errors
+
+    # Show summary.
+    print(warnings_found, 'warnings')
+    if errors_found:
+        print(errors_found, 'errors')
+        exit(1)
