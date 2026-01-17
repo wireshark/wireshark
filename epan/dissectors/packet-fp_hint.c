@@ -295,6 +295,12 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, f
     fpi->num_chans = cnt;
     fpi->dch_crc_present = 1;
     while (i < cnt) {
+        if (i >= MAX_FP_CHANS) {
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_fph_fp_channels, tvb, offset,
+                "Frame contains more FP channels than currently supported (%u supported)",
+                MAX_FP_CHANS);
+            return;
+        }
         pi = proto_tree_add_item(tree, hf_fph_tf, tvb, offset, 4, ENC_NA);
         subtree = proto_item_add_subtree(pi, ett_fph_rb);
         hdr = tvb_get_ptr(tvb, offset, 4);
@@ -314,12 +320,6 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, f
                 proto_tree_add_uint(subtree, hf_fph_tf_size, tvb, offset + 1, 3, size);
         }
         offset += 4;
-        if (i > MAX_FP_CHANS) {
-            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_fph_fp_channels, tvb, offset,
-                "Frame contains more FP channels than currently supported (%u supported)",
-                MAX_FP_CHANS);
-            return;
-        }
         i++;
     }
     rbcnt = tvb_get_uint8(tvb, offset); offset++;
