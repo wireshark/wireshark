@@ -606,6 +606,8 @@ static int dissect_iuup_data(tvbuff_t* tvb, packet_info* pinfo,
     case PDUTYPE_DATA_NO_CRC:
         payload_offset = 3;
         break;
+    default:
+        DISSECTOR_ASSERT_NOT_REACHED();
     }
     dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f, payload_offset);
     return tvb_captured_length(tvb);
