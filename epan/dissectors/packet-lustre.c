@@ -11,6 +11,7 @@
 
 /*
  * This is accurate for Lustre dissection as of Lustre 2.10.2 - November 2017
+ * https://jira.whamcloud.com/secure/attachment/17156/protocol.pdf
  */
 
 #include <config.h>
@@ -5615,7 +5616,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             offset += 4;
             proto_tree_add_item(tree, hf_lustre_llog_setattr64_rec_gid_h, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_lustre_llog_setattr64_rec_valid, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(tree, hf_lustre_llog_setattr64_rec_valid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             offset = dissect_struct_llog_rec_tail(tvb, offset, tree, hf_lustre_llog_setattr64_rec_tail);
             break;
@@ -6976,6 +6977,10 @@ dissect_lustre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     lustre_tree = proto_item_add_subtree(ti, ett_lustre);
 
     magic_number = tvb_get_letohl(tvb, 8);
+    /* XXX - Lustre uses the native Endianess of the sender; the receiver is
+     * to read the magic number and byte swap if necessary (the magic number
+     * is not byte-symmetric.) Currently this dissector just assumes L.E.
+     */
 
     switch (magic_number) {
       case MSG_MAGIC_V1:

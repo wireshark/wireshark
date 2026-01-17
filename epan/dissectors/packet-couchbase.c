@@ -2264,7 +2264,7 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     }
 
-    ti = proto_tree_add_item(tree, hf_key, tvb, offset, keylen, ENC_UTF_8|ENC_STR_HEX);
+    ti = proto_tree_add_item(tree, hf_key, tvb, offset, keylen, ENC_UTF_8);
 
     if (collection_encoded_key) {
       /* assume collections are enabled and add a field for the CID */

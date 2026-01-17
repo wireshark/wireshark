@@ -1128,7 +1128,7 @@ static void decode_tlv(proto_tree *tree,
 
         if (property_is_utf8(noe_class, property_code))
         {
-            proto_tree_add_item(property_tree, hf_noe_property_item_utf8, tvb, offset, property_length, ENC_STRING);
+            proto_tree_add_item(property_tree, hf_noe_property_item_utf8, tvb, offset, property_length, ENC_UTF_8);
         }
         else
         {

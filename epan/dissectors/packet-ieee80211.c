@@ -41996,7 +41996,7 @@ dissect_ieee80211_unknown_pv(tvbuff_t *tvb, packet_info *pinfo _U_,
    * protocol version. Let's use the PV1 version so that, among other
    * things, it will highlight the entire putative FCF and throw an
    * exception if we have fewer than two octets. */
-  proto_tree_add_item(hdr_tree, hf_ieee80211_fc_pv1_proto_version, tvb, offset, 2, ENC_NA);
+  proto_tree_add_item(hdr_tree, hf_ieee80211_fc_pv1_proto_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   len -= 2;  /* We have already dealt with two bytes (FCF) */
   if (phdr->fcs_len == 4) {
     /* This is claimed to have an FCS. Is there enough reported room for it? */

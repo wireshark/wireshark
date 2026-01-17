@@ -2896,8 +2896,11 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, int s
                                   start_offset, length, ENC_UTF_8|ENC_STR_HEX|ENC_SEP_NONE,
                                   bytes, NULL, NULL);
     } else {
+        /* proto_tree_add_byte_item returns NULL with length 0, which doesn't
+         * give us an item to add the expert info to. Work around that.
+         */
         pi = proto_tree_add_item(tree, hf_sip_session_id_sess_id, tvb,
-            start_offset, length, ENC_UTF_8 | ENC_STR_HEX | ENC_SEP_NONE);
+            start_offset, length, ENC_NA);
         expert_add_info(pinfo, pi, &ei_sip_session_id_sess_id);
     }
 
