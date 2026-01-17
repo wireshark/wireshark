@@ -3126,7 +3126,7 @@ dissect_dhcpopt_classless_static_route(tvbuff_t *tvb, packet_info *pinfo, proto_
 			1 + significant_octets + 4, NULL, " ");
 		offset++;
 		/* significant octets + router(4) */
-		if (tvb_reported_length_remaining(tvb, offset + significant_octets + 4) < 0) {
+		if (tvb_reported_length_remaining(tvb, offset) < significant_octets + 4) {
 			expert_add_info_format(pinfo, route_item, &ei_dhcp_bad_length, "Remaining length (%d) < %d bytes", tvb_reported_length_remaining(tvb, offset), significant_octets + 4);
 			break;
 		}
@@ -3231,7 +3231,7 @@ dissect_dhcpopt_vi_vendor_class(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		offset += 1;
 
 		s_end = offset + option_data_len;
-		if ( tvb_reported_length_remaining(tvb, s_end) < 0) {
+		if ( tvb_reported_length_remaining(tvb, offset) < (int)option_data_len) {
 			break;
 		}
 
@@ -5348,7 +5348,7 @@ dissect_dhcpopt_vi_vendor_specific_info(tvbuff_t *tvb, packet_info *pinfo, proto
 		offset += 1;
 
 		s_end = offset + option_data_len;
-		if ( tvb_reported_length_remaining(tvb, s_end) < 0 ) {
+		if ( tvb_reported_length_remaining(tvb, offset) < (int)option_data_len ) {
 			expert_add_info_format(pinfo, vti, &ei_dhcp_option125_enterprise_malformed, "no room left in option for enterprise %u data", enterprise);
 			break;
 		}
