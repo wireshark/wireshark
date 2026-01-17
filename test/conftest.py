@@ -32,9 +32,10 @@ def pytest_addoption(parser):
     )
     parser.addoption('--skip-missing-programs',
         help='Skip tests that lack programs from this list instead of failing'
-             ' them. Use "all" to ignore all missing programs.',
-        # We might want to build this automatically, e.g. by grepping CMakeCache.txt
-        default='stratoshark,strato,falcodump,dumpcalls,sshdig'
+             ' them. Use "all" to ignore all missing programs.'
+    )
+    parser.addoption('--enable-stratoshark', action='store_true',
+        help='Enable Stratoshark and related tests'
     )
     parser.addoption('--enable-release', action='store_true',
         help='Enable release tests'
@@ -108,7 +109,10 @@ def program(program_path, request):
     if sys.platform.startswith('win32'):
         dotexe = '.exe'
 
-    def resolver(name):
+    def resolver(name, stratoshark_program=False):
+        stratoshark_enabled = request.config.getoption('--enable-stratoshark', default=False)
+        if stratoshark_program and not stratoshark_enabled:
+            pytest.skip(f'{name} has not been enabled via --enable-stratoshark')
         path = os.path.abspath(os.path.join(program_path, name + dotexe))
         if not os.access(path, os.X_OK):
             if skip_if_missing == ['all'] or os.path.basename(name) in skip_if_missing:
@@ -169,11 +173,18 @@ def wireshark_command(cmd_wireshark):
             pytest.skip('Wireshark GUI tests require DISPLAY')
     return (cmd_wireshark, '-ogui.update.enabled:FALSE')
 
+@pytest.fixture(scope='session')
+def cmd_strato(program):
+    return program('strato', stratoshark_program=True)
+
 
 @pytest.fixture(scope='session')
-def cmd_extcap(program):
+def cmd_extcap(program, request):
     def extcap_name(name, stratoshark_extcap=False):
         if stratoshark_extcap:
+            stratoshark_enabled = request.config.getoption('--enable-stratoshark', default=False)
+            if not stratoshark_enabled:
+                pytest.skip(f'{name} has not been enabled via --enable-stratoshark')
             if sys.platform == 'darwin':
                 return program(os.path.join('Stratoshark.app/Contents/MacOS/extcap', name))
             else:
