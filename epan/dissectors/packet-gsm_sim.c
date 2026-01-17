@@ -1814,15 +1814,16 @@ static const char *get_sw_string(wmem_allocator_t *scope, uint16_t sw)
 static int
 get_ber_tlv_tag(tvbuff_t *tvb, int offset, uint32_t *tag, uint8_t *tag_size)
 {
-	*tag_size = 0;
-	*tag = tvb_get_uint8(tvb, offset + (*tag_size)++);
+	*tag = tvb_get_uint8(tvb, offset++);
+	*tag_size = 1;
 
 	if ((*tag & 0x1F) == 0x1F) {
 		/* Extended tag */
 		*tag = 0;
-		while (tvb_reported_length_remaining(tvb, offset + (*tag_size)) > 0) {
-			uint8_t tag_byte = tvb_get_uint8(tvb, offset + (*tag_size)++);
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
+			uint8_t tag_byte = tvb_get_uint8(tvb, offset++);
 			*tag = (*tag << 7) | (tag_byte & 0x7F);
+			(*tag_size)++;
 
 			if ((tag_byte & 0x80) == 0) {
 				break; /* Last tag byte */
@@ -1830,24 +1831,25 @@ get_ber_tlv_tag(tvbuff_t *tvb, int offset, uint32_t *tag, uint8_t *tag_size)
 		}
 	}
 
-	return offset + *tag_size;
+	return offset;
 }
 
 /* Parse BER-TLV length */
 static int
 get_ber_tlv_len(tvbuff_t *tvb, int offset, uint32_t *len, uint8_t *len_size)
 {
-	*len_size = 0;
-	*len = tvb_get_uint8(tvb, offset + (*len_size)++);
+	*len = tvb_get_uint8(tvb, offset++);
+	*len_size = 1;
 
 	if (*len & 0x80) {
 		int n = *len & 0x7F;
 		while (n--) {
-			*len = (*len << 8) | tvb_get_uint8(tvb, offset + (*len_size)++);
+			*len = (*len << 8) | tvb_get_uint8(tvb, offset++);
+			(*len_size)++;
 		}
 	}
 
-	return offset + *len_size;
+	return offset;
 }
 
 static void
