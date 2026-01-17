@@ -1142,14 +1142,9 @@ dissect_kafka_compact_array(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
      * Compact arrays store count+1
      * https://cwiki.apache.org/confluence/display/KAFKA/KIP-482%3A+The+Kafka+Protocol+should+Support+Optional+Tagged+Fields
      */
-    if (count) {
-        offset = dissect_kafka_array_elements(tree, tvb, pinfo, offset, api_version, func, (int)(count - 1));
+    offset = dissect_kafka_array_elements(tree, tvb, pinfo, offset, api_version, func, (int)(count - 1));
 
-        if (p_count != NULL) *p_count = (int)(count - 1);
-    } else {
-        /* p_count doesn't distinguish between a null array and a 0 length array. */
-        if (p_count != NULL) *p_count = 0;
-    }
+    if (p_count != NULL) *p_count = (int)(count - 1);
 
     return offset;
 }
