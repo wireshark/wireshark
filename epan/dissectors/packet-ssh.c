@@ -4157,7 +4157,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         plain = (uint8_t *)wmem_alloc(pinfo->pool, message_length+4);
         memcpy(plain, peer_data->plain0, 16);
 
-        if (message_length - 12 > 0) {
+        if (message_length > 12) {
             /* All of these functions actually do handle the case where
              * there is no data left, so the check is unnecessary.
              */
