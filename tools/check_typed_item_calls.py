@@ -153,7 +153,7 @@ compatible_encoding_args = {
                           'ENC_ASCII_7BITS',
                           'ENC_T61',
                           'ENC_BCD_DIGITS_0_9', 'ENC_BCD_SKIP_FIRST', 'ENC_BCD_ODD_NUM_DIG',
-                          'ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',   # These are allowed if ENC_BCD_DIGITS_0_9 is set..
+                          'ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',   # These are allowed if ENC_BCD_DIGITS_0_9 is set, or for ENC_UTF_16, ENC_UCS_2, ENC_UCS_4
                           'ENC_KEYPAD_ABC_TBCD',
                           'ENC_KEYPAD_BC_TBCD',
                           'ENC_GB18030',
@@ -165,10 +165,10 @@ compatible_encoding_args = {
                           # 'ENC_STR_NUM',       # Should also have at least one ENC_SEP_* flag!
                           # 'ENC_STRING',        # OR of previous 2 values
 
-                          'ENC_LITTLE_ENDIAN'  # Only meaningful for some encodings (ENC_UTF_16, ENC_UCS_2, ENC_UCS_4)
+                          'ENC_BOM'  # Only meaningful for some encodings (ENC_UTF_16, ENC_UCS_2, ENC_UCS_4)
                           ]),
 
-    'FT_CHAR':      set(['ENC_ASCII', 'ENC_VARIANT_QUIC', 'ENC_ASCII_7BITS']),  # TODO: others?
+    'FT_CHAR':      set(['ENC_ASCII', 'ENC_ASCII_7BITS']),  # TODO: others?
 
     # Integral types
     'FT_UINT8':     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN', 'ENC_NA']),
@@ -185,8 +185,8 @@ compatible_encoding_args = {
     'FT_INT48':     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
     'FT_UINT56':    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
     'FT_INT56':     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_UINT64':    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_INT64':     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT64':    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN', 'ENC_VARINT_PROTOBUF', 'ENC_VARINT_QUIC', 'ENC_VARINT_SDNV']),
+    'FT_INT64':     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN', 'ENC_VARINT_ZIGZAG']),
 
     'FT_GUID':      set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
     'FT_EUI64':     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
