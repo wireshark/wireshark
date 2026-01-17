@@ -2562,28 +2562,36 @@ dissect_dhcpopt_user_class_information(tvbuff_t *tvb, packet_info *pinfo, proto_
 	 * is a Microsoft variant that has the two-byte length field with most-significant byte
 	 * as zero.
 	 */
-	uint16_t ms_data_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+	uint32_t ms_data_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 	if (ms_data_length <= 0xff) {
 		/* MSB is zero, this is Microsoft */
-		proto_tree_add_uint(tree, hf_dhcp_option77_user_class_binary_data_length, tvb, offset, 2, ms_data_length);
-		offset += 2;
-		proto_tree_add_item(tree, hf_dhcp_option77_user_class_binary_data, tvb, offset, ms_data_length, ENC_STRING);
-		offset += ms_data_length;
-		/* User Class Binary Data is padded to 4-byte boundary */
-		uint16_t padding_length = WS_PADDING_TO_4(ms_data_length);
-		if (padding_length > 0) {
-			proto_tree_add_item(tree, hf_dhcp_option77_user_class_padding, tvb, offset, padding_length, ENC_NA);
-			offset += padding_length;
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
+			/* Create subtree for instance of User Class. */
+			vtix = proto_tree_add_uint_format_value(tree, hf_dhcp_option77_user_class,
+					tvb, offset, 1, user_class_instance_index, "[%d]", user_class_instance_index);
+			o77_v_tree = proto_item_add_subtree(vtix, ett_dhcp_option77_instance);
+			proto_tree_add_item_ret_uint(o77_v_tree, hf_dhcp_option77_user_class_binary_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &ms_data_length);
+			offset += 2;
+			proto_tree_add_item(o77_v_tree, hf_dhcp_option77_user_class_binary_data, tvb, offset, ms_data_length, ENC_NA);
+			offset += ms_data_length;
+			/* User Class Binary Data is padded to 4-byte boundary */
+			uint16_t padding_length = WS_PADDING_TO_4(ms_data_length);
+			if (padding_length > 0) {
+				proto_tree_add_item(o77_v_tree, hf_dhcp_option77_user_class_padding, tvb, offset, padding_length, ENC_NA);
+				offset += padding_length;
+			}
+			uint32_t len;
+			proto_tree_add_item_ret_uint(o77_v_tree, hf_dhcp_option77_user_class_name_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+			offset += 2;
+			proto_tree_add_item(o77_v_tree, hf_dhcp_option77_user_class_name, tvb, offset, len, ENC_UTF_16);
+			offset += len;
+			proto_tree_add_item_ret_uint(o77_v_tree, hf_dhcp_option77_user_class_description_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+			offset += 2;
+			proto_tree_add_item(o77_v_tree, hf_dhcp_option77_user_class_description, tvb, offset, len, ENC_UTF_16);
+			offset += len;
+			proto_item_set_end(vtix, tvb, offset);
+			user_class_instance_index++;
 		}
-		uint32_t len;
-		proto_tree_add_item_ret_uint(tree, hf_dhcp_option77_user_class_name_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
-		offset += 2;
-		proto_tree_add_item(tree, hf_dhcp_option77_user_class_name, tvb, offset, len, ENC_UTF_16);
-		offset += len;
-		proto_tree_add_item_ret_uint(tree, hf_dhcp_option77_user_class_description_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
-		offset += 2;
-		proto_tree_add_item(tree, hf_dhcp_option77_user_class_description, tvb, offset, len, ENC_UTF_16);
-
 		return tvb_captured_length(tvb);
 	}
 
@@ -9356,7 +9364,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option77_user_class_binary_data,
 		  { "User Class Binary Data", "dhcp.option.user_class_binary_data",
-		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    FT_BYTES, BASE_SHOW_UTF_8_PRINTABLE, NULL, 0x0,
 		    "User Class Binary Data (Microsoft)", HFILL }},
 
 		{ &hf_dhcp_option77_user_class_padding,
