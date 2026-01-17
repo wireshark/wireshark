@@ -1683,6 +1683,10 @@ dcerpc_init_finalize(dissector_handle_t guid_handle, guid_key *key, dcerpc_uuid_
     guid_key* perm_key = wmem_memdup(wmem_epan_scope(), key, sizeof(guid_key));
     dcerpc_uuid_value* perm_value = wmem_memdup(wmem_epan_scope(), value, sizeof(dcerpc_uuid_value));
 
+    if (dcerpc_uuid_id == 0) {
+        dcerpc_uuid_id = uuid_type_dissector_register("dcerpc", dcerpc_uuid_hash, dcerpc_uuid_equal, dcerpc_uuid_tostr);
+    }
+
     uuid_type_insert(dcerpc_uuid_id, perm_key, perm_value);
 
     /* Register the GUID with the dissector table */
