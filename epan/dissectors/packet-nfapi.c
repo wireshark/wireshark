@@ -1515,7 +1515,7 @@ typedef struct
 	tlv_decode decode;
 } tlv_t;
 
-static void dissect_tlv_list(ptvcursor_t * ptvc, packet_info* pinfo, int len);
+static void dissect_tlv_list(ptvcursor_t * ptvc, packet_info* pinfo, unsigned len);
 
 static void dissect_array_value(ptvcursor_t * ptvc, packet_info* pinfo, const char* name, uint32_t ett_idx, uint32_t count, tlv_decode decode)
 {
@@ -7710,7 +7710,7 @@ static proto_item* dissect_tl_header(ptvcursor_t * ptvc, packet_info* pinfo _U_)
 	return item;
 }
 
-static void dissect_tlv_list(ptvcursor_t* ptvc, packet_info* pinfo, int len)
+static void dissect_tlv_list(ptvcursor_t* ptvc, packet_info* pinfo, unsigned len)
 {
 	while (ptvcursor_current_offset(ptvc) < len)
 	{
@@ -7780,7 +7780,7 @@ static void dissect_rx_indication_body_value(ptvcursor_t * ptvc, packet_info* pi
 	if (count > 0)
 	{
 		ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_rx_indication_pdu_list, "RX PDU List");
-		int pdu_end = tvb_reported_length_remaining(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)) + ptvcursor_current_offset(ptvc);
+		unsigned pdu_end = tvb_reported_length_remaining(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)) + ptvcursor_current_offset(ptvc);
 
 		while (tvb_reported_length_remaining(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)) > 0 &&
 			   ptvcursor_current_offset(ptvc) < pdu_end )

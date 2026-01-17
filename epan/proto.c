@@ -1308,7 +1308,7 @@ ptvcursor_free_subtree_levels(ptvcursor_t *ptvc)
 /* Allocates an initializes a ptvcursor_t with 3 variables:
  *	proto_tree, tvbuff, and offset. */
 ptvcursor_t *
-ptvcursor_new(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, int offset)
+ptvcursor_new(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
 	ptvcursor_t *ptvc;
 
@@ -1340,7 +1340,7 @@ ptvcursor_tvbuff(ptvcursor_t *ptvc)
 }
 
 /* Returns current offset. */
-int
+unsigned
 ptvcursor_current_offset(ptvcursor_t *ptvc)
 {
 	return ptvc->offset;

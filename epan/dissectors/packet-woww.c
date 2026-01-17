@@ -12321,8 +12321,8 @@ static void
 add_body_fields(uint32_t header_opcode,
                 proto_tree* tree,
                 tvbuff_t* tvb,
-                int32_t offset,
-                int32_t offset_packet_end,
+                uint32_t offset,
+                uint32_t offset_packet_end,
                 packet_info* pinfo)
 {
     uint32_t len = 0;
@@ -12491,7 +12491,7 @@ add_body_fields(uint32_t header_opcode,
             if (compressed_tvb != NULL) {
                 ptvcursor_t* old_ptv = ptv;
                 ptv = ptvcursor_new(pinfo->pool, tree, compressed_tvb, 0);
-                int compression_end = tvb_reported_length(compressed_tvb);
+                unsigned compression_end = tvb_reported_length(compressed_tvb);
                 while (ptvcursor_current_offset(ptv) < compression_end) {
                     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "AddonInfo");
                     add_cstring(ptv, &hf_woww_addon_name);
@@ -16372,7 +16372,7 @@ add_body_fields(uint32_t header_opcode,
             if (compressed_tvb != NULL) {
                 ptvcursor_t* old_ptv = ptv;
                 ptv = ptvcursor_new(pinfo->pool, tree, compressed_tvb, 0);
-                int compression_end = tvb_reported_length(compressed_tvb);
+                unsigned compression_end = tvb_reported_length(compressed_tvb);
                 while (ptvcursor_current_offset(ptv) < compression_end) {
                     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "CompressedMove");
                     ptvcursor_add(ptv, hf_woww_size_struct, 1, ENC_LITTLE_ENDIAN);
@@ -18942,7 +18942,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
                    tvbuff_t* tvb,
                    packet_info* pinfo,
                    uint8_t headerSize,
-                   int start_offset)
+                   unsigned start_offset)
 {
     // Size field does not count in the reported size, so we need to add it.
     const uint16_t packet_size = (decrypted_header->size[0] << 8 | decrypted_header->size[1]) + WOWW_HEADER_SIZE_FIELD_WIDTH;
@@ -18956,8 +18956,8 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
     add_new_data_source(pinfo, next_tvb, "Decrypted Header");
 
     // We're indexing into another tvb
-    int offset = 0;
-    int len = WOWW_HEADER_SIZE_FIELD_WIDTH;
+    unsigned offset = 0;
+    unsigned len = WOWW_HEADER_SIZE_FIELD_WIDTH;
     proto_tree_add_item(woww_tree, hf_woww_size, next_tvb,
                         offset, len, ENC_BIG_ENDIAN);
     offset += len;
@@ -18991,7 +18991,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
                                                     world_packet_strings,
                                                     "Encrypted Header"));
 
-    int offset_packet_end = start_offset + (int)packet_size;
+    unsigned offset_packet_end = start_offset + packet_size;
 
     // Remember to go back to original tvb
     add_body_fields(opcode, woww_tree, tvb, start_offset + headerSize, offset_packet_end, pinfo);
@@ -19043,15 +19043,15 @@ dissect_woww(tvbuff_t *tvb,
 
     proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
 
-    int pdu_offset = 0;
-    int reported_length = (int)tvb_reported_length(tvb);
+    unsigned pdu_offset = 0;
+    unsigned reported_length = tvb_reported_length(tvb);
     uint8_t header_index = 0;
     do {
         WowwDecryptedHeader_t* decrypted_header = handle_packet_header(pinfo, tvb, participant, wowwConversation, headerSize, header_index, pdu_offset);
         if (!decrypted_header) {
             return tvb_captured_length(tvb);
         }
-        const int message_size = (decrypted_header->size[0] << 8 | decrypted_header->size[1]) + WOWW_HEADER_SIZE_FIELD_WIDTH;
+        const unsigned message_size = (decrypted_header->size[0] << 8 | decrypted_header->size[1]) + WOWW_HEADER_SIZE_FIELD_WIDTH;
         if ((pdu_offset + message_size) > reported_length) {
             return pdu_offset;
         }

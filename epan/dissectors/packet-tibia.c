@@ -811,7 +811,7 @@ static value_string_ext from_gameserv_packet_types_ext = VALUE_STRING_EXT_INIT(f
 static const unit_name_string mb_unit = {"MB", NULL};
 
 static int
-dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree, bool first_fragment )
+dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, unsigned offset, unsigned len, packet_info *pinfo, proto_tree *tree, bool first_fragment )
 {
     ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 
@@ -966,7 +966,7 @@ dissect_coord(ptvcursor_t *ptvc, bool with_stackpos)
 
 
 static int
-dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree, bool first_fragment)
+dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, unsigned offset, unsigned len, packet_info *pinfo, proto_tree *tree, bool first_fragment)
 {
     ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 
@@ -1169,7 +1169,7 @@ dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, in
 }
 
 static int
-dissect_client_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree, bool first_fragment)
+dissect_client_packet(struct tibia_convo *convo, tvbuff_t *tvb, unsigned offset, unsigned len, packet_info *pinfo, proto_tree *tree, bool first_fragment)
 {
     ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 

@@ -3670,7 +3670,7 @@ instead, the API description here should be good enough.
 2.11.1 ptvcursor API.
 
 ptvcursor_t*
-ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, int offset)
+ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
     This creates a new ptvcursor_t object for iterating over a tvbuff.
 You must call this and use this ptvcursor_t object so you can use the
 ptvcursor API.
@@ -3745,7 +3745,7 @@ tvbuff_t *
 ptvcursor_tvbuff(ptvcursor_t* ptvc)
     Returns the tvbuff associated with the ptvcursor.
 
-int
+unsigned
 ptvcursor_current_offset(ptvcursor_t* ptvc)
     Returns the current offset.
 
