@@ -635,16 +635,59 @@ get_bluetooth_uuid(tvbuff_t *tvb, int offset, int size)
     return uuid;
 }
 
+/* Extract a UUID stored in big-endian order within a tvb. */
+bluetooth_uuid_t
+get_bluetooth_uuid_be(tvbuff_t *tvb, int offset, int size)
+{
+    bluetooth_uuid_t uuid;
+
+    memset(&uuid, 0, sizeof(uuid));
+
+    if (size != 2 && size != 4 && size != 16) {
+        return uuid;
+    }
+
+    tvb_memcpy(tvb, uuid.data, offset, size);
+
+    if (size == 2) {
+        /* [0x11, 0x01] in tvb -> 0x1101 */
+        uuid.bt_uuid = (uuid.data[0] << 8) | uuid.data[1];
+    }
+    else if (size == 4) {
+        /* Check if the 32-bit UUID can be collapsed to 16-bit */
+        if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00) {
+            uuid.bt_uuid = (uuid.data[2] << 8) | uuid.data[3];
+            size = 2;
+        }
+    }
+    else {
+        /* Check if the 128-bit UUID can be collapsed to 16-bit */
+        if (uuid.data[0]  == 0x00 && uuid.data[1]  == 0x00 &&
+            uuid.data[4]  == 0x00 && uuid.data[5]  == 0x00 && uuid.data[6]  == 0x10 &&
+            uuid.data[7]  == 0x00 && uuid.data[8]  == 0x80 && uuid.data[9]  == 0x00 &&
+            uuid.data[10] == 0x00 && uuid.data[11] == 0x80 && uuid.data[12] == 0x5F &&
+            uuid.data[13] == 0x9B && uuid.data[14] == 0x34 && uuid.data[15] == 0xFB) {
+
+            uuid.bt_uuid = (uuid.data[2] << 8) | uuid.data[3];
+            size = 2;
+        }
+    }
+
+    uuid.size = size;
+    return uuid;
+}
+
+
 const char *
 print_numeric_bluetooth_uuid(wmem_allocator_t *pool, const bluetooth_uuid_t *uuid)
 {
     if (!(uuid && uuid->size > 0))
         return NULL;
 
-    if (uuid->size != 16) {
-        /* XXX - This is not right for UUIDs that were 32 or 128-bit in a
-         * tvb and converted to 16-bit UUIDs by get_bluetooth_uuid.
-         */
+    if (uuid->size == 2) {
+        return wmem_strdup_printf(pool, "%04x", uuid->bt_uuid);
+    }
+    else if (uuid->size != 16) {
         return bytes_to_str(pool, uuid->data, uuid->size);
     }
 
@@ -666,9 +709,9 @@ print_numeric_bluetooth_uuid(wmem_allocator_t *pool, const bluetooth_uuid_t *uui
 }
 
 const char *
-print_bluetooth_uuid(const bluetooth_uuid_t *uuid)
+try_print_bluetooth_uuid(const bluetooth_uuid_t *uuid)
 {
-    const char *description;
+    const char *description = NULL;
 
     if (uuid->bt_uuid) {
         const char *name;
@@ -691,10 +734,20 @@ print_bluetooth_uuid(const bluetooth_uuid_t *uuid)
     }
 
     description = bluetooth_get_custom_uuid_description(uuid);
-    if (description)
-        return description;
 
-    return "Unknown";
+    return description;
+}
+
+const char *
+print_bluetooth_uuid(const bluetooth_uuid_t *uuid)
+{
+    const char *description = try_print_bluetooth_uuid(uuid);
+
+    if (description == NULL) {
+        description = "Unknown";
+    }
+
+    return description;
 }
 
 bluetooth_data_t *

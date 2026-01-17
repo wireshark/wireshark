@@ -38,6 +38,8 @@ static int hf_frame_type;
 static int hf_cr;
 static int hf_dlci;
 static int hf_channel;
+static int hf_service_uuid;
+static int hf_service_uuid16;
 static int hf_direction;
 static int hf_priority;
 static int hf_error_recovery_mode;
@@ -609,7 +611,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* payload length */
     offset = dissect_btrfcomm_payload_length(tvb, offset, rfcomm_tree, &frame_len);
 
-    if (dlci && (frame_len || (frame_type == FRAME_TYPE_UIH) || (frame_type == FRAME_TYPE_SABM))) {
+    if (dlci) {
         wmem_tree_key_t       key[10];
         uint32_t              k_interface_id;
         uint32_t              k_adapter_id;
@@ -729,11 +731,16 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s Channel=%u ",
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
     if (dlci && (frame_type == FRAME_TYPE_SABM) && service_info) {
-        if (service_info->uuid.size==16)
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(UUID128: %s) ", print_bluetooth_uuid(&service_info->uuid));
-        else
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
-                    val_to_str_ext_const(service_info->uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
+        const char *desc = try_print_bluetooth_uuid(&service_info->uuid);
+
+        if (desc) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", desc);
+        }
+        else {
+            /* Display the full numeric UUID, if no string description could be found */
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(UUID: %s) ",
+                            print_numeric_bluetooth_uuid(pinfo->pool, &service_info->uuid));
+        }
     }
 
     /* UID frame */
@@ -863,6 +870,19 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree_add_item(rfcomm_tree, hf_fcs, tvb, fcs_offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
+    if (dlci && service_info && service_info->uuid.size != 0)
+    {
+        /* Display the (discovered) Service UUID for this channel */
+        proto_item        *sub_item;
+
+        if (service_info->uuid.size == 2)
+            sub_item = proto_tree_add_uint(rfcomm_tree, hf_service_uuid16, tvb, 0, 0, service_info->uuid.bt_uuid);
+        else
+            sub_item = proto_tree_add_bytes_with_length(rfcomm_tree, hf_service_uuid, tvb, 0, 0, service_info->uuid.data, service_info->uuid.size);
+
+        proto_item_set_generated(sub_item);
+    }
+
     return offset;
 }
 
@@ -902,6 +922,16 @@ proto_register_btrfcomm(void)
            { "Channel", "btrfcomm.channel",
             FT_UINT8, BASE_DEC, NULL, 0xF8,
             "RFCOMM Channel", HFILL}
+        },
+        { &hf_service_uuid16,
+           { "Service UUID", "btrfcomm.service_uuid16",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_uuid_vals_ext, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_service_uuid,
+           { "Service UUID", "btrfcomm.service_uuid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
         },
         { &hf_direction,
            {"Direction", "btrfcomm.direction",

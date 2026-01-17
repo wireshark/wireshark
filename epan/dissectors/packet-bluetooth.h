@@ -335,6 +335,8 @@ extern void bluetooth_unit_0p01_sec(char *buf, uint32_t value);
 extern void bluetooth_unit_0p125_ms(char *buf, uint32_t value);
 
 extern bluetooth_uuid_t  get_bluetooth_uuid(tvbuff_t *tvb, int offset, int size);
+extern bluetooth_uuid_t  get_bluetooth_uuid_be(tvbuff_t *tvb, int offset, int size);
+WS_DLL_PUBLIC const char   *try_print_bluetooth_uuid(const bluetooth_uuid_t *uuid);
 WS_DLL_PUBLIC const char   *print_bluetooth_uuid(const bluetooth_uuid_t *uuid);
 WS_DLL_PUBLIC const char   *print_numeric_bluetooth_uuid(wmem_allocator_t *pool, const bluetooth_uuid_t *uuid);
 
