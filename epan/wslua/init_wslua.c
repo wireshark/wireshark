@@ -672,7 +672,7 @@ static int lua_script_push_args(const int script_num) {
  * We could add a custom loader to package.searchers instead, which
  * might be more useful in some way. We could also have some method of
  * saving and restoring the path, instead of constantly adding to it. */
-static void prepend_path(const char* dirname) {
+static void prepend_path(const char* dirname, bool with_packages) {
     const char* path;
 
     /* prepend the directory name to _G.package.path */
@@ -681,9 +681,15 @@ static void prepend_path(const char* dirname) {
     path = luaL_checkstring(L, -1); /* get the path string */
     lua_pop(L, 1);                  /* pop the path string */
     /* prepend the path */
-    /* We could also add "?/init.lua" for packages. */
-    lua_pushfstring(L, "%s" G_DIR_SEPARATOR_S "?.lua;%s",
-                    dirname, path);
+    if (with_packages) {
+        lua_pushfstring(L, "%s" G_DIR_SEPARATOR_S "?.lua;%s" G_DIR_SEPARATOR_S
+                        "?" G_DIR_SEPARATOR_S "init.lua;%s",
+                        dirname, dirname, path);
+    }
+    else {
+        lua_pushfstring(L, "%s" G_DIR_SEPARATOR_S "?.lua;%s",
+                        dirname, path);
+    }
     lua_setfield(L, -2, "path");
     lua_pop(L, 1);
 }
@@ -885,6 +891,17 @@ static int string_compare(const void *a, const void *b) {
     return strcmp((const char*)a, (const char*)b);
 }
 
+static bool is_package(GList* sorted_filenames) {
+    const char* filename;
+
+    if (sorted_filenames == NULL || g_list_length(sorted_filenames) > 1) {
+        return false;
+    }
+
+    filename = get_basename((const char*)sorted_filenames->data);
+    return strrchr(filename, '.') == NULL;
+}
+
 static int lua_load_plugins(const char *dirname, register_cb cb, void *client_data,
                             bool count_only, const bool is_user, GHashTable *loaded_files,
                             int depth)
@@ -906,12 +923,34 @@ static int lua_load_plugins(const char *dirname, register_cb cb, void *client_da
                 /* skip "." and ".." */
                 continue;
             }
-            if (depth == 0 && strcmp(name, "init.lua") == 0) {
+            if (strcmp(name, "init.lua") == 0) {
                 /* If we are in the root directory skip the special "init.lua"
-                 * file that was already loaded before every other user script.
-                 * (If we are below the root script directory we just treat it like any other
-                 * Lua script.) */
-                continue;
+                 * file that was already loaded before every other user script. */
+                if (depth == 0) {
+                    continue;
+                }
+
+                /* Otherwise treat a directory in the root with a "init.lua" file as a
+                 * package that should be loaded as `require "dirname"` in lua. The init.lua
+                 * file is the entry point of the module and responsible for loading any
+                 * submodules within this directory */
+                if (depth == 1) {
+                    /* prevent further recursion into this tree */
+                    if (sorted_dirnames) {
+                        g_list_free_full(sorted_dirnames, g_free);
+                        sorted_dirnames = NULL;
+                    }
+
+                    /* remove any already discovered modules */
+                    if (sorted_filenames) {
+                        g_list_free_full(sorted_filenames, g_free);
+                        sorted_filenames = NULL;
+                    }
+
+                    filename = ws_strdup(dirname);
+                    sorted_filenames = g_list_prepend(sorted_filenames, (void*)filename);
+                    break;
+                }
             }
 
             filename = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
@@ -954,10 +993,10 @@ static int lua_load_plugins(const char *dirname, register_cb cb, void *client_da
 
     /* Process files in ASCIIbetical order */
     if (sorted_filenames != NULL) {
-        /* If this is not the root of the plugin directory, add it to the path.
+        /* If this is not the root of the plugin directory or a package, add it to the path.
          * XXX - Should we remove it after we're done with this directory? */
-        if (depth > 0) {
-            prepend_path(dirname);
+        if (depth > 0 && !is_package(sorted_filenames)) {
+            prepend_path(dirname, false);
         }
         sorted_filenames = g_list_sort(sorted_filenames, string_compare);
         for (l = sorted_filenames; l != NULL; l = l->next) {
@@ -1767,7 +1806,7 @@ void wslua_init(register_cb cb, void *client_data, const char* app_env_var_prefi
     prepend_path(get_datafile_dir(lua_app_env_var_prefix));
 #endif
     /* Add the global plugins path for require */
-    prepend_path(get_plugins_dir(lua_app_env_var_prefix));
+    prepend_path(get_plugins_dir(lua_app_env_var_prefix), true);
     filename = g_build_filename(get_plugins_dir(lua_app_env_var_prefix), "init.lua", (char *)NULL);
     if (file_exists(filename)) {
         ws_debug("Loading init.lua file: %s", filename);
@@ -1789,10 +1828,10 @@ void wslua_init(register_cb cb, void *client_data, const char* app_env_var_prefi
         /* Add the personal plugins path(s) for require() */
         char *old_path = get_persconffile_path("plugins", false, lua_app_env_var_prefix);
         if (strcmp(get_plugins_pers_dir(lua_app_env_var_prefix), old_path) != 0) {
-            prepend_path(old_path);
+            prepend_path(old_path, true);
         }
         g_free(old_path);
-        prepend_path(get_plugins_pers_dir(lua_app_env_var_prefix));
+        prepend_path(get_plugins_pers_dir(lua_app_env_var_prefix), true);
         filename = g_build_filename(get_plugins_pers_dir(lua_app_env_var_prefix), "init.lua", (char *)NULL);
         if (file_exists(filename)) {
             ws_debug("Loading init.lua file: %s", filename);
@@ -1859,7 +1898,7 @@ void wslua_init(register_cb cb, void *client_data, const char* app_env_var_prefi
              * default).
              * XXX - Should we remove it after we're done with this script? */
             if (dname)
-                prepend_path(dname);
+                prepend_path(dname, false);
 
             if (cb)
                 (*cb)(RA_LUA_PLUGINS, get_basename(script_filename), client_data);

@@ -25,7 +25,10 @@ Then all files ending with _.lua_ are loaded from the global plugins
 directory and its subdirectories. Then all files ending with _.lua_ in the
 personal Lua plugins directory and its subdirectories are loaded. The
 files are processed in ASCIIbetical order (compared byte-by-byte, as `strcmp`),
-descending into each subdirectory depth-first in order.
+descending into each subdirectory depth-first in order. A subdirectory in the
+global or personal plugin directories containing a `init.lua` is loaded as a
+package, where the `init.lua` file is the entry-point of the module and
+reponsible for loading any additional submodules within its directory tree.
 
 Whether or not Lua scripts are enabled can be controlled via the
 _$$enable_lua$$_ variable. Lua scripts are enabled by
@@ -83,6 +86,12 @@ are initialized and before reading any file.
 This means that Lua dissectors can add themselves to tables registered by compiled
 dissectors, but not vice versa; compiled dissectors cannot add themselves to
 dissector tables registered by Lua dissectors.
+
+To align more closely with Lua conventions, Wireshark treats any directory in
+either the global or personal plugin directory that contains a `init.lua` file as a
+package, and will only load the `init.lua` script from that directory. The script is
+then responsible for requiring any additional dependencies, allowing for more control
+over the loading order within the package.
 ====
 
 Wireshark for Windows uses a modified Lua runtime
