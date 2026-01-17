@@ -554,7 +554,7 @@ proto_register_blip(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_blip_message_number,
-		{ "Message Number", "blip.messagenum", FT_VARINT_MAX_LEN, BASE_DEC,
+		{ "Message Number", "blip.messagenum", FT_UINT64, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 	},
 	{ &hf_blip_frame_flags,
@@ -562,7 +562,7 @@ proto_register_blip(void)
 			&flag_combos_ext, 0x0, NULL, HFILL }
 	},
 	{ &hf_blip_properties_length,
-		{ "Properties Length", "blip.propslength", FT_VARINT_MAX_LEN, BASE_DEC,
+		{ "Properties Length", "blip.propslength", FT_UINT64, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 	},
 	{ &hf_blip_properties,
@@ -574,7 +574,7 @@ proto_register_blip(void)
 			NULL, 0x0, NULL, HFILL }
 	},
 	{ &hf_blip_ack_size,
-		{ "ACK num bytes", "blip.numackbytes", FT_VARINT_MAX_LEN, BASE_DEC,
+		{ "ACK num bytes", "blip.numackbytes", FT_UINT64, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 	},
 	{ &hf_blip_checksum,

@@ -1211,9 +1211,7 @@ uint16_t parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
 						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset, field_len, ENC_UTF_8);
 						break;
 					case 0x3:
-						// Removed ENC_BOM encoding flag, [ENC_UTF_16 | ENC_BOM] --> [ENC_UTF_16]
-						// as it caused "bad encoding" warning
-						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset, field_len, ENC_UTF_16);
+						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset, field_len, ENC_UTF_16 | ENC_BOM);
 						break;
 					case 0x4:
 						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb,
