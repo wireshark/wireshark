@@ -670,7 +670,7 @@ macOS Universal Package:
       -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
       -DBUILD_stratoshark=on
       -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/libcloudtrail.so;$FALCO_PLUGIN_DIR/libgcpaudit.so.disabled;$FALCO_PLUGIN_DIR/libk8saudit.so.disabled"
-      -DTEST_EXTRA_ARGS="--enable-stratoshark --enable-release"
+      -DTEST_EXTRA_ARGS="--enable-stratoshark;--enable-release"
       ..
     # Temporary hack to fix "Package 'zlib', required by 'libscap', not found"
     - sed -i .bak '/Requires.*zlib/d' $WIRESHARK_BASE_DIR/macos-universal-master/lib/pkgconfig/libscap.pc
