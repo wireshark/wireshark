@@ -418,136 +418,135 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
     return result
 
 
-#################################################################
-# Main logic.
+if __name__ == '__main__':
+    #################################################################
+    # command-line args.  Controls which dissector files should be checked.
+    # If no args given, will just scan epan/dissectors folder.
+    parser = argparse.ArgumentParser(description='Check calls in dissectors')
+    parser.add_argument('--file', action='append',
+                        help='specify individual dissector file to test')
+    parser.add_argument('--commits', action='store',
+                        help='last N commits to check')
+    parser.add_argument('--open', action='store_true',
+                        help='check open files')
+    parser.add_argument('--check-value-strings', action='store_true',
+                        help='check whether value_strings could have been tfs?')
+    parser.add_argument('--common', action='store_true',
+                        help='check for potential new entries for tfs.c')
+    parser.add_argument('--common-usage', action='store_true',
+                        help='count how many dissectors are using common tfs entries')
 
-# command-line args.  Controls which dissector files should be checked.
-# If no args given, will just scan epan/dissectors folder.
-parser = argparse.ArgumentParser(description='Check calls in dissectors')
-parser.add_argument('--file', action='append',
-                    help='specify individual dissector file to test')
-parser.add_argument('--commits', action='store',
-                    help='last N commits to check')
-parser.add_argument('--open', action='store_true',
-                    help='check open files')
-parser.add_argument('--check-value-strings', action='store_true',
-                    help='check whether value_strings could have been tfs?')
-parser.add_argument('--common', action='store_true',
-                    help='check for potential new entries for tfs.c')
-parser.add_argument('--common-usage', action='store_true',
-                    help='count how many dissectors are using common tfs entries')
-
-args = parser.parse_args()
+    args = parser.parse_args()
 
 
-# Get files from wherever command-line args indicate.
-files = set()
+    # Get files from wherever command-line args indicate.
+    files = set()
 
-if args.file:
-    # Add specified file(s)
-    for f in args.file:
-        if not os.path.isfile(f) and not f.startswith('epan'):
-            f = os.path.join('epan', 'dissectors', f)
-        if not os.path.isfile(f):
-            print('Chosen file', f, 'does not exist.')
-            exit(1)
-        else:
-            files.add(f)
-elif args.commits:
-    files = getFilesFromCommits(args.commits)
-elif args.open:
-    # Unstaged changes.
-    files = getFilesFromOpen()
+    if args.file:
+        # Add specified file(s)
+        for f in args.file:
+            if not os.path.isfile(f) and not f.startswith('epan'):
+                f = os.path.join('epan', 'dissectors', f)
+            if not os.path.isfile(f):
+                print('Chosen file', f, 'does not exist.')
+                exit(1)
+            else:
+                files.add(f)
+    elif args.commits:
+        files = getFilesFromCommits(args.commits)
+    elif args.open:
+        # Unstaged changes.
+        files = getFilesFromOpen()
 
-else:
-    # Find all dissector files from folders.
-    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors')) + \
-                findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
-
-# If scanning a subset of files, list them here.
-print('Examining:')
-if args.file or args.commits or args.open:
-    if files:
-        print(' '.join(sorted(files)), '\n')
     else:
-        print('No files to check.\n')
-else:
-    print('All dissector modules\n')
+        # Find all dissector files from folders.
+        files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors')) + \
+                    findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
 
-
-# Get standard/ shared ones.
-common_result = Result()
-common_tfs_entries = findTFS(os.path.join('epan', 'tfs.c'), common_result)
-
-# Global data for these optional checks.
-all_common_usage = {}
-all_custom_entries = {}
-
-
-# Now check the files to see if they could have used shared ones instead.
-# Look at files in sorted order, to give some idea of how far through we are.
-with concurrent.futures.ProcessPoolExecutor() as executor:
-    future_to_file_output = {executor.submit(checkFile, file,
-                                             common_tfs_entries, args.common,
-                                             args.check_value_strings,
-                                             args.common_usage): file for file in sorted(files) if not isGeneratedFile(file)}
-    for future in concurrent.futures.as_completed(future_to_file_output):
-        if should_exit:
-            exit(1)
-        # Unpack result
-        result = future.result()
-        output = result.out.getvalue()
-        if len(output):
-            print(output[:-1])
-
-        # Add to issue counts
-        warnings_found += result.warnings
-        errors_found += result.errors
-
-        # Update common usage stats
-        if args.common_usage:
-            for name, count in result.common_usage.items():
-                if name not in all_common_usage:
-                    all_common_usage[name] = count
-                else:
-                    all_common_usage[name] += count
-
-        # Update 'common' custom counts
-        if args.common:
-            for entry in result.custom_entries:
-                if entry not in all_custom_entries:
-                    all_custom_entries[entry] = [future_to_file_output[future]]
-                else:
-                    all_custom_entries[entry].append(future_to_file_output[future])
-
-
-# Report on commonly-defined values.
-if args.common:
-    # Looking for items that could potentially be moved to tfs.c
-    for c in all_custom_entries:
-        # Only want to see items that have 3 or more occurrences.
-        # Even then, probably only want to consider ones that sound generic.
-        if len(all_custom_entries[c]) > 2:
-            print(c, 'appears', len(all_custom_entries[c]), 'times, in: ', all_custom_entries[c])
-
-# Show how often 'common' entries are used
-if args.common_usage:
-    actual_usage = []
-
-    for c in common_tfs_entries:
-        if c in all_common_usage:
-            actual_usage.append((c, all_common_usage[c]))
+    # If scanning a subset of files, list them here.
+    print('Examining:')
+    if args.file or args.commits or args.open:
+        if files:
+            print(' '.join(sorted(files)), '\n')
         else:
-            actual_usage.append((c, 0))
+            print('No files to check.\n')
+    else:
+        print('All dissector modules\n')
 
-    # Show in order sorted by usage
-    actual_usage.sort(reverse=True, key=lambda e: e[1])
-    for use in actual_usage:
-        emphasis = '**' if use[1] == 0 else ''
-        print(emphasis, use[0], 'used in', use[1], 'dissectors', emphasis)
 
-# Summary.
-print(warnings_found, 'warnings found')
-if errors_found:
-    print(errors_found, 'errors found')
-    exit(1)
+    # Get standard/ shared ones.
+    common_result = Result()
+    common_tfs_entries = findTFS(os.path.join('epan', 'tfs.c'), common_result)
+
+    # Global data for these optional checks.
+    all_common_usage = {}
+    all_custom_entries = {}
+
+
+    # Now check the files to see if they could have used shared ones instead.
+    # Look at files in sorted order, to give some idea of how far through we are.
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        future_to_file_output = {executor.submit(checkFile, file,
+                                                 common_tfs_entries, args.common,
+                                                 args.check_value_strings,
+                                                 args.common_usage): file for file in sorted(files) if not isGeneratedFile(file)}
+        for future in concurrent.futures.as_completed(future_to_file_output):
+            if should_exit:
+                exit(1)
+            # Unpack result
+            result = future.result()
+            output = result.out.getvalue()
+            if len(output):
+                print(output[:-1])
+
+            # Add to issue counts
+            warnings_found += result.warnings
+            errors_found += result.errors
+
+            # Update common usage stats
+            if args.common_usage:
+                for name, count in result.common_usage.items():
+                    if name not in all_common_usage:
+                        all_common_usage[name] = count
+                    else:
+                        all_common_usage[name] += count
+
+            # Update 'common' custom counts
+            if args.common:
+                for entry in result.custom_entries:
+                    if entry not in all_custom_entries:
+                        all_custom_entries[entry] = [future_to_file_output[future]]
+                    else:
+                        all_custom_entries[entry].append(future_to_file_output[future])
+
+
+    # Report on commonly-defined values.
+    if args.common:
+        # Looking for items that could potentially be moved to tfs.c
+        for c in all_custom_entries:
+            # Only want to see items that have 3 or more occurrences.
+            # Even then, probably only want to consider ones that sound generic.
+            if len(all_custom_entries[c]) > 2:
+                print(c, 'appears', len(all_custom_entries[c]), 'times, in: ', all_custom_entries[c])
+
+    # Show how often 'common' entries are used
+    if args.common_usage:
+        actual_usage = []
+
+        for c in common_tfs_entries:
+            if c in all_common_usage:
+                actual_usage.append((c, all_common_usage[c]))
+            else:
+                actual_usage.append((c, 0))
+
+        # Show in order sorted by usage
+        actual_usage.sort(reverse=True, key=lambda e: e[1])
+        for use in actual_usage:
+            emphasis = '**' if use[1] == 0 else ''
+            print(emphasis, use[0], 'used in', use[1], 'dissectors', emphasis)
+
+    # Summary.
+    print(warnings_found, 'warnings found')
+    if errors_found:
+        print(errors_found, 'errors found')
+        exit(1)

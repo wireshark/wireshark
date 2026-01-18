@@ -390,36 +390,6 @@ def checkFile(filename, check_comments=False):
     file.spellCheck(result)
     return result
 
-
-#################################################################
-# Main logic.
-
-# command-line args.  Controls which files should be checked.
-# If no args given, will just scan epan/dissectors folder.
-parser = argparse.ArgumentParser(description='Check spellings in specified files')
-parser.add_argument('--file', action='append',
-                    help='specify individual file to test')
-parser.add_argument('--folder', action='append',
-                    help='specify folder to test')
-parser.add_argument('--glob', action='append',
-                    help='specify glob to test - should give in "quotes"')
-parser.add_argument('--no-recurse', action='store_true', default='',
-                    help='do not recurse inside chosen folder(s)')
-parser.add_argument('--commits', action='store',
-                    help='last N commits to check')
-parser.add_argument('--open', action='store_true',
-                    help='check open files')
-parser.add_argument('--comments', action='store_true',
-                    help='check comments in source files')
-parser.add_argument('--no-wikipedia', action='store_true',
-                    help='skip checking known bad words from wikipedia - can be slow')
-parser.add_argument('--show-most-common', action='store', default='100',
-                    help='number of most common not-known workds to display')
-
-
-args = parser.parse_args()
-
-
 class TypoSourceDocumentParser(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -439,127 +409,155 @@ class TypoSourceDocumentParser(HTMLParser):
             self.content += data
 
 
-# Fetch some common mispellings from wikipedia so we will definitely flag them.
-wiki_db = dict()
-if not args.no_wikipedia:
-    print('Fetching Wikipedia\'s list of common misspellings.')
-    req_headers = {'User-Agent': 'Wireshark check-wikipedia-typos'}
-    req = urllib.request.Request('https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings/For_machines', headers=req_headers)
-    try:
-        response = urllib.request.urlopen(req)
-        content = response.read()
-        content = content.decode('UTF-8', 'replace')
 
-        # Extract the "<pre>...</pre>" part of the document.
-        parser = TypoSourceDocumentParser()
-        parser.feed(content)
-        content = parser.content.strip()
+if __name__ == '__main__':
+    #################################################################
+    # command-line args.  Controls which files should be checked.
+    # If no args given, will just scan epan/dissectors folder.
+    parser = argparse.ArgumentParser(description='Check spellings in specified files')
+    parser.add_argument('--file', action='append',
+                        help='specify individual file to test')
+    parser.add_argument('--folder', action='append',
+                        help='specify folder to test')
+    parser.add_argument('--glob', action='append',
+                        help='specify glob to test - should give in "quotes"')
+    parser.add_argument('--no-recurse', action='store_true', default='',
+                        help='do not recurse inside chosen folder(s)')
+    parser.add_argument('--commits', action='store',
+                        help='last N commits to check')
+    parser.add_argument('--open', action='store_true',
+                        help='check open files')
+    parser.add_argument('--comments', action='store_true',
+                        help='check comments in source files')
+    parser.add_argument('--no-wikipedia', action='store_true',
+                        help='skip checking known bad words from wikipedia - can be slow')
+    parser.add_argument('--show-most-common', action='store', default='100',
+                        help='number of most common not-known workds to display')
 
-        wiki_db = dict(line.lower().split('->', maxsplit=1) for line in content.splitlines())
-        del wiki_db['cmo']       # All false positives.
-        del wiki_db['ect']       # Too many false positives.
-        del wiki_db['thru']      # We'll let that one thru. ;-)
-        del wiki_db['sargeant']  # All false positives.
-
-        # Remove each word from dict
-        removed = 0
-        for word in wiki_db:
-            try:
-                if should_exit:
-                    exit(1)
-                spell.word_frequency.remove_words([word])
-                # print('Removed', word)
-                removed += 1
-            except Exception:
-                pass
-
-        print('Removed', removed, 'known bad words')
-    except Exception:
-        print('Failed to fetch and/or parse Wikipedia mispellings!')
+    args = parser.parse_args()
 
 
-# Get files from wherever command-line args indicate.
-files = []
-if args.file:
-    # Add specified file(s)
-    for f in args.file:
-        if not os.path.isfile(f):
-            print('Chosen file', f, 'does not exist.')
-            exit(1)
-        else:
-            files.append(f)
-if args.commits:
-    files = getFilesFromCommits(args.commits, onlyDissectors=False)
-    files = [f for f in files if isAppropriateFile(f) and not isGeneratedFile(f)]
-if args.open:
-    # Unstaged changes.
-    files = getFilesFromOpen(onlyDissectors=False)
+    # Fetch some common mispellings from wikipedia so we will definitely flag them.
+    wiki_db = dict()
+    if not args.no_wikipedia:
+        print('Fetching Wikipedia\'s list of common misspellings.')
+        req_headers = {'User-Agent': 'Wireshark check-wikipedia-typos'}
+        req = urllib.request.Request('https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings/For_machines', headers=req_headers)
+        try:
+            response = urllib.request.urlopen(req)
+            content = response.read()
+            content = content.decode('UTF-8', 'replace')
 
-if args.glob:
-    # Add specified file(s)
-    for g in args.glob:
-        for f in glob.glob(g):
+            # Extract the "<pre>...</pre>" part of the document.
+            parser = TypoSourceDocumentParser()
+            parser.feed(content)
+            content = parser.content.strip()
+
+            wiki_db = dict(line.lower().split('->', maxsplit=1) for line in content.splitlines())
+            del wiki_db['cmo']       # All false positives.
+            del wiki_db['ect']       # Too many false positives.
+            del wiki_db['thru']      # We'll let that one thru. ;-)
+            del wiki_db['sargeant']  # All false positives.
+
+            # Remove each word from dict
+            removed = 0
+            for word in wiki_db:
+                try:
+                    if should_exit:
+                        exit(1)
+                    spell.word_frequency.remove_words([word])
+                    # print('Removed', word)
+                    removed += 1
+                except Exception:
+                    pass
+
+            print('Removed', removed, 'known bad words')
+        except Exception:
+            print('Failed to fetch and/or parse Wikipedia mispellings!')
+
+
+    # Get files from wherever command-line args indicate.
+    files = []
+    if args.file:
+        # Add specified file(s)
+        for f in args.file:
             if not os.path.isfile(f):
                 print('Chosen file', f, 'does not exist.')
                 exit(1)
             else:
                 files.append(f)
+    if args.commits:
+        files = getFilesFromCommits(args.commits, onlyDissectors=False)
+        files = [f for f in files if isAppropriateFile(f) and not isGeneratedFile(f)]
+    if args.open:
+        # Unstaged changes.
+        files = getFilesFromOpen(onlyDissectors=False)
 
-if args.folder:
-    for folder in args.folder:
-        if not os.path.isdir(folder):
-            print('Folder', folder, 'not found!')
-            exit(1)
+    if args.glob:
+        # Add specified file(s)
+        for g in args.glob:
+            for f in glob.glob(g):
+                if not os.path.isfile(f):
+                    print('Chosen file', f, 'does not exist.')
+                    exit(1)
+                else:
+                    files.append(f)
 
-        # Find files from folder.
-        print('Looking for files in', folder)
-        files += findFilesInFolder(folder, not args.no_recurse)
+    if args.folder:
+        for folder in args.folder:
+            if not os.path.isdir(folder):
+                print('Folder', folder, 'not found!')
+                exit(1)
 
-# By default, scan dissector files.
-if not args.file and not args.open and not args.commits and not args.glob and not args.folder:
-    # By default, scan dissector directories
-    folders = [ os.path.join('epan', 'dissectors'), os.path.join('plugins', 'epan') ]
+            # Find files from folder.
+            print('Looking for files in', folder)
+            files += findFilesInFolder(folder, not args.no_recurse)
 
-    for folder in folders:
-        # Find files from folder.
-        print('Looking for files in', folder)
-        files += findFilesInFolder(folder)
+    # By default, scan dissector files.
+    if not args.file and not args.open and not args.commits and not args.glob and not args.folder:
+        # By default, scan dissector directories
+        folders = [ os.path.join('epan', 'dissectors'), os.path.join('plugins', 'epan') ]
+
+        for folder in folders:
+            # Find files from folder.
+            print('Looking for files in', folder)
+            files += findFilesInFolder(folder)
 
 
 
-# If scanning a subset of files, list them here.
-print('Examining:')
-if args.file or args.folder or args.commits or args.open or args.glob:
-    if files:
-        print(' '.join(files), '(', len(files), 'files )\n')
+    # If scanning a subset of files, list them here.
+    print('Examining:')
+    if args.file or args.folder or args.commits or args.open or args.glob:
+        if files:
+            print(' '.join(files), '(', len(files), 'files )\n')
+        else:
+            print('No files to check.\n')
     else:
-        print('No files to check.\n')
-else:
-    print('All dissector modules\n')
+        print('All dissector modules\n')
 
 
-# Now check the chosen files.
-with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
-    future_to_file_output = {executor.submit(checkFile, file, args.comments): file for file in files}
-    for future in concurrent.futures.as_completed(future_to_file_output):
-        # Result is ready, get output and list of missing words
-        result = future.result()
-        output = result.out.getvalue()
-        # Show output now, and append missing words
-        if len(result.local_missing_words):
-            print(output)
-            missing_words += result.local_missing_words
+    # Now check the chosen files.
+    with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
+        future_to_file_output = {executor.submit(checkFile, file, args.comments): file for file in files}
+        for future in concurrent.futures.as_completed(future_to_file_output):
+            # Result is ready, get output and list of missing words
+            result = future.result()
+            output = result.out.getvalue()
+            # Show output now, and append missing words
+            if len(result.local_missing_words):
+                print(output)
+                missing_words += result.local_missing_words
 
-        if should_exit:
-            exit(1)
+            if should_exit:
+                exit(1)
 
 
-# Show the most commonly not-recognised words.
-print('')
-counter = Counter(missing_words).most_common(int(args.show_most_common))
-if len(counter) > 0:
-    for c in counter:
-        print(c[0], ':', c[1])
+    # Show the most commonly not-recognised words.
+    print('')
+    counter = Counter(missing_words).most_common(int(args.show_most_common))
+    if len(counter) > 0:
+        for c in counter:
+            print(c[0], ':', c[1])
 
-# Show error count.
-print('\n' + bcolors.BOLD + str(len(missing_words)) + ' issues found' + bcolors.ENDC + '\n')
+    # Show error count.
+    print('\n' + bcolors.BOLD + str(len(missing_words)) + ' issues found' + bcolors.ENDC + '\n')

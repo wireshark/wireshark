@@ -84,22 +84,6 @@ class CalledSymbols:
     def addCalls(self, calls):
         self.referred.update(calls)
 
-
-# header-file -> contents for files that will be checked often, so only read once.
-common_mismatched_header_contents = {}
-common_mismatched_headers = [os.path.join('epan', 'dissectors', 'packet-ncp-int.h'),
-                             os.path.join('epan', 'dissectors', 'packet-mq.h'),
-                             os.path.join('epan', 'dissectors', 'packet-ip.h'),
-                             os.path.join('epan', 'dissectors', 'packet-gsm_a_common.h'),
-                             os.path.join('epan', 'dissectors', 'packet-epl.h'),
-                             os.path.join('epan', 'dissectors', 'packet-bluetooth.h'),
-                             os.path.join('epan', 'dissectors', 'packet-dcerpc.h'),
-                             os.path.join('epan', 'ip_opts.h')]
-for h in common_mismatched_headers:
-    with open(h, 'r') as f:
-        common_mismatched_header_contents[h] = f.read()
-
-
 # Record which symbols are defined in a single dissector file.
 class DefinedSymbols:
     def __init__(self, file, result):
@@ -196,111 +180,125 @@ def findFilesInFolder(folder):
     return tmp_files
 
 
-#################################################################
-# Main logic.
+if __name__ == '__main__':
+    #################################################################
+    # command-line args.  Controls which dissector files should be checked.
+    # If no args given, will just scan epan/dissectors folder.
+    parser = argparse.ArgumentParser(description='Check calls in dissectors')
+    parser.add_argument('--build-folder', action='store', default='',
+                        help='build folder', required=False)
+    parser.add_argument('--file', action='append',
+                        help='specify individual dissector file to test')
+    parser.add_argument('--commits', action='store',
+                        help='last N commits to check')
+    parser.add_argument('--open', action='store_true',
+                        help='check open files')
 
-# command-line args.  Controls which dissector files should be checked.
-# If no args given, will just scan epan/dissectors folder.
-parser = argparse.ArgumentParser(description='Check calls in dissectors')
-parser.add_argument('--build-folder', action='store', default='',
-                    help='build folder', required=False)
-parser.add_argument('--file', action='append',
-                    help='specify individual dissector file to test')
-parser.add_argument('--commits', action='store',
-                    help='last N commits to check')
-parser.add_argument('--open', action='store_true',
-                    help='check open files')
+    args = parser.parse_args()
 
-args = parser.parse_args()
-
-issues_found = 0
-
-# Get files from wherever command-line args indicate.
-files = []
-
-if args.build_folder:
-    build_folder = args.build_folder
-
-if args.file:
-    # Add specified file(s)
-    for f in args.file:
-        if not os.path.isfile(f) and not f.startswith('epan'):
-            f = os.path.join('epan', 'dissectors', f)
-        if not os.path.isfile(f):
-            print('Chosen file', f, 'does not exist.')
-            exit(1)
-        else:
-            files.append(f)
-elif args.commits:
-    files = getFilesFromCommits(args.commits)
-elif args.open:
-    # Unstaged changes.
-    files = getFilesFromOpen()
-else:
-    # Find all dissector files from folder.
-    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'),
-                                       recursive=False, include_generated=True)
-
-# Ensure that all source files exist (i.e., cope with deletes/renames)
-files = [f for f in files if os.path.exists(f)]
+    # header-file -> contents for files that will be checked often, so only read once.
+    common_mismatched_header_contents = {}
+    common_mismatched_headers = [os.path.join('epan', 'dissectors', 'packet-ncp-int.h'),
+                                 os.path.join('epan', 'dissectors', 'packet-mq.h'),
+                                 os.path.join('epan', 'dissectors', 'packet-ip.h'),
+                                 os.path.join('epan', 'dissectors', 'packet-gsm_a_common.h'),
+                                 os.path.join('epan', 'dissectors', 'packet-epl.h'),
+                                 os.path.join('epan', 'dissectors', 'packet-bluetooth.h'),
+                                 os.path.join('epan', 'dissectors', 'packet-dcerpc.h'),
+                                 os.path.join('epan', 'ip_opts.h')]
+    for h in common_mismatched_headers:
+        with open(h, 'r') as f:
+            common_mismatched_header_contents[h] = f.read()
 
 
-# If scanning a subset of files, list them here.
-print('Examining:')
-if args.file or args.commits or args.open:
-    if files:
-        print(' '.join(files), '\n')
+    issues_found = 0
+
+    # Get files from wherever command-line args indicate.
+    files = []
+
+    if args.build_folder:
+        build_folder = args.build_folder
+
+    if args.file:
+        # Add specified file(s)
+        for f in args.file:
+            if not os.path.isfile(f) and not f.startswith('epan'):
+                f = os.path.join('epan', 'dissectors', f)
+            if not os.path.isfile(f):
+                print('Chosen file', f, 'does not exist.')
+                exit(1)
+            else:
+                files.append(f)
+    elif args.commits:
+        files = getFilesFromCommits(args.commits)
+    elif args.open:
+        # Unstaged changes.
+        files = getFilesFromOpen()
     else:
-        print('No files to check.\n')
-else:
-    print('All dissector modules\n')
+        # Find all dissector files from folder.
+        files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'),
+                                           recursive=False, include_generated=True)
+
+    # Ensure that all source files exist (i.e., cope with deletes/renames)
+    files = [f for f in files if os.path.exists(f)]
 
 
-if not os.path.isdir(build_folder):
-    print('Build directory not valid', build_folder, '- please set with --build-folder')
-    exit(1)
+    # If scanning a subset of files, list them here.
+    print('Examining:')
+    if args.file or args.commits or args.open:
+        if files:
+            print(' '.join(files), '\n')
+        else:
+            print('No files to check.\n')
+    else:
+        print('All dissector modules\n')
 
 
-# Get the set of called functions and referred-to data.
-called = CalledSymbols()
-
-call_files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'), include_generated=True)
-call_files.append(os.path.join('epan', 'dissectors', 'dissectors.c'))
-call_files.append(os.path.join('epan', 'dissectors', 'event-dissectors.c'))
-call_files += findFilesInFolder(os.path.join('ui', 'qt'))
-call_files += findFilesInFolder(os.path.join('ui', 'cli'))
+    if not os.path.isdir(build_folder):
+        print('Build directory not valid', build_folder, '- please set with --build-folder')
+        exit(1)
 
 
-def getCalls(file):
-    return called.getCalls(file)
+    # Get the set of called functions and referred-to data.
+    called = CalledSymbols()
+
+    call_files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'), include_generated=True)
+    call_files.append(os.path.join('epan', 'dissectors', 'dissectors.c'))
+    call_files.append(os.path.join('epan', 'dissectors', 'event-dissectors.c'))
+    call_files += findFilesInFolder(os.path.join('ui', 'qt'))
+    call_files += findFilesInFolder(os.path.join('ui', 'cli'))
 
 
-# Gather a list of undefined/external references.
-with concurrent.futures.ProcessPoolExecutor() as executor:
-    future_to_file_referred = {executor.submit(getCalls, file): file for file in call_files}
-    for future in concurrent.futures.as_completed(future_to_file_referred):
-        referred = future.result()
-        called.addCalls(referred)
+    def getCalls(file):
+        return called.getCalls(file)
 
 
-# Now check identified dissector files.
-def checkIfSymbolsAreCalled(file):
-    result = Result()
-    DefinedSymbols(file, result).checkIfSymbolsAreCalled(called.referred)
-    return result
+    # Gather a list of undefined/external references.
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        future_to_file_referred = {executor.submit(getCalls, file): file for file in call_files}
+        for future in concurrent.futures.as_completed(future_to_file_referred):
+            referred = future.result()
+            called.addCalls(referred)
 
-with concurrent.futures.ProcessPoolExecutor() as executor:
-    future_to_file_output = {executor.submit(checkIfSymbolsAreCalled, file): file for file in files}
-    for future in concurrent.futures.as_completed(future_to_file_output):
-        if should_exit:
-            exit(1)
 
-        result = future.result()
-        output = result.out.getvalue()
-        if len(output):
-            print(output[:-1])
+    # Now check identified dissector files.
+    def checkIfSymbolsAreCalled(file):
+        result = Result()
+        DefinedSymbols(file, result).checkIfSymbolsAreCalled(called.referred)
+        return result
 
-        issues_found += result.notes
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        future_to_file_output = {executor.submit(checkIfSymbolsAreCalled, file): file for file in files}
+        for future in concurrent.futures.as_completed(future_to_file_output):
+            if should_exit:
+                exit(1)
 
-# Show summary.
-print(issues_found, 'issues found')
+            result = future.result()
+            output = result.out.getvalue()
+            if len(output):
+                print(output[:-1])
+
+            issues_found += result.notes
+
+    # Show summary.
+    print(issues_found, 'issues found')

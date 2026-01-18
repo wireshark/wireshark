@@ -200,94 +200,93 @@ async def check_all_links(links):
         link.validate()
 
 
-#################################################################
-# Main logic.
+if __name__ == '__main__':
+    #################################################################
+    # command-line args.  Controls which dissector files should be scanned.
+    # If no args given, will just scan epan/dissectors folder.
+    parser = argparse.ArgumentParser(description='Check URL links in dissectors')
+    parser.add_argument('--file', action='append',
+                        help='specify individual dissector file to test')
+    parser.add_argument('--commits', action='store',
+                        help='last N commits to check')
+    parser.add_argument('--open', action='store_true',
+                        help='check open files')
+    parser.add_argument('--verbose', action='store_true',
+                        help='when enabled, show more output')
+    parser.add_argument('--docs', action='store_true',
+                        help='when enabled, also check document folders')
 
-# command-line args.  Controls which dissector files should be scanned.
-# If no args given, will just scan epan/dissectors folder.
-parser = argparse.ArgumentParser(description='Check URL links in dissectors')
-parser.add_argument('--file', action='append',
-                    help='specify individual dissector file to test')
-parser.add_argument('--commits', action='store',
-                    help='last N commits to check')
-parser.add_argument('--open', action='store_true',
-                    help='check open files')
-parser.add_argument('--verbose', action='store_true',
-                    help='when enabled, show more output')
-parser.add_argument('--docs', action='store_true',
-                    help='when enabled, also check document folders')
-
-args = parser.parse_args()
+    args = parser.parse_args()
 
 
-# Get files from wherever command-line args indicate.
-if args.file:
-    # Add specified file(s)
-    for f in args.file:
-        if not os.path.isfile(f) and not f.startswith('epan'):
-            f = os.path.join('epan', 'dissectors', f)
-        if not os.path.isfile(f):
-            print('Chosen file', f, 'does not exist.')
-            exit(1)
-        else:
-            files.append(f)
+    # Get files from wherever command-line args indicate.
+    if args.file:
+        # Add specified file(s)
+        for f in args.file:
+            if not os.path.isfile(f) and not f.startswith('epan'):
+                f = os.path.join('epan', 'dissectors', f)
+            if not os.path.isfile(f):
+                print('Chosen file', f, 'does not exist.')
+                exit(1)
+            else:
+                files.append(f)
+                find_links_in_file(f)
+    elif args.commits:
+        # Get files affected by specified number of commits.
+        files = getFilesFromCommits(args.commits)
+        for f in files:
             find_links_in_file(f)
-elif args.commits:
-    # Get files affected by specified number of commits.
-    files = getFilesFromCommits(args.commits)
-    for f in files:
-        find_links_in_file(f)
-elif args.open:
-    # Unstaged changes.
-    files = getFilesFromOpen()
-    for f in files:
-        find_links_in_file(f)
-elif args.docs:
-    # Find links from doc folder(s)
-    find_links_in_folder(os.path.join(os.path.dirname(__file__), '..', 'doc'))
+    elif args.open:
+        # Unstaged changes.
+        files = getFilesFromOpen()
+        for f in files:
+            find_links_in_file(f)
+    elif args.docs:
+        # Find links from doc folder(s)
+        find_links_in_folder(os.path.join(os.path.dirname(__file__), '..', 'doc'))
 
-else:
-    # Find links from dissector folder.
-    find_links_in_folder(os.path.join(os.path.dirname(__file__), '..', 'epan', 'dissectors'))
-
-
-# If scanning a subset of files, list them here.
-print('Examining:')
-if args.file or args.commits or args.open:
-    if files:
-        print(' '.join(files), '\n')
     else:
-        print('No files to check.\n')
-else:
-    if not args.docs:
-        print('All dissector modules\n')
-    else:
-        print('Document sources')
-
-asyncio.run(check_all_links(links))
-
-# Write failures to a file.  Back up any previous first though.
-if os.path.exists('failures.txt'):
-    shutil.copyfile('failures.txt', 'failures_last_run.txt')
-with open('failures.txt', 'w') as f_f:
-    for link in links:
-        if link.tested and not link.success:
-            f_f.write(str(link) + '\n')
-# And successes
-with open('successes.txt', 'w') as f_s:
-    for link in links:
-        if link.tested and link.success:
-            f_s.write(str(link) + '\n')
+        # Find links from dissector folder.
+        find_links_in_folder(os.path.join(os.path.dirname(__file__), '..', 'epan', 'dissectors'))
 
 
-# Count and show overall stats.
-passed, failed = 0, 0
-for link in links:
-    if link.tested:
-        if link.success:
-            passed += 1
+    # If scanning a subset of files, list them here.
+    print('Examining:')
+    if args.file or args.commits or args.open:
+        if files:
+            print(' '.join(files), '\n')
         else:
-            failed += 1
+            print('No files to check.\n')
+    else:
+        if not args.docs:
+            print('All dissector modules\n')
+        else:
+            print('Document sources')
 
-print('--------------------------------------------------------------------------------------------------')
-print(len(links), 'links checked: ', passed, 'passed,', failed, 'failed')
+    asyncio.run(check_all_links(links))
+
+    # Write failures to a file.  Back up any previous first though.
+    if os.path.exists('failures.txt'):
+        shutil.copyfile('failures.txt', 'failures_last_run.txt')
+    with open('failures.txt', 'w') as f_f:
+        for link in links:
+            if link.tested and not link.success:
+                f_f.write(str(link) + '\n')
+    # And successes
+    with open('successes.txt', 'w') as f_s:
+        for link in links:
+            if link.tested and link.success:
+                f_s.write(str(link) + '\n')
+
+
+    # Count and show overall stats.
+    passed, failed = 0, 0
+    for link in links:
+        if link.tested:
+            if link.success:
+                passed += 1
+            else:
+                failed += 1
+
+    print('--------------------------------------------------------------------------------------------------')
+    print(len(links), 'links checked: ', passed, 'passed,', failed, 'failed')

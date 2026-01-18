@@ -88,75 +88,74 @@ def checkFile(filename, generated):
     return result
 
 
-#################################################################
-# Main logic.
+if __name__ == '__main__':
+    #################################################################
+    # command-line args.  Controls which dissector files should be checked.
+    # If no args given, will scan all dissectors.
+    parser = argparse.ArgumentParser(description='Check calls in dissectors')
+    parser.add_argument('--file', action='append',
+                        help='specify individual dissector file to test')
+    parser.add_argument('--commits', action='store',
+                        help='last N commits to check')
+    parser.add_argument('--open', action='store_true',
+                        help='check open files')
 
-# command-line args.  Controls which dissector files should be checked.
-# If no args given, will scan all dissectors.
-parser = argparse.ArgumentParser(description='Check calls in dissectors')
-parser.add_argument('--file', action='append',
-                    help='specify individual dissector file to test')
-parser.add_argument('--commits', action='store',
-                    help='last N commits to check')
-parser.add_argument('--open', action='store_true',
-                    help='check open files')
-
-args = parser.parse_args()
-
-
-# Get files from wherever command-line args indicate.
-files = []
-if args.file:
-    # Add specified file(s)
-    for f in args.file:
-        if os.path.isfile(f):
-            if isDissectorFile(f):
-                files.append(f)
-        else:
-            print('Chosen file', f, 'does not exist.')
-            exit(1)
-elif args.commits:
-    files = getFilesFromCommits(args.commits)
-elif args.open:
-    # Unstaged changes.
-    files = getFilesFromOpen()
-else:
-    # Find all dissector files from folder.
-    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
-    files += findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
-    files += findDissectorFilesInFolder(os.path.join('epan', 'dissectors', 'asn1'), recursive=True)
+    args = parser.parse_args()
 
 
-# If scanning a subset of files, list them here.
-print('Examining:')
-if args.file or args.commits or args.open:
-    if files:
-        print(' '.join(files), '\n')
+    # Get files from wherever command-line args indicate.
+    files = []
+    if args.file:
+        # Add specified file(s)
+        for f in args.file:
+            if os.path.isfile(f):
+                if isDissectorFile(f):
+                    files.append(f)
+            else:
+                print('Chosen file', f, 'does not exist.')
+                exit(1)
+    elif args.commits:
+        files = getFilesFromCommits(args.commits)
+    elif args.open:
+        # Unstaged changes.
+        files = getFilesFromOpen()
     else:
-        print('No files to check.\n')
-else:
-    print('All dissectors\n')
+        # Find all dissector files from folder.
+        files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
+        files += findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
+        files += findDissectorFilesInFolder(os.path.join('epan', 'dissectors', 'asn1'), recursive=True)
 
 
-# Now check the chosen files
-with concurrent.futures.ProcessPoolExecutor() as executor:
-    future_to_file_output = {executor.submit(checkFile, file,
-                             isGeneratedFile(file)): file for file in files}
-    for future in concurrent.futures.as_completed(future_to_file_output):
-        if should_exit:
-            exit(1)
-        # File is done - show any output and update warning, error counts
-        result = future.result()
-        output = result.out.getvalue()
-        if len(output):
-            print(output)
-
-        warnings_found += result.warnings
-        errors_found += result.errors
+    # If scanning a subset of files, list them here.
+    print('Examining:')
+    if args.file or args.commits or args.open:
+        if files:
+            print(' '.join(files), '\n')
+        else:
+            print('No files to check.\n')
+    else:
+        print('All dissectors\n')
 
 
-# Show summary.
-print(warnings_found, 'warnings found')
-if errors_found:
-    print(errors_found, 'errors found')
-    exit(1)
+    # Now check the chosen files
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        future_to_file_output = {executor.submit(checkFile, file,
+                                 isGeneratedFile(file)): file for file in files}
+        for future in concurrent.futures.as_completed(future_to_file_output):
+            if should_exit:
+                exit(1)
+            # File is done - show any output and update warning, error counts
+            result = future.result()
+            output = result.out.getvalue()
+            if len(output):
+                print(output)
+
+            warnings_found += result.warnings
+            errors_found += result.errors
+
+
+    # Show summary.
+    print(warnings_found, 'warnings found')
+    if errors_found:
+        print(errors_found, 'errors found')
+        exit(1)
