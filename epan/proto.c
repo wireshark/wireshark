@@ -1329,7 +1329,7 @@ void
 ptvcursor_free(ptvcursor_t *ptvc)
 {
 	ptvcursor_free_subtree_levels(ptvc);
-	/*g_free(ptvc);*/
+	wmem_free(ptvc->scope, ptvc);
 }
 
 /* Returns tvbuff. */
