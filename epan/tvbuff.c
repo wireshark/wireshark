@@ -1015,6 +1015,10 @@ fast_ensure_contiguous(tvbuff_t *tvb, const unsigned offset, const unsigned leng
 	/* Since offset is unsigned, we have to check for overflow. */
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
+	/* This is only called internally, never with zero. Try to satisfy
+	 * Coverity that we don't run off the end. */
+	ws_assert(length != 0);
+
 	if (!tvb->real_data) {
 	       return ensure_contiguous_unsigned(tvb, offset, length);
 	}
