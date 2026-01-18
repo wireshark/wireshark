@@ -95,7 +95,7 @@ def patch_makefile(args):
     if args.plugin:
         cmakefile = os.path.join(wsdir(), "CMakeLists.txt")
         patchline = "\t\tplugins/epan/" + args.protoabbrev
-        groupstart = "set(PLUGIN_SRC_DIRS"
+        groupstart = "set(WIRESHARK_PLUGIN_SRC_DIRS"
     else:
         cmakefile = os.path.join(wsdir(), "epan/dissectors/CMakeLists.txt")
         patchline = "\t${CMAKE_CURRENT_SOURCE_DIR}/packet-" + args.protoabbrev + ".c"

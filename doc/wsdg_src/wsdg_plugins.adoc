@@ -115,13 +115,13 @@ could be used from a shell prompt.
 
 ===== Changes to _CMakeLists.txt_
 
-Add your plugin (in alphabetical order) to the PLUGIN_SRC_DIRS:
+Add your plugin (in alphabetical order) to WIRESHARK_PLUGIN_SRC_DIRS or STRATOSHARK_PLUGIN_SRC_DIRS:
 
 [source,cmake]
 ----
 if(ENABLE_PLUGINS)
     ...
-    set(PLUGIN_SRC_DIRS
+    set(WIRESHARK_PLUGIN_SRC_DIRS
         ...
         plugins/epan/ethercat
         plugins/epan/foo

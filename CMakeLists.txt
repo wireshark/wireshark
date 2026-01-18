@@ -1787,7 +1787,8 @@ else()
 endif()
 set(PLUGIN_INSTALL_FULL_LIBDIR "${CMAKE_INSTALL_PREFIX}/${PLUGIN_INSTALL_LIBDIR}")
 set(PLUGIN_INSTALL_VERSION_LIBDIR "${PLUGIN_INSTALL_LIBDIR}/${PLUGIN_PATH_ID}")
-set(PLUGIN_VERSION_DIR "plugins/${PLUGIN_PATH_ID}")
+set(WIRESHARK_PLUGIN_VERSION_DIR "plugins/wireshark/${PLUGIN_PATH_ID}")
+set(STRATOSHARK_PLUGIN_VERSION_DIR "plugins/stratoshark/${PLUGIN_PATH_ID}")
 
 add_subdirectory( capture )
 add_subdirectory( epan )
@@ -1863,8 +1864,8 @@ if(BUILD_stratoshark AND QT_FOUND)
 	add_subdirectory( ui/stratoshark )
 endif()
 
-# Location of our plugins. PLUGIN_DIR should allow running
-# from the build directory similar to DATAFILE_DIR above.
+# Location of our plugins. {WIRESHARK,STRATOSHARK}_PLUGIN_DIR should allow
+# running from the build directory similar to DATAFILE_DIR above.
 if(ENABLE_PLUGINS)
 	# Target platform locations
 	# UN*X in general, including macOS if not building an app bundle:
@@ -1874,7 +1875,7 @@ if(ENABLE_PLUGINS)
 	set(HAVE_PLUGINS 1)
 	add_custom_target(plugins)
 	set_target_properties(plugins PROPERTIES FOLDER "Plugins")
-	set(PLUGIN_SRC_DIRS
+	set(WIRESHARK_PLUGIN_SRC_DIRS
 		plugins/epan/ethercat
 		plugins/epan/gryphon
 		plugins/epan/irda
@@ -1901,73 +1902,69 @@ if(ENABLE_PLUGINS)
 		)
 	endif()
 	if(SPANDSP_FOUND)
-		list(APPEND PLUGIN_SRC_DIRS
+		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
 			plugins/codecs/G722
 			plugins/codecs/G726
 		)
 	endif()
 	if(BCG729_FOUND)
-		list(APPEND PLUGIN_SRC_DIRS
+		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
 			plugins/codecs/G729
 		)
 	endif()
 	if(AMRNB_FOUND)
-		list(APPEND PLUGIN_SRC_DIRS
+		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
 			plugins/codecs/amrnb
 		)
 	endif()
 	if(ILBC_FOUND)
-		list(APPEND PLUGIN_SRC_DIRS
+		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
 			plugins/codecs/iLBC
 		)
 	endif()
 	if(OPUS_FOUND)
-		list(APPEND PLUGIN_SRC_DIRS
+		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
 			plugins/codecs/opus_dec
 		)
 	endif()
 	if(SBC_FOUND)
-		list(APPEND PLUGIN_SRC_DIRS
+		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
 			plugins/codecs/sbc
 		)
 	endif()
 
 	# Build demo plugin, only if asked explicitly
 	if(ENABLE_PLUGIN_IFDEMO)
-		list(APPEND PLUGIN_SRC_DIRS
+		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
 			plugins/ui/pluginifdemo
 		)
 	endif()
 
 else()
-	set(PLUGIN_SRC_DIRS )
+	set(WIRESHARK_PLUGIN_SRC_DIRS )
 	set(STRATOSHARK_PLUGIN_SRC_DIRS )
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
 	if(CMAKE_CFG_INTDIR STREQUAL ".")
-		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
-	else()
-		# Xcode
-		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
-	endif()
-	if(CMAKE_CFG_INTDIR STREQUAL ".")
+		set(_wireshark_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
 		set(_stratoshark_plugin_dir "${CMAKE_BINARY_DIR}/run/Stratoshark.app/Contents/PlugIns/stratoshark/${PLUGIN_PATH_ID}")
 	else()
 		# Xcode
+		set(_wireshark_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
 		set(_stratoshark_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Stratoshark.app/Contents/PlugIns/stratoshark/${PLUGIN_PATH_ID}")
 	endif()
 elseif(MSVC AND NOT CMAKE_CFG_INTDIR STREQUAL ".")
-	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/${PLUGIN_VERSION_DIR}")
-	set(_stratoshark_plugin_dir ${_plugin_dir})
+	set(_wireshark_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/${WIRESHARK_PLUGIN_VERSION_DIR}")
+	set(_stratoshark_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/${STRATOSHARK_PLUGIN_VERSION_DIR}")
 else()
-	set(_plugin_dir "${DATAFILE_DIR}/${PLUGIN_VERSION_DIR}")
-	set(_stratoshark_plugin_dir ${_plugin_dir})
+	set(_wireshark_plugin_dir "${DATAFILE_DIR}/${WIRESHARK_PLUGIN_VERSION_DIR}")
+	set(_stratoshark_plugin_dir "${DATAFILE_DIR}/${STRATOSHARK_PLUGIN_VERSION_DIR}")
 endif()
-set (PLUGIN_DIR ${_plugin_dir} CACHE INTERNAL "Build time plugin location.")
+set (WIRESHARK_PLUGIN_DIR ${_wireshark_plugin_dir} CACHE INTERNAL "Build time plugin location.")
 set (STRATOSHARK_PLUGIN_DIR ${_stratoshark_plugin_dir} CACHE INTERNAL "Build time Stratoshark plugin location.")
 
-foreach(_plugin_src_dir ${PLUGIN_SRC_DIRS} ${STRATOSHARK_PLUGIN_SRC_DIRS})
+foreach(_plugin_src_dir ${WIRESHARK_PLUGIN_SRC_DIRS} ${STRATOSHARK_PLUGIN_SRC_DIRS})
 	add_subdirectory( ${_plugin_src_dir} )
 endforeach()
 

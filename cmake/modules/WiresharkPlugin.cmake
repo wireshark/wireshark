@@ -46,7 +46,7 @@ macro(ADD_WIRESHARK_PLUGIN_LIBRARY _plugin _subfolder)
 	endif()
 
 	set_target_properties(${_plugin} PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}/${_subfolder}
+		LIBRARY_OUTPUT_DIRECTORY ${WIRESHARK_PLUGIN_DIR}/${_subfolder}
 		INSTALL_RPATH ""
 	)
 

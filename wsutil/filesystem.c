@@ -1171,16 +1171,14 @@ init_plugin_dir(const char* app_env_var_prefix)
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 #if defined(HAVE_MSYSTEM)
     else if (running_in_build_directory_flag) {
-        plugin_dir = g_build_filename(install_prefix, "plugins", (char *)NULL);
+        plugin_dir = g_build_filename(install_prefix, "plugins", app_lower, (char *)NULL);
     } else {
         plugin_dir = g_build_filename(install_prefix, PLUGIN_DIR, (char *)NULL);
     }
 #elif defined(_WIN32)
-    else {
-        /*
-         * On Windows, plugins are stored under the program file directory
-         * in both the build and the installation directories.
-         */
+    else if (running_in_build_directory_flag) {
+        plugin_dir = g_build_filename(get_progfile_dir(), "plugins", app_lower, (char *)NULL);
+    } else {
         plugin_dir = g_build_filename(get_progfile_dir(), "plugins", (char *)NULL);
     }
 #else
@@ -1206,7 +1204,7 @@ init_plugin_dir(const char* app_env_var_prefix)
          * the "plugins" subdirectory of the directory where the program
          * we're running is (that's the build directory).
          */
-        plugin_dir = g_build_filename(get_progfile_dir(), "plugins", (char *)NULL);
+        plugin_dir = g_build_filename(get_progfile_dir(), "plugins", app_lower, (char *)NULL);
     } else {
         if (g_path_is_absolute(PLUGIN_DIR)) {
             plugin_dir = g_strdup(PLUGIN_DIR);
