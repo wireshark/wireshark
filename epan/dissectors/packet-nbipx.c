@@ -56,7 +56,7 @@ static int ett_nbipx;
 static int ett_nbipx_conn_ctrl;
 static int ett_nbipx_name_type_flags;
 
-static void dissect_conn_control(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_conn_control(tvbuff_t *tvb, unsigned offset, proto_tree *tree);
 
 static heur_dissector_list_t netbios_heur_subdissector_list;
 
@@ -242,7 +242,7 @@ static const value_string nmpi_name_type_vals[] = {
 static const true_false_string tfs_system_non_system = { "System packet", "Non-system packet" };
 
 static void
-add_routers(proto_tree *tree, tvbuff_t *tvb, int offset)
+add_routers(proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
 	int		i;
 
@@ -275,7 +275,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	bool	has_routes;
 	proto_tree	*nbipx_tree = NULL;
 	proto_item	*ti = NULL;
-	int		offset = 0;
+	unsigned	offset = 0;
 	uint8_t		packet_type;
 	proto_tree	*name_type_flag_tree;
 	proto_item	*tf;
@@ -485,7 +485,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 static void
-dissect_conn_control(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_conn_control(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
 	proto_item	*ti;
 	proto_tree	*cc_tree;

@@ -521,7 +521,7 @@ dissect_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *opsi_tree, int
 		length -= attribute_length;
 	}
 	if (length) {
-		proto_tree_add_expert(opsi_tree, pinfo, &ei_opsi_short_frame, tvb, offset, -1);
+		proto_tree_add_expert_remaining(opsi_tree, pinfo, &ei_opsi_short_frame, tvb, offset);
 	}
 }
 

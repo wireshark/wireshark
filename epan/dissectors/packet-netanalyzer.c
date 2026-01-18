@@ -384,7 +384,7 @@ dissect_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   else
   {
     /* something is wrong */
-    proto_tree_add_expert_format(tree, pinfo, &ei_netanalyzer_header_none, tvb, 4, -1,
+    proto_tree_add_expert_format_remaining(tree, pinfo, &ei_netanalyzer_header_none, tvb, 4,
         "netANALYZER - No netANALYZER header found");
   }
   return tvb_captured_length(tvb);
@@ -419,7 +419,7 @@ dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   else
   {
     /* something is wrong */
-    proto_tree_add_expert_format(tree, pinfo, &ei_netanalyzer_header_none, tvb, 4, -1,
+    proto_tree_add_expert_format_remaining(tree, pinfo, &ei_netanalyzer_header_none, tvb, 4,
         "netANALYZER transparent mode - No netANALYZER header found");
   }
   return tvb_captured_length(tvb);

@@ -753,7 +753,7 @@ static int dissect_pbb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   uint8_t addressSize, addressType;
 
   if (tvb_reported_length(tvb) - offset < 6) {
-    proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, -1,
+    proto_tree_add_expert_format_remaining(tree, pinfo, &ei_packetbb_error, tvb, offset,
         "Not enough octets for minimal message header");
     return tvb_reported_length(tvb);
   }
@@ -798,7 +798,7 @@ static int dissect_pbb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   /* test length for message size */
   if (tvb_reported_length(tvb) - offset < messageLength) {
-    proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, -1,
+    proto_tree_add_expert_format_remaining(tree, pinfo, &ei_packetbb_error, tvb, offset,
         "Not enough octets for message");
     return tvb_reported_length(tvb);
   }

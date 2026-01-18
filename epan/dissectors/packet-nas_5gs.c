@@ -9968,7 +9968,7 @@ nas_5gs_n1_sm_info_from_ue(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
             break;
         }
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset);
 
             break;
     }
@@ -10387,7 +10387,7 @@ de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             offset += 6;
             break;
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset);
             return;
         }
     }
@@ -10517,7 +10517,7 @@ de_nas_5gs_ursp_r_sel_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                "non-seamless non-3GPP offload indication type" in the route selection descriptor.*/
             break;
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset);
             return;
         }
     }
@@ -12108,7 +12108,7 @@ dissect_nas_5gs_sm_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int
     } else if (!strcmp(n1_msg_class, UNKNOWN_N1_SMINFO)) {
         msg_fcn_p = nas_5gs_unknown_n1_sm_info;
     } else {
-        proto_tree_add_expert_format(tree, pinfo, &ei_nas_5gs_sm_unknown_msg_type, tvb, offset, -1, "Unknown Message Type");
+        proto_tree_add_expert_format_remaining(tree, pinfo, &ei_nas_5gs_sm_unknown_msg_type, tvb, offset, "Unknown Message Type");
         return;
     }
 
@@ -12254,7 +12254,7 @@ dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             /* dissect Test Procedure messages */
             return call_dissector_with_data(gsm_a_dtap_handle, tvb_new_subset_remaining(tvb, offset - 1), pinfo, sub_tree, data);
         }
-        proto_tree_add_expert_format(sub_tree, pinfo, &ei_nas_5gs_unknown_pd, tvb, offset, -1, "Not a NAS 5GS PD %u (%s)",
+        proto_tree_add_expert_format_remaining(sub_tree, pinfo, &ei_nas_5gs_unknown_pd, tvb, offset, "Not a NAS 5GS PD %u (%s)",
             epd, val_to_str_const(epd, nas_5gs_epd_vals, "Unknown"));
         return 0;
 

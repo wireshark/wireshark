@@ -162,7 +162,7 @@ static const value_string hosttype_vals[] = {
 
 static int
 dissect_winsrepl_start(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
-		       int winsrepl_offset, proto_tree *winsrepl_tree)
+		       unsigned winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	proto_tree *start_tree;
 
@@ -186,7 +186,7 @@ dissect_winsrepl_start(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 
 static int
 dissect_winsrepl_stop(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
-		      int winsrepl_offset, proto_tree *winsrepl_tree)
+		      unsigned winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	uint32_t reason;
 	proto_item *stop_item;
@@ -207,7 +207,7 @@ dissect_winsrepl_stop(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 
 static int
 dissect_winsrepl_table_query(tvbuff_t *winsrepl_tvb _U_, packet_info *pinfo _U_,
-			     int winsrepl_offset, proto_tree *winsrepl_tree _U_)
+			     unsigned winsrepl_offset, proto_tree *winsrepl_tree _U_)
 {
 	/* Nothing to do here */
 	return winsrepl_offset;
@@ -215,7 +215,7 @@ dissect_winsrepl_table_query(tvbuff_t *winsrepl_tvb _U_, packet_info *pinfo _U_,
 
 static int
 dissect_winsrepl_wins_owner(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
-			    int winsrepl_offset, proto_tree *winsrepl_tree,
+			    unsigned winsrepl_offset, proto_tree *winsrepl_tree,
 			    proto_tree *sub_tree, uint32_t idx)
 {
 	proto_tree *owner_tree = NULL;
@@ -249,7 +249,7 @@ dissect_winsrepl_wins_owner(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 
 static int
 dissect_winsrepl_table_reply(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-			     int winsrepl_offset, proto_tree *winsrepl_tree)
+			     unsigned winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	proto_tree *table_tree;
 	uint32_t partner_count;
@@ -278,7 +278,7 @@ dissect_winsrepl_table_reply(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 static int
 dissect_winsrepl_send_request(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-			     int winsrepl_offset, proto_tree *winsrepl_tree)
+			     unsigned winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	winsrepl_offset = dissect_winsrepl_wins_owner(winsrepl_tvb, pinfo,
 						      winsrepl_offset, winsrepl_tree,
@@ -289,7 +289,7 @@ dissect_winsrepl_send_request(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 static int
 dissect_winsrepl_wins_ip(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
-			 int winsrepl_offset, proto_tree *winsrepl_tree,
+			 unsigned winsrepl_offset, proto_tree *winsrepl_tree,
 			 uint32_t *addr, proto_tree *sub_tree, uint32_t idx)
 {
 	proto_item *ip_item = NULL;
@@ -318,12 +318,12 @@ dissect_winsrepl_wins_ip(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 
 static int
 dissect_winsrepl_wins_address_list(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-				   int winsrepl_offset, proto_tree *winsrepl_tree,
+				   unsigned winsrepl_offset, proto_tree *winsrepl_tree,
 				   proto_item *parent_item)
 {
 	proto_item *addr_list_item;
 	proto_tree *addr_list_tree;
-	int old_offset = winsrepl_offset;
+	unsigned old_offset = winsrepl_offset;
 	uint32_t num_ips;
 	uint32_t ip;
 	uint32_t i;
@@ -360,12 +360,12 @@ dissect_winsrepl_wins_address_list(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 static int
 dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-			   int winsrepl_offset, proto_tree *winsrepl_tree,
+			   unsigned winsrepl_offset, proto_tree *winsrepl_tree,
 			   proto_tree *sub_tree, uint32_t idx)
 {
 	proto_item *name_item = NULL, *ti;
 	proto_tree *name_tree = NULL;
-	int old_offset = winsrepl_offset;
+	unsigned old_offset = winsrepl_offset;
 	tvbuff_t *name_tvb = NULL;
 	uint32_t name_len;
 	char  name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
@@ -467,7 +467,7 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 static int
 dissect_winsrepl_send_reply(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-			    int winsrepl_offset, proto_tree *winsrepl_tree)
+			    unsigned winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	proto_tree *rep_tree;
 	uint32_t num_names;
@@ -492,7 +492,7 @@ dissect_winsrepl_send_reply(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 static int
 dissect_winsrepl_update(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-			int winsrepl_offset, proto_tree *winsrepl_tree)
+			unsigned winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	winsrepl_offset = dissect_winsrepl_table_reply(winsrepl_tvb, pinfo,
 						       winsrepl_offset, winsrepl_tree);
@@ -501,7 +501,7 @@ dissect_winsrepl_update(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 static int
 dissect_winsrepl_update2(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-			 int winsrepl_offset, proto_tree *winsrepl_tree)
+			 unsigned winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	winsrepl_offset = dissect_winsrepl_table_reply(winsrepl_tvb, pinfo,
 						       winsrepl_offset, winsrepl_tree);
@@ -510,7 +510,7 @@ dissect_winsrepl_update2(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 static int
 dissect_winsrepl_inform(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-			int winsrepl_offset, proto_tree *winsrepl_tree)
+			unsigned winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	winsrepl_offset = dissect_winsrepl_table_reply(winsrepl_tvb, pinfo,
 						       winsrepl_offset, winsrepl_tree);
@@ -519,7 +519,7 @@ dissect_winsrepl_inform(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 static int
 dissect_winsrepl_inform2(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-			 int winsrepl_offset, proto_tree *winsrepl_tree)
+			 unsigned winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	winsrepl_offset = dissect_winsrepl_table_reply(winsrepl_tvb, pinfo,
 						       winsrepl_offset, winsrepl_tree);
@@ -528,7 +528,7 @@ dissect_winsrepl_inform2(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 static int
 dissect_winsrepl_replication(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-			     int winsrepl_offset, proto_item *winsrepl_item, proto_tree *winsrepl_tree)
+			     unsigned winsrepl_offset, proto_item *winsrepl_item, proto_tree *winsrepl_tree)
 {
 	proto_item *repl_item;
 	proto_tree *repl_tree;

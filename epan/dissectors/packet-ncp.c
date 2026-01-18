@@ -825,10 +825,10 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     uint16_t              ncp_burst_seqno, ncp_ack_seqno;
     uint16_t              flags = 0;
     proto_tree            *flags_tree = NULL;
-    int                   hdr_offset = 0;
-    int                   commhdr = 0;
-    int                   offset = 0;
-    int                   length_remaining;
+    unsigned              hdr_offset = 0;
+    unsigned              commhdr = 0;
+    unsigned              offset = 0;
+    unsigned              length_remaining;
     tvbuff_t              *next_tvb;
     uint32_t              ncp_burst_command, burst_len, burst_off, burst_file;
     uint8_t               subfunction;
@@ -1324,7 +1324,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     default:
-        proto_tree_add_expert_format(ncp_tree, pinfo, &ei_ncp_type, tvb, commhdr + 6, -1,
+        proto_tree_add_expert_format_remaining(ncp_tree, pinfo, &ei_ncp_type, tvb, commhdr + 6,
             "%s packets not supported yet",
             val_to_str(pinfo->pool, header.type, ncp_type_vals,
                 "Unknown type (0x%04x)"));

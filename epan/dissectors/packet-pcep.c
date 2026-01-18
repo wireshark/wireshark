@@ -1840,11 +1840,11 @@ static const value_string srv6_endpoint_behavior_vals[] = {
  * SUB-TLVS
  * ----------------------------------------------------------------*/
 static void
-dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, packet_info* pinfo, tvbuff_t *tvb, int offset, int length, int ett_pcep_obj)
+dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, packet_info* pinfo, tvbuff_t *tvb, unsigned offset, unsigned length, int ett_pcep_obj)
 {
     proto_tree *sub_tlv;
     uint16_t    sub_tlv_length, sub_tlv_type;
-    int         j;
+    unsigned    j;
     int         padding = 0;
 
     static int * const sr_pce_capability_sub_tlv_flags[] = {
@@ -1886,18 +1886,19 @@ dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, packet_info*
  *  All the other TLVs do not need scope at the moment.
 */
 static void
-dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t *tvb, int offset, int length, int ett_pcep_obj, uint16_t association_type)
+dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t *tvb, unsigned offset, unsigned length, int ett_pcep_obj, uint16_t association_type)
 {
     proto_tree *tlv;
-    uint16_t    tlv_length, tlv_type, of_code, assoc_type;
-    uint32_t psts;
-    int         i, j;
+    unsigned    tlv_length;
+    uint16_t    tlv_type, of_code, assoc_type;
+    uint32_t    psts;
+    unsigned    i, j;
     int         padding = 0;
 
-    uint32_t     binding_type;
+    uint32_t    binding_type;
     proto_item *bsid_item = NULL;
     proto_tree *bsid_tree = NULL;
-    uint32_t label, tc, bos, ttl;
+    uint32_t    label, tc, bos, ttl;
 
     static int * const tlv_stateful_pce_capability_flags[] = {
         &hf_pcep_lsp_update_capability,
@@ -2062,7 +2063,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t 
             case 34:    /* PATH-SETUP-TYPE-CAPABILITY TLV */
                 proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_reserved24, tvb, offset + 4 + j, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_item_ret_uint(tlv, hf_pcep_path_setup_type_capability_psts, tvb, offset + 4 + j + 3, 1, ENC_NA, &psts);
-                for (i = 0; i < (int)psts; i++) {
+                for (i = 0; i < psts; i++) {
                     proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_pst, tvb, offset + 4 + j + 4 + i, 1, ENC_NA);
                 }
 
@@ -2169,7 +2170,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t 
 }
 
 static void
-dissect_pcep_tlvs(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t *tvb, int offset, int length, int ett_pcep_obj)
+dissect_pcep_tlvs(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t *tvb, unsigned offset, unsigned length, int ett_pcep_obj)
 {
   dissect_pcep_tlvs_with_scope(pcep_obj, pinfo, tvb, offset, length, ett_pcep_obj,0);
 }
@@ -2178,7 +2179,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t *tvb, int o
  *SUBOBJECTS
  *------------------------------------------------------------------------------*/
 static void
-dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int obj_class, int ett_pcep_obj, unsigned length)
+dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, int obj_class, int ett_pcep_obj, unsigned length)
 {
     proto_tree *pcep_subobj_ipv4;
     proto_tree *pcep_subobj_ipv4_flags;
@@ -2249,7 +2250,7 @@ dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 }
 
 static void
-dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int obj_class, int ett_pcep_obj, unsigned length)
+dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, int obj_class, int ett_pcep_obj, unsigned length)
 {
     proto_tree *pcep_subobj_ipv6;
     proto_tree *pcep_subobj_ipv6_flags;
@@ -2319,7 +2320,7 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 }
 
 static void
-dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, tvbuff_t *tvb,  int offset, int obj_class, int ett_pcep_obj, unsigned length)
+dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, tvbuff_t *tvb,  unsigned offset, int obj_class, int ett_pcep_obj, unsigned length)
 {
     proto_tree *pcep_subobj_label_control;
     proto_tree *pcep_subobj_label_flags;
@@ -2368,7 +2369,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, 
 }
 
 static void
-dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int obj_class, int ett_pcep_obj, unsigned length)
+dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, int obj_class, int ett_pcep_obj, unsigned length)
 {
     proto_tree *pcep_subobj_sr_tree = NULL;
     proto_item *ti = NULL;
@@ -2479,7 +2480,7 @@ dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tv
 }
 
 static void
-dissect_subobj_srv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int obj_class, int ett_pcep_obj, unsigned length)
+dissect_subobj_srv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, int obj_class, int ett_pcep_obj, unsigned length)
 {
     proto_tree *subtree = NULL;
     proto_tree *subsub_tree = NULL;
@@ -2579,7 +2580,7 @@ dissect_subobj_srv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 }
 
 static void
-dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int obj_class, int ett_pcep_obj, unsigned length)
+dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, int obj_class, int ett_pcep_obj, unsigned length)
 {
     proto_tree *pcep_subobj_unnumb_interfaceID;
     proto_item *ti;
@@ -2649,7 +2650,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
 }
 
 static void
-dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int obj_class, unsigned ett_pcep_obj, unsigned length)
+dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, int obj_class, unsigned ett_pcep_obj, unsigned length)
 {
     proto_tree *pcep_subobj_autonomous_sys_num;
     proto_item *ti;
@@ -2692,7 +2693,7 @@ dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, packet_info *pin
 }
 
 static void
-dissect_subobj_srlg(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, unsigned ett_pcep_obj, unsigned length)
+dissect_subobj_srlg(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned ett_pcep_obj, unsigned length)
 {
     proto_tree *pcep_subobj_srlg;
     proto_item *ti;
@@ -2716,7 +2717,7 @@ dissect_subobj_srlg(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 }
 
 static void
-dissect_subobj_exrs(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int obj_class, unsigned ett_pcep_obj, unsigned type_iro, unsigned length)
+dissect_subobj_exrs(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, int obj_class, unsigned ett_pcep_obj, unsigned type_iro, unsigned length)
 {
     proto_tree *pcep_subobj_exrs;
     proto_item *ti;
@@ -2787,7 +2788,7 @@ dissect_subobj_exrs(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 }
 
 static void
-dissect_subobj_pksv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int ett_pcep_obj, unsigned length)
+dissect_subobj_pksv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, int ett_pcep_obj, unsigned length)
 {
     proto_tree *pcep_subobj_pksv4;
     proto_item *ti;
@@ -2812,7 +2813,7 @@ dissect_subobj_pksv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t 
 }
 
 static void
-dissect_subobj_pksv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int ett_pcep_obj, unsigned length)
+dissect_subobj_pksv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, int ett_pcep_obj, unsigned length)
 {
     proto_tree *pcep_subobj_pksv6;
     proto_item *ti;
@@ -2841,7 +2842,7 @@ dissect_subobj_pksv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t 
  * Pointer to an object dissector function.
  * All functions which dissect a single object type must match this signature.
  *------------------------------------------------------------------------------*/
-typedef void (pcep_obj_dissector_t)(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class, int obj_type);
+typedef void (pcep_obj_dissector_t)(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class, int obj_type);
 
 /*------------------------------------------------------------------------------
  * OPEN OBJECT
@@ -2849,7 +2850,7 @@ typedef void (pcep_obj_dissector_t)(proto_tree *tree, packet_info *pinfo, tvbuff
 #define OPEN_OBJ_MIN_LEN    4
 
 static void
-dissect_pcep_open_obj (proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_open_obj (proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     proto_tree *pcep_open_obj_flags;
     proto_item *ti;
@@ -2885,7 +2886,7 @@ dissect_pcep_open_obj (proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
 
 static void
 dissect_pcep_rp_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
-                    tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+                    tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     static int* const flags[] = {
       &hf_pcep_rp_flags_reserved,
@@ -2932,7 +2933,7 @@ dissect_pcep_rp_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 
 static void
 dissect_pcep_no_path_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
-                         tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+                         tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     proto_tree *pcep_no_path_obj_flags;
     proto_item *ti;
@@ -2967,7 +2968,7 @@ dissect_pcep_no_path_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 
 static void
 dissect_pcep_end_point_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
-                           tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type)
+                           tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type)
 {
     int dest_leafs;
     int i=0;
@@ -3031,7 +3032,7 @@ dissect_pcep_end_point_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 #define BANDWIDTH_OBJ_LEN  4
 
 static void
-dissect_pcep_bandwidth_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_bandwidth_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     if (obj_length != OBJ_HDR_LEN+BANDWIDTH_OBJ_LEN) {
         proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
@@ -3051,7 +3052,7 @@ dissect_pcep_bandwidth_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvb
 
 static void
 dissect_pcep_metric_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
-                        tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+                        tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     proto_tree *pcep_metric_obj_flags;
     proto_item *ti;
@@ -3080,7 +3081,7 @@ dissect_pcep_metric_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
  *------------------------------------------------------------------------------*/
 static void
 dissect_pcep_explicit_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
-                                tvbuff_t *tvb, int offset2, int obj_length, int obj_class, int obj_type _U_)
+                                tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class, int obj_type _U_)
 {
     uint8_t l_type;
     uint8_t length;
@@ -3156,7 +3157,7 @@ dissect_pcep_explicit_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo
  * RECORD ROUTE OBJECT (RRO)
  *------------------------------------------------------------------------------*/
 static void
-dissect_pcep_record_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class, int obj_type _U_)
+dissect_pcep_record_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class, int obj_type _U_)
 {
     uint8_t type_rro;
     uint8_t length;
@@ -3226,7 +3227,7 @@ dissect_pcep_record_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo, 
 #define LSPA_OBJ_MIN_LEN  16
 
 static void
-dissect_pcep_lspa_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_lspa_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     proto_tree *pcep_lspa_obj_flags;
     proto_item *ti;
@@ -3262,7 +3263,7 @@ dissect_pcep_lspa_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t
  *------------------------------------------------------------------------------*/
 static void
 dissect_pcep_iro_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
-                     tvbuff_t *tvb, int offset2, int obj_length, int obj_class, int obj_type _U_)
+                     tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class, int obj_type _U_)
 {
     uint8_t l_type;
     uint8_t length;
@@ -3332,7 +3333,7 @@ dissect_pcep_iro_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 
 static void
 dissect_pcep_svec_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
-                      tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+                      tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     proto_item *ti;
     proto_tree *pcep_svec_flags_obj;
@@ -3373,7 +3374,7 @@ dissect_pcep_svec_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 #define NOTIFICATION_OBJ_MIN_LEN  4
 
 static void
-dissect_pcep_notification_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_notification_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     uint8_t nt;
 
@@ -3421,7 +3422,7 @@ dissect_pcep_notification_obj(proto_tree *pcep_object_tree, packet_info *pinfo, 
 #define ERROR_OBJ_MIN_LEN  4
 
 static void
-dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     uint8_t      error_type;
     uint8_t      error_value;
@@ -3544,7 +3545,7 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
 #define LOAD_BALANCING_OBJ_LEN  8
 
 static void
-dissect_pcep_balancing_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_balancing_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     if (obj_length != OBJ_HDR_LEN+LOAD_BALANCING_OBJ_LEN) {
         proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
@@ -3566,7 +3567,7 @@ dissect_pcep_balancing_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvb
 #define CLOSE_OBJ_MIN_LEN  4
 
 static void
-dissect_pcep_close_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_close_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     if (obj_length < OBJ_HDR_LEN+CLOSE_OBJ_MIN_LEN) {
         proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
@@ -3591,7 +3592,7 @@ dissect_pcep_close_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
  *------------------------------------------------------------------------------*/
 static void
 dissect_pcep_path_key_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
-                          tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+                          tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     uint8_t l_type;
     uint8_t length;
@@ -3646,7 +3647,7 @@ dissect_pcep_path_key_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 #define XRO_OBJ_MIN_LEN  4
 
 static void
-dissect_pcep_xro_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class, int obj_type _U_)
+dissect_pcep_xro_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class, int obj_type _U_)
 {
     proto_tree *pcep_xro_flags_obj;
     proto_item *ti;
@@ -3741,7 +3742,7 @@ dissect_pcep_xro_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
 #define OBJ_MONITORING_MIN_LEN 8
 
 static void
-dissect_pcep_obj_monitoring(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_obj_monitoring(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     proto_item *ti;
     proto_tree *monitoring_flags;
@@ -3778,7 +3779,7 @@ dissect_pcep_obj_monitoring(proto_tree *pcep_object_tree, packet_info *pinfo, tv
 #define OBJ_PCC_ID_REQ_IPV6_LEN  16
 
 static void
-dissect_pcep_obj_pcc_id_req(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type)
+dissect_pcep_obj_pcc_id_req(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type)
 {
     switch (obj_type)
     {
@@ -3818,7 +3819,7 @@ dissect_pcep_obj_pcc_id_req(proto_tree *pcep_object_tree, packet_info *pinfo, tv
 #define OF_OBJ_MIN_LEN 4
 
 static void
-dissect_pcep_of_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_of_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     if (obj_length < OBJ_HDR_LEN+OF_OBJ_MIN_LEN) {
         proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
@@ -3843,7 +3844,7 @@ dissect_pcep_of_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *
 #define OBJ_PCE_ID_IPV6_LEN  16
 
 static void
-dissect_pcep_obj_pce_id(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type)
+dissect_pcep_obj_pce_id(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type)
 {
     switch (obj_type)
     {
@@ -3883,7 +3884,7 @@ dissect_pcep_obj_pce_id(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff
 #define OBJ_PROC_TIME_LEN 24
 
 static void
-dissect_pcep_obj_proc_time(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_obj_proc_time(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     proto_item *ti;
     proto_tree *proc_time_flags;
@@ -3914,7 +3915,7 @@ dissect_pcep_obj_proc_time(proto_tree *pcep_object_tree, packet_info *pinfo, tvb
 #define OBJ_OVERLOAD_LEN 4
 
 static void
-dissect_pcep_obj_overload(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_obj_overload(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     if (obj_length != OBJ_HDR_LEN + OBJ_OVERLOAD_LEN) {
         proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
@@ -3932,7 +3933,7 @@ dissect_pcep_obj_overload(proto_tree *pcep_object_tree, packet_info *pinfo, tvbu
 * UNREACH-DESTINATION OBJECT
 *-----------------------------------------------------------------------------*/
 static void
-dissect_pcep_obj_unreach_destination(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type)
+dissect_pcep_obj_unreach_destination(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type)
 {
     int address_length = 4;
 
@@ -3986,7 +3987,7 @@ dissect_pcep_obj_unreach_destination(proto_tree *pcep_object_tree, packet_info *
  *------------------------------------------------------------------------------*/
 static void
 dissect_pcep_obj_branch_node_capability(proto_tree *pcep_object_tree, packet_info *pinfo,
-                                        tvbuff_t *tvb, int offset2, int obj_length, int obj_class, int obj_type _U_)
+                                        tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class, int obj_type _U_)
 {
     uint8_t l_type;
     uint8_t length;
@@ -4045,7 +4046,7 @@ dissect_pcep_obj_branch_node_capability(proto_tree *pcep_object_tree, packet_inf
 #define OBJ_LSP_MIN_LEN 4
 
 static void
-dissect_pcep_obj_lsp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_obj_lsp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     static int * const lsp_flags[] = {
         &hf_pcep_obj_lsp_flags_d,
@@ -4087,7 +4088,7 @@ dissect_pcep_obj_lsp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
 #define OBJ_SRP_MIN_LEN 8
 
 static void
-dissect_pcep_obj_srp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+dissect_pcep_obj_srp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     proto_item *ti;
     proto_tree *srp_flags;
@@ -4116,7 +4117,7 @@ dissect_pcep_obj_srp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
 #define OBJ_VENDOR_INFORMATION_MIN_LEN 4
 
 static void
-dissect_pcep_obj_vendor_information(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2,
+dissect_pcep_obj_vendor_information(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2,
                                     int obj_length, int obj_class _U_, int obj_type _U_) {
 
     if (obj_length < OBJ_HDR_LEN + OBJ_VENDOR_INFORMATION_MIN_LEN) {
@@ -4138,7 +4139,7 @@ dissect_pcep_obj_vendor_information(proto_tree *pcep_object_tree, packet_info *p
 #define OBJ_BU_LEN 8 /* The BU object body has a fixed length of 8 bytes */
 
 static void
-dissect_pcep_obj_bu(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2,
+dissect_pcep_obj_bu(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset2,
                                     int obj_length, int obj_class _U_, int obj_type _U_) {
 
     if (obj_length != OBJ_HDR_LEN + OBJ_BU_LEN) {
@@ -4161,7 +4162,7 @@ dissect_pcep_obj_bu(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *
 #define ASSOCIATION_OBJ_v6_MIN_LEN 24
 static void
 dissect_pcep_association_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
-                             tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type)
+                             tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type)
 {
     proto_tree *pcep_association_flags = NULL;
     proto_item *ti = NULL;
@@ -4243,7 +4244,7 @@ dissect_pcep_association_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 #define OBJ_PATH_ATTRIB_MIN_LEN 8
 static void
 dissect_pcep_obj_path_attrib(proto_tree *pcep_object_tree, packet_info *pinfo,
-                             tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+                             tvbuff_t *tvb, unsigned offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
     static int * const path_attrib_flags[] = {
         &hf_pcep_obj_path_attrib_flags_o,
@@ -4288,7 +4289,7 @@ typedef struct {
 } pcep_lut_t;
 
 static void
-dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, int len, int offset, int msg_length)
+dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned len, unsigned offset, unsigned msg_length)
 {
     uint8_t     obj_class;
     uint8_t     ot_res_p_i;
@@ -4375,8 +4376,8 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
         else {
             pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_UNKNOWN_TYPE, tvb, offset, -1, ENC_NA);
             pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_unknown);
-            proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_non_defined_object,
-                                         tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(pcep_object_tree, pinfo, &ei_pcep_non_defined_object,
+                                         tvb, offset,
                                          "Unknown object (%u)", obj_class);
             proto_tree_add_uint(pcep_object_tree, hf_PCEPF_OBJECT_CLASS, tvb, offset, 1, obj_class);
             proto_tree_add_item(pcep_object_tree, hf_pcep_object_type, tvb, offset+1, 1, ENC_NA);

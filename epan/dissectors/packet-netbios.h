@@ -18,11 +18,11 @@
 /* Length of NetBIOS names */
 #define NETBIOS_NAME_LEN	16
 
-extern int process_netbios_name(const unsigned char *name_ptr, char *name_ret, int name_ret_len);
-extern int get_netbios_name(tvbuff_t *tvb, int offset,
-    char *name_ret, int name_ret_len);
+extern unsigned process_netbios_name(const unsigned char *name_ptr, char *name_ret, unsigned name_ret_len);
+extern unsigned get_netbios_name(tvbuff_t *tvb, unsigned offset,
+    char *name_ret, unsigned name_ret_len);
 extern const char *netbios_name_type_descr(int name_type);
-extern void netbios_add_name( const char* label, tvbuff_t *tvb, int offset,
+extern void netbios_add_name( const char* label, tvbuff_t *tvb, unsigned offset,
     proto_tree *tree);
 
 #endif

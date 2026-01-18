@@ -645,7 +645,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     default:
         /* we can only look at the attributes for the first PDU */
         if(!(flags&ISNS_FLAGS_FIRST_PDU)){
-            proto_tree_add_expert(tt, pinfo, &ei_isns_not_first_pdu, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tt, pinfo, &ei_isns_not_first_pdu, tvb, offset);
             return tvb_captured_length(tvb);
         }
 

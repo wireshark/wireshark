@@ -7747,7 +7747,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                             case MBIM_CID_PIN_LIST:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                    proto_tree_add_expert_remaining(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset);
                                 } else if (info_buff_len) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }

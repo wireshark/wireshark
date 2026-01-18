@@ -2695,7 +2695,7 @@ dissect_per_T_octet_aligned(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, pr
 		if (actx->external.u.per.type_cb) {
 			actx->external.u.per.type_cb(actx->external.octet_aligned, 0, actx, tree, actx->external.hf_index);
 		} else {
-			actx->created_item = proto_tree_add_expert(tree, actx->pinfo, &ei_per_external_type, actx->external.octet_aligned, 0, -1);
+			actx->created_item = proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_per_external_type, actx->external.octet_aligned, 0);
 		}
 	}
 	return offset;
@@ -2712,7 +2712,7 @@ dissect_per_T_arbitrary(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_
 		if (actx->external.u.per.type_cb) {
 			actx->external.u.per.type_cb(actx->external.arbitrary, 0, actx, tree, actx->external.hf_index);
 		} else {
-			actx->created_item = proto_tree_add_expert(tree, actx->pinfo, &ei_per_external_type, actx->external.arbitrary, 0, -1);
+			actx->created_item = proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_per_external_type, actx->external.arbitrary, 0);
 		}
 	}
 	return offset;
