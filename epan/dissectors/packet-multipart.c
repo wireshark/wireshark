@@ -382,8 +382,7 @@ find_first_boundary(tvbuff_t *tvb, int start, const char *boundary,
                     && (tvb_strneql(tvb, offset + 2, boundary,  boundary_len) == 0)))
         {
             /* Boundary string; now check if last */
-            if ((tvb_reported_length_remaining(tvb, offset + 2 + boundary_len + 2) >= 0)
-                    && (tvb_strneql(tvb, offset + 2 + boundary_len, "--", 2) == 0)) {
+            if (tvb_strneql(tvb, offset + 2 + boundary_len, "--", 2) == 0) {
                 *last_boundary = true;
             } else {
                 *last_boundary = false;
@@ -431,8 +430,7 @@ find_next_boundary(tvbuff_t *tvb, int start, const char *boundary,
                     && (tvb_strneql(tvb, next_offset + 2, boundary, boundary_len) == 0)))
         {
             /* Boundary string; now check if last */
-            if ((tvb_reported_length_remaining(tvb, next_offset + 2 + boundary_len + 2) >= 0)
-                    && (tvb_strneql(tvb, next_offset + 2 + boundary_len, "--", 2) == 0)) {
+            if (tvb_strneql(tvb, next_offset + 2 + boundary_len, "--", 2) == 0) {
                 *last_boundary = true;
             } else {
                 *last_boundary = false;

@@ -901,10 +901,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             offset += 2;
             for (iArrayItem = 0; iArrayItem < iArrayLength; iArrayItem++)
             {
-                if (tvb_reported_length_remaining(tvb, offset) >= 0)
-                {
-                    offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, true);
-                }
+                offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, true);
             }
         }
         else if (type == OPENWIRE_TYPE_MAP && tvb_reported_length_remaining(tvb, offset) >= 4)
@@ -955,14 +952,11 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                     element = proto_tree_add_item(object_tree, hf_openwire_throwable_element, tvb, startElementOffset, -1, ENC_NA);
                     element_tree = proto_item_add_subtree(element, ett_openwire_type);
 
-                    if (tvb_reported_length_remaining(tvb, offset) >= 0)
-                    {
-                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_classname, OPENWIRE_TYPE_STRING, type, true);
-                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_methodname, OPENWIRE_TYPE_STRING, type, true);
-                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_filename, OPENWIRE_TYPE_STRING, type, true);
-                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_linenumber, OPENWIRE_TYPE_INTEGER, type, false);
-                        proto_item_set_len(element, offset - startElementOffset);
-                    }
+                    offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_classname, OPENWIRE_TYPE_STRING, type, true);
+                    offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_methodname, OPENWIRE_TYPE_STRING, type, true);
+                    offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_filename, OPENWIRE_TYPE_STRING, type, true);
+                    offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_linenumber, OPENWIRE_TYPE_INTEGER, type, false);
+                    proto_item_set_len(element, offset - startElementOffset);
                 }
                 offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_exceptionresponse_exception, OPENWIRE_TYPE_THROWABLE, type, true);
             }

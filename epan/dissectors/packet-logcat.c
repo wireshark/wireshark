@@ -74,7 +74,7 @@ static int detect_version(tvbuff_t *tvb, int offset) {
     if (try_header_size != 24)
         return 1;
 
-    if (tvb_reported_length_remaining(tvb, offset + 24 + payload_length) >= 0)
+    if (tvb_reported_length_remaining(tvb, offset + 24) >= payload_length)
         return 2;
 
     return 1;

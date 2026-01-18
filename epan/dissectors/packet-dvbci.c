@@ -3409,8 +3409,6 @@ dissect_sac_msg(uint32_t tag, tvbuff_t *tvb, unsigned offset,
     proto_tree_add_item(tree, hf_dvbci_sac_payload_len,
             tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    if (tvb_reported_length_remaining(tvb, offset) < 0)
-        return;
     if (enc_flag) {
         clear_sac_body_tvb = decrypt_sac_msg_body(pinfo, enc_cip,
                 tvb, offset, tvb_reported_length_remaining(tvb, offset));
