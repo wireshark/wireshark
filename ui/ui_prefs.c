@@ -26,6 +26,27 @@ typedef struct ui_deprecated_data {
 
 static wmem_list_t* ui_prefs_deprecated = NULL;
 
+/* XXX - Currently duplicated from prefs.c to not confuse dissectors
+(because they don't need to ever call this) */
+static unsigned
+free_module_prefs(module_t* module, void* data _U_)
+{
+    if (module->prefs) {
+        g_list_foreach(module->prefs, pref_free_individual, NULL);
+        g_list_free(module->prefs);
+    }
+    module->prefs = NULL;
+    module->numprefs = 0;
+    if (module->submodules) {
+        prefs_module_list_foreach(module->submodules, free_module_prefs, NULL, false);
+    }
+    /*  We don't free the actual module: its submodules pointer points to
+        a wmem_tree and the module itself is stored in a wmem_tree
+     */
+
+    return 0;
+}
+
 void ui_prefs_init(void)
 {
     ui_prefs_modules = wmem_tree_new(wmem_ui_scope());
@@ -35,6 +56,9 @@ void ui_prefs_init(void)
 
 void ui_prefs_cleanup(void)
 {
+    /* We're exiting, so this isn't all that necessary, but LeakSanitizer,
+     * valgrind, etc. will complain otherwise. */
+    prefs_module_list_foreach(ui_prefs_modules, free_module_prefs, NULL, false);
     wmem_tree_destroy(ui_prefs_modules, true, true);
     wmem_tree_destroy(ui_prefs_top_level_modules, true, true);
     wmem_destroy_list(ui_prefs_deprecated);
@@ -55,27 +79,6 @@ ui_prefs_register_module(const char* name, const char* title,
     }
 
     return module;
-}
-
-/* XXX - Currently duplicated from prefs.c to not confuse dissectors
-(because they don't need to ever call this) */
-static unsigned
-free_module_prefs(module_t* module, void* data _U_)
-{
-    if (module->prefs) {
-        g_list_foreach(module->prefs, pref_free_individual, NULL);
-        g_list_free(module->prefs);
-    }
-    module->prefs = NULL;
-    module->numprefs = 0;
-    if (module->submodules) {
-        prefs_module_list_foreach(module->submodules, free_module_prefs, NULL, false);
-    }
-    /*  We don't free the actual module: its submodules pointer points to
-        a wmem_tree and the module itself is stored in a wmem_tree
-     */
-
-    return 0;
 }
 
 void
