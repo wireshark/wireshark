@@ -37,7 +37,7 @@
  * with the dissector table "edhoc.ead" using int64_t * keys (but only
  * non-negative values).
  * These registrations always use the unsigned form of the label, which
- * the EDHOC dissector computes by taking the absoute value of the actual label.
+ * the EDHOC dissector computes by taking the absolute value of the actual label.
  * Each EAD sub-dissector will be passed the edhoc_session_t * as its user data.
  */
 

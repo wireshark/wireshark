@@ -1203,7 +1203,7 @@ void proto_register_pnrp(void)
         { &hf_pnrp_message_ipv6EndpointArray_EntryLength,
             { "Entry Length", "pnrp.segment.ipv6EndpointArray.EntryLength", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
-        /* Encoded CPA structrue */
+        /* Encoded CPA structure */
         { &hf_pnrp_encodedCPA,
             { "Encoded CPA structure", "pnrp.encodedCPA", FT_NONE, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},

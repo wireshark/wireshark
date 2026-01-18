@@ -399,7 +399,7 @@ static expert_field ei_sctp_chunk_length_bad;
 static expert_field ei_sctp_tsn_retransmitted;
 static expert_field ei_sctp_sack_chunk_gap_block_malformed;
 static expert_field ei_sctp_sack_chunk_number_tsns_gap_acked_100;
-static expert_field ei_sctp_illegal_parameter_occurence;
+static expert_field ei_sctp_illegal_parameter_occurrence;
 static expert_field ei_sctp_dtls_km_illegal_number_of_ids;
 
 static const value_string chunk_type_values[] = {
@@ -1850,7 +1850,7 @@ dissect_dtls_key_management_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
   uint16_t id_number, offset;
 
   if (!dissecting_init_chunk && !dissecting_init_ack_chunk)
-    expert_add_info(pinfo, parameter_item, &ei_sctp_illegal_parameter_occurence);
+    expert_add_info(pinfo, parameter_item, &ei_sctp_illegal_parameter_occurrence);
 
   proto_item_append_text(parameter_item, " (Supported DTLS key management ids: ");
   number_of_ids = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / DTLS_KMID_LENGTH;
@@ -5317,7 +5317,7 @@ proto_register_sctp(void)
       { &ei_sctp_nr_sack_chunk_number_tsns_nr_gap_acked_100, { "sctp.nr_sack_number_of_tsns_nr_gap_acked.100", PI_SEQUENCE, PI_WARN, "More than 100 TSNs were nr-gap-acknowledged in this NR-SACK.", EXPFILL }},
       { &ei_sctp_chunk_length_bad, { "sctp.chunk_length.bad", PI_MALFORMED, PI_ERROR, "Chunk length bad", EXPFILL }},
       { &ei_sctp_bad_sctp_checksum, { "sctp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum.", EXPFILL }},
-      { &ei_sctp_illegal_parameter_occurence, { "sctp.illegal_parameter_occurence.expert", PI_PROTOCOL, PI_ERROR, "Illegal parameter occurence.", EXPFILL }},
+      { &ei_sctp_illegal_parameter_occurrence, { "sctp.illegal_parameter_occurrence.expert", PI_PROTOCOL, PI_ERROR, "Illegal parameter occurrence.", EXPFILL }},
       { &ei_sctp_dtls_km_illegal_number_of_ids, { "sctp.dtls_km_illegal_number_of_ids.expert", PI_PROTOCOL, PI_ERROR, "Illegal number of IDs.", EXPFILL }},
   };
 

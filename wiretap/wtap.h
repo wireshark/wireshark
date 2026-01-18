@@ -382,7 +382,7 @@ extern "C" {
  * used by the code to read a particular capture file type; to
  * keep that sort of state information, define a private structure
  * to hold that information in your code, and allocate one of those
- * structures and set the "priv" member of the wth strucure to
+ * structures and set the "priv" member of the wth structure to
  * point to the allocated structure in the "open" routine for that
  * capture file type if the open succeeds.  See various other capture
  * file type handlers for examples of that.

@@ -2761,7 +2761,7 @@ dissect_rsvp_session(packet_info *pinfo, proto_item *ti, proto_tree *rsvp_object
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_session_destination_port, tvb, offset2+18, 2, ENC_BIG_ENDIAN);
         /*
          * Save this information to build the conversation request key
-         * later. IPv6 conversatiuon support is not implemented yet, so only
+         * later. IPv6 conversation support is not implemented yet, so only
          * the session type is stored.
          */
         rsvph->session_type = RSVP_SESSION_TYPE_IPV6;

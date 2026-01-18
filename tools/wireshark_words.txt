@@ -6,6 +6,7 @@
 10baset1s
 10gbase
 10gig
+11bgn
 16apsk
 1xrtt
 20west
@@ -23,6 +24,7 @@
 7login
 80211n
 80mhz
+82801i
 abbrev
 aborts
 accel
@@ -511,6 +513,7 @@ combiners
 combobox
 comcast
 commaize
+commandset
 comms
 communication
 commview
@@ -568,6 +571,7 @@ corosync
 correl
 correlator
 corrigendum
+corvid
 cosem
 couchbase
 coverity
@@ -835,6 +839,7 @@ dmflags
 dmrpc
 dmvfs
 dmx4all
+dnewton
 dnskey
 dnsop
 dnssec
@@ -875,6 +880,7 @@ dumpcap
 duple
 duplications
 durations
+dvbci
 dword
 dwords
 dyntatom
@@ -1058,6 +1064,7 @@ falco
 falcodump
 falcosecurity
 fallthru
+fanout
 fapmqcno
 fastcom
 fastip
@@ -1286,6 +1293,7 @@ hopcount
 hostkey
 hostname
 howto
+hpack
 hpfeeds
 hplmn
 hresult
@@ -1318,6 +1326,7 @@ ibsdh
 icapability
 iccid
 icelandic
+ich9r
 icmpv
 icontrol
 iconv
@@ -1489,6 +1498,7 @@ islamic
 isobus
 isocenter
 isochronous
+isprint
 issuer
 italia
 italic
@@ -1552,6 +1562,7 @@ l3vpn
 labedzki
 laforge
 laggy
+lagoutte
 lanalyzer
 lanka
 lanman
@@ -1993,6 +2004,7 @@ norge
 normalise
 normalised
 nortel
+norzig
 nosupp
 notarized
 notational
@@ -2351,6 +2363,7 @@ prosody
 protabbrev
 protected
 proto
+protoa
 protoabbrev
 protobuf
 protocolie
@@ -3083,6 +3096,7 @@ tcpflags
 tcpip
 tcptrace
 tcpudp
+tdata
 tdd128
 tdd384
 tdd768
@@ -3136,6 +3150,7 @@ timestamp
 timestamps
 timetag
 timeutc
+timeval
 timezone
 tipcv
 tistpg
@@ -3227,6 +3242,7 @@ type1mp
 type1sp
 type2
 type2cjt
+type2cl
 type2mimo
 type2ps
 type2r
@@ -3536,6 +3552,7 @@ vostro
 vrfid
 vserver
 vsomeip
+vt82c
 vtotal
 vtstatus
 vxlan
@@ -3598,6 +3615,7 @@ wslua
 wsluarm
 wstring
 wsutil
+wusps
 x10drw
 x32bit
 x509af
@@ -3621,11 +3639,14 @@ xhtml
 xiaomi
 xidlr
 xidxchg
+xilinx
 xilleon
 xinerama
 xinput
 xmlns
 xoffset
+xpert
+xpress
 xprint
 xproto
 xselinux

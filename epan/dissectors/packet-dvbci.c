@@ -2033,7 +2033,7 @@ is_cc_item_exportable(uint8_t dat_id)
 {
     /* the CCK precursor value does not contain sensitive information as such
        nevertheless, it is safer to prevent people from exporting this value
-       accidentially */
+       accidentally */
     if (dat_id == CC_ID_KP)
         return false;
     /* we could add some more items here which do not appear in SAC messages

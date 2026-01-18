@@ -362,7 +362,7 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, bo
      * unsigned, 2^64-1 is 18446744073709551615, so the buffer has
      * to be big enough for "18446744073709551615.999999999 seconds".
      * That's 20+1+9+1+7+1, including the terminating '\0', or 39.
-     * If it'ssigned, 2^63 is 9223372036854775808, so the buffer has to
+     * If it's signed, 2^63 is 9223372036854775808, so the buffer has to
      * be big enough for "-9223372036854775808.999999999 seconds",
      * which is again 20+1+9+1+7+1, or 39.
      */

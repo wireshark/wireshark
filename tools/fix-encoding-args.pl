@@ -497,7 +497,7 @@ sub find_hf_array_entries {
                                     (?: $match_str ) # alternatives we don't want to match
                                     \s*
                                 )
-                                [^,)]+?              # OK: enoding arg is other than one of the alternatives:
+                                [^,)]+?              # OK: encoding arg is other than one of the alternatives:
                                                      #   match to end of the arg
                             /x;
         } elsif ($subFlag == 3) {

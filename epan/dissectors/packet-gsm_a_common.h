@@ -79,7 +79,7 @@
 typedef uint16_t (*elem_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len);
 typedef void (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len);
 
-/* globals needed as a result of spltting the packet-gsm_a.c into several files
+/* globals needed as a result of splitting the packet-gsm_a.c into several files
  * until further restructuring can take place to make them more modular
  */
 

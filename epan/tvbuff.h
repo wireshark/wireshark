@@ -3364,7 +3364,7 @@ WS_DLL_PUBLIC bool tvb_get_token_len_remaining(tvbuff_t *tvb, const unsigned off
  * a delimiter, where the separators are space, line feed, or carriage return.
  *
  * If `tokenlen` is non-null and a delimiter is found, sets `*tokenlen`
- * to the length of the line, not including the delimter. If no delimiter
+ * to the length of the line, not including the delimiter. If no delimiter
  * is found, sets `*linelen` to the length searched (i.e., the lesser of
  * `maxlength` and the remaining captured length of the buffer.)
  *

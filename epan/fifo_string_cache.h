@@ -39,7 +39,7 @@ WS_DLL_PUBLIC void
 fifo_string_cache_init(fifo_string_cache_t *fcache, unsigned max_entries, GDestroyNotify string_free_func);
 
 // Free all memory owned by the fifo_string_cache. Whether or not the
-// fifoe_string_cache owns the actual strings depends on whether a
+// fifo_string_cache owns the actual strings depends on whether a
 // string_free_func was passed in during fifo_string_cache_init().
 WS_DLL_PUBLIC void
 fifo_string_cache_free(fifo_string_cache_t *fcache);

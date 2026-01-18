@@ -8438,8 +8438,8 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TLV(0x61, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_ON_DEMAND_NSSAI, NULL);
     /* 63    Access technology utilization control    Access technology utilization control  9.11.3.110 O TLV 4-5 */
     ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
-    /* 64    Negociated LP-WUSPS assistance information    LP-WUSPS assistance information     9.11.3.111    O    TLV    3 */
-    ELEM_OPT_TLV(0x64, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_LP_WUSPS_ASSIST_INFO, " - Negociated");
+    /* 64    Negotiated LP-WUSPS assistance information    LP-WUSPS assistance information     9.11.3.111    O    TLV    3 */
+    ELEM_OPT_TLV(0x64, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_LP_WUSPS_ASSIST_INFO, " - Negotiated");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 

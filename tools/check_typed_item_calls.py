@@ -2028,7 +2028,7 @@ apiChecks.append(APICheck('proto_tree_add_bits_ret_val', add_bits_types))
 # TODO: doesn't even have an hf_item !
 # apiChecks.append(APICheck('proto_tree_add_bitmask_text', bitmask_types))
 
-# Check some ptvcuror calls too.
+# Check some ptvcursor calls too.
 apiChecks.append(APICheck('ptvcursor_add_ret_uint', {'FT_CHAR', 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}))
 apiChecks.append(APICheck('ptvcursor_add_ret_int', {'FT_INT8', 'FT_INT16', 'FT_INT24', 'FT_INT32'}))
 apiChecks.append(APICheck('ptvcursor_add_ret_boolean', {'FT_BOOLEAN'}))
