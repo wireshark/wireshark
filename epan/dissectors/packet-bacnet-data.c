@@ -340,7 +340,7 @@ BACnetVendorIdentifiers[] = {
     {  326, "Cemtrex, Inc." },
     {  327, "Performance Technologies, Inc." },
     {  328, "Xtralis (Aust) Pty Ltd" },
-    {  329, "TROX GmbH" },
+    {  329, "TROX SE" },
     {  330, "Beijing Hysine Technology Co., Ltd" },
     {  331, "RCK Controls, Inc." },
     {  332, "Distech Controls SAS" },
@@ -1598,6 +1598,11 @@ BACnetVendorIdentifiers[] = {
     { 1587, "Runwise" },
     { 1588, "Karel Čavojsky" },
     { 1589, "ABB LV Installation Materials Co., Ltd. Beijing" },
+    { 1590, "EnerSearch Solar GmbH" },
+    { 1591, "Zurn Elkay Water Solutions" },
+    { 1592, "Andivi" },
+    { 1593, "Chyi Lee Industry Co., Ltd." },
+    { 1594, "Allbee B.V." },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

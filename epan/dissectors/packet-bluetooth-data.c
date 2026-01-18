@@ -5516,6 +5516,11 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x104C,   "LAUMAS Elettronica S.r.l." },
     { 0x104D,   "BUND MEDIA PTY. LTD." },
     { 0x104E,   "LSC Control Systems Pty Ltd" },
+    { 0x104F,   "Safety Lighting Research Pty Ltd" },
+    { 0x1050,   "Hangzhou Sneuro Medical Co., Ltd." },
+    { 0x1051,   "UnlimitedIRL LLC" },
+    { 0x1052,   "MAXTA TECH INC." },
+    { 0x1053,   "Sensorworx, Inc." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
