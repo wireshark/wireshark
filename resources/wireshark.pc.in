@@ -3,7 +3,7 @@ exec_prefix=${prefix}
 libdir=@CMAKE_INSTALL_FULL_LIBDIR@
 includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
 sharedlibdir=${libdir}
-plugindir=${libdir}/wireshark/@PLUGIN_VERSION_DIR@
+plugindir=@PLUGIN_INSTALL_VERSION_LIBDIR@
 
 Name: Wireshark
 Description: Network Protocol Analyzer (Packet Dissection Library)
