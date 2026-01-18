@@ -877,10 +877,8 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     ieee_hints->packet = packet;
 
     /* Create the protocol tree. */
-    if(tree){
-        proto_root = proto_tree_add_protocol_format(tree, proto_miwi_p2pstar, tvb, 0, tvb_captured_length(tvb), "IEEE 802.15.4-MiWi");
-        miwi_tree = proto_item_add_subtree(proto_root, ett_miwi_p2pstar);
-    }
+    proto_root = proto_tree_add_protocol_format(tree, proto_miwi_p2pstar, tvb, 0, tvb_captured_length(tvb), "IEEE 802.15.4-MiWi");
+    miwi_tree = proto_item_add_subtree(proto_root, ett_miwi_p2pstar);
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MiWi P2P Star");
 
@@ -1178,13 +1176,11 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
          */
         set_address(&pinfo->dl_dst, AT_EUI64, 8, p_addr);
         copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
-        if(tree){
-            proto_tree_add_item(miwi_tree, hf_miwi_ext_dst_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(proto_root, ", Dst: %s", eui64_to_display(pinfo->pool, packet->dst64));
-            ti = proto_tree_add_item(miwi_tree, hf_miwi_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_set_generated(ti);
-            proto_item_set_hidden(ti);
-        }
+        proto_tree_add_item(miwi_tree, hf_miwi_ext_dst_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        proto_item_append_text(proto_root, ", Dst: %s", eui64_to_display(pinfo->pool, packet->dst64));
+        ti = proto_tree_add_item(miwi_tree, hf_miwi_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", eui64_to_display(pinfo->pool, packet->dst64));
         offset += 8;
     }
@@ -1235,32 +1231,30 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
         miwi_short_to_str(packet->src16,src_addr,10);
 
         /* Add the addressing info to the tree. */
-        if(tree){
-            proto_tree_add_uint(miwi_tree, hf_miwi_short_src_addr, tvb, offset, 2, packet->src16);
-            proto_item_append_text(proto_root, ", Src: %s", src_addr);
-            ti = proto_tree_add_uint(miwi_tree, hf_miwi_addr16, tvb, offset, 2, packet->src16);
+        proto_tree_add_uint(miwi_tree, hf_miwi_short_src_addr, tvb, offset, 2, packet->src16);
+        proto_item_append_text(proto_root, ", Src: %s", src_addr);
+        ti = proto_tree_add_uint(miwi_tree, hf_miwi_addr16, tvb, offset, 2, packet->src16);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
+
+        if(ieee_hints && ieee_hints->map_rec){
+            /* Display inferred source address info */
+            ti = proto_tree_add_eui64(miwi_tree, hf_miwi_short_src_addr, tvb, offset, 0,
+                    ieee_hints->map_rec->addr64);
+            proto_item_set_generated(ti);
+            ti = proto_tree_add_eui64(miwi_tree, hf_miwi_addr64, tvb, offset, 0, ieee_hints->map_rec->addr64);
             proto_item_set_generated(ti);
             proto_item_set_hidden(ti);
 
-            if(ieee_hints && ieee_hints->map_rec){
-                /* Display inferred source address info */
-                ti = proto_tree_add_eui64(miwi_tree, hf_miwi_short_src_addr, tvb, offset, 0,
-                        ieee_hints->map_rec->addr64);
-                proto_item_set_generated(ti);
-                ti = proto_tree_add_eui64(miwi_tree, hf_miwi_addr64, tvb, offset, 0, ieee_hints->map_rec->addr64);
-                proto_item_set_generated(ti);
-                proto_item_set_hidden(ti);
-
-                if( ieee_hints->map_rec->start_fnum ){
-                    ti = proto_tree_add_uint(miwi_tree, hf_miwi_src64_origin, tvb, 0, 0,
-                        ieee_hints->map_rec->start_fnum);
-                }
-                else{
-                    ti = proto_tree_add_uint_format_value(miwi_tree, hf_miwi_src64_origin, tvb, 0, 0,
-                        ieee_hints->map_rec->start_fnum, "Pre-configured");
-                }
-                proto_item_set_generated(ti);
+            if( ieee_hints->map_rec->start_fnum ){
+                ti = proto_tree_add_uint(miwi_tree, hf_miwi_src64_origin, tvb, 0, 0,
+                    ieee_hints->map_rec->start_fnum);
             }
+            else{
+                ti = proto_tree_add_uint_format_value(miwi_tree, hf_miwi_src64_origin, tvb, 0, 0,
+                    ieee_hints->map_rec->start_fnum, "Pre-configured");
+            }
+            proto_item_set_generated(ti);
         }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", src_addr);
@@ -1283,13 +1277,11 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
          */
         set_address(&pinfo->dl_src, AT_EUI64, 8, p_addr);
         copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-        if(tree){
-            proto_tree_add_item(miwi_tree, hf_miwi_ext_src_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(proto_root, ", Src: %s", eui64_to_display(pinfo->pool, packet->src64));
-            ti = proto_tree_add_item(miwi_tree, hf_miwi_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_set_generated(ti);
-            proto_item_set_hidden(ti);
-        }
+        proto_tree_add_item(miwi_tree, hf_miwi_ext_src_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        proto_item_append_text(proto_root, ", Src: %s", eui64_to_display(pinfo->pool, packet->src64));
+        ti = proto_tree_add_item(miwi_tree, hf_miwi_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", eui64_to_display(pinfo->pool, packet->src64));
         offset += 8;
@@ -1305,9 +1297,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
              * part of the payload, is encrypted, and follows the payload IEs. Thus we only parse the command id
              * here for 2006 and earlier frames. */
             packet->command_id = tvb_get_uint8(tvb, offset);
-            if(tree){
-                proto_tree_add_uint(miwi_tree, hf_miwi_cmd_id, tvb, offset, 1, packet->command_id);
-            }
+            proto_tree_add_uint(miwi_tree, hf_miwi_cmd_id, tvb, offset, 1, packet->command_id);
             offset++;
         }
     }
@@ -1523,7 +1513,7 @@ dissect_miwi_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 
     unsigned mhr_len = miwi_dissect_header(no_fcs_tvb, pinfo, tree, &miwi_tree, &packet);
     offset = mhr_len;
-    if(!mhr_len || tvb_reported_length_remaining(no_fcs_tvb, mhr_len) < 0 ){
+    if(!mhr_len){
         return;
     }
 
