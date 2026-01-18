@@ -5,8 +5,16 @@
  * part of this work supported by
  *  Deutsche Forschungsgemeinschaft (DFG) Grant Number FU448/1
  *
- * SoulSeek Protocol dissector based on protocol descriptions from SoleSeek Project:
- * http://cvs.sourceforge.net/viewcvs.py/soleseek/SoleSeek/doc/protocol.html?rev=HEAD
+ * The SoulSeek Protocol is proprietary, with official site:
+ * https://www.slsknet.org/news/
+ * This dissector is based on protocol descriptions from various open source
+ * reverse engineering projects (some no longer active), including SoleSeek Project:
+ * https://web.archive.org/web/20060223004530/http://cvs.sourceforge.net/viewcvs.py/soleseek/SoleSeek/doc/protocol.html?rev=HEAD
+ * Museek+
+ * https://web.archive.org/web/20220327151706/https://www.museek-plus.org/wiki/SoulseekProtocol
+ * https://github.com/eLvErDe/museek-plus
+ * and Nicotine+
+ * https://nicotine-plus.org/doc/SLSKPROTOCOL.html
  * Updated for SoulSeek client version 151
  *
  * Wireshark - Network traffic analyzer
