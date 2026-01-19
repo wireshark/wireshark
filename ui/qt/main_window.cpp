@@ -23,7 +23,10 @@
 
 #include <ui/commandline.h>
 
+#include <QAction>
 #include <QClipboard>
+#include <QFileInfo>
+#include <QMenu>
 #include <QTextCodec>
 
 #include "funnel_statistics.h"
@@ -31,6 +34,7 @@
 #include "packet_list.h"
 #include "utils/profile_switcher.h"
 #include "utils/qt_ui_utils.h"
+#include "utils/workspace_state.h"
 #include "widgets/display_filter_combo.h"
 
 #ifdef Q_OS_MAC
@@ -52,7 +56,12 @@ MainWindow::MainWindow(QWidget *parent) :
     df_combo_box_(nullptr),
     main_status_bar_(nullptr),
     profile_switcher_(new ProfileSwitcher(this)),
-    use_capturing_title_(false)
+    use_capturing_title_(false),
+    recent_captures_menu_(nullptr),
+    no_recent_files_action_(nullptr)
+#if defined(Q_OS_MAC)
+    , dock_menu_(nullptr)
+#endif
 {
     findTextCodecs();
 }
@@ -468,3 +477,95 @@ void MainWindow::setIconForCaptureInProgress(bool capture_in_progress)
 #endif
 }
 
+/**
+ * Populate the recent captures menu with files from WorkspaceState.
+ * Calls openRecentCaptureFile() (pure virtual) when user selects a file.
+ */
+void MainWindow::populateRecentCapturesMenu()
+{
+    if (!recent_captures_menu_) {
+        return;
+    }
+    recent_captures_menu_->clear();
+
+#if defined(Q_OS_MAC)
+    if (dock_menu_) {
+        dock_menu_->clear();
+    }
+#endif
+
+    const QList<RecentFileInfo>& recentFiles = WorkspaceState::instance()->recentCaptureFiles();
+
+#if defined(Q_OS_MAC)
+    int shortcut = Qt::Key_0;
+#endif
+
+    int rFSize = static_cast<int>(recentFiles.size());
+    for (int i = rFSize - 1; i >= 0; i--) {
+        const RecentFileInfo& rfi = recentFiles.at(i);
+        QString filename = rfi.filename;
+
+        // Add the new item
+        QAction *ra = new QAction(recent_captures_menu_);
+        ra->setText(filename);
+        ra->setEnabled(rfi.accessible);
+        recent_captures_menu_->insertAction(NULL, ra);
+
+#if defined(Q_OS_MAC)
+        if (shortcut <= Qt::Key_9) {
+            ra->setShortcut(Qt::META | (Qt::Key)shortcut);
+            shortcut++;
+        }
+#endif
+
+        if (rfi.accessible) {
+            connect(ra, &QAction::triggered, this, [this, filename]() {
+                openRecentCaptureFile(filename);
+            });
+        }
+
+#if defined(Q_OS_MAC)
+        if (dock_menu_) {
+            QAction *rda = new QAction(dock_menu_);
+            QFileInfo fi(filename);
+            rda->setText(fi.fileName());
+            dock_menu_->insertAction(NULL, rda);
+
+            connect(rda, &QAction::triggered, this, [this, filename]() {
+                openRecentCaptureFile(filename);
+            });
+        }
+#endif
+
+        if (recent_captures_menu_->actions().count() == static_cast<qsizetype>(prefs.gui_recent_files_count_max)) {
+            break;
+        }
+    }
+
+    if (recent_captures_menu_->actions().count() > 0) {
+        // Separator + "Clear"
+        recent_captures_menu_->insertSeparator(NULL);
+        QAction *ra = new QAction(recent_captures_menu_);
+        ra->setObjectName("clearRecentCapturesAction");
+        ra->setText(tr("Clear Menu"));
+        recent_captures_menu_->insertAction(NULL, ra);
+        connect(ra, &QAction::triggered, this, []() {
+            WorkspaceState::instance()->clearRecentCaptureFiles();
+        });
+    } else {
+        if (no_recent_files_action_) {
+            recent_captures_menu_->addAction(no_recent_files_action_);
+        }
+    }
+}
+
+void MainWindow::retranslateUiElements()
+{
+    if (recent_captures_menu_) {
+        const QList<RecentFileInfo>& recentFiles = WorkspaceState::instance()->recentCaptureFiles();
+        QAction *action = recent_captures_menu_->findChild<QAction*>("clearRecentCapturesAction");
+        if (recentFiles.size() > 0 && action) {
+            action->setText(tr("Clear Menu"));
+        }
+    }
+}

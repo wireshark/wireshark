@@ -55,9 +55,6 @@ private:
     QString show_in_str_;
 
     SplashOverlay *splash_overlay_;
-    // QListWidget doesn't activate items when the return or enter keys are pressed on macOS.
-    // We may want to subclass it at some point.
-    QListWidget *recent_files_;
 
 signals:
     void startCapture(QStringList ifaces);
@@ -74,12 +71,8 @@ private slots:
     void interfaceListChanged();
     void setReleaseLabel();
     void captureFilterTextEdited(const QString capture_filter);
-    void updateRecentCaptures();
     void openRecentItem(QListWidgetItem *item);
-    void showRecentContextMenu(QPoint pos);
-    void showRecentFolder();
-    void copyRecentPath();
-    void removeRecentPath();
+    void showCaptureFilesContextMenu(QPoint pos);
 
     void on_interfaceFrame_showExtcapOptions(QString device_name, bool startCaptureOnClose);
     void on_interfaceFrame_startCapture(QStringList);

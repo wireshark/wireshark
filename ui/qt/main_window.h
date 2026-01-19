@@ -25,6 +25,7 @@
 #include <QMainWindow>
 #include <QSplitter>
 
+class QAction;
 class QMenu;
 class QSplitter;
 class QStackedWidget;
@@ -116,7 +117,35 @@ protected:
     bool use_capturing_title_;
     QMap<QString, QTextCodec *> text_codec_map_;
 
-protected slots:
+    // Recent captures menu support - set by subclasses
+    QMenu *recent_captures_menu_;
+    QAction *no_recent_files_action_;
+#if defined(Q_OS_MAC)
+    QMenu *dock_menu_;
+#endif
+
+    /**
+     * Populate the recent captures menu.
+     * Calls openRecentCaptureFile() for each menu item action.
+     */
+    void populateRecentCapturesMenu();
+
+    /**
+     * @brief Handle retranslation of UI elements in MainWindow.
+     *
+     * This function is called when the application language changes and usually
+     * handles elements like menu items and labels that need to be updated to reflect
+     * the new language.
+     */
+    void retranslateUiElements();
+
+    /**
+     * Open a capture file from the recent files menu.
+     * @param filename Path to the file to open.
+     */
+    virtual void openRecentCaptureFile(const QString &filename) = 0;
+
+    protected slots:
     void addDisplayFilterTranslationActions(QMenu *copy_menu);
     void updateDisplayFilterTranslationActions(const QString &df_text);
     void updateTitlebar();

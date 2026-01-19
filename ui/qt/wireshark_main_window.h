@@ -110,7 +110,7 @@ public:
     info_data_t *captureInfoData() { return &info_data_; }
 #endif
 
-    virtual QMenu *createPopupMenu();
+    QMenu *createPopupMenu() override;
 
     CaptureFile *captureFile() { return &capture_file_; }
 
@@ -124,13 +124,14 @@ public:
     void setMwFileName(QString fileName);
 
 protected:
-    virtual bool eventFilter(QObject *obj, QEvent *event);
-    virtual bool event(QEvent *event);
-    virtual void keyPressEvent(QKeyEvent *event);
-    virtual void closeEvent(QCloseEvent *event);
-    virtual void dragEnterEvent(QDragEnterEvent *event);
-    virtual void dropEvent(QDropEvent *event);
-    virtual void changeEvent(QEvent* event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
+    bool event(QEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+    void changeEvent(QEvent* event) override;
+    void openRecentCaptureFile(const QString &filename) override;
 
 private:
     // XXX Move to FilterUtils
@@ -181,10 +182,6 @@ private:
     info_data_t info_data_;
 #endif
 
-#if defined(Q_OS_MAC)
-    QMenu *dock_menu_;
-#endif
-
 #ifdef HAVE_SOFTWARE_UPDATE
     QAction *update_action_;
 #endif
@@ -215,7 +212,7 @@ private:
     void initTimePrecisionFormatMenu();
     void initFreezeActions();
 
-    void setMenusForCaptureFile(bool force_disable = false);
+    void setMenusForCaptureFile(bool force_disable = false) override;
     void setMenusForCaptureInProgress(bool capture_in_progress = false);
     void setMenusForCaptureStopping();
     void setForCapturedPackets(bool have_captured_packets);
@@ -272,7 +269,7 @@ public slots:
     // XXX We might want to return a cf_read_status_t or a CaptureFile.
     bool openCaptureFile(QString cf_path, QString display_filter, unsigned int type, bool is_tempfile = false);
     bool openCaptureFile(QString cf_path = QString(), QString display_filter = QString()) { return openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO); }
-    void filterPackets(QString new_filter = QString(), bool force = false);
+    void filterPackets(QString new_filter = QString(), bool force = false) override;
     void layoutToolbars();
     void updatePreferenceActions();
     void updateRecentActions();
@@ -334,7 +331,6 @@ private slots:
     void saveWindowGeometry();
     void mainStackChanged(int);
     void updateRecentCaptures();
-    void recentActionTriggered();
     void addPacketComment();
     void editPacketComment();
     void deletePacketComment();
@@ -414,7 +410,7 @@ private slots:
     void injectSecrets(const char* proto_name, const char* wiki_link);
     void discardAllSecrets();
     void discardAllSecretsFinished(int result);
-    void showPreferencesDialog(QString module_name);
+    void showPreferencesDialog(QString module_name) override;
 
     void connectViewMenuActions();
     void showHideMainWidgets(QAction *action);
@@ -482,9 +478,9 @@ private slots:
 
     void openStatisticsTreeDialog(const char *abbr);
     void statCommandIOGraph(const char *, void *);
-    void showIOGraphDialog(io_graph_item_unit_t value_units, QString);
+    void showIOGraphDialog(io_graph_item_unit_t value_units, QString) override;
 
-    void showPlotDialog(const QString& y_field = QString(), bool filtered = false);
+    void showPlotDialog(const QString& y_field = QString(), bool filtered = false) override;
 
     void connectTelephonyMenuActions();
 

@@ -34,19 +34,6 @@ class QSocketNotifier;
 
 class MainWindow;
 
-// Recent items:
-// - Read from prefs
-// - Add from open file
-// - Check current list
-// - Signal updated item
-// -
-typedef struct _recent_item_status {
-    QString filename;
-    qint64 size;
-    bool accessible;
-    bool in_thread;
-} recent_item_status;
-
 class MainApplication : public QApplication
 {
     Q_OBJECT
@@ -66,7 +53,6 @@ public:
         PacketDissectionChanged,
         PreferencesChanged,
         ProfileChanging,
-        RecentCapturesChanged,
         RecentPreferencesRead,
         FreezePacketList,
         AggregationVisiblity,
@@ -127,9 +113,6 @@ public:
 #endif
 
     struct _e_prefs * readConfigurationFiles(bool reset);
-    QList<recent_item_status *> recentItems() const;
-    void addRecentItem(const QString filename, qint64 size, bool accessible);
-    void removeRecentItem(const QString &filename);
     QDir openDialogInitialDir();
     void setLastOpenDirFromFilename(QString file_name);
     void helpTopicAction(topic_action_e action);
@@ -174,7 +157,6 @@ private:
     bool is_reloading_lua_;
     QFont mono_font_;
     QFont zoomed_font_;
-    QTimer recent_timer_;
     QTimer packet_data_timer_;
     QTimer tap_update_timer_;
     QList<QString> pending_open_files_;
@@ -209,7 +191,6 @@ signals:
     void openCaptureFile(QString cf_path, QString display_filter, unsigned int type);
     void openCaptureOptions();
     void recentPreferencesRead();
-    void updateRecentCaptureStatus(const QString &filename, qint64 size, bool accessible);
     void splashUpdate(register_action_e action, const char *message);
     void profileChanging();
     void profileNameChanged(const char *profile_name);
@@ -245,9 +226,6 @@ signals:
     void zoomMonospaceFont(const QFont & font);
 
 public slots:
-    void clearRecentCaptures();
-    void refreshRecentCaptures();
-
     void captureEventHandler(CaptureEvent);
 
     // Flush queued app signals. Should be called from the main window after
@@ -255,8 +233,6 @@ public slots:
     void flushAppSignals();
 
     void reloadDisplayFilterMacros();
-
-    void itemStatusFinished(const QString filename = "", qint64 size = 0, bool accessible = false);
 
 private slots:
     void updateTaps();

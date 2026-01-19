@@ -95,6 +95,7 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/variant_pointer.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_mime_data.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_zip_helper.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/workspace_state.h
 )
 
 set (STRATOSHARK_UTILS_HEADERS ${WIRESHARK_UTILS_HEADERS})
@@ -127,6 +128,7 @@ set(WIRESHARK_MODEL_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/pref_models.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/profile_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/proto_tree_model.h
+	${CMAKE_SOURCE_DIR}/ui/qt/models/recentcapturefiles_list_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/related_packet_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/resolved_addresses_models.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/sparkline_delegate.h
@@ -217,7 +219,6 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/proto_tree.h
 	${CMAKE_SOURCE_DIR}/ui/qt/protocol_hierarchy_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/protocol_preferences_menu.h
-	${CMAKE_SOURCE_DIR}/ui/qt/recent_file_status.h
 	${CMAKE_SOURCE_DIR}/ui/qt/resolved_addresses_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/response_time_delay_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/rsa_keys_frame.h
@@ -351,6 +352,7 @@ set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/stock_icon.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_mime_data.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_zip_helper.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/workspace_state.cpp
 )
 
 set (STRATOSHARK_UTILS_SRCS ${WIRESHARK_UTILS_SRCS})
@@ -383,6 +385,7 @@ set(WIRESHARK_MODEL_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/pref_models.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/profile_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/proto_tree_model.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/models/recentcapturefiles_list_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/related_packet_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/resolved_addresses_models.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/sparkline_delegate.cpp
@@ -465,7 +468,6 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/proto_tree.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/protocol_hierarchy_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/protocol_preferences_menu.cpp
-	${CMAKE_SOURCE_DIR}/ui/qt/recent_file_status.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/resolved_addresses_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/response_time_delay_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/rsa_keys_frame.cpp

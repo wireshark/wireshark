@@ -96,6 +96,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/variant_pointer.h
 	utils/wireshark_mime_data.h
 	utils/wireshark_zip_helper.h
+	utils/workspace_state.h
 )
 
 set(WIRESHARK_MODEL_HEADERS
@@ -129,6 +130,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/pref_models.h
 	models/profile_model.h
 	models/proto_tree_model.h
+	models/recentcapturefiles_list_model.h
 	models/related_packet_delegate.h
 	models/resolved_addresses_models.h
 	models/sparkline_delegate.h
@@ -241,7 +243,6 @@ set(WIRESHARK_QT_HEADERS
 	proto_tree.h
 	protocol_hierarchy_dialog.h
 	protocol_preferences_menu.h
-	recent_file_status.h
 	resolved_addresses_dialog.h
 	response_time_delay_dialog.h
 	rpc_service_response_time_dialog.h
@@ -373,6 +374,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/stock_icon.cpp
 	utils/wireshark_mime_data.cpp
 	utils/wireshark_zip_helper.cpp
+	utils/workspace_state.cpp
 )
 
 set(WIRESHARK_MODEL_SRCS
@@ -406,6 +408,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/pref_models.cpp
 	models/profile_model.cpp
 	models/proto_tree_model.cpp
+	models/recentcapturefiles_list_model.cpp
 	models/related_packet_delegate.cpp
 	models/resolved_addresses_models.cpp
 	models/sparkline_delegate.cpp
@@ -507,7 +510,6 @@ set(WIRESHARK_QT_SRC
 	proto_tree.cpp
 	protocol_hierarchy_dialog.cpp
 	protocol_preferences_menu.cpp
-	recent_file_status.cpp
 	resolved_addresses_dialog.cpp
 	response_time_delay_dialog.cpp
 	rpc_service_response_time_dialog.cpp

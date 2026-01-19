@@ -88,6 +88,7 @@
 #include "ui/qt/simple_statistics_dialog.h"
 #include <ui/qt/widgets/splash_overlay.h>
 #include "ui/stratoshark/stratoshark_application.h"
+#include "ui/qt/utils/workspace_state.h"
 
 #include "capture/capture-pcap-util.h"
 
@@ -602,6 +603,9 @@ int main(int argc, char *qt_argv[])
         g_free(rf_path);
     }
 
+    /* Load the common workspace state (e.g., window positions) */
+    WorkspaceState::instance()->loadCommonState();
+
     commandline_usage_app_data_t commandline_app_data = {
         "events",
         "Stratoshark Debug Console",
@@ -768,7 +772,6 @@ int main(int argc, char *qt_argv[])
                       rf_path, g_strerror(rf_open_errno));
         g_free(rf_path);
     }
-    ssApp->refreshRecentCaptures();
 
     splash_update(RA_LISTENERS, NULL, NULL);
 #ifdef DEBUG_STARTUP_TIME

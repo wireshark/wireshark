@@ -81,6 +81,7 @@ DIAG_ON(frame-larger-than=)
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/drag_drop_toolbar.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
+#include <ui/qt/utils/workspace_state.h>
 
 #ifdef HAVE_SOFTWARE_UPDATE
 #include "ui/software_update.h"
@@ -751,7 +752,7 @@ void StratosharkMainWindow::captureFileReadStarted(const QString &action) {
 void StratosharkMainWindow::captureFileReadFinished() {
     if (!capture_file_.capFile()->is_tempfile && capture_file_.capFile()->filename) {
         /* Add this filename to the list of recent files in the "Recent Files" submenu */
-        add_menu_recent_capture_file(capture_file_.capFile()->filename, false);
+        WorkspaceState::instance()->addRecentCaptureFile(qUtf8Printable(capture_file_.capFile()->filename));
 
         /* Remember folder for next Open dialog and save it in recent */
         mainApp->setLastOpenDirFromFilename(capture_file_.capFile()->filename);
@@ -961,120 +962,14 @@ void StratosharkMainWindow::mainStackChanged(int)
     }
 }
 
-// XXX - Copied from ui/gtk/menus.c
-
-/**
- * Add the capture filename (with an absolute path) to the "Recent Files" menu.
- */
-// XXX - We should probably create a RecentFile class.
-void StratosharkMainWindow::updateRecentCaptures() {
-    QAction *ra;
-    QMenu *recentMenu = main_ui_->menuOpenRecentCaptureFile;
-    QString action_cf_name;
-
-    if (!recentMenu) {
-        return;
-    }
-    recentMenu->clear();
-
-#if 0
-#if defined(QT_WINEXTRAS_LIB)
-     QWinJumpList recent_jl(this);
-     QWinJumpListCategory *recent_jlc = recent_jl.recent();
-     if (recent_jlc) {
-         recent_jlc->clear();
-         recent_jlc->setVisible(true);
-     }
-#endif
-#endif
-#if defined(Q_OS_MAC)
-    if (!dock_menu_) {
-        dock_menu_ = new QMenu();
-        dock_menu_->setAsDockMenu();
-    }
-    dock_menu_->clear();
-#endif
-
-    /* Iterate through the actions in menuOpenRecentCaptureFile,
-     * removing special items, a maybe duplicate entry and every item above count_max */
-#if defined(Q_OS_MAC)
-    int shortcut = Qt::Key_0;
-#endif
-    foreach(recent_item_status *ri, mainApp->recentItems()) {
-        // Add the new item
-        ra = new QAction(recentMenu);
-        ra->setData(ri->filename);
-        // XXX - Needs get_recent_item_status or equivalent
-        ra->setEnabled(ri->accessible);
-        recentMenu->insertAction(NULL, ra);
-        action_cf_name = ra->data().toString();
-#if defined(Q_OS_MAC)
-        if (shortcut <= Qt::Key_9) {
-            ra->setShortcut(Qt::META | (Qt::Key)shortcut);
-            shortcut++;
-        }
-#endif
-        ra->setText(action_cf_name);
-        connect(ra, &QAction::triggered, this, &StratosharkMainWindow::recentActionTriggered);
-
-/* This is slow, at least on my VM here. The added links also open Wireshark
- * in a new window. It might make more sense to add a recent item when we
- * open a capture file. */
-#if 0
-#if defined(QT_WINEXTRAS_LIB)
-     if (recent_jlc) {
-         QFileInfo fi(ri->filename);
-         QWinJumpListItem *jli = recent_jlc->addLink(
-             fi.fileName(),
-             QApplication::applicationFilePath(),
-             QStringList() << "-r" << ri->filename
-         );
-         // XXX set icon
-         jli->setWorkingDirectory(QDir::toNativeSeparators(QApplication::applicationDirPath()));
-     }
-#endif
-#endif
-#if defined(Q_OS_MAC)
-        QAction *rda = new QAction(dock_menu_);
-        QFileInfo fi(ri->filename);
-        rda->setText(fi.fileName());
-        dock_menu_->insertAction(NULL, rda);
-        connect(rda, &QAction::triggered, ra, &QAction::trigger);
-#endif
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        if (recentMenu->actions().count() == static_cast<int>(prefs.gui_recent_files_count_max)) {
-#else
-        if (recentMenu->actions().count() == static_cast<qsizetype>(prefs.gui_recent_files_count_max)) {
-#endif
-            break;
-        }
-    }
-
-    if (recentMenu->actions().count() > 0) {
-        // Separator + "Clear"
-        // XXX - Do we really need this?
-        ra = new QAction(recentMenu);
-        ra->setSeparator(true);
-        recentMenu->insertAction(NULL, ra);
-
-        ra = new QAction(recentMenu);
-        ra->setText(tr("Clear Menu"));
-        recentMenu->insertAction(NULL, ra);
-        connect(ra, &QAction::triggered, mainApp, &MainApplication::clearRecentCaptures);
-    } else {
-        if (main_ui_->actionDummyNoFilesFound) {
-            recentMenu->addAction(main_ui_->actionDummyNoFilesFound);
-        }
-    }
+void StratosharkMainWindow::updateRecentCaptures()
+{
+    populateRecentCapturesMenu();
 }
 
-void StratosharkMainWindow::recentActionTriggered() {
-    QAction *ra = qobject_cast<QAction*>(sender());
-
-    if (ra) {
-        QString cfPath = ra->data().toString();
-        openCaptureFile(cfPath);
-    }
+void StratosharkMainWindow::openRecentCaptureFile(const QString &filename)
+{
+    openCaptureFile(filename);
 }
 
 QString StratosharkMainWindow::commentToMenuText(QString text, int max_len)
