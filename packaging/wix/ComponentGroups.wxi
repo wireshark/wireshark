@@ -211,11 +211,26 @@
         <Component Id="cmpProtobuf_sparkplug_b_proto" Guid="*">
           <File Id="filProtobuf_sparkplug_b_proto" KeyPath="yes" Source="$(var.Protobuf.Dir)\sparkplug_b.proto" />
         </Component>
+        <Component Id="cmpProtobuf_mysqlx" Guid="*">
+          <File Id="filProtobuf_mysqlx" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx.proto" />
+          <File Id="filProtobuf_mysqlx_connection" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_connection.proto" />
+          <File Id="filProtobuf_mysqlx_crud" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_crud.proto" />
+          <File Id="filProtobuf_mysqlx_cursor" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_cursor.proto" />
+          <File Id="filProtobuf_mysqlx_datatypes" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_datatypes.proto" />
+          <File Id="filProtobuf_mysqlx_expect" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_expect.proto" />
+          <File Id="filProtobuf_mysqlx_expr" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_expr.proto" />
+          <File Id="filProtobuf_mysqlx_notice" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_notice.proto" />
+          <File Id="filProtobuf_mysqlx_prepare" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_prepare.proto" />
+          <File Id="filProtobuf_mysqlx_resultset" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_resultset.proto" />
+          <File Id="filProtobuf_mysqlx_session" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_session.proto" />
+          <File Id="filProtobuf_mysqlx_sql" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_sql.proto" />
+        </Component>
       </DirectoryRef>
     </Fragment>
     <Fragment>
       <ComponentGroup Id="CG.Protobuf">
         <ComponentRef Id="cmpProtobuf_sparkplug_b_proto" />
+        <ComponentRef Id="cmpProtobuf_mysqlx" />
       </ComponentGroup>
     </Fragment>
 

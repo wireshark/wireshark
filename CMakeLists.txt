@@ -2252,6 +2252,7 @@ set(INSTALL_DIRS
 	resources/protocols/radius
 	resources/protocols/tpncp
 	resources/protocols/wimaxasncp
+	resources/protocols/protobuf
 )
 
 # Copied into ${DATAFILE_DIR} at build time and ${CMAKE_INSTALL_DATADIR}/wireshark
