@@ -2772,7 +2772,7 @@ dissect_zcl_price_publish_tier_labels(tvbuff_t *tvb, proto_tree *tree, unsigned 
     proto_tree_add_item(tree, hf_zbee_zcl_price_tier_labels_number_of_labels, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    for (int i = 0; tvb_reported_length_remaining(tvb, *offset) >= 0 && i < number_of_labels; i++) {
+    for (int i = 0; i < number_of_labels; i++) {
         /* Tier ID */
         proto_tree_add_item(tree, hf_zbee_zcl_price_tier_labels_tier_id, tvb, *offset, 1, ENC_NA);
         *offset += 1;
