@@ -414,8 +414,8 @@ add_ppi_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *o
     csr = ptvcursor_new(pinfo->pool, tree, tvb, *offset);
     ptvcursor_add(csr, hf_ppi_field_type, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add(csr, hf_ppi_field_len, 2, ENC_LITTLE_ENDIAN);
-    ptvcursor_free(csr);
     *offset=ptvcursor_current_offset(csr);
+    ptvcursor_free(csr);
 }
 
 /* XXX - The main dissection function in the 802.11 dissector has the same name. */
