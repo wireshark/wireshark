@@ -284,8 +284,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (tvb_reported_length(tvb) < 1)
         return false;
 
-    proto_tree_add_item(st, hf_btsmp_opcode, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-    opcode = tvb_get_uint8(tvb, 0);
+    proto_tree_add_item_ret_uint8(st, hf_btsmp_opcode, tvb, 0, 1, ENC_LITTLE_ENDIAN, &opcode);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, opcode_vals, "<unknown>"));

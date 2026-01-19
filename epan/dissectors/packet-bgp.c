@@ -10439,9 +10439,8 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                 aoff += nexthop_len + 4;
 
                 off = 0;
-                snpa = tvb_get_uint8(tvb, o + i + aoff);
-                ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_nbr_snpa, tvb,
-                                         o + i + aoff, 1, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item_ret_uint8(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_nbr_snpa, tvb,
+                                                   o + i + aoff, 1, ENC_BIG_ENDIAN, &snpa);
                 off++;
                 if (snpa) {
                     subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_snpa);

@@ -7047,12 +7047,10 @@ cigi3_3_add_short_symbol_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_inherit_color, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
-    select1 = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_select1, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item_ret_uint8(tree, hf_cigi3_3_short_symbol_control_attribute_select1, tvb, offset, 1, cigi_byte_order, &select1);
     offset += 1;
 
-    select2 = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_select2, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item_ret_uint8(tree, hf_cigi3_3_short_symbol_control_attribute_select2, tvb, offset, 1, cigi_byte_order, &select2);
     offset++;
 
     if (select1 == 9) {

@@ -1366,8 +1366,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   /* fn 1,7,2,8 are not tested */
   switch (fn) {
   case 1: /* Query */
-    count = tvb_get_uint8(tvb, offset);
-    ti    = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti    = proto_tree_add_item_ret_uint(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN, &count);
     offset++;
     sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
     for (i = 0; i < count; i++) {
@@ -1397,8 +1396,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
   case 2: /* Reply */
   case 8: /* Extended Reply */
-    count = tvb_get_uint8(tvb, offset);
-    ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN, &count);
     offset++;
     sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
     for (i = 0; i < count; i++) {

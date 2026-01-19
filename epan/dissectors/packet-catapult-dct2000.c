@@ -785,8 +785,7 @@ static void dissect_rlc_umts(tvbuff_t *tvb, int offset,
                 break;
             case 0xa2:  /* RBID */
                 offset++;  /* skip length */
-                rbid = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(tree, hf_catapult_dct2000_rbid, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8(tree, hf_catapult_dct2000_rbid, tvb, offset, 1, ENC_BIG_ENDIAN, &rbid);
                 offset++;
                 rbid_set = true;
                 break;
@@ -1292,8 +1291,8 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, int offset,
     uint16_t            length;
 
     /* Top-level opcode */
-    proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
-    opcode = tvb_get_uint8(tvb, offset++);
+    proto_tree_add_item_ret_uint8(tree, hf_catapult_dct2000_lte_ccpri_opcode, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode);
+    offset++;
 
     /* Skip 2-byte length field */
     offset += 2;
@@ -1409,8 +1408,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
                     p_pdcp_lte_info->channelType = Channel_DCCH;
 
                     /* UEId */
-                    ueid = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_item(tree, hf_catapult_dct2000_ueid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint16(tree, hf_catapult_dct2000_ueid, tvb, offset, 2, ENC_BIG_ENDIAN, &ueid);
                     col_append_fstr(pinfo->cinfo, COL_INFO,
                                     " UEId=%u", ueid);
                     p_pdcp_lte_info->ueid = ueid;
@@ -1482,9 +1480,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
                             offset++;
 
                             /* UEId */
-                            proto_tree_add_item(tree, hf_catapult_dct2000_ueid,
-                                                tvb, offset, 2, ENC_BIG_ENDIAN);
-                            ueid = tvb_get_ntohs(tvb, offset);
+                            proto_tree_add_item_ret_uint16(tree, hf_catapult_dct2000_ueid,
+                                                           tvb, offset, 2, ENC_BIG_ENDIAN, &ueid);
                             offset += 2;
 
                             col_append_fstr(pinfo->cinfo, COL_INFO, " UEId=%u", ueid);
@@ -2670,9 +2667,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             /* UE Id. Skip tag and fixed length */
             offset += 2;
+            /* Ignore first 2 bytes of UEId */
+            offset += 2;
             proto_tree_add_item(tree, hf_catapult_dct2000_ueid,
-                                tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
 
             /* NAS PDU tag is 2 bytes */
             uint16_t data_tag = tvb_get_ntohs(tvb, offset);
@@ -3686,7 +3685,7 @@ void proto_register_catapult_dct2000(void)
 
         { &hf_catapult_dct2000_ueid,
             { "UE Id",
-              "dct2000.ueid", FT_UINT32, BASE_DEC, NULL, 0x0,
+              "dct2000.ueid", FT_UINT16, BASE_DEC, NULL, 0x0,
               "User Equipment Identifier", HFILL
             }
         },

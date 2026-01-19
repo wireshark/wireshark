@@ -3010,18 +3010,12 @@ elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_ansi_a_downlink_re_num_cells, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    num_cells = tvb_get_uint8(tvb, curr_offset);
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_downlink_re_num_cells, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_cells);
     curr_offset += 1;
 
     NO_MORE_DATA_CHECK(len);
 
-    proto_tree_add_item(tree, hf_ansi_a_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    disc = tvb_get_uint8(tvb, curr_offset);
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &disc);
     curr_offset += 1;
 
     NO_MORE_DATA_CHECK(len);
@@ -4403,21 +4397,15 @@ elem_sw_ver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_ansi_a_sw_ver_major, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    major = tvb_get_uint8(tvb, curr_offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_sw_ver_major, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &major);
 
     curr_offset++;
 
-    proto_tree_add_item(tree, hf_ansi_a_sw_ver_minor, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    minor = tvb_get_uint8(tvb, curr_offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_sw_ver_minor, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &minor);
 
     curr_offset++;
 
-    proto_tree_add_item(tree, hf_ansi_a_sw_ver_point, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    point = tvb_get_uint8(tvb, curr_offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_sw_ver_point, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &point);
 
     proto_item_append_text(data_p->elem_item, " - (IOS %u.%u.%u)", major, minor, point);
 
@@ -5878,10 +5866,7 @@ elem_cdma_sowd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t off
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_ansi_a_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    disc = tvb_get_uint8(tvb, curr_offset);
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &disc);
     curr_offset += 1;
 
     curr_offset +=

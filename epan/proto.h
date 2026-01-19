@@ -1413,6 +1413,18 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, uint32_t *retval);
 
 WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_uint32(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const int start, int length, const unsigned encoding, uint32_t *retval);
+
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_uint8(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const int start, int length, const unsigned encoding, uint8_t *retval);
+
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_uint16(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const int start, int length, const unsigned encoding, uint16_t *retval);
+
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, uint64_t *retval);
 

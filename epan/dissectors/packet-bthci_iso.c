@@ -156,8 +156,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree_add_item(bthci_iso_tree, hf_bthci_iso_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    length = tvb_get_letohs(tvb, offset);
-    sub_item = proto_tree_add_item(bthci_iso_tree, hf_bthci_iso_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    sub_item = proto_tree_add_item_ret_uint16(bthci_iso_tree, hf_bthci_iso_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
     offset += 2;
 
     /* determine if packet is fragmented */

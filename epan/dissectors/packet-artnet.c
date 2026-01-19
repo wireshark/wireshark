@@ -4995,9 +4995,8 @@ dissect_artnet_diag_data(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
                       offset, 1, ENC_NA);
   offset += 1;
 
-  length = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(tree, hf_artnet_diag_data_length, tvb,
-                      offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16(tree, hf_artnet_diag_data_length, tvb,
+                                 offset, 2, ENC_BIG_ENDIAN, &length);
   offset+=2;
 
   proto_tree_add_item(tree, hf_artnet_diag_data_data, tvb,

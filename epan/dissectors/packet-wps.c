@@ -1731,8 +1731,7 @@ dissect_wps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     col_append_str(pinfo->cinfo, COL_INFO, ", WPS");
 
   /* Flag field, if msg-len flag set, add appropriate field  */
-  flags = tvb_get_uint8(tvb,offset);
-  pi = proto_tree_add_item(tree, hf_eapwps_flags,      tvb, offset, 1, ENC_BIG_ENDIAN);
+  pi = proto_tree_add_item_ret_uint8(tree, hf_eapwps_flags,      tvb, offset, 1, ENC_BIG_ENDIAN, &flags);
   pt = proto_item_add_subtree(pi, ett_eap_wps_flags);
 
   proto_tree_add_item(pt, hf_eapwps_flag_mf,    tvb, offset, 1, ENC_BIG_ENDIAN);

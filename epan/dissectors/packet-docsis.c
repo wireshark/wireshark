@@ -431,8 +431,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, bool *is_e
         /* Extended EH Element, ignore eh_len */
         proto_tree_add_item(ehdr_tree, hf_docsis_ehx_type, tvb, pos, 1, ENC_NA);
         pos++;
-        proto_tree_add_item(ehdr_tree, hf_docsis_ehx_len, tvb, pos, 1, ENC_NA);
-        len = tvb_get_uint8(tvb, pos);
+        proto_tree_add_item_ret_uint8(ehdr_tree, hf_docsis_ehx_len, tvb, pos, 1, ENC_NA, &len);
         pos++;
         /* FALLTHROUGH */
       default:

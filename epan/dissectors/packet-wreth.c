@@ -1107,8 +1107,7 @@ int WrethMailDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pinfo, prot
         int Status;
 
         /*Codef*/
-        Codef = tvb_get_letohs(tvb,Offset);
-        proto_tree_add_item(pWrethMailboxTree, hf_Wreth_Mail_Codef, tvb, Offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint16(pWrethMailboxTree, hf_Wreth_Mail_Codef, tvb, Offset, 2, ENC_LITTLE_ENDIAN, &Codef);
         Offset += 2;
         /*Status*/
         Status = (int16_t)tvb_get_letohs(tvb,Offset); /* cast fetched value to signed so sign is extended */

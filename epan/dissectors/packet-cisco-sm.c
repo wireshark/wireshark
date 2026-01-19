@@ -280,8 +280,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     offset = offset + 4;
     if (sm_message_type ==  MESSAGE_TYPE_PDU) {
-        proto_tree_add_item(sm_tree, hf_sm_protocol, tvb, offset, 2, ENC_BIG_ENDIAN);
-        protocol = tvb_get_ntohs(tvb,offset);
+        proto_tree_add_item_ret_uint16(sm_tree, hf_sm_protocol, tvb, offset, 2, ENC_BIG_ENDIAN, &protocol);
         offset = offset + 2;
         switch(protocol){
         /* start case RUDP BSM v.1  ---------------------------------------------------------- */
@@ -298,8 +297,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             offset = offset + 2;
             proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset = offset +2;
-            proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-            length = tvb_get_ntohs(tvb,offset);
+            proto_tree_add_item_ret_uint16(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
             offset = offset +2;
             proto_item_set_len(ti, 16);
 

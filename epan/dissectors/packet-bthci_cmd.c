@@ -4887,8 +4887,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_cmd_data_path_id, tvb, offset, 1, ENC_NA);
             offset += 1;
-            codec_length = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_bthci_cmd_codec_config_length, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_codec_config_length, tvb, offset, 1, ENC_NA, &codec_length);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_codec_config, tvb, offset, codec_length, ENC_NA);
             offset += codec_length;
@@ -5478,8 +5477,8 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             ad_data->adapter_id = bluetooth_data->adapter_id;
             ad_data->bd_addr = NULL;
 
-            uint8_t data_length = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_bthci_cmd_le_data_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            uint8_t data_length;
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_le_data_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &data_length);
             offset++;
             call_dissector_with_data(btcommon_ad_handle, tvb_new_subset_length(tvb, offset, data_length), pinfo, tree, ad_data);
             save_local_device_name_from_eir_ad(tvb, offset, pinfo, data_length, bluetooth_data);
@@ -5492,8 +5491,8 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_item(tree, hf_bthci_cmd_le_advts_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            uint8_t number_of_sets = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_bthci_cmd_le_adv_en_sets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            uint8_t number_of_sets;
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_le_adv_en_sets, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_sets);
             offset++;
 
             for (int i = 0; i< number_of_sets; i++) {
@@ -6269,8 +6268,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             uint8_t sub_events, length;
             proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_NA);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_cmd_num_subevents, tvb, offset, 1, ENC_NA);
-            sub_events = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_num_subevents, tvb, offset, 1, ENC_NA, &sub_events);
             offset++;
             for (int i = 0; i < sub_events; i++) {
                 length = 4 + tvb_get_uint8(tvb, offset+3);
@@ -6284,8 +6282,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
                 offset++;
                 proto_tree_add_item(sub_tree, hf_bthci_cmd_response_slot_count, tvb, offset, 1, ENC_NA);
                 offset++;
-                proto_tree_add_item(sub_tree, hf_bthci_cmd_subevent_data_length, tvb, offset, 1, ENC_NA);
-                length = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint8(sub_tree, hf_bthci_cmd_subevent_data_length, tvb, offset, 1, ENC_NA, &length);
                 offset++;
 
                 bluetooth_eir_ad_data_t *ad_data;
@@ -6519,11 +6516,9 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_mode0_steps, tvb, offset, 1, ENC_NA);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_cmd_cs_role, tvb, offset, 1, ENC_NA);
-            role = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_cs_role, tvb, offset, 1, ENC_NA, &role);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_cmd_rtt_type, tvb, offset, 1, ENC_NA);
-            rtt_type = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_rtt_type, tvb, offset, 1, ENC_NA, &rtt_type);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_cs_sync_phy, tvb, offset, 1, ENC_NA);
             offset++;

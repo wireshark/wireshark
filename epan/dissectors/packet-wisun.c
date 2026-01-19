@@ -1171,7 +1171,7 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, unsigned offset
             &hf_wisun_usie_explicit_reserved,
             NULL
     };
-    int count;
+    uint8_t     count;
     proto_item *ti;
 
     uint8_t control = tvb_get_uint8(tvb, offset);
@@ -1218,8 +1218,7 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, unsigned offset
             break;
 
         case WISUN_CHANNEL_FUNCTION_VENDOR:
-            count = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_wisun_usie_hop_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_wisun_usie_hop_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &count);
             offset++;
             while (count--) {
                 proto_tree_add_item(tree, hf_wisun_usie_hop_list, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1234,8 +1233,7 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, unsigned offset
 
     switch ((control & WISUN_CHANNEL_EXCLUDE) >> 6) {
         case WISUN_CHANNEL_EXCLUDE_RANGE:
-            count = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_wisun_usie_number_ranges, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_wisun_usie_number_ranges, tvb, offset, 1, ENC_LITTLE_ENDIAN, &count);
             offset++;
             while (count) {
                 proto_tree_add_item(tree, hf_wisun_usie_exclude_range_start, tvb, offset, 2, ENC_LITTLE_ENDIAN);

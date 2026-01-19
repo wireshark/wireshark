@@ -417,8 +417,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
         }
 
-        proto_tree_add_item(main_tree, hf_intel_parameter_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_intel_parameter_length, tvb, offset, 1, ENC_NA, &length);
         offset += 1;
 
         offset_parameters = offset;
@@ -544,8 +543,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             while (length > 0) {
                 uint8_t ddc_config_length;
 
-                proto_tree_add_item(main_tree, hf_intel_ddc_config_length, tvb, offset, 1, ENC_NA);
-                ddc_config_length = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint8(main_tree, hf_intel_ddc_config_length, tvb, offset, 1, ENC_NA, &ddc_config_length);
                 offset += 1;
 
                 proto_tree_add_item(main_tree, hf_intel_identifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -617,8 +615,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
         }
 
-        proto_tree_add_item(main_tree, hf_intel_parameter_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_intel_parameter_length, tvb, offset, 1, ENC_NA, &length);
         offset += 1;
 
         offset_parameters = offset;
@@ -660,8 +657,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
             }
 
-            proto_tree_add_item(main_tree, hf_intel_status, tvb, offset, 1, ENC_NA);
-            status = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(main_tree, hf_intel_status, tvb, offset, 1, ENC_NA, &status);
             offset += 1;
 
             switch (ocf) {

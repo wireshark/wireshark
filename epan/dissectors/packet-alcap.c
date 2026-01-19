@@ -435,9 +435,7 @@ static const char* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_t
 
     msg_info->release_cause = tvb_get_uint8(tvb, offset+1) & 0x7f;
 
-    coding = tvb_get_uint8(tvb, offset) & 0x3;
-
-    proto_tree_add_item(tree, hf_alcap_cau_coding, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_alcap_cau_coding, tvb, offset, 1, ENC_BIG_ENDIAN, &coding);
 
     if (coding == 0) {
         pi = proto_tree_add_item(tree, hf_alcap_cau_value_itu, tvb, offset+1, 1, ENC_BIG_ENDIAN);

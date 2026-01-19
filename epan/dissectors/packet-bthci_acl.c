@@ -382,8 +382,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         DISSECTOR_ASSERT_HINT(0, "Impossible: no previously session saved");
     }
 
-    length = tvb_get_letohs(tvb, offset);
-    length_item = proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    length_item = proto_tree_add_item_ret_uint16(bthci_acl_tree, hf_bthci_acl_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
     offset += 2;
 
     /* determine if packet is fragmented */

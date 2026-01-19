@@ -606,8 +606,7 @@ dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
   uint8_t afi;
   proto_item* ti;
 
-  afi = tvb_get_uint8(tvb, offset);
-  ti = proto_tree_add_item(tree, hf_atmarp_src_atm_afi, tvb, offset, 1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item_ret_uint8(tree, hf_atmarp_src_atm_afi, tvb, offset, 1, ENC_BIG_ENDIAN, &afi);
   switch (afi) {
 
     case NSAP_IDI_ISO_DCC_BIN:       /* DCC ATM format */

@@ -463,14 +463,12 @@ dissect_bthci_vendor_android(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
         }
 
-        proto_tree_add_item(main_tree, hf_android_parameter_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_android_parameter_length, tvb, offset, 1, ENC_NA, &length);
         offset += 1;
 
         switch(ocf) {
         case 0x0154: /* LE Multi Advertising */
-            proto_tree_add_item(main_tree, hf_android_le_multi_advertising_subcode, tvb, offset, 1, ENC_NA);
-            subcode = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_le_multi_advertising_subcode, tvb, offset, 1, ENC_NA, &subcode);
             offset += 1;
 
             switch (subcode) {
@@ -536,8 +534,7 @@ dissect_bthci_vendor_android(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             break;
         case 0x0156: /* LE Batch Scan */
-            proto_tree_add_item(main_tree, hf_android_le_batch_scan_subcode, tvb, offset, 1, ENC_NA);
-            subcode = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_le_batch_scan_subcode, tvb, offset, 1, ENC_NA, &subcode);
             offset += 1;
 
             switch (subcode) {
@@ -583,12 +580,10 @@ dissect_bthci_vendor_android(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             break;
         case 0x0157: /* LE Advertising Filter */
-            proto_tree_add_item(main_tree, hf_android_le_advertising_filter_subcode, tvb, offset, 1, ENC_NA);
-            subcode = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_le_advertising_filter_subcode, tvb, offset, 1, ENC_NA, &subcode);
             offset += 1;
 
-            proto_tree_add_item(main_tree, hf_android_le_scan_condition, tvb, offset, 1, ENC_NA);
-            condition = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_le_scan_condition, tvb, offset, 1, ENC_NA, &condition);
             offset += 1;
 
             proto_tree_add_item(main_tree, hf_android_le_filter_index, tvb, offset, 1, ENC_NA);
@@ -846,8 +841,7 @@ dissect_bthci_vendor_android(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
         }
 
-        proto_tree_add_item(main_tree, hf_android_parameter_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_android_parameter_length, tvb, offset, 1, ENC_NA, &length);
         offset += 1;
 
         switch (event_code) {
@@ -887,8 +881,7 @@ dissect_bthci_vendor_android(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
             }
 
-            proto_tree_add_item(main_tree, hf_android_status, tvb, offset, 1, ENC_NA);
-            status = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_status, tvb, offset, 1, ENC_NA, &status);
             offset += 1;
 
             switch (ocf) {

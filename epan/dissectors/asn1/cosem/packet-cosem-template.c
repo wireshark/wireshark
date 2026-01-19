@@ -1029,10 +1029,9 @@ static int
 dlms_dissect_data_access_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
 {
     proto_item* item;
-    int result;
+    uint8_t     result;
 
-    item = proto_tree_add_item(tree, hf_dlms_data_access_result, tvb, offset, 1, ENC_NA);
-    result = tvb_get_uint8(tvb, offset);
+    item = proto_tree_add_item_ret_uint8(tree, hf_dlms_data_access_result, tvb, offset, 1, ENC_NA, &result);
     offset += 1;
     if (result != 0) {
         const char* str = val_to_str_const(result, dlms_data_access_result_names, "unknown result");

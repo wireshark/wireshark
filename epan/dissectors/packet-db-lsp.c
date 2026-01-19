@@ -86,8 +86,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   db_lsp_item = proto_tree_add_item (tree, proto_db_lsp, tvb, offset, -1, ENC_NA);
   db_lsp_tree = proto_item_add_subtree (db_lsp_item, ett_db_lsp);
 
-  type = tvb_get_uint8 (tvb, offset);
-  proto_tree_add_item (db_lsp_tree, hf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8 (db_lsp_tree, hf_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
   offset += 1;
 
   if (type == 0x80) {
@@ -95,12 +94,10 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     offset += 2;
   }
 
-  magic = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (db_lsp_tree, hf_magic, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16 (db_lsp_tree, hf_magic, tvb, offset, 2, ENC_BIG_ENDIAN, &magic);
   offset += 2;
 
-  length = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (db_lsp_tree, hf_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16 (db_lsp_tree, hf_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
   offset += 2;
 
   if (magic != 0x0301 || length > tvb_reported_length_remaining (tvb, offset)) {
@@ -110,8 +107,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   }
 
   if (type == TYPE_CONFIG) {
-    opvalue = tvb_get_uint8 (tvb, offset);
-    proto_tree_add_item (db_lsp_tree, hf_opvalue, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8 (db_lsp_tree, hf_opvalue, tvb, offset, 1, ENC_BIG_ENDIAN, &opvalue);
 
     if (opvalue == OP_CERT) {
       /* X509 Certificate */

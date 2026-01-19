@@ -7061,12 +7061,10 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_record_access_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_record_access_control_point_opcode, tvb, offset, 1, ENC_NA, &opcode);
         offset += 1;
 
-        proto_tree_add_item(tree, hf_btatt_record_access_control_point_operator, tvb, offset, 1, ENC_NA);
-        operator_value = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_record_access_control_point_operator, tvb, offset, 1, ENC_NA, &operator_value);
         offset += 1;
 
         sub_item = proto_tree_add_item(tree, hf_btatt_record_access_control_point_operand, tvb, offset, 0, ENC_NA);
@@ -7214,8 +7212,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_sc_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_sc_control_point_opcode, tvb, offset, 1, ENC_NA, &opcode);
         offset += 1;
 
         switch (opcode) {
@@ -7670,8 +7667,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_cycling_power_control_point_opcode, tvb, offset, 1, ENC_NA, &opcode);
         offset += 1;
 
         switch (opcode) {
@@ -7966,8 +7962,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_ln_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_ln_control_point_opcode, tvb, offset, 1, ENC_NA, &opcode);
         offset += 1;
 
         switch (opcode) {
@@ -9005,14 +9000,12 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_user_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_user_control_point_opcode, tvb, offset, 1, ENC_NA, &opcode);
         offset += 1;
 
         switch (opcode) {
         case 0x01: /* Register New User */
-            sub_item = proto_tree_add_item(tree, hf_btatt_user_control_point_consent_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            value =  tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            sub_item = proto_tree_add_item_ret_uint(tree, hf_btatt_user_control_point_consent_code, tvb, offset, 2, ENC_LITTLE_ENDIAN, &value);
             if (value > 9999)
                 expert_add_info(pinfo, sub_item, &ei_btatt_consent_out_of_bounds);
             offset += 2;
@@ -9022,8 +9015,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             proto_tree_add_item(tree, hf_btatt_user_index, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            sub_item = proto_tree_add_item(tree, hf_btatt_user_control_point_consent_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            value =  tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            sub_item = proto_tree_add_item_ret_uint(tree, hf_btatt_user_control_point_consent_code, tvb, offset, 2, ENC_LITTLE_ENDIAN, &value);
             if (value > 9999)
                 expert_add_info(pinfo, sub_item, &ei_btatt_consent_out_of_bounds);
             offset += 2;
@@ -9355,8 +9347,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_cgm_specific_ops_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_cgm_specific_ops_control_point_opcode, tvb, offset, 1, ENC_NA, &opcode);
         offset += 1;
 
         sub_item = proto_tree_add_item(tree, hf_btatt_cgm_specific_ops_control_point_operand, tvb, offset, 0, ENC_NA);
@@ -9941,8 +9932,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_ots_action_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_ots_action_opcode, tvb, offset, 1, ENC_NA, &opcode);
         offset += 1;
 
         switch (opcode) {
@@ -10019,8 +10009,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_ots_list_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_ots_list_opcode, tvb, offset, 1, ENC_NA, &opcode);
         offset += 1;
 
         switch (opcode) {
@@ -10600,8 +10589,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_volume_control_point_procedure, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_volume_control_point_procedure, tvb, offset, 1, ENC_NA, &opcode);
         offset += 1;
 
         /* All procedures must have change counter */
@@ -11176,8 +11164,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         {
             uint8_t format;
 
-            sub_item = proto_tree_add_item(main_tree, hf_btatt_uuid_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            format = tvb_get_uint8(tvb, offset);
+            sub_item = proto_tree_add_item_ret_uint8(main_tree, hf_btatt_uuid_format, tvb, offset, 1, ENC_LITTLE_ENDIAN, &format);
             offset += 1;
 
             if (format == 1) {
@@ -11772,8 +11759,7 @@ dissect_btgatt_nordic_dfu_control_point(tvbuff_t *tvb, packet_info *pinfo, proto
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
 
-    proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_opcode, tvb, offset, 1, ENC_NA);
-    opcode = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_gatt_nordic_dfu_control_point_opcode, tvb, offset, 1, ENC_NA, &opcode);
     offset += 1;
 
     switch (opcode) {

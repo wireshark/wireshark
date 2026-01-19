@@ -175,8 +175,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti_main = proto_tree_add_item(tree, proto_dsr, tvb, 0, -1, ENC_NA);
     dsr_tree = proto_item_add_subtree(ti_main, ett_dsr);
 
-    proto_tree_add_item(dsr_tree, hf_dsr_nexthdr, tvb, offset, 1, ENC_BIG_ENDIAN); /* Next header */
-    nexthdr = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(dsr_tree, hf_dsr_nexthdr, tvb, offset, 1, ENC_BIG_ENDIAN, &nexthdr); /* Next header */
     offset += 1;
 
     proto_tree_add_item(dsr_tree, hf_dsr_flowstate, tvb, offset, 1, ENC_BIG_ENDIAN); /* Flowstate */

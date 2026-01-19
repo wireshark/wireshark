@@ -5616,6 +5616,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             offset += 4;
             proto_tree_add_item(tree, hf_lustre_llog_setattr64_rec_gid_h, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
+            /* TODO: is this a 4 or 8 byte field? */
             proto_tree_add_item(tree, hf_lustre_llog_setattr64_rec_valid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             offset = dissect_struct_llog_rec_tail(tvb, offset, tree, hf_lustre_llog_setattr64_rec_tail);

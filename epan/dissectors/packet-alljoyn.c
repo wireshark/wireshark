@@ -1727,7 +1727,7 @@ ns_parse_questions(tvbuff_t *tvb, int* offset, proto_tree* alljoyn_tree, uint8_t
     while(questions--) {
         proto_item *alljoyn_questions_ti;
         proto_tree *alljoyn_questions_tree;
-        int         count;
+        unsigned    count;
 
         alljoyn_questions_ti = proto_tree_add_item(alljoyn_tree, hf_alljoyn_ns_whohas, tvb, *offset, 2, ENC_NA); /* "Who-Has Message" */
         alljoyn_questions_tree = proto_item_add_subtree(alljoyn_questions_ti, ett_alljoyn_whohas);
@@ -1741,8 +1741,7 @@ ns_parse_questions(tvbuff_t *tvb, int* offset, proto_tree* alljoyn_tree, uint8_t
 
         (*offset) += 1;
 
-        proto_tree_add_item(alljoyn_questions_tree, hf_alljoyn_ns_whohas_count, tvb, *offset, 1, ENC_NA);
-        count = tvb_get_uint8(tvb, *offset);
+        proto_tree_add_item_ret_uint(alljoyn_questions_tree, hf_alljoyn_ns_whohas_count, tvb, *offset, 1, ENC_NA, &count);
         (*offset) += 1;
 
         while(count--) {
@@ -1809,7 +1808,7 @@ ns_parse_answers_v0(tvbuff_t *tvb, int* offset, proto_tree* alljoyn_tree, uint8_
         proto_item *alljoyn_answers_ti;
         proto_tree *alljoyn_answers_tree;
         int         flags;
-        int         count;
+        unsigned    count;
 
         alljoyn_answers_ti = proto_tree_add_item(alljoyn_tree, hf_alljoyn_answer, tvb, *offset, 2, ENC_NA);
         alljoyn_answers_tree = proto_item_add_subtree(alljoyn_answers_ti, ett_alljoyn_ns_answers);
@@ -1823,8 +1822,7 @@ ns_parse_answers_v0(tvbuff_t *tvb, int* offset, proto_tree* alljoyn_tree, uint8_
         flags = tvb_get_uint8(tvb, *offset);
         (*offset) += 1;
 
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_count,  tvb, *offset, 1, ENC_NA);
-        count = tvb_get_uint8(tvb, *offset);
+        proto_tree_add_item_ret_uint(alljoyn_answers_tree, hf_alljoyn_ns_isat_count,  tvb, *offset, 1, ENC_NA, &count);
         (*offset) += 1;
 
         proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port,   tvb, *offset, 2, ENC_BIG_ENDIAN);
@@ -1938,7 +1936,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, int* offset, proto_tree* alljoyn_tree, uint8_
         proto_item *alljoyn_answers_ti;
         proto_tree *alljoyn_answers_tree;
         int         flags;
-        int         count;
+        unsigned    count;
 
         alljoyn_answers_ti = proto_tree_add_item(alljoyn_tree, hf_alljoyn_answer, tvb, *offset, 2, ENC_NA);
         alljoyn_answers_tree = proto_item_add_subtree(alljoyn_answers_ti, ett_alljoyn_ns_answers);
@@ -1955,8 +1953,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, int* offset, proto_tree* alljoyn_tree, uint8_
         flags = tvb_get_uint8(tvb, *offset);
         (*offset) += 1;
 
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_count,   tvb, *offset, 1, ENC_NA);
-        count = tvb_get_uint8(tvb, *offset);
+        proto_tree_add_item_ret_uint(alljoyn_answers_tree, hf_alljoyn_ns_isat_count,   tvb, *offset, 1, ENC_NA, &count);
         (*offset) += 1;
 
         /* The entire transport mask. */
@@ -2091,12 +2088,10 @@ dissect_AllJoyn_name_server(tvbuff_t    *tvb,
     if(version > 1)
         col_append_str(pinfo->cinfo, COL_INFO, " (UNSUPPORTED)");
 
-    proto_tree_add_item(header_tree, hf_alljoyn_ns_questions, tvb, offset, 1, ENC_NA);
-    questions = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(header_tree, hf_alljoyn_ns_questions, tvb, offset, 1, ENC_NA, &questions);
     offset += 1;
 
-    proto_tree_add_item(header_tree, hf_alljoyn_ns_answers, tvb, offset, 1, ENC_NA);
-    answers = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(header_tree, hf_alljoyn_ns_answers, tvb, offset, 1, ENC_NA, &answers);
     offset += 1;
 
     if(answers > 0)

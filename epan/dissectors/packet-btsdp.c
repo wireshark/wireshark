@@ -4521,8 +4521,7 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
             val_to_str_const(pdu_id, vs_pduid, "Unknown"));
 
-    proto_tree_add_item(st, hf_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
-    tid = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint16(st, hf_tid, tvb, offset, 2, ENC_BIG_ENDIAN, &tid);
     offset += 2;
 
     proto_tree_add_item(st, hf_parameter_length, tvb, offset, 2, ENC_BIG_ENDIAN);

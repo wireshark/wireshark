@@ -611,12 +611,10 @@ dissect_zdp_req_security_decommission_local_tlv (tvbuff_t *tvb, packet_info *pin
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_req_security_decommission, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_req_security_decommission, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;

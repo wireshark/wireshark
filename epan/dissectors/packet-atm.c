@@ -278,8 +278,7 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
 
   dest_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8,
                                     ett_atm_lane_lc_lan_dest, NULL, "%s LAN destination", type);
-  tag = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(dest_tree, hf_atm_lan_destination_tag, tvb, offset, 2, ENC_BIG_ENDIAN );
+  proto_tree_add_item_ret_uint16(dest_tree, hf_atm_lan_destination_tag, tvb, offset, 2, ENC_BIG_ENDIAN, &tag);
   offset += 2;
 
   switch (tag) {

@@ -127,8 +127,7 @@ dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 {
     uint16_t reason;
 
-    reason = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btamp_rej_reason, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btamp_rej_reason, tvb, offset, 2, ENC_LITTLE_ENDIAN, &reason);
     offset += 2;
 
     switch (reason) {

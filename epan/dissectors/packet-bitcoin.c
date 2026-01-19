@@ -649,8 +649,7 @@ dissect_bitcoin_msg_addrv2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_item_set_len(sti_services, length);
     offset += length;
 
-    network = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(subtree, hf_msg_addrv2_network, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(subtree, hf_msg_addrv2_network, tvb, offset, 1, ENC_LITTLE_ENDIAN, &network);
     offset += 1;
 
     get_varint(tvb, offset, &length, &address_length);

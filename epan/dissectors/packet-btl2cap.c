@@ -642,8 +642,7 @@ dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 {
     uint16_t reason;
 
-    reason  = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_rej_reason, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_rej_reason, tvb, offset, 2, ENC_LITTLE_ENDIAN, &reason);
     offset += 2;
 
     switch (reason) {
@@ -708,8 +707,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     offset += 2;
 
-    scid = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(command_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(command_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &scid);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s, SCID: 0x%04x)", psm_str, scid);
@@ -1429,12 +1427,10 @@ dissect_movechanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
     uint16_t icid;
     uint8_t ctrl_id;
 
-    icid = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &icid);
     offset += 2;
 
-    ctrl_id = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_dcontroller, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_btl2cap_dcontroller, tvb, offset, 1, ENC_LITTLE_ENDIAN, &ctrl_id);
     offset += 1;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (ICID: 0x%04x, move to %s)", icid,
@@ -1596,9 +1592,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     uint16_t dcid;
 
-    dcid = tvb_get_letohs(tvb, offset);
-
-    proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &dcid);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (DCID: 0x%04x)", dcid);
@@ -1798,18 +1792,14 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
     uint16_t           scid;
     uint16_t           result;
 
-
-    scid = tvb_get_letohs(tvb, offset);
-
-    proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &scid);
     offset += 2;
 
     proto_tree_add_item(tree, hf_btl2cap_flags_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_btl2cap_flags_continuation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    result = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_configuration_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_configuration_result, tvb, offset, 2, ENC_LITTLE_ENDIAN, &result);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s (SCID: 0x%04x)",
@@ -1884,16 +1874,13 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     uint16_t           scid, dcid, result;
 
-    dcid = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_dcid,   tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_dcid,   tvb, offset, 2, ENC_LITTLE_ENDIAN, &dcid);
     offset += 2;
 
-    scid = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_scid,   tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_scid,   tvb, offset, 2, ENC_LITTLE_ENDIAN, &scid);
     offset += 2;
 
-    result = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_result, tvb, offset, 2, ENC_LITTLE_ENDIAN, &result);
     offset += 2;
 
     proto_tree_add_item(tree, hf_btl2cap_status, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2000,12 +1987,10 @@ dissect_movechanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
     uint16_t icid, result;
 
-    icid = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &icid);
     offset += 2;
 
-    result = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_move_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_move_result, tvb, offset, 2, ENC_LITTLE_ENDIAN, &result);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (ICID: 0x%04x, %s)", icid,
@@ -2019,12 +2004,10 @@ dissect_movechanconfirmation(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
     uint16_t icid, result;
 
-    icid = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &icid);
     offset += 2;
 
-    result = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_move_confirmation_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_move_confirmation_result, tvb, offset, 2, ENC_LITTLE_ENDIAN, &result);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (ICID: 0x%04x, %s)", icid,
@@ -2038,8 +2021,7 @@ dissect_movechanconfirmationresponse(tvbuff_t *tvb, int offset, packet_info *pin
 {
     uint16_t icid;
 
-    icid = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &icid);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (ICID: 0x%04x)", icid);
@@ -2079,8 +2061,7 @@ dissect_connparamresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
     uint16_t result;
 
-    result = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_conn_param_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_conn_param_result, tvb, offset, 2, ENC_LITTLE_ENDIAN, &result);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
@@ -2099,12 +2080,10 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
     unsigned      psm = 0;
     const char   *service_name = "Unknown";
 
-    dcid = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(command_tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(command_tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &dcid);
     offset += 2;
 
-    scid = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(command_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(command_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &scid);
     offset += 2;
 
     if (!pinfo->fd->visited) {
@@ -2869,8 +2848,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         col_clear(pinfo->cinfo, COL_INFO);
     }
 
-    length  = tvb_get_letohs(tvb, offset);
-    length_item = proto_tree_add_item(btl2cap_tree, hf_btl2cap_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    length_item = proto_tree_add_item_ret_uint(btl2cap_tree, hf_btl2cap_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
     /* Note this is captured length - some code later around fragments,
      * FCS would have to be changed if this were reported length. */
     if (tvb_captured_length_remaining(tvb, offset + 4) < length) {
@@ -2881,8 +2859,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     offset += 2;
 
-    cid = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cid);
     if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID ) == NULL) {
         uint16_t *value_data;
 

@@ -1450,24 +1450,21 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
 {
   uint16_t address_length;
   uint32_t i;
-  int16_t family;
-  uint16_t table_length;
+  uint16_t family;
+  uint32_t table_length;
   proto_tree *element_tree;
   proto_item *tf;
 
   if (length < 2*4)
     return length - 2*4;
 
-  family = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(info_tree, hf_address_table_family, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16(info_tree, hf_address_table_family, tvb, offset, 2, ENC_BIG_ENDIAN, &family);
   EAT_AND_CHECK(2,2);
 
-  address_length = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(info_tree, hf_address_table_address_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16(info_tree, hf_address_table_address_length, tvb, offset, 2, ENC_BIG_ENDIAN, &address_length);
   EAT_AND_CHECK(2,2);
 
-  table_length =  tvb_get_ntohl(tvb, offset);
-  tf = proto_tree_add_item(info_tree, hf_address_table_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+  tf = proto_tree_add_item_ret_uint(info_tree, hf_address_table_length, tvb, offset, 4, ENC_BIG_ENDIAN, &table_length);
   element_tree = proto_item_add_subtree(tf, ett_table_element);
   EAT(4);
 
@@ -1501,7 +1498,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
       break;
     default:
       expert_add_info_format(pinfo, tf, &ei_wccp_address_table_family_unknown,
-                      "Unknown address family: %d", wccp_wccp_address_table->family);
+                      "Unknown address family: %u", wccp_wccp_address_table->family);
     };
   }
 

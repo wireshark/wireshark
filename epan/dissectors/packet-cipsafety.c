@@ -1061,11 +1061,10 @@ static int dissect_s_validator_network_time_multiplier(packet_info *pinfo, proto
 static int dissect_s_validator_timeout_multiplier(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
-   int i, size;
+   uint8_t i, size;
 
-   proto_tree_add_item(tree, hf_cip_svalidator_timeout_multiplier_size,
-                       tvb, offset, 1, ENC_LITTLE_ENDIAN );
-   size = tvb_get_uint8( tvb, offset );
+   proto_tree_add_item_ret_uint8(tree, hf_cip_svalidator_timeout_multiplier_size,
+                       tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 
    if (total_len < size+1)
    {
@@ -1118,11 +1117,10 @@ static int dissect_s_validator_app_data_path(packet_info *pinfo, proto_tree *tre
 static int dissect_s_validator_prod_cons_fault_count(packet_info *pinfo, proto_tree *tree, proto_item *item,
                                                      tvbuff_t *tvb, int offset, int total_len)
 {
-   int i, size;
+   uint8_t i, size;
 
-   proto_tree_add_item(tree, hf_cip_svalidator_prod_cons_fault_count_size,
-                         tvb, offset, 1, ENC_LITTLE_ENDIAN );
-   size = tvb_get_uint8( tvb, offset );
+   proto_tree_add_item_ret_uint8(tree, hf_cip_svalidator_prod_cons_fault_count_size,
+                                 tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 
    if (total_len < size+1)
    {

@@ -1954,6 +1954,8 @@ class CombinedCallsCheck:
 # if the type is not suitable.
 apiChecks = []
 apiChecks.append(APICheck('proto_tree_add_item_ret_uint', {'FT_CHAR', 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}, positive_length=True))
+apiChecks.append(APICheck('proto_tree_add_item_ret_uint8', {'FT_CHAR', 'FT_UINT8'}, positive_length=True))
+apiChecks.append(APICheck('proto_tree_add_item_ret_uint16', {'FT_CHAR', 'FT_UINT8', 'FT_UINT16'}, positive_length=True))
 apiChecks.append(APICheck('proto_tree_add_item_ret_int', {'FT_INT8', 'FT_INT16', 'FT_INT24', 'FT_INT32'}))
 apiChecks.append(APICheck('ptvcursor_add_ret_uint', {'FT_CHAR', 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}, positive_length=True))
 apiChecks.append(APICheck('ptvcursor_add_ret_int', {'FT_INT8', 'FT_INT16', 'FT_INT24', 'FT_INT32'}, positive_length=True))
@@ -2193,7 +2195,8 @@ def find_item_extern_declarations(filename, lines):
             items.add(m.group(1))
     return items
 
-fetch_functions = [ 'tvb_get_ntohl', 'tvb_get_letohl', 'tvb_get_ntoh64', 'tvb_get_letoh64' ]
+fetch_functions = [ 'tvb_get_ntohl', 'tvb_get_letohl', 'tvb_get_ntoh64', 'tvb_get_letoh64',
+                    'tvb_get_uint8', 'tvb_get_ntohs', 'tvb_get_letohs' ]
 
 def line_has_fetch_function(line):
     for f in fetch_functions:
@@ -2249,7 +2252,7 @@ def check_double_fetches(filename, contents, items, result):
         else:
             field_width = 0
 
-        if field_width != 4 and field_width != 8:
+        if field_width != 4 and field_width != 8 and field_width != 2 and field_width != 1:
             continue
 
         # Use width and signedness to decide which combined function to suggest
@@ -2258,6 +2261,16 @@ def check_double_fetches(filename, contents, items, result):
                 suggest = 'proto_tree_add_item_ret_int'
             else:
                 suggest = 'proto_tree_add_item_ret_uint'
+        elif field_width == 2:
+            if signed_type:
+                suggest = 'proto_tree_add_item_ret_int16'
+            else:
+                suggest = 'proto_tree_add_item_ret_uint16'
+        elif field_width == 1:
+            if signed_type:
+                suggest = 'proto_tree_add_item_ret_int8' # doesn't exist
+            else:
+                suggest = 'proto_tree_add_item_ret_uint8'
         else:
             if signed_type:
                 suggest = 'proto_tree_add_item_ret_int64'
@@ -2390,8 +2403,6 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
 
 
 if __name__ == '__main__':
-    #################################################################
-    # Main logic.
 
     # command-line args.  Controls which dissector files should be checked.
     # If no args given, will just scan epan/dissectors folder.

@@ -473,7 +473,8 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
   proto_item *ti, *li;
   tvbuff_t *next_tvb = NULL;
   bool fec = false;
-  uint16_t rsk=0, rsz=0;
+  uint16_t rsz=0;
+  uint8_t  rsk=0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-PFT");
 
@@ -503,8 +504,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
   offset += 2;
   if (plen & 0x8000) {
     fec = true;
-    rsk = tvb_get_uint8 (tvb, offset);
-    proto_tree_add_item (pft_tree, hf_edcp_rsk, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8 (pft_tree, hf_edcp_rsk, tvb, offset, 1, ENC_BIG_ENDIAN, &rsk);
     offset += 1;
     rsz = tvb_get_uint8 (tvb, offset);
     proto_tree_add_item (pft_tree, hf_edcp_rsz, tvb, offset, 1, ENC_BIG_ENDIAN);

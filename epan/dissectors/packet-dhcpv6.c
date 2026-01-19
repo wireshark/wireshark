@@ -2350,8 +2350,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
 
-        proto_tree_add_item(subtree, hf_option_s46_portparam_offset, tvb, off, 1, ENC_BIG_ENDIAN);
-        offset = tvb_get_uint8(tvb, off);
+        proto_tree_add_item_ret_uint8(subtree, hf_option_s46_portparam_offset, tvb, off, 1, ENC_BIG_ENDIAN, &offset);
 
         if (offset > 15) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_PORTPARAMS: malformed option");
@@ -3533,8 +3532,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     ti = proto_tree_add_item(tree, proto_dhcpv6_bulk_leasequery, tvb, 0, -1, ENC_NA );
     bulk_tree = proto_item_add_subtree(ti, ett_dhcpv6_bulk_leasequery);
 
-    size = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(bulk_tree, hf_dhcpv6_bulk_leasequery_size, tvb, offset, 2, ENC_BIG_ENDIAN, &size);
     offset += 2;
 
     msg_type = tvb_get_uint8( tvb, offset );

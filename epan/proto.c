@@ -3446,6 +3446,39 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	return proto_tree_add_node(tree, new_fi);
 }
 
+proto_item *
+proto_tree_add_item_ret_uint32(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                               const int start, int length,
+                               const unsigned encoding, uint32_t *retval)
+{
+    return proto_tree_add_item_ret_uint(tree, hfindex, tvb, start, length, encoding, retval);
+}
+
+proto_item *
+proto_tree_add_item_ret_uint8(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                              const int start, int length,
+                              const unsigned encoding, uint8_t *retval)
+{
+    /* TODO: further restrict by hfinfo->type ? */
+    uint32_t val32;
+    proto_item *item = proto_tree_add_item_ret_uint(tree, hfindex, tvb, start, length, encoding, &val32);
+    *retval = (uint8_t)val32;
+    return item;
+}
+
+proto_item *
+proto_tree_add_item_ret_uint16(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                               const int start, int length,
+                               const unsigned encoding, uint16_t *retval)
+{
+    /* TODO: further restrict by hfinfo->type ? */
+    uint32_t val32;
+    proto_item *item = proto_tree_add_item_ret_uint(tree, hfindex, tvb, start, length, encoding, &val32);
+    *retval = (uint16_t)val32;
+    return item;
+}
+
+
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* and uint value retrieved*/
 proto_item *

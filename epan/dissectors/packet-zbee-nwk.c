@@ -1385,8 +1385,7 @@ dissect_zbee_nwk_link_pwr_delta(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     uint16_t addr;
     proto_tree *subtree;
 
-    type = tvb_get_uint8(tvb, offset) & ZBEE_NWK_CMD_NWK_LINK_PWR_DELTA_TYPE_MASK;
-    proto_tree_add_item(tree, hf_zbee_nwk_cmd_link_pwr_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_nwk_cmd_link_pwr_type, tvb, offset, 1, ENC_NA, &type);
     offset++;
 
     count = tvb_get_uint8(tvb, offset);

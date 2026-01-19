@@ -15042,9 +15042,7 @@ dissect_zcl_ke_initiate(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
     proto_tree        *subtree;
     uint16_t           suite;
 
-    suite = tvb_get_letohs(tvb, *offset);
-
-    proto_tree_add_item(tree, hf_zbee_zcl_ke_suite, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_zbee_zcl_ke_suite, tvb, *offset, 2, ENC_LITTLE_ENDIAN, &suite);
     *offset += 2;
 
     proto_tree_add_item(tree, hf_zbee_zcl_ke_ephemeral_time, tvb, *offset, 1, ENC_NA);

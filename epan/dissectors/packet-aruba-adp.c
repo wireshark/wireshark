@@ -62,8 +62,7 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_tree_add_item(aruba_adp_tree, hf_adp_version, tvb, 0, 2, ENC_BIG_ENDIAN);
 
 
-    proto_tree_add_item(aruba_adp_tree, hf_adp_type, tvb, 2, 2, ENC_BIG_ENDIAN);
-    type = tvb_get_ntohs(tvb, 2);
+    proto_tree_add_item_ret_uint16(aruba_adp_tree, hf_adp_type, tvb, 2, 2, ENC_BIG_ENDIAN, &type);
 
     proto_tree_add_item(aruba_adp_tree, hf_adp_id, tvb, 4, 2, ENC_BIG_ENDIAN);
 
