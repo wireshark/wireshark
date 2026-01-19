@@ -1960,6 +1960,13 @@ void WiresharkMainWindow::exportPacketBytes()
 
 void WiresharkMainWindow::exportPDU()
 {
+    // After exporting PDUs the current capture file is closed and the
+    // exported file opened instead, so ask if there are unsaved frames.
+    QString before_what(tr(" before exporting PDUs"));
+    if (!testCaptureFileClose(before_what, Export)) {
+        return;
+    }
+
     ExportPDUDialog *exportpdu_dialog = new ExportPDUDialog(this);
 
     if (exportpdu_dialog->isMinimized() == true)
@@ -1977,6 +1984,13 @@ void WiresharkMainWindow::exportPDU()
 
 void WiresharkMainWindow::stripPacketHeaders()
 {
+    // After stripping headers the current capture file is closed and the
+    // exported file opened instead, so ask if there are unsaved frames.
+    QString before_what(tr(" before stripping headers"));
+    if (!testCaptureFileClose(before_what, Export)) {
+        return;
+    }
+
     StripHeadersDialog *stripheaders_dialog = new StripHeadersDialog(this);
 
     if (stripheaders_dialog->isMinimized() == true)

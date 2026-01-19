@@ -2027,8 +2027,8 @@ bool WiresharkMainWindow::testCaptureFileClose(QString before_what, FileCloseCon
         gbl_cur_main_window_->setMwFileName("");
 
         /* captureStop() will close the file if not having any packets */
-        if (capture_file_.capFile() && context != Restart && context != Reload)
-            // Don't really close if Restart or Reload
+        if (capture_file_.capFile() && context != Restart && context != Reload && context != Export)
+            // Don't really close if Restart or Reload or Export
             cf_close(capture_file_.capFile());
     }
 

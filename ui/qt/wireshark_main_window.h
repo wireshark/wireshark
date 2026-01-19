@@ -148,7 +148,8 @@ private:
         Quit,
         Restart,
         Reload,
-        Update
+        Update,
+        Export
     };
 
     Ui::WiresharkMainWindow *main_ui_;
