@@ -786,6 +786,7 @@ BCCH-DL-SCH-Message-MBMS     @bcch.dl.sch.mbms
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
+NPUSCH-SubCarrierSet-r19
 RSRP-RangeSL3-r12
 
 #.NO_EMIT ONLY_VALS
@@ -4126,6 +4127,15 @@ SL-V2X-PreconfigCommPool-r14/threshS-RSSI-CBR-r14 DISPLAY=BASE_CUSTOM STRINGS=CF
 
 #.FN_HDR SystemInformationBlockType33-NB-r18
   col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB33");
+
+#.FN_HDR SystemInformationBlockType10-NB-r19
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB10");
+
+#.FN_HDR SystemInformationBlockType11-NB-r19
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB11");
+
+#.FN_HDR SystemInformationBlockType12-NB-r19
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB12");
 
 #.TYPE_ATTR
 MasterInformationBlock-NB/schedulingInfoSIB1-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_schedulingInfoSIB1_NB_r13_vals_ext

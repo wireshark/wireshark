@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V18.6.0 (2025-06)
+-- 3GPP TS 36.331 V19.1.0 (2025-12)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -815,6 +815,11 @@ MBMSInterestIndication-v1540-IEs ::=	SEQUENCE {
 
 MBMSInterestIndication-v1610-IEs ::=	SEQUENCE {
 	mbms-ROM-InfoList-r16				SEQUENCE (SIZE(1..maxMBMS-ServiceListPerUE-r13)) OF MBMS-ROM-Info-r16		OPTIONAL,
+	nonCriticalExtension				MBMSInterestIndication-v1900-IEs	OPTIONAL
+}
+
+MBMSInterestIndication-v1900-IEs ::=	SEQUENCE {
+	mbms-ROM-InfoList-r19				SEQUENCE (SIZE(1..maxMBMS-ServiceListPerUE-r13)) OF MBMS-ROM-Info-r19		OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
@@ -828,6 +833,13 @@ MBMS-ROM-Info-r16 ::= SEQUENCE {
 	mbms-ROM-Freq-r16					ARFCN-ValueEUTRA-r9,
 	mbms-ROM-SubcarrierSpacing-r16		ENUMERATED {kHz2dot5, kHz0dot37},
 	mbms-Bandwidth-r16					ENUMERATED {n6, n15, n25, n50, n75, n100}
+}
+
+MBMS-ROM-Info-r19 ::= SEQUENCE {
+	mbms-ROM-Freq-r19					ARFCN-ValueEUTRA-r9,
+	mbms-ROM-SubcarrierSpacing-r19		ENUMERATED {kHz15, kHz7dot5, kHz2dot5, kHz1dot25},
+	mbms-Bandwidth-r19					ENUMERATED {n6, n15, n25, n30, n35, n40, n50, n75, n100},
+	mbms-SoftBufferSizeParameters-r19	PMCH-SoftBufferSizeParameters-r19
 }
 
 
@@ -856,6 +868,11 @@ MBSFNAreaConfiguration-v1430-IEs ::= SEQUENCE {
 
 MBSFNAreaConfiguration-v1610-IEs ::= SEQUENCE {
 	commonSF-Alloc-v1610					CommonSF-AllocPatternList-v1610		OPTIONAL,	-- Need OR
+	nonCriticalExtension				MBSFNAreaConfiguration-v1900-IEs	OPTIONAL
+}
+
+MBSFNAreaConfiguration-v1900-IEs ::= SEQUENCE {
+	pmch-InfoListExt-v1900				PMCH-InfoListExt-v1900				OPTIONAL,	-- Need OR
 	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
@@ -1949,7 +1966,10 @@ RedirectedCarrierInfo ::=			CHOICE {
 	...,
 	utra-TDD-r10						CarrierFreqListUTRA-TDD-r10,
 	nr-r15								CarrierInfoNR-r15,
-	nr-r17								CarrierInfoNR-r17
+	nr-r17								CarrierInfoNR-r17,
+	nr-NTN-r19							CarrierInfoNR-r19,
+	eutra-NTN-r19						CarrierInfoEUTRA-r19,
+	nbiot-NTN-r19						CarrierInfoNB-r19
 }
 
 RedirectedCarrierInfo-v9e0 ::=			SEQUENCE {
@@ -2108,6 +2128,26 @@ CarrierInfoNR-r17	::= SEQUENCE {
 	carrierFreq-r17					ARFCN-ValueNR-r15,
 	subcarrierSpacingSSB-r17			ENUMERATED {kHz15, kHz30, kHz120, kHz240, kHz480, spare1},
 	smtc-r17							MTC-SSB-NR-r15				OPTIONAL		-- Need OP
+}
+
+CarrierInfoNR-r19	::= SEQUENCE {
+	carrierFreq-r19					ARFCN-ValueNR-r15,
+	subcarrierSpacingSSB-r19			ENUMERATED {kHz15, kHz30, spare1, spare2},
+	smtc-r19							MTC-SSB-NR-r15				OPTIONAL,		-- Need OP
+	satAssistanceInfoList-r19			SEQUENCE (SIZE(1..maxSat-r17)) OF SatelliteId-r18
+}
+
+CarrierInfoEUTRA-r19	::= SEQUENCE {
+	carrierFreq-r19					ARFCN-ValueEUTRA-r9,
+	satAssistanceInfoList-r19		SEQUENCE (SIZE(1..maxSat-r17)) OF SatelliteId-r18
+}
+
+CarrierInfoNB-r19	::= SEQUENCE {
+	carrierFreq-r19					ARFCN-ValueEUTRA-r9,
+	carrierFreqOffset-r19			ENUMERATED {v-10, v-9, v-8, v-7, v-6, v-5, v-4, v-3,
+												v-2, v-1, v-0dot5, v0, v1, v2, v3, v4, v5, v6,
+												v7, v8, v9},
+	satAssistanceInfoList-r19		SEQUENCE (SIZE(1..maxSat-r17)) OF SatelliteId-r18
 }
 
 CellInfoListUTRA-FDD-r9 ::=			SEQUENCE (SIZE (1..maxCellInfoUTRA-r9)) OF CellInfoUTRA-FDD-r9
@@ -2630,6 +2670,22 @@ FailureReportSCG-NR-r15 ::=		SEQUENCE {
 											beamFailureRecoveryFailure, bh-RLF-r16,
 											beamFailure-r17,
 													spare3, spare2, spare1}	OPTIONAL
+	]],
+	[[
+		previousPSCellId-r19			SEQUENCE {
+			physCellId-r19					PhysCellIdNR-r15,
+			carrierFreq-r19					ARFCN-ValueNR-r15
+		}																	OPTIONAL,
+		failedPSCellId-r19				SEQUENCE {
+			physCellId-r19					PhysCellIdNR-r15,
+			carrierFreq-r19					ARFCN-ValueNR-r15
+		}																	OPTIONAL,
+		timeSCG-Failure-r19				INTEGER (0..1023)					OPTIONAL,
+		perRA-InfoListNR-r19			SEQUENCE {
+			perRA-InfoList-r16				OCTET STRING					OPTIONAL,
+			perRA-InfoList-v1660			OCTET STRING					OPTIONAL,
+			perRA-InfoList-v1800			OCTET STRING					OPTIONAL
+		}										OPTIONAL
 	]]
 }
 
@@ -3136,7 +3192,12 @@ SystemInformationBlockType1-v1800-IEs ::= SEQUENCE {
 	freqBandIndicatorAerial-r18				FreqBandIndicator-r11			OPTIONAL,	-- Need OR
 	freqBandInfoAerial-r18					NS-PmaxListAerial-r18			OPTIONAL,	-- Need OR
 	multiBandInfoListAerial-r18				MultiBandInfoListAerial-r18		OPTIONAL,	-- Need OR
-	nonCriticalExtension					SEQUENCE {}						OPTIONAL
+	nonCriticalExtension					SystemInformationBlockType1-v1900-IEs	OPTIONAL
+}
+
+SystemInformationBlockType1-v1900-IEs ::= SEQUENCE {
+	sf-OperationMode-r19				ENUMERATED {barred, notBarred}	OPTIONAL,	-- Need OP
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
 PLMN-IdentityList ::=					SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-IdentityInfo
@@ -3348,7 +3409,15 @@ SystemInformationBlockType1-MBMS-r14 ::=	SEQUENCE {
 	systemInformationBlockType13-r14		SystemInformationBlockType13-r9	OPTIONAL, --Need OR
 	cellAccessRelatedInfoList-r14		SEQUENCE (SIZE (1..maxPLMN-1-r14)) OF
 											CellAccessRelatedInfo-r14	OPTIONAL,	-- Need OR
-	nonCriticalExtension					SEQUENCE {}							OPTIONAL
+	nonCriticalExtension					SystemInformationBlockType1-MBMS-v1900	OPTIONAL
+}
+
+SystemInformationBlockType1-MBMS-v1900 ::=	SEQUENCE {
+	cas-MutingConfig-r19						SEQUENCE {
+		k-CAS-r19									INTEGER (4..63),
+		n-CAS-r19									ENUMERATED {n2,n4,n8,n16}
+	}  																		OPTIONAL,	-- Need OR
+	nonCriticalExtension						SEQUENCE {}					OPTIONAL
 }
 
 PLMN-IdentityList-MBMS-r14 ::=				SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-Identity
@@ -4237,6 +4306,9 @@ SystemInformationBlockType2 ::=		SEQUENCE {
 		freqInfoAerial-r18					AdditionalSpectrumEmission-r18	OPTIONAL,	-- Need OR
 		multiBandInfoListAerial-r18			SEQUENCE (SIZE (1..maxMultiBands)) OF
 											AdditionalSpectrumEmission-r18	OPTIONAL	-- Need OR
+	]],
+	[[	cp-CB-Msg3-EDT-r19					ENUMERATED {true}				OPTIONAL,	-- Need OR
+		up-CB-Msg3-EDT-r19					ENUMERATED {true}				OPTIONAL	-- Need OR
 	]]
 }
 
@@ -5014,7 +5086,10 @@ SystemInformationBlockType10 ::=	SEQUENCE {
 	warningType							OCTET STRING (SIZE (2)),
 	dummy								OCTET STRING (SIZE (50))	OPTIONAL,		-- Need OP
 	...,
-	lateNonCriticalExtension			OCTET STRING				OPTIONAL
+	lateNonCriticalExtension			OCTET STRING				OPTIONAL,
+	[[
+	warningAreaCoordinates-r19			OCTET STRING			OPTIONAL		-- Need OR
+	]]
 }
 
 
@@ -5026,7 +5101,10 @@ SystemInformationBlockType11 ::=	SEQUENCE {
 	warningMessageSegment				OCTET STRING,
 	dataCodingScheme					OCTET STRING (SIZE (1))		OPTIONAL,	-- Cond Segment1
 	...,
-	lateNonCriticalExtension				OCTET STRING				OPTIONAL
+	lateNonCriticalExtension				OCTET STRING				OPTIONAL,
+	[[
+	warningAreaCoordinatesSegment-r19	OCTET STRING				OPTIONAL		-- Need OR
+	]]
 }
 
 
@@ -5380,6 +5458,8 @@ SystemInformationBlockType24-r15 ::=	SEQUENCE {
 	[[	carrierFreqListNR-v1720			CarrierFreqListNR-v1720		OPTIONAL		-- Need OR
 	]],
 	[[	carrierFreqListNR-v1810			CarrierFreqListNR-v1810		OPTIONAL		-- Need OR
+	]],
+	[[	carrierFreqListNR-v1900			CarrierFreqListNR-v1900		OPTIONAL		-- Need OR
 	]]
 }
 
@@ -5392,6 +5472,8 @@ CarrierFreqListNR-v1700 ::=		SEQUENCE (SIZE (1..maxFreq)) OF CarrierFreqNR-v1700
 CarrierFreqListNR-v1720 ::=		SEQUENCE (SIZE (1..maxFreq)) OF CarrierFreqNR-v1720
 
 CarrierFreqListNR-v1810 ::=		SEQUENCE (SIZE (1..maxFreq)) OF CarrierFreqNR-v1810
+
+CarrierFreqListNR-v1900 ::=		SEQUENCE (SIZE (1..maxFreq)) OF CarrierFreqNR-v1900
 
 CarrierFreqNR-r15 ::=				SEQUENCE {
 	carrierFreq-r15						ARFCN-ValueNR-r15,
@@ -5451,6 +5533,10 @@ CarrierFreqNR-v1810 ::=		SEQUENCE {
 	multiBandNsPmaxListNR-Aerial-r18	MultiBandNsPmaxListNR-Aerial-1-r18	OPTIONAL,	-- Need OR
 	mobileIAB-CellList-r18				PhysCellIdRangeNR-r16				OPTIONAL,	-- Need OR
 	mobileIAB-Freq-r18					ENUMERATED {true}					OPTIONAL	-- Need OR
+}
+
+CarrierFreqNR-v1900 ::=		SEQUENCE {
+	satAssistanceInfoList-r19		SEQUENCE (SIZE(1..maxSat-r17)) OF SatelliteId-r18	OPTIONAL	-- Need OR
 }
 
 MultiBandNsPmaxListNR-1-v1550	::=	SEQUENCE (SIZE (1.. maxMultiBandsNR-1-r15)) OF NS-PmaxListNR-r15
@@ -5560,17 +5646,33 @@ PLMN-Info-r16 ::=			SEQUENCE {
 SystemInformationBlockType27-r16 ::=	SEQUENCE {
 	carrierFreqListNBIOT-r16				CarrierFreqListNBIOT-r16		OPTIONAL,	-- Need OR
 	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
-	...
+	...,
+	[[	carrierFreqListNBIOT-v1900			CarrierFreqListNBIOT-v1900		OPTIONAL,	-- Need OR
+		carrierFreqListNR-r19				CarrierFreqListNR-r19			OPTIONAL	-- Need OR
+	]]
 }
 
 CarrierFreqListNBIOT-r16 ::=				SEQUENCE (SIZE (1.. maxFreqNBIOT-r16)) OF	CarrierFreqNBIOT-r16
 
+CarrierFreqListNBIOT-v1900 ::=				SEQUENCE (SIZE (1.. maxFreqNBIOT-r16)) OF	CarrierFreqNBIOT-v1900
+
+CarrierFreqListNR-r19 ::=					SEQUENCE (SIZE (1..maxFreqNR-r19)) OF CarrierFreqNR-r19
 
 CarrierFreqNBIOT-r16 ::=		SEQUENCE {
 	carrierFreq-r16					ARFCN-ValueEUTRA-r9,
 	carrierFreqOffset-r16			ENUMERATED {v-10, v-9, v-8dot5, v-8, v-7, v-6, v-5, v-4dot5,
 												v-4,v-3, v-2, v-1, v-0dot5,	v0, v1, v2, v3, v3dot5,
 												v4, v5, v6, v7, v7dot5, v8, v9}
+}
+
+CarrierFreqNBIOT-v1900 ::=		SEQUENCE {
+	satelliteAssistanceInfoList-r19			SEQUENCE (SIZE(1..maxSat-r17)) OF SatelliteId-r18	OPTIONAL	-- Need	OR
+}
+
+CarrierFreqNR-r19 ::=				SEQUENCE {
+	carrierFreq-r19							ARFCN-ValueNR-r15,
+	subcarrierSpacingSSB-r19				ENUMERATED {kHz15, kHz30},
+	satAssistanceInfoList-r19				SEQUENCE (SIZE(1..maxSat-r17)) OF SatelliteId-r18	OPTIONAL	-- Need OR
 }
 
 
@@ -5595,7 +5697,12 @@ SystemInformationBlockType30-r17 ::=	SEQUENCE {
 	commonPLMNsWithDisasterCondition-r17	SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-Identity					OPTIONAL,	-- Need OR
 	applicableDisasterInfoList-r17			SEQUENCE (SIZE (1..maxPLMN-r11)) OF ApplicableDisasterInfo-r17		OPTIONAL,	-- Need OR
 	lateNonCriticalExtension	OCTET STRING	OPTIONAL,
-	...
+	...,
+	[[	commonPLMNsWithDisasterConditionEPS-r19		SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-Identity					OPTIONAL,	-- Need OR
+		applicableDisasterInfoListEPS-r19			SEQUENCE (SIZE (1..maxPLMN-r11)) OF ApplicableDisasterInfo-r17		OPTIONAL,	-- Need OR
+			disasterRoamingEPS-BarringForCommon-r19			DisasterRoamingEPS-BarringForCommon-r19	OPTIONAL,	--Need OP
+			disasterRoamingEPS-BarringPerPLMN-List-r19		DisasterRoamingEPS-BarringPerPLMN-List-r19		OPTIONAL	--Need OP
+	]]
 }
 
 ApplicableDisasterInfo-r17	::= CHOICE {
@@ -5605,12 +5712,33 @@ ApplicableDisasterInfo-r17	::= CHOICE {
 	dedicatedPLMNs-r17					SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-Identity
 }
 
+BarringConfigDisasterRoamingEPS-r19 ::=	SEQUENCE {
+	ac-BarringFactor-r19					ENUMERATED {
+											p00, p05, p10, p15, p20, p25, p30, p40,
+											p50, p60, p70, p75, p80, p85, p90, p95},
+	ac-BarringTime-r19						ENUMERATED {s4, s8, s16, s32, s64, s128, s256, s512}
+}
+
+DisasterRoamingEPS-BarringForCommon-r19 ::=		SEQUENCE {
+	disasterRoamingEPS-Barring-r19 		BarringConfigDisasterRoamingEPS-r19
+}
+
+DisasterRoamingEPS-BarringPerPLMN-List-r19 ::=	SEQUENCE (SIZE (1.. maxPLMN-r11)) OF DisasterRoamingEPS-BarringPerPLMN-r19
+
+DisasterRoamingEPS-BarringPerPLMN-r19 ::=		SEQUENCE {
+	plmn-IdentityIndex-r19					INTEGER (1..maxPLMN-r11),
+	disasterRoamingEPS-Barring-r19 		BarringConfigDisasterRoamingEPS-r19	OPTIONAL	--Need OP
+}
+
 
 SystemInformationBlockType31-r17 ::= SEQUENCE {
 	servingSatelliteInfo-r17		ServingSatelliteInfo-r17,
 	lateNonCriticalExtension		OCTET STRING					OPTIONAL,
 	...,
 	[[	servingSatelliteInfo-v1820	ServingSatelliteInfo-v1820		OPTIONAL	-- Need OR
+	]],
+	[[
+	servingSatelliteInfo-v1900	ServingSatelliteInfo-v1900		OPTIONAL	-- Need OR
 	]]
 }
 
@@ -5642,6 +5770,10 @@ ServingSatelliteInfo-v1820 ::=	SEQUENCE {
 		movingReferenceLocation-r18			ReferenceLocation-r18
 	}															OPTIONAL,	-- Need OR
 	distanceThresh-r18				INTEGER(0..65535)			OPTIONAL	-- Need OR
+}
+
+ServingSatelliteInfo-v1900 ::=	SEQUENCE {
+	t-ModeSwitching-r19			TimeOffsetUTC-r17				OPTIONAL	-- Need OR
 }
 
 
@@ -5694,8 +5826,16 @@ SystemInformationBlockType33-r18 ::= SEQUENCE {
 												s45, s50, s55, s60, s120, s180, s240, s900}
 																			OPTIONAL,	-- Need OP
 	lateNonCriticalExtension		OCTET STRING							OPTIONAL,
-	...
+	...,
+	[[
+	neighSatelliteInfoListNR-r19	NeighSatelliteInfoListNR-r19			OPTIONAL,	-- Need OR
+	neighSatelliteInfoList-v1900	NeighSatelliteInfoList-v1900			OPTIONAL	-- Need OR
+	]]
 }
+
+NeighSatelliteInfoListNR-r19 ::=	SEQUENCE (SIZE(1..maxSat-r17)) OF NeighSatelliteInfoNR-r19
+
+NeighSatelliteInfoList-v1900 ::=	SEQUENCE (SIZE(1..maxSat-r17)) OF NeighSatelliteInfo-v1900
 
 NeighSatelliteInfoList-r18 ::=	SEQUENCE (SIZE(1..maxSat-r17)) OF NeighSatelliteInfo-r18
 
@@ -5716,6 +5856,30 @@ NeighSatelliteInfo-r18 ::=	SEQUENCE {
 	}																OPTIONAL,	-- Need OP
 	k-Mac-r18						INTEGER (1..512)				OPTIONAL,	-- Need OP
 	t-ServiceStartNeigh-r18		TimeOffsetUTC-r17				OPTIONAL	-- Need OR
+}
+
+NeighSatelliteInfoNR-r19::=	SEQUENCE {
+	satelliteId-r19				SatelliteId-r18,
+	ephemerisInfo-r19				CHOICE {
+		stateVectors-r19				EphemerisStateVectors-r17,
+		orbitalParameters-r19			EphemerisOrbitalParameters-r17
+	}																OPTIONAL,	-- Need OP
+	nta-CommonParametersNR-r19		SEQUENCE {
+		nta-CommonNR-r19				INTEGER (0.. 66485757)	OPTIONAL,	-- Need OP
+		nta-CommonDriftNR-r19			INTEGER (-257303..257303)	OPTIONAL,	-- Need OP
+		nta-CommonDriftVariationNR-r19	INTEGER (0..28949)			OPTIONAL	-- Need OP
+	},
+	epochTime-r19					SEQUENCE {
+		startSFN-r19					INTEGER (0..1023),
+		startSubFrame-r19				INTEGER (0..9)
+	}																OPTIONAL,	-- Need OP
+	k-Mac-r19						INTEGER (1..512)				OPTIONAL,	-- Need OP
+	ntn-PolarizationDL-r19			ENUMERATED {rhcp,lhcp,linear}	OPTIONAL	-- Need OR
+}
+
+NeighSatelliteInfo-v1900 ::=	SEQUENCE {
+	sf-OperationModeNeigh-r19		ENUMERATED {true}				OPTIONAL,	-- Need OP
+	t-ModeSwitchingNeigh-r19		TimeOffsetUTC-r17					OPTIONAL	-- Need OR
 }
 
 
@@ -5834,13 +5998,85 @@ AUL-Config-r15 ::=	CHOICE {
 		aul-StartingFullBW-InsideMCOT-r15		BIT STRING (SIZE (5)),
 		aul-StartingFullBW-OutsideMCOT-r15		BIT STRING (SIZE (7)),
 		aul-StartingPartialBW-InsideMCOT-r15	ENUMERATED {o34, o43, o52, o61, oOS1},
-		aul-StartingPartialBW-OutsideMCOT-r15	ENUMERATED {o16, o25, o34, o43, o52, o61, oOS1},
-		aul-RetransmissionTimer-r15				ENUMERATED {psf4, psf5, psf6, psf8, psf10, psf12, psf20, psf28, psf37, psf44, psf68, psf84, psf100,
-												psf116, psf132, psf164, psf324},
+		aul-StartingPartialBW-OutsideMCOT-r15	ENUMERATED {o16, o25, o34, o43, o52, o61,
+																oOS1},
+		aul-RetransmissionTimer-r15				ENUMERATED {psf4, psf5, psf6, psf8, psf10,
+																psf12, psf20, psf28, psf37,
+																psf44, psf68, psf84, psf100,
+																psf116, psf132, psf164, psf324},
 		endingSymbolAUL-r15						INTEGER(12..13),
 		subframeOffsetCOT-Sharing-r15			INTEGER(2..4),
 		contentionWindowSizeTimer-r15			ENUMERATED {n0, n5, n10}
 	}
+}
+
+
+CB-Msg3-ConfigSIB-r19 ::=			SEQUENCE {
+	cb-Msg3-MinRSRP-Threshold-r19		RSRP-Range							OPTIONAL,	--Need OR
+	cb-Msg3-RSRP-CE-Level-r19			RSRP-Range							OPTIONAL,	--Need OR
+	cb-Msg3-ConfigList-r19				CB-Msg3-ConfigList-r19,
+	powerRampingParameters-r19			PowerRampingParameters-r19,
+	...
+}
+
+CB-Msg3-ConfigList-r19 ::=		SEQUENCE (SIZE (1.. maxCE-Level-CB-Msg3-r19)) OF CB-Msg3-Config-r19
+
+CB-Msg3-Config-r19 ::=				SEQUENCE {
+	cb-Msg3-NumOfReplicas-r19				INTEGER(1..4),
+	cb-Msg3-TimeResource-r19		SEQUENCE {
+		pusch-Periodicity-r19					ENUMERATED {sf2, sf4, sf8, sf16, sf32, sf64,
+															sf128, sf256},
+		pusch-StartSFN-r19					INTEGER (0..1023),
+		pusch-StartSubframe-r19				INTEGER (0..9)
+	},
+	cb-Msg3-MPDCCH-Config-r19				CB-Msg3-MPDCCH-Config-r19,
+	cb-Msg3-PUCCH-Config-r19				CB-Msg3-PUCCH-Config-r19,
+	cb-Msg3-PUSCH-Config-r19				CB-Msg3-PUSCH-Config-r19,
+	cb-Msg3-TxWindow-r19			SEQUENCE {
+		windowSize-r19						INTEGER (3..34),
+		windowPeriodicity-r19				ENUMERATED {n1, n2, n4, n8, n16, n32, n64,
+														n128, n192, n256, n320, n384, n512,
+														n640, n768, n896}
+	}																		OPTIONAL,	--Need OP
+	cb-Msg3-ResponseWindow-r19				ENUMERATED {sf240, sf480, sf960,
+														sf1920, sf3840, sf5760, sf7680, sf10240},
+	cb-Msg3-MaxAttemptNum-r19				ENUMERATED {n2, n3, n4, n5, n6, n7, n8, n10}
+																			OPTIONAL	--Need OP
+}
+
+CB-Msg3-MPDCCH-Config-r19 ::=		SEQUENCE {
+	mpdcch-Narrowband-r19			SEQUENCE (SIZE(1..2)) OF INTEGER (1..maxAvailNarrowBands-r13),
+	mpdcch-PRB-PairsConfig-r19		SEQUENCE{
+		numberPRB-Pairs-r19				ENUMERATED {n2, n4, n6, spare1},
+		resourceBlockAssignment-r19		BIT STRING (SIZE(4))
+	},
+	mpdcch-NumRepetition-r19		ENUMERATED {r1, r2, r4, r8, r16, r32, r64, r128, r256},
+	mpdcch-StartSF-CSS-r19			ENUMERATED {v1, v1dot5, v2, v2dot5, v4, v5, v8, v10},
+	mpdcch-Offset-CSS-r19			ENUMERATED {zero, oneEighth, oneQuarter,
+												threeEighth, oneHalf, fiveEighth,
+												threeQuarter, sevenEighth}
+}
+
+CB-Msg3-PUCCH-Config-r19 ::=		SEQUENCE {
+	n1PUCCH-AN-r19						INTEGER (0..2047)			OPTIONAL,	-- Need OR
+	pucch-NumRepetitionCE-Format1-r19	ENUMERATED {n1, n2, n4, n8} OPTIONAL	-- Need OR
+}
+
+CB-Msg3-PUSCH-Config-r19 ::=		SEQUENCE {
+	numRUs-r19							BIT STRING (SIZE(2)),
+	prb-AllocationInfoSet-r19			SEQUENCE (SIZE(1..48)) OF BIT STRING (SIZE(10)),
+	mcs-r19								BIT STRING (SIZE(4)),
+	numRepetitions-r19					BIT STRING (SIZE(3)),
+	alpha-r19							Alpha-r12
+}
+
+PowerRampingParameters-r19 ::=			SEQUENCE {
+	powerRampingStep-r19					ENUMERATED {dB0, dB2, dB4, dB6},
+	cb-Msg3-InitialReceivedTargetPower-r19	ENUMERATED {
+											dBm-120, dBm-118, dBm-116, dBm-114, dBm-112,
+											dBm-110, dBm-108, dBm-106, dBm-104, dBm-102,
+											dBm-100, dBm-98, dBm-96, dBm-94,
+											dBm-92, dBm-90}
 }
 
 
@@ -8674,6 +8910,9 @@ RadioResourceConfigCommonSIB ::=	SEQUENCE {
 			pucch-TxDuration-r17			PUCCH-TxDuration-r17			OPTIONAL,	-- Need OR
 			pusch-TxDuration-r17			PUSCH-TxDuration-r17			OPTIONAL	-- Need OR
 		}	OPTIONAL	-- Cond NTN
+	]],
+	[[
+	cb-Msg3-ConfigSIB-r19				CB-Msg3-ConfigSIB-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -10214,9 +10453,11 @@ UplinkPowerControlCommon-v1020 ::=	SEQUENCE {
 }
 
 UplinkPowerControlCommon-v1310 ::=	SEQUENCE {
-	deltaF-PUCCH-Format4-r13			ENUMERATED {deltaF16, deltaF15, deltaF14,deltaF13, deltaF12,
+	deltaF-PUCCH-Format4-r13			ENUMERATED {deltaF16, deltaF15, deltaF14,deltaF13,
+													deltaF12,
 										deltaF11, deltaF10, spare1}			OPTIONAL,	-- Need OR
-	deltaF-PUCCH-Format5-13				ENUMERATED { deltaF13, deltaF12, deltaF11, deltaF10, deltaF9,
+	deltaF-PUCCH-Format5-13				ENUMERATED { deltaF13, deltaF12, deltaF11,
+															deltaF10, deltaF9,
 										deltaF8, deltaF7, spare1}				OPTIONAL	-- Need OR
 }
 
@@ -11867,6 +12108,9 @@ MeasResultEUTRA ::=	SEQUENCE {
 		]],
 		[[
 			cgi-Info-5GC-r15		SEQUENCE (SIZE (1..maxPLMN-r11)) OF CellAccessRelatedInfo-5GC-r15		OPTIONAL
+		]],
+		[[
+			hsdn-Cell-r19				ENUMERATED {true}			OPTIONAL
 		]]
 	}
 }
@@ -12136,7 +12380,8 @@ UL-PDCP-DelayResultList-r13 ::=		SEQUENCE (SIZE (1..maxQCI-r13)) OF UL-PDCP-Dela
 
 
 UL-PDCP-DelayResult-r13 ::=			SEQUENCE {
-	qci-Id-r13							ENUMERATED {qci1, qci2, qci3, qci4, spare4, spare3, spare2, spare1},
+	qci-Id-r13							ENUMERATED {qci1, qci2, qci3, qci4, spare4, spare3,
+													spare2, spare1},
 	excessDelay-r13						INTEGER (0..31),
 	...
 }
@@ -12159,6 +12404,9 @@ CGI-InfoNR-r15 ::=					SEQUENCE {
 	...,
 	[[
 	plmn-IdentityInfoList-v1710		PLMN-IdentityInfoListNR-v1710			OPTIONAL
+	]],
+	[[
+	hsdn-Cell-r19				ENUMERATED {true}			OPTIONAL
 	]]
 }
 
@@ -13621,7 +13869,17 @@ UE-EUTRA-Capability-v1830-IEs ::= SEQUENCE {
 
 UE-EUTRA-Capability-v1840-IEs ::= SEQUENCE {
 	measParameters-v1840					MeasParameters-v1840,
-	nonCriticalExtension					SEQUENCE {}								OPTIONAL
+	nonCriticalExtension					UE-EUTRA-Capability-v1900-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v1900-IEs ::= SEQUENCE {
+	irat-ParametersNR-v1900					IRAT-ParametersNR-v1900,
+	neighCellSI-AcquisitionParameters-v1900	NeighCellSI-AcquisitionParameters-v1900	OPTIONAL,
+	ntn-Parameters-v1900					NTN-Parameters-v1900					OPTIONAL,
+	mbms-Parameters-v1900					MBMS-Parameters-v1900,
+	other-Parameters-v1900					Other-Parameters-v1900					OPTIONAL,
+	irat-ParametersNB-r19					IRAT-ParametersNB-r19,
+	nonCriticalExtension					SEQUENCE {}			OPTIONAL
 }
 
 UE-EUTRA-CapabilityAddXDD-Mode-r9 ::=	SEQUENCE {
@@ -13729,7 +13987,7 @@ UE-EUTRA-CapabilityAddXDD-Mode-v1630 ::= SEQUENCE {
 
 AccessStratumRelease ::=			ENUMERATED {
 										rel8, rel9, rel10, rel11, rel12, rel13,
-										rel14, rel15, ..., rel16, rel17, rel18}
+										rel14, rel15, ..., rel16, rel17, rel18, rel19}
 
 FeatureSetsEUTRA-r15 ::=	SEQUENCE {
 	featureSetsDL-r15			SEQUENCE (SIZE (1..maxFeatureSets-r15)) OF FeatureSetDL-r15		OPTIONAL,
@@ -13857,6 +14115,11 @@ NTN-Parameters-v1830 ::=		SEQUENCE {
 	satelliteInfoConfigDedicated-r18				ENUMERATED {supported}			OPTIONAL
 }
 
+NTN-Parameters-v1900 ::=		SEQUENCE {
+	ntn-MO-CB-Msg3-EDT-UP-r19							ENUMERATED {supported}		OPTIONAL,
+	ntn-SF-Mode-r19										ENUMERATED {supported}		OPTIONAL
+}
+
 ProcessingTimelineSet-r15 ::=		ENUMERATED {set1, set2}
 
 RLC-Parameters-r12 ::=				SEQUENCE {
@@ -13914,9 +14177,10 @@ PDCP-Parameters-v1610 ::=			SEQUENCE {
 	pdcp-VersionChangeWithoutHO-r16		ENUMERATED {supported}		OPTIONAL,
 	ehc-r16								ENUMERATED {supported}		OPTIONAL,
 	continueEHC-Context-r16				ENUMERATED {supported}		OPTIONAL,
-		maxNumberEHC-Contexts-r16			ENUMERATED {cs2, cs4, cs8, cs16, cs32, cs64, cs128, cs256,
-														cs512, cs1024, cs2048, cs4096, cs8192, cs16384,
-														cs32768, cs65536}	OPTIONAL,
+		maxNumberEHC-Contexts-r16			ENUMERATED {cs2, cs4, cs8, cs16, cs32, cs64, cs128,
+														cs256, cs512, cs1024, cs2048, cs4096,
+														cs8192, cs16384, cs32768, cs65536}
+																		OPTIONAL,
 	jointEHC-ROHC-Config-r16			ENUMERATED {supported}		OPTIONAL
 }
 
@@ -15200,6 +15464,10 @@ IRAT-ParametersNR-v1710 ::=		SEQUENCE {
 	extendedBand-n77-2-r17				ENUMERATED {supported}				OPTIONAL
 }
 
+IRAT-ParametersNR-v1900 ::=		SEQUENCE {
+	ntn-IdleMobilityForNR-r19				ENUMERATED {supported}				OPTIONAL
+}
+
 LowerMSD-MRDC-r18 ::=		SEQUENCE {
 	aggressorband1-r18			FreqBandIndicatorNR-r15,
 	aggressorband2-r18			FreqBandIndicator-r11							OPTIONAL,
@@ -15266,6 +15534,16 @@ SupportedBandListNR-r15 ::=		SEQUENCE (SIZE (1..maxBandsNR-r15)) OF SupportedBan
 
 SupportedBandNR-r15 ::=			SEQUENCE {
 	bandNR-r15							FreqBandIndicatorNR-r15
+}
+
+IRAT-ParametersNB-r19 ::=				SEQUENCE {
+	supportedBandListNB-r19					SupportedBandList-NB-r19				OPTIONAL
+}
+
+SupportedBandList-NB-r19 ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBand-NB-r19
+
+SupportedBand-NB-r19 ::=			SEQUENCE {
+	bandNB-r19							INTEGER (1.. maxFBI2)
 }
 
 IRAT-ParametersUTRA-FDD ::=		SEQUENCE {
@@ -15423,6 +15701,11 @@ NeighCellSI-AcquisitionParameters-v1710 ::=	SEQUENCE {
 	gNB-ID-Length-Reporting-NR-NoEN-DC-r17		ENUMERATED {supported}			OPTIONAL
 }
 
+NeighCellSI-AcquisitionParameters-v1900 ::=	SEQUENCE {
+	eutra-reportCGI-HSDN-r19			ENUMERATED {supported}			OPTIONAL,
+	nr-reportCGI-HSDN-r19				ENUMERATED {supported}			OPTIONAL
+}
+
 SON-Parameters-r9 ::=				SEQUENCE {
 	rach-Report-r9						ENUMERATED {supported}			OPTIONAL
 }
@@ -15542,6 +15825,11 @@ Other-Parameters-v1690 ::=		SEQUENCE {
 	ul-RRC-Segmentation-r16			ENUMERATED {supported}			OPTIONAL
 }
 
+Other-Parameters-v1900 ::=		SEQUENCE {
+	ntn-Redirection-r19				ENUMERATED {supported}			OPTIONAL,
+	ntn-Redirection-NB-r19			ENUMERATED {supported}			OPTIONAL
+}
+
 MBMS-Parameters-r11 ::=				SEQUENCE {
 	mbms-SCell-r11							ENUMERATED {supported}		OPTIONAL,
 	mbms-NonServingCell-r11					ENUMERATED {supported}		OPTIONAL
@@ -15577,6 +15865,10 @@ MBMS-Parameters-v1700 ::=		SEQUENCE {
 	mbms-SupportedBandInfoList-v1700		SEQUENCE (SIZE (1..maxBands)) OF MBMS-SupportedBandInfo-v1700		OPTIONAL
 }
 
+MBMS-Parameters-v1900 ::=				SEQUENCE {
+	mbms-SupportedBandInfoList-v1900		SEQUENCE (SIZE (1..maxBands)) OF MBMS-SupportedBandInfo-v1900		OPTIONAL
+}
+
 MBMS-SupportedBandInfo-r16 ::=		SEQUENCE {
 	subcarrierSpacingMBMS-khz2dot5-r16	ENUMERATED {supported}		OPTIONAL,
 	subcarrierSpacingMBMS-khz0dot37-r16	SEQUENCE {
@@ -15589,6 +15881,24 @@ MBMS-SupportedBandInfo-v1700 ::=	SEQUENCE {
 	pmch-Bandwidth-n40-r17				ENUMERATED {supported}		OPTIONAL,
 	pmch-Bandwidth-n35-r17				ENUMERATED {supported}		OPTIONAL,
 	pmch-Bandwidth-n30-r17				ENUMERATED {supported}		OPTIONAL
+}
+
+MBMS-SupportedBandInfo-v1900 ::=	SEQUENCE {
+	cas-Muting-5GB-r19					ENUMERATED {supported}		OPTIONAL,
+	timeInterleaving-r19 				SEQUENCE {
+		timeInterleavingKhz15-r19			ENUMERATED {supported}		OPTIONAL,
+		timeInterleavingKhz7dot5-r19		ENUMERATED {supported}		OPTIONAL,
+		timeInterleavingKhz2dot5-r19		ENUMERATED {supported}		OPTIONAL,
+		timeInterleavingKhz1dot25-r19		ENUMERATED {supported}		OPTIONAL
+	}									OPTIONAL,
+	pmch-CyclicShiftAlpha1-r19 			ENUMERATED {supported}			OPTIONAL,
+	pmch-CyclicShiftAlpha2-r19 			ENUMERATED {supported}			OPTIONAL,
+	pmch-CyclicShiftAlpha3-r19 			ENUMERATED {supported}			OPTIONAL,	freqInterleaving-r19 				SEQUENCE {
+		freqInterleavingKhz15-r19			ENUMERATED {supported}		OPTIONAL,
+		freqInterleavingKhz7dot5-r19		ENUMERATED {supported}		OPTIONAL,
+		freqInterleavingKhz2dot5-r19		ENUMERATED {supported}		OPTIONAL,
+		freqInterleavingKhz1dot25-r19		ENUMERATED {supported}		OPTIONAL
+	}									OPTIONAL
 }
 
 FeMBMS-Unicast-Parameters-r14 ::=		SEQUENCE {
@@ -16139,9 +16449,18 @@ PMCH-InfoList-r9 ::=				SEQUENCE (SIZE (0..maxPMCH-PerMBSFN)) OF PMCH-Info-r9
 
 PMCH-InfoListExt-r12 ::=			SEQUENCE (SIZE (0..maxPMCH-PerMBSFN)) OF PMCH-InfoExt-r12
 
+PMCH-InfoListExt-v1900 ::=			SEQUENCE (SIZE (0..maxPMCH-PerMBSFN)) OF PMCH-InfoExt-r19
+
 PMCH-Info-r9 ::=					SEQUENCE {
 	pmch-Config-r9						PMCH-Config-r9,
 	mbms-SessionInfoList-r9			MBMS-SessionInfoList-r9,
+	...
+}
+
+PMCH-InfoExt-r19 ::=				SEQUENCE {
+	pmch-Config-r19						PMCH-Config-r12,
+	pmch-TFI-Config-r19					PMCH-TFI-Config-r19			OPTIONAL, 	-- Need OR
+	mbms-SessionInfoList-r19			MBMS-SessionInfoList-r9,
 	...
 }
 
@@ -16179,6 +16498,24 @@ PMCH-Config-r12 ::=					SEQUENCE {
 	...,
 	[[	mch-SchedulingPeriod-v1430		ENUMERATED {rf1, rf2}			OPTIONAL	-- Need OR
 	]]
+}
+
+PMCH-TFI-Config-r19 ::=			SEQUENCE {
+	pmch-TimeInterleavingConfig-r19		SEQUENCE {
+		pmch-TimeInterleavingM-r19			ENUMERATED {sf4, sf8, sf16, sf32},
+		pmch-TimeInterleavingN-r19			ENUMERATED {n2, n4, n8, n16},
+		pmch-TimeInterleavingM-LastMTCH-r19	ENUMERATED {sf4, sf8, sf16, sf32}	OPTIONAL,	-- Need OR
+		pmch-TimeInterleavingN-LastMTCH-r19	ENUMERATED {n1, n2, n4, n8, n16}		OPTIONAL,	-- Need OR
+		pmch-SoftBufferSizeParameters-r19	PMCH-SoftBufferSizeParameters-r19,
+		pmch-CyclicShiftAlpha-r19 			ENUMERATED {alpha1, alpha2, alpha3}	OPTIONAL 	-- Need OR
+	}					OPTIONAL, -- Need OR
+	pmch-FreqInterleaving-r19			ENUMERATED {enabled}						OPTIONAL, -- Need OR
+	mch-SchedulingPeriod-v1900			ENUMERATED {rf7, rf14, rf28, rf53, rf56, rf108, rf112, rf212, rf424}		OPTIONAL -- Need OR
+}
+
+PMCH-SoftBufferSizeParameters-r19 ::=	SEQUENCE {
+	refUE-CategoryDL-r19					INTEGER (4..26),
+	scalingFactorBeta-r19					ENUMERATED {one32nd, one5th, one3rd, three8th, five12th, onehalf, five8th, two3rd, five6th, one}
 }
 
 TMGI-r9 ::=						SEQUENCE {
@@ -17165,6 +17502,7 @@ maxCBR-Level-1-r14			INTEGER ::= 15
 maxCBR-Report-r14			INTEGER ::= 72	-- Maximum number of CBR results in a report
 maxCDMA-BandClass			INTEGER ::= 32	-- Maximum value of the CDMA band classes
 maxCE-Level-r13				INTEGER ::=	4	-- Maximum number of CE levels
+maxCE-Level-CB-Msg3-r19		INTEGER ::= 2	-- Maximum number of CE levels for CB-Msg3-EDT for eMTC
 maxExcludedCell				INTEGER ::= 16	-- Maximum number of exclude-listed physical cell identity
 											-- ranges listed in SIB type 4 and 5
 maxCellHistory-r12			INTEGER ::= 16	-- Maximum number of visited EUTRA cells reported
@@ -17232,8 +17570,8 @@ maxDRBExt-r15				INTEGER ::= 4	-- Maximum number of additional DRBs
 maxDRB-r15					INTEGER ::= 15	-- Highest value of extended maximum number of DRBs
 maxDS-Duration-r12			INTEGER ::= 5	-- Maximum number of subframes in a discovery signals
 											-- occasion
-maxDS-ZTP-CSI-RS-r12		INTEGER ::= 5	-- Maximum number of zero transmission power CSI-RS for
-											-- a serving cell concerning discovery signals
+maxDS-ZTP-CSI-RS-r12		INTEGER ::= 5	-- Maximum number of zero transmission power CSI-RS
+											-- for a serving cell concerning discovery signals
 maxEARFCN					INTEGER ::= 65535	-- Maximum value of EUTRA carrier frequency
 maxEARFCN-Plus1				INTEGER ::= 65536	-- Lowest value extended EARFCN range
 maxEARFCN2					INTEGER ::= 262143	-- Highest value extended EARFCN range
@@ -17259,6 +17597,9 @@ maxFreqNBIOT-r16			INTEGER ::= 8	-- Maximum number of NB-IoT carrier frequencies
 maxFreqNR-r15				INTEGER ::= 5	-- Maximum number of NR carrier frequencies for
 											-- which a UE may provide measurement results upon
 											-- NR SCG failure
+maxFreqNR-r19				INTEGER ::= 8	-- Maximum number of groups of NR carrier frequencies
+											-- that can be provided as assistance information for
+											-- inter-RAT cell selection
 maxFreqSL-NR-r16			INTEGER ::= 8	-- Maximum number of NR anchor carrier frequencies on
 											-- which configurations for V2X sidelink communication
 											-- are provided
