@@ -144,14 +144,12 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *
             offset += 2;
             proto_tree_add_item(tree, hf_epmd_dist_low, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            name_length = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_epmd_name_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint16(tree, hf_epmd_name_len, tvb, offset, 2, ENC_BIG_ENDIAN, &name_length);
             proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA, pinfo->pool, &name);
             offset += 2 + name_length;
             if (tvb_reported_length_remaining(tvb, offset) >= 2) {
                 uint16_t elen=0;
-                elen = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_item(tree, hf_epmd_elen, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint16(tree, hf_epmd_elen, tvb, offset, 2, ENC_BIG_ENDIAN, &elen);
                 if (elen > 0)
                     proto_tree_add_item(tree, hf_epmd_edata, tvb, offset + 2, elen, ENC_NA);
                 /*offset += 2 + elen;*/
@@ -246,15 +244,13 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
         return 0;
     }
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_epmd_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_epmd_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
     offset++;
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, type, VALS(message_types), "unknown (0x%02X)"));
 
     switch (type) {
         case EPMD_ALIVE_OK_RESP:
-            result = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN, &result);
             offset++;
             proto_tree_add_item(tree, hf_epmd_creation, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -266,8 +262,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
             break;
 
         case EPMD_ALIVE2_RESP:
-            result = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN, &result);
             offset++;
             if (!result) {
                 proto_tree_add_item(tree, hf_epmd_creation, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -279,8 +274,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
             break;
 
         case EPMD_ALIVE2_X_RESP:
-            result = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN, &result);
             offset++;
             if (!result) {
                 /* Check remaining length to determine creation field size */
@@ -299,8 +293,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
             break;
 
         case EPMD_PORT2_RESP:
-            result = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN, &result);
             offset++;
             if (!result) {
                 col_append_str(pinfo->cinfo, COL_INFO, " OK");
@@ -308,8 +301,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " ERROR 0x%02X", result);
                 break;
             }
-            port = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_epmd_port_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_epmd_port_no, tvb, offset, 2, ENC_BIG_ENDIAN, &port);
             offset += 2;
             proto_tree_add_item(tree, hf_epmd_node_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
@@ -319,14 +311,12 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
             offset += 2;
             proto_tree_add_item(tree, hf_epmd_dist_low, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            name_length = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_epmd_name_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint16(tree, hf_epmd_name_len, tvb, offset, 2, ENC_BIG_ENDIAN, &name_length);
             proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA, pinfo->pool, &name);
             offset += 2 + name_length;
             if (tvb_reported_length_remaining(tvb, offset) >= 2) {
-                uint16_t elen=0;
-                elen = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_item(tree, hf_epmd_elen, tvb, offset, 2, ENC_BIG_ENDIAN);
+                uint16_t elen;
+                proto_tree_add_item_ret_uint16(tree, hf_epmd_elen, tvb, offset, 2, ENC_BIG_ENDIAN, &elen);
                 if (elen > 0)
                     proto_tree_add_item(tree, hf_epmd_edata, tvb, offset + 2, elen, ENC_NA);
                 offset += 2 + elen;

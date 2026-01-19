@@ -2304,8 +2304,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset
 
     if (!type_of_sub_addr)
     {
-        afi = tvb_get_uint8(tvb, curr_offset);
-        proto_tree_add_item(tree, hf_gsm_a_dtap_afi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(tree, hf_gsm_a_dtap_afi, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &afi);
         curr_offset++;
 
         NO_MORE_DATA_CHECK(len);

@@ -314,8 +314,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
     /* The Common FC Encap header */
     /* protocol */
-    protocol = tvb_get_uint8 (tvb, offset);
-    ti=proto_tree_add_item(tree, hf_ifcp_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti=proto_tree_add_item_ret_uint8(tree, hf_ifcp_protocol, tvb, offset, 1, ENC_BIG_ENDIAN, &protocol);
     protocol_tree=proto_item_add_subtree(ti, ett_ifcp_protocol);
 
     offset++;

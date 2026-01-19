@@ -929,7 +929,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
     int remaning_data = 0;
     int capacity_type_flag = 0;
     int traffic_burst_type = 0;
-    int connectivity = 0;
+    uint8_t connectivity = 0;
     int pid_loop_count = 0;
     int k = 0;
     int network_routing_label_loop_count = 0;
@@ -1249,8 +1249,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 traffic_burst_type = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_TRAFFIC_BURST_TYPE_MASK;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_traffic_burst_type, tvb, cur_off + new_off, 1, ENC_NA);
                 if (traffic_burst_type == 0) {
-                    connectivity = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_CONNECTIVITY_MASK;
-                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_connectivity, tvb, cur_off + new_off, 1, ENC_NA);
+                    proto_tree_add_item_ret_uint8(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_connectivity, tvb, cur_off + new_off, 1, ENC_NA, &connectivity);
                     if (connectivity == 0) {
                         new_off += 1;
                         proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_return_vpi, tvb, cur_off + new_off, 1, ENC_NA);
@@ -3790,7 +3789,7 @@ void proto_register_dvb_s2_table(void)
         },
         {&hf_dvb_s2_table_lid_connectivity, {
                 "Connectivity", "dvb-s2_table.desc.lid_connectivity",
-                FT_UINT8, BASE_HEX, NULL, 0x10,
+                FT_UINT8, BASE_HEX, NULL, DVB_S2_TABLE_DESC_CONNECTIVITY_MASK,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_lid_return_vpi, {

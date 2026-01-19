@@ -1471,8 +1471,7 @@ static int oap_1_tree_add_cmdcontrol(packet_info *pinfo, proto_tree *tree, tvbuf
         uint8_t ackcnt;
         uint8_t i;
 
-        ackcnt = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(opinfo_tree, hf_oap_1_cmdcontrol_ackcnt, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item_ret_uint8(opinfo_tree, hf_oap_1_cmdcontrol_ackcnt, tvb, offset, 1, ENC_NA, &ackcnt);
         offset += 1;
 
         for (i = 0; i < ackcnt; i++)
@@ -2539,8 +2538,7 @@ static int dissect_2008_16_security_3_1(tvbuff_t *tvb, packet_info *pinfo, proto
     }
 
     /* Stage */
-    stage = tvb_get_uint8(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_security_3_1_stage, tvb, offset, 1, ENC_NA);
+    ti = proto_tree_add_item_ret_uint8(tree, hf_security_3_1_stage, tvb, offset, 1, ENC_NA, &stage);
     offset += 1;
 
     if (stage != 0)
@@ -8804,8 +8802,7 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         /* Epoch - 2 bytes */
         {
-            epoch = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(sgmp_tree, hf_sgmp_epoch, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint16(sgmp_tree, hf_sgmp_epoch, tvb, offset, 2, ENC_BIG_ENDIAN, &epoch);
             offset += 2;
         }
 

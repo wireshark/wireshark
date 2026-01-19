@@ -699,29 +699,24 @@ dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     int    offset = 0;
     uint8_t k1, k2, k3, k4, k5;
 
-    k1 = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_eigrp_par_k1, tvb, offset, 1, ENC_BIG_ENDIAN);
-
+    proto_tree_add_item_ret_uint8(tree, hf_eigrp_par_k1, tvb, offset, 1, ENC_BIG_ENDIAN, &k1);
     offset += 1;
-    k2 = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_eigrp_par_k2, tvb, offset, 1, ENC_BIG_ENDIAN);
 
+    proto_tree_add_item_ret_uint8(tree, hf_eigrp_par_k2, tvb, offset, 1, ENC_BIG_ENDIAN, &k2);
     offset += 1;
-    k3 = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_eigrp_par_k3, tvb, offset, 1, ENC_BIG_ENDIAN);
 
+    proto_tree_add_item_ret_uint8(tree, hf_eigrp_par_k3, tvb, offset, 1, ENC_BIG_ENDIAN, &k3);
     offset += 1;
-    k4 = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_eigrp_par_k4, tvb, offset, 1, ENC_BIG_ENDIAN);
 
+    proto_tree_add_item_ret_uint8(tree, hf_eigrp_par_k4, tvb, offset, 1, ENC_BIG_ENDIAN, &k4);
     offset += 1;
-    k5 = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_eigrp_par_k5, tvb, offset, 1, ENC_BIG_ENDIAN);
 
+    proto_tree_add_item_ret_uint8(tree, hf_eigrp_par_k5, tvb, offset, 1, ENC_BIG_ENDIAN, &k5);
     offset += 1;
+
     proto_tree_add_item(tree, hf_eigrp_par_k6, tvb, offset, 1, ENC_BIG_ENDIAN);
-
     offset += 1;
+
     proto_tree_add_item(tree, hf_eigrp_par_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     if (k1 == 255 && k2 == 255 && k3 == 255 && k4 == 255 && k5 == 255) {

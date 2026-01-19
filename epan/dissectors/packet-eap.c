@@ -806,8 +806,7 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
   uint8_t     opcode;
 
   /* OpCode (1 byte), MS-CHAPv2-ID (1 byte), MS-Length (2 bytes), Data */
-  opcode = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(eap_tree, hf_eap_ms_chap_v2_opcode, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode);
   offset += 1;
   left   -= 1;
   if (left <= 0)
@@ -830,9 +829,8 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
   case MS_CHAP_V2_CHALLENGE:
     if (left <= 0)
       break;
-    value_size = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_value_size,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(eap_tree, hf_eap_ms_chap_v2_value_size,
+                                  tvb, offset, 1, ENC_BIG_ENDIAN, &value_size);
     offset += 1;
     left   -= 1;
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_challenge,
@@ -847,9 +845,8 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
   case MS_CHAP_V2_RESPONSE:
     if (left <= 0)
       break;
-    value_size = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_value_size,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(eap_tree, hf_eap_ms_chap_v2_value_size,
+                                  tvb, offset, 1, ENC_BIG_ENDIAN, &value_size);
     offset += 1;
     left   -= 1;
     if (value_size == 49) {
@@ -2383,8 +2380,7 @@ skip_tls_dissector:
         offset += 1;
 
         /* Count   (byte) */
-        count = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(eap_tree, hf_eap_leap_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(eap_tree, hf_eap_leap_count, tvb, offset, 1, ENC_BIG_ENDIAN, &count);
         offset += 1;
 
         /* Data    (byte*Count) */

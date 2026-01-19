@@ -2794,12 +2794,11 @@ static int dissect_kademlia_udp_message(uint8_t msg_type,
             break;
         case KADEMLIA_SEARCH_REQ:
             {
-                int restrictive;
+                uint8_t restrictive;
                 /* Target (16bytes) */
                 offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
                 /* Restrictive (1 byte) 0/1 */
-                restrictive = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(tree, hf_edonkey_kademlia_restrictive, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item_ret_uint8(tree, hf_edonkey_kademlia_restrictive, tvb, offset, 1, ENC_NA, &restrictive);
                 offset +=1;
 
                 if ( offset < msg_end && restrictive )

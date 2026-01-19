@@ -5100,8 +5100,7 @@ decode_gtp_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_gtp_ies[GTP_EXT_NSAPI], &te,
                             val_to_str_ext_const(GTP_EXT_NSAPI, &gtp_val_ext, "Unknown message"));
 
-    nsapi = tvb_get_uint8(tvb, offset + 1) & 0x0F;
-    proto_tree_add_item(ext_tree, hf_gtp_nsapi, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(ext_tree, hf_gtp_nsapi, tvb, offset + 1, 1, ENC_BIG_ENDIAN, &nsapi);
     proto_item_append_text(te, ": %u",nsapi);
 
     return 2;
@@ -9810,8 +9809,7 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
                     val_to_str_ext_const(GTP_EXT_DATA_REQ, &gtp_val_ext, "Unknown message"));
     offset++;
 
-    length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(ext_tree, hf_gtp_length, tvb, offset, 2, length);
+    proto_tree_add_item_ret_uint16(ext_tree, hf_gtp_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
     offset+=2;
 
     if (length == 0) {
@@ -9819,13 +9817,11 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
     }
 
     /* Octet 4 Number of Data Records */
-    no = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(ext_tree, hf_gtp_number_of_data_records, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(ext_tree, hf_gtp_number_of_data_records, tvb, offset, 1, ENC_BIG_ENDIAN, &no);
     offset++;
 
     /* Octet 5 Data Record Format */
-    format   = tvb_get_uint8(tvb, offset);
-    fmt_item = proto_tree_add_item(ext_tree, hf_gtp_data_record_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+    fmt_item = proto_tree_add_item_ret_uint8(ext_tree, hf_gtp_data_record_format, tvb, offset, 1, ENC_BIG_ENDIAN, &format);
     offset++;
     /* The value range is 1-255 in decimal. The value '0' should not be used.
      * Only the values 1-10 and 51-255 can be used for standards purposes.
@@ -10020,8 +10016,7 @@ decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
                 "%s : ", val_to_str_ext_const(GTP_EXT_PRIV_EXT, &gtp_val_ext, "Unknown message"));
 
     offset++;
-    length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(ext_tree_priv_ext, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
     offset += 2;
     if (length >= 2) {
         ext_id = tvb_get_ntohs(tvb, offset);

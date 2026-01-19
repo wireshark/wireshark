@@ -305,9 +305,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     proto_tree_add_item(hcast_tree, hf_hazelcast_headerVersion, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-
-    proto_tree_add_item(hcast_tree, hf_hazelcast_operation, tvb, offset, 1, ENC_BIG_ENDIAN);
-    operation = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(hcast_tree, hf_hazelcast_operation, tvb, offset, 1, ENC_BIG_ENDIAN, &operation);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, operation, operationTypes, "Unknown (0x%02x)"));
     offset += 1;
 
@@ -316,9 +314,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     proto_tree_add_item(hcast_tree, hf_hazelcast_threadID, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    flags = tvb_get_uint8(tvb, offset);
-
-    tf = proto_tree_add_item(hcast_tree, hf_hazelcast_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+    tf = proto_tree_add_item_ret_uint8(hcast_tree, hf_hazelcast_flags, tvb, offset, 1, ENC_BIG_ENDIAN, &flags);
 
     flag_tree = proto_item_add_subtree(tf, ett_hazelcast_flags);
 
@@ -454,7 +450,7 @@ void proto_register_hazelcast(void) {
           { "Hazelcast threadID", "hazelcast.threadID", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_hazelcast_flags,
-          { "hazelcast flags", "hazelcast.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+          { "hazelcast flags", "hazelcast.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_hazelcast_flags_lockCount,
           { "hazelcast lockCount flag", "hazelcast.flags.lockCount", FT_BOOLEAN, 8, NULL, HAZELCAST_LOCKCOUNT_FLAG, NULL, HFILL }

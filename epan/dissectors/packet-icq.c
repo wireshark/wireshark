@@ -825,8 +825,7 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
     uint16_t subcmd;
     unsigned char result;
 
-    subcmd = tvb_get_letohs(tvb, offset + SRV_META_USER_SUBCMD);
-    ti = proto_tree_add_item(tree, hf_icq_meta_user_subcmd, tvb, offset + SRV_META_USER_SUBCMD, 2, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item_ret_uint16(tree, hf_icq_meta_user_subcmd, tvb, offset + SRV_META_USER_SUBCMD, 2, ENC_LITTLE_ENDIAN, &subcmd);
     sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
     result = tvb_get_uint8(tvb, offset + SRV_META_USER_RESULT);
     proto_tree_add_uint_format_value(sstree, hf_icq_meta_user_result, tvb, offset + SRV_META_USER_RESULT,

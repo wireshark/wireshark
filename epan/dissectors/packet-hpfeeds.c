@@ -131,9 +131,8 @@ dissect_hpfeeds_auth_pdu(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     uint8_t len = 0;
 
-    len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb,
-                    offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_hpfeeds_ident_len, tvb,
+                    offset, 1, ENC_BIG_ENDIAN, &len);
     offset += 1;
     proto_tree_add_item(tree, hf_hpfeeds_ident, tvb,
                     offset, len, ENC_ASCII);
@@ -172,13 +171,11 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const uint8_t *channelname = NULL;
     const char* save_match_string = NULL;
 
-    len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_hpfeeds_ident_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
     offset += 1;
     proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len, ENC_ASCII);
     offset += len;
-    len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_hpfeeds_chan_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_hpfeeds_chan_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
     offset += 1;
 
     /* get the channel name as ephemeral string to pass it to the heuristic decoders */
@@ -253,9 +250,8 @@ dissect_hpfeeds_subscribe_pdu(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     uint8_t len = 0;
     /* get length of ident field */
-    len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb, offset, 1,
-        ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_hpfeeds_ident_len, tvb, offset, 1,
+        ENC_BIG_ENDIAN, &len);
     offset += 1;
 
     proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len,

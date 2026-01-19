@@ -116,15 +116,13 @@ dissect_hdmi_edid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
             tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    week = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(edid_tree, hf_hdmi_edid_manf_week,
-            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(edid_tree, hf_hdmi_edid_manf_week,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN, &week);
     offset += 1;
 
     year_hf = week == 255 ? hf_hdmi_edid_mod_year : hf_hdmi_edid_manf_year;
-    year = tvb_get_uint8(tvb, offset);
-    yi = proto_tree_add_item(edid_tree, year_hf,
-            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    yi = proto_tree_add_item_ret_uint8(edid_tree, year_hf,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN, &year);
     proto_item_append_text(yi, " (year %d)", 1990+year);
     offset += 1;
 

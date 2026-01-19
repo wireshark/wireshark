@@ -6309,8 +6309,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_response_slot, tvb, offset, 1, ENC_NA);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_cmd_response_data_length, tvb, offset, 1, ENC_NA);
-            length = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_response_data_length, tvb, offset, 1, ENC_NA, &length);
             offset++;
 
             bluetooth_eir_ad_data_t *ad_data;

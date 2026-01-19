@@ -256,9 +256,8 @@ dissect_elmi_info_elem(
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(info_elem_tree, hf_elmi_info_elem_len,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(info_elem_tree, hf_elmi_info_elem_len,
+            tvb, offset, 1, ENC_BIG_ENDIAN, &len);
     offset++;
 
     switch (tag) {

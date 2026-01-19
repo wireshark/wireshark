@@ -1967,13 +1967,11 @@ dissect_conn_desc(tvbuff_t *tvb, unsigned offset, conversation_t *conv,
         else
             offset += FT_IPv6_LEN;
 
-        port = tvb_get_ntohs(tvb, offset);
-        port_item = proto_tree_add_item(conn_desc_tree,
-                hf_dvbci_lsc_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        port_item = proto_tree_add_item_ret_uint16(conn_desc_tree,
+                hf_dvbci_lsc_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN, &port);
         offset +=2;
-        ip_proto = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_proto,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(conn_desc_tree, hf_dvbci_lsc_proto,
+                    tvb, offset, 1, ENC_BIG_ENDIAN, &ip_proto);
         offset ++;
         if (port_item) {
             if (ip_proto==LSC_TCP && tcp_port_to_display(pinfo->pool, port)) {
@@ -1994,13 +1992,11 @@ dissect_conn_desc(tvbuff_t *tvb, unsigned offset, conversation_t *conv,
         proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_media_len,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        ip_proto = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_proto,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(conn_desc_tree, hf_dvbci_lsc_proto,
+                    tvb, offset, 1, ENC_BIG_ENDIAN, &ip_proto);
         offset ++;
-        port = tvb_get_ntohs(tvb, offset);
-        port_item = proto_tree_add_item(conn_desc_tree,
-                hf_dvbci_lsc_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        port_item = proto_tree_add_item_ret_uint16(conn_desc_tree,
+                hf_dvbci_lsc_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN, &port);
         offset +=2;
         if (port_item) {
             if (ip_proto==LSC_TCP && tcp_port_to_display(pinfo->pool, port)) {
@@ -2966,24 +2962,20 @@ dissect_dvbci_payload_hc(uint32_t tag, int len_field _U_,
                     nid, onid, tsid, svcid);
             break;
         case T_REPLACE:
-            ref = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dvbci_replacement_ref,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_dvbci_replacement_ref,
+                    tvb, offset, 1, ENC_BIG_ENDIAN, &ref);
             offset++;
-            old_pid = tvb_get_ntohs(tvb, offset) & 0x1FFF;
-            proto_tree_add_item(tree, hf_dvbci_replaced_pid,
-                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint16(tree, hf_dvbci_replaced_pid,
+                    tvb, offset, 2, ENC_BIG_ENDIAN, &old_pid);
             offset += 2;
-            new_pid = tvb_get_ntohs(tvb, offset) & 0x1FFF;
-            proto_tree_add_item( tree, hf_dvbci_replacement_pid,
-                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint16( tree, hf_dvbci_replacement_pid,
+                    tvb, offset, 2, ENC_BIG_ENDIAN, &new_pid);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                     "ref 0x%x, 0x%x -> 0x%x", ref, old_pid, new_pid);
             break;
         case T_CLEAR_REPLACE:
-            ref = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dvbci_replacement_ref,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_dvbci_replacement_ref,
+                    tvb, offset, 1, ENC_BIG_ENDIAN, &ref);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "ref 0x%x", ref);
             break;
         case T_TUNE_BROADCAST_REQ:
@@ -3012,9 +3004,8 @@ dissect_dvbci_payload_hc(uint32_t tag, int len_field _U_,
             }
             break;
         case T_TUNE_REPLY:
-            status = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dvbci_hc_status,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_dvbci_hc_status,
+                    tvb, offset, 1, ENC_BIG_ENDIAN, &status);
             col_append_sep_str(pinfo->cinfo, COL_INFO, ": ",
                         (status == HC_STAT_OK ?  "ok" : "error"));
             break;
@@ -3305,8 +3296,7 @@ dissect_dvbci_payload_cup(uint32_t tag, int len_field _U_,
 
   switch(tag) {
     case T_CAM_FIRMWARE_UPGRADE:
-      upgrade_type = tvb_get_uint8(tvb, offset);
-      proto_tree_add_item(tree, hf_dvbci_cup_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint8(tree, hf_dvbci_cup_type, tvb, offset, 1, ENC_BIG_ENDIAN, &upgrade_type);
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)",
                     val_to_str_const(upgrade_type, dvbci_cup_type, "unknown"));
       offset++;
@@ -3324,8 +3314,7 @@ dissect_dvbci_payload_cup(uint32_t tag, int len_field _U_,
       }
       break;
     case T_CAM_FIRMWARE_UPGRADE_REPLY:
-      answer = tvb_get_uint8(tvb, offset);
-      proto_tree_add_item(tree, hf_dvbci_cup_answer, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint8(tree, hf_dvbci_cup_answer, tvb, offset, 1, ENC_BIG_ENDIAN, &answer);
       col_append_sep_str(pinfo->cinfo, COL_INFO, ": ",
                     val_to_str_const(answer, dvbci_cup_answer, "unknown"));
       break;

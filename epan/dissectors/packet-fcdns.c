@@ -490,9 +490,8 @@ dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
                                    offset+1, 3, ENC_NA);
             proto_tree_add_item (req_tree, hf_fcdns_rply_pname, tvb,
                                    offset+4, 8, ENC_NA);
-            len = tvb_get_uint8 (tvb, offset+12);
-            proto_tree_add_item (req_tree, hf_fcdns_rply_spnamelen, tvb,
-                                 offset+12, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8 (req_tree, hf_fcdns_rply_spnamelen, tvb,
+                                 offset+12, 1, ENC_BIG_ENDIAN, &len);
             if (!tvb_offset_exists (tvb, 29+len))
                 return;
 
@@ -506,9 +505,8 @@ dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
                                        offset+268, 8, ENC_NA);
             }
             if (tvb_offset_exists (tvb, 548)) {
-                len = tvb_get_uint8 (tvb, offset+276);
-                proto_tree_add_item (req_tree, hf_fcdns_rply_snamelen, tvb,
-                                     offset+276, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8 (req_tree, hf_fcdns_rply_snamelen, tvb,
+                                               offset+276, 1, ENC_BIG_ENDIAN, &len);
                 if (len) {
                     proto_tree_add_item (req_tree, hf_fcdns_rply_sname, tvb,
                                          offset+277, len, ENC_ASCII);
@@ -617,9 +615,8 @@ dissect_fcdns_gspnid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
             dissect_fcdns_req_portid (tvb, req_tree, offset+1);
         }
         else {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_item (req_tree, hf_fcdns_rply_spnamelen,
-                                 tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8 (req_tree, hf_fcdns_rply_spnamelen,
+                                 tvb, offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (req_tree, hf_fcdns_rply_spname, tvb,
                                  offset+1, len, ENC_ASCII);
         }
@@ -809,9 +806,8 @@ dissect_fcdns_gsnnnn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
                                    offset, 8, ENC_NA);
         }
         else {
-            len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_item (req_tree, hf_fcdns_rply_snamelen, tvb,
-                                 offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8 (req_tree, hf_fcdns_rply_snamelen, tvb,
+                                           offset, 1, ENC_BIG_ENDIAN, &len);
             proto_tree_add_item (req_tree, hf_fcdns_rply_sname, tvb,
                                  offset+1, len, ENC_ASCII);
         }
@@ -1191,18 +1187,15 @@ dissect_fcdns_zone_mbr (tvbuff_t *tvb, packet_info* pinfo, proto_tree *zmbr_tree
 static void
 dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
-    int numrec, i, len;
+    uint32_t numrec, i, len;
     uint8_t objfmt;
 
     if (tree) {
-        numrec = tvb_get_ntohl (tvb, offset);
-        proto_tree_add_uint(tree, hf_fcdns_num_entries, tvb, offset, 4, numrec);
+        proto_tree_add_item_ret_uint(tree, hf_fcdns_num_entries, tvb, offset, 4, ENC_BIG_ENDIAN, &numrec);
         offset += 4;
 
         for (i = 0; i < numrec; i++) {
-            objfmt = tvb_get_uint8 (tvb, offset);
-
-            proto_tree_add_item (tree, hf_fcdns_sw2_objfmt, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8 (tree, hf_fcdns_sw2_objfmt, tvb, offset, 1, ENC_BIG_ENDIAN, &objfmt);
             proto_tree_add_item (tree, hf_fcdns_rply_ownerid, tvb, offset+1, 3, ENC_NA);
             proto_tree_add_item (tree, hf_fcdns_rply_ptype, tvb, offset+4,
                                  1, ENC_BIG_ENDIAN);
@@ -1210,9 +1203,8 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, unsigned offset)
             proto_tree_add_item (tree, hf_fcdns_rply_pname, tvb, offset+8, 8, ENC_NA);
             offset += 16;
             if (!(objfmt & 0x1)) {
-                len = tvb_get_uint8 (tvb, offset);
-                proto_tree_add_item (tree, hf_fcdns_rply_spnamelen, tvb,
-                                     offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint (tree, hf_fcdns_rply_spnamelen, tvb,
+                                              offset, 1, ENC_BIG_ENDIAN, &len);
                 proto_tree_add_item (tree, hf_fcdns_rply_spname, tvb,
                                      offset+1, len, ENC_ASCII);
                 offset += 256;
@@ -1220,9 +1212,8 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, unsigned offset)
             proto_tree_add_item (tree, hf_fcdns_rply_nname, tvb, offset, 8, ENC_NA);
             offset += 8;
             if (!(objfmt & 0x1)) {
-                len = tvb_get_uint8 (tvb, offset);
-                proto_tree_add_item (tree, hf_fcdns_rply_snamelen, tvb,
-                                     offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint (tree, hf_fcdns_rply_snamelen, tvb,
+                                              offset, 1, ENC_BIG_ENDIAN, &len);
                 proto_tree_add_item (tree, hf_fcdns_rply_sname, tvb,
                                      offset+1, len, ENC_ASCII);
                 offset += 256;
@@ -1246,9 +1237,8 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, unsigned offset)
                                          offset+128, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item (tree, hf_fcdns_num_fc4desc, tvb,
                                          offset+129, 1, ENC_BIG_ENDIAN);
-                    len = tvb_get_uint8 (tvb, offset+132);
-                    proto_tree_add_item (tree, hf_fcdns_rply_fc4desclen, tvb,
-                                         offset+132, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint (tree, hf_fcdns_rply_fc4desclen, tvb,
+                                                  offset+132, 1, ENC_BIG_ENDIAN, &len);
                     proto_tree_add_item (tree, hf_fcdns_rply_fc4desc, tvb,
                                          offset+133, len, ENC_NA);
                 }
@@ -1363,12 +1353,11 @@ static void
 dissect_fcdns_gezn (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
 {
     unsigned offset = 16;            /* past the fc_ct header */
-    int str_len;
+    uint8_t str_len;
 
     if (isreq) {
         if (req_tree) {
-            str_len = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_uint(req_tree, hf_fcdns_zonelen, tvb, offset, 1, str_len);
+            proto_tree_add_item_ret_uint8(req_tree, hf_fcdns_zonelen, tvb, offset, 1, ENC_NA, &str_len);
             proto_tree_add_item (req_tree, hf_fcdns_zonenm, tvb, offset+3,
                                  str_len, ENC_ASCII);
         }

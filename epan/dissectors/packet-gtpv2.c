@@ -2714,8 +2714,7 @@ dissect_gtpv2_ebi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     /* Spare (all bits set to 0) B8 - B5*/
     proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset, 4, ENC_BIG_ENDIAN);
     /* EPS Bearer ID (EBI) B4 - B1 */
-    ebi = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_ebi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_ebi, tvb, offset, 1, ENC_BIG_ENDIAN, &ebi);
     proto_item_append_text(item, "%u", ebi);
 
 }
@@ -3339,19 +3338,18 @@ dissect_gtpv2_rai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
 {
     char       *str = NULL;
     char       *mcc_mnc_str;
-    uint16_t    lac, rac;
+    uint16_t    lac;
+    uint8_t     rac;
 
     mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_RAI, true);
     *offset += 3;
-    lac = tvb_get_ntohs(tvb, *offset);
-    proto_tree_add_item(tree, hf_gtpv2_rai_lac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_gtpv2_rai_lac, tvb, *offset, 2, ENC_BIG_ENDIAN, &lac);
     *offset += 2;
     /* 3GPP 29.274 8.21.3 RAI Field
      * "Only Octet c+5 contains the RAC. Octet c+6 is coded as all 1's (11111111)."
      * (We could, here and in GTP, check that the other octet is all 1's.)
      */
-    rac = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_gtpv2_rai_rac, tvb, *offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_rai_rac, tvb, *offset, 1, ENC_BIG_ENDIAN, &rac);
     *offset += 2;
     str = wmem_strdup_printf(pinfo->pool, "%s, LAC 0x%x, RAC 0x%x",
         mcc_mnc_str,
@@ -3370,11 +3368,9 @@ dissect_gtpv2_sai_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 
     mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_SAI, true);
     *offset += 3;
-    lac = tvb_get_ntohs(tvb, *offset);
-    proto_tree_add_item(tree, hf_gtpv2_sai_lac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_gtpv2_sai_lac, tvb, *offset, 2, ENC_BIG_ENDIAN, &lac);
     *offset += 2;
-    sac = tvb_get_ntohs(tvb, *offset);
-    proto_tree_add_item(tree, hf_gtpv2_sai_sac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_gtpv2_sai_sac, tvb, *offset, 2, ENC_BIG_ENDIAN, &sac);
     *offset += 2;
     str = wmem_strdup_printf(pinfo->pool, "%s, LAC 0x%x, SAC 0x%x",
         mcc_mnc_str,
@@ -3393,11 +3389,9 @@ dissect_gtpv2_cgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
 
     mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_CGI, true);
     *offset += 3;
-    lac = tvb_get_ntohs(tvb, *offset);
-    proto_tree_add_item(tree, hf_gtpv2_uli_cgi_lac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_gtpv2_uli_cgi_lac, tvb, *offset, 2, ENC_BIG_ENDIAN, &lac);
     *offset += 2;
-    ci = tvb_get_ntohs(tvb, *offset);
-    proto_tree_add_item(tree, hf_gtpv2_uli_cgi_ci, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_gtpv2_uli_cgi_ci, tvb, *offset, 2, ENC_BIG_ENDIAN, &ci);
     *offset += 2;
     str = wmem_strdup_printf(pinfo->pool, "%s, LAC 0x%x, CI 0x%x",
         mcc_mnc_str,

@@ -1658,8 +1658,7 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
     }
 
     /* Add in the high order structures. */
-    ipproto = tvb_get_uint8(tvb, o);
-    proto_tree_add_item(tree, hf_peer_ipproto, tvb, o, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_peer_ipproto, tvb, o, 1, ENC_BIG_ENDIAN, &ipproto);
     o += 1;
     proto_tree_add_item(tree, hf_peer_vlan, tvb, o, 2, ENC_BIG_ENDIAN);
     o += 2;
@@ -2167,8 +2166,7 @@ dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     }
 
     /* Add in the high order structures. */
-    ipproto = tvb_get_uint8(tvb, o);
-    proto_tree_add_item(tree, hf_peer_ipproto, tvb, o, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_peer_ipproto, tvb, o, 1, ENC_BIG_ENDIAN, &ipproto);
     o += 1;
     proto_tree_add_item(tree, hf_peer_vlan, tvb, o, 2, ENC_BIG_ENDIAN);
     o += 2;

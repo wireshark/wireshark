@@ -185,11 +185,9 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
   offset += 2;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown13, tvb, offset, 2, ENC_NA);
   offset += 2;
-  proto_tree_add_item(tlv_tree, hf_glbp_hello_addrtype,  tvb, offset, 1, ENC_BIG_ENDIAN);
-  addrtype = tvb_get_uint8(                             tvb, offset);
+  proto_tree_add_item_ret_uint8(tlv_tree, hf_glbp_hello_addrtype,  tvb, offset, 1, ENC_BIG_ENDIAN, &addrtype);
   offset++;
-  proto_tree_add_item(tlv_tree, hf_glbp_hello_addrlen,   tvb, offset, 1, ENC_BIG_ENDIAN);
-  addrlen = tvb_get_uint8(tvb, offset);
+  proto_tree_add_item_ret_uint8(tlv_tree, hf_glbp_hello_addrlen,   tvb, offset, 1, ENC_BIG_ENDIAN, &addrlen);
   offset++;
   switch (addrtype) {
     case 1:
@@ -250,11 +248,9 @@ dissect_glbp_auth(tvbuff_t *tvb, int offset,
   uint8_t authtype;
   uint8_t authlength;
 
-  proto_tree_add_item(tlv_tree, hf_glbp_auth_authtype,   tvb, offset, 1, ENC_BIG_ENDIAN);
-  authtype = tvb_get_uint8(tvb, offset);
+  proto_tree_add_item_ret_uint8(tlv_tree, hf_glbp_auth_authtype,   tvb, offset, 1, ENC_BIG_ENDIAN, &authtype);
   offset++;
-  proto_tree_add_item(tlv_tree, hf_glbp_auth_authlength, tvb, offset, 1, ENC_BIG_ENDIAN);
-  authlength = tvb_get_uint8(tvb, offset);
+  proto_tree_add_item_ret_uint8(tlv_tree, hf_glbp_auth_authlength, tvb, offset, 1, ENC_BIG_ENDIAN, &authlength);
   offset++;
   switch(authtype) {
   case 1:

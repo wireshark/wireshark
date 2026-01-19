@@ -1508,8 +1508,7 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
         svcpg_tree = proto_tree_add_subtree_format(prli_tree, tvb, offset, 16,
                                      ett_fcels_prli_svcpg, NULL, "Service Parameter Page %u", i);
 
-        type = tvb_get_uint8 (tvb, offset);
-        proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(svcpg_tree, hf_fcels_prlilo_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
         proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_type_code_extension, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
         flag = tvb_get_uint8 (tvb, offset+2);
