@@ -343,7 +343,7 @@ endif()
 if(BUILD_dumpcalls AND SINSP_FOUND)
 	set(dumpcalls_LIBS
 		wsutil
-		$<IF:$<CONFIG:Debug>,${SINSP_DEBUG_LINK_LIBRARIES},${SINSP_LINK_LIBRARIES}>
+		${SINSP_LINK_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${GCRYPT_LIBRARIES}
 	)
@@ -370,7 +370,7 @@ endif()
 if(BUILD_falcodump AND SINSP_FOUND)
 	set(falcodump_LIBS
 		wsutil
-		$<IF:$<CONFIG:Debug>,${SINSP_DEBUG_LINK_LIBRARIES},${SINSP_LINK_LIBRARIES}>
+		${SINSP_LINK_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${GCRYPT_LIBRARIES}
 	)

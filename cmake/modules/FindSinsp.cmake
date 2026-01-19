@@ -13,7 +13,6 @@
 #  SINSP_FOUND          - True if libsinsp found.
 #  SINSP_INCLUDE_DIRS   - Where to find sinsp.h, scap.h, etc.
 #  SINSP_LINK_LIBRARIES - List of libraries when using libsinsp.
-#  SINSP_DEBUG_LINK_LIBRARIES - List of debug libraries when using libsinsp on Windows.
 
 # You must manually set the following variables:
 #  FALCO_PLUGINS        - Paths to plugins built from https://github.com/falcosecurity/plugins/.
@@ -223,13 +222,12 @@ endif()
   if(_sinsp_include_dirs AND _sinsp_link_libs)
     list(REMOVE_DUPLICATES _sinsp_include_dirs)
     set(SINSP_INCLUDE_DIRS ${_sinsp_include_dirs} CACHE PATH "Paths to libsinsp and libscap headers")
-    set(SINSP_LINK_LIBRARIES ${_sinsp_link_libs} CACHE PATH "Paths to libsinsp, libscap, etc.")
     # The Debug libraries link to MSVCRTD.lib on Windows, and so we need to
     # track them separately there. We don't need to do that elsewhere.
     if(WIN32)
-      set(SINSP_DEBUG_LINK_LIBRARIES ${_sinsp_debug_link_libs} CACHE PATH "Paths to debug versions of libsinsp, libscap, etc.")
+      set(SINSP_LINK_LIBRARIES $<IF:$<CONFIG:Debug>,${_sinsp_debug_link_libs},${_sinsp_link_libs}> CACHE PATH "Paths to libsinsp, libscap, etc.")
     else()
-      set(SINSP_DEBUG_LINK_LIBRARIES ${SINSP_LINK_LIBRARIES} CACHE PATH "Paths to libsinsp, libscap, etc.")
+      set(SINSP_LINK_LIBRARIES ${_sinsp_link_libs} CACHE PATH "Paths to libsinsp, libscap, etc.")
     endif()
     set(SINSP_FOUND 1)
     unset(_sinsp_include_dirs)
