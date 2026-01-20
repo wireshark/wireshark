@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V18.7.0 (2025-09)
+-- 3GPP TS 38.331 V19.1.0 (2025-12)
 
 NR-Sidelink-DiscoveryMessage DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -15,7 +15,15 @@ SL-AccessInfo-L2U2N-r17 ::=             SEQUENCE {
     ...,
     [[
     sl-RelayIndication-r18                  SL-RelayIndicationMP-r18                  OPTIONAL
+    ]],
+    [[
+    relayUE-RRC-State-r19                   SL-RelayUE-RRC-State-r19                  OPTIONAL
     ]]
 }
+
+-- TAG-SL-ACCESSINFO-L2U2N-STOP
+-- TAG-SLRELAYUERRCSTATE-START
+
+SL-RelayUE-RRC-State-r19 ::=   ENUMERATED {rrc-Connected, spare1}
 
 END

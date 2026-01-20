@@ -1,10 +1,11 @@
--- 3GPP TS 38.331 V18.7.0 (2025-09)
+-- 3GPP TS 38.331 V19.1.0 (2025-12)
 
 NR-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
 IMPORTS
+    SL-RelayUE-ConfigMH-r19,
     SL-RelayUE-ConfigU2U-r18,
     SL-RemoteUE-ConfigU2U-r18,
     SL-RelayUE-ConfigU2U-v1840,
@@ -73,6 +74,12 @@ SidelinkPreconfigNR-r16 ::=                 SEQUENCE {
     ]],
     [[
     sl-PreconfigDiscConfig-v1840                SL-PreconfigDiscConfig-v1840                                          OPTIONAL
+    ]],
+    [[
+    sl-PosPreconfigFreqInfoListExt-v1880        SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF SL-FreqConfigCommonExt-v16k0 OPTIONAL
+    ]],
+    [[
+    sl-PreconfigDiscConfig-v1900                SL-PreconfigDiscConfig-v1900                                          OPTIONAL
     ]]
 }
 
@@ -110,6 +117,10 @@ SL-PreconfigDiscConfig-v1800 ::=      SEQUENCE {
 SL-PreconfigDiscConfig-v1840 ::=      SEQUENCE {
     sl-RelayUE-PreconfigU2U-v1840         SL-RelayUE-ConfigU2U-v1840,
     sl-RemoteUE-PreconfigU2U-v1840        SL-RemoteUE-ConfigU2U-v1830
+}
+
+SL-PreconfigDiscConfig-v1900 ::=      SEQUENCE {
+    sl-RelayUE-PreconfigMH-r19            SL-RelayUE-ConfigMH-r19
 }
 
 -- TAG-SL-PRECONFIGURATIONNR-STOP

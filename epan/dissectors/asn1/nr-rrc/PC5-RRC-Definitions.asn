@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V18.7.0 (2025-09)
+-- 3GPP TS 38.331 V19.1.0 (2025-12)
 
 PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -12,6 +12,7 @@ IMPORTS
     SN-FieldLengthAM,
     SN-FieldLengthUM,
     LogicalChannelIdentity,
+    maxNrofRemoteUE-r17,
     maxNrofSLRB-r16,
     maxNrofSL-RxInfoSet-r17,
     maxNrofSL-QFIs-r16,
@@ -156,6 +157,9 @@ SL-MeasResultRelay-r17 ::=                      SEQUENCE {
     [[
     sl-MeasQuantity-r18                             ENUMERATED { sl-rsrp, sd-rsrp }                                         OPTIONAL,
     sl-RelayIndicationMP-r18                        SL-RelayIndicationMP-r18                                                OPTIONAL
+    ]],
+    [[
+    sl-RelayUE-HopType-r19                          ENUMERATED { single-hop, multi-hop }                                    OPTIONAL
     ]]
 }
 
@@ -181,9 +185,19 @@ NotificationMessageSidelink-r17-IEs ::=   SEQUENCE {
 NotificationMessageSidelink-v1800-IEs ::= SEQUENCE {
     sl-IndicationType-r18                     ENUMERATED {relayUE-PC5-RLF, spare1}  OPTIONAL,  -- Need N
     sl-DestinationIdentityRemoteUE-r18        SL-DestinationIdentity-r16            OPTIONAL,  -- Need N
+    nonCriticalExtension                      NotificationMessageSidelink-v1900-IEs OPTIONAL
+}
+
+NotificationMessageSidelink-v1900-IEs ::= SEQUENCE {
+    mh-indicationType-r19                     ENUMERATED {
+                                                  relayUE-RelayReselection,
+                                                  relayUE-CellSelection,
+                                                  relayUE-Parent-PC5LinkRelease
+    }                                                                               OPTIONAL,  -- Need N
     nonCriticalExtension                      SEQUENCE {}                           OPTIONAL
 }
--- TAG-NOTIFICATIONMESSAGESIDELINK -STOP
+
+-- TAG-NOTIFICATIONMESSAGESIDELINK-STOP
 -- TAG-REMOTEUEINFORMATIONSIDELINK-START
 
 RemoteUEInformationSidelink-r17 ::=           SEQUENCE {
@@ -205,8 +219,15 @@ RemoteUEInformationSidelink-v1800-IEs ::=    SEQUENCE {
     sl-SFN-DFN-OffsetRequested-r18               ENUMERATED { true }                                OPTIONAL,  -- Need R
     connectionForMP-r18                          ENUMERATED {true}                                  OPTIONAL,  -- Need N
     sl-DestinationIdentityRemoteUE-r18           SL-DestinationIdentity-r16                         OPTIONAL,  -- Need N
+    nonCriticalExtension                         RemoteUEInformationSidelink-v1900-IEs              OPTIONAL
+}
+
+RemoteUEInformationSidelink-v1900-IEs ::=    SEQUENCE {
+    sl-PagingInfo-RemoteUE-List-r19              CHOICE {release NULL, setup SL-PagingInfo-RemoteUE-List-r19}    OPTIONAL,  -- Need M
     nonCriticalExtension                         SEQUENCE {}                                        OPTIONAL
 }
+
+SL-PagingInfo-RemoteUE-List-r19 ::=          SEQUENCE (SIZE (1..maxNrofRemoteUE-r17)) OF SL-PagingInfo-RemoteUE-r17
 
 SL-RequestedSIB-List-r17 ::=                 SEQUENCE (SIZE (maxSIB-MessagePlus1-r17)) OF SL-SIB-ReqInfo-r17
 
@@ -504,7 +525,7 @@ MAC-ParametersSidelink-r17 ::= SEQUENCE {
     ...
 }
 
-AccessStratumReleaseSidelink-r16 ::= ENUMERATED { rel16, rel17, rel18, spare5, spare4, spare3, spare2, spare1, ... }
+AccessStratumReleaseSidelink-r16 ::= ENUMERATED { rel16, rel17, rel18, rel19, spare4, spare3, spare2, spare1, ... }
 
 PDCP-ParametersSidelink-r16 ::= SEQUENCE {
     outOfOrderDeliverySidelink-r16              ENUMERATED {supported}      OPTIONAL,

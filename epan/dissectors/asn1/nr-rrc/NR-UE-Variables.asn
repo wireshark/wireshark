@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V18.7.0 (2025-09)
+-- 3GPP TS 38.331 V19.1.0 (2025-12)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -6,6 +6,7 @@ BEGIN
 
 IMPORTS
     AreaConfiguration-r17,
+    AreaConfigurationNTN-List-r19,
     ARFCN-ValueNR,
     CellIdentity,
     EUTRA-PhysCellId,
@@ -80,8 +81,11 @@ IMPORTS
     SK-CounterConfig-r18,
     ReferenceConfiguration-r18,
     maxNrofLTM-Configs-plus1-r18,
-    maxSecurityCellSet-r18
-
+    maxSecurityCellSet-r18,
+    SK-CounterConfigLTM-r19,
+    CSI-LogMeasInfoCellList-r19,
+    LTM-ExecutionConditionList-r19,
+    SpeedStatePars-r19
 FROM NR-RRC-Definitions;
 
 -- NR-UE-VARIABLES-STOP
@@ -142,6 +146,13 @@ VarConnEstFailReportList-r17 ::= SEQUENCE {
 }
 
 -- TAG-VARCONNESTFAILREPORTLIST-STOP
+-- TAG-VARCSI-LOGMEASREPORT-START
+
+VarCSI-LogMeasReport-r19 ::=     SEQUENCE {
+    csi-LogMeasInfoCellList-r19      CSI-LogMeasInfoCellList-r19
+}
+
+-- TAG-VARCSI-LOGMEASREPORT-STOP
 -- TAG-VARLOGMEASCONFIG-START
 
 VarLogMeasConfig-r16 ::=     SEQUENCE {
@@ -156,7 +167,8 @@ VarLogMeasConfig-r16 ::=     SEQUENCE {
     },
     earlyMeasIndication-r17      ENUMERATED {true}            OPTIONAL,
     areaConfiguration-r17        AreaConfiguration-r17        OPTIONAL,
-    areaConfiguration-v1800      AreaConfiguration-v1800      OPTIONAL
+    areaConfiguration-v1800      AreaConfiguration-v1800      OPTIONAL,
+    areaConfigurationNTN-List-r19 AreaConfigurationNTN-List-r19 OPTIONAL
 }
 -- TAG-VARLOGMEASCONFIG-STOP
 -- TAG-VARLOGMEASREPORT-START
@@ -175,6 +187,13 @@ VarLogMeasReport-r16 ::=     SEQUENCE {
 }
 
 -- TAG-VARLOGMEASREPORT-STOP
+-- TAG-VARLTM-EXECUTIONCONDITIONLIST-START
+
+VarLTM-ExecutionConditionList-r19 ::=     SEQUENCE {
+    ltm-ExecutionConditionList-r19            LTM-ExecutionConditionList-r19
+}
+
+-- TAG-VARLTM-EXECUTIONCONDITIONLIST-STOP
 -- TAG-VARLTM-SERVINGCELLNORESETID-START
 
 VarLTM-ServingCellNoResetID-r18 ::=     SEQUENCE {
@@ -182,6 +201,14 @@ VarLTM-ServingCellNoResetID-r18 ::=     SEQUENCE {
 }
 
 -- TAG-VARLTM-SERVINGCELLNORESETID-STOP
+-- TAG-VARLTM-SERVINGCELLNOSECURITYCHANGE-START
+
+VarLTM-ServingCellNoSecurityChange-r19 ::=     SEQUENCE {
+    ltm-ServingCellNoSecurityChangeID-r19          INTEGER (1..maxNrofLTM-Configs-plus1-r18)                                 OPTIONAL,
+    ltm-SK-Counters-r19                            SEQUENCE (SIZE (1..maxSecurityCellSet-r18)) OF SK-CounterConfigLTM-r19    OPTIONAL
+}
+
+-- TAG-VARLTM-SERVINGCELLNOSECURITYCHANGE-STOP
 -- TAG-VARLTM-SERVINGCELLUE-MEASUREDTA-ID-START
 
 VarLTM-ServingCellUE-MeasuredTA-ID-r18 ::=    SEQUENCE {
@@ -203,7 +230,9 @@ VarMeasConfig ::=                   SEQUENCE {
     s-MeasureConfig                         CHOICE {
         ssb-RSRP                                RSRP-Range,
         csi-RSRP                                RSRP-Range
-    }                                                                       OPTIONAL
+    }                                                                       OPTIONAL,
+    speedStatePars-r19                  SpeedStatePars-r19                  OPTIONAL
+
 }
 
 -- TAG-VARMEASCONFIG-STOP

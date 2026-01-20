@@ -1,8 +1,8 @@
 /* packet-nr-rrc-template.c
  * NR;
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 38.331 V18.7.0 Release 18) packet dissection
- * Copyright 2018-2025, Pascal Quantin
+ * (3GPP TS 38.331 V19.1.0 Release 19) packet dissection
+ * Copyright 2018-2026, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -619,6 +619,14 @@ static void
 nr_rrc_FlightPathUpdateDistanceThr_r18_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%um (%u)", v*5, v);
+}
+
+static void
+nr_rrc_50m_r19_fmt(char *s, uint32_t v)
+{
+  int32_t d = (int32_t)v;
+
+  snprintf(s, ITEM_LABEL_LENGTH, "%dm (%d)", d*50, d);
 }
 
 static int
