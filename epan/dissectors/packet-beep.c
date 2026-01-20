@@ -628,7 +628,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tr = NULL;
 
     if (tree) {
-      tr = proto_tree_add_subtree(tree, tvb, offset, MIN(5, MAX(0, tvb_reported_length_remaining(tvb, offset))),
+      tr = proto_tree_add_subtree(tree, tvb, offset, MIN(5, tvb_reported_length_remaining(tvb, offset)),
                                     ett_trailer, NULL, "Trailer");
 
       proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_ASCII);

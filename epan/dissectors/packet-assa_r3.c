@@ -4204,11 +4204,11 @@ dissect_r3_upstreamcommand_dumpdebuglog (tvbuff_t *tvb, uint32_t start_offset, u
 static void
 dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  int len;
+  unsigned len;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = MAX(0, tvb_reported_length_remaining(tvb, start_offset));
+  len = tvb_reported_length_remaining(tvb, start_offset);
   if (len % 3 != 0)
   {
     expert_add_info_format(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "IOPINS data length not modulo 3 == 0");
@@ -4216,12 +4216,11 @@ dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, uint32_t start_offset, uint32
   else
   {
     char portname = 'A';
-    int i;
 
     if (!tree)
       return;
 
-    for (i = 0; i < len; i += 3, portname++)
+    for (unsigned i = 0; i < len; i += 3, portname++)
     {
       proto_tree *port_tree = proto_tree_add_subtree_format(tree, tvb, i, 3, ett_r3iopins, NULL,
                                                    "Port %c Configuration", (portname == 'I') ? ++portname : portname);
@@ -4527,13 +4526,13 @@ dissect_r3_upstreammfgfield_cpuregisters (tvbuff_t *tvb, uint32_t start_offset, 
 static void
 dissect_r3_upstreammfgfield_taskflags (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  int len;
-  int i;
+  unsigned len;
+  unsigned i;
   proto_tree *tfg_tree;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len      = MAX(0, tvb_reported_length_remaining (tvb, 0));
+  len      = tvb_reported_length(tvb);
   tfg_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_r3taskflags, NULL,
       "Task Flags (%u tasks)", len / 5);
 
@@ -4708,15 +4707,15 @@ static void
 dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cf_tree;
-  int         len;
+  unsigned    len;
   unsigned    items;
   unsigned    octets;
-  int         i;
+  unsigned    i;
   uint8_t     step;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = MAX(0, tvb_reported_length_remaining (tvb, 0));
+  len = tvb_reported_length(tvb);
 
   items = 0;
   i     = 0;
@@ -4873,11 +4872,11 @@ dissect_r3_upstreammfgfield_nvramchecksumvalue (tvbuff_t *tvb, uint32_t start_of
 static void
 dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, uint32_t start_offset, uint32_t length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  int len;
+  unsigned len;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = MAX(0, tvb_reported_length_remaining(tvb, 0));
+  len = tvb_reported_length(tvb);
   if (len % 3 != 0)
   {
     expert_add_info_format(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "Checksum results data length not modulo 3 == 0");
@@ -4886,7 +4885,7 @@ dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, uint32_t start_offse
   {
     proto_tree *cksum_tree;
     uint32_t    error = false;
-    int         i;
+    unsigned    i;
     uint8_t     step;
 
     if (!tree)
