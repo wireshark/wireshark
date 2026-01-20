@@ -1,6 +1,6 @@
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2024 Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2011-2026 Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 18.4.0 Release 18
+ * Ref 3GPP TS 37.355 version 19.1.0 Release 19
  * http://www.3gpp.org
  */
 

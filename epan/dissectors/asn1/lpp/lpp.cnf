@@ -131,8 +131,7 @@ LocationCoordinates/polygon locationCoordinates_polygon
 UTC-ModelSet4/utcDN uTC-ModelSet4_utcDN
 ScheduledLocationTimeSupport-r17/utcTime-r17 utcTime-r17-enum
 ScheduledLocationTimeSupportPerMode-r17/utcTime-r17 utcTime-r17-PositioningModes
-# Does not work -- changed in asn1 code
-#CommonIEsProvideCapabilities/remoteUE-Indication-r18 remoteUE-Indication-r18-boolean
+CommonIEsProvideCapabilities/eag_2/remoteUE-Indication-r18 commonIEsProvideCapabilities-remoteUE-Indication-r18
 
 
 #.FIELD_ATTR
