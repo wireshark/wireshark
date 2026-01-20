@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V18.3.0 (2024-12)
+-- 3GPP TS 36.413 V19.1.0 (2025-12)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -122,7 +122,11 @@ FROM S1AP-CommonDataTypes
 	UERadioCapabilityIDMappingResponse,
 	HandoverSuccess,
 	ENBEarlyStatusTransfer,
-	MMEEarlyStatusTransfer
+	MMEEarlyStatusTransfer,
+	S1RemovalFailure,
+	S1RemovalRequest,
+	S1RemovalResponse
+
 
 
 FROM S1AP-PDU-Contents
@@ -193,7 +197,9 @@ FROM S1AP-PDU-Contents
 	id-UERadioCapabilityIDMapping,
 	id-HandoverSuccess,
 	id-eNBEarlyStatusTransfer,
-	id-MMEEarlyStatusTransfer
+	id-MMEEarlyStatusTransfer,
+	id-S1Removal
+
 
 
 FROM S1AP-Constants;
@@ -287,7 +293,8 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	uEContextModificationIndication				|
 	uEContextSuspend							|
 	uEContextResume								|
-	uERadioCapabilityIDMapping
+	uERadioCapabilityIDMapping					|
+	s1Removal
 }
 
 S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
@@ -775,5 +782,14 @@ mMEEarlyStatusTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE			id-MMEEarlyStatusTransfer
 	CRITICALITY				ignore
 }
+
+s1Removal S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		S1RemovalRequest
+	SUCCESSFUL OUTCOME		S1RemovalResponse
+	UNSUCCESSFUL OUTCOME 	S1RemovalFailure
+	PROCEDURE CODE			id-S1Removal
+	CRITICALITY				reject
+}
+
 
 END

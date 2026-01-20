@@ -1670,6 +1670,7 @@ id-SecondaryRATDataUsageReport          ProcedureCode
 id-HandoverSuccess                      ProcedureCode
 id-eNBEarlyStatusTransfer               ProcedureCode
 id-MMEEarlyStatusTransfer               ProcedureCode
+id-S1Removal                            ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID                                   ProtocolIE-ID
@@ -2005,6 +2006,8 @@ id-Bearers-SubjectToDLDiscarding-Item               ProtocolIE-ID
 id-Bearers-SubjectToDLDiscardingList                ProtocolIE-ID
 id-CoarseUELocationRequested                        ProtocolIE-ID
 id-CoarseUELocation                                 ProtocolIE-ID
+id-TimeRefDistribution                              ProtocolIE-ID
+id-RequestedTNLInfo                                 ProtocolIE-ID
 
 #.END
 
@@ -2262,6 +2265,7 @@ E-RABToBeUpdatedItem                            N s1ap.ies id-E-RABToBeUpdatedIt
 Bearers-SubjectToDLDiscarding-Item              N s1ap.ies id-Bearers-SubjectToDLDiscarding-Item
 CoarseUELocationRequested                       N s1ap.ies id-CoarseUELocationRequested
 CoarseUELocation                                N s1ap.ies id-CoarseUELocation
+TimeRefDistribution                             N s1ap.ies id-TimeRefDistribution
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -2351,6 +2355,7 @@ M6ReportAmountMDT                       N s1ap.extension id-M6ReportAmount
 M7ReportAmountMDT                       N s1ap.extension id-M7ReportAmount
 TimeBasedHandoverInformation            N s1ap.extension id-TimeBasedHandoverInformation
 Bearers-SubjectToDLDiscardingList       N s1ap.extension id-Bearers-SubjectToDLDiscardingList
+RequestedTNLInfo                        N s1ap.extension id-RequestedTNLInfo
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation
@@ -2518,6 +2523,9 @@ ENBEarlyStatusTransfer                  N s1ap.proc.imsg id-eNBEarlyStatusTransf
 
 MMEEarlyStatusTransfer                  N s1ap.proc.imsg id-MMEEarlyStatusTransfer
 
+S1RemovalRequest                        N s1ap.proc.imsg id-S1Removal
+S1RemovalResponse                       N s1ap.proc.sout id-S1Removal
+S1RemovalFailure                        N s1ap.proc.uout id-S1Removal
 
 #.FN_HDR HandoverRequired
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequired");
@@ -2715,6 +2723,12 @@ MMEEarlyStatusTransfer                  N s1ap.proc.imsg id-MMEEarlyStatusTransf
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBEarlyStatusTransfer");
 #.FN_HDR MMEEarlyStatusTransfer
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEEarlyStatusTransfer");
+#.FN_HDR S1RemovalRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1RemovalRequest");
+#.FN_HDR S1RemovalResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1RemovalResponse");
+#.FN_HDR S1RemovalFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1RemovalFailure");
 #.END
 
 # Whenever a Cause appears, look up the reason and show it in the Info column

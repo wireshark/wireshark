@@ -15,7 +15,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V18.3.0 (2024-12)
+ * References: 3GPP TS 36.413 V19.1.0 (2025-12)
  */
 
 #include "config.h"
@@ -194,7 +194,8 @@ typedef enum _ProcedureCode_enum {
   id_UERadioCapabilityIDMapping =  63,
   id_HandoverSuccess =  64,
   id_eNBEarlyStatusTransfer =  65,
-  id_MMEEarlyStatusTransfer =  66
+  id_MMEEarlyStatusTransfer =  66,
+  id_S1Removal =  67
 } ProcedureCode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
@@ -552,7 +553,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_Bearers_SubjectToDLDiscarding_Item = 351,
   id_Bearers_SubjectToDLDiscardingList = 352,
   id_CoarseUELocationRequested = 353,
-  id_CoarseUELocation = 354
+  id_CoarseUELocation = 354,
+  id_TimeRefDistribution = 355,
+  id_RequestedTNLInfo = 356
 } ProtocolIE_ID_enum;
 
 typedef enum _HandoverType_enum {
@@ -810,6 +813,7 @@ static int hf_s1ap_RelativeMMECapacity_PDU;       /* RelativeMMECapacity */
 static int hf_s1ap_RelayNode_Indicator_PDU;       /* RelayNode_Indicator */
 static int hf_s1ap_RAT_Restrictions_PDU;          /* RAT_Restrictions */
 static int hf_s1ap_RAT_Type_PDU;                  /* RAT_Type */
+static int hf_s1ap_RequestedTNLInfo_PDU;          /* RequestedTNLInfo */
 static int hf_s1ap_RequestType_PDU;               /* RequestType */
 static int hf_s1ap_RequestTypeAdditionalInfo_PDU;  /* RequestTypeAdditionalInfo */
 static int hf_s1ap_RepetitionPeriod_PDU;          /* RepetitionPeriod */
@@ -857,6 +861,7 @@ static int hf_s1ap_E_UTRAN_Trace_ID_PDU;          /* E_UTRAN_Trace_ID */
 static int hf_s1ap_TrafficLoadReductionIndication_PDU;  /* TrafficLoadReductionIndication */
 static int hf_s1ap_TunnelInformation_PDU;         /* TunnelInformation */
 static int hf_s1ap_TAIListForRestart_PDU;         /* TAIListForRestart */
+static int hf_s1ap_TimeRefDistribution_PDU;       /* TimeRefDistribution */
 static int hf_s1ap_UEAggregateMaximumBitrate_PDU;  /* UEAggregateMaximumBitrate */
 static int hf_s1ap_UEAppLayerMeasConfig_PDU;      /* UEAppLayerMeasConfig */
 static int hf_s1ap_UECapabilityInfoRequest_PDU;   /* UECapabilityInfoRequest */
@@ -1034,6 +1039,9 @@ static int hf_s1ap_MMECPRelocationIndication_PDU;  /* MMECPRelocationIndication 
 static int hf_s1ap_SecondaryRATDataUsageReport_PDU;  /* SecondaryRATDataUsageReport */
 static int hf_s1ap_UERadioCapabilityIDMappingRequest_PDU;  /* UERadioCapabilityIDMappingRequest */
 static int hf_s1ap_UERadioCapabilityIDMappingResponse_PDU;  /* UERadioCapabilityIDMappingResponse */
+static int hf_s1ap_S1RemovalRequest_PDU;          /* S1RemovalRequest */
+static int hf_s1ap_S1RemovalResponse_PDU;         /* S1RemovalResponse */
+static int hf_s1ap_S1RemovalFailure_PDU;          /* S1RemovalFailure */
 static int hf_s1ap_S1AP_PDU_PDU;                  /* S1AP_PDU */
 static int hf_s1ap_s1ap_SONtransferApplicationIdentity_PDU;  /* SONtransferApplicationIdentity */
 static int hf_s1ap_s1ap_SONtransferRequestContainer_PDU;  /* SONtransferRequestContainer */
@@ -1792,6 +1800,7 @@ static int ett_s1ap_RecommendedENBList;
 static int ett_s1ap_RecommendedENBItem;
 static int ett_s1ap_RAT_Restrictions;
 static int ett_s1ap_RAT_RestrictionsItem;
+static int ett_s1ap_RequestedTNLInfo;
 static int ett_s1ap_RequestType;
 static int ett_s1ap_RIMTransfer;
 static int ett_s1ap_RIMRoutingAddress;
@@ -2012,6 +2021,9 @@ static int ett_s1ap_MMECPRelocationIndication;
 static int ett_s1ap_SecondaryRATDataUsageReport;
 static int ett_s1ap_UERadioCapabilityIDMappingRequest;
 static int ett_s1ap_UERadioCapabilityIDMappingResponse;
+static int ett_s1ap_S1RemovalRequest;
+static int ett_s1ap_S1RemovalResponse;
+static int ett_s1ap_S1RemovalFailure;
 static int ett_s1ap_S1AP_PDU;
 static int ett_s1ap_InitiatingMessage;
 static int ett_s1ap_SuccessfulOutcome;
@@ -2416,6 +2428,7 @@ static const value_string s1ap_ProcedureCode_vals[] = {
   { id_HandoverSuccess, "id-HandoverSuccess" },
   { id_eNBEarlyStatusTransfer, "id-eNBEarlyStatusTransfer" },
   { id_MMEEarlyStatusTransfer, "id-MMEEarlyStatusTransfer" },
+  { id_S1Removal, "id-S1Removal" },
   { 0, NULL }
 };
 
@@ -2802,6 +2815,8 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
   { id_Bearers_SubjectToDLDiscardingList, "id-Bearers-SubjectToDLDiscardingList" },
   { id_CoarseUELocationRequested, "id-CoarseUELocationRequested" },
   { id_CoarseUELocation, "id-CoarseUELocation" },
+  { id_TimeRefDistribution, "id-TimeRefDistribution" },
+  { id_RequestedTNLInfo, "id-RequestedTNLInfo" },
   { 0, NULL }
 };
 
@@ -9937,6 +9952,21 @@ dissect_s1ap_RAT_Type(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _
 }
 
 
+static const per_sequence_t RequestedTNLInfo_sequence[] = {
+  { &hf_s1ap_pLMNidentity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PLMNidentity },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_s1ap_RequestedTNLInfo(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_RequestedTNLInfo, RequestedTNLInfo_sequence);
+
+  return offset;
+}
+
+
 static const value_string s1ap_ReportArea_vals[] = {
   {   0, "ecgi" },
   { 0, NULL }
@@ -11455,6 +11485,21 @@ dissect_s1ap_TAIListForRestart(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_s1ap_TAIListForRestart, TAIListForRestart_sequence_of,
                                                   1, maxnoofRestartTAIs, false);
+
+  return offset;
+}
+
+
+static const value_string s1ap_TimeRefDistribution_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_s1ap_TimeRefDistribution(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -14364,6 +14409,51 @@ dissect_s1ap_UERadioCapabilityIDMappingResponse(tvbuff_t *tvb _U_, uint32_t offs
 }
 
 
+static const per_sequence_t S1RemovalRequest_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_s1ap_S1RemovalRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1RemovalRequest");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_S1RemovalRequest, S1RemovalRequest_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t S1RemovalResponse_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_s1ap_S1RemovalResponse(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1RemovalResponse");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_S1RemovalResponse, S1RemovalResponse_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t S1RemovalFailure_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_s1ap_S1RemovalFailure(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1RemovalFailure");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_S1RemovalFailure, S1RemovalFailure_sequence);
+
+  return offset;
+}
+
+
 
 static unsigned
 dissect_s1ap_InitiatingMessage_value(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -16642,6 +16732,14 @@ static int dissect_RAT_Type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RequestedTNLInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_RequestedTNLInfo(tvb, offset, &asn1_ctx, tree, hf_s1ap_RequestedTNLInfo_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_RequestType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -17015,6 +17113,14 @@ static int dissect_TAIListForRestart_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_s1ap_TAIListForRestart(tvb, offset, &asn1_ctx, tree, hf_s1ap_TAIListForRestart_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_TimeRefDistribution_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_TimeRefDistribution(tvb, offset, &asn1_ctx, tree, hf_s1ap_TimeRefDistribution_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -18434,6 +18540,30 @@ static int dissect_UERadioCapabilityIDMappingResponse_PDU(tvbuff_t *tvb _U_, pac
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_S1RemovalRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_S1RemovalRequest(tvb, offset, &asn1_ctx, tree, hf_s1ap_S1RemovalRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_S1RemovalResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_S1RemovalResponse(tvb, offset, &asn1_ctx, tree, hf_s1ap_S1RemovalResponse_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_S1RemovalFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_S1RemovalFailure(tvb, offset, &asn1_ctx, tree, hf_s1ap_S1RemovalFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_S1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -18832,6 +18962,7 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.ies", id_Bearers_SubjectToDLDiscarding_Item, create_dissector_handle(dissect_Bearers_SubjectToDLDiscarding_Item_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_CoarseUELocationRequested, create_dissector_handle(dissect_CoarseUELocationRequested_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_CoarseUELocation, create_dissector_handle(dissect_CoarseUELocation_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.ies", id_TimeRefDistribution, create_dissector_handle(dissect_TimeRefDistribution_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Data_Forwarding_Not_Possible, create_dissector_handle(dissect_Data_Forwarding_Not_Possible_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Time_Synchronisation_Info, create_dissector_handle(dissect_TimeSynchronisationInfo_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_x2TNLConfigurationInfo, create_dissector_handle(dissect_X2TNLConfigurationInfo_PDU, proto_s1ap));
@@ -18913,6 +19044,7 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.extension", id_M7ReportAmount, create_dissector_handle(dissect_M7ReportAmountMDT_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_TimeBasedHandoverInformation, create_dissector_handle(dissect_TimeBasedHandoverInformation_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Bearers_SubjectToDLDiscardingList, create_dissector_handle(dissect_Bearers_SubjectToDLDiscardingList_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.extension", id_RequestedTNLInfo, create_dissector_handle(dissect_RequestedTNLInfo_PDU, proto_s1ap));
   dissector_add_uint("s1ap.proc.imsg", id_HandoverPreparation, create_dissector_handle(dissect_HandoverRequired_PDU, proto_s1ap));
   dissector_add_uint("s1ap.proc.sout", id_HandoverPreparation, create_dissector_handle(dissect_HandoverCommand_PDU, proto_s1ap));
   dissector_add_uint("s1ap.proc.uout", id_HandoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_s1ap));
@@ -19011,6 +19143,9 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.proc.imsg", id_HandoverSuccess, create_dissector_handle(dissect_HandoverSuccess_PDU, proto_s1ap));
   dissector_add_uint("s1ap.proc.imsg", id_eNBEarlyStatusTransfer, create_dissector_handle(dissect_ENBEarlyStatusTransfer_PDU, proto_s1ap));
   dissector_add_uint("s1ap.proc.imsg", id_MMEEarlyStatusTransfer, create_dissector_handle(dissect_MMEEarlyStatusTransfer_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.proc.imsg", id_S1Removal, create_dissector_handle(dissect_S1RemovalRequest_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.proc.sout", id_S1Removal, create_dissector_handle(dissect_S1RemovalResponse_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.proc.uout", id_S1Removal, create_dissector_handle(dissect_S1RemovalFailure_PDU, proto_s1ap));
 
 }
 
@@ -19920,6 +20055,10 @@ void proto_register_s1ap(void) {
       { "RAT-Type", "s1ap.RAT_Type",
         FT_UINT32, BASE_DEC, VALS(s1ap_RAT_Type_vals), 0,
         NULL, HFILL }},
+    { &hf_s1ap_RequestedTNLInfo_PDU,
+      { "RequestedTNLInfo", "s1ap.RequestedTNLInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_s1ap_RequestType_PDU,
       { "RequestType", "s1ap.RequestType_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -20107,6 +20246,10 @@ void proto_register_s1ap(void) {
     { &hf_s1ap_TAIListForRestart_PDU,
       { "TAIListForRestart", "s1ap.TAIListForRestart",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_TimeRefDistribution_PDU,
+      { "TimeRefDistribution", "s1ap.TimeRefDistribution",
+        FT_UINT32, BASE_DEC, VALS(s1ap_TimeRefDistribution_vals), 0,
         NULL, HFILL }},
     { &hf_s1ap_UEAggregateMaximumBitrate_PDU,
       { "UEAggregateMaximumBitrate", "s1ap.UEAggregateMaximumBitrate_element",
@@ -20814,6 +20957,18 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_UERadioCapabilityIDMappingResponse_PDU,
       { "UERadioCapabilityIDMappingResponse", "s1ap.UERadioCapabilityIDMappingResponse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_S1RemovalRequest_PDU,
+      { "S1RemovalRequest", "s1ap.S1RemovalRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_S1RemovalResponse_PDU,
+      { "S1RemovalResponse", "s1ap.S1RemovalResponse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_S1RemovalFailure_PDU,
+      { "S1RemovalFailure", "s1ap.S1RemovalFailure_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_s1ap_S1AP_PDU_PDU,
@@ -23199,6 +23354,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_RecommendedENBItem,
     &ett_s1ap_RAT_Restrictions,
     &ett_s1ap_RAT_RestrictionsItem,
+    &ett_s1ap_RequestedTNLInfo,
     &ett_s1ap_RequestType,
     &ett_s1ap_RIMTransfer,
     &ett_s1ap_RIMRoutingAddress,
@@ -23419,6 +23575,9 @@ void proto_register_s1ap(void) {
     &ett_s1ap_SecondaryRATDataUsageReport,
     &ett_s1ap_UERadioCapabilityIDMappingRequest,
     &ett_s1ap_UERadioCapabilityIDMappingResponse,
+    &ett_s1ap_S1RemovalRequest,
+    &ett_s1ap_S1RemovalResponse,
+    &ett_s1ap_S1RemovalFailure,
     &ett_s1ap_S1AP_PDU,
     &ett_s1ap_InitiatingMessage,
     &ett_s1ap_SuccessfulOutcome,
