@@ -15,6 +15,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSLUA
 
 #include "wslua.h"
 #include <epan/dissectors/packet-tcp.h>
@@ -42,19 +43,35 @@ typedef struct _func_saver {
 
 static GPtrArray* outstanding_FuncSavers;
 
-void clear_outstanding_FuncSavers(void) {
-    while (outstanding_FuncSavers->len) {
-        func_saver_t* fs = (func_saver_t*)g_ptr_array_remove_index_fast(outstanding_FuncSavers,0);
-        if (fs->state) {
-            lua_State* L = fs->state;
-            if (fs->get_len_ref != LUA_NOREF) {
-                luaL_unref(L, LUA_REGISTRYINDEX, fs->get_len_ref);
-            }
-            if (fs->dissect_ref != LUA_NOREF) {
-                luaL_unref(L, LUA_REGISTRYINDEX, fs->dissect_ref);
-            }
+static void func_saver_free(void *data) {
+    func_saver_t* fs = (func_saver_t*)data;
+    if (fs->state) {
+        lua_State* L = fs->state;
+        ws_debug("L %p get_len_ref %i dissect_ref %i", L, fs->get_len_ref, fs->dissect_ref);
+        if (fs->get_len_ref != LUA_NOREF) {
+            luaL_unref(L, LUA_REGISTRYINDEX, fs->get_len_ref);
         }
-        g_free(fs);
+        if (fs->dissect_ref != LUA_NOREF) {
+            luaL_unref(L, LUA_REGISTRYINDEX, fs->dissect_ref);
+        }
+    }
+    g_free(fs);
+}
+
+void clear_outstanding_FuncSavers(lua_State *L) {
+    if (L == NULL) {
+        g_ptr_array_set_size(outstanding_FuncSavers, 0);
+        return;
+    }
+
+    unsigned i = 0;
+    while (i < outstanding_FuncSavers->len) {
+        func_saver_t* fs = (func_saver_t*)g_ptr_array_index(outstanding_FuncSavers,i);
+        if (fs->state == L) {
+            g_ptr_array_remove_index_fast(outstanding_FuncSavers, i);
+        } else {
+            ++i;
+        }
     }
 }
 
@@ -719,7 +736,7 @@ int Proto_register(lua_State* L) {
     if (outstanding_FuncSavers != NULL) {
         g_ptr_array_unref(outstanding_FuncSavers);
     }
-    outstanding_FuncSavers = g_ptr_array_new();
+    outstanding_FuncSavers = g_ptr_array_new_with_free_func(func_saver_free);
 
     lua_newtable(L);
     protocols_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
