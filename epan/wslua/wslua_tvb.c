@@ -1023,7 +1023,7 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_stringz_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
     unsigned encoding = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_stringz_ENCODING, ENC_ASCII|ENC_NA);
-    char *str;
+    char *str = NULL;
     unsigned length;
     const char* error = NULL;
 
