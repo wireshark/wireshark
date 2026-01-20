@@ -2043,7 +2043,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
     if (pci) {
       if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
         if (length < offset + ITU_PC_LENGTH) {
-          proto_tree_add_expert_format(call_tree, pinfo, &ei_sccp_wrong_length, tvb, 0, -1,
+          proto_tree_add_expert_format_remaining(call_tree, pinfo, &ei_sccp_wrong_length, tvb, 0,
                                             "Wrong length indicated (%u) should be at least %u, PC is %u octets",
                                             length, offset + ITU_PC_LENGTH, ITU_PC_LENGTH);
           return;
@@ -2055,7 +2055,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       } else if (decode_mtp3_standard == JAPAN_STANDARD) {
 
         if (length < offset + JAPAN_PC_LENGTH) {
-          proto_tree_add_expert_format(call_tree, pinfo, &ei_sccp_wrong_length, tvb, 0, -1,
+          proto_tree_add_expert_format_remaining(call_tree, pinfo, &ei_sccp_wrong_length, tvb, 0,
                                             "Wrong length indicated (%u) should be at least %u, PC is %u octets",
                                             length, offset + JAPAN_PC_LENGTH, JAPAN_PC_LENGTH);
           return;
@@ -2068,7 +2068,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       } else /* CHINESE_ITU_STANDARD */ {
 
         if (length < offset + ANSI_PC_LENGTH) {
-          proto_tree_add_expert_format(call_tree, pinfo, &ei_sccp_wrong_length, tvb, 0, -1,
+          proto_tree_add_expert_format_remaining(call_tree, pinfo, &ei_sccp_wrong_length, tvb, 0,
                                             "Wrong length indicated (%u) should be at least %u, PC is %u octets",
                                             length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
           return;
@@ -2610,7 +2610,7 @@ dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, unsigned length)
  */
 static uint16_t
 dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
-                       proto_tree *tree, uint8_t parameter_type, int offset,
+                       proto_tree *tree, uint8_t parameter_type, unsigned offset,
                        uint16_t parameter_length, sccp_decode_context_t *sccp_info)
 {
   tvbuff_t *parameter_tvb;
@@ -2763,7 +2763,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 static uint16_t
 dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *sccp_tree, proto_tree *tree,
-                                uint8_t parameter_type, int offset, sccp_decode_context_t* sccp_info)
+                                uint8_t parameter_type, unsigned offset, sccp_decode_context_t* sccp_info)
 {
   int         remaining_length;
   uint16_t    parameter_length;
@@ -2811,7 +2811,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *sccp_tree, proto_tree *tree,
-                                 int offset, sccp_decode_context_t* sccp_info)
+                                 unsigned offset, sccp_decode_context_t* sccp_info)
 {
   uint8_t parameter_type;
 
@@ -2876,7 +2876,7 @@ static void build_assoc_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp
 
 static int
 dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
-                    proto_tree *tree, int offset, sccp_decode_context_t *sccp_info,
+                    proto_tree *tree, unsigned offset, sccp_decode_context_t *sccp_info,
                     uint16_t *optional_pointer_p, uint16_t *orig_opt_ptr_p,
                     uint8_t pointer_length)
 {

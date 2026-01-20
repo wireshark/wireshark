@@ -264,7 +264,7 @@ static heur_dissector_list_t q931_user_heur_subdissector_list;
 
 static void
 dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
-    proto_tree *q931_tree, bool is_over_ip, int offset, int initial_codeset,
+    proto_tree *q931_tree, bool is_over_ip, unsigned offset, int initial_codeset,
     q931_packet_info *q931_pi);
 
 const value_string q931_message_type_vals[] = {
@@ -604,7 +604,7 @@ static const value_string q931_repeat_indication_vals[] = {
  * Dissect a Segmented message information element.
  */
 static void
-dissect_q931_segmented_message_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+dissect_q931_segmented_message_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned len,
     proto_tree *tree, proto_item* item)
 {
     uint8_t octet;
@@ -792,7 +792,7 @@ static const value_string q931_uil3_vals[] = {
 };
 
 static void
-dissect_q931_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_q931_protocol_discriminator(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     unsigned int discriminator = tvb_get_uint8(tvb, offset);
 
@@ -861,7 +861,7 @@ static const true_false_string tfs_in_out_band                        = { "in-ba
 static const true_false_string tfs_protocol_negotiation               = { "Full protocol negotiation", "LLI = 256 only" };
 
 void
-dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_bearer_capability_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     uint8_t octet;
@@ -1282,7 +1282,7 @@ static const char *get_message_name(wmem_allocator_t* scope, uint8_t prot_discr,
 static const true_false_string tfs_abnormal_normal = { "Abnormal", "Normal" };
 
 static void
-dissect_q931_cause_ie_with_info(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
+dissect_q931_cause_ie_with_info(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned len,
     proto_tree *tree, int hf_cause_value, uint8_t *cause_value, const value_string *ie_vals,
     q931_packet_info *q931_pi)
 {
@@ -1410,7 +1410,7 @@ dissect_q931_cause_ie_with_info(tvbuff_t *tvb, packet_info* pinfo, int offset, i
 }
 
 void
-dissect_q931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
+dissect_q931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned len,
               proto_tree *tree, int hf_cause_value, uint8_t *cause_value, const value_string *ie_vals)
 {
     /* External dissectors have no use for "q931_packet_info". */
@@ -1434,7 +1434,7 @@ static const value_string q931_new_status_vals[] = {
 };
 
 static void
-dissect_q931_change_status_ie(tvbuff_t *tvb, int offset, int len _U_, proto_tree *tree)
+dissect_q931_change_status_ie(tvbuff_t *tvb, unsigned offset, unsigned len _U_, proto_tree *tree)
 {
     if (len == 0)
         return;
@@ -1472,7 +1472,7 @@ static const value_string q931_call_state_vals[] = {
 value_string_ext q931_call_state_vals_ext = VALUE_STRING_EXT_INIT(q931_call_state_vals);
 
 static void
-dissect_q931_call_state_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_call_state_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     uint8_t octet;
@@ -1526,7 +1526,7 @@ static const value_string q931_element_type_vals[] = {
 };
 
 static void
-dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_channel_identification_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     uint8_t octet;
@@ -1632,7 +1632,7 @@ static const value_string q931_progress_description_vals[] = {
 value_string_ext q931_progress_description_vals_ext = VALUE_STRING_EXT_INIT(q931_progress_description_vals);
 
 void
-dissect_q931_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_progress_indicator_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     uint8_t octet;
@@ -1680,11 +1680,11 @@ static const value_string q931_netid_plan_vals[] = {
 };
 
 static void
-dissect_q931_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_ns_facilities_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     uint8_t octet;
-    int netid_len;
+    unsigned netid_len;
 
     if (len == 0)
         return;
@@ -1733,7 +1733,7 @@ static const value_string q931_notification_description_vals[] = {
 };
 
 static void
-dissect_q931_notification_indicator_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_notification_indicator_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     if (len == 0)
@@ -1746,7 +1746,7 @@ dissect_q931_notification_indicator_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect a Date/time information element.
  */
 static void
-dissect_q931_date_time_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
+dissect_q931_date_time_ie(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     if (len == 6) {
@@ -1795,7 +1795,7 @@ static const value_string q931_signal_vals[] = {
 static value_string_ext q931_signal_vals_ext = VALUE_STRING_EXT_INIT(q931_signal_vals);
 
 static void
-dissect_q931_signal_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+dissect_q931_signal_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned len,
     proto_tree *tree, proto_item* item)
 {
     if (len != 1) {
@@ -1826,7 +1826,7 @@ static const value_string q931_throughput_class_vals[] = {
 static value_string_ext q931_throughput_class_vals_ext = VALUE_STRING_EXT_INIT(q931_throughput_class_vals);
 
 static void
-dissect_q931_information_rate_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+dissect_q931_information_rate_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned len,
     proto_tree *tree, proto_item* item)
 {
     if (len != 4) {
@@ -1841,7 +1841,7 @@ dissect_q931_information_rate_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, 
 }
 
 static int
-dissect_q931_uint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+dissect_q931_uint16_value(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned len,
     proto_tree *tree, proto_item* item, int hf_value)
 {
     uint8_t octet;
@@ -1916,7 +1916,7 @@ bad_length:
  * Dissect an End-to-end transit delay information element.
  */
 static void
-dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned len,
     proto_tree *tree, proto_item* item)
 {
     int value_len;
@@ -1946,7 +1946,7 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
  * Dissect a Transit delay selection and indication information element.
  */
 static void
-dissect_q931_td_selection_and_int_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+dissect_q931_td_selection_and_int_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned len,
     proto_tree *tree, proto_item* item)
 {
     if (len == 0)
@@ -1970,7 +1970,7 @@ static const true_false_string tfs_pl_request = { "No request/request denied", "
 static const true_false_string tfs_pl_modulus = { "8 sequencing", "128 sequencing" };
 
 static void
-dissect_q931_pl_binary_parameters_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_pl_binary_parameters_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     static int * const fields[] = {
@@ -1991,7 +1991,7 @@ dissect_q931_pl_binary_parameters_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect a Packet layer window size information element.
  */
 static void
-dissect_q931_pl_window_size_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_pl_window_size_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     if (len == 0)
@@ -2009,7 +2009,7 @@ dissect_q931_pl_window_size_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect a Packet size information element.
  */
 static void
-dissect_q931_packet_size_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_packet_size_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     if (len == 0)
@@ -2033,7 +2033,7 @@ static const value_string q931_cug_indication_vals[] = {
 };
 
 static void
-dissect_q931_cug_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
+dissect_q931_cug_ie(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     if (len == 0)
         return;
@@ -2055,7 +2055,7 @@ static const value_string q931_reverse_charging_indication_vals[] = {
 };
 
 static void
-dissect_q931_reverse_charge_ind_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_reverse_charge_ind_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     if (len == 0)
@@ -2113,7 +2113,7 @@ static const value_string q931_redirection_reason_vals[] = {
 };
 
 static void
-dissect_q931_number_ie(packet_info *pinfo, tvbuff_t *tvb, int offset, int len,
+dissect_q931_number_ie(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree, int hfindex, e164_info_t e164_info, q931_packet_info *q931_pi)
 {
     uint8_t octet;
@@ -2190,7 +2190,7 @@ static const value_string q931_odd_even_indicator_vals[] = {
 };
 
 static void
-dissect_q931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_party_subaddr_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     if (len == 0)
@@ -2217,7 +2217,7 @@ static const value_string q931_restart_indicator_class_vals[] = {
 };
 
 static void
-dissect_q931_restart_indicator_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+dissect_q931_restart_indicator_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned len,
     proto_tree *tree, proto_item* item)
 {
     if (len != 1) {
@@ -2303,7 +2303,7 @@ static const value_string q931_pres_meth_prot_prof_vals[] = {
 #define Q931_HIGH_LAYER_PROTOCOL_PROFILE 0x01
 
 void
-dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     uint8_t octet;
@@ -2383,7 +2383,7 @@ static const value_string q931_protocol_discriminator_vals[] = {
 value_string_ext q931_protocol_discriminator_vals_ext = VALUE_STRING_EXT_INIT(q931_protocol_discriminator_vals);
 
 void
-dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     uint8_t octet;
@@ -2428,7 +2428,7 @@ static const value_string q931_party_category_vals[] = {
 };
 
 static void
-dissect_q931_party_category_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_party_category_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
     proto_tree *tree)
 {
     if (len == 0)
@@ -2447,7 +2447,7 @@ dissect_q931_party_category_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect information elements consisting of ASCII^H^H^H^H^HIA5 text.
  */
 static void
-dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree,
+dissect_q931_ia5_ie(tvbuff_t *tvb, unsigned offset, unsigned len, packet_info *pinfo, proto_tree *tree,
     int hf_value)
 {
     if (len != 0) {
@@ -2603,7 +2603,7 @@ static const value_string q931_codeset_vals[] = {
 
 static void
 dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
-    proto_tree *q931_tree, bool is_over_ip, int offset, int initial_codeset,
+    proto_tree *q931_tree, bool is_over_ip, unsigned offset, int initial_codeset,
     q931_packet_info *q931_pi)
 {
     proto_item  *ti;
@@ -2763,7 +2763,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
             info_element_len = tvb_get_uint8(tvb, offset + 1);
 
             if (first_segment && (tvb_reported_length_remaining(tvb, offset + 2) < info_element_len)) {  /* incomplete IE at the end of the 1st segment */
-                proto_tree_add_expert(q931_tree, pinfo, &ei_q931_incomplete_ie, tvb, offset, -1);
+                proto_tree_add_expert_remaining(q931_tree, pinfo, &ei_q931_incomplete_ie, tvb, offset);
                 break;
             }
 

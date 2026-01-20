@@ -110,7 +110,7 @@ static dissector_handle_t sdp_handle;
 static int
 dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int sap_version, is_ipv6, is_del, is_enc, is_comp, addr_len;
     uint8_t vers_flags;
     uint8_t auth_len;
@@ -214,7 +214,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         else
             mangle = &ei_sap_compressed;
 
-        proto_tree_add_expert(sap_tree, pinfo, mangle, tvb, offset, -1);
+        proto_tree_add_expert_remaining(sap_tree, pinfo, mangle, tvb, offset);
         return tvb_captured_length(tvb);
     }
 

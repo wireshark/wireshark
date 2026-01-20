@@ -640,27 +640,27 @@ rpc_roundup(unsigned int a)
 }
 
 
-int
+unsigned
 dissect_rpc_bool(tvbuff_t *tvb, proto_tree *tree,
-		 int hfindex, int offset)
+		 int hfindex, unsigned offset)
 {
 	proto_tree_add_item(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
 	return offset + 4;
 }
 
 
-int
+unsigned
 dissect_rpc_uint32(tvbuff_t *tvb, proto_tree *tree,
-		   int hfindex, int offset)
+		   int hfindex, unsigned offset)
 {
 	proto_tree_add_item(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
 	return offset + 4;
 }
 
 
-int
+unsigned
 dissect_rpc_uint64(tvbuff_t *tvb, proto_tree *tree,
-		   int hfindex, int offset)
+		   int hfindex, unsigned offset)
 {
 	header_field_info	*hfinfo;
 
@@ -675,8 +675,8 @@ dissect_rpc_uint64(tvbuff_t *tvb, proto_tree *tree,
  * We want to make this function available outside this file and
  * allow callers to pass a dissection function for the opaque data
  */
-int
-dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
+unsigned
+dissect_rpc_opaque_data(tvbuff_t *tvb, unsigned offset,
 			proto_tree *tree,
 			packet_info *pinfo,
 			int hfindex,
@@ -684,7 +684,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 			bool string_data, const char **string_buffer_ret,
 			dissect_function_t *dissect_it)
 {
-	int data_offset;
+	unsigned data_offset;
 	proto_item *string_item = NULL;
 	proto_tree *string_tree = NULL;
 
@@ -850,9 +850,9 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 }
 
 
-int
+unsigned
 dissect_rpc_string(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
-		   int hfindex, int offset, const char **string_buffer_ret)
+		   int hfindex, unsigned offset, const char **string_buffer_ret)
 {
 	offset = dissect_rpc_opaque_data(tvb, offset, tree, pinfo,
 	    hfindex, false, 0, true, string_buffer_ret, NULL);
@@ -860,9 +860,9 @@ dissect_rpc_string(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 }
 
 
-int
+unsigned
 dissect_rpc_data(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
-		 int hfindex, int offset)
+		 int hfindex, unsigned offset)
 {
 	offset = dissect_rpc_opaque_data(tvb, offset, tree, pinfo,
 					 hfindex, false, 0, false, NULL, NULL);
@@ -870,9 +870,9 @@ dissect_rpc_data(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 }
 
 
-int
+unsigned
 dissect_rpc_bytes(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
-		  int hfindex, int offset, uint32_t length,
+		  int hfindex, unsigned offset, uint32_t length,
 		  bool string_data, const char **string_buffer_ret)
 {
 	offset = dissect_rpc_opaque_data(tvb, offset, tree, pinfo,
@@ -881,9 +881,9 @@ dissect_rpc_bytes(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 }
 
 
-int
+unsigned
 dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		 int offset, dissect_function_t *rpc_list_dissector, void *data)
+		 unsigned offset, dissect_function_t *rpc_list_dissector, void *data)
 {
 	uint32_t value_follows;
 
@@ -904,9 +904,9 @@ dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
-int
+unsigned
 dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	int offset, dissect_function_t *rpc_array_dissector,
+	unsigned offset, dissect_function_t *rpc_array_dissector,
 	int hfindex)
 {
 	proto_item* lock_item;
@@ -939,8 +939,8 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
-static int
-dissect_rpc_authunix_groups(tvbuff_t* tvb, proto_tree* tree, int offset)
+static unsigned
+dissect_rpc_authunix_groups(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 {
 	unsigned gids_count;
 	unsigned gids_i;
@@ -983,8 +983,8 @@ dissect_rpc_authunix_groups(tvbuff_t* tvb, proto_tree* tree, int offset)
 	return offset;
 }
 
-static int
-dissect_rpc_authunix_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
+static unsigned
+dissect_rpc_authunix_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset)
 {
 	unsigned stamp;
 	unsigned uid;
@@ -1020,14 +1020,14 @@ typedef struct _gssauth_context_info_t {
 
 
 static int
-dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
+dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, unsigned offset,
 			    packet_info *pinfo, rpc_conv_info_t *rpc_conv_info _U_,
 			    bool is_create, bool is_destroy)
 {
 	proto_item *context_item;
 	proto_tree *context_tree;
-	int old_offset = offset;
-	int context_offset;
+	unsigned old_offset = offset;
+	unsigned context_offset;
 	uint32_t context_length;
 	gssauth_context_info_t *context_info;
 	wmem_tree_key_t tkey[2];
@@ -1094,8 +1094,8 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-dissect_rpc_authgss_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
+static unsigned
+dissect_rpc_authgss_cred(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
 			 packet_info *pinfo, rpc_conv_info_t *rpc_conv_info)
 {
 	unsigned agc_v;
@@ -1128,17 +1128,17 @@ dissect_rpc_authgss_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
 	return offset;
 }
 
-static int
+static unsigned
 dissect_rpc_authdes_desblock(tvbuff_t *tvb, proto_tree *tree,
-			     int hfindex, int offset)
+			     int hfindex, unsigned offset)
 {
 	proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_BIG_ENDIAN);
 
 	return offset + 8;
 }
 
-static int
-dissect_rpc_authdes_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
+static unsigned
+dissect_rpc_authdes_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset)
 {
 	unsigned adc_namekind;
 	unsigned window = 0;
@@ -1173,8 +1173,8 @@ dissect_rpc_authdes_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
 	return offset;
 }
 
-static int
-dissect_rpc_authgluster_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
+static unsigned
+dissect_rpc_authgluster_cred(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 {
 	proto_tree_add_item(tree, hf_rpc_auth_lk_owner, tvb, offset,
 			    8, ENC_NA);
@@ -1188,10 +1188,10 @@ dissect_rpc_authgluster_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	return offset;
 }
 
-static int
-dissect_rpc_authglusterfs_v2_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
+static unsigned
+dissect_rpc_authglusterfs_v2_cred(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 {
-	int len;
+	unsigned len;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_pid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_uid, offset);
@@ -1208,8 +1208,8 @@ dissect_rpc_authglusterfs_v2_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	return offset;
 }
 
-static int
-dissect_rpc_authglusterfs_v3_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
+static unsigned
+dissect_rpc_authglusterfs_v3_cred(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 {
 	int len;
 	nstime_t timestamp;
@@ -1237,8 +1237,8 @@ dissect_rpc_authglusterfs_v3_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	return offset;
 }
 
-static int
-dissect_rpc_authgssapi_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
+static unsigned
+dissect_rpc_authgssapi_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset)
 {
 	proto_tree_add_item(tree, hf_rpc_authgssapi_v, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
@@ -1252,8 +1252,8 @@ dissect_rpc_authgssapi_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 	return offset;
 }
 
-static int
-dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
+static unsigned
+dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
 		 packet_info *pinfo, rpc_conv_info_t *rpc_conv_info)
 {
 	unsigned flavor;
@@ -1318,8 +1318,8 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
 	return offset;
 }
 
-int
-dissect_rpc_opaque_auth(tvbuff_t* tvb, proto_tree* tree, int offset,
+unsigned
+dissect_rpc_opaque_auth(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
 			packet_info *pinfo)
 {
 	conversation_t *conv = NULL;
@@ -1339,8 +1339,8 @@ dissect_rpc_opaque_auth(tvbuff_t* tvb, proto_tree* tree, int offset,
  * XDR opaque object, the contents of which are interpreted as a GSS-API
  * token.
  */
-static int
-dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
+static unsigned
+dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
 			  packet_info *pinfo, int hfindex)
 {
 	uint32_t opaque_length, rounded_length;
@@ -1374,8 +1374,8 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 /* AUTH_DES verifiers are asymmetrical, so we need to know what type of
  * verifier we're decoding (CALL or REPLY).
  */
-static int
-dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type,
+static unsigned
+dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, unsigned offset, int msg_type,
 		 packet_info *pinfo)
 {
 	unsigned flavor;
@@ -1441,15 +1441,15 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type,
 	return offset;
 }
 
-static int
-dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
+static unsigned
+dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
 			    packet_info *pinfo)
 {
 	return dissect_rpc_authgss_token(tvb, tree, offset, pinfo, hf_rpc_authgss_token);
 }
 
-static int
-dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
+static unsigned
+dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
 			    packet_info *pinfo, rpc_conv_info_t *rpc_conv_info)
 {
 	int major, minor, window;
@@ -1476,8 +1476,8 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
 	return offset;
 }
 
-static int
-dissect_rpc_authgssapi_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
+static unsigned
+dissect_rpc_authgssapi_initarg(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
 			       packet_info *pinfo)
 {
 	unsigned version;
@@ -1496,8 +1496,8 @@ dissect_rpc_authgssapi_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
 	return offset;
 }
 
-static int
-dissect_rpc_authgssapi_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
+static unsigned
+dissect_rpc_authgssapi_initres(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
 			       packet_info *pinfo)
 {
 	unsigned version;
@@ -1532,17 +1532,17 @@ dissect_rpc_authgssapi_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
 	return offset;
 }
 
-static int
-dissect_auth_gssapi_data(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
+static unsigned
+dissect_auth_gssapi_data(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned offset)
 {
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_rpc_authgss_data,
 			offset);
 	return offset;
 }
 
-static int
+static unsigned
 call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	int offset, dissector_handle_t dissect_function, const char *progname,
+	unsigned offset, dissector_handle_t dissect_function, const char *progname,
 	rpc_call_info_value *rpc_call)
 {
 	const char *saved_proto;
@@ -1566,9 +1566,9 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
-static int
+static unsigned
 dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, int offset,
+	proto_tree *tree, unsigned offset,
 	dissector_handle_t dissect_function,
 	const char *progname, rpc_call_info_value *rpc_call)
 {
@@ -1606,8 +1606,8 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
-static int
-dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
+static unsigned
+dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, unsigned offset,
 			      packet_info *pinfo, gssapi_encrypt_info_t* gssapi_encrypt)
 {
 	int length;
@@ -1772,9 +1772,9 @@ new_conversation_for_reply(packet_info *pinfo)
  * (There should not be collisions between xid between direct and
  * indirect calls.)
  */
-int
+unsigned
 dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		       int offset, int args_id, uint32_t prog, uint32_t vers, uint32_t proc)
+		       unsigned offset, int args_id, uint32_t prog, uint32_t vers, uint32_t proc)
 {
 	conversation_t* conversation;
 	rpc_proc_info_key key;
@@ -1866,9 +1866,9 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * Dissect the results in an indirect reply; used by the portmapper/RPCBIND
  * dissector.
  */
-int
+unsigned
 dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-			int offset, int result_id, int prog_id, int vers_id, int proc_id)
+			unsigned offset, int result_id, int prog_id, int vers_id, int proc_id)
 {
 	conversation_t* conversation;
 	rpc_call_info_value *rpc_call;
@@ -2001,7 +2001,7 @@ dissect_rpc_unknown(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree 
 }
 
 static rpc_prog_info_value *
-looks_like_rpc_call(tvbuff_t *tvb, packet_info *pinfo, int offset)
+looks_like_rpc_call(tvbuff_t *tvb, packet_info *pinfo, unsigned offset)
 {
 	uint32_t rpc_prog_key;
 	rpc_prog_info_value *rpc_prog;
@@ -2076,7 +2076,7 @@ looks_like_rpc_call(tvbuff_t *tvb, packet_info *pinfo, int offset)
 }
 
 static rpc_call_info_value *
-looks_like_rpc_reply(tvbuff_t *tvb, packet_info *pinfo, int offset)
+looks_like_rpc_reply(tvbuff_t *tvb, packet_info *pinfo, unsigned offset)
 {
 	unsigned int xid;
 	conversation_t *conversation;
@@ -2231,7 +2231,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	proto_item *pitem = NULL;
 	proto_tree *ptree = NULL;
-	int offset = (tp_type != RPC_UDP && tvb == frag_tvb) ? 4 : 0;
+	unsigned offset = (tp_type != RPC_UDP && tvb == frag_tvb) ? 4 : 0;
 
 	rpc_proc_info_key	key;
 	conversation_t* conversation;
@@ -2765,8 +2765,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* now we know, that RPC was shorter */
 	if (rpc_item) {
-		if (offset < 0)
-			THROW(ReportedBoundsError);
 		tvb_ensure_bytes_exist(tvb, offset, 0);
 		proto_item_set_end(rpc_item, tvb, offset);
 	}
@@ -2866,7 +2864,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * We don't know the authentication flavor, so we can't
 		 * dissect the payload.
 		 */
-		proto_tree_add_expert_format(ptree, pinfo, &ei_rpc_cannot_dissect, tvb, offset, -1,
+		proto_tree_add_expert_format_remaining(ptree, pinfo, &ei_rpc_cannot_dissect, tvb, offset,
 		    "Unknown authentication flavor - cannot dissect");
 		return true;
 
@@ -3202,8 +3200,8 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 	return rpc_succeeded;
 }
 
-static int
-dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+static unsigned
+dissect_rpc_fragment(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree,
 		     rec_dissector_t dissector, bool is_heur, int proto, int ett,
 		     bool first_pdu, struct tcpinfo *tcpinfo, struct tlsinfo *tlsinfo)
 {
@@ -3211,7 +3209,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	uint32_t rpc_rm;
 	uint32_t len;
 	int tp_type;
-	int tvb_len, tvb_reported_len;
+	unsigned tvb_len, tvb_reported_len;
 	tvbuff_t *frag_tvb;
 	conversation_t *conversation = NULL;
 	bool rpc_succeeded;
@@ -3258,7 +3256,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	len += 4;	/* include record mark */
 	tvb_reported_len = tvb_reported_length_remaining(tvb, offset);
 
-	if ((int)len > tvb_reported_len) {
+	if (len > tvb_reported_len) {
 		/* This frame doesn't have all the data for this message.
 		 *
 		 * If this is a heuristic dissector, check whether it looks
@@ -3329,12 +3327,12 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			expert_add_info(pinfo, NULL, &ei_rpc_segment_needed);
 			can_defragment = false;
 		}
-	} else if (tvb_reported_len > (int)len) {
+	} else if (tvb_reported_len > len) {
 		tvb_reported_len = len;
 	}
 
 	tvb_len = tvb_captured_length_remaining(tvb, offset);
-	if (tvb_len < (int)len) {
+	if (tvb_len < len) {
 		/*  We don't have all the data for this fragment. */
 		can_defragment = false;
 	}
@@ -3613,8 +3611,8 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  *         (i.e., to the RPC record mark field).
  */
 
-static int
-find_rpc_over_tcp_reply_start(tvbuff_t *tvb, int offset)
+static bool
+find_rpc_over_tcp_reply_start(tvbuff_t *tvb, unsigned *offset)
 {
 
 	/*
@@ -3659,37 +3657,36 @@ find_rpc_over_tcp_reply_start(tvbuff_t *tvb, int offset)
 	 * preceding msg_type and record_mark fields.
 	 */
 
-	const int      cbZeroTail = 4 * 4;     /* four uint32_t of zeros */
+	const unsigned cbZeroTail = 4 * 4;     /* four uint32_t of zeros */
 	const int      ibPatternStart = 3 * 4;    /* offset of zero fill from reply start */
 	const uint8_t * pbWholeBuf;    /* all of tvb, from offset onwards */
-	const int      NoMatch = -1;
 
-	int      ibSearchStart;       /* offset of search start, in case of false hits. */
+	unsigned ibSearchStart;       /* offset of search start, in case of false hits. */
 
 	const    uint8_t * pbBuf;
 
-	int      cbInBuf;       /* bytes in tvb, from offset onwards */
+	unsigned cbInBuf;       /* bytes in tvb, from offset onwards */
 
 	uint32_t ulMsgType;
 	uint32_t ulRecMark;
 
-	int      i;
+	unsigned i;
 
 
-	cbInBuf = tvb_reported_length_remaining(tvb, offset);
+	cbInBuf = tvb_reported_length_remaining(tvb, *offset);
 
 	/* start search at first possible location */
 	ibSearchStart = ibPatternStart;
 
 	if (cbInBuf < (cbZeroTail + ibSearchStart)) {
 		/* nothing to search, so claim no RPC */
-		return (NoMatch);
+		return false;
 	}
 
-	pbWholeBuf = tvb_get_ptr(tvb, offset, cbInBuf);
+	pbWholeBuf = tvb_get_ptr(tvb, *offset, cbInBuf);
 	if (pbWholeBuf == NULL) {
 		/* probably never take this, as get_ptr seems to assert */
-		return (NoMatch);
+		return false;
 	}
 
 	while ((cbInBuf - ibSearchStart) > cbZeroTail) {
@@ -3725,14 +3722,15 @@ find_rpc_over_tcp_reply_start(tvbuff_t *tvb, int offset)
 		if ((ulMsgType == RPC_REPLY) &&
 			 ((ulRecMark & ~0x80000000) <= (unsigned) max_rpc_tcp_pdu_size)) {
 			/* looks ok, try dissect */
-			return (offset + ibSearchStart - ibPatternStart);
+			*offset = (*offset + ibSearchStart - ibPatternStart);
+			return true;
 		}
 
 		/* no match yet, nor egregious miss either.  Inch along to next try */
 		ibSearchStart ++;
 	}
 
-	return (NoMatch);
+	return false;
 
 }  /* end of find_rpc_over_tcp_reply_start() */
 
@@ -3750,23 +3748,22 @@ find_rpc_over_tcp_reply_start(tvbuff_t *tvb, int offset)
  *       if no valid RPC header is found.
  */
 
-static int
-find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static unsigned
+find_and_dissect_rpc_fragment(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			      proto_tree *tree, rec_dissector_t dissector,
 			      bool is_heur, int proto, int ett,
 			      struct tcpinfo *tcpinfo, struct tlsinfo *tlsinfo)
 {
 
-	int   offReply;
-	int   len;
+	unsigned   start_offset = offset;
+	unsigned   len;
 
-	offReply = find_rpc_over_tcp_reply_start(tvb, offset);
-	if (offReply < 0) {
+	if(!find_rpc_over_tcp_reply_start(tvb, &offset)){
 		/* could search for request, but not needed (or testable) thus far */
 		return 0;    /* claim no RPC */
 	}
 
-	len = dissect_rpc_fragment(tvb, offReply,
+	len = dissect_rpc_fragment(tvb, offset,
 				   pinfo, tree,
 				   dissector, is_heur, proto, ett,
 				   true /* force first-pdu state */, tcpinfo, tlsinfo);
@@ -3781,7 +3778,7 @@ find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * we found necessary
 	 */
 	if (len > 0) {
-		len += offReply - offset;
+		len += offset - start_offset;
 	}
 	else {
 		/* negative length seems to only be used as a flag,
@@ -3802,7 +3799,7 @@ static bool
 dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		       bool is_heur, struct tcpinfo *tcpinfo, struct tlsinfo *tlsinfo)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool saw_rpc = false;
 	bool first_pdu = true;
 	int len;

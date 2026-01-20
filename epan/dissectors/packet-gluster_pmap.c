@@ -55,10 +55,9 @@ static int ett_gluster_dump_detail;
 
 /* PMAP PORTBYBRICK */
 static int
-gluster_pmap_portbybrick_reply(tvbuff_t *tvb, packet_info *pinfo,
-							proto_tree *tree, void* data)
+gluster_pmap_portbybrick_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_brick_status, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_brick_port, offset);
@@ -67,8 +66,7 @@ gluster_pmap_portbybrick_reply(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
-gluster_pmap_portbybrick_call(tvbuff_t *tvb,
-				packet_info *pinfo, proto_tree *tree, void* data _U_)
+gluster_pmap_portbybrick_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	return dissect_rpc_string(tvb, pinfo, tree, hf_gluster_brick, 0, NULL);
 }
@@ -78,8 +76,7 @@ gluster_pmap_portbybrick_call(tvbuff_t *tvb,
  * encode/decode, xdr_u_quad_t() is used (which is uint32_t).
  */
 static int
-gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo,
-							proto_tree *tree, void* data _U_)
+gluster_dump_reply_detail(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *detail_item;
 	proto_tree *detail_tree;
@@ -104,10 +101,9 @@ gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-gluster_dump_reply(tvbuff_t *tvb, packet_info *pinfo,
-							proto_tree *tree, void* data)
+gluster_dump_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_uint64(tvb, tree, hf_gluster_gfsid, offset);
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
@@ -120,8 +116,7 @@ gluster_dump_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 /* DUMP request */
 static int
-gluster_dump_call(tvbuff_t *tvb, packet_info *pinfo _U_,
-							proto_tree *tree, void* data _U_)
+gluster_dump_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	return dissect_rpc_uint64(tvb, tree, hf_gluster_gfsid, 0);
 }

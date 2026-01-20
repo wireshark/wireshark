@@ -965,7 +965,7 @@ static void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   break;
 
   default:
-    proto_tree_add_expert(tree, pinfo, &ei_siii_cp_unknown, tvb, 6, -1);
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_siii_cp_unknown, tvb, 6);
   }
 }
 
@@ -1147,7 +1147,7 @@ static void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
 
     default:
-      proto_tree_add_expert(tree, pinfo, &ei_siii_cp_unknown, tvb, 6, -1);
+      proto_tree_add_expert_remaining(tree, pinfo, &ei_siii_cp_unknown, tvb, 6);
     break;
     }
 }

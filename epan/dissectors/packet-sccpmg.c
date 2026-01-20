@@ -124,7 +124,7 @@ dissect_sccpmg_affected_ssn(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 static void
 dissect_sccpmg_affected_pc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *sccpmg_tree)
 {
-	int offset = SCCPMG_AFFECTED_PC_OFFSET;
+	unsigned offset = SCCPMG_AFFECTED_PC_OFFSET;
 
 	if (mtp3_standard == ITU_STANDARD) {
 		proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_itu_pc, tvb,
@@ -155,7 +155,7 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *sccpmg
 static void
 dissect_sccpmg_smi(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	if (mtp3_standard == ITU_STANDARD || mtp3_standard == JAPAN_STANDARD)
 		offset = ITU_SCCPMG_SMI_OFFSET;
@@ -169,7 +169,7 @@ dissect_sccpmg_smi(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 static void
 dissect_sccpmg_congestion_level(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	if (mtp3_standard == CHINESE_ITU_STANDARD)
 		offset = CHINESE_ITU_SCCPMG_CONGESTION_OFFSET;
@@ -203,7 +203,7 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 	case SCCPMG_MESSAGE_TYPE_SRT:
 		if (mtp3_standard != ANSI_STANDARD)
 		{
-			proto_tree_add_expert(sccpmg_tree, pinfo, &ei_sccpmg_unknown_msg, tvb, 0, -1);
+			proto_tree_add_expert_remaining(sccpmg_tree, pinfo, &ei_sccpmg_unknown_msg, tvb, 0);
 			break;
 		}
 		/* else fallthrough */
@@ -228,7 +228,7 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 		/* else fallthrough */
 
 	default:
-		proto_tree_add_expert(sccpmg_tree, pinfo, &ei_sccpmg_unknown_msg, tvb, 0, -1);
+		proto_tree_add_expert_remaining(sccpmg_tree, pinfo, &ei_sccpmg_unknown_msg, tvb, 0);
 	}
 }
 

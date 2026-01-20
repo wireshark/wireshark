@@ -462,7 +462,7 @@ find_next_optional_token_in_line(tvbuff_t *tvb, proto_tree *tree,
     }
 
     if (!optional && tokenlen == 0) {
-        proto_tree_add_expert(tree, NULL, &ei_sdp_invalid_line_fields, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, NULL, &ei_sdp_invalid_line_fields, tvb, 0);
     }
 
     *next_offset = next_off;

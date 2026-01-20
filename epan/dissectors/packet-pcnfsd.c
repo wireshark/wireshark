@@ -53,7 +53,7 @@ static int ett_pcnfsd_auth_password;
 static int ett_pcnfsd_gids;
 
 static int
-dissect_pcnfsd_username(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
+dissect_pcnfsd_username(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_tree *tree)
 {
     return dissect_rpc_string(tvb, pinfo, tree, hf_pcnfsd_username, offset, NULL);
 }
@@ -73,8 +73,7 @@ static const value_string names_mapreq[] =
 };
 
 static int
-dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree_add_item(tree, hf_pcnfsd_mapreq, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -87,10 +86,9 @@ dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_pcnfsd2_mapid_call(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, void* data _U_)
+dissect_pcnfsd2_mapid_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     offset = dissect_rpc_string(tvb, pinfo, tree, hf_pcnfsd_comment, offset, NULL);
 
     offset = dissect_rpc_list(tvb, pinfo, tree, offset,
@@ -112,8 +110,7 @@ static const value_string names_maprstat[] =
 };
 
 static int
-dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree_add_item(tree, hf_pcnfsd_mapreq, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -129,10 +126,9 @@ dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_pcnfsd2_mapid_reply(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, void* data _U_)
+dissect_pcnfsd2_mapid_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     offset = dissect_rpc_string(tvb, pinfo, tree, hf_pcnfsd_comment, offset, NULL);
 
     offset = dissect_rpc_list(tvb, pinfo, tree, offset,
@@ -171,10 +167,9 @@ pcnfsd_decode_obscure(wmem_allocator_t *pool, const char* data, size_t len)
 
 /* "NFS Illustrated" 14.7.13 */
 static int
-dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, void* data _U_)
+dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int         newoffset;
+    unsigned    newoffset;
     const char *ident         = NULL;
     wmem_strbuf_t *ident_decoded;
     proto_item *ident_item;
@@ -183,7 +178,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo,
     wmem_strbuf_t *password_decoded;
     proto_item *password_item = NULL;
     proto_tree *password_tree = NULL;
-    int offset = 0;
+    unsigned offset = 0;
 
     offset = dissect_rpc_string(tvb, pinfo, tree,
         hf_pcnfsd_auth_client, offset, NULL);
@@ -264,13 +259,12 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo,
 
 /* "NFS Illustrated" 14.7.13 */
 static int
-dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, void* data _U_)
+dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int         gids_count;
     proto_tree *gtree;
     int         gids_i;
-    int offset = 0;
+    unsigned offset = 0;
 
     offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_status, offset);
     offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_uid, offset);

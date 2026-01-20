@@ -64,7 +64,7 @@ dissect_getport_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	uint32_t prog;
 	const char *prog_name;
 	const char *proto_name;
-	int offset = 0;
+	unsigned offset = 0;
 
 	/* make sure we remember protocol type until the reply packet */
 	if(!pinfo->fd->visited){
@@ -118,7 +118,7 @@ dissect_getport_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, void* data)
 {
 	uint32_t portx;
-	int offset = 0;
+	unsigned offset = 0;
 
 	/* we might have learnt a <ipaddr><protocol><port> mapping for ONC-RPC*/
 	if(!pinfo->fd->visited){
@@ -158,7 +158,7 @@ dissect_set_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
 	uint32_t proto;
 	uint32_t prog;
-	int offset = 0;
+	unsigned offset = 0;
 
 	if ( tree )
 	{
@@ -186,7 +186,7 @@ dissect_unset_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 {
 	uint32_t proto;
 	uint32_t prog;
-	int offset = 0;
+	unsigned offset = 0;
 
 	if ( tree )
 	{
@@ -209,14 +209,13 @@ dissect_unset_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 }
 
 static int
-dissect_set_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *tree, void* data _U_)
+dissect_set_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	return dissect_rpc_bool(tvb, tree, hf_portmap_answer, 0);
 }
 
 static int
-dissect_dump_entry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_dump_entry(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int prog, version, proto, port;
 	proto_tree *subtree;
@@ -248,8 +247,7 @@ dissect_dump_entry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-dissect_dump_reply(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, void* data _U_)
+dissect_dump_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	return dissect_rpc_list(tvb, pinfo, tree, 0, dissect_dump_entry, NULL);
 }
@@ -259,7 +257,7 @@ static int
 dissect_callit_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	uint32_t prog, vers, proc;
-	int offset = 0;
+	unsigned offset = 0;
 
 	prog = tvb_get_ntohl(tvb, offset+0);
 	if ( tree )
@@ -298,10 +296,9 @@ dissect_callit_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 /* Dissect a callit reply */
 static int
-dissect_callit_reply(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, void* data _U_)
+dissect_callit_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_tree_add_item(tree, hf_portmap_port, tvb,
 			offset, 4, ENC_BIG_ENDIAN);
@@ -368,7 +365,7 @@ static const value_string portmap2_proc_vals[] = {
 
 /* RFC 1833, Page 3 */
 static int
-dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_rpcb(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item* rpcb_item;
 	proto_tree* rpcb_tree;
@@ -406,8 +403,7 @@ dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, vo
 
 /* RFC 1833, Page 7 */
 static int
-dissect_rpcb3_getaddr_call(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, void* data _U_)
+dissect_rpcb3_getaddr_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	return dissect_rpcb(tvb, 0, pinfo, tree, data);
 }
@@ -415,8 +411,7 @@ dissect_rpcb3_getaddr_call(tvbuff_t *tvb, packet_info *pinfo,
 
 /* RFC 1833, Page 7 */
 static int
-dissect_rpcb3_getaddr_reply(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, void* data _U_)
+dissect_rpcb3_getaddr_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	return dissect_rpc_string(tvb, pinfo, tree, hf_portmap_uaddr, 0, NULL);
 }
@@ -424,18 +419,16 @@ dissect_rpcb3_getaddr_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 /* RFC 1833, Page 7 */
 static int
-dissect_rpcb3_dump_reply(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, void* data _U_)
+dissect_rpcb3_dump_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	return dissect_rpc_list(tvb, pinfo, tree, 0, dissect_rpcb, NULL);
 }
 
 /* RFC 1833, page 4 */
 static int
-dissect_rpcb_rmtcallres(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *tree, void* data _U_)
+dissect_rpcb_rmtcallres(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	/* Dissect the remote universal address. */
 	offset = dissect_rpc_string(tvb, pinfo, tree,

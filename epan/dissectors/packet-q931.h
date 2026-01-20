@@ -15,19 +15,19 @@
 
 #include "ws_symbol_export.h"
 
-WS_DLL_PUBLIC void dissect_q931_bearer_capability_ie(tvbuff_t *, int, int,
+WS_DLL_PUBLIC void dissect_q931_bearer_capability_ie(tvbuff_t *, unsigned, unsigned,
     proto_tree *);
 
-extern void dissect_q931_cause_ie(tvbuff_t *, packet_info*, int, int,
+extern void dissect_q931_cause_ie(tvbuff_t *, packet_info*, unsigned, unsigned,
     proto_tree *, int, uint8_t *,const value_string *);
 
-extern void dissect_q931_progress_indicator_ie(tvbuff_t *, int, int,
+extern void dissect_q931_progress_indicator_ie(tvbuff_t *, unsigned, unsigned,
     proto_tree *);
 
-WS_DLL_PUBLIC void dissect_q931_high_layer_compat_ie(tvbuff_t *, int, int,
+WS_DLL_PUBLIC void dissect_q931_high_layer_compat_ie(tvbuff_t *, unsigned, unsigned,
     proto_tree *);
 
-extern void dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+extern void dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned len,
     proto_tree *tree);
 
 extern value_string_ext q931_cause_location_vals_ext;

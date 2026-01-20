@@ -209,13 +209,13 @@ void proto_register_silabs_dch(void);
 /* Dissector functions */
 static int dissect_silabs_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_silabs_wisun_phr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len, int *crc_len);
+static int dissect_silabs_wisun_phr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len, int *crc_len);
 
 /* Helper functions */
 static const Efr32AppendedInfo *get_efr32_appended_info(wmem_allocator_t *scope, uint8_t appended_info_cfg);
 static const ProtocolInfo *get_protocol_info(wmem_allocator_t *scope, uint8_t protocol_id);
-static int decode_wisun_phr_type(tvbuff_t *tvb, int offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len);
-static int decode_channel_number(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t radioinfo_channel, uint8_t radiocfg_id, uint8_t protocol_id);
+static int decode_wisun_phr_type(tvbuff_t *tvb, unsigned offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len);
+static int decode_channel_number(tvbuff_t *tvb, proto_tree *tree, unsigned offset, uint8_t radioinfo_channel, uint8_t radiocfg_id, uint8_t protocol_id);
 static uint16_t reverse_bits_uint16(uint16_t value);
 static uint8_t get_phr_length(uint8_t protocol_id, tvbuff_t *tvb, int last_index, uint8_t radioCfgLen);
 static uint8_t get_phy_mode_id(uint8_t protocol_id, tvbuff_t *tvb, int last_index, uint8_t radioCfgLen);
@@ -396,7 +396,7 @@ static int dissect_silabs_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   proto_item *dch_root = NULL;
   proto_tree *dch_tree = NULL;
   tvbuff_t *next_tvb;
-  int offset = 0;
+  unsigned offset = 0;
   uint32_t dch_version, dch_message_type;
   const char *dch_message_type_str;
 
@@ -453,7 +453,7 @@ static int dissect_silabs_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset = dissect_silabs_efr32(next_tvb, pinfo, tree);
     break;
   default:
-    proto_tree_add_expert_format(dch_tree, pinfo, &ei_silabs_dch_unsupported_type, tvb, offset, -1, "Debug message type - %s not supported yet", dch_message_type_str);
+    proto_tree_add_expert_format_remaining(dch_tree, pinfo, &ei_silabs_dch_unsupported_type, tvb, offset, "Debug message type - %s not supported yet", dch_message_type_str);
     break;
   }
 
@@ -474,7 +474,7 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   proto_item *efr32_root;
   proto_item *efr32_tree;
   tvbuff_t *next_tvb;
-  int offset = 0;
+  unsigned offset = 0;
 
   // create the EFR32 subtree
   efr32_root = proto_tree_add_item(tree, hf_efr32, tvb, offset, -1, ENC_NA);
@@ -500,7 +500,7 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   // check if appended info len is invalid
   if (appended_info->isInvalid)
   {
-    proto_tree_add_expert_format(efr32_tree, pinfo, &ei_silabs_dch_invalid_appendedinfolen, tvb, offset, -1, "Invalid Appended Info Length");
+    proto_tree_add_expert_format_remaining(efr32_tree, pinfo, &ei_silabs_dch_invalid_appendedinfolen, tvb, offset, "Invalid Appended Info Length");
     return offset;
   }
 
@@ -574,7 +574,7 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
       }
       break;
     default:
-      proto_tree_add_expert_format(efr32_tree, pinfo, &ei_silabs_dch_unsupported_protocol, tvb, offset, -1, "Protocol - %s not supported yet", protocol->title);
+      proto_tree_add_expert_format_remaining(efr32_tree, pinfo, &ei_silabs_dch_unsupported_protocol, tvb, offset, "Protocol - %s not supported yet", protocol->title);
       break;
       // TODO: add support for the following protocols
       // case 1: // EFR32 EmberPHY (Zigbee/Thread)
@@ -698,7 +698,7 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  * @return offset after dissection
  *
  */
-static int dissect_silabs_wisun_phr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len, int *crc_len)
+static int dissect_silabs_wisun_phr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len, int *crc_len)
 {
   // First byte after HW Start can be garbage 0x0b byte
   bool can_be_garbage = (tvb_get_uint8(tvb, offset) == 0x0b);
@@ -787,7 +787,7 @@ static int dissect_silabs_wisun_phr(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  * @return Wi-SUN PHY Header Type
  *
  */
-static int decode_wisun_phr_type(tvbuff_t *tvb, int offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len)
+static int decode_wisun_phr_type(tvbuff_t *tvb, unsigned offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len)
 {
   uint8_t phr_type = PHR_RAW;
   if (phr_len == 2)
@@ -827,7 +827,7 @@ static int decode_wisun_phr_type(tvbuff_t *tvb, int offset, uint8_t phr_len, uin
  * @param protocol_id protocol id
  * @return offset
  */
-static int decode_channel_number(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t radioinfo_channel, uint8_t radiocfg_id, uint8_t protocol_id)
+static int decode_channel_number(tvbuff_t *tvb, proto_tree *tree, unsigned offset, uint8_t radioinfo_channel, uint8_t radiocfg_id, uint8_t protocol_id)
 {
   int center_freq;
   int formatted_channel = radioinfo_channel;

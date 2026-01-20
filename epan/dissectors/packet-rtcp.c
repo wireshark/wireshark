@@ -1220,7 +1220,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
 /* Dissect the length field. Append to this field text indicating the number of
    actual bytes this translates to (i.e. (raw value + 1) * 4) */
-static int dissect_rtcp_length_field( proto_tree *tree, tvbuff_t *tvb, int offset)
+static int dissect_rtcp_length_field( proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
     proto_item     *ti;
     unsigned short  raw_length = tvb_get_ntohs( tvb, offset );
@@ -1232,7 +1232,7 @@ static int dissect_rtcp_length_field( proto_tree *tree, tvbuff_t *tvb, int offse
 }
 
 static int
-dissect_rtcp_rtpfb_header(tvbuff_t *tvb, int offset, proto_tree *rtcp_tree)
+dissect_rtcp_rtpfb_header(tvbuff_t *tvb, unsigned offset, proto_tree *rtcp_tree)
 {
     /* Feedback message type, 8 bits */
     proto_tree_add_item( rtcp_tree, hf_rtcp_rtpfb_fmt, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -1252,7 +1252,7 @@ dissect_rtcp_rtpfb_header(tvbuff_t *tvb, int offset, proto_tree *rtcp_tree)
 }
 
 static int
-dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
+dissect_rtcp_nack( tvbuff_t *tvb, unsigned offset, proto_tree *tree )
 {
     /* Packet type = FIR (H261) */
     proto_tree_add_item( tree, hf_rtcp_rc, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -1280,7 +1280,7 @@ dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 }
 
 static int
-dissect_rtcp_rtpfb_tmmbr_tmmbn_fci( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, bool is_notification)
+dissect_rtcp_rtpfb_tmmbr_tmmbn_fci( tvbuff_t *tvb, unsigned offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, bool is_notification)
 {
     uint8_t exp;
     uint32_t mantissa;
@@ -1321,10 +1321,10 @@ dissect_rtcp_rtpfb_tmmbr_tmmbn_fci( tvbuff_t *tvb, int offset, proto_tree *rtcp_
 static int
 dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtcp_tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *top_item = proto_tree_get_parent(rtcp_tree);
 
-    int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
+    unsigned packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
     offset = dissect_rtcp_rtpfb_header(tvb, offset, rtcp_tree);
 
@@ -1346,10 +1346,10 @@ dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtc
 static int
 dissect_rtcp_rtpfb_tmmbn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtcp_tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *top_item = proto_tree_get_parent(rtcp_tree);
 
-    int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
+    unsigned packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
     offset = dissect_rtcp_rtpfb_header(tvb, offset, rtcp_tree);
 
@@ -1369,7 +1369,7 @@ dissect_rtcp_rtpfb_tmmbn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtc
 }
 
 static int
-dissect_rtcp_rtpfb_ccfb_fci( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *fci_tree, int packet_len)
+dissect_rtcp_rtpfb_ccfb_fci( tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *fci_tree, unsigned packet_len)
 {
     proto_tree *media_source_ssrc_tree;
     proto_item *metric_blocks_item;
@@ -1438,11 +1438,11 @@ dissect_rtcp_rtpfb_ccfb_fci( tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 dissect_rtcp_rtpfb_ccfb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcp_tree, void *data _U_)
 {
-  int offset = 0;
+  unsigned offset = 0;
   proto_tree *fci_tree;
   proto_item *fci_item;
 
-  int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
+  unsigned packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
   offset = dissect_rtcp_rtpfb_header( tvb, offset, rtcp_tree);
 
@@ -1467,7 +1467,7 @@ dissect_rtcp_rtpfb_ccfb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcp_tre
 
 /* Dissect Application Specific Feedback messages */
 static int
-dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo)
+dissect_rtcp_asfb_ms( tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo)
 {
     uint8_t num_entries;
     uint8_t desc = 0;
@@ -1605,7 +1605,7 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
 }
 
 static int
-dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, unsigned *read_fci)
+dissect_rtcp_psfb_remb( tvbuff_t *tvb, unsigned offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, unsigned *read_fci)
 {
     unsigned    exp, indexSsrcs;
     uint8_t     numberSsrcs;
@@ -1651,7 +1651,7 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
 }
 
 static int
-dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *rtcp_tree, int pkt_len)
+dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *rtcp_tree, int pkt_len)
 {
     proto_tree *fci_tree, *pkt_chunk_tree, *recv_delta_tree;
     proto_item *item       = NULL;
@@ -1916,9 +1916,9 @@ dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, int offset, packet_info *pin
 static int
 dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcp_tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
-    int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
+    unsigned packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
     offset = dissect_rtcp_rtpfb_header( tvb, offset, rtcp_tree);
 
@@ -1935,7 +1935,7 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static int
-dissect_rtcp_rtpfb_nack_fci( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item)
+dissect_rtcp_rtpfb_nack_fci( tvbuff_t *tvb, unsigned offset, proto_tree *rtcp_tree, proto_item *top_item)
 {
     int           i;
     int           nack_num_frames_lost;
@@ -1977,10 +1977,10 @@ dissect_rtcp_rtpfb_nack_fci( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, p
 static int
 dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtcp_tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *top_item = proto_tree_get_parent(rtcp_tree);
 
-    int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
+    unsigned packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
     offset = dissect_rtcp_rtpfb_header( tvb, offset, rtcp_tree);
 
@@ -1999,8 +1999,8 @@ dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtcp
 static int
 dissect_rtcp_rtpfb_undecoded( tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcp_tree, void *data _U_)
 {
-    int offset = 0;
-    int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
+    unsigned offset = 0;
+    unsigned packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
     offset = dissect_rtcp_rtpfb_header( tvb, offset, rtcp_tree);
 
@@ -2015,7 +2015,7 @@ dissect_rtcp_rtpfb_undecoded( tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtc
 }
 
 static int
-dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, packet_info *pinfo)
+dissect_rtcp_rtpfb( tvbuff_t *tvb, unsigned offset, proto_tree *rtcp_tree, packet_info *pinfo)
 {
     unsigned int rtcp_rtpfb_fmt;
     int          packet_length;
@@ -2048,8 +2048,8 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, packet_inf
 }
 
 static int
-dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
-    int packet_length, proto_item *top_item _U_, packet_info *pinfo _U_)
+dissect_rtcp_psfb( tvbuff_t *tvb, unsigned offset, proto_tree *rtcp_tree,
+    unsigned packet_length, proto_item *top_item _U_, packet_info *pinfo _U_)
 {
     unsigned int  counter;
     unsigned int  num_fci;
@@ -2197,7 +2197,7 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
 }
 
 static int
-dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
+dissect_rtcp_fir( tvbuff_t *tvb, unsigned offset, proto_tree *tree )
 {
     /* Packet type = FIR (H261) */
     proto_tree_add_item( tree, hf_rtcp_rc, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -2216,8 +2216,8 @@ dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
     return offset;
 }
 static int
-dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree,
-   int packet_len, proto_item* subtype_item, unsigned rtcp_subtype)
+dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_tree* tree,
+   unsigned packet_len, proto_item* subtype_item, unsigned rtcp_subtype)
 {
     /* PoC1 Application */
     unsigned      item_len;
@@ -2747,7 +2747,7 @@ static const value_string rtcp_mcptt_loc_type_vals[] = {
 };
 
 static int
-dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree)
+dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_tree* tree)
 {
     uint32_t loc_type;
     static int * const ECGI_flags[] = {
@@ -2814,8 +2814,8 @@ dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, pr
 
 /* TS 24.380 */
 static int
-dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree,
-    int packet_len, proto_item* subtype_item, unsigned rtcp_subtype)
+dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_tree* tree,
+    unsigned packet_len, proto_item* subtype_item, unsigned rtcp_subtype)
 {
 
     proto_tree* sub_tree;
@@ -3123,8 +3123,8 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
 
 /* TS 24.380 */
 static int
-dissect_rtcp_app_mcpc(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree,
-    int packet_len, proto_item* subtype_item, unsigned rtcp_subtype)
+dissect_rtcp_app_mcpc(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_tree* tree,
+    unsigned packet_len, proto_item* subtype_item, unsigned rtcp_subtype)
 {
 
     proto_tree* sub_tree;
@@ -3247,8 +3247,8 @@ dissect_rtcp_app_mcpc(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
 
 /* TS 24.380 V 13.2.0*/
 static int
-dissect_rtcp_app_mccp(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree,
-    int packet_len, proto_item* subtype_item, unsigned rtcp_subtype)
+dissect_rtcp_app_mccp(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_tree* tree,
+    unsigned packet_len, proto_item* subtype_item, unsigned rtcp_subtype)
 {
 
     proto_tree* sub_tree;
@@ -3382,7 +3382,7 @@ dissect_rtcp_app_mccp(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
     return offset;
 }
 static int
-dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree, int packet_len,
+dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, unsigned offset, proto_tree *tree, unsigned packet_len,
                   proto_item *subtype_item, unsigned rtcp_subtype, uint32_t app_length )
 {
 
@@ -3443,7 +3443,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                 /* fall back to just showing the data if it's the wrong length */
                 proto_tree_add_item(tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA);
             }
-            if ((int)(offset + packet_len) >= offset)
+            if ((offset + packet_len) >= offset)
                 offset += packet_len;
             return offset;
         } else if (g_ascii_strncasecmp(ascii_name, "MCPT", 4) == 0) {
@@ -3469,7 +3469,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                     */
                     packet_len -= tvb_get_uint8(tvb, offset + packet_len - 1);
                 }
-                if ((int)(offset + packet_len) >= offset)
+                if ((offset + packet_len) >= offset)
                     offset += packet_len;
                 return offset;
             } else
@@ -3490,7 +3490,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                 } else {
                     proto_tree_add_item(tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA);
                 }
-                if ((int)(offset + packet_len) >= offset)
+                if ((offset + packet_len) >= offset)
                     offset += packet_len;
             }
         }
@@ -3511,22 +3511,23 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
         } else {
             proto_tree_add_item(tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA);
         }
-        if ((int)(offset + packet_len) >= offset)
+        if ((offset + packet_len) >= offset)
             offset += packet_len;
     }
     return offset;
 }
 
 
-static int
-dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
-    int count, int packet_length )
+static unsigned
+dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree,
+    unsigned count, unsigned packet_length )
 {
-    int chunk;
+    unsigned chunk;
     unsigned int reason_length = 0;
-    int          reason_offset = 0;
+    unsigned int reason_offset = 0;
 
     chunk = 1;
+
     while ( chunk <= count ) {
         /* source identifier, 32 bits */
         proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3566,7 +3567,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 }
 
 static int
-dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree, int count )
+dissect_rtcp_sdes( tvbuff_t *tvb, unsigned offset, proto_tree *tree, int count )
 {
     int           chunk;
     proto_item   *sdes_item;
@@ -3676,7 +3677,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree, int count )
     return offset;
 }
 
-static void parse_xr_type_specific_field(tvbuff_t *tvb, int offset, unsigned block_type,
+static void parse_xr_type_specific_field(tvbuff_t *tvb, unsigned offset, unsigned block_type,
                                          proto_tree *tree, uint8_t *thinning)
 {
     static int * const flags[] = {
@@ -3708,7 +3709,7 @@ static void parse_xr_type_specific_field(tvbuff_t *tvb, int offset, unsigned blo
     }
 }
 
-static bool validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, int offset, unsigned block_type, unsigned block_len, proto_tree *tree)
+static bool validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned block_type, unsigned block_len, proto_tree *tree)
 {
     proto_item *ti;
 
@@ -3743,7 +3744,7 @@ static bool validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, int offs
 }
 
 static int
-dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, int packet_len)
+dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, unsigned packet_len)
 {
     unsigned    block_num;
 
@@ -3767,7 +3768,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 
     for( block_num = 1; packet_len > 0; block_num++) {
         unsigned block_type     = tvb_get_uint8(tvb, offset), block_length = 0;
-        int   content_length = 0;
+        unsigned content_length = 0;
         uint8_t thinning = 0;
         /*bool valid = true;*/
 
@@ -4013,7 +4014,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         case RTCP_XR_PKT_RXTIMES: {
             /* 8 bytes of fixed header */
             uint32_t rcvd_time;
-            int count = 0, skip = 8;
+            unsigned count = 0, skip = 8;
             uint16_t begin = 0;
 
             /* Identifier */
@@ -4045,7 +4046,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         case RTCP_XR_DUP_RLE:
         case RTCP_XR_DISCARD_RLE: {
             /* 8 bytes of fixed header */
-            int count = 0, skip = 8;
+            unsigned count = 0, skip = 8;
             proto_tree *chunks_tree;
 
             /* Identifier */
@@ -4168,8 +4169,8 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 }
 
 static int
-dissect_rtcp_avb( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree,
-    int packet_length _U_ )
+dissect_rtcp_avb( tvbuff_t *tvb, packet_info *pinfo _U_, unsigned offset, proto_tree *tree,
+    unsigned packet_length _U_ )
 {
     /* SSRC / CSRC */
     proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -4203,8 +4204,8 @@ dissect_rtcp_avb( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree 
 }
 
 static int
-dissect_rtcp_rsi( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree,
-    int packet_length )
+dissect_rtcp_rsi( tvbuff_t *tvb, packet_info *pinfo _U_, unsigned offset, proto_tree *tree,
+    unsigned packet_length )
 {
     proto_item *item;
 
@@ -4231,8 +4232,8 @@ dissect_rtcp_rsi( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree 
 }
 
 static int
-dissect_rtcp_token( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree,
-                    int packet_len, unsigned rtcp_subtype _U_ )
+dissect_rtcp_token( tvbuff_t *tvb, packet_info *pinfo _U_, unsigned offset, proto_tree *tree,
+                    unsigned packet_len, unsigned rtcp_subtype _U_ )
 {
     /* SSRC / CSRC */
     proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -4250,7 +4251,7 @@ dissect_ms_profile_specific_extensions(tvbuff_t *tvb, packet_info *pinfo, proto_
     int16_t extension_length;
     proto_item *pse_item;
     proto_item *item;
-    int offset = 0;
+    unsigned offset = 0;
 
     extension_type   = tvb_get_ntohs (tvb, offset);
     extension_length = tvb_get_ntohs (tvb, offset+2);
@@ -4370,7 +4371,7 @@ dissect_ms_profile_specific_extensions(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 static void
-dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int offset, int remaining)
+dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, unsigned offset, int remaining)
 {
     tvbuff_t   *next_tvb;
     proto_tree *pse_tree;
@@ -4409,8 +4410,8 @@ dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, pro
 }
 
 static int
-dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree,
-    int count, int packet_length )
+dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, unsigned offset, proto_tree *tree,
+    int count, unsigned packet_length )
 {
     int           counter;
     proto_tree   *ssrc_tree;
@@ -4502,8 +4503,8 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 }
 
 static int
-dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree,
-    int count,  int packet_length )
+dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, unsigned offset, proto_tree *tree,
+    int count,  unsigned packet_length )
 {
     proto_item *item;
     uint32_t    ts_msw, ts_lsw;
@@ -4882,8 +4883,8 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item       *ti;
     proto_tree       *rtcp_tree           = NULL;
     proto_item       *padding_item        = NULL;
-    int               offset              = 0;
-    int               total_packet_length = 0;
+    unsigned          offset              = 0;
+    unsigned          total_packet_length = 0;
     unsigned          padding_offset      = 0;
     bool              srtcp_encrypted     = false;
     bool              srtcp_now_encrypted = false;
@@ -4984,7 +4985,7 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     while ( !srtcp_now_encrypted && tvb_bytes_exist( tvb, offset, 4) ) {
         int elem_count;
         unsigned packet_type;
-        int packet_length;
+        unsigned packet_length;
         /*
          * First retrieve the packet_type
          */
@@ -5226,7 +5227,7 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 /*srtcp_offset += srtcp_info->auth_tag_len;*/
             }
         } else {
-            proto_tree_add_expert(rtcp_tree, pinfo, &ei_srtcp_encrypted_payload, tvb, offset, -1);
+            proto_tree_add_expert_remaining(rtcp_tree, pinfo, &ei_srtcp_encrypted_payload, tvb, offset);
         }
     }
     /* offset should be total_packet_length by now... */

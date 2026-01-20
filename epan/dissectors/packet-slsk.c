@@ -254,7 +254,7 @@ static const char* connection_type(const char con_type[]) {
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static bool check_slsk_format(tvbuff_t *tvb, packet_info *pinfo, int offset, const char format[]){
+static bool check_slsk_format(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, const char format[]){
 
   /*
   * Returns true if tvbuff beginning at offset matches a certain format
@@ -338,7 +338,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *ti, *ti_len, *ti_subtree, *ti_subtree2;
   proto_tree *slsk_tree, *subtree, *subtree2, *subtree3;
 
-  int offset = 0;
+  unsigned offset = 0;
   unsigned i, j;
   uint32_t msg_len, msg_code;
   const char *str;
@@ -475,7 +475,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvbuff_t *uncompr_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, comprlen);
 
             if (uncompr_tvb == NULL) {
-              proto_tree_add_expert(slsk_tree, pinfo, &ei_slsk_zlib_decompression_failed, tvb, offset, -1);
+              proto_tree_add_expert_remaining(slsk_tree, pinfo, &ei_slsk_zlib_decompression_failed, tvb, offset);
               offset += tvb_captured_length_remaining(tvb, offset);
             } else {
 
@@ -1034,7 +1034,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvbuff_t *uncompr_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, comprlen);
 
             if (uncompr_tvb == NULL) {
-              proto_tree_add_expert(slsk_tree, pinfo, &ei_slsk_zlib_decompression_failed, tvb, offset, -1);
+              proto_tree_add_expert_remaining(slsk_tree, pinfo, &ei_slsk_zlib_decompression_failed, tvb, offset);
               offset += tvb_captured_length_remaining(tvb, offset);
             } else {
 
@@ -2007,7 +2007,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     }
 
-  if(offset < (int)msg_len){
+  if(offset < msg_len){
    expert_add_info(pinfo, ti_len, &ei_slsk_unknown_data);
   }
 

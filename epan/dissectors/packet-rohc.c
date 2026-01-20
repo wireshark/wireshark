@@ -919,7 +919,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 }
             }
         } else {
-            proto_tree_add_expert_format(ext_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(ext_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset,
                                          "extension 3 [Not dissected yet for profile %u]", rohc_cid_context->profile);
             if (tvb_captured_length_remaining(tvb, offset) > 0)
                 offset += tvb_captured_length_remaining(tvb, offset);
@@ -2002,7 +2002,7 @@ dissect_rohc_ir_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 proto_tree_add_item(sub_tree, hf_rohc_ipv6_hop_limit, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 /* XXX TODO: use the IPv6 dissector to dissect Generic extension header list ?*/
-                proto_tree_add_expert(sub_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1);
+                proto_tree_add_expert_remaining(sub_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset);
                 return -1;
             default:
                 break;
@@ -2352,7 +2352,7 @@ dissect_rohc_ir_rtp_udp_ip_profile_static(tvbuff_t *tvb, proto_tree *tree, packe
         }
         return offset;
     } else {
-        proto_tree_add_expert(sub_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1);
+        proto_tree_add_expert_remaining(sub_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset);
     }
     return offset;
 }
@@ -2860,7 +2860,7 @@ start_over:
             proto_item_set_generated(item);
         }
         /* Segmentation not supported! */
-        proto_tree_add_expert(rohc_tree, pinfo, &ei_rohc_desegmentation_not_implemented, tvb, offset, -1);
+        proto_tree_add_expert_remaining(rohc_tree, pinfo, &ei_rohc_desegmentation_not_implemented, tvb, offset);
         return tvb_captured_length(tvb);
     }
 

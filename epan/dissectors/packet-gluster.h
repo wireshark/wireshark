@@ -448,18 +448,18 @@ enum gf_upcall_event {
 	GF_UPCALL_CACHE_INVALIDATION,
 };
 
-extern int
+extern unsigned
 gluster_rpc_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int hfindex,
-								int offset);
+    unsigned offset);
 
-extern int
-gluster_dissect_common_reply(tvbuff_t *tvb, int offset,
+extern unsigned
+gluster_dissect_common_reply(tvbuff_t *tvb, unsigned offset,
 				packet_info *pinfo, proto_tree *tree, void* data _U_);
 extern int
 glusterfs_gfs3_3_op_common_reply(tvbuff_t *tvb,
 				packet_info *pinfo, proto_tree *tree, void* data _U_);
 
-extern int
+extern unsigned
 glusterfs_rpc_dissect_gf_iatt(proto_tree *tree, tvbuff_t *tvb, int hfindex,
-								int offset);
+    unsigned offset);
 #endif /* __PACKET_GLUSTER_H__ */

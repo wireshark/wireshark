@@ -1967,7 +1967,7 @@ execute_next_instruction:
              * is cleaned up.
              */
             add_new_data_source(pinfo, decomp_tvb, "Decompressed SigComp message(Incomplete)");
-            proto_tree_add_expert(udvm_tree, pinfo, &ei_sigcomp_sigcomp_message_decompression_failure, decomp_tvb, 0, -1);
+            proto_tree_add_expert_remaining(udvm_tree, pinfo, &ei_sigcomp_sigcomp_message_decompression_failure, decomp_tvb, 0);
             return decomp_tvb;
         }
         return NULL;
@@ -2451,7 +2451,7 @@ execute_next_instruction:
         if (show_instr_detail_level == 2 ) {
             proto_item_append_text(addr_item, " (start, n, k))");
         }
-        proto_tree_add_expert(udvm_tree, pinfo, &ei_sigcomp_execution_of_this_instruction_is_not_implemented, bytecode_tvb, 0, -1);
+        proto_tree_add_expert_remaining(udvm_tree, pinfo, &ei_sigcomp_execution_of_this_instruction_is_not_implemented, bytecode_tvb, 0);
         /*
          *      used_udvm_cycles =  1 + k * (ceiling(log2(k)) + n)
          */
@@ -2461,7 +2461,7 @@ execute_next_instruction:
         if (show_instr_detail_level == 2 ) {
             proto_item_append_text(addr_item, " (start, n, k))");
         }
-        proto_tree_add_expert(udvm_tree, pinfo, &ei_sigcomp_execution_of_this_instruction_is_not_implemented, bytecode_tvb, 0, -1);
+        proto_tree_add_expert_remaining(udvm_tree, pinfo, &ei_sigcomp_execution_of_this_instruction_is_not_implemented, bytecode_tvb, 0);
         /*
          *      used_udvm_cycles =  1 + k * (ceiling(log2(k)) + n)
          */
@@ -4580,7 +4580,7 @@ execute_next_instruction:
     return NULL;
 decompression_failure:
 
-    proto_tree_add_expert_format(udvm_tree, pinfo, &ei_sigcomp_decompression_failure, bytecode_tvb, 0, -1,
+    proto_tree_add_expert_format_remaining(udvm_tree, pinfo, &ei_sigcomp_decompression_failure, bytecode_tvb, 0,
                         "DECOMPRESSION FAILURE: %s", val_to_str(pinfo->pool, result_code, result_code_vals,"Unknown (%u)"));
     return NULL;
 
@@ -4756,7 +4756,7 @@ try_again:
     if (end_off_message == true) {
         dissect_sigcomp_common(unescaped_tvb, pinfo, sigcomp_tree);
     } else {
-        proto_tree_add_expert(sigcomp_tree, pinfo, &ei_sigcomp_tcp_fragment, unescaped_tvb, 0, -1);
+        proto_tree_add_expert_remaining(sigcomp_tree, pinfo, &ei_sigcomp_tcp_fragment, unescaped_tvb, 0);
     }
     if ( offset < length) {
         goto try_again;
@@ -5002,7 +5002,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
 /* end partial state-id change cco@iptel.org */
             if ( result_code != 0 ) {
-                proto_tree_add_expert_format(sigcomp_tree, pinfo, &ei_sigcomp_failed_to_access_state_wireshark_udvm_diagnostic, tvb, 0, -1,
+                proto_tree_add_expert_format_remaining(sigcomp_tree, pinfo, &ei_sigcomp_failed_to_access_state_wireshark_udvm_diagnostic, tvb, 0,
                                                                                          "Failed to Access state Wireshark UDVM diagnostic: %s", val_to_str(pinfo->pool, result_code, result_code_vals,"Unknown (%u)"));
                 return tvb_captured_length(tvb);
             }
@@ -6023,7 +6023,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
                 udvm_tvb, start_offset, len, value);
             /* returned_parameters_location */
             if ((msg_length-1) < offset) {
-                proto_tree_add_expert(sigcomp_udvm_tree, pinfo, &ei_sigcomp_all_remaining_parameters_zero, udvm_tvb, offset-1, -1);
+                proto_tree_add_expert_remaining(sigcomp_udvm_tree, pinfo, &ei_sigcomp_all_remaining_parameters_zero, udvm_tvb, offset-1);
                 return;
             }
             offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);

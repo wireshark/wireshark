@@ -1775,7 +1775,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ws_debug("\tUnfinished fragment");
 #endif
                 /* this fragment is never reassembled */
-                proto_tree_add_expert(tree, pinfo, &ei_rtp_fragment_unfinished, tvb, deseg_offset, -1);
+                proto_tree_add_expert_remaining(tree, pinfo, &ei_rtp_fragment_unfinished, tvb, deseg_offset);
             }
         }
         else
