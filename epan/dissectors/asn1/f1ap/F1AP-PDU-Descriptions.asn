@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.7.0 (2025-09)
+-- 3GPP TS 38.473 V19.1.0 (2025-12)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -182,7 +182,12 @@ FROM F1AP-CommonDataTypes
 	BroadcastTransportResourceRequest,
 	DUCUAccessAndMobilityIndication,
 	SRSInformationReservationNotification,
-	CUDUMobilityInitiationRequest
+	CUDUMobilityInitiationRequest,
+	CLI-Indication,
+	DUCUCSIRSCoordinationRequest,
+	DUCUCSIRSCoordinationResponse,
+	CUDUCSIRSCoordinationRequest,
+	CUDUCSIRSCoordinationResponse
 
 
 
@@ -282,7 +287,10 @@ FROM F1AP-PDU-Contents
 	id-MulticastCommonConfiguration,
 	id-BroadcastTransportResourceRequest,
 	id-SRSInformationReservationNotification,
-	id-CUDUMobilityInitiationRequest
+	id-CUDUMobilityInitiationRequest,
+	id-CLI-Indication,
+	id-DUCUCSIRSCoordination,
+	id-CUDUCSIRSCoordination
 
 
 
@@ -401,7 +409,9 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	measurementPreconfiguration	|
 	timingSynchronisationStatus	|
 	multicastContextNotification	|
-	multicastCommonConfiguration	,
+	multicastCommonConfiguration	|
+	cUDUCSIRSCoordination|
+	dUCUCSIRSCoordination,
 	...
 }
 
@@ -463,7 +473,8 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {
 	broadcastTransportResourceRequest			|
 	dUCUAccessAndMobilityIndication			|
 	sRSInformationReservationNotification		|
-	cUDUMobilityInitiation,
+	cUDUMobilityInitiation|
+	cLI-Indication,
 	...
 }
 -- **************************************************************
@@ -1110,5 +1121,28 @@ cUDUMobilityInitiation		F1AP-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE			id-CUDUMobilityInitiationRequest
 	CRITICALITY				ignore
 }
+
+cLI-Indication	F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		CLI-Indication
+	PROCEDURE CODE			id-CLI-Indication
+	CRITICALITY				ignore
+}
+
+
+dUCUCSIRSCoordination F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DUCUCSIRSCoordinationRequest
+	SUCCESSFUL OUTCOME		DUCUCSIRSCoordinationResponse
+	PROCEDURE CODE			id-DUCUCSIRSCoordination
+	CRITICALITY				reject
+}
+
+
+cUDUCSIRSCoordination F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		CUDUCSIRSCoordinationRequest
+	SUCCESSFUL OUTCOME		CUDUCSIRSCoordinationResponse
+	PROCEDURE CODE			id-CUDUCSIRSCoordination
+	CRITICALITY				reject
+}
+
 
 END

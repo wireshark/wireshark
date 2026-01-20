@@ -74,8 +74,15 @@ FreqBandList_PDU
 HandoverCommand_PDU
 HandoverPreparationInformation_PDU
 LocationMeasurementInfo_PDU
+LTM-CSI-IM-ResourceSetToAddModList-r19_PDU
+LTM-CSI-IM-ResourceToAddModList-r19_PDU
+LTM-CSI-ReportConfigId-r18_PDU
 LTM-CSI-ResourceConfigToAddModList-r18_PDU
 LTM-CSI-ResourceConfigToReleaseList-r18_PDU
+LTM-NoSecurityChangeId-r19_PDU
+LTM-NZP-CSI-RS-ResourceSetToAddModList-r19_PDU
+LTM-NZP-CSI-RS-ResourceToAddModList-r19_PDU
+LTM-NZP-CSI-RS-ResourceToReleaseList-r19_PDU
 LTM-TCI-Info-r18_PDU
 MBS-NeighbourCellList-r17_PDU
 MBSInterestIndication-r17_PDU
@@ -85,6 +92,7 @@ MeasGapConfig_PDU
 MeasGapSharingConfig_PDU
 MeasObjectToAddMod_PDU
 MeasResultSCG-Failure_PDU
+MeasTiming_PDU
 MeasurementTimingConfiguration_PDU
 MIB_PDU
 MRB-PDCP-ConfigBroadcast-r17_PDU
@@ -97,6 +105,8 @@ NeedForGapNCSG-InfoNR-r17_PDU
 NeedForInterruptionInfoNR-r18_PDU
 NonCellDefiningSSB-r17_PDU
 NZP-CSI-RS-Resource_PDU
+NZP-CSI-RS-ResourceSet_PDU
+OD-SIB1-Config-r19_PDU
 OverheatingAssistance_PDU
 OverheatingAssistance-r17_PDU
 P-Max_PDU
@@ -115,6 +125,7 @@ RLC-BearerConfig_PDU
 RRCReconfiguration_PDU
 RRCReconfigurationComplete_PDU
 SchedulingRequestResourceConfig_PDU
+SBFD-Subband-Allocation-r19_PDU
 SDT-MAC-PHY-CG-Config-r17_PDU
 SIB1_PDU
 SIB2_PDU
@@ -154,6 +165,7 @@ SL-PHY-MAC-RLC-Config-v1700_PDU
 SL-RLC-ChannelToAddModList-r17_PDU
 SRS-PosRRC-InactiveConfig-r17_PDU
 SRS-PosRRC-InactiveValidityAreaConfig-r18_PDU
+SRS-Resource_PDU
 SuccessHO-Report-r17_PDU
 SuccessPSCell-Report-r18_PDU
 TCI-StateId_PDU
@@ -194,8 +206,15 @@ FreqBandList
 HandoverCommand
 HandoverPreparationInformation
 LocationMeasurementInfo
+LTM-CSI-IM-ResourceSetToAddModList-r19
+LTM-CSI-IM-ResourceToAddModList-r19
+LTM-CSI-ReportConfigId-r18
 LTM-CSI-ResourceConfigToAddModList-r18
 LTM-CSI-ResourceConfigToReleaseList-r18
+LTM-NoSecurityChangeId-r19
+LTM-NZP-CSI-RS-ResourceSetToAddModList-r19
+LTM-NZP-CSI-RS-ResourceToAddModList-r19
+LTM-NZP-CSI-RS-ResourceToReleaseList-r19
 LTM-TCI-Info-r18
 MBS-NeighbourCellList-r17
 MBSInterestIndication-r17
@@ -206,6 +225,7 @@ MeasGapConfig
 MeasGapSharingConfig
 MeasObjectToAddMod
 MeasResultSCG-Failure
+MeasTiming
 MeasurementTimingConfiguration
 MIB
 MRB-PDCP-ConfigBroadcast-r17
@@ -219,6 +239,8 @@ NeedForGapNCSG-InfoNR-r17
 NeedForInterruptionInfoNR-r18
 NonCellDefiningSSB-r17
 NZP-CSI-RS-Resource
+NZP-CSI-RS-ResourceSet
+OD-SIB1-Config-r19
 OverheatingAssistance
 OverheatingAssistance-r17
 P-Max
@@ -240,6 +262,7 @@ RRCReconfigurationComplete         @rrc_reconf_compl
 SBCCH-SL-BCH-Message               @sbcch.sl.bch
 SCCH-Message                       @scch
 SchedulingRequestResourceConfig
+SBFD-Subband-Allocation-r19
 SDT-MAC-PHY-CG-Config-r17
 SidelinkParametersNR-r16
 SidelinkUEInformationNR-r16
@@ -285,6 +308,7 @@ SL-PHY-MAC-RLC-Config-v1700
 SL-RLC-ChannelToAddModList-r17
 SRS-PosRRC-InactiveConfig-r17
 SRS-PosRRC-InactiveValidityAreaConfig-r18
+SRS-Resource
 SuccessHO-Report-r17
 SuccessPSCell-Report-r18
 TCI-StateId

@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.7.0 (2025-09)
+-- 3GPP TS 38.473 V19.1.0 (2025-12)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -131,6 +131,9 @@ id-BroadcastTransportResourceRequest		ProcedureCode ::= 94
 id-DUCUAccessAndMobilityIndication			ProcedureCode ::= 95
 id-SRSInformationReservationNotification	ProcedureCode ::= 96
 id-CUDUMobilityInitiationRequest			ProcedureCode ::= 97
+id-CLI-Indication							ProcedureCode ::= 98
+id-DUCUCSIRSCoordination					ProcedureCode ::= 99
+id-CUDUCSIRSCoordination					ProcedureCode ::= 100
 
 
 
@@ -302,6 +305,17 @@ maxnoAggregatedPosSRSCombinations		INTEGER ::= 32
 maxnoofCandidateCells					INTEGER ::= 8
 maxnoofSSBIndices						INTEGER ::= 64
 maxnoofPreambleIndex					INTEGER ::= 64
+maxnoofThresholds						INTEGER ::= 8
+maxnoofNZP-CSI-RS-ResourcesPerSet		INTEGER ::= 64
+maxnoofSRS-Resources					INTEGER ::= 64
+maxnoofCellsinUEHistoryInfo				INTEGER ::= 16
+maxnoofLTMCSI-RSResourceConfig			INTEGER ::= 112
+maxnoofCSI-RSs							INTEGER ::= 192
+maxnoofTAs								INTEGER ::= 2
+maxnoofChannelRes						INTEGER ::= 24
+maxnoofCellsinNG-RANnode					INTEGER ::= 16384
+maxnoofLTM-CSI-ResourcesPerSet			INTEGER ::= 512
+
 
 
 
@@ -454,7 +468,7 @@ id-GNB-CU-TNL-Association-Failed-To-Setup-List		ProtocolIE-ID ::= 134
 id-GNB-CU-TNL-Association-Failed-To-Setup-Item		ProtocolIE-ID ::= 135
 id-DRB-Notify-Item									ProtocolIE-ID ::= 136
 id-DRB-Notify-List									ProtocolIE-ID ::= 137
-id-ProtocolIE-ID-138-not-to-be-used				ProtocolIE-ID ::= 138
+id-ProtocolIE-ID-138-not-to-be-used					ProtocolIE-ID ::= 138
 id-RANAC											ProtocolIE-ID ::= 139
 id-PWSSystemInformation								ProtocolIE-ID ::= 140
 id-RepetitionPeriod									ProtocolIE-ID ::= 141
@@ -992,9 +1006,9 @@ id-PEISubgroupingSupportIndication					ProtocolIE-ID ::= 664
 id-NeedForGapsInfoNR								ProtocolIE-ID ::= 665
 id-NeedForGapNCSGInfoNR								ProtocolIE-ID ::= 666
 id-NeedForGapNCSGInfoEUTRA							ProtocolIE-ID ::= 667
-id-ProtocolIE-ID-668-not-to-be-used				ProtocolIE-ID ::= 668
-id-ProtocolIE-ID-669-not-to-be-used				ProtocolIE-ID ::= 669
-id-ProtocolIE-ID-670-not-to-be-used				ProtocolIE-ID ::= 670
+id-ProtocolIE-ID-668-not-to-be-used					ProtocolIE-ID ::= 668
+id-ProtocolIE-ID-669-not-to-be-used					ProtocolIE-ID ::= 669
+id-ProtocolIE-ID-670-not-to-be-used					ProtocolIE-ID ::= 670
 id-Source-MRB-ID									ProtocolIE-ID ::= 671
 id-PosMeasurementPeriodicityNR-AoA					ProtocolIE-ID ::= 672
 id-RedCapIndication									ProtocolIE-ID ::= 673
@@ -1048,7 +1062,7 @@ id-LTMInformation-Setup								ProtocolIE-ID ::= 720
 id-LTMConfigurationIDMappingList 					ProtocolIE-ID ::= 721
 id-LTMInformation-Modify							ProtocolIE-ID ::= 722
 id-LTMCells-ToBeReleased-List						ProtocolIE-ID ::= 723
-id-ProtocolIE-ID-724-not-to-be-used						ProtocolIE-ID ::= 724
+id-ProtocolIE-ID-724-not-to-be-used					ProtocolIE-ID ::= 724
 id-LTMConfiguration									ProtocolIE-ID ::= 725
 id-EarlySyncInformation-Request						ProtocolIE-ID ::= 726
 id-EarlySyncInformation								ProtocolIE-ID ::= 727
@@ -1097,7 +1111,7 @@ id-MulticastCU2DURRCInfo							ProtocolIE-ID ::= 769
 id-MBSMulticastSessionReceptionState				ProtocolIE-ID ::= 770
 id-F1UTunnelNotEstablished							ProtocolIE-ID ::= 771
 id-MulticastDU2CURRCInfo							ProtocolIE-ID ::= 772
-id-SIB24-message										ProtocolIE-ID ::= 773
+id-SIB24-message									ProtocolIE-ID ::= 773
 id-MulticastCU2DUCommonRRCInfo						ProtocolIE-ID ::= 774
 id-PDUSetQoSParameters								ProtocolIE-ID ::= 775
 id-N6JitterInformation								ProtocolIE-ID ::= 776
@@ -1123,7 +1137,7 @@ id-DLLBTFailureInformationList						ProtocolIE-ID ::= 795
 id-PSIbasedSDUdiscardUL								ProtocolIE-ID ::= 796
 id-SIB22-message 									ProtocolIE-ID ::= 797
 id-CUtoDUTAInformation-List							ProtocolIE-ID ::= 798
-id-U2URLCChannelQoS								ProtocolIE-ID ::= 799
+id-U2URLCChannelQoS									ProtocolIE-ID ::= 799
 id-SL-PHY-MAC-RLC-ConfigExt							ProtocolIE-ID ::= 800
 id-SLPositioning-Ranging-Service-Info				ProtocolIE-ID ::= 801
 id-TimeWindowInformation-SRS-List					ProtocolIE-ID ::= 802
@@ -1188,9 +1202,64 @@ id-ValidityAreaSpecificSRSInformationExtended		ProtocolIE-ID ::= 860
 id-PLMNIndexNRAssistanceInfoForNetShar						ProtocolIE-ID ::= 861
 id-TCIStatesConfigurationsList						ProtocolIE-ID ::= 862
 id-LTMTCIStatesConfigurationsList					ProtocolIE-ID ::= 863
-
-
-
+id-E-CID-AoA-NR-per-TRP								ProtocolIE-ID ::= 864
+id-PSIbasedSDUdiscardDL								ProtocolIE-ID ::= 865
+id-PduSetDelayBudgetDownlink						ProtocolIE-ID ::= 866
+id-PduSetDelayBudgetUplink							ProtocolIE-ID ::= 867
+id-PduSetErrorRateDownlink							ProtocolIE-ID ::= 868
+id-PduSetErrorRateUplink							ProtocolIE-ID ::= 869
+id-MonitoringRequestonAvailableBitrate 				ProtocolIE-ID ::= 870
+id-MMSID											ProtocolIE-ID ::= 871
+id-Indication-of-Bitrate-Adaptation					ProtocolIE-ID ::= 872
+id-DLPDUSetInformationMarkingSupportIndication		ProtocolIE-ID ::= 873
+id-FiveGProSeLayer3MHUEtoNetworkRelay				ProtocolIE-ID ::= 874
+id-FiveGProSeLayer2MHUEtoNetworkRelay				ProtocolIE-ID ::= 875
+id-FiveGProSeLayer2MHIntermediateUEtoNetworkRelay	ProtocolIE-ID ::= 876
+id-FiveGProSeLayer2MHRemote							ProtocolIE-ID ::= 877
+id-LPWUSPSAssistanceInfo							ProtocolIE-ID ::= 878
+id-LPWUSSubgroupingSupportIndication				ProtocolIE-ID ::= 879
+id-FurtherExtendedUEIdentityIndexValue				ProtocolIE-ID ::= 880
+id-CLI-MeasurementResult-List						ProtocolIE-ID ::= 881
+id-SBFD-Frequency-Configuration						ProtocolIE-ID ::= 882
+id-SSB-resource-config								ProtocolIE-ID ::= 883
+id-NZP-CSI-RS-Resources-Config						ProtocolIE-ID ::= 884
+id-SRS-Resource-Indication							ProtocolIE-ID ::= 885
+id-SRS-Resource-Configuration						ProtocolIE-ID ::= 886
+id-rLFReportFailureType								ProtocolIE-ID ::= 887
+id-FailureReportingWithoutRLFReport					ProtocolIE-ID ::= 888
+id-MROForLTM-Information								ProtocolIE-ID ::= 889
+id-LastVisitedLTMCells								ProtocolIE-ID ::= 890
+id-OnDemandSIB1										ProtocolIE-ID ::= 891
+id-PagingAdaptationIndication						ProtocolIE-ID ::= 892
+id-OnDemand-SIB1-Cell								ProtocolIE-ID ::= 893
+id-PEISubgroupingSupportIndication-PagingAdaptation			ProtocolIE-ID ::= 894
+id-ServingCellMO-Ondemand							ProtocolIE-ID ::= 895
+id-LTMgNB-ID										ProtocolIE-ID ::= 896
+id-L1ExecutionConditionList							ProtocolIE-ID ::= 897
+id-LTMSecurityInformation							ProtocolIE-ID ::= 898
+id-RequestforCSI-RSResourceConfigforL1Measure		ProtocolIE-ID ::= 899
+-- WS extension
+id-Unknown-900										ProtocolIE-ID ::= 900
+id-CSI-RSResourceConfigforL1Measure					ProtocolIE-ID ::= 901
+id-CSI-RSResourceConfigforCSIAcquisition			ProtocolIE-ID ::= 902
+id-CSIReportConfigforCSIAcquisition					ProtocolIE-ID ::= 903
+id-RequestforL1ExecutionCondition					ProtocolIE-ID ::= 904
+id-LTMInformationSCGAdd								ProtocolIE-ID ::= 905
+id-LTMInformationSCGMod								ProtocolIE-ID ::= 906
+id-TARemainingInfoList								ProtocolIE-ID ::= 907
+id-CSI-RSCoordinationRequestList					ProtocolIE-ID ::= 908
+id-CSI-RSCoordinationResultList						ProtocolIE-ID ::= 909
+id-CSI-RSMeasurementsList							ProtocolIE-ID ::= 910
+id-LTMResidualTAInfoList							ProtocolIE-ID ::= 911
+id-ChannelResponseInformation						ProtocolIE-ID ::= 912
+id-UL-SRS-TDCT										ProtocolIE-ID ::= 913
+id-Future-Coverage-Modification-Notification		ProtocolIE-ID ::= 914
+id-Predicted-CCO-Assistance-Information				ProtocolIE-ID ::= 915
+id-UEPerformanceDelayMonitoring						ProtocolIE-ID ::= 916
+id-NodeAssociatedInfoResult							ProtocolIE-ID ::= 917
+id-NeighbourFutureCoverageModNotification			ProtocolIE-ID ::= 918
+id-AreaSpecificSemiPersistentSRSPosInfo			ProtocolIE-ID ::= 919
+id-SBFD-AcrossSymbolType							ProtocolIE-ID ::= 920
 
 
 END

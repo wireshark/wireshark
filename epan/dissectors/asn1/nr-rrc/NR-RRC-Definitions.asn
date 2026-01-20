@@ -8653,6 +8653,13 @@ LTM-CandidateId-r18 ::=                             INTEGER (1..maxNrofLTM-Confi
 -- TAG-LTM-CANDIDATEID-STOP
 -- TAG-LTM-CANDIDATE-START
 
+-- WS modification: define a dedicated type
+LTM-NZP-CSI-RS-ResourceToAddModList-r19 ::= SEQUENCE (SIZE (1..maxNrofNZP-CSI-RS-Resources)) OF NZP-CSI-RS-Resource
+LTM-NZP-CSI-RS-ResourceToReleaseList-r19 ::= SEQUENCE (SIZE (1..maxNrofNZP-CSI-RS-Resources)) OF NZP-CSI-RS-ResourceId
+LTM-NZP-CSI-RS-ResourceSetToAddModList-r19 ::= SEQUENCE (SIZE (1..maxNrofNZP-CSI-RS-ResourceSets)) OF NZP-CSI-RS-ResourceSet
+LTM-CSI-IM-ResourceToAddModList-r19 ::= SEQUENCE (SIZE (1..maxNrofCSI-IM-Resources)) OF CSI-IM-Resource
+LTM-CSI-IM-ResourceSetToAddModList-r19 ::= SEQUENCE (SIZE (1..maxNrofCSI-IM-ResourceSets)) OF CSI-IM-ResourceSet
+
 LTM-Candidate-r18 ::=     SEQUENCE {
     ltm-CandidateId-r18                            LTM-CandidateId-r18,
     ltm-CandidatePCI-r18                           PhysCellId                                            OPTIONAL,    -- Need M
@@ -8668,20 +8675,30 @@ LTM-Candidate-r18 ::=     SEQUENCE {
     [[
     ltm-NoSecurityChangeID-r19                     LTM-NoSecurityChangeId-r19                            OPTIONAL,    -- Need M
     ltm-ExecutionCondition-r19                     CHOICE {release NULL, setup LTM-ExecutionConditionList-r19}         OPTIONAL,    -- Need M
-    ltm-NZP-CSI-RS-ResourceToAddModList-r19        SEQUENCE (SIZE (1..maxNrofNZP-CSI-RS-Resources)) OF NZP-CSI-RS-Resource
+-- WS modification: define a dedicated type
+--    ltm-NZP-CSI-RS-ResourceToAddModList-r19        SEQUENCE (SIZE (1..maxNrofNZP-CSI-RS-Resources)) OF NZP-CSI-RS-Resource
+    ltm-NZP-CSI-RS-ResourceToAddModList-r19        LTM-NZP-CSI-RS-ResourceToAddModList-r19
                                                                                                          OPTIONAL,    -- Need N
-    ltm-NZP-CSI-RS-ResourceToReleaseList-r19       SEQUENCE (SIZE (1..maxNrofNZP-CSI-RS-Resources)) OF NZP-CSI-RS-ResourceId
+-- WS modification: define a dedicated type
+--    ltm-NZP-CSI-RS-ResourceToReleaseList-r19       SEQUENCE (SIZE (1..maxNrofNZP-CSI-RS-Resources)) OF NZP-CSI-RS-ResourceId
+    ltm-NZP-CSI-RS-ResourceToReleaseList-r19       LTM-NZP-CSI-RS-ResourceToReleaseList-r19
                                                                                                          OPTIONAL,    -- Need N
-    ltm-NZP-CSI-RS-ResourceSetToAddModList-r19     SEQUENCE (SIZE (1..maxNrofNZP-CSI-RS-ResourceSets)) OF NZP-CSI-RS-ResourceSet
+-- WS modification: define a dedicated type
+--    ltm-NZP-CSI-RS-ResourceSetToAddModList-r19     SEQUENCE (SIZE (1..maxNrofNZP-CSI-RS-ResourceSets)) OF NZP-CSI-RS-ResourceSet
+    ltm-NZP-CSI-RS-ResourceSetToAddModList-r19     LTM-NZP-CSI-RS-ResourceSetToAddModList-r19
                                                                                                          OPTIONAL,    -- Need N
     ltm-NZP-CSI-RS-ResourceSetToReleaseList-r19    SEQUENCE (SIZE (1..maxNrofNZP-CSI-RS-ResourceSets)) OF NZP-CSI-RS-ResourceSetId
                                                                                                          OPTIONAL,    -- Need N
     ltm-CSI-ReportConfig-r19                       CHOICE {release NULL, setup LTM-CSI-ReportConfig-r18}               OPTIONAL,    -- Need M
-    ltm-CSI-IM-ResourceToAddModList-r19            SEQUENCE (SIZE (1..maxNrofCSI-IM-Resources)) OF CSI-IM-Resource
+-- WS modification: define a dedicated type
+--    ltm-CSI-IM-ResourceToAddModList-r19            SEQUENCE (SIZE (1..maxNrofCSI-IM-Resources)) OF CSI-IM-Resource
+    ltm-CSI-IM-ResourceToAddModList-r19            LTM-CSI-IM-ResourceToAddModList-r19
                                                                                                          OPTIONAL,    -- Need N
     ltm-CSI-IM-ResourceToReleaseList-r19           SEQUENCE (SIZE (1..maxNrofCSI-IM-Resources)) OF CSI-IM-ResourceId
                                                                                                          OPTIONAL,    -- Need N
-    ltm-CSI-IM-ResourceSetToAddModList-r19         SEQUENCE (SIZE (1..maxNrofCSI-IM-ResourceSets)) OF CSI-IM-ResourceSet
+-- WS modification: define a dedicated type
+--    ltm-CSI-IM-ResourceSetToAddModList-r19         SEQUENCE (SIZE (1..maxNrofCSI-IM-ResourceSets)) OF CSI-IM-ResourceSet
+    ltm-CSI-IM-ResourceSetToAddModList-r19         LTM-CSI-IM-ResourceSetToAddModList-r19
                                                                                                          OPTIONAL,    -- Need N
     ltm-CSI-IM-ResourceSetToReleaseList-r19        SEQUENCE (SIZE (1..maxNrofCSI-IM-ResourceSets)) OF CSI-IM-ResourceSetId
                                                                                                          OPTIONAL     -- Need N
