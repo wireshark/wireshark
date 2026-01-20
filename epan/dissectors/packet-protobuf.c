@@ -162,6 +162,7 @@ static int ett_protobuf_json;
 /* preferences */
 static bool try_dissect_as_string;
 static bool show_all_possible_field_types;
+static bool hide_fields_in_info;
 static bool dissect_bytes_as_string;
 static bool old_dissect_bytes_as_string;
 static bool show_details;
@@ -641,7 +642,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         double_value = protobuf_uint64_to_double(value);
         proto_tree_add_double(value_tree, hf_protobuf_value_double, tvb, offset, length, double_value);
         proto_item_append_text(ti_field, "%s %lf", prepend_text, double_value);
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%lf", double_value);
         }
         if (hf_id_ptr) {
@@ -656,7 +657,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         float_value = protobuf_uint32_to_float((uint32_t) value);
         proto_tree_add_float(value_tree, hf_protobuf_value_float, tvb, offset, length, float_value);
         proto_item_append_text(ti_field, "%s %f", prepend_text, float_value);
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%f", float_value);
         }
         if (hf_id_ptr) {
@@ -672,7 +673,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         int64_value = (int64_t) value;
         proto_tree_add_int64(value_tree, hf_protobuf_value_int64, tvb, offset, length, int64_value);
         proto_item_append_text(ti_field, "%s %" PRId64, prepend_text, int64_value);
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%" PRId64, int64_value);
         }
         if (hf_id_ptr) {
@@ -687,7 +688,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
     case PROTOBUF_TYPE_FIXED64: /* same as UINT64 */
         proto_tree_add_uint64(value_tree, hf_protobuf_value_uint64, tvb, offset, length, value);
         proto_item_append_text(ti_field, "%s %" PRIu64, prepend_text, value);
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%" PRIu64, value);
         }
         if (hf_id_ptr) {
@@ -703,7 +704,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         int32_value = (int32_t)value;
         proto_tree_add_int(value_tree, hf_protobuf_value_int32, tvb, offset, length, int32_value);
         proto_item_append_text(ti_field, "%s %d", prepend_text, int32_value);
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%d", int32_value);
         }
         if (hf_id_ptr) {
@@ -730,12 +731,12 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         if (enum_value_name) { /* show enum value name */
             proto_item_append_text(ti_field, "%s %s(%d)", prepend_text, enum_value_name, int32_value);
             proto_item_append_text(ti, " (%s)", enum_value_name);
-            if (is_top_level) {
+            if (!hide_fields_in_info && is_top_level) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "=%s", enum_value_name);
             }
         } else {
             proto_item_append_text(ti_field, "%s %d", prepend_text, int32_value);
-            if (is_top_level) {
+            if (!hide_fields_in_info && is_top_level) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "=%d", int32_value);
             }
 
@@ -757,7 +758,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         if (length > 1) break; /* boolean should not use more than one bytes */
         proto_tree_add_boolean(value_tree, hf_protobuf_value_bool, tvb, offset, length, value);
         proto_item_append_text(ti_field, "%s %s", prepend_text, value ? "true" : "false");
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%s", value ? "true" : "false");
         }
         if (hf_id_ptr) {
@@ -802,7 +803,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
     case PROTOBUF_TYPE_STRING:
         proto_tree_add_item_ret_string(value_tree, hf_protobuf_value_string, tvb, offset, length, ENC_UTF_8|ENC_NA, pinfo->pool, (const uint8_t**)&buf);
         proto_item_append_text(ti_field, "%s %s", prepend_text, buf);
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%s", buf);
         }
         if (hf_id_ptr) {
@@ -845,7 +846,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
     case PROTOBUF_TYPE_FIXED32: /* same as UINT32 */
         proto_tree_add_uint(value_tree, hf_protobuf_value_uint32, tvb, offset, length, (uint32_t)value);
         proto_item_append_text(ti_field, "%s %u", prepend_text, (uint32_t)value);
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%u", (uint32_t)value);
         }
         if (hf_id_ptr) {
@@ -860,7 +861,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         int32_value = sint32_decode((uint32_t)value);
         proto_tree_add_int(value_tree, hf_protobuf_value_int32, tvb, offset, length, int32_value);
         proto_item_append_text(ti_field, "%s %d", prepend_text, int32_value);
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%d", int32_value);
         }
         if (hf_id_ptr) {
@@ -875,7 +876,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         int64_value = sint64_decode(value);
         proto_tree_add_int64(value_tree, hf_protobuf_value_int64, tvb, offset, length, int64_value);
         proto_item_append_text(ti_field, "%s %" PRId64, prepend_text, int64_value);
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%" PRId64, int64_value);
         }
         if (hf_id_ptr) {
@@ -1012,7 +1013,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, unsigned* offset, unsigned maxlen, pac
             proto_item_set_generated(ti_field_type);
         }
 
-        if (is_top_level) {
+        if (!hide_fields_in_info && is_top_level) {
             /* Show field name in Info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s", field_name);
         }
@@ -2537,6 +2538,11 @@ proto_register_protobuf(void)
         "Subdissector can register itself in \"protobuf_field\" dissector table for parsing"
         " the value of the field.",
         "The key of \"protobuf_field\" table is the full name of field.");
+
+    prefs_register_bool_preference(protobuf_module, "hide_fields_in_info",
+        "Hide toplevel fields in the info column.",
+        "Hide toplevel fields in the info column.",
+        &hide_fields_in_info);
 
     protobuf_field_subdissector_table =
         register_dissector_table("protobuf_field", "Protobuf field subdissector table",
