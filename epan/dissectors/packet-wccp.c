@@ -16,6 +16,7 @@
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include <wsutil/ws_roundup.h>
 #include "packet-wccp.h"
 #include "packet-iana-data.h"
 
@@ -1499,6 +1500,18 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
     default:
       expert_add_info_format(pinfo, tf, &ei_wccp_address_table_family_unknown,
                       "Unknown address family: %u", wccp_wccp_address_table->family);
+      if (address_length % 4) {
+        expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
+                               "The Address length must be a multiple of 4. Correcting this.");
+        address_length = WS_ROUNDUP_4(address_length);
+      }
+      /* XXX - In addition to an address length that starts out at 0, the
+       * WS_ROUNDUP_ family can "round up" numbers near UINT_MAX to 0. */
+      if (address_length == 0) {
+        expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
+                               "The Address length must be at least 4. Correcting this.");
+        address_length = 4;
+      }
     };
   }
 
