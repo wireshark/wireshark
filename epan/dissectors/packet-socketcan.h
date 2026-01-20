@@ -122,6 +122,7 @@ typedef struct can_info {
 #define CAN_ERR_PROT_LOC_EOF     0x1A /* end of frame */
 #define CAN_ERR_PROT_LOC_INTERM  0x12 /* intermission */
 
+unsigned can_get_bus_id_from_interface_name(const char* interface_name);
 bool socketcan_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, struct can_info *can_info, const bool use_heuristics_first);
 bool socketcan_set_source_and_destination_columns(packet_info* pinfo, can_info_t *caninfo);
 
