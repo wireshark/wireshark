@@ -261,6 +261,9 @@
 /* Define to 1 if you have the opencore-amrnb library. */
 #cmakedefine HAVE_AMRNB 1
 
+/* Define to 1 if you have the opencore-amrwb library. */
+#cmakedefine HAVE_AMRWB 1
+
 /* Define to 1 if you have the ilbc library. */
 #cmakedefine HAVE_ILBC 1
 

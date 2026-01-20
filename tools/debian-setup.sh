@@ -183,6 +183,7 @@ ADDITIONAL_LIST="
 	libnl-3-dev
 	libnl-cli-3-dev
 	libopencore-amrnb-dev
+	libopencore-amrwb-dev
 	libopus-dev
 	libparse-yapp-perl
 	libsbc-dev

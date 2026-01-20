@@ -1561,6 +1561,8 @@ ws_find_package(BCG729 ENABLE_BCG729 HAVE_BCG729)
 
 ws_find_package(AMRNB ENABLE_AMRNB HAVE_AMRNB)
 
+ws_find_package(AMRWB ENABLE_AMRWB HAVE_AMRWB)
+
 ws_find_package(ILBC ENABLE_ILBC HAVE_ILBC)
 
 ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
@@ -1912,6 +1914,11 @@ if(ENABLE_PLUGINS)
 			plugins/codecs/amrnb
 		)
 	endif()
+	if(AMRWB_FOUND)
+		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
+			plugins/codecs/amrwb
+		)
+	endif()
 	if(ILBC_FOUND)
 		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
 			plugins/codecs/iLBC
@@ -2045,6 +2052,11 @@ set_package_properties(AMRNB PROPERTIES
 	DESCRIPTION "AMRNB decoder"
 	URL "https://sourceforge.net/p/opencore-amr"
 	PURPOSE "Support for AMRNB codec in RTP player"
+)
+set_package_properties(AMRWB PROPERTIES
+	DESCRIPTION "AMRWB decoder"
+	URL "https://sourceforge.net/p/opencore-amr"
+	PURPOSE "Support for AMRWB codec in RTP player"
 )
 set_package_properties(ILBC PROPERTIES
 	DESCRIPTION "iLBC decoder"
@@ -2430,6 +2442,9 @@ if(USE_REPOSITORY)
 	if (AMRNB_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${AMRNB_DLL_DIR}/${AMRNB_DLL}")
 	endif(AMRNB_FOUND)
+	if (AMRWB_FOUND)
+		list (APPEND THIRD_PARTY_DLLS "${AMRWB_DLL_DIR}/${AMRWB_DLL}")
+	endif(AMRWB_FOUND)
 	if (ILBC_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${ILBC_DLL_DIR}/${ILBC_DLL}")
 	endif(ILBC_FOUND)
@@ -4116,6 +4131,9 @@ if(RPMBUILD_EXECUTABLE)
 	endif()
 	if (AMRNB_FOUND)
 		list(APPEND _rpmbuild_with_args --with amrnb)
+	endif()
+	if (AMRWB_FOUND)
+		list(APPEND _rpmbuild_with_args --with amrwb)
 	endif()
 	if (ILBC_FOUND)
 		list(APPEND _rpmbuild_with_args --with ilbc)
