@@ -837,7 +837,7 @@ extern int Proto_commit(lua_State* L);
 
 extern TreeItem create_TreeItem(proto_tree* tree, proto_item* item);
 
-extern void clear_outstanding_FuncSavers(void);
+extern void clear_outstanding_FuncSavers(lua_State* L);
 
 extern void Int64_pack(lua_State* L, luaL_Buffer *b, int idx, bool asLittleEndian);
 extern int Int64_unpack(lua_State* L, const char *buff, bool asLittleEndian);

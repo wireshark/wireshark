@@ -15,6 +15,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSLUA
 
 #include "wslua.h"
 #include <epan/exceptions.h>
@@ -30,19 +31,35 @@
 
 GPtrArray* lua_outstanding_FuncSavers;
 
-void clear_outstanding_FuncSavers(void) {
-    while (lua_outstanding_FuncSavers->len) {
-        struct _wslua_func_saver* fs = (struct _wslua_func_saver*)g_ptr_array_remove_index_fast(lua_outstanding_FuncSavers,0);
-        if (fs->state) {
-            lua_State* L = fs->state;
-            if (fs->get_len_ref != LUA_NOREF) {
-                luaL_unref(L, LUA_REGISTRYINDEX, fs->get_len_ref);
-            }
-            if (fs->dissect_ref != LUA_NOREF) {
-                luaL_unref(L, LUA_REGISTRYINDEX, fs->dissect_ref);
-            }
+void wslua_func_saver_free(void *data) {
+    struct _wslua_func_saver* fs = (struct _wslua_func_saver*)data;
+    if (fs->state) {
+        lua_State* L = fs->state;
+        ws_debug("L %p get_len_ref %i dissect_ref %i", L, fs->get_len_ref, fs->dissect_ref);
+        if (fs->get_len_ref != LUA_NOREF) {
+            luaL_unref(L, LUA_REGISTRYINDEX, fs->get_len_ref);
         }
-        g_free(fs);
+        if (fs->dissect_ref != LUA_NOREF) {
+            luaL_unref(L, LUA_REGISTRYINDEX, fs->dissect_ref);
+        }
+    }
+    g_free(fs);
+}
+
+void clear_outstanding_FuncSavers(lua_State *L) {
+    if (L == NULL) {
+        g_ptr_array_set_size(lua_outstanding_FuncSavers, 0);
+        return;
+    }
+
+    unsigned i = 0;
+    while (i < lua_outstanding_FuncSavers->len) {
+        struct _wslua_func_saver* fs = (struct _wslua_func_saver*)g_ptr_array_index(lua_outstanding_FuncSavers,i);
+        if (fs->state == L) {
+            g_ptr_array_remove_index_fast(lua_outstanding_FuncSavers, i);
+        } else {
+            ++i;
+        }
     }
 }
 
@@ -691,7 +708,7 @@ int Proto_register(lua_State* L) {
     if (lua_outstanding_FuncSavers != NULL) {
         g_ptr_array_unref(lua_outstanding_FuncSavers);
     }
-    lua_outstanding_FuncSavers = g_ptr_array_new();
+    lua_outstanding_FuncSavers = g_ptr_array_new_with_free_func(wslua_func_saver_free);
 
     lua_newtable(L);
     protocols_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);

@@ -171,7 +171,7 @@ lua_pinfo_end(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
     clear_outstanding_PrivateTable();
     clear_outstanding_TreeItem();
     clear_outstanding_FieldInfo();
-    clear_outstanding_FuncSavers();
+    clear_outstanding_FuncSavers(NULL);
 
     /* keep invoking this callback later? */
     return false;
@@ -278,6 +278,7 @@ static void lua_resetthread_cb(void *user_data) {
     lua_State *L1 = (lua_State*)user_data;
 
     ws_debug("freeing thread: %p", L1);
+    clear_outstanding_FuncSavers(L1);
 #if LUA_VERSION_NUM > 503
     // Lua 5.3 and earlier doesn't have a way to close a thread, and
     // relies on garbage collection only.
