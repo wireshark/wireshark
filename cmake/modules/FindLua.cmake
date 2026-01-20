@@ -138,8 +138,15 @@ project target:
 #]=======================================================================]
 
 cmake_policy(PUSH)  # Policies apply to functions at definition-time
-cmake_policy(SET CMP0140 NEW)
-cmake_policy(SET CMP0159 NEW)  # file(STRINGS) with REGEX updates CMAKE_MATCH_<n>
+if(POLICY CMP0140)
+	cmake_policy(SET CMP0140 NEW)
+endif()
+if(POLICY CMP0159)
+	cmake_policy(SET CMP0159 NEW)  # file(STRINGS) with REGEX updates CMAKE_MATCH_<n>
+endif()
+
+INCLUDE(FindWSWinLibs)
+FindWSWinLibs("lua-5*" "LUA_HINTS")
 
 unset(_lua_include_subdirs)
 unset(_lua_library_names)
@@ -265,7 +272,7 @@ function(_lua_find_header)
     # It is also consistent with previous versions of FindLua
     foreach (subdir IN LISTS _lua_include_subdirs)
       find_path(LUA_INCLUDE_DIR lua.h
-        HINTS ENV LUA_DIR
+        HINTS ${LUA_HINTS} ENV LUA_DIR
         PATH_SUFFIXES ${subdir}
         )
       if (LUA_INCLUDE_DIR)
@@ -313,13 +320,14 @@ find_library(LUA_LIBRARY
   NAMES ${_lua_library_names} lua
   NAMES_PER_DIR
   HINTS
+    ${LUA_HINTS}
     ENV LUA_DIR
-  PATH_SUFFIXES lib
+  PATH_SUFFIXES lib ${_lua_library_names}
 )
 unset(_lua_library_names)
 
 if (LUA_LIBRARY)
-  # include the math library for Unix
+  # include the math library for Unixes other than macOS
   if (UNIX AND NOT APPLE AND NOT BEOS)
     find_library(LUA_MATH_LIBRARY m)
     mark_as_advanced(LUA_MATH_LIBRARY)
@@ -345,3 +353,83 @@ find_package_handle_standard_args(Lua
 mark_as_advanced(LUA_INCLUDE_DIR LUA_LIBRARY)
 
 cmake_policy(POP)
+
+IF(Lua_FOUND)
+  SET( LUA_INCLUDE_DIRS ${LUA_INCLUDE_DIR} )
+  cmake_push_check_state()
+  include(CheckTypeSize)
+  set(CMAKE_REQUIRED_INCLUDES ${LUA_INCLUDE_DIR})
+  set(CMAKE_EXTRA_INCLUDE_FILES "luaconf.h")
+  check_type_size(LUA_INTEGER LUA_INTEGER_SIZE)
+  cmake_pop_check_state()
+
+  if (WIN32)
+    set ( LUA_DLL_DIR "${LUA_HINTS}" CACHE PATH "Path to Lua DLL")
+    file( GLOB _lua_dll RELATIVE "${LUA_DLL_DIR}" "${LUA_DLL_DIR}/lua*.dll")
+    set ( LUA_DLL ${_lua_dll} CACHE FILEPATH "Lua DLL file name")
+    mark_as_advanced( LUA_DLL_DIR LUA_DLL )
+  endif()
+  if(LUA_DLL_DIR MATCHES ".*/lua-.*-unicode-.*")
+    # Do we have Lua with Unicode for Windows patches?
+    # https://github.com/Lekensteyn/lua-unicode
+    # XXX Would be better if it was possible to
+    # detect a Lua-unicode build from C and Lua code
+    # but upstream rejected patches for that so we do
+    # it here.
+    set(HAVE_LUA_UNICODE True)
+  endif()
+
+  #
+  # Lua 5.4.5 broke the Lua API by adding a second argument to
+  # lua_resetthread().
+  #
+  # Fedora, and possibly other Linux distributions, compounded
+  # that error by backporting a fix from 5.4.5 that iincluded
+  # that API-breaking change, but didn't change LUA_VERSION_RELEASE_NUM,
+  # so that checking for LUA_VERSION_RELEASE_NUM == 50404 isn't
+  # sufficient to detect the broken version of the API.
+  #
+  # See the thread starting at
+  #
+  #   https://lists.wireshark.org/archives/wireshark-dev/202511/msg00031.html
+  #
+  # So we do it the hard way, by checking whether a program that
+  # calls the one-argument version compiles.
+  #
+  # CMake doesn't appear to support "check whether this C source
+  # compiles, but don't bother testing whether it links", which
+  # is what we want here - all we care about is whether the
+  # two-argument call to lua_resetthread() compiles or fails to
+  # compile, not whether the routine is available in the library.
+  # This test will fail if the link fails; we are testing with
+  # a two-argument call, so that means that, if the link fails
+  # for any reason (wrong required libraries, wrong required flags,
+  # etc.), we'll treat Lua as having a one-argument lua_resetthread().
+  #
+  include(CheckCSourceCompiles)
+  cmake_push_check_state()
+  set(CMAKE_REQUIRED_INCLUDES ${LUA_INCLUDE_DIR})
+  set(CMAKE_EXTRA_INCLUDE_FILES "luaconf.h")
+  set(CMAKE_REQUIRED_LIBRARIES ${LUA_LIBRARIES})
+  check_c_source_compiles(
+  "
+//
+// Undo any definition of _FORTIFY_SOURCE, so that we don't get a
+// complaint that we're compiling without optimization.
+//
+#undef _FORTIFY_SOURCE
+#include <lua.h>
+
+int
+main(void)
+{
+    return lua_resetthread(NULL, NULL);
+}
+" HAVE_TWO_ARGUMENT_LUA_RESETTHREAD)
+  cmake_pop_check_state()
+ELSE(Lua_FOUND)
+  SET( LUA_LIBRARIES )
+  SET( LUA_INCLUDE_DIRS )
+  SET( LUA_DLL_DIR )
+  SET( LUA_DLL )
+ENDIF(Lua_FOUND)
