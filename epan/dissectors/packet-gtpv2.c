@@ -3280,7 +3280,7 @@ dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
         proto_tree_add_item_ret_uint(tree, hf_gtpv2_5gs_tai_tac, tvb, *offset, 3, ENC_BIG_ENDIAN, &tac);
         *offset += 3;
     } else {
-        item = proto_tree_add_item_ret_uint(tree, hf_gtpv2_tai_tac, tvb, *offset, 2, ENC_BIG_ENDIAN, &tac);
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_tai_tac, tvb, *offset, 2, ENC_BIG_ENDIAN, &tac);
         if (gbl_resolv_flags.tac_name && (tac_name_str = tac_name_lookup(tac)) != NULL) {
             item = proto_tree_add_string(tree, hf_gtpv2_tai_tac_name, tvb, *offset, 2, tac_name_str);
             proto_item_set_generated(item);
