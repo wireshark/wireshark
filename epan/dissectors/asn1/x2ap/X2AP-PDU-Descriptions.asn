@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V18.2.0 (2024-06)
+-- 3GPP TS 36.423 V19.1.0 (2025-12)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -133,7 +133,9 @@ FROM X2AP-CommonDataTypes
 	UERadioCapabilityIDMappingResponse,
 	AccessAndMobilityIndication,
 	CPC-cancel,
-	RachIndication
+	RachIndication,
+	SCGFailureInformationReport,
+	SCGFailureTransfer
 
 
 
@@ -202,7 +204,9 @@ FROM X2AP-PDU-Contents
 	id-UERadioCapabilityIDMapping,
 	id-accessAndMobilityIndication,
 	id-CPC-cancel,
-	id-rachIndication
+	id-rachIndication,
+	id-scgFailureInformationReport,
+	id-scgFailureTransfer
 
 
 
@@ -337,7 +341,9 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
 	f1CTrafficTransfer						|
 	accessAndMobilityIndication				|
 	cPC-cancel								|
-	rachIndication							,
+	rachIndication							|
+	scgFailureInformationReport				|
+	scgFailureTransfer						,
 	...
 
 }
@@ -759,6 +765,18 @@ cPC-cancel X2AP-ELEMENTARY-PROCEDURE ::= {
 rachIndication X2AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		RachIndication
 	PROCEDURE CODE			id-rachIndication
+	CRITICALITY				ignore
+}
+
+scgFailureInformationReport X2AP-ELEMENTARY-PROCEDURE ::={
+	INITIATING MESSAGE 		SCGFailureInformationReport
+	PROCEDURE CODE			id-scgFailureInformationReport
+	CRITICALITY				ignore
+}
+
+scgFailureTransfer X2AP-ELEMENTARY-PROCEDURE ::={
+	INITIATING MESSAGE		SCGFailureTransfer
+	PROCEDURE CODE			id-scgFailureTransfer
 	CRITICALITY				ignore
 }
 

@@ -960,6 +960,15 @@ CHO-HandoverWindowDuration DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_cho_handover
     dissect_lte_rrc_CellIdListNR_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY SCG-FailureReportContainer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SCG_FailureReportContainer);
+    dissect_lte_rrc_SCGFailureInformationNR_r15_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_HDR HandoverRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequest");
 #.FN_HDR HandoverRequestAcknowledge
@@ -1176,6 +1185,10 @@ CHO-HandoverWindowDuration DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_cho_handover
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CPC-cancel");
 #.FN_HDR RachIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RachIndication");
+#.FN_HDR SCGFailureInformationReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCGFailureInformationReport");
+#.FN_HDR SCGFailureTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCGFailureTransfer");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -1241,6 +1254,8 @@ id-accessAndMobilityIndication					ProcedureCode
 id-procedure-code-58-not-to-be-used				ProcedureCode
 id-CPC-cancel							ProcedureCode
 id-rachIndication						ProcedureCode
+id-scgFailureInformationReport					ProcedureCode
+id-scgFailureTransfer						ProcedureCode
 
 
 # ProtocolIE-ID
@@ -1684,6 +1699,10 @@ id-CHOTimeBasedInformation					ProtocolIE-ID
 id-RaReportIndicationList					ProtocolIE-ID
 id-PSCellListContainer						ProtocolIE-ID
 id-IABAuthorized						ProtocolIE-ID
+id-SourcePSCellCGI						ProtocolIE-ID
+id-FailedPSCellCGI						ProtocolIE-ID
+id-SCG-FailureReportContainer					ProtocolIE-ID
+id-TimeSCG-Failure						ProtocolIE-ID
 
 #.REGISTER
 
@@ -1988,6 +2007,10 @@ CPCupdate-MOD							N x2ap.ies id-CPCupdate-MOD
 SCGreconfigNotification						N x2ap.ies id-SCGreconfigNotification
 RaReportIndicationList						N x2ap.ies id-RaReportIndicationList
 IABAuthorized							N x2ap.ies id-IABAuthorized
+NRCGI								N x2ap.ies id-SourcePSCellCGI
+NRCGI								N x2ap.ies id-FailedPSCellCGI
+SCG-FailureReportContainer					N x2ap.ies id-SCG-FailureReportContainer
+TimeSCG-Failure							N x2ap.ies id-TimeSCG-Failure
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -2299,4 +2322,8 @@ AccessAndMobilityIndication			N x2ap.proc.imsg id-accessAndMobilityIndication
 CPC-cancel					N x2ap.proc.imsg id-CPC-cancel
 
 RachIndication					N x2ap.proc.imsg id-rachIndication
+
+SCGFailureInformationReport			N x2ap.proc.imsg id-scgFailureInformationReport
+
+SCGFailureTransfer				N x2ap.proc.imsg id-scgFailureTransfer
 #.END

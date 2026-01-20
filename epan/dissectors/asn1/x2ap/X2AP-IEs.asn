@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V18.2.0 (2024-06)
+-- 3GPP TS 36.423 V19.1.0 (2025-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -2982,6 +2982,8 @@ SCGActivationRequest ::= ENUMERATED {activate-scg, deactivate-scg, ...}
 
 
 SCGChangeIndication ::= ENUMERATED {pDCPCountWrapAround, pSCellChange, other, ...}
+SCG-FailureReportContainer ::= OCTET STRING
+
 
 SCGreconfigNotification ::= ENUMERATED {executed, ..., executed-deleted, deleted }
 
@@ -3499,6 +3501,8 @@ TDDULDLConfigurationCommonNR ::= OCTET STRING
 Threshold-RSRP ::= INTEGER(0..97)
 
 Threshold-RSRQ ::= INTEGER(0..34)
+TimeSCG-Failure ::= INTEGER (0..1023)
+
 
 TimeToWait ::= ENUMERATED {
 	v1s,

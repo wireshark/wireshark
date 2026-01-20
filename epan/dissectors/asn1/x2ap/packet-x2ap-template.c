@@ -3,7 +3,7 @@
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2014, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2016-2024, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2016-2026, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V18.2.0 (2024-06)
+ * 3GPP TS 36.423 V19.1.0 (2025-12)
  */
 
 #include "config.h"
@@ -188,6 +188,7 @@ static int ett_x2ap_LastVisitedPSCell_Item;
 static int ett_x2ap_NRRAReportContainer;
 static int ett_x2ap_rAT_RestrictionInformation;
 static int ett_x2ap_PSCellListContainer;
+static int ett_x2ap_SCG_FailureReportContainer;
 #include "packet-x2ap-ett.c"
 
 /* Forward declarations */
@@ -741,6 +742,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_NRRAReportContainer,
     &ett_x2ap_rAT_RestrictionInformation,
     &ett_x2ap_PSCellListContainer,
+    &ett_x2ap_SCG_FailureReportContainer,
 #include "packet-x2ap-ettarr.c"
   };
 

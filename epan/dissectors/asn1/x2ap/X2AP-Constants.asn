@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V18.2.0 (2024-06)
+-- 3GPP TS 36.423 V19.1.0 (2025-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -86,6 +86,8 @@ id-accessAndMobilityIndication									ProcedureCode ::= 57
 id-procedure-code-58-not-to-be-used								ProcedureCode ::= 58
 id-CPC-cancel													ProcedureCode ::= 59
 id-rachIndication												ProcedureCode ::= 60
+id-scgFailureInformationReport									ProcedureCode ::= 61
+id-scgFailureTransfer											ProcedureCode ::= 62
 
 -- **************************************************************
 --
@@ -626,6 +628,9 @@ id-CHOTimeBasedInformation													ProtocolIE-ID ::= 446
 id-RaReportIndicationList													ProtocolIE-ID ::= 447
 id-PSCellListContainer													ProtocolIE-ID ::= 448
 id-IABAuthorized															ProtocolIE-ID ::= 449
-
+id-SourcePSCellCGI															ProtocolIE-ID ::= 450
+id-FailedPSCellCGI															ProtocolIE-ID ::= 451
+id-SCG-FailureReportContainer												ProtocolIE-ID ::= 452
+id-TimeSCG-Failure															ProtocolIE-ID ::= 453
 
 END

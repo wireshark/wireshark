@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V18.2.0 (2024-06)
+-- 3GPP TS 36.423 V19.1.0 (2025-12)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -264,7 +264,9 @@ IMPORTS
 	SCGreconfigNotification,
 	AdditionalListofForwardingGTPTunnelEndpoint,
 	RaReportIndicationList,
-	IABAuthorized
+	IABAuthorized,
+	SCG-FailureReportContainer,
+	TimeSCG-Failure
 
 
 
@@ -649,6 +651,10 @@ FROM X2AP-Containers
 	id-AdditionalListofForwardingGTPTunnelEndpoint,
 	id-RaReportIndicationList,
 	id-IABAuthorized,
+	id-SourcePSCellCGI,
+	id-FailedPSCellCGI,
+	id-SCG-FailureReportContainer,
+	id-TimeSCG-Failure,
 	maxCellineNB,
 	maxnoofBearers,
 	maxnoofPDCP-SN,
@@ -5035,5 +5041,44 @@ RachIndication-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-RaReportIndicationList				CRITICALITY reject		TYPE RaReportIndicationList							PRESENCE mandatory },
 	...
 }
+
+-- **************************************************************
+--
+-- SCG FAILURE INFORMATION REPORT
+--
+-- **************************************************************
+
+SCGFailureInformationReport ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SCGFailureInformationReport-IEs}},
+	...
+}
+
+SCGFailureInformationReport-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY ignore		TYPE UE-X2AP-ID								PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY ignore		TYPE SgNB-UE-X2AP-ID						PRESENCE mandatory}|
+	{ ID id-SourcePSCellCGI							CRITICALITY ignore		TYPE NRCGI									PRESENCE optional }|
+	{ ID id-FailedPSCellCGI							CRITICALITY ignore		TYPE NRCGI									PRESENCE optional }|
+	{ ID id-SCG-FailureReportContainer				CRITICALITY ignore		TYPE SCG-FailureReportContainer		PRESENCE mandatory}|
+	{ ID id-TimeSCG-Failure						CRITICALITY ignore		TYPE TimeSCG-Failure						PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- SCG FAILURE TRANSFER
+--
+-- **************************************************************
+
+SCGFailureTransfer ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SCGFailureTransfer-IEs}},
+	...
+}
+
+SCGFailureTransfer-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID					CRITICALITY ignore		TYPE UE-X2AP-ID								PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID					CRITICALITY ignore		TYPE SgNB-UE-X2AP-ID						PRESENCE mandatory},
+	...
+}
+
 
 END

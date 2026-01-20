@@ -684,6 +684,7 @@ RLF-Report-v9e0_PDU
 RRCConnectionReconfigurationComplete_PDU
 SCG-Config-r12_PDU
 SCG-ConfigInfo-r12_PDU
+SCGFailureInformationNR-r15_PDU
 SidelinkUEInformation-r12_PDU
 SL-Parameters-v1430_PDU
 SL-Parameters-v1530_PDU
@@ -733,6 +734,7 @@ RRCConnectionReconfiguration @rrc_conn_reconf
 RRCConnectionReconfigurationComplete @rrc_conn_reconf_compl
 SCG-Config-r12
 SCG-ConfigInfo-r12
+SCGFailureInformationNR-r15
 SidelinkUEInformation-r12
 SL-Parameters-v1430
 SL-Parameters-v1530
