@@ -159,6 +159,8 @@ id-MCBearerContextModificationRequired    ProcedureCode
 id-MCBearerContextRelease                 ProcedureCode
 id-MCBearerContextReleaseRequest          ProcedureCode
 id-MCBearerNotification                   ProcedureCode
+id-dataCollectionReportingInitiation      ProcedureCode
+id-dataCollectionReporting                ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                             ProtocolIE-ID
@@ -381,6 +383,25 @@ id-MaximumDataBurstVolume                            ProtocolIE-ID
 id-BCBearerContextNGU-TNLInfoatNGRAN-Request         ProtocolIE-ID
 id-PDCPSNGapReport                                   ProtocolIE-ID
 id-UserPlaneFailureIndication                        ProtocolIE-ID
+id-InactivityMonitoring                              ProtocolIE-ID
+id-MCBearerContextNGUTnlInfoatNGRANReplaceRequest    ProtocolIE-ID
+id-LTMInitiation                                     ProtocolIE-ID
+id-RegistrationRequestForDataCollection              ProtocolIE-ID
+id-ReportCharacteristicsForDataCollection            ProtocolIE-ID
+id-ReportingPeriodicityForDataCollection             ProtocolIE-ID
+id-UEAssociatedInfoResult-List                       ProtocolIE-ID
+id-DataCollectionID                                  ProtocolIE-ID
+id-PduSetDelayBudgetDownlink                         ProtocolIE-ID
+id-PduSetDelayBudgetUplink                           ProtocolIE-ID
+id-PduSetErrorRateDownlink                           ProtocolIE-ID
+id-PduSetErrorRateUplink                             ProtocolIE-ID
+id-MonitoringRequestonAvailableBitrate               ProtocolIE-ID
+id-MMSID                                             ProtocolIE-ID
+id-Remaining-time-based-rLC-retransmission-threshold ProtocolIE-ID
+id-Remaining-time-based-rLC-polling-threshold        ProtocolIE-ID
+id-DL-PDU-Set-Info-Marking-Support-Ind               ProtocolIE-ID
+id-UEPerformanceCollectionConfiguration              ProtocolIE-ID
+id-NodeMeasurementInitiationResult-List              ProtocolIE-ID
 
 
 #.END
@@ -521,6 +542,15 @@ SDT-data-size-threshold                      N e1ap.ies id-SDT-data-size-thresho
 SDT-data-size-threshold-Crossed              N e1ap.ies id-SDT-data-size-threshold-Crossed
 AssociatedSessionID                          N e1ap.ies id-AssociatedSessionID
 MBS-ServiceArea                              N e1ap.ies id-MBS-ServiceArea
+InactivityMonitoring                         N e1ap.ies id-InactivityMonitoring
+LTMInitiation                                N e1ap.ies id-LTMInitiation
+RegistrationRequestForDataCollection         N e1ap.ies id-RegistrationRequestForDataCollection
+ReportCharacteristicsForDataCollection       N e1ap.ies id-ReportCharacteristicsForDataCollection
+ReportingPeriodicityForDataCollection        N e1ap.ies id-ReportingPeriodicityForDataCollection
+UEAssociatedInfoResult-List                  N e1ap.ies id-UEAssociatedInfoResult-List
+DataCollectionID                             N e1ap.ies id-DataCollectionID
+UEPerformanceCollectionConfiguration         N e1ap.ies id-UEPerformanceCollectionConfiguration
+NodeMeasurementInitiationResult-List         N e1ap.ies id-NodeMeasurementInitiationResult-List
 
 #E1AP-PROTOCOL-EXTENSION
 SNSSAI                                            N e1ap.extension id-SNSSAI
@@ -609,6 +639,16 @@ MaxDataBurstVolume                                N e1ap.extension id-MaximumDat
 BCBearerContextNGU-TNLInfoatNGRAN-Request         N e1ap.extension id-BCBearerContextNGU-TNLInfoatNGRAN-Request
 PDCPSNGapReport                                   N e1ap.extension id-PDCPSNGapReport
 UserPlaneFailureIndication                        N e1ap.extension id-UserPlaneFailureIndication
+MCBearerContextNGUTnlInfoatNGRANRequest           N e1ap.extension id-MCBearerContextNGUTnlInfoatNGRANReplaceRequest
+ExtendedPacketDelayBudget                         N e1ap.extension id-PduSetDelayBudgetDownlink
+ExtendedPacketDelayBudget                         N e1ap.extension id-PduSetDelayBudgetUplink
+PacketErrorRate                                   N e1ap.extension id-PduSetErrorRateDownlink
+PacketErrorRate                                   N e1ap.extension id-PduSetErrorRateUplink
+MonitoringRequestonAvailableBitrate               N e1ap.extension id-MonitoringRequestonAvailableBitrate
+MMSID                                             N e1ap.extension id-MMSID
+Remaining-time-based-rLC-threshold                N e1ap.extension id-Remaining-time-based-rLC-retransmission-threshold
+Remaining-time-based-rLC-threshold                N e1ap.extension id-Remaining-time-based-rLC-polling-threshold
+DL-PDU-Set-Info-Marking-Support-Ind               N e1ap.extension id-DL-PDU-Set-Info-Marking-Support-Ind
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset
@@ -722,6 +762,12 @@ MCBearerContextReleaseCommand            N e1ap.proc.imsg id-MCBearerContextRele
 MCBearerContextReleaseComplete           N e1ap.proc.sout id-MCBearerContextRelease
 
 MCBearerContextReleaseRequest            N e1ap.proc.imsg id-MCBearerContextReleaseRequest
+
+DataCollectionRequest                    N e1ap.proc.imsg id-dataCollectionReportingInitiation
+DataCollectionResponse                   N e1ap.proc.sout id-dataCollectionReportingInitiation
+DataCollectionFailure                    N e1ap.proc.uout id-dataCollectionReportingInitiation
+
+DataCollectionUpdate                     N e1ap.proc.imsg id-dataCollectionReporting
 
 #.FN_BODY PLMN-Identity  VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -1073,6 +1119,14 @@ SDT-data-size-threshold DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_byt
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextReleaseComplete");
 #.FN_HDR MCBearerContextReleaseRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextReleaseRequest");
+#.FN_HDR DataCollectionRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataCollectionRequest");
+#.FN_HDR DataCollectionResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataCollectionResponse");
+#.FN_HDR DataCollectionFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataCollectionFailure");
+#.FN_HDR DataCollectionUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataCollectionUpdate");
 #.END
 
 #

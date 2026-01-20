@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V18.5.0 (2025-06)
+-- 3GPP TS 37.483 V19.1.0 (2025-12)
 -- **************************************************************
 --
 -- Constant definitions
@@ -66,6 +66,9 @@ id-MCBearerContextModificationRequired							ProcedureCode ::= 36
 id-MCBearerContextRelease										ProcedureCode ::= 37
 id-MCBearerContextReleaseRequest								ProcedureCode ::= 38
 id-MCBearerNotification											ProcedureCode ::= 39
+id-dataCollectionReportingInitiation							ProcedureCode ::= 40
+id-dataCollectionReporting										ProcedureCode ::= 41
+
 
 
 -- **************************************************************
@@ -107,6 +110,10 @@ maxnoofCellsforMBS							INTEGER ::= 512
 maxnoofTAIforMBS							INTEGER ::= 512
 maxnoofMBSServiceAreaInformation			INTEGER ::= 256
 maxnoofDUs									INTEGER ::= 512
+maxnoofUEReports							INTEGER ::= 16
+maxnoofThresholds							INTEGER ::= 8
+maxFailedMeasPerNode						INTEGER ::= 124
+
 
 
 -- **************************************************************
@@ -335,7 +342,25 @@ id-MaximumDataBurstVolume 										ProtocolIE-ID ::= 216
 id-BCBearerContextNGU-TNLInfoatNGRAN-Request					ProtocolIE-ID ::= 217
 id-PDCPSNGapReport												ProtocolIE-ID ::= 218
 id-UserPlaneFailureIndication									ProtocolIE-ID ::= 219
-
+id-InactivityMonitoring											ProtocolIE-ID ::= 220
+id-MCBearerContextNGUTnlInfoatNGRANReplaceRequest				ProtocolIE-ID ::= 221
+id-LTMInitiation												ProtocolIE-ID ::= 222
+id-RegistrationRequestForDataCollection							ProtocolIE-ID ::= 223
+id-ReportCharacteristicsForDataCollection						ProtocolIE-ID ::= 224
+id-ReportingPeriodicityForDataCollection						ProtocolIE-ID ::= 225
+id-UEAssociatedInfoResult-List									ProtocolIE-ID ::= 226
+id-DataCollectionID												ProtocolIE-ID ::= 227
+id-PduSetDelayBudgetDownlink									ProtocolIE-ID ::= 228
+id-PduSetDelayBudgetUplink									ProtocolIE-ID ::= 229
+id-PduSetErrorRateDownlink									ProtocolIE-ID ::= 230
+id-PduSetErrorRateUplink										ProtocolIE-ID ::= 231
+id-MonitoringRequestonAvailableBitrate						ProtocolIE-ID ::= 232
+id-MMSID														ProtocolIE-ID ::= 233
+id-Remaining-time-based-rLC-retransmission-threshold			ProtocolIE-ID ::= 234
+id-Remaining-time-based-rLC-polling-threshold					ProtocolIE-ID ::= 235
+id-DL-PDU-Set-Info-Marking-Support-Ind						ProtocolIE-ID ::= 236
+id-UEPerformanceCollectionConfiguration							ProtocolIE-ID ::= 237
+id-NodeMeasurementInitiationResult-List							ProtocolIE-ID ::= 238
 
 
 END

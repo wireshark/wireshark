@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V18.5.0 (2025-06)
+-- 3GPP TS 37.483 V19.1.0 (2025-12)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -147,7 +147,18 @@ IMPORTS
 	MT-SDT-Information,
 	MT-SDT-Information-Request,
 	SDT-data-size-threshold,
-	SDT-data-size-threshold-Crossed
+	SDT-data-size-threshold-Crossed,
+	InactivityMonitoring,
+	LTMInitiation,
+	RegistrationRequestForDataCollection,
+	ReportCharacteristicsForDataCollection,
+	ReportingPeriodicityForDataCollection,
+	UEAssociatedInfoResult-List,
+	DataCollectionID,
+	Measurement-ID,
+	UEPerformanceCollectionConfiguration,
+	NodeMeasurementInitiationResult-List
+
 
 
 
@@ -300,6 +311,15 @@ FROM E1AP-Containers
 	id-MT-SDT-Information-Request,
 	id-SDT-data-size-threshold,
 	id-SDT-data-size-threshold-Crossed,
+	id-InactivityMonitoring,
+	id-LTMInitiation,
+	id-RegistrationRequestForDataCollection,
+	id-ReportCharacteristicsForDataCollection,
+	id-ReportingPeriodicityForDataCollection,
+	id-UEAssociatedInfoResult-List,
+	id-DataCollectionID,
+	id-UEPerformanceCollectionConfiguration,
+	id-NodeMeasurementInitiationResult-List,
 	maxnoofErrors,
 	maxnoofSPLMNs,
 	maxnoofDRBs,
@@ -786,7 +806,10 @@ BearerContextSetupRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-UESliceMaximumBitRateList			CRITICALITY ignore	TYPE UESliceMaximumBitRateList				   PRESENCE optional }|
 	{ ID id-SCGActivationStatus					CRITICALITY ignore	TYPE SCGActivationStatus							PRESENCE optional }|
 	{ ID id-MT-SDT-Information-Request			CRITICALITY ignore	TYPE MT-SDT-Information-Request				   PRESENCE optional }|
-	{ ID id-SDT-data-size-threshold				CRITICALITY ignore	TYPE SDT-data-size-threshold				PRESENCE optional },
+	{ ID id-SDT-data-size-threshold				CRITICALITY ignore	TYPE SDT-data-size-threshold				PRESENCE optional }|
+	{ ID id-InactivityMonitoring				CRITICALITY ignore	TYPE InactivityMonitoring					PRESENCE optional	}|
+	{ ID id-LTMInitiation						CRITICALITY reject	TYPE LTMInitiation									PRESENCE optional }|
+	{ ID id-DataCollectionID					CRITICALITY ignore	TYPE DataCollectionID						PRESENCE optional },
 	...
 }
 
@@ -914,7 +937,8 @@ BearerContextModificationRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-ManagementBasedMDTPLMNModificationList			CRITICALITY	ignore	TYPE MDTPLMNModificationList 							PRESENCE optional}|
 	{ ID id-InactivityInformationRequest			CRITICALITY ignore	TYPE InactivityInformationRequest						PRESENCE optional}|
 	{ ID id-MT-SDT-Information-Request					CRITICALITY ignore	TYPE MT-SDT-Information-Request				PRESENCE optional }|
-	{ ID id-SDT-data-size-threshold						CRITICALITY ignore	TYPE SDT-data-size-threshold					PRESENCE optional },
+	{ ID id-SDT-data-size-threshold						CRITICALITY ignore	TYPE SDT-data-size-threshold					PRESENCE optional }|
+	{ ID id-DataCollectionID							CRITICALITY ignore	TYPE DataCollectionID								PRESENCE optional },
 	...
 }
 
@@ -1468,15 +1492,12 @@ ResourceStatusRequest ::= SEQUENCE {
 	...
 }
 
--- WS modification: define a specific type
-Measurement-ID ::= INTEGER (1..4095, ...)
-
 ResourceStatusRequestIEs E1AP-PROTOCOL-IES ::= {
 		{ ID id-TransactionID					CRITICALITY reject		TYPE TransactionID	PRESENCE mandatory}|
--- WS modification: define a specific type
+-- WS modification: use Measurement-ID type
 --		{ ID id-gNB-CU-CP-Measurement-ID		CRITICALITY reject		TYPE INTEGER (1..4095, ...)		PRESENCE mandatory}|
 		{ ID id-gNB-CU-CP-Measurement-ID		CRITICALITY reject		TYPE Measurement-ID		PRESENCE mandatory}|
--- WS modification: define a specific type
+-- WS modification: use Measurement-ID type
 --		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE INTEGER (1..4095, ...)		PRESENCE optional}|
 		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE Measurement-ID		PRESENCE optional}|
 -- This IE shall be present if the Registration Request IE is set to the value “stop” --
@@ -1501,10 +1522,10 @@ ResourceStatusResponse ::= SEQUENCE {
 
 ResourceStatusResponseIEs E1AP-PROTOCOL-IES ::= {
 		{ ID id-TransactionID					CRITICALITY reject		TYPE TransactionID	PRESENCE mandatory}|
--- WS modification: define a specific type
+-- WS modification: use Measurement-ID type
 --		{ ID id-gNB-CU-CP-Measurement-ID		CRITICALITY reject		TYPE INTEGER (1..4095, ...)		PRESENCE mandatory}|
 		{ ID id-gNB-CU-CP-Measurement-ID		CRITICALITY reject		TYPE Measurement-ID		PRESENCE mandatory}|
--- WS modification: define a specific type
+-- WS modification: use Measurement-ID type
 --		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE INTEGER (1..4095, ...)		PRESENCE mandatory}|
 		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE Measurement-ID		PRESENCE mandatory}|
 		{ ID id-CriticalityDiagnostics			CRITICALITY ignore		TYPE CriticalityDiagnostics			PRESENCE optional},
@@ -1524,10 +1545,10 @@ ResourceStatusFailure ::= SEQUENCE {
 
 ResourceStatusFailureIEs E1AP-PROTOCOL-IES ::= {
 		{ ID id-TransactionID					CRITICALITY reject		TYPE TransactionID	PRESENCE mandatory}|
--- WS modification: define a specific type
+-- WS modification: use Measurement-ID type
 --		{ ID id-gNB-CU-CP-Measurement-ID		CRITICALITY reject		TYPE INTEGER (1..4095, ...)		PRESENCE mandatory}|
 		{ ID id-gNB-CU-CP-Measurement-ID		CRITICALITY reject		TYPE Measurement-ID		PRESENCE mandatory}|
--- WS modification: define a specific type
+-- WS modification: use Measurement-ID type
 --		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE INTEGER (1..4095, ...)		PRESENCE optional}|
 		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE Measurement-ID		PRESENCE optional}|
 		{ ID id-Cause					CRITICALITY ignore		TYPE Cause		PRESENCE mandatory}|
@@ -1548,10 +1569,10 @@ ResourceStatusUpdate ::= SEQUENCE {
 
 ResourceStatusUpdateIEs E1AP-PROTOCOL-IES ::= {
 		{ ID id-TransactionID					CRITICALITY reject		TYPE TransactionID	PRESENCE mandatory}|
--- WS modification: define a specific type
+-- WS modification: use Measurement-ID type
 --		{ ID id-gNB-CU-CP-Measurement-ID		CRITICALITY reject		TYPE INTEGER (1..4095, ...)		PRESENCE mandatory}|
 		{ ID id-gNB-CU-CP-Measurement-ID		CRITICALITY reject		TYPE Measurement-ID		PRESENCE mandatory}|
--- WS modification: define a specific type
+-- WS modification: use Measurement-ID type
 --		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE INTEGER (1..4095, ...)		PRESENCE mandatory}|
 		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE Measurement-ID		PRESENCE mandatory}|
 		{ ID id-TNL-AvailableCapacityIndicator		CRITICALITY ignore		TYPE 							TNL-AvailableCapacityIndicator	PRESENCE optional}|
@@ -2161,6 +2182,92 @@ MCBearerNotificationIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-MBSSessionResourceNotification	CRITICALITY ignore	TYPE	MBSSessionResourceNotification	PRESENCE mandatory },
 	...
 }
+
+-- **************************************************************
+--
+-- DATA COLLECTION REQUEST
+--
+-- **************************************************************
+
+DataCollectionRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{DataCollectionRequest-IEs}},
+	...
+}
+
+DataCollectionRequest-IEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID	PRESENCE mandatory}|
+	{ ID id-gNB-CU-CP-Measurement-ID					CRITICALITY reject	TYPE Measurement-ID										PRESENCE mandatory}|
+	{ ID id-gNB-CU-UP-Measurement-ID					CRITICALITY ignore	TYPE Measurement-ID										PRESENCE conditional}|
+-- This IE shall be present if the Registration Request for Data Collection IE is set to the value "stop".
+	{ ID id-RegistrationRequestForDataCollection		CRITICALITY reject	TYPE RegistrationRequestForDataCollection		PRESENCE mandatory}|
+	{ ID id-ReportCharacteristicsForDataCollection		CRITICALITY reject	TYPE ReportCharacteristicsForDataCollection	PRESENCE conditional}|
+-- This IE shall be present if the Registration Request for Data Collection IE is set to the value "start".
+	{ ID id-ReportingPeriodicityForDataCollection		CRITICALITY ignore	TYPE ReportingPeriodicityForDataCollection		PRESENCE optional}|
+	{ ID id-UEPerformanceCollectionConfiguration		CRITICALITY ignore	TYPE UEPerformanceCollectionConfiguration		PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- DATA COLLECTION RESPONSE
+--
+-- **************************************************************
+
+DataCollectionResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{DataCollectionResponse-IEs}},
+	...
+}
+
+DataCollectionResponse-IEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID	PRESENCE mandatory}|
+	{ ID id-gNB-CU-CP-Measurement-ID					CRITICALITY reject	TYPE Measurement-ID										PRESENCE mandatory}|
+	{ ID id-gNB-CU-UP-Measurement-ID					CRITICALITY ignore	TYPE Measurement-ID										PRESENCE mandatory}|
+	{ ID id-NodeMeasurementInitiationResult-List		CRITICALITY reject	TYPE NodeMeasurementInitiationResult-List		PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- DATA COLLECTION FAILURE
+--
+-- **************************************************************
+
+DataCollectionFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{DataCollectionFailure-IEs}},
+	...
+}
+
+DataCollectionFailure-IEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID	PRESENCE mandatory}|
+	{ ID id-gNB-CU-CP-Measurement-ID				CRITICALITY reject	TYPE Measurement-ID									PRESENCE mandatory}|
+	{ ID id-gNB-CU-UP-Measurement-ID				CRITICALITY ignore	TYPE Measurement-ID									PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore	TYPE Cause											PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- DATA COLLECTION UPDATE
+--
+-- **************************************************************
+
+DataCollectionUpdate ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{DataCollectionUpdate-IEs}},
+	...
+}
+
+DataCollectionUpdate-IEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID	PRESENCE mandatory}|
+	{ ID id-gNB-CU-CP-Measurement-ID					CRITICALITY reject	TYPE Measurement-ID												PRESENCE mandatory}|
+	{ ID id-gNB-CU-UP-Measurement-ID					CRITICALITY ignore	TYPE Measurement-ID												PRESENCE mandatory}|
+	{ ID id-UEAssociatedInfoResult-List					CRITICALITY ignore	TYPE UEAssociatedInfoResult-List							PRESENCE optional },	...
+}
+
 
 
 END

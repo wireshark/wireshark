@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V18.5.0 (2025-06)
+-- 3GPP TS 37.483 V19.1.0 (2025-12)
 -- **************************************************************
 --
 -- Elementary Procedure definitions
@@ -95,7 +95,11 @@ FROM E1AP-CommonDataTypes
 	CellTrafficTrace,
 	EarlyForwardingSNTransfer,
 	GNB-CU-CPMeasurementResultsInformation,
-	IABPSKNotification
+	IABPSKNotification,
+	DataCollectionRequest,
+	DataCollectionResponse,
+	DataCollectionFailure,
+	DataCollectionUpdate
 
 FROM E1AP-PDU-Contents
 	id-reset,
@@ -137,7 +141,9 @@ FROM E1AP-PDU-Contents
 	id-MCBearerContextModificationRequired,
 	id-MCBearerNotification,
 	id-MCBearerContextRelease,
-	id-MCBearerContextReleaseRequest
+	id-MCBearerContextReleaseRequest,
+	id-dataCollectionReportingInitiation,
+	id-dataCollectionReporting
 
 FROM E1AP-Constants;
 
@@ -227,7 +233,8 @@ E1AP-ELEMENTARY-PROCEDURES-CLASS-1 E1AP-ELEMENTARY-PROCEDURE ::= {
 	mCBearerContextSetup						|
 	mCBearerContextModification					|
 	mCBearerContextModificationRequired			|
-	mCBearerContextRelease						,
+	mCBearerContextRelease						|
+	dataCollectionReportingInitiation			,
 	...
 }
 
@@ -251,7 +258,8 @@ E1AP-ELEMENTARY-PROCEDURES-CLASS-2 E1AP-ELEMENTARY-PROCEDURE ::= {
 	iABPSKNotification						|
 	bCBearerContextReleaseRequest			|
 	mCBearerContextReleaseRequest			|
-	mCBearerNotification					,
+	mCBearerNotification					|
+	dataCollectionReporting					,
 	...
 }
 
@@ -531,6 +539,20 @@ mCBearerContextReleaseRequest E1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		MCBearerContextReleaseRequest
 	PROCEDURE CODE			id-MCBearerContextReleaseRequest
 	CRITICALITY				reject
+}
+
+dataCollectionReportingInitiation	E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE				DataCollectionRequest
+	SUCCESSFUL OUTCOME				DataCollectionResponse
+	UNSUCCESSFUL OUTCOME			DataCollectionFailure
+	PROCEDURE CODE					id-dataCollectionReportingInitiation
+	CRITICALITY						reject
+}
+
+dataCollectionReporting	E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DataCollectionUpdate
+	PROCEDURE CODE			id-dataCollectionReporting
+	CRITICALITY				ignore
 }
 
 END
