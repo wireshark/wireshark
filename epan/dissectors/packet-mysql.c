@@ -1416,6 +1416,10 @@ static int hf_mariadb_bulk_caps_flags;
 static int hf_mariadb_bulk_paramtypes;
 static int hf_mariadb_bulk_indicator;
 static int hf_mariadb_bulk_row_nr;
+static int hf_mariadb_progress_stage;
+static int hf_mariadb_progress_max_stage;
+static int hf_mariadb_progress_progress;
+static int hf_mariadb_progress_status;
 static int hf_mariadb_send_meta;
 static int hf_mariadb_extmeta;
 static int hf_mariadb_extmeta_data;
@@ -1652,7 +1656,7 @@ typedef struct mysql_exec_dissector {
 } mysql_exec_dissector_t;
 
 /* function prototypes */
-static int mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, const mysql_frame_data_t *my_frame_data);
+static int mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, const mysql_frame_data_t *my_frame_data, mysql_conn_data_t *conn_data);
 static int mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tree, uint16_t *server_status);
 static int mysql_dissect_caps(tvbuff_t *tvb, int offset, proto_tree *tree, int mysql_caps, uint16_t *caps);
@@ -1993,7 +1997,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	protocol= tvb_get_uint8(tvb, offset);
 
 	if (protocol == 0xff) {
-		return mysql_dissect_error_packet(tvb, pinfo, offset+1, tree, my_frame_data);
+		return mysql_dissect_error_packet(tvb, pinfo, offset+1, tree, my_frame_data, conn_data);
 	}
 
 	mysql_set_conn_state(pinfo, conn_data, LOGIN);
@@ -3166,7 +3170,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	case 0xff:
 		proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
 		proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, RESPONSE_ERROR, state_vals, "Unknown (%u)"));
-		offset = mysql_dissect_error_packet(tvb, pinfo, offset+1, tree, my_frame_data);
+		offset = mysql_dissect_error_packet(tvb, pinfo, offset+1, tree, my_frame_data, conn_data);
 		mysql_set_conn_state(pinfo, conn_data, REQUEST);
 		break;
 	case 0xfe:
@@ -3346,8 +3350,46 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 static int
 mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo,
 			   int offset, proto_tree *tree,
-			   const mysql_frame_data_t *my_frame_data)
+			   const mysql_frame_data_t *my_frame_data,
+			   mysql_conn_data_t *conn_data)
 {
+	uint64_t status_length;
+	uint16_t errcode = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+	// If MARIADB_CAPS_PR is enabled and the error code is set to 65535 then this is a progress packet
+	// which is a special, MariaDB specific, kind of error packet.
+	// Docs:
+	// https://mariadb.com/docs/server/reference/product-development/mariadb-internals/using-mariadb-with-your-programs-api/progress-reporting
+	if (conn_data->mariadb_client_ext_caps & MARIADB_CAPS_PR
+		&& conn_data->mariadb_server_ext_caps & MARIADB_CAPS_PR
+		&& errcode == 65535) {
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Progress Reporting");
+		col_set_fence(pinfo->cinfo, COL_INFO);
+		offset += 2;
+
+		// Skipping number of strings, currently always 1.
+		offset++;
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %d/%d",
+				tvb_get_uint8(tvb, offset), // Current stage
+				tvb_get_uint8(tvb, offset+1) // Max stage
+		);
+		proto_tree_add_item(tree, hf_mariadb_progress_stage, tvb, offset++, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_mariadb_progress_max_stage, tvb, offset++, 1, ENC_NA);
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %.3f%%",
+				(double)tvb_get_uint24(tvb,offset,ENC_LITTLE_ENDIAN) / 1000);
+		proto_tree_add_item(tree, hf_mariadb_progress_progress, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+		offset += 3;
+
+		int lenfle = tvb_get_fle(tvb, tree, offset, &status_length, NULL);
+		offset += lenfle;
+		proto_tree_add_item(tree, hf_mariadb_progress_status, tvb, offset, (int)status_length, ENC_ASCII);
+
+		offset += tvb_reported_length_remaining(tvb, offset);
+		return offset;
+	}
+
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Error %d ", tvb_get_letohs(tvb, offset));
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -4971,6 +5013,14 @@ dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	return tvb_reported_length(tvb);
 }
 
+static void
+format_progress_percentage(char *buf, uint32_t value)
+{
+	double val;
+	val = (double) value / 1000;
+        snprintf(buf, ITEM_LABEL_LENGTH, "%.3f%%", val);
+}
+
 /* protocol registration */
 void proto_register_mysql(void)
 {
@@ -6280,6 +6330,26 @@ void proto_register_mysql(void)
 		{ &hf_mariadb_bulk_row_nr,
 		{ "Row nr", "mariadb.bulk.row_nr",
 		FT_UINT32, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_progress_stage,
+		{ "Stage", "mariadb.progress.stage",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_progress_max_stage,
+		{ "Max Stage", "mariadb.progress.max_stage",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_progress_progress,
+		{ "Progress Percentage", "mariadb.progress.progress",
+		FT_UINT24, BASE_CUSTOM, CF_FUNC(format_progress_percentage), 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_progress_status,
+		{ "Status", "mariadb.progress.status",
+		FT_STRING, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_fragments,
