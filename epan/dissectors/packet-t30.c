@@ -494,7 +494,7 @@ reverse_byte(uint8_t val)
 
 #define LENGTH_T30_NUM  20
 static char *
-t30_get_string_numbers(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, int len)
+t30_get_string_numbers(wmem_allocator_t *pool, tvbuff_t *tvb, unsigned offset, unsigned len)
 {
     char buf[LENGTH_T30_NUM+1];
     int    i;
@@ -515,7 +515,7 @@ t30_get_string_numbers(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, int le
 }
 
 static void
-dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, t38_packet_info* t38)
+dissect_t30_numbers(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, unsigned len, proto_tree *tree, t38_packet_info* t38)
 {
     char *str_num;
 
@@ -529,7 +529,7 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
             snprintf(t38->desc, MAX_T38_DESC, "Num: %s", str_num);
     }
     else {
-        proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb, offset, -1,
+        proto_tree_add_expert_format_remaining(tree, pinfo, &ei_t30_bad_length, tvb, offset,
                             "MALFORMED OR SHORT PACKET: number of digits must be 20");
 
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET: number of digits must be 20]" );
@@ -537,7 +537,7 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 }
 
 static void
-dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, t38_packet_info* t38)
+dissect_t30_facsimile_coded_data(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, unsigned len, proto_tree *tree, t38_packet_info* t38)
 {
     uint8_t octet;
 
@@ -561,7 +561,7 @@ dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 static void
-dissect_t30_non_standard_cap(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
+dissect_t30_non_standard_cap(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, unsigned len, proto_tree *tree)
 {
     if (len < 2) {
         proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
@@ -578,7 +578,7 @@ dissect_t30_non_standard_cap(tvbuff_t *tvb, int offset, packet_info *pinfo, int 
 }
 
 static void
-dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, t38_packet_info* t38)
+dissect_t30_partial_page_signal(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, unsigned len, proto_tree *tree, t38_packet_info* t38)
 {
     uint8_t octet, page_count, block_count, frame_count;
 
@@ -616,7 +616,7 @@ dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, i
 }
 
 static void
-dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
+dissect_t30_partial_page_request(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, unsigned len, proto_tree *tree)
 {
     int start_offset;
     int frame_count = 0;
@@ -658,7 +658,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 static void
-dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, bool dis_dtc, t38_packet_info* t38)
+dissect_t30_dis_dtc(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, unsigned len, proto_tree *tree, bool dis_dtc, t38_packet_info* t38)
 {
     uint8_t octet;
 

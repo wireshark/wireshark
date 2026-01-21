@@ -2044,7 +2044,7 @@ dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 	/* tvb_ensure_bytes_exist checks for overflow - we could catch
 	 * the exception if we want this Expert Info instead. */
 	if (len > tvb_reported_length_remaining(tvb, off)) {
-		proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, off, -1,
+		proto_tree_add_expert_format_remaining(tree, pinfo, &ei_smb2_invalid_length, tvb, off,
 				    "Invalid offset/length. Malformed packet");
 
 		col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
@@ -2121,7 +2121,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 	/* tvb_ensure_bytes_exist checks for overflow - we could catch
 	 * the exception if we want this Expert Info instead. */
 	if (len > tvb_reported_length_remaining(tvb, off)) {
-		proto_tree_add_expert_format(parent_tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+		proto_tree_add_expert_format_remaining(parent_tree, pinfo, &ei_smb2_invalid_length, tvb, offset,
 				    "Invalid offset/length. Malformed packet");
 
 		col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
@@ -5068,7 +5068,7 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo, 
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+			proto_tree_add_expert_format_remaining(tree, pinfo, &ei_smb2_invalid_length, tvb, offset,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -5162,7 +5162,7 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo, 
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+			proto_tree_add_expert_format_remaining(tree, pinfo, &ei_smb2_invalid_length, tvb, offset,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -5273,7 +5273,7 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo, 
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+			proto_tree_add_expert_format_remaining(tree, pinfo, &ei_smb2_invalid_length, tvb, offset,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -5332,7 +5332,7 @@ static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+			proto_tree_add_expert_format_remaining(tree, pinfo, &ei_smb2_invalid_length, tvb, offset,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -5451,7 +5451,7 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+			proto_tree_add_expert_format_remaining(tree, pinfo, &ei_smb2_invalid_length, tvb, offset,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -5554,7 +5554,7 @@ static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinf
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+			proto_tree_add_expert_format_remaining(tree, pinfo, &ei_smb2_invalid_length, tvb, offset,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -5666,7 +5666,7 @@ static void dissect_smb2_posix_directory_info(tvbuff_t *tvb, packet_info *pinfo 
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+			proto_tree_add_expert_format_remaining(tree, pinfo, &ei_smb2_invalid_length, tvb, offset,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -9779,7 +9779,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void
 report_create_context_malformed_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const char *buffer_desc)
 {
-	proto_tree_add_expert_format(tree, pinfo, &ei_smb2_bad_response, tvb, 0, -1,
+	proto_tree_add_expert_format_remaining(tree, pinfo, &ei_smb2_bad_response, tvb, 0,
 			    "%s SHOULD NOT be generated", buffer_desc);
 }
 static void

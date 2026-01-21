@@ -1347,7 +1347,7 @@ dissect_Image(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offs
             ImageSize = dissect_ImageJPEG_Alpha(tvb, tree, pinfo, offset);
             break;
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_spice_unknown_image_type, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_spice_unknown_image_type, tvb, offset);
     }
 
     return sizeof_ImageDescriptor + ImageSize;
@@ -2818,7 +2818,7 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     }
 
     if ((offset - old_offset) != message_size) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_spice_not_dissected, tvb, offset, -1,
+        proto_tree_add_expert_format_remaining(tree, pinfo, &ei_spice_not_dissected, tvb, offset,
             "message type %s (%u) not fully dissected", get_message_type_string(message_type, spice_info, false), message_type);
         offset = old_offset + message_size;
     }
@@ -3037,7 +3037,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
                 }
                 break;
             default:
-                proto_tree_add_expert(tree, pinfo, &ei_spice_unknown_channel, tvb, offset, -1);
+                proto_tree_add_expert_remaining(tree, pinfo, &ei_spice_unknown_channel, tvb, offset);
                 return;
         }
         offset += 4;

@@ -317,8 +317,8 @@ static const value_string srvloc_errs_v2[] = {
     { 0, NULL }
 };
 
-static int
-dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
+static unsigned
+dissect_authblk(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     uint16_t    length;
 
@@ -333,8 +333,8 @@ dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 /* SLPv2 version - Needs to be fixed to match RFC2608 sect 9.2*/
-static int
-dissect_authblk_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
+static unsigned
+dissect_authblk_v2(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     uint16_t length;
 
@@ -350,15 +350,15 @@ dissect_authblk_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
     return offset;
 }
 
-static int
-dissect_attrauthblk_v2(tvbuff_t *tvb _U_, int offset, proto_tree *tree _U_)
+static unsigned
+dissect_attrauthblk_v2(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 {
     /* add code in here to handle attribute authentication */
     return offset;
 }
 
 static void
-add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
+add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, unsigned offset, unsigned length,
     uint16_t encoding)
 {
         switch (encoding) {
@@ -392,10 +392,10 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
  * XXX - this is also used with CHARSET_UTF_8.  Is that a cut-and-pasteo?
  */
 static const char*
-unicode_to_bytes(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length, bool endianness)
+unicode_to_bytes(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length, bool endianness)
 {
     const uint8_t *ascii_text = tvb_get_string_enc(scope, tvb, offset, length, ENC_ASCII);
-    int           i, j       = 0;
+    unsigned      i, j       = 0;
     uint8_t       c_char, c_char1;
     uint8_t      *byte_array;
 
@@ -473,11 +473,11 @@ static const value_string srvloc_prot[] = {
 };
 
 static void
-attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offset, int length,
+attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, unsigned offset, unsigned length,
     uint16_t encoding)
 {
     const char *attr_type;
-    int     i, svc, type_len, foffset=offset;
+    unsigned i, svc, type_len, foffset=offset;
     uint32_t prot;
     const char *byte_value;
     proto_tree  *srvloc_tree;
@@ -507,7 +507,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
             offset += 2;
             /* If the length passed is longer than the actual payload then this must be an incomplete packet. */
             if (tvb_reported_length_remaining(tvb, 4)<(unsigned)length) {
-                proto_tree_add_expert(tree, pinfo, &ei_srvloc_malformed, tvb, offset, -1);
+                proto_tree_add_expert_remaining(tree, pinfo, &ei_srvloc_malformed, tvb, offset);
                 break;
             }
             /* Parse the attribute name */
@@ -662,7 +662,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
 }
 
 static void
-attr_list2(packet_info *pinfo, proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length, uint16_t encoding _U_)
+attr_list2(packet_info *pinfo, proto_tree *tree, int hf, tvbuff_t *tvb, unsigned offset, unsigned length, uint16_t encoding _U_)
 {
     char        *start;
     uint8_t      c;
@@ -708,8 +708,8 @@ attr_list2(packet_info *pinfo, proto_tree *tree, int hf, tvbuff_t *tvb, int offs
     }
 }
 
-static int
-dissect_url_entry_v1(tvbuff_t *tvb, int offset, proto_tree *tree,
+static unsigned
+dissect_url_entry_v1(tvbuff_t *tvb, unsigned offset, proto_tree *tree,
                      uint16_t encoding, uint16_t flags)
 {
     uint16_t    url_len;
@@ -728,8 +728,8 @@ dissect_url_entry_v1(tvbuff_t *tvb, int offset, proto_tree *tree,
     return offset;
 }
 
-static int
-dissect_url_entry_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
+static unsigned
+dissect_url_entry_v2(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     uint8_t     reserved;
     uint16_t    url_len;
@@ -764,7 +764,7 @@ dissect_url_entry_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int         offset = 0;
+    unsigned     offset = 0;
     proto_item  *ti;
     proto_tree  *srvloc_tree;
     uint8_t     version;
@@ -1003,8 +1003,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             break;
 
         default:
-            proto_tree_add_expert_format(srvloc_tree, pinfo, &ei_srvloc_function_unknown,
-                tvb, offset, -1, "Unknown Function Type: %d", function);
+            proto_tree_add_expert_format_remaining(srvloc_tree, pinfo, &ei_srvloc_function_unknown,
+                tvb, offset, "Unknown Function Type: %d", function);
         }
     }
     else { /* Version 2 */
@@ -1327,8 +1327,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             break;
 
         default:
-            proto_tree_add_expert_format(srvloc_tree, pinfo, &ei_srvloc_function_unknown,
-                                         tvb, offset, -1, "Unknown Function Type: %d", function);
+            proto_tree_add_expert_format_remaining(srvloc_tree, pinfo, &ei_srvloc_function_unknown,
+                                         tvb, offset, "Unknown Function Type: %d", function);
         }
     }
 return offset;

@@ -723,7 +723,7 @@ dissect_tacplus_body(tvbuff_t * hdr_tvb, packet_info *pinfo, tvbuff_t * tvb, pro
 			dissect_tacplus_body_acct_rep( tvb, tree );
 		break;
 	  default:
-		proto_tree_add_expert( tree, pinfo, &ei_tacplus_bogus_data, tvb, 0, -1);
+		proto_tree_add_expert_remaining( tree, pinfo, &ei_tacplus_bogus_data, tvb, 0);
 		break;
 	}
 }
