@@ -43,7 +43,7 @@ public slots:
     virtual void detachData() { data_.detach(); }
 
     virtual void markProtocol(int start, int length) = 0;
-    virtual void markField(int start, int length, bool scroll_to = true) = 0;
+    virtual void markField(int start, int length, bool scroll_to = true, bool hover = false) = 0;
     virtual void markAppendix(int start, int length) = 0;
     virtual void unmarkField() = 0;
 

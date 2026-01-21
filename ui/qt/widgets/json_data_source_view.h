@@ -51,7 +51,7 @@ signals:
 public slots:
     void setMonospaceFont(const QFont &mono_font);
 
-    void markField(int start, int length, bool scroll_to = true);
+    void markField(int start, int length, bool scroll_to = true, bool hover = false);
     void unmarkField();
     // We're assuming that we have a 1:1 correspondence between the view and a single protocol.
     void markProtocol(int start, int length) {Q_UNUSED(start) Q_UNUSED(length)}

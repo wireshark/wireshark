@@ -48,7 +48,7 @@ public slots:
     void updateByteViewSettings();
 
     void markProtocol(int start, int length);
-    void markField(int start, int length, bool scroll_to = true);
+    void markField(int start, int length, bool scroll_to = true, bool hover = false);
     void markAppendix(int start, int length);
     void unmarkField();
 
@@ -69,7 +69,8 @@ private:
         ModeProtocol,
         ModeOffsetNormal,
         ModeOffsetField,
-        ModeNonPrintable
+        ModeNonPrintable,
+        ModeHover
     } HighlightMode;
 
     QTextLayout *layout_;
@@ -108,13 +109,14 @@ private:
 
     // Data highlight
     int hovered_byte_offset_;
-    int marked_byte_offset_;
     int proto_start_;
     int proto_len_;
     int field_start_;
     int field_len_;
     int field_a_start_;
     int field_a_len_;
+    int field_hover_start_;
+    int field_hover_len_;
 
     bool show_offset_;          // Should we show the byte offset?
     bool show_hex_;             // Should we show the hex display?

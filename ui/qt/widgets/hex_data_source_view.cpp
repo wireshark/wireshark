@@ -52,13 +52,14 @@ HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc enc
     layout_dirty_(false),
     encoding_(encoding),
     hovered_byte_offset_(-1),
-    marked_byte_offset_(-1),
     proto_start_(0),
     proto_len_(0),
     field_start_(0),
     field_len_(0),
     field_a_start_(0),
     field_a_len_(0),
+    field_hover_start_(0),
+    field_hover_len_(0),
     show_offset_(true),
     show_hex_(true),
     show_ascii_(true),
@@ -151,6 +152,9 @@ void HexDataSourceView::toggleHoverAllowed(bool checked)
 {
     allow_hover_selection_ = ! checked;
     recent.gui_allow_hover_selection = checked;
+    if (!checked) {
+        hovered_byte_offset_ = -1;
+    }
 }
 
 void HexDataSourceView::updateContextMenu()
@@ -196,13 +200,15 @@ void HexDataSourceView::markProtocol(int start, int length)
     viewport()->update();
 }
 
-void HexDataSourceView::markField(int start, int length, bool scroll_to)
+void HexDataSourceView::markField(int start, int length, bool scroll_to, bool hover)
 {
-    field_start_ = start;
-    field_len_ = length;
-    // This might be called as a result of (de)selecting a proto tree
-    // item, so take us out of marked mode.
-    marked_byte_offset_ = -1;
+    if (hover) {
+        field_hover_start_ = start;
+        field_hover_len_ = length;
+    } else {
+        field_start_ = start;
+        field_len_ = length;
+    }
     if (scroll_to) {
         scrollToByte(start);
     }
@@ -222,7 +228,6 @@ void HexDataSourceView::unmarkField()
     proto_len_ = 0;
     field_start_ = 0;
     field_len_ = 0;
-    marked_byte_offset_ = -1;
     field_a_start_ = 0;
     field_a_len_ = 0;
     viewport()->update();
@@ -302,11 +307,9 @@ void HexDataSourceView::paintEvent(QPaintEvent *)
         qreal hover_alpha = 0.6;
         QPen ho_pen;
         QColor ho_color = palette().text().color();
-        if (marked_byte_offset_ < 0) {
-            hover_alpha = 0.3;
-            if (devicePixelRatio() > 1) {
-                pen_width = 0.5;
-            }
+        hover_alpha = 0.3;
+        if (devicePixelRatio() > 1) {
+            pen_width = 0.5;
         }
         ho_pen.setWidthF(pen_width);
         ho_color.setAlphaF(hover_alpha);
@@ -353,39 +356,34 @@ void HexDataSourceView::mousePressEvent (QMouseEvent *event) {
     // byteSelected does the following:
     // - Triggers selectedFieldChanged in ProtoTree, which clears the
     //   selection and selects the corresponding (or no) item.
-    // - The new tree selection triggers markField, which clobbers
-    //   marked_byte_offset_.
 
-    const bool hover_mode = marked_byte_offset_ < 0;
     const int byte_offset = byteOffsetAtPixel(event->pos());
     setUpdatesEnabled(false);
     emit byteSelected(byte_offset);
-    if (hover_mode && byte_offset >= 0) {
-        // Switch to marked mode.
-        hovered_byte_offset_ = -1;
-        marked_byte_offset_ = byte_offset;
-        viewport()->update();
-    } else {
-        // Back to hover mode.
-        mouseMoveEvent(event);
-    }
+    viewport()->update();
     setUpdatesEnabled(true);
 }
 
 void HexDataSourceView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (marked_byte_offset_ >= 0 || allow_hover_selection_ ||
+    if (allow_hover_selection_ ||
         (!allow_hover_selection_ && event->modifiers() & Qt::ControlModifier)) {
         return;
     }
 
     hovered_byte_offset_ = byteOffsetAtPixel(event->pos());
+    if (hovered_byte_offset_ < 0) {
+        field_hover_start_ = 0;
+        field_hover_len_ = 0;
+    }
     emit byteHovered(hovered_byte_offset_);
     viewport()->update();
 }
 
 void HexDataSourceView::leaveEvent(QEvent *event)
 {
+    field_hover_start_ = 0;
+    field_hover_len_ = 0;
     hovered_byte_offset_ = -1;
     emit byteHovered(hovered_byte_offset_);
 
@@ -491,7 +489,7 @@ void HexDataSourceView::drawLine(QPainter *painter, const int offset, const int 
             if (build_x_pos) {
                 x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, stringWidth(line) - x_pos_to_column_.size() + slop);
             }
-            if (tvb_pos == hovered_byte_offset_ || tvb_pos == marked_byte_offset_) {
+            if (tvb_pos == hovered_byte_offset_) {
                 int ho_len;
                 switch (recent.gui_bytes_view) {
                 case BYTES_HEX:
@@ -523,6 +521,7 @@ void HexDataSourceView::drawLine(QPainter *painter, const int offset, const int 
             offset_mode = ModeOffsetField;
         }
         addHexFormatRange(fmt_list, field_a_start_, field_a_len_, offset, max_tvb_pos, ModeField);
+        addHexFormatRange(fmt_list, field_hover_start_, field_hover_len_, offset, max_tvb_pos, ModeHover);
     }
 
     // ASCII
@@ -586,7 +585,7 @@ void HexDataSourceView::drawLine(QPainter *painter, const int offset, const int 
             if (build_x_pos) {
                 x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, stringWidth(line) - x_pos_to_column_.size());
             }
-            if (tvb_pos == hovered_byte_offset_ || tvb_pos == marked_byte_offset_) {
+            if (tvb_pos == hovered_byte_offset_) {
                 QRect ho_rect = painter->boundingRect(QRect(), 0, line.right(1));
                 ho_rect.moveRight(stringWidth(line));
                 ho_rect.moveTop(row_y);
@@ -601,6 +600,7 @@ void HexDataSourceView::drawLine(QPainter *painter, const int offset, const int 
             offset_mode = ModeOffsetField;
         }
         addAsciiFormatRange(fmt_list, field_a_start_, field_a_len_, offset, max_tvb_pos, ModeField);
+        addAsciiFormatRange(fmt_list, field_hover_start_, field_hover_len_, offset, max_tvb_pos, ModeHover);
     }
 
     // XXX Fields won't be highlighted if neither hex nor ascii are enabled.
@@ -645,6 +645,10 @@ bool HexDataSourceView::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list
         break;
     case ModeNonPrintable:
         format_range.format.setForeground(offset_normal_fg_);
+        break;
+    case ModeHover:
+        format_range.format.setBackground(ColorUtils::hoverBackground());
+        format_range.format.setForeground(palette().text());
         break;
     }
     fmt_list << format_range;

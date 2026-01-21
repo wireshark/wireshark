@@ -79,7 +79,7 @@ void JsonDataSourceView::setMonospaceFont(const QFont &mono_font)
     }
 }
 
-void JsonDataSourceView::markField(int start, int length, bool scroll_to)
+void JsonDataSourceView::markField(int start, int length, bool scroll_to, bool)
 {
     selected_line_ = nullptr;
     int row_y = -line_height_;
