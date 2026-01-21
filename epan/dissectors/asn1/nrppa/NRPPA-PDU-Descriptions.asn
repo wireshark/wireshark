@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V18.6.0 (2025-06)
+-- 3GPP TS 38.455 V19.1.0 (2025-12)
 --
 -- ASN1START
 -- **************************************************************
@@ -67,7 +67,8 @@ FROM NRPPA-CommonDataTypes
 	MeasurementPreconfigurationConfirm,
 	MeasurementPreconfigurationRefuse,
 	MeasurementActivation,
-	SRSInformationReservationNotification
+	SRSInformationReservationNotification,
+	PositioningDataCollectionReport
 
 
 FROM NRPPA-PDU-Contents
@@ -94,7 +95,8 @@ FROM NRPPA-PDU-Contents
 	id-pRSConfigurationExchange,
 	id-measurementPreconfiguration,
 	id-measurementActivation,
-	id-sRSInformationReservationNotification
+	id-sRSInformationReservationNotification,
+	id-positioningDataCollectionReport
 
 
 
@@ -196,7 +198,8 @@ NRPPA-ELEMENTARY-PROCEDURES-CLASS-2 NRPPA-ELEMENTARY-PROCEDURE ::= {
 	measurementFailureIndication		|
 	positioningDeactivation		|
 	measurementActivation					|
-	sRSInformationReservationNotification,
+	sRSInformationReservationNotification	|
+	positioningDataCollectionReport,
 	...
 }
 
@@ -364,6 +367,13 @@ sRSInformationReservationNotification NRPPA-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE			id-sRSInformationReservationNotification
 	CRITICALITY				reject
 }
+
+positioningDataCollectionReport NRPPA-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningDataCollectionReport
+	PROCEDURE CODE			id-positioningDataCollectionReport
+	CRITICALITY				reject
+}
+
 
 
 END

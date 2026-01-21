@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V18.6.0 (2025-06)
+-- 3GPP TS 38.455 V19.1.0 (2025-12)
 --9.3.4	PDU Definitions
 --
 -- **************************************************************
@@ -90,7 +90,10 @@ IMPORTS
 	PosSRSResourceSet-Aggregation-List,
 	Remote-UE-Indication-Request,
 	Remote-UE-Indication,
-	Remote-UE-Status
+	Remote-UE-Status,
+	PositioningDataInformation,
+	PositioningDataUnavailable,
+	PositioningDataCollectionNeeded
 
 
 
@@ -185,7 +188,9 @@ FROM NRPPA-Containers
 	id-PreconfiguredSRSInformation,
 	id-Remote-UE-Indication-Request,
 	id-Remote-UE-Indication,
-	id-Remote-UE-Status
+	id-Remote-UE-Status,
+	id-PositioningDataInformation,
+	id-PositioningDataUnavailable
 
 
 
@@ -622,7 +627,6 @@ MeasurementReport-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-LMF-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
 	{ ID id-RAN-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
 	{ ID id-TRP-MeasurementReportList			CRITICALITY reject	TYPE TRP-MeasurementResponseList PRESENCE mandatory},
-
 	...
 }
 
@@ -981,6 +985,24 @@ SRSInformationReservationNotification-IEs NRPPA-PROTOCOL-IES ::= {
 	...
 }
 
+-- **************************************************************
+--
+-- POSITIONING DATA COLLECTION REPORT
+--
+-- **************************************************************
+
+PositioningDataCollectionReport ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ PositioningDataCollectionReport-IEs}},
+	...
+}
+
+PositioningDataCollectionReport-IEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-LMF-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID		PRESENCE mandatory}|
+	{ ID id-RAN-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID		PRESENCE mandatory}|
+	{ ID id-PositioningDataInformation	CRITICALITY ignore	TYPE PositioningDataInformation	PRESENCE optional}|
+	{ ID id-PositioningDataUnavailable	CRITICALITY ignore	TYPE PositioningDataUnavailable	PRESENCE optional},
+	...
+}
 
 
 END

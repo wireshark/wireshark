@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V18.6.0 (2025-06)
+-- 3GPP TS 38.455 V19.1.0 (2025-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -49,6 +49,7 @@ id-pRSConfigurationExchange										ProcedureCode ::= 19
 id-measurementPreconfiguration									ProcedureCode ::= 20
 id-measurementActivation										ProcedureCode ::= 21
 id-sRSInformationReservationNotification						ProcedureCode ::= 22
+id-positioningDataCollectionReport								ProcedureCode ::= 23
 
 
 -- **************************************************************
@@ -118,7 +119,7 @@ maxnoPreconfiguredSRS						INTEGER ::= 16
 maxnoofHopsMinusOne							INTEGER ::= 5
 maxnoAggCombinations						INTEGER ::= 2
 maxnoAggregatedPosSRSCombinations			INTEGER ::= 32
-
+maxnoofChannelRes							INTEGER ::= 24
 
 
 
@@ -293,6 +294,15 @@ id-PreconfiguredSRSInformation									ProtocolIE-ID ::= 163
 id-DL-reference-signal-UERxTx-TD								ProtocolIE-ID ::= 164
 id-SRSPosPeriodicConfigHyperSFNIndex							ProtocolIE-ID ::= 165
 id-ValidityAreaSpecificSRSInformationExtended					ProtocolIE-ID ::= 166
+id-E-CID-AoA-NR-per-TRP											ProtocolIE-ID ::= 167
+id-WAB-MT-UE-ID													ProtocolIE-ID ::= 168
+id-ChannelResponseInformation									ProtocolIE-ID ::= 169
+id-UL-SRS-TDCT													ProtocolIE-ID ::= 170
+id-PositioningDataInformation									ProtocolIE-ID ::= 171
+id-PositioningDataUnavailable									ProtocolIE-ID ::= 172
+id-PositioningDataCollectionNeeded								ProtocolIE-ID ::= 173
+id-Inferred-measurement											ProtocolIE-ID ::= 174
+
 
 
 

@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V18.6.0 (2025-06)
+-- 3GPP TS 38.455 V19.1.0 (2025-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -91,6 +91,7 @@ IMPORTS
 	maxnoofHopsMinusOne,
 	maxnoAggCombinations,
 	maxnoAggregatedPosSRSCombinations,
+	maxnoofChannelRes,
 	id-Cell-ID,
 	id-TRPInformationTypeItem,
 	id-SrsFrequency,
@@ -164,7 +165,14 @@ IMPORTS
 	id-LocalOrigin,
 	id-DL-reference-signal-UERxTx-TD,
 	id-SRSPosPeriodicConfigHyperSFNIndex,
-	id-ValidityAreaSpecificSRSInformationExtended
+	id-ValidityAreaSpecificSRSInformationExtended,
+	id-E-CID-AoA-NR-per-TRP,
+	id-WAB-MT-UE-ID,
+	id-ChannelResponseInformation,
+	id-UL-SRS-TDCT,
+	id-Inferred-measurement,
+	id-PositioningDataCollectionNeeded
+
 
 
 
@@ -529,6 +537,21 @@ CGI-NR-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+ChannelResponseInformation ::= SEQUENCE {
+	channelResponseWindowSize	ChannelResponseWindowSize,
+	channelResponseNumber		ChannelResponseNumber,
+	iE-Extensions				ProtocolExtensionContainer { { ChannelResponseInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+ChannelResponseInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ChannelResponseWindowSize ::= ENUMERATED {ws32, ws64, ws128, ...}
+
+ChannelResponseNumber ::= ENUMERATED {n8, n16, n24, ...}
+
 
 CPLength-EUTRA ::= ENUMERATED {
 	normal,
@@ -689,6 +712,23 @@ E-CID-MeasurementResult-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+E-CID-AoA-NR-per-TRP ::= SEQUENCE (SIZE (1..maxNoOfMeasTRPs)) OF E-CID-AoA-NR-per-TRP-Item
+
+E-CID-AoA-NR-per-TRP-Item ::= SEQUENCE {
+	tRP-ID							TRP-ID,
+	geographicalCoordinates			GeographicalCoordinates		OPTIONAL,
+	uL-AngleOfArrival				UL-AoA,
+	timeStamp						TimeStamp,
+	measurementQuality				TrpMeasurementQuality		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer {{ E-CID-AoA-NR-per-TRP-Item-ExtIEs}}	OPTIONAL,
+	...
+}
+
+E-CID-AoA-NR-per-TRP-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
 EUTRACellIdentifier ::= BIT STRING (SIZE (28))
 
 EARFCN ::= INTEGER (0..262143, ...)
@@ -756,6 +796,8 @@ GNBRxTxTimeDiffMeas-ExtIEs		NRPPA-PROTOCOL-IES ::= {
 HESSID ::= OCTET STRING (SIZE(6))
 
 -- I
+
+Inferred-measurement ::= BIT STRING (SIZE (8))
 
 -- J
 
@@ -937,7 +979,8 @@ MeasurementQuantitiesValue ::= ENUMERATED {
 	cSI-RSRQ,
 	angleOfArrivalNR,
 	timingAdvanceNR,
-	uE-Rx-Tx-Time-Diff
+	uE-Rx-Tx-Time-Diff,
+	angleOfArrivalNR-per-TRP
 }
 
 MeasurementTimeOccasion ::= ENUMERATED {o1, o4, ...}
@@ -976,7 +1019,8 @@ MeasuredResultsValue-ExtensionIE NRPPA-PROTOCOL-IES ::= {
 	{ ID id-ResultCSI-RSRQ		CRITICALITY ignore	TYPE ResultCSI-RSRQ		PRESENCE mandatory	}|
 	{ ID id-AngleOfArrivalNR	CRITICALITY ignore	TYPE UL-AoA				PRESENCE mandatory	}|
 	{ ID id-NR-TADV				CRITICALITY ignore	TYPE NR-TADV			PRESENCE mandatory	}|
-	{ ID id-UE-Rx-Tx-Time-Diff 	CRITICALITY ignore	TYPE UE-Rx-Tx-Time-Diff PRESENCE mandatory	},
+	{ ID id-UE-Rx-Tx-Time-Diff 	CRITICALITY ignore	TYPE UE-Rx-Tx-Time-Diff PRESENCE mandatory	}|
+	{ ID id-E-CID-AoA-NR-per-TRP CRITICALITY ignore	TYPE E-CID-AoA-NR-per-TRP		PRESENCE mandatory	},
 	...
 }
 
@@ -1391,7 +1435,46 @@ PosSIB-Type ::= ENUMERATED {
 	posSibType7-4
 }
 
+PositioningDataInformation ::= SEQUENCE {
+	tRP-Measurement-List		TRP-Measurement-List,
+	iE-extensions				ProtocolExtensionContainer { { TRP-Measurement-List-ExtIEs} } OPTIONAL,
+	...
+}
 
+TRP-Measurement-List-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TRP-Measurement-List ::= SEQUENCE (SIZE (1..maxNoOfMeasTRPs)) OF TRP-Measurement-Item
+TRP-Measurement-Item ::= SEQUENCE {
+	tRP-ID				TRP-ID,
+	uL-RTOA				UL-RTOAMeasurement	OPTIONAL,
+	gNB-RxTxTimeDiff	GNB-RxTxTimeDiff	OPTIONAL,
+	los-nlos-info		LoS-NLoSInformation	OPTIONAL,
+	timeStamp			TimeStamp,
+	measurementQuality	TrpMeasurementQuality	OPTIONAL,
+	iE-extensions		ProtocolExtensionContainer { { TRP-Measurement-Item-ExtIEs } } OPTIONAL,
+	...
+}
+
+TRP-Measurement-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PositioningDataUnavailable ::= ENUMERATED {
+	not-supported,
+	not-available,
+	...}
+
+PositioningDataCollectionNeeded ::= SEQUENCE {
+	requested-PosDataCollection 		BIT STRING (SIZE(8)),
+	iE-extensions		ProtocolExtensionContainer { { PositioningDataCollectionNeeded-ExtIEs } } OPTIONAL,
+	...
+}
+
+PositioningDataCollectionNeeded-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 PRSBWAggregationRequestInfoList ::= SEQUENCE (SIZE (1..maxnoAggCombinations)) OF PRSBWAggregationRequestInfo-Item
 
@@ -3159,18 +3242,19 @@ TRP-Beam-Power-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 TRPMeasurementQuantities ::= SEQUENCE (SIZE (1..maxnoPosMeas)) OF TRPMeasurementQuantitiesList-Item
 
 TRPMeasurementQuantitiesList-Item ::= SEQUENCE {
-	tRPMeasurementQuantities-Item		TRPMeasurementType,
+	tRPMeasurementType					TRPMeasurementType,
 	timingReportingGranularityFactor	INTEGER (0..5) OPTIONAL,
 	iE-Extensions			ProtocolExtensionContainer {{ TRPMeasurementQuantitiesList-Item-ExtIEs}}		OPTIONAL,
 	...
 }
 
 TRPMeasurementQuantitiesList-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
-	{ID id-TimingReportingGranularityFactorExtended	CRITICALITY ignore EXTENSION TimingReportingGranularityFactorExtended PRESENCE optional},
+	{ID id-TimingReportingGranularityFactorExtended	CRITICALITY ignore EXTENSION TimingReportingGranularityFactorExtended PRESENCE optional}|
+	{ID id-ChannelResponseInformation				CRITICALITY ignore EXTENSION ChannelResponseInformation 				PRESENCE optional},
 	...
 }
 
-TRPMeasurementType::= ENUMERATED {
+TRPMeasurementType ::= ENUMERATED {
 	gNB-RxTxTimeDiff,
 	uL-SRS-RSRP,
 	uL-AoA,
@@ -3178,7 +3262,8 @@ TRPMeasurementType::= ENUMERATED {
 	...,
 	multiple-UL-AoA,
 	uL-SRS-RSRPP,
-	ul-RSCP
+	ul-RSCP,
+	ul-SRS-TDCT
 }
 
 TrpMeasurementResult ::= SEQUENCE (SIZE (1.. maxnoPosMeas)) OF TrpMeasurementResultItem
@@ -3198,7 +3283,8 @@ TrpMeasurementResultItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	{ ID id-Mobile-TRP-LocationInformation	CRITICALITY ignore EXTENSION Mobile-TRP-LocationInformation	PRESENCE optional }|
 	{ ID id-MeasuredFrequencyHops			CRITICALITY ignore EXTENSION MeasuredFrequencyHops					PRESENCE optional }|
 	{ ID id-AggregatedPosSRSResourceID-List	CRITICALITY ignore EXTENSION AggregatedPosSRSResourceID-List	PRESENCE optional }|
-	{ ID id-MeasBasedOnAggregatedResources			CRITICALITY ignore EXTENSION MeasBasedOnAggregatedResources PRESENCE optional },
+	{ ID id-MeasBasedOnAggregatedResources			CRITICALITY ignore EXTENSION MeasBasedOnAggregatedResources PRESENCE optional }|
+	{ ID id-Inferred-measurement			CRITICALITY ignore EXTENSION Inferred-measurement PRESENCE optional },
 	...
 }
 
@@ -3214,7 +3300,8 @@ TrpMeasuredResultsValue-ExtIEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-ZoA		CRITICALITY reject TYPE ZoA PRESENCE mandatory}|
 	{ ID id-MultipleULAoA	CRITICALITY reject TYPE MultipleULAoA PRESENCE mandatory}|
 	{ ID id-UL-SRS-RSRPP	CRITICALITY reject TYPE UL-SRS-RSRPP 	PRESENCE mandatory}|
-	{ ID id-UL-RSCPMeas		CRITICALITY reject TYPE UL-RSCPMeas	PRESENCE mandatory},
+	{ ID id-UL-RSCPMeas		CRITICALITY reject TYPE UL-RSCPMeas	PRESENCE mandatory}|
+	{ ID id-UL-SRS-TDCT		CRITICALITY reject TYPE UL-SRS-TDCT	PRESENCE mandatory},
 	...
 }
 
@@ -3291,7 +3378,8 @@ TRP-MeasurementResponseItem ::= SEQUENCE {
 }
 
 TRP-MeasurementResponseItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
-	{ ID id-Cell-ID		CRITICALITY ignore EXTENSION CGI-NR		PRESENCE optional },
+	{ ID id-Cell-ID								CRITICALITY ignore 	EXTENSION 				CGI-NR								PRESENCE optional }|
+	{ ID id-PositioningDataCollectionNeeded		CRITICALITY ignore	EXTENSION  PositioningDataCollectionNeeded		PRESENCE optional},
 	...
 }
 
@@ -3330,8 +3418,10 @@ TRPInformation ::= SEQUENCE {
 }
 
 TRPInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
-	{ ID id-Mobile-IAB-MT-UE-ID			CRITICALITY reject EXTENSION Mobile-IAB-MT-UE-ID		PRESENCE optional},
+	{ ID id-Mobile-IAB-MT-UE-ID			CRITICALITY reject EXTENSION Mobile-IAB-MT-UE-ID		PRESENCE optional}|
 --This IE shall be present if the TRP type IE is set to the value "mobile trp"
+	{ ID id-WAB-MT-UE-ID			CRITICALITY reject EXTENSION WAB-MT-UE-ID		PRESENCE optional},
+--This IE shall be present if the TRP type IE is set to the value "mobile trp of wab-gnb"
 	...
 }
 
@@ -3535,7 +3625,8 @@ TRPType ::= ENUMERATED {
 	rp,
 	trp,
 	...,
-	mobile-trp
+	mobile-trp,
+	mobile-trp-of-wab-gnb
 }
 
 
@@ -3693,6 +3784,46 @@ UL-SRS-RSRPP-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+UL-SRS-TDCT ::= SEQUENCE {
+	uL-SRS-TDCT-List			UL-SRS-TDCT-List,
+	iE-Extensions				ProtocolExtensionContainer { { UL-SRS-TDCT-ExtIEs } }	OPTIONAL,
+	...
+}
+
+UL-SRS-TDCT-ExtIEs 	NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UL-SRS-TDCT-List ::= SEQUENCE (SIZE(1..maxnoofChannelRes)) OF UL-SRS-TDCT-Item
+
+UL-SRS-TDCT-Item ::= SEQUENCE {
+	timingInformation	UL-SRS-TDCT-Information,
+	powerInformation	UL-SRS-TDCP-Item				OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { UL-SRS-TDCT-Item-ExtIEs } }	OPTIONAL,
+	...
+}
+
+UL-SRS-TDCT-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UL-SRS-TDCT-Information ::= CHOICE {
+	k0					INTEGER (0..1970049),
+	k1					INTEGER (0..985025),
+	k2					INTEGER (0..492513),
+	k3					INTEGER (0..246257),
+	k4					INTEGER (0..123129),
+	k5					INTEGER (0..61565),
+	choice-Extension		ProtocolIE-Single-Container {{ UL-SRS-TDCT-Information-ExtIEs}}
+}
+
+UL-SRS-TDCT-Information-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+UL-SRS-TDCP-Item ::= INTEGER (0..126)
+
+
 UplinkChannelBW-PerSCS-List ::= SEQUENCE (SIZE (1..maxnoSCSs)) OF SCS-SpecificCarrier
 
 
@@ -3796,6 +3927,8 @@ WLANCountryCode ::= ENUMERATED {
 }
 
 WLANOperatingClass ::= INTEGER (0..255)
+
+WAB-MT-UE-ID ::= OCTET STRING
 
 -- X
 
