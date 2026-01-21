@@ -22,6 +22,7 @@
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
 #include <epan/dissectors/packet-lin.h>
+#include <epan/dissectors/packet-socketcan.h>
 
 #include <wiretap/ttl.h>
 
@@ -973,22 +974,45 @@ dissect_ttl_eth_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 }
 
 static unsigned
-dissect_ttl_can_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree,
-    tvbuff_t* status_tvb, proto_tree* status_tree) {
+dissect_ttl_can_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
+    tvbuff_t* status_tvb, proto_tree* status_tree, uint16_t src) {
     proto_item* ti;
+    proto_tree* payload_subtree;
+    uint64_t    flags;
+    uint32_t    id, size;
     unsigned    offset = 0;
 
-    proto_tree_add_bitmask(status_tree, status_tvb, TVB_STATUS_POS, hf_ttl_trace_data_entry_status_info_can_flags,
-        ett_ttl_trace_data_entry_status_info_can_flags, ttl_trace_data_entry_status_info_can_flags, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask_ret_uint64(status_tree, status_tvb, TVB_STATUS_POS, hf_ttl_trace_data_entry_status_info_can_flags,
+        ett_ttl_trace_data_entry_status_info_can_flags, ttl_trace_data_entry_status_info_can_flags, ENC_LITTLE_ENDIAN, &flags);
     proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_can_error_code, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_can_res, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(status_tree, hf_ttl_trace_data_entry_status_info_can_dlc, status_tvb, TVB_STATUS_POS, 2, ENC_LITTLE_ENDIAN);
 
-    proto_tree_add_item(tree, hf_ttl_trace_data_entry_can_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_ttl_trace_data_entry_can_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &id);
     offset += 4;
 
-    ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry_payload, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+    size = tvb_reported_length_remaining(tvb, offset);
+    ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry_payload, tvb, offset, size, ENC_NA);
+    payload_subtree = proto_item_add_subtree(ti, ett_ttl_trace_data_entry_payload);
     proto_item_prepend_text(ti, "CAN ");
+
+    if (pref_dissect_next_layer) {
+        uint16_t status = tvb_get_uint16(status_tvb, TVB_STATUS_POS, ENC_LITTLE_ENDIAN);
+        if (status & TTL_CAN_STATUS_IDE_BIT_MASK) id |= CAN_EFF_FLAG;
+
+        const char* iface_name = g_hash_table_lookup(address_to_name_ht, GUINT_TO_POINTER(src));
+        struct can_info caninfo = {
+            .id = id,
+            .len = size,
+            .fd = !!(status & TTL_CAN_STATUS_EDL_BIT_MASK),
+            .bus_id = can_get_bus_id_from_interface_name(iface_name)
+        };
+
+        tvbuff_t* next_tvb = tvb_new_subset_length(tvb, offset, size);
+        if (!socketcan_call_subdissectors(next_tvb, pinfo, payload_subtree, &caninfo, false)) {
+            call_data_dissector(next_tvb, pinfo, payload_subtree);
+        }
+    }
 
     return tvb_reported_length(tvb);
 }
@@ -1107,7 +1131,7 @@ dissect_ttl_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
     case WTAP_ENCAP_SOCKETCAN:
         proto_item_append_text(root, " (CAN)");
         if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (CAN)");
-        offset += dissect_ttl_can_bus_data_entry(tvb, pinfo, tree, status_tvb, status_tree);
+        offset += dissect_ttl_can_bus_data_entry(tvb, pinfo, tree, status_tvb, status_tree, src);
         break;
     case WTAP_ENCAP_LIN:
         proto_item_append_text(root, " (LIN)");
