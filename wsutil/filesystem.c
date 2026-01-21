@@ -47,7 +47,6 @@
 #define PROFILES_DIR    "profiles"
 #define PLUGINS_DIR_NAME    "plugins"
 #define EXTCAP_DIR_NAME     "extcap"
-#define PROFILES_INFO_NAME  "profile_files.txt"
 
 #define _S G_DIR_SEPARATOR_S
 
