@@ -71,7 +71,7 @@
 #include <wsutil/ws_padding_to.h>
 
 #include "packet-rsvp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_ospf(void);
 void proto_reg_handoff_ospf(void);

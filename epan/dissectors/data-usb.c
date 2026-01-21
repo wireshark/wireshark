@@ -25659,4 +25659,3 @@ static const value_string usb_products_vals[] = {
     { 0, NULL }
 };
 value_string_ext ext_usb_products_vals = VALUE_STRING_EXT_INIT(usb_products_vals);
-

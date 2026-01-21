@@ -110,7 +110,7 @@
 #include "packet-e212.h"
 #include "packet-ppp.h"
 #include "packet-e164.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_gsm_a_gm(void);
 void proto_reg_handoff_gsm_a_gm(void);

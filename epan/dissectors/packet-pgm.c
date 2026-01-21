@@ -21,7 +21,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
-#include "packet-iana-data.h"
+#include "data-iana.h"
 /*
  * RFC 3208
  *

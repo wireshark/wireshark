@@ -24,7 +24,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_userlog(void);
 void proto_reg_handoff_userlog(void);

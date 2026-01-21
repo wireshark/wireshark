@@ -65,7 +65,7 @@
 #include <wsutil/ws_roundup.h>
 
 #include "packet-sctp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
  /*
   * Based on https://www.iana.org/assignments/sctp-parameters/sctp-parameters.xhtml

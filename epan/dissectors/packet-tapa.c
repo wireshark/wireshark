@@ -24,7 +24,7 @@ Specs:
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include "packet-ip.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_reg_handoff_tapa(void);
 void proto_register_tapa(void);

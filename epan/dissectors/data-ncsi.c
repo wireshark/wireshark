@@ -6,8 +6,8 @@
  *
  * List of PCI IDs
  *
- * Version: 2026.01.18
- * Date:    2026-01-18 03:15:02
+ * Version: 2026.01.21
+ * Date:    2026-01-21 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -34,7 +34,7 @@
 
 #include "wsutil/array.h"
 
-#include "packet-ncsi-data.h"
+#include "data-ncsi.h"
 
 typedef struct
 {
@@ -34196,6 +34196,7 @@ static pci_id_t const pci_vid_1EC8[] = {
 {0x1EC8, 0x8810, 0x1EC8, 0x12A2, "Fantasy I Device(0x1EC8-0x12A2)"},
 {0x1EC8, 0x8900, 0xFFFF, 0xFFFF, "GR308(0x8900)"},
 {0x1EC8, 0x8902, 0xFFFF, 0xFFFF, "GR3 Audio(0x8902)"},
+{0x1EC8, 0x8904, 0xFFFF, 0xFFFF, "GR308(0x8904)"},
 {0x1EC8, 0x9800, 0xFFFF, 0xFFFF, "Fantasy II(0x9800)"},
 {0x1EC8, 0x9800, 0x1EC8, 0x12A2, "Fantasy II Device(0x1EC8-0x12A2)"},
 {0x1EC8, 0x9802, 0xFFFF, 0xFFFF, "Fantasy II(0x9802)"},
@@ -35414,6 +35415,12 @@ static pci_id_t const pci_vid_2061[] = {
 {0x2061, 0x5300, 0x2061, 0x2044, "E5300 NVMe SSD 7.68TB PCIe 5.0 U.2(0x2061-0x2044)"},
 {0x2061, 0x5300, 0x2061, 0x2045, "E5300 NVMe SSD 12.8TB PCIe 5.0 U.2(0x2061-0x2045)"},
 {0x2061, 0x5300, 0x2061, 0x2046, "E5300 NVMe SSD 15.36TB PCIe 5.0 U.2(0x2061-0x2046)"},
+{0x2061, 0x5300, 0x2061, 0x2085, "E5300 NVMe SSD 3.2TB PCIe 5.0 U.2(0x2061-0x2085)"},
+{0x2061, 0x5300, 0x2061, 0x2086, "E5300 NVMe SSD 3.84TB PCIe 5.0 U.2(0x2061-0x2086)"},
+{0x2061, 0x5300, 0x2061, 0x2087, "E5300 NVMe SSD 6.4TB PCIe 5.0 U.2(0x2061-0x2087)"},
+{0x2061, 0x5300, 0x2061, 0x2088, "E5300 NVMe SSD 7.68TB PCIe 5.0 U.2(0x2061-0x2088)"},
+{0x2061, 0x5300, 0x2061, 0x2089, "E5300 NVMe SSD 12.8TB PCIe 5.0 U.2(0x2061-0x2089)"},
+{0x2061, 0x5300, 0x2061, 0x208A, "E5300 NVMe SSD 15.36TB PCIe 5.0 U.2(0x2061-0x208A)"},
 }; /* pci_vid_2061[] */
 
 static pci_id_t const pci_vid_2063[] = {
@@ -35617,6 +35624,10 @@ static pci_id_t const pci_vid_20F6[] = {
 {0x20F6, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen Zhishi Network Technology Co., Ltd.(0x20F6)"},
 {0x20F6, 0x0001, 0xFFFF, 0xFFFF, "MPU H1(0x0001)"},
 }; /* pci_vid_20F6[] */
+
+static pci_id_t const pci_vid_20F9[] = {
+{0x20F9, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen Silicon Dynamic Networks Co., Ltd.(0x20F9)"},
+}; /* pci_vid_20F9[] */
 
 static pci_id_t const pci_vid_2116[] = {
 {0x2116, 0xFFFF, 0xFFFF, 0xFFFF, "ZyDAS Technology Corp.(0x2116)"},
@@ -46356,7 +46367,7 @@ static pci_id_t const pci_vid_8086[] = {
 {0x8086, 0xE35D, 0xFFFF, 0xFFFF, "Panther Lake CSME HECI #1(0xE35D)"},
 {0x8086, 0xE360, 0xFFFF, 0xFFFF, "Panther Lake Thunderbolt 4 PCI Express Root Port #2(0xE360)"},
 {0x8086, 0xE361, 0xFFFF, 0xFFFF, "Panther Lake PCI Express Root Port C1(0xE361)"},
-{0x8086, 0xE362, 0xFFFF, 0xFFFF, "Panther Lake Microsoft Pluton Security Processor(0xE362)"},
+{0x8086, 0xE362, 0xFFFF, 0xFFFF, "Primary to Sideband (P2SB) Bridge IOE(0xE362)"},
 {0x8086, 0xE363, 0xFFFF, 0xFFFF, "Panther Lake PCI Express Root Port C3(0xE363)"},
 {0x8086, 0xE364, 0xFFFF, 0xFFFF, "Panther Lake PCI Express Root Port C4(0xE364)"},
 {0x8086, 0xE365, 0xFFFF, 0xFFFF, "Panther Lake PCI Express Root Port D1(0xE365)"},
@@ -50085,7 +50096,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1EB9, 2, pci_vid_1EB9 },
 {0x1EBD, 2, pci_vid_1EBD },
 {0x1EC6, 49, pci_vid_1EC6 },
-{0x1EC8, 16, pci_vid_1EC8 },
+{0x1EC8, 17, pci_vid_1EC8 },
 {0x1EC9, 1, pci_vid_1EC9 },
 {0x1ECA, 2, pci_vid_1ECA },
 {0x1ED0, 2, pci_vid_1ED0 },
@@ -50170,7 +50181,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x2058, 1, pci_vid_2058 },
 {0x205C, 6, pci_vid_205C },
 {0x205D, 1, pci_vid_205D },
-{0x2061, 37, pci_vid_2061 },
+{0x2061, 43, pci_vid_2061 },
 {0x2063, 33, pci_vid_2063 },
 {0x206D, 1, pci_vid_206D },
 {0x2077, 1, pci_vid_2077 },
@@ -50200,6 +50211,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x20E7, 1, pci_vid_20E7 },
 {0x20F4, 1, pci_vid_20F4 },
 {0x20F6, 2, pci_vid_20F6 },
+{0x20F9, 1, pci_vid_20F9 },
 {0x2116, 1, pci_vid_2116 },
 {0x21B4, 1, pci_vid_21B4 },
 {0x21C3, 1, pci_vid_21C3 },
@@ -50488,7 +50500,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2486 VIDs */
+}; /* We have 2487 VIDs */
 
 static int vid_search(const void *key, const void *tbl_entry)
 {

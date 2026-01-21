@@ -29,7 +29,7 @@
 #include <wsutil/array.h>
 #include "packet-rohc.h"
 #include "packet-rtp_pt.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_rohc(void);
 void proto_reg_handoff_rohc(void);

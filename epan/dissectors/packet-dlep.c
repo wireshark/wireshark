@@ -31,7 +31,7 @@
 #include <wsutil/array.h>
 
 #include "packet-tcp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 /* Section 13: DLEP Data Items */
 

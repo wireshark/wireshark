@@ -41,7 +41,7 @@
 #include <wsutil/array.h>
 #include <epan/oui.h>
 
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-enip.h"
 
 #define DEFAULT_COLUMN_INFO            1

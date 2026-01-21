@@ -24,7 +24,7 @@
 
 /* Grab constants for generating supporting layers */
 #include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-iana-data.h>
+#include <epan/dissectors/data-iana.h>
 
 #include <wsutil/wsjson.h>
 

@@ -26,7 +26,7 @@
 #include <wsutil/str_util.h>
 #include "packet-frame.h"
 #include "packet-osi.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_cotp(void);
 void proto_register_cltp(void);

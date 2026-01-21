@@ -79,7 +79,7 @@
 #include "packet-ppp.h"
 #include "packet-llc.h"
 #include "packet-arcnet.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 void proto_register_vines_frp(void);

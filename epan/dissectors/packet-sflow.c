@@ -51,7 +51,7 @@
 #include <wsutil/ws_padding_to.h>
 
 #include "packet-sflow.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 #define SFLOW_UDP_PORTS "6343"
 

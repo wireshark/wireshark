@@ -79,7 +79,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 
 #include "packet-ipsec.h"
 #include "packet-ip.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_ipsec(void);
 void proto_reg_handoff_ipsec(void);

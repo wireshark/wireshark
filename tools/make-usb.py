@@ -156,13 +156,12 @@ header="""/* usb.c
 #include <epan/packet.h>
 """
 
-f = open('epan/dissectors/usb.c', 'w')
+f = open('epan/dissectors/data-usb.c', 'w')
 f.write(header)
 f.write("\n")
 f.write(vendors_str)
 f.write("\n\n")
 f.write(products_str)
-f.write("\n")
 f.close()
 
 print("Success!")

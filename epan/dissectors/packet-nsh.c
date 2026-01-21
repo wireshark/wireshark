@@ -28,7 +28,7 @@
 
 #include "packet-nsh.h"
 #include "packet-vxlan.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 #define MD_TYPE_1 1
 #define MD_TYPE_2 2

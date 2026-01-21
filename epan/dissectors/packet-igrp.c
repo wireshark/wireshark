@@ -22,7 +22,7 @@
 #include <epan/to_str.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 void proto_register_igrp(void);

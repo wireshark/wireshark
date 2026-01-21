@@ -31,7 +31,7 @@
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
 #include "packet-ppp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 /* Store the last connection number we've seen.

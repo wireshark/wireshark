@@ -20,7 +20,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_lisp(void);
 void proto_reg_handoff_lisp(void);

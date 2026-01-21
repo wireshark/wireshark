@@ -114,7 +114,7 @@
 
 #include <wsutil/str_util.h>
 #include "packet-igmp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 void proto_register_igmp(void);

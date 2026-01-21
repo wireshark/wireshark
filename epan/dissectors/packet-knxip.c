@@ -36,7 +36,7 @@
 
 #include "packet-tcp.h"
 #include "packet-udp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-knxip.h"
 #include "packet-knxip_decrypt.h"
 

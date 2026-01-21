@@ -28,7 +28,7 @@ def exit_msg(msg=None, status=1):
 req_headers = { 'User-Agent': 'Wireshark generate-bacnet-vendors' }
 url = "https://bacnet.org/assigned-vendor-ids/"
 
-OUTPUT_FILE = "epan/dissectors/packet-bacnet-data.c"
+OUTPUT_FILE = "epan/dissectors/data-bacnet.c"
 
 MIN_VENDORS = 1500 # 1581 as of 2025-12-01
 

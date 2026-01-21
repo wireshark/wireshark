@@ -34,7 +34,7 @@
 #include <epan/expert.h>
 #include "packet-rdm.h"
 #include "packet-arp.h"
-#include "packet-dmx-manfid.h"
+#include "data-dmx-manfid.h"
 
 void proto_register_rdm(void);
 void proto_reg_handoff_rdm(void);

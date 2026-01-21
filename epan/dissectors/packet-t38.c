@@ -48,7 +48,7 @@
 #include <epan/proto_data.h>
 #include <wsutil/array.h>
 
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-t38.h"
 #include "packet-per.h"
 #include "packet-tpkt.h"

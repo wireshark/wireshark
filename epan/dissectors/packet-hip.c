@@ -26,7 +26,7 @@
 #include <epan/expert.h>
 
 #include <epan/in_cksum.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 void proto_register_hip(void);

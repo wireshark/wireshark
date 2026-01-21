@@ -35,7 +35,7 @@
 #include "packet-sflow.h"
 #include "packet-l2tp.h"
 #include "packet-osi.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_ppp_raw_hdlc(void);
 void proto_reg_handoff_ppp_raw_hdlc(void);

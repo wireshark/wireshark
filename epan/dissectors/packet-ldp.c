@@ -36,7 +36,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-diffserv-mpls-common.h"
 #include "packet-ldp.h"
 

@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-#ifndef __PACKET_IANA_DATA_H__
-#define __PACKET_IANA_DATA_H__
+#ifndef __DATA_IANA_H__
+#define __DATA_IANA_H__
 
 #include "ws_symbol_export.h"
 #include <wsutil/value_string.h>
@@ -224,4 +224,4 @@ WS_DLL_PUBLIC value_string_ext ipproto_val_ext;
 }
 #endif /* __cplusplus */
 
-#endif /* __PACKET_IANA_DATA_H__ */
+#endif /* __DATA_IANA_H__ */

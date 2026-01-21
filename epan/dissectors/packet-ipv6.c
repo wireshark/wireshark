@@ -40,7 +40,7 @@
 #include <epan/unit_strings.h>
 
 #include <wiretap/erf_record.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-ip.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"

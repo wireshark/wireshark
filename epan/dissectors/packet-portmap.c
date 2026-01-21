@@ -18,7 +18,7 @@
 #include "packet-rpc.h"
 #include "packet-portmap.h"
 #include "packet-ip.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 /*
  * See:

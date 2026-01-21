@@ -28,7 +28,7 @@
 #include <wsutil/array.h>
 
 #include "packet-tcp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 #include "packet-ber.h"
 #include "packet-ros.h"

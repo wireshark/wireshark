@@ -23,7 +23,7 @@
 #include "packet-juniper.h"
 #include "packet-llc.h"
 #include "packet-chdlc.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_reg_handoff_osi(void);
 void proto_register_osi(void);

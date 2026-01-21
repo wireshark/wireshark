@@ -261,6 +261,7 @@ source_group(dissectors-ncp2222 FILES ${NCP2222_DISSECTOR_SRC})
 #
 set(DISSECTOR_PUBLIC_HEADERS
 	# Do not edit this list by hand. Generate it by running tools/generate-dissector-lists.py instead.
+	data-iana.h
 	file-pcapng.h
 	packet-a21.h
 	packet-ansi_a.h
@@ -303,7 +304,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-h248.h
 	packet-http.h
 	packet-http2.h
-	packet-iana-data.h
 	packet-ieee1609dot2.h
 	packet-ieee80211-radiotap-defs.h
 	packet-ieee80211-radiotap-iter.h
@@ -489,7 +489,6 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-babel.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bacapp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bacnet.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-bacnet-data.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-banana.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bat.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-batadv.c
@@ -512,7 +511,6 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-blip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bluecom.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bluetooth.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-bluetooth-data.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bmc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bofl.c
@@ -738,7 +736,6 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dlsw.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dlt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dmp.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-dmx-manfid.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dmx.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dnp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dns.c
@@ -1003,7 +1000,6 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-http-urlencoded.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hyperscsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-i2c.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-iana-data.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iana-oui.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iapp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iax2.c
@@ -1229,7 +1225,6 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mgcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-midi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-midi-sysex_digitech.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-midi-sysex-id.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mih.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mikey.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mime-encap.c
@@ -1311,7 +1306,6 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncsi.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncsi-data.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ndmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ndp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ndps.c
@@ -1324,7 +1318,6 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-generic.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-netfilter.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-net_dm.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-nl80211.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-mac80211-hwsim.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-psample.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-route.c
@@ -1915,6 +1908,19 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zvt.c
 )
 
+#Data (value_strings, etc) used by dissectors, but has no dissection itself
+set(DISSECTOR_DATA_SRC
+	${CMAKE_CURRENT_SOURCE_DIR}/data-bacnet.c
+	${CMAKE_CURRENT_SOURCE_DIR}/data-bluetooth.c
+	${CMAKE_CURRENT_SOURCE_DIR}/data-dmx-manfid.c
+	${CMAKE_CURRENT_SOURCE_DIR}/data-iana.c
+	${CMAKE_CURRENT_SOURCE_DIR}/data-isobus.c
+	${CMAKE_CURRENT_SOURCE_DIR}/data-midi-sysex-id.c
+	${CMAKE_CURRENT_SOURCE_DIR}/data-ncsi.c
+	${CMAKE_CURRENT_SOURCE_DIR}/data-nl80211.c
+	${CMAKE_CURRENT_SOURCE_DIR}/data-usb.c
+)
+
 set(EVENT_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-procmon.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysdig-event.c
@@ -1937,13 +1943,13 @@ set(DISSECTOR_SUPPORT_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/errno.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-nt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-snort-config.c
-	${CMAKE_CURRENT_SOURCE_DIR}/usb.c
 	${CUSTOM_DISSECTOR_SUPPORT_SRC}
 )
 source_group(dissector-support FILES ${DISSECTOR_SUPPORT_SRC})
 
 set(DISSECTOR_FILES
 	${DISSECTOR_SRC}
+	${DISSECTOR_DATA_SRC}
 	${PIDL_DISSECTOR_SRC}
 	${ASN1_DISSECTOR_SRC}
 	${NCP2222_DISSECTOR_SRC}
@@ -2017,6 +2023,7 @@ set_target_properties(dissector-registration PROPERTIES
 
 set(CLEAN_FILES
 	${DISSECTOR_SRC}
+	${DISSECTOR_DATA_SRC}
 	${PIDL_DISSECTOR_SRC}
 	${CLEAN_ASN1_DISSECTOR_SRC}
 	${CLEAN_CORBA_IDL_DISSECTOR_SRC}

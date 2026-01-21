@@ -15,7 +15,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/in_cksum.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_carp(void);
 void proto_reg_handoff_carp(void);

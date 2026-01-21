@@ -28,7 +28,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/charsets.h>
 #include "packet-mctp.h"
-#include "packet-ncsi-data.h"
+#include "data-ncsi.h"
 
 void proto_reg_handoff_ncsi(void);
 void proto_register_ncsi(void);

@@ -17,7 +17,7 @@
 
 #include <epan/packet.h>
 #include <wiretap/nettl.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 void proto_register_nettl(void);

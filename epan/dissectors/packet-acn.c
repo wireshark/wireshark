@@ -34,7 +34,7 @@
 #include <epan/expert.h>
 
 #include "packet-tcp.h"
-#include "packet-dmx-manfid.h"
+#include "data-dmx-manfid.h"
 
 /* Forward declarations */
 void proto_register_acn(void);

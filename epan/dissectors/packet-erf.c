@@ -21,7 +21,7 @@
 
 #include "packet-erf.h"
 #include "packet-ptp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 /*
 */

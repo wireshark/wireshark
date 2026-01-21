@@ -59,7 +59,7 @@
 #include <wsutil/wsgcrypt.h>
 
 #include "packet-l2tp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_l2tp(void);
 void proto_reg_handoff_l2tp(void);

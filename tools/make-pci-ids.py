@@ -3,7 +3,7 @@
 # make-pci-ids - Creates a file containing PCI IDs.
 # It use the databases from
 # https://github.com/pciutils/pciids/raw/master/pci.ids
-# to create our file epan/dissectors/packet-ncsi-data.c
+# to create our file epan/dissectors/data-ncsi.c
 #
 # Wireshark - Network traffic analyzer
 #
@@ -19,7 +19,8 @@ import urllib.request
 import urllib.error
 import urllib.parse
 
-OUTPUT_FILE = "epan/dissectors/packet-ncsi-data.c"
+OUTPUT_SOURCE_FILE = "epan/dissectors/data-ncsi.c"
+OUTPUT_HEADER_FILE = "epan/dissectors/data-ncsi.h"
 
 MIN_VENDOR_COUNT = 2250 # 2261 on 2021-11-01
 MIN_DEVICE_COUNT = 33000 # 33724 on 2021-11-01
@@ -41,7 +42,7 @@ CODE_PREFIX = """\
 
 #include "wsutil/array.h"
 
-#include "packet-ncsi-data.h"
+#include "data-ncsi.h"
 
 typedef struct
 {
@@ -94,6 +95,21 @@ const char *pci_id_str(uint16_t vid, uint16_t did, uint16_t svid, uint16_t ssid)
 }
 """
 
+HEADER_CODE = """\
+/** @file
+ *
+ *
+ * By Caleb Chiu <caleb.chiu@macnica.com>
+ * Copyright 2019
+ *
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#include <stdint.h>
+
+extern const char *pci_id_str(uint16_t vid, uint16_t did, uint16_t svid, uint16_t ssid);
+"""
 
 id_list=[]
 count_list=[]
@@ -222,8 +238,11 @@ def main():
     if device_count < MIN_DEVICE_COUNT:
         exit_msg(f'Too few devices. Wanted {MIN_DEVICE_COUNT}, got {device_count}.')
 
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as pci_ids_f:
+    with open(OUTPUT_SOURCE_FILE, "w", encoding="utf-8") as pci_ids_f:
         pci_ids_f.write(out_lines)
+
+    with open(OUTPUT_HEADER_FILE, "w", encoding="utf-8") as pci_ids_f:
+        pci_ids_f.write(HEADER_CODE)
 
 if __name__ == '__main__':
     main()

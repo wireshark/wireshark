@@ -35,7 +35,7 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-ip.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_pfcp(void);
 void proto_reg_handoff_pfcp(void);

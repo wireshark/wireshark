@@ -12,7 +12,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <packet-midi-sysex-id.h>
+#include <data-midi-sysex-id.h>
 
 void proto_register_midi_sysex(void);
 void proto_reg_handoff_midi_sysex(void);

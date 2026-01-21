@@ -47,7 +47,7 @@
 #include "packet-ieee802154.h"
 #include "packet-6lowpan.h"
 #include "packet-ip.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_icmpv6(void);
 void proto_reg_handoff_icmpv6(void);

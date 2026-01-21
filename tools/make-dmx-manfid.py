@@ -15,7 +15,8 @@ import re
 import datetime
 
 BASE_URL = "https://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php"
-OUTPUT_FILE = "epan/dissectors/packet-dmx-manfid.c"
+OUTPUT_SOURCE_FILE = "epan/dissectors/data-dmx-manfid.c"
+OUTPUT_HEADER_FILE = "epan/dissectors/data-dmx-manfid.h"
 
 MIN_COUNT = 1685 # 1685 on 2025-12-01
 
@@ -56,13 +57,33 @@ HEADER = f"""/*
  *
  */
 
-#include "packet-dmx-manfid.h"
+#include "data-dmx-manfid.h"
 
 /*
  * ESTA codes download date: {datetime.date.today().strftime("%Y-%m-%d")}
  */
 """
 
+HEADER_FILE = """\
+
+/* @file
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#ifndef __DATA_DMX_MANFID_H__
+#define __DATA_DMX_MANFID_H__
+
+#include <wsutil/value_string.h>
+
+extern value_string_ext dmx_esta_manfid_vals_ext;
+
+#endif /* __DATA_DMX_MANFID_H__ */
+"""
 
 def main():
     req_headers = { 'User-Agent': 'Wireshark make-dmx-manfid' }
@@ -112,8 +133,11 @@ def main():
     output += "};\n"
     output += "value_string_ext dmx_esta_manfid_vals_ext = VALUE_STRING_EXT_INIT(dmx_esta_manfid_vals);\n"
 
-    with open(OUTPUT_FILE, "w", encoding="UTF-8") as h:
+    with open(OUTPUT_SOURCE_FILE, "w", encoding="UTF-8") as h:
         h.write(output)
+
+    with open(OUTPUT_HEADER_FILE, "w", encoding="UTF-8") as h:
+        h.write(HEADER_FILE)
 
 if __name__ == "__main__":
     main()

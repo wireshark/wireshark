@@ -20,7 +20,7 @@
 #include <epan/in_cksum.h>
 
 #include "packet-ip.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_shim6(void);
 void proto_reg_handoff_shim6(void);

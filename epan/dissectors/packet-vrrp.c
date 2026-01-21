@@ -19,7 +19,7 @@
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_vrrp(void);
 void proto_reg_handoff_vrrp(void);

@@ -27,7 +27,7 @@
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/tfs.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-mpls.h"
 
 

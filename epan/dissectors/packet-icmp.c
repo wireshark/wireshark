@@ -36,7 +36,7 @@
 #include <wsutil/array.h>
 #include <wsutil/pint.h>
 
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-ip.h"
 #include "packet-icmp.h"
 

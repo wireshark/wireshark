@@ -26,7 +26,7 @@
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/in_cksum.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-iana-oui.h"
 #include "packet-llc.h"
 #include "packet-gre.h"

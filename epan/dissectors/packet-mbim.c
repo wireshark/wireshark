@@ -52,7 +52,7 @@
 #include "packet-gsm_map.h"
 #include "packet-usb.h"
 #include "packet-mbim.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 void proto_register_mbim(void);

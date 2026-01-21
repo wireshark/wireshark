@@ -18,7 +18,7 @@
 #include <epan/in_cksum.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 #define XTP_VERSION_4	0x001
 

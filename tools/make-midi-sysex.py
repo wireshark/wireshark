@@ -229,7 +229,7 @@ def file_header(filename):
  */
 """
 
-header_filename = 'epan/dissectors/packet-midi-sysex-id.h'
+header_filename = 'epan/dissectors/data-midi-sysex-id.h'
 with open(header_filename, 'w+') as f:
     guard = '__PACKET_MIDI_SYSEX_ID_H__'
     print(file_header(header_filename), file=f)
@@ -243,7 +243,7 @@ with open(header_filename, 'w+') as f:
     print('extern value_string_ext midi_sysex_extended_id_vals_ext;', file=f)
     print(f'\n#endif /* {guard} */', file=f)
 
-table_filename = 'epan/dissectors/packet-midi-sysex-id.c'
+table_filename = 'epan/dissectors/data-midi-sysex-id.c'
 with open(table_filename, 'w+') as f:
     print(file_header(table_filename), file=f)
     print('#include <wsutil/value_string.h>', file=f)

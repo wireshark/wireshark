@@ -70,7 +70,7 @@
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
 #include <epan/tfs.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-tls.h"
 #include "packet-dtls.h"
 #include "packet-http2.h"

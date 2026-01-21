@@ -28,7 +28,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
-#include "packet-dmx-manfid.h"
+#include "data-dmx-manfid.h"
 
 #define DMX_SC_DMX	0x00
 #define DMX_SC_TEXT	0x17

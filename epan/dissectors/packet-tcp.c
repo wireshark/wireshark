@@ -38,7 +38,7 @@
 #include <wsutil/ws_assert.h>
 
 #include "packet-tcp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 void proto_register_tcp(void);

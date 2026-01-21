@@ -140,7 +140,7 @@
 
 #include <wsutil/array.h>
 #include <wsutil/str_util.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include "packet-ntp.h"

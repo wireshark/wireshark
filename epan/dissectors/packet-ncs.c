@@ -14,7 +14,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_ncs(void);
 void proto_reg_handoff_ncs(void);

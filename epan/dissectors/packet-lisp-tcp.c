@@ -16,7 +16,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-tcp.h"
 #include "packet-lisp.h"
 

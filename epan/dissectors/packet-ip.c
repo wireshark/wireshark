@@ -36,7 +36,7 @@
 #include <wiretap/erf_record.h>
 #include <wsutil/str_util.h>
 
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-ip.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"

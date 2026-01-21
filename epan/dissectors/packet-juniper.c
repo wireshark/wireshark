@@ -20,7 +20,7 @@
 #include "packet-juniper.h"
 #include "packet-osi.h"
 #include "packet-ppp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 void proto_register_juniper(void);

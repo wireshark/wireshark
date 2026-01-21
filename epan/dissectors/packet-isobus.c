@@ -18,7 +18,7 @@
 #include <epan/wmem_scopes.h>
 #include <epan/expert.h>
 #include "packet-isobus.h"
-#include "packet-isobus-parameters.h"
+#include "data-isobus.h"
 
 void proto_register_isobus(void);
 void proto_reg_handoff_isobus(void);

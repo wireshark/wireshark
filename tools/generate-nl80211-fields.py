@@ -156,7 +156,7 @@ EXPORT_ENUMS = {
     'nl80211_nan_capabilities': (None, None, None),
 }
 # File to be patched
-SOURCE_FILE = "epan/dissectors/packet-netlink-nl80211.c"
+SOURCE_FILE = "epan/dissectors/data-nl80211.c"
 # URL where the latest version can be found
 URL = "https://raw.githubusercontent.com/torvalds/linux/refs/heads/master/include/uapi/linux/nl80211.h"
 

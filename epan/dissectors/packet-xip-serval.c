@@ -19,7 +19,7 @@
 #include <epan/unit_strings.h>
 
 #include <wsutil/array.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_xip_serval(void);
 void proto_reg_handoff_xip_serval(void);

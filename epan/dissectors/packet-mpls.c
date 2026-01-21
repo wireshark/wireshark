@@ -55,7 +55,7 @@
 #include "packet-l2tp.h"
 #include "packet-vxlan.h"
 #include "packet-nsh.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 void proto_register_mpls(void);

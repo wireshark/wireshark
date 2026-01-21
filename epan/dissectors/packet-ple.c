@@ -27,7 +27,7 @@
 
 #include "packet-mpls.h"
 #include "packet-rtp.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_ple(void);
 void proto_reg_handoff_ple(void);

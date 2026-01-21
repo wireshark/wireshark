@@ -243,8 +243,8 @@ iana_header_data = '''\
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-#ifndef __PACKET_IANA_DATA_H__
-#define __PACKET_IANA_DATA_H__
+#ifndef __DATA_IANA_H__
+#define __DATA_IANA_H__
 
 #include "ws_symbol_export.h"
 #include <wsutil/value_string.h>
@@ -260,7 +260,7 @@ iana_header_tail = '''\
 }
 #endif /* __cplusplus */
 
-#endif /* __PACKET_IANA_DATA_H__ */
+#endif /* __DATA_IANA_H__ */
 '''
 
 iana_source_data = '''\
@@ -271,14 +271,14 @@ iana_source_data = '''\
  */
 #include "config.h"
 
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 '''
 
 def main():
 
-    iana_h_path = os.path.join(os.path.dirname(__file__), '..', 'epan', 'dissectors', 'packet-iana-data.h')
-    iana_c_path = os.path.join(os.path.dirname(__file__), '..', 'epan', 'dissectors', 'packet-iana-data.c')
+    iana_h_path = os.path.join(os.path.dirname(__file__), '..', 'epan', 'dissectors', 'data-iana.h')
+    iana_c_path = os.path.join(os.path.dirname(__file__), '..', 'epan', 'dissectors', 'data-iana.c')
 
     print(f"Generating {iana_h_path} and {iana_c_path}")
 

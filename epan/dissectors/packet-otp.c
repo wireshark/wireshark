@@ -19,7 +19,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <wsutil/utf8_entities.h>
-#include "packet-dmx-manfid.h"
+#include "data-dmx-manfid.h"
 
 #define OTP_IDENTIFIER ((const uint8_t*)"OTP-E1.59\x00\x00\x00")
 #define OTP_IDENTIFIER_LEN (12)

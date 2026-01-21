@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef __PACKET_ISOBUS_PARAMETERS_H__
-#define __PACKET_ISOBUS_PARAMETERS_H__
+#include <wsutil/value_string.h>
+
 
 static const value_string _isobus_industry_groups[] = {
     { 0, "Global, applies to all" },
@@ -22,7 +22,7 @@ static const value_string _isobus_industry_groups[] = {
     { 7, "Reserved for future assignment by SAE" },
     { 0, NULL }
 };
-static value_string_ext isobus_industry_groups_ext = VALUE_STRING_EXT_INIT(_isobus_industry_groups);
+value_string_ext isobus_industry_groups_ext = VALUE_STRING_EXT_INIT(_isobus_industry_groups);
 
 /* key: 256 * Industry-Group-ID + Vehicle-Group-ID */
 static const value_string _isobus_vehicle_systems[] = {
@@ -98,7 +98,7 @@ static const value_string _isobus_vehicle_systems[] = {
     { 0x57f, "Not Available" },
     { 0, NULL }
 };
-static value_string_ext isobus_vehicle_systems_ext = VALUE_STRING_EXT_INIT(_isobus_vehicle_systems);
+value_string_ext isobus_vehicle_systems_ext = VALUE_STRING_EXT_INIT(_isobus_vehicle_systems);
 
 static const value_string _isobus_global_name_functions[] = {
     { 0, "Engine" },
@@ -199,7 +199,7 @@ static const value_string _isobus_global_name_functions[] = {
     { 95, "" },
     { 0, NULL }
 };
-static value_string_ext isobus_global_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_global_name_functions);
+value_string_ext isobus_global_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_global_name_functions);
 
 /* key: 65536 * Industry-Group-ID + 256 * Vehicle-System-ID + Function-ID */
 static const value_string _isobus_ig_specific_name_functions[] = {
@@ -491,7 +491,7 @@ static const value_string _isobus_ig_specific_name_functions[] = {
     { 0x57fff, "Not Available" },
     { 0, NULL }
 };
-static value_string_ext isobus_ig_specific_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_ig_specific_name_functions);
+value_string_ext isobus_ig_specific_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_ig_specific_name_functions);
 
 static const value_string _isobus_manufacturers[] = {
     { 0, "Reserved for experimental use, not for production use." },
@@ -2087,7 +2087,7 @@ static const value_string _isobus_manufacturers[] = {
     { 1863, "Thomas G. Faria Co." },
     { 0, NULL }
 };
-static value_string_ext isobus_manufacturers_ext = VALUE_STRING_EXT_INIT(_isobus_manufacturers);
+value_string_ext isobus_manufacturers_ext = VALUE_STRING_EXT_INIT(_isobus_manufacturers);
 
 static const value_string _isobus_pgn_names[] = {
     { 0, "Torque/Speed Control 1" },
@@ -4778,6 +4778,4 @@ static const value_string _isobus_pgn_names[] = {
     { 130586, "Entertainment - Zone Configuration Status" },
     { 0, NULL }
 };
-static value_string_ext isobus_pgn_names_ext = VALUE_STRING_EXT_INIT(_isobus_pgn_names);
-
-#endif /* __PACKET_ISOBUS_PARAMETERS_H__ */
+value_string_ext isobus_pgn_names_ext = VALUE_STRING_EXT_INIT(_isobus_pgn_names);

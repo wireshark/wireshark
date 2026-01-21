@@ -23,7 +23,7 @@
 #include "packet-eigrp.h"
 #include "packet-ipx.h"
 #include "packet-atalk.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 /*
  * Originally Cisco proprietary; now the subject of RFC 7868.

@@ -20,7 +20,7 @@
 #include "packet-gre.h"
 #include "packet-wccp.h"
 #include "packet-llc.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 
 #include <epan/decode_as.h>

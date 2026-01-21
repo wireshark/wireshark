@@ -15,7 +15,7 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 /* Please refer to rfc4728 for DSR protocol specifications */
 

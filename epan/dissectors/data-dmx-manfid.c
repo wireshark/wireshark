@@ -8,10 +8,10 @@
  *
  */
 
-#include "packet-dmx-manfid.h"
+#include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2025-12-28
+ * ESTA codes download date: 2026-01-21
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -262,6 +262,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0280, "Arrigo Lighting" },
   { 0x0286, "RMLX" },
   { 0x028F, "GRE Alpha Electronics Ltd." },
+  { 0x0297, "Phazed Logik" },
   { 0x02A0, "LLC Likhoslavl Plant of Lighting Engineering (Svetotehnika)" },
   { 0x02A1, "LLC Moscow Experimental Lighting Plant (TeleMechanic)" },
   { 0x02A2, "OJSC Kadoshkinsky electrotechnical" },
@@ -410,6 +411,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x05BC, "CantoUSA" },
   { 0x05C0, "Vertigo" },
   { 0x05CF, "Brighten Technology Development Co., Ltd." },
+  { 0x05D0, "DENSOKOGEI" },
   { 0x05D3, "D-LED Illumination Technologies Ltd." },
   { 0x05D4, "SHOWVEN Technologies Co., Ltd." },
   { 0x05DA, "Spacyal" },
@@ -522,6 +524,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0716, "Artem Ltd." },
   { 0x0718, "Eagle Lite" },
   { 0x071A, "YHX Visual" },
+  { 0x071B, "TripleClear" },
   { 0x071F, "Moss LED Inc" },
   { 0x0724, "PHC Lighting & BMS Sp. z o.o." },
   { 0x072B, "NEWSUBSTANCE Ltd." },
@@ -542,17 +545,21 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0758, "IMPOLUX GmbH" },
   { 0x075E, "TEKNiTS Middle East FZ LLC" },
   { 0x075F, "LEDEngin Inc." },
+  { 0x0762, "Switch 2 Smart Tech" },
   { 0x0764, "Inteca GmbH" },
   { 0x0766, "MR-Space LLC" },
   { 0x076A, "BeamZ (Tronios B.V.)" },
   { 0x076E, "DecoLed, LLC" },
   { 0x0772, "SP-Quality" },
+  { 0x0773, "Papouch s.r.o." },
   { 0x0776, "lumenetix" },
   { 0x077B, "GENLED Brands" },
+  { 0x0781, "Profoto AB" },
   { 0x0782, "R9 Lighting" },
   { 0x0784, "PIXL Lighting Inc." },
   { 0x0786, "DMXDesktop" },
   { 0x078A, "FATEC sarl" },
+  { 0x078D, "Anhui BeautyPower Electronics Technology Co.,Ltd" },
   { 0x078E, "SHENZHEN BGLOPTO TECHNOLOGY Co., LTD." },
   { 0x0792, "MY-Semi Inc." },
   { 0x0793, "IMLTLED Technology Co., Ltd." },
@@ -646,6 +653,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0832, "Shenzhen EXC-LED Technology Co.,Ltd" },
   { 0x0835, "Guangdong Fahold Electronics Co., Ltd." },
   { 0x0836, "Nyvoll Lys" },
+  { 0x0837, "W Technology" },
   { 0x0838, "LaserAV" },
   { 0x083A, "Bright Ideas Custom Electronics Inc." },
   { 0x083C, "TDT Productions" },
@@ -687,6 +695,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0868, "Ushio America, Inc." },
   { 0x0869, "Club Cannon LLC" },
   { 0x086A, "Shenzhen Chip Optech Co.,LTD" },
+  { 0x086B, "Anzhee Group" },
   { 0x086C, "Bafa Elektronik ve Işık Tasarımları Sanayii Ticaret LTD Sti." },
   { 0x086D, "Velaflame, LLC" },
   { 0x086E, "Guangzhou Hi-LTTE Electronics Technology Co.,Ltd" },
@@ -1036,6 +1045,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0AAA, "AAA-LUX" },
   { 0x0D0C, "SmartDC Inc." },
   { 0x0D0E, "DMX Engineering LLC" },
+  { 0x1001, "GENIO DA LAMPADA DE LED LTDA" },
   { 0x1112, "Zhuhai Bincolor Electronic Technology Co., Ltd." },
   { 0x1113, "SiliconCore Technology, Inc." },
   { 0x1200, "Seekway Technology Limited" },

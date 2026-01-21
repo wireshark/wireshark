@@ -49,7 +49,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-isakmp.h"
 #include "packet-ber.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/array.h>

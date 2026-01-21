@@ -19,7 +19,7 @@
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 #include "packet-rdm.h"
-#include "packet-dmx-manfid.h"
+#include "data-dmx-manfid.h"
 
 /*
  * See

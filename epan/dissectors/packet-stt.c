@@ -26,7 +26,7 @@
 #include <wsutil/array.h>
 
 #include "packet-ip.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 static bool pref_reassemble = true;
 static bool pref_check_checksum;

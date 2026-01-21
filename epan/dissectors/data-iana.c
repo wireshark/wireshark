@@ -5,7 +5,7 @@
  */
 #include "config.h"
 
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 const value_string afn_vals[] = {
 	{ AFNUM_RESERVED_0,                                 "Reserved"},

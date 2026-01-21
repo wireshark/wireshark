@@ -31,7 +31,7 @@
 
 #include "packet-gsm_a_common.h"
 #include "packet-media-type.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 #include "packet-tcp.h"
 
 void proto_register_nas_5gs(void);

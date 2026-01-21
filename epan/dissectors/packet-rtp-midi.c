@@ -40,7 +40,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include <epan/prefs.h>
-#include <packet-midi-sysex-id.h>
+#include <data-midi-sysex-id.h>
 
 void proto_register_rtp_midi(void);
 

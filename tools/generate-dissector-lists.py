@@ -26,10 +26,10 @@ DISSECTORS_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), '..',
 CMAKELISTS_TXT = os.path.join(DISSECTORS_PATH, 'CMakeLists.txt')
 THIS_FILE = os.path.basename(__file__)
 
-PACKET_SOURCE_FILE_PATTERN = r'^packet-.*\.c$'
+PACKET_SOURCE_FILE_PATTERN = r'^(data|packet)-.*\.c$'
 ASN1_SOURCE_PATTERN = r'Generated automatically by the ASN.1 to Wireshark dissector compiler'
 
-PACKET_HEADER_FILE_PATTERN = r'^(file|packet)-.*\.h$'
+PACKET_HEADER_FILE_PATTERN = r'^(data|file|packet)-.*\.h$'
 PUBLIC_HEADER_PATTERN = r'(^\s*WS_DLL_PUBLIC\b|\bstruct\s.*tap_|\bPUBLIC_HEADER\b)'
 PACKET_HEADER_INCLUDE_PATTERN = r'^\s*#\s*include\s.*\b(packet-.*\.h)\b'
 

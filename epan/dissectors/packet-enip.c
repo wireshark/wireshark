@@ -44,7 +44,7 @@
 #include "packet-dtls.h"
 #include "packet-tls.h"
 #include "packet-tls-utils.h"
-#include "packet-iana-data.h"
+#include "data-iana.h"
 
 void proto_register_enip(void);
 void proto_reg_handoff_enip(void);

@@ -14,7 +14,7 @@
  *
  */
 #include <epan/address.h>
-#include <epan/dissectors/packet-iana-data.h>
+#include <epan/dissectors/data-iana.h>
 #include <epan/ftypes/ftypes.h>
 #include <epan/proto.h>
 #include <epan/stat_groups.h>
