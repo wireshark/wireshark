@@ -2466,10 +2466,10 @@ static int
 dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_tree *drda_tree_sub;
-    proto_item *ti;
+    proto_item *ti, *ti_length;
     unsigned offset = 0;
 
-    uint16_t iParameterCP;
+    unsigned iParameterCP;
     unsigned iLengthParam;
 
     /* All objects in DDM are modeled as either scalars or collections.
@@ -2480,19 +2480,20 @@ dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     while (tvb_reported_length_remaining(tvb, offset) >= 2)
     {
-        iLengthParam = tvb_get_ntohs(tvb, offset + 0);
-        if (tvb_reported_length_remaining(tvb, offset) >= iLengthParam)
-        {
-            iParameterCP = tvb_get_ntohs(tvb, offset + 2);
-            drda_tree_sub = proto_tree_add_subtree(tree, tvb, offset, iLengthParam,
-                            ett_drda_param, &ti, DRDA_TEXT_PARAM);
-            proto_item_append_text(ti, " (%s)", val_to_str_ext(pinfo->pool, iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
-            proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            if (!dissector_try_uint_with_data(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, false, data)) {
-                proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
-                proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC_CP500);
-            }
+        drda_tree_sub = proto_tree_add_subtree(tree, tvb, offset, 4,
+                        ett_drda_param, &ti, DRDA_TEXT_PARAM);
+        ti_length = proto_tree_add_item_ret_uint(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &iLengthParam);
+        if (iLengthParam < 4) {
+            expert_add_info_format(pinfo, ti_length, &ei_drda_opcode_invalid_length, "Invalid length detected (%u): should be at least 4 bytes long", iLengthParam);
+            proto_item_set_len(ti, tvb_reported_length_remaining(tvb, offset));
+            break;
+        }
+        proto_item_set_len(ti, iLengthParam);
+        proto_tree_add_item_ret_uint(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &iParameterCP);
+        proto_item_append_text(ti, " (%s)", val_to_str_ext(pinfo->pool, iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
+        if (!dissector_try_uint_with_data(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, false, data)) {
+            proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
+            proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC_CP500);
         }
         offset += iLengthParam;
     }
@@ -2526,7 +2527,7 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     uint64_t flags;
     uint32_t iLength, iCommand, correl;
 
-    uint16_t iParameterCP;
+    unsigned iParameterCP;
     uint8_t dsstyp;
     bool is_server = false;
     unsigned iLengthParam;
@@ -2574,21 +2575,22 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         offset = 10;
         while (tvb_reported_length_remaining(tvb, offset) >= 2)
         {
-            iLengthParam = tvb_get_ntohs(tvb, offset + 0);
+            drda_tree_sub = proto_tree_add_subtree(drdaroot_tree, tvb, offset, 4,
+                            ett_drda_param, &ti, DRDA_TEXT_PARAM);
+            ti_length = proto_tree_add_item_ret_uint(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &iLengthParam);
             if (iLengthParam == 0 || iLengthParam == 1)
                 iLengthParam = iLength - 10;
-            if (tvb_reported_length_remaining(tvb, offset) >= iLengthParam)
-            {
-                iParameterCP = tvb_get_ntohs(tvb, offset + 2);
-                drda_tree_sub = proto_tree_add_subtree(drdaroot_tree, tvb, offset, iLengthParam,
-                                ett_drda_param, &ti, DRDA_TEXT_PARAM);
-                proto_item_append_text(ti, " (%s)", val_to_str_ext(pinfo->pool, iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
-                proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                if (!dissector_try_uint_with_data(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, false, pdu_info)) {
-                    proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
-                    proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC_CP500);
-                }
+            if (iLengthParam < 4) {
+                expert_add_info_format(pinfo, ti_length, &ei_drda_opcode_invalid_length, "Invalid length detected (%u): should be at least 4 bytes long", iLengthParam);
+                proto_item_set_len(ti, tvb_reported_length_remaining(tvb, offset));
+                break;
+            }
+            proto_item_set_len(ti, iLengthParam);
+            proto_tree_add_item_ret_uint(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &iParameterCP);
+            proto_item_append_text(ti, " (%s)", val_to_str_ext(pinfo->pool, iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
+            if (!dissector_try_uint_with_data(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, false, pdu_info)) {
+                proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
+                proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC_CP500);
             }
             offset += iLengthParam;
         }
