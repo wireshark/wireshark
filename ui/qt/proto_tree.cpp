@@ -65,13 +65,11 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     // down too much we should add a custom delegate which handles SizeHintRole.
     setHeaderHidden(true);
 
-#if !defined(Q_OS_WIN)
     setStyleSheet(QStringLiteral(
         "QTreeView:item:hover {"
         "  background-color: %1;"
         "  color: palette(text);"
         "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb)));
-#endif
 
     // Shrink down to a small but nonzero size in the main splitter.
     int one_em = fontMetrics().height();
