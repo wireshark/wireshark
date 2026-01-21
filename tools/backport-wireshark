@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright 2025 Balint Reczey <balint@balintreczey.hu>
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 set -e
 
 if [ $# -lt 1 ]; then
