@@ -51,7 +51,6 @@ public slots:
     void markField(int start, int length, bool scroll_to = true);
     void markAppendix(int start, int length);
     void unmarkField();
-    void saveSelected(int start);
 
 protected:
     virtual void paintEvent(QPaintEvent *);
@@ -110,7 +109,6 @@ private:
     // Data highlight
     int hovered_byte_offset_;
     int marked_byte_offset_;
-    int selected_byte_offset_;
     int proto_start_;
     int proto_len_;
     int field_start_;

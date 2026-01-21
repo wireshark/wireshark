@@ -53,7 +53,6 @@ HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc enc
     encoding_(encoding),
     hovered_byte_offset_(-1),
     marked_byte_offset_(-1),
-    selected_byte_offset_(-1),
     proto_start_(0),
     proto_len_(0),
     field_start_(0),
@@ -210,11 +209,6 @@ void HexDataSourceView::markField(int start, int length, bool scroll_to)
     viewport()->update();
 }
 
-void HexDataSourceView::saveSelected(int start)
-{
-    selected_byte_offset_ = start;
-}
-
 void HexDataSourceView::markAppendix(int start, int length)
 {
     field_a_start_ = start;
@@ -366,7 +360,6 @@ void HexDataSourceView::mousePressEvent (QMouseEvent *event) {
     const int byte_offset = byteOffsetAtPixel(event->pos());
     setUpdatesEnabled(false);
     emit byteSelected(byte_offset);
-    selected_byte_offset_ = byte_offset;
     if (hover_mode && byte_offset >= 0) {
         // Switch to marked mode.
         hovered_byte_offset_ = -1;
@@ -395,8 +388,6 @@ void HexDataSourceView::leaveEvent(QEvent *event)
 {
     hovered_byte_offset_ = -1;
     emit byteHovered(hovered_byte_offset_);
-
-    emit byteSelected(selected_byte_offset_);
 
     viewport()->update();
     QAbstractScrollArea::leaveEvent(event);

@@ -423,7 +423,6 @@ void DataSourceTab::selectedFieldChanged(FieldInformation *selected)
         data_source_view->markField(f_start, f_length);
         data_source_view->markProtocol(p_start, p_length);
         data_source_view->markAppendix(fa_start, fa_length);
-        data_source_view->saveSelected(f_start);
     } else {
         emit byteViewUnmarkField();
     }
