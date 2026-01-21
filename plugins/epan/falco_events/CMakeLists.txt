@@ -54,6 +54,9 @@ target_link_libraries(falco-events
 	${SINSP_LINK_LIBRARIES}
 )
 
+# libsinsp requires C++ 17
+set_target_properties(falco-events PROPERTIES CXX_STANDARD 17)
+
 install_plugin(falco-events epan)
 
 CHECKAPI(

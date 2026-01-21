@@ -358,6 +358,8 @@ if(BUILD_dumpcalls AND SINSP_FOUND)
 	set_extlog_executable_properties(dumpcalls)
 	target_link_libraries(dumpcalls ${dumpcalls_LIBS})
 	target_include_directories(dumpcalls SYSTEM PRIVATE ${SINSP_INCLUDE_DIRS})
+	# libsinsp requires C++ 17
+	set_target_properties(dumpcalls PROPERTIES CXX_STANDARD 17)
 	if(WIN32)
 		# libsinsp/dumper.h includes libscap/scap_savefile_api.h, which includes
 		# libscap/scap_zlib.h.
@@ -385,6 +387,8 @@ if(BUILD_falcodump AND SINSP_FOUND)
 	set_extlog_executable_properties(falcodump)
 	target_link_libraries(falcodump ${falcodump_LIBS})
 	target_include_directories(falcodump SYSTEM PRIVATE ${SINSP_INCLUDE_DIRS})
+	# libsinsp requires C++ 17
+	set_target_properties(falcodump PROPERTIES CXX_STANDARD 17)
 	if(WIN32)
 		# libsinsp/dumper.h includes libscap/scap_savefile_api.h, which includes
 		# libscap/scap_zlib.h.
