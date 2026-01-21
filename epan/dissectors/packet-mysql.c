@@ -1431,6 +1431,7 @@ static int hf_mariadb_extmeta_format;
 static dissector_handle_t mysql_handle;
 static dissector_handle_t decompressed_handle;
 static dissector_handle_t tls_handle;
+static dissector_handle_t rfc7468_handle;
 
 static expert_field ei_mysql_dissector_incomplete;
 static expert_field ei_mysql_streamed_param;
@@ -4489,10 +4490,10 @@ mysql_dissect_pubkey(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	mysql_set_conn_state(pinfo, conn_data, AUTH_SHA2_RESPONSE);
 
 	offset++;
-	int len = tvb_reported_length_remaining(tvb, offset) - 1;
+	unsigned len = tvb_reported_length_remaining(tvb, offset);
 	next_tvb = tvb_new_subset_length(tvb, offset, len);
-	add_new_data_source(pinfo, next_tvb, "public key");
 	proto_tree_add_item(tree, hf_mysql_pubkey, tvb, offset, len, ENC_ASCII);
+	call_dissector(rfc7468_handle, next_tvb, pinfo, proto_tree_get_root(tree));
 	offset += len;
 
 	return offset + tvb_reported_length_remaining(tvb,offset);
@@ -6508,6 +6509,7 @@ void proto_register_mysql(void)
 void proto_reg_handoff_mysql(void)
 {
 	tls_handle = find_dissector("tls");
+	rfc7468_handle = find_dissector_add_dependency("rfc7468", proto_mysql);
 	decompressed_handle = create_dissector_handle(dissect_mysql_decompressed_pdus, proto_mysql);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
