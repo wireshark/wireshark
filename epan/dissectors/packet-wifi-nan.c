@@ -2655,7 +2655,7 @@ find_attribute_field(proto_tree* nan_tree, tvbuff_t* tvb, unsigned tvb_len, unsi
 {
     if ((tvb_len - *offset) < 3)
     {
-        proto_tree_add_expert_format(nan_tree, pinfo, &ei_nan_elem_len_invalid, tvb, *offset, -1,
+        proto_tree_add_expert_format_remaining(nan_tree, pinfo, &ei_nan_elem_len_invalid, tvb, *offset,
             "Insufficient remaining packet bytes for NAN attribute");
         *offset = tvb_len;
         return;
@@ -2666,7 +2666,7 @@ find_attribute_field(proto_tree* nan_tree, tvbuff_t* tvb, unsigned tvb_len, unsi
 
     if ((*offset + 3 + attr_len) > tvb_len)
     {
-        proto_tree_add_expert_format(nan_tree, pinfo, &ei_nan_elem_len_invalid, tvb, *offset, -1,
+        proto_tree_add_expert_format_remaining(nan_tree, pinfo, &ei_nan_elem_len_invalid, tvb, *offset,
             "Attribute length (%u) exceeds remaining packet length. Attribute id: %u", attr_len, attr_id);
         *offset = tvb_len;
         return;

@@ -186,7 +186,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 next_offset - offset, ENC_UTF_8);
             offset = next_offset;
         }
-        proto_tree_add_expert(whois_tree, pinfo, &ei_whois_encoding, tvb, 0, -1);
+        proto_tree_add_expert_remaining(whois_tree, pinfo, &ei_whois_encoding, tvb, 0);
     }
 
     return tvb_captured_length(tvb);

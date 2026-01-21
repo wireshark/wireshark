@@ -705,11 +705,11 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, expert_field *expinde
 /* Helper function for expert_add_expert() to work around compiler's special needs on ARM */
 static inline proto_item *
 proto_tree_add_expert_internal(proto_tree *tree, packet_info *pinfo, expert_field *expindex,
-		tvbuff_t *tvb, int start, int length, ...)
+		tvbuff_t *tvb, unsigned start, unsigned length, ...)
 {
 	expert_field_info *eiinfo;
 	proto_item        *ti;
-	int                item_length, captured_length;
+	unsigned           item_length, captured_length;
 	va_list            unused;
 
 	/* Look up the item */
@@ -718,19 +718,17 @@ proto_tree_add_expert_internal(proto_tree *tree, packet_info *pinfo, expert_fiel
 	/* Make sure this doesn't throw an exception when adding the item */
 	item_length = length;
 	captured_length = tvb_captured_length_remaining(tvb, start);
-	if (captured_length < 0)
-		item_length = 0;
-	else if (captured_length < item_length)
+	if (captured_length < item_length) {
 		item_length = captured_length;
+	}
 	ti = proto_tree_add_text_internal(tree, tvb, start, item_length, "%s", eiinfo->summary);
 	va_start(unused, length);
 	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, false, eiinfo->summary, unused);
 	va_end(unused);
 
 	/* But make sure it throws an exception *after* adding the item */
-	if (length != -1) {
-		tvb_ensure_bytes_exist(tvb, start, length);
-	}
+	tvb_ensure_bytes_exist(tvb, start, length);
+
 	return ti;
 }
 
@@ -762,7 +760,7 @@ proto_tree_add_expert_internal_remaining(proto_tree* tree, packet_info* pinfo, e
 }
 proto_item *
 proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field *expindex,
-		tvbuff_t *tvb, int start, int length)
+		tvbuff_t *tvb, unsigned start, unsigned length)
 {
 	return proto_tree_add_expert_internal(tree, pinfo, expindex, tvb, start, length);
 }
@@ -776,11 +774,11 @@ proto_tree_add_expert_remaining(proto_tree* tree, packet_info* pinfo, expert_fie
 
 proto_item *
 proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field *expindex,
-		tvbuff_t *tvb, int start, int length, const char *format, ...)
+		tvbuff_t *tvb, unsigned start, unsigned length, const char *format, ...)
 {
 	va_list            ap;
 	expert_field_info *eiinfo;
-	int                item_length, captured_length;
+	unsigned           item_length, captured_length;
 	proto_item        *ti;
 
 	/* Look up the item */
@@ -789,10 +787,9 @@ proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field 
 	/* Make sure this doesn't throw an exception when adding the item */
 	item_length = length;
 	captured_length = tvb_captured_length_remaining(tvb, start);
-	if (captured_length < 0)
-		item_length = 0;
-	else if (captured_length < item_length)
+	if (captured_length < item_length) {
 		item_length = captured_length;
+	}
 	va_start(ap, format);
 	ti = proto_tree_add_text_valist_internal(tree, tvb, start, item_length, format, ap);
 	va_end(ap);
@@ -802,9 +799,7 @@ proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field 
 	va_end(ap);
 
 	/* But make sure it throws an exception *after* adding the item */
-	if (length != -1) {
-		tvb_ensure_bytes_exist(tvb, start, length);
-	}
+	tvb_ensure_bytes_exist(tvb, start, length);
 
 	return ti;
 }

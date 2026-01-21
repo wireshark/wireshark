@@ -2464,7 +2464,7 @@ dissect_zcl_array_type(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsi
         unsigned old_offset = *offset;
         dissect_zcl_attr_data(tvb, pinfo, sub_tree, offset, elements_type, client_attr);
         if (old_offset >= *offset) {
-            proto_tree_add_expert(sub_tree, NULL, &ei_zbee_zero_length_element, tvb, old_offset, -1);
+            proto_tree_add_expert_remaining(sub_tree, NULL, &ei_zbee_zero_length_element, tvb, old_offset);
             break;
         }
         elements_num--;
@@ -2506,7 +2506,7 @@ dissect_zcl_set_type(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsign
         unsigned old_offset = *offset;
         dissect_zcl_attr_data(tvb, pinfo, sub_tree, offset, elements_type, client_attr);
         if (old_offset >= *offset) {
-            proto_tree_add_expert(sub_tree, NULL, &ei_zbee_zero_length_element, tvb, old_offset, -1);
+            proto_tree_add_expert_remaining(sub_tree, NULL, &ei_zbee_zero_length_element, tvb, old_offset);
             break;
         }
         elements_num--;

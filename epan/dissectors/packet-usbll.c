@@ -1543,8 +1543,8 @@ usbll_get_endpoint_info(packet_info *pinfo, uint8_t addr, uint8_t ep, bool from_
     return info;
 }
 
-static int
-dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+static unsigned
+dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     uint32_t frame;
     /* SOF Packets are broadcasted from Host to all devices. */
@@ -1560,8 +1560,8 @@ dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     return offset;
 }
 
-static int
-dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+static unsigned
+dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
                     uint8_t pid, usbll_data_t *data, usb_speed_t speed)
 {
     uint8_t          device_address;
@@ -1793,8 +1793,8 @@ usbll_construct_urb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static int
-dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+static unsigned
+dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
                    uint8_t pid, usbll_data_t *data, int *payload_size)
 {
     /* TODO: How to determine the expected DATA size? */
@@ -2078,8 +2078,8 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
     return offset;
 }
 
-static int
-dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+static unsigned
+dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
                     uint8_t pid, usbll_data_t *data)
 {
     uint8_t          hub_address;
@@ -2193,8 +2193,8 @@ dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     return offset;
 }
 
-static int
-dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int offset,
+static unsigned
+dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, unsigned offset,
                         uint8_t pid, usbll_data_t *data)
 {
     if (!PINFO_FD_VISITED(pinfo))
@@ -2324,8 +2324,8 @@ static void check_for_extended_subpid(uint8_t pid, usbll_data_t *data)
     }
 }
 
-static int
-dissect_usbll_lpm_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+static unsigned
+dissect_usbll_lpm_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     uint16_t         attributes_bits;
 
@@ -2386,13 +2386,13 @@ usbll_cleanup_data(void)
     ep_info_out = NULL;
 }
 
-static int
+static unsigned
 dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, usb_speed_t speed)
 {
     proto_item       *item;
     proto_tree       *tree;
-    int               offset = 0;
-    int               data_offset;
+    unsigned          offset = 0;
+    unsigned          data_offset;
     int               data_size;
     uint8_t           pid;
     bool              is_subpid;
@@ -2496,7 +2496,7 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_undecoded, tvb, offset);
         offset += tvb_captured_length_remaining(tvb, offset);
     }
 

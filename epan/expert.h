@@ -136,7 +136,7 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, expert_field *eiindex
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
-        tvbuff_t *tvb, int start, int length);
+        tvbuff_t *tvb, unsigned start, unsigned length);
 
 /** Add an expert info associated with some byte data
  Add an expert info tree to a protocol item using registered expert info item.
@@ -172,7 +172,7 @@ proto_tree_add_expert_remaining(proto_tree* tree, packet_info* pinfo, expert_fie
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
-        tvbuff_t *tvb, int start, int length, const char *format, ...) G_GNUC_PRINTF(7, 8);
+        tvbuff_t *tvb, unsigned start, unsigned length, const char *format, ...) G_GNUC_PRINTF(7, 8);
 
 /** Same as proto_tree_add_expert_format but without the length parameter, length
  will be sret to end of the tvb.

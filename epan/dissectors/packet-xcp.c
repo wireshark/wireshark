@@ -1694,7 +1694,7 @@ dissect_transport_layer_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
             col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
             break;
         }
@@ -1735,7 +1735,7 @@ dissect_transport_layer_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
 
             default:
-                proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+                proto_tree_add_expert_remaining(tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
                 col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
                 break;
             }
@@ -1757,14 +1757,14 @@ dissect_sw_debug_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
         offset += 1;
 
         /* TODO */
-        proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
         col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
         offset += tvb_captured_length_remaining(tvb, offset);
 
     } else {
 
         /* TODO */
-        proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
         col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
         offset += tvb_captured_length_remaining(tvb, offset);
     }
@@ -1815,7 +1815,7 @@ dissect_pod_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
             break;
 
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
             col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
             offset += tvb_captured_length_remaining(tvb, offset);
         }
@@ -1847,7 +1847,7 @@ dissect_pod_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
         //    break;
 
         default:
-            proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
             col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
             offset += tvb_captured_length_remaining(tvb, offset);
         }
@@ -2728,13 +2728,13 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
             break;
 
         default:
-            proto_tree_add_expert(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+            proto_tree_add_expert_remaining(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
             col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
         }
         break;
 
     default:
-        proto_tree_add_expert(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+        proto_tree_add_expert_remaining(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
         col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
     }
 
@@ -3217,7 +3217,7 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
              * Maybe the standard means TIME_CORRELATION_PROPERTIES???
              */
             if (stream->timestamp_extended) {
-                proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+                proto_tree_add_expert_remaining(tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
                 /* TODO */
             } else {
                 proto_tree_add_item(xcp_tree, hf_xcp_payload_timestamp_legacy, tvb, offset, 4, stream->endianess);
@@ -3493,14 +3493,14 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
                 break;
 
             default:
-                proto_tree_add_expert(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+                proto_tree_add_expert_remaining(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
                 col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
             }
 
             break;
 
         default:
-            proto_tree_add_expert(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
+            proto_tree_add_expert_remaining(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
             col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
         }
     } else if (stream->pid_map != NULL && wmem_map_contains(stream->pid_map, GUINT_TO_POINTER(pid))) {

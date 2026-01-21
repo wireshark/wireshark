@@ -250,7 +250,7 @@ smex_time_to_string (wmem_allocator_t *pool, int pb5_days_since_midnight_9_10_oc
 static int
 dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int offset           = 0;
+    unsigned offset           = 0;
     bool ccsds_tree_added = false;
 
     proto_item *smex_header;
@@ -394,8 +394,8 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         /* process as many ccsds packet headers as we can using the ccsds packet dissector */
         else
         {
-            int packet_boundary;
-            int new_offset;
+            unsigned packet_boundary;
+            unsigned new_offset;
 
             /* compute offset and packet boundary lengths for ccsds dissector loop */
             new_offset = offset + 2 + new_ptr;
@@ -406,7 +406,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
             while ( ((new_offset-offset+2) < packet_boundary)  &&  ((new_offset-offset+2) >= 4) )
             {
-                int ccsds_len;
+                unsigned ccsds_len;
                 tvbuff_t *new_tvb;
 
                 ccsds_tree_added = true;
@@ -420,7 +420,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
             if (! ccsds_tree_added)
             {
-                proto_tree_add_expert(vcdu_tree, pinfo, &ei_vcdu_fhp_too_close_to_end_of_vcdu, tvb, 0, -1);
+                proto_tree_add_expert_remaining(vcdu_tree, pinfo, &ei_vcdu_fhp_too_close_to_end_of_vcdu, tvb, 0);
             }
         }
 

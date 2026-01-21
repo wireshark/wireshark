@@ -95,13 +95,13 @@ static expert_field ei_vp8_first_partition_split;
 static expert_field ei_vp8_first_partition_plus;
 
 static void
-dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, int *offset, bool *hasHeader);
+dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, unsigned *offset, bool *hasHeader);
 
 static void
-dissect_vp8_payload_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, int *offset, int *frametype, int *partition1_size);
+dissect_vp8_payload_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, unsigned *offset, unsigned*frametype, unsigned *partition1_size);
 
 static void
-dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, int *offset, int *frametype, int *partition1_size);
+dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, unsigned *offset, unsigned*frametype, unsigned *partition1_size);
 
 static int *ett[] = {
     &ett_vp8,
@@ -177,7 +177,7 @@ dissect_vp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     proto_item *item;
-    int offset = 0, frametype = 0, partition1_size = -1;
+    unsigned offset = 0, frametype = 0, partition1_size = 0;
     proto_tree *vp8_tree;
     bool hasHeader = false;
 
@@ -203,7 +203,7 @@ dissect_vp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 }
 
 static void
-dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, int *offset, bool *hasHeader)
+dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, unsigned *offset, bool *hasHeader)
 {
     proto_item *item_descriptor;
     uint8_t     extended_bit, s_bit, partId;
@@ -290,7 +290,7 @@ The first octets after the RTP header are the VP8 payload descriptor,
 }
 
 static void
-dissect_vp8_payload_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, int *offset, int *frametype, int *partition1_size)
+dissect_vp8_payload_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, unsigned *offset, unsigned*frametype, unsigned *partition1_size)
 {
     proto_item *item_header;
     proto_tree *vp8_payload_header_tree;
@@ -345,18 +345,18 @@ The first three octets of an encoded VP8 frame are referred to as an
 }
 
 static void
-dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, int *offset, int *frametype, int *partition1_size)
+dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, unsigned *offset, unsigned*frametype, unsigned *partition1_size)
 {
     proto_tree *vp8_payload_tree;
     proto_item *payload_item;
-    int remainder;
+    unsigned remainder;
 
     vp8_payload_tree = proto_tree_add_subtree(vp8_tree, tvb, *offset, -1, ett_vp8_payload, &payload_item, "Payload");
 
     if (*frametype == 0)
     {
         uint16_t width, height;
-        int start1, start2, start3, horizontal_scale, vertical_scale;
+        unsigned start1, start2, start3, horizontal_scale, vertical_scale;
         proto_tree *vp8_keyframe_tree;
 
         vp8_keyframe_tree = proto_tree_add_subtree(vp8_payload_tree, tvb, *offset, -1, ett_vp8_keyframe, NULL, "Keyframe header");
@@ -392,23 +392,23 @@ dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, int
     }
 
     remainder = tvb_reported_length_remaining(tvb, (*offset));
-    if ((*partition1_size) == -1)
+    if ((*partition1_size) == 0)
     {
         /*no header, continuation?*/
-        proto_tree_add_expert_format(vp8_payload_tree, pinfo, &ei_vp8_continuation, tvb, *offset, -1, "Continuation of partition fragment (%d bytes)", remainder);
+        proto_tree_add_expert_format_remaining(vp8_payload_tree, pinfo, &ei_vp8_continuation, tvb, *offset, "Continuation of partition fragment (%d bytes)", remainder);
     }
     else
     {
         if (remainder < *partition1_size)
         {
             /* partition size has already been added to vp8 header tree, but it would be useful to provide additional explanation */
-            proto_tree_add_expert_format(vp8_payload_tree, pinfo, &ei_vp8_first_partition_split, tvb, *offset, -1,
+            proto_tree_add_expert_format_remaining(vp8_payload_tree, pinfo, &ei_vp8_first_partition_split, tvb, *offset,
                 "First partition is split with %d bytes in this packet and %d bytes in subsequent frames", remainder, ((*partition1_size)-remainder));
         }
         else
         {
             (*offset)= (*offset) + (*partition1_size);
-            proto_tree_add_expert_format(vp8_payload_tree, pinfo, &ei_vp8_first_partition_plus, tvb, *offset, -1,
+            proto_tree_add_expert_format_remaining(vp8_payload_tree, pinfo, &ei_vp8_first_partition_plus, tvb, *offset,
                                 "This frame contains all of first partition (%d bytes) and also %d bytes from other partitions",
                                 *partition1_size, remainder);
         }

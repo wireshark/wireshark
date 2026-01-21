@@ -262,7 +262,7 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     /* Start with some sanity checks */
     if (tvb_captured_length(tvb) < VJC_CONNID_OFFSET+1) {
-        proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_bad_data, tvb, 0, -1,
+        proto_tree_add_expert_format_remaining(subtree, pinfo, &ei_vjc_bad_data, tvb, 0,
                 "Packet truncated before Connection ID field");
         return tvb_captured_length(tvb);
     }
@@ -307,7 +307,7 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         /* Not enough data. We can still pass this packet onward (though probably
          * to no benefit), but can't base future decompression off of it.
          */
-        proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_bad_data, tvb, 0, -1,
+        proto_tree_add_expert_format_remaining(subtree, pinfo, &ei_vjc_bad_data, tvb, 0,
                 "Packet truncated before end of TCP/IP headers");
     }
     else if (!pinfo->fd->visited) {
@@ -457,7 +457,7 @@ done_header_len:
     subtree = proto_item_add_subtree(ti, ett_vjc);
     proto_item_set_text(subtree, "PPP Van Jacobson compressed TCP/IP");
     if (hdr_error) {
-        proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_bad_data, tvb, 0, -1,
+        proto_tree_add_expert_format_remaining(subtree, pinfo, &ei_vjc_bad_data, tvb, 0,
                 "Packet truncated, compression header incomplete");
         return tvb_captured_length(tvb);
     }

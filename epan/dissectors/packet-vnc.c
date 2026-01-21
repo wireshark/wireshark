@@ -549,87 +549,87 @@ static bool vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo,
 				     int offset, proto_tree *tree,
 				     vnc_conversation_t *per_conversation_info);
 static void vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo,
-				 int *offset, proto_tree *tree,
+				 unsigned *offset, proto_tree *tree,
 				 vnc_conversation_t *per_conversation_info);
 static void vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo,
-				 int *offset, proto_tree *tree);
+				 unsigned *offset, proto_tree *tree);
 static void vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo,
-					int *offset, proto_tree *tree,
+					unsigned *offset, proto_tree *tree,
 					vnc_conversation_t *per_conversation_info);
 static void vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo,
-				     int *offset, proto_tree *tree,
+				     unsigned *offset, proto_tree *tree,
 				     vnc_conversation_t *per_conversation_info);
 static void vnc_client_framebuffer_update_request(tvbuff_t *tvb,
 						  packet_info *pinfo,
-						  int *offset,
+						  unsigned *offset,
 						  proto_tree *tree);
 static void vnc_client_key_event(tvbuff_t *tvb, packet_info *pinfo,
-				 int *offset, proto_tree *tree);
+				 unsigned *offset, proto_tree *tree);
 static void vnc_client_pointer_event(tvbuff_t *tvb, packet_info *pinfo,
-				     int *offset, proto_tree *tree);
-static unsigned vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+				     unsigned *offset, proto_tree *tree);
+static unsigned vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 				proto_tree *tree);
-static unsigned vnc_client_cut_text_extended(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+static unsigned vnc_client_cut_text_extended(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 				proto_tree *tree);
 static void vnc_client_cut_text_extended_non_compatible(tvbuff_t *tvb, packet_info *pinfo,
-			    int *offset, proto_tree *tree, int message_length);
+			    unsigned *offset, proto_tree *tree, int message_length);
 
 static unsigned vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo,
-					   int *offset, proto_tree *tree);
-static unsigned vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+					   unsigned *offset, proto_tree *tree);
+static unsigned vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			      proto_tree *tree, const uint16_t width, const uint16_t height);
 static unsigned vnc_copyrect_encoding(tvbuff_t *tvb, packet_info *pinfo,
-				   int *offset, proto_tree *tree,
+				   unsigned *offset, proto_tree *tree,
 				   const uint16_t width, const uint16_t height);
-static unsigned vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+static unsigned vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			      proto_tree *tree, const uint16_t width, const uint16_t height);
 static unsigned vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo,
-				  int *offset, proto_tree *tree,
+				  unsigned *offset, proto_tree *tree,
 				  const uint16_t width, const uint16_t height);
-static unsigned vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+static unsigned vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			       proto_tree *tree, const uint16_t width, const uint16_t height);
-static unsigned vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+static unsigned vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 				proto_tree *tree, const uint16_t width, const uint16_t height);
 static unsigned vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo,
-				      int *offset, proto_tree *tree, const uint16_t width,
+				      unsigned *offset, proto_tree *tree, const uint16_t width,
 				      const uint16_t height);
 static unsigned vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo,
-				   int *offset, proto_tree *tree, const uint16_t width,
+				   unsigned *offset, proto_tree *tree, const uint16_t width,
 				   const uint16_t height);
 static unsigned vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo,
-					     int *offset, proto_tree *tree);
+					     unsigned *offset, proto_tree *tree);
 static void vnc_server_ring_bell(tvbuff_t *tvb, packet_info *pinfo,
-				 int *offset, proto_tree *tree);
+				 unsigned *offset, proto_tree *tree);
 static unsigned vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo,
-				 int *offset, proto_tree *tree);
+				 unsigned *offset, proto_tree *tree);
 static void vnc_set_bytes_per_pixel(packet_info *pinfo, vnc_conversation_t *per_conversation_info, const uint8_t bytes_per_pixel);
 static void vnc_set_depth(packet_info *pinfo, vnc_conversation_t *per_conversation_info, const uint8_t depth);
 static uint8_t vnc_get_bytes_per_pixel(packet_info *pinfo);
 static uint8_t vnc_get_depth(packet_info *pinfo);
-static uint32_t vnc_extended_desktop_size(tvbuff_t *tvb, int *offset, proto_tree *tree);
+static uint32_t vnc_extended_desktop_size(tvbuff_t *tvb, unsigned *offset, proto_tree *tree);
 
-static unsigned vnc_supported_messages(tvbuff_t *tvb, int *offset,
+static unsigned vnc_supported_messages(tvbuff_t *tvb, unsigned *offset,
 				    proto_tree *tree, const uint16_t width);
-static unsigned vnc_supported_encodings(tvbuff_t *tvb, int *offset,
+static unsigned vnc_supported_encodings(tvbuff_t *tvb, unsigned *offset,
 				     proto_tree *tree, const uint16_t width,
 				     const uint16_t height);
-static unsigned vnc_server_identity(tvbuff_t *tvb, int *offset,
+static unsigned vnc_server_identity(tvbuff_t *tvb, unsigned *offset,
 				 proto_tree *tree, const uint16_t width);
 
-static unsigned vnc_fence(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+static unsigned vnc_fence(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			    proto_tree *tree);
-static void vnc_qemu(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+static void vnc_qemu(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			    proto_tree *tree);
-static void vnc_qemu_extended_key_event(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+static void vnc_qemu_extended_key_event(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			    proto_tree *tree);
-static unsigned vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+static unsigned vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			    proto_tree *tree);
-static unsigned vnc_context_information(tvbuff_t *tvb, int *offset,
+static unsigned vnc_context_information(tvbuff_t *tvb, unsigned *offset,
 				     proto_tree *tree);
-static unsigned vnc_slrle_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+static unsigned vnc_slrle_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 				proto_tree *tree, const uint16_t height);
 
-static unsigned vnc_h264_encoding(tvbuff_t *tvb, int *offset, proto_tree *tree);
+static unsigned vnc_h264_encoding(tvbuff_t *tvb, unsigned *offset, proto_tree *tree);
 
 #define VNC_BYTES_NEEDED(a)					\
 	if((a) > (unsigned)tvb_reported_length_remaining(tvb, *offset))	\
@@ -1049,7 +1049,7 @@ static int
 dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	bool ret;
-	int      offset = 0;
+	unsigned offset = 0;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item	   *ti;
@@ -1190,7 +1190,7 @@ vnc_is_client_or_server_version_message(tvbuff_t *tvb, packet_info *pinfo, proto
 			* [1] http://git.gnome.org/browse/gtk-vnc/commit/?id=bc9e2b19167686dd381a0508af1a5113675d08a2
 			*/
 			if ((pinfo != NULL) && (tree != NULL)) {
-				proto_tree_add_expert(tree, pinfo, &ei_vnc_possible_gtk_vnc_bug, tvb, -1, 0);
+				proto_tree_add_expert_remaining(tree, pinfo, &ei_vnc_possible_gtk_vnc_bug, tvb, 0);
 			}
 
 			return true;
@@ -1527,7 +1527,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	case VNC_SESSION_STATE_TIGHT_UNKNOWN_PACKET3 :
 		col_set_str(pinfo->cinfo, COL_INFO, "Unknown packet (TightVNC)");
 
-		proto_tree_add_expert(tree, pinfo, &ei_vnc_unknown_tight, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_vnc_unknown_tight, tvb, offset);
 
 		per_conversation_info->vnc_next_state =
 			VNC_SESSION_STATE_VNC_AUTHENTICATION_CHALLENGE;
@@ -1851,7 +1851,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 
 static void
-vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		     proto_tree *tree,
 		     vnc_conversation_t *per_conversation_info)
 {
@@ -1945,7 +1945,7 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 }
 
 static void
-vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		     proto_tree *tree)
 {
 	int start_offset;
@@ -2012,7 +2012,7 @@ again:
 	}
 
 	if(bytes_needed > 0 && vnc_preference_desegment && pinfo->can_desegment) {
-		proto_tree_add_expert(vnc_server_message_type_tree, pinfo, &ei_vnc_reassemble, tvb, start_offset, -1);
+		proto_tree_add_expert_remaining(vnc_server_message_type_tree, pinfo, &ei_vnc_reassemble, tvb, start_offset);
 		pinfo->desegment_offset = start_offset;
 		pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 		return;
@@ -2025,7 +2025,7 @@ again:
 
 
 static void
-vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			    proto_tree *tree,
 			    vnc_conversation_t *per_conversation_info)
 {
@@ -2082,7 +2082,7 @@ vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 
 static void
-vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			 proto_tree *tree,
 			 vnc_conversation_t *per_conversation_info)
 {
@@ -2139,7 +2139,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 static void
 vnc_client_framebuffer_update_request(tvbuff_t *tvb, packet_info *pinfo,
-				      int *offset, proto_tree *tree)
+				      unsigned *offset, proto_tree *tree)
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Client framebuffer update request");
 
@@ -2166,7 +2166,7 @@ vnc_client_framebuffer_update_request(tvbuff_t *tvb, packet_info *pinfo,
 
 
 static void
-vnc_client_key_event(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_client_key_event(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		     proto_tree *tree)
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Client key event");
@@ -2183,7 +2183,7 @@ vnc_client_key_event(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 
 static void
-vnc_client_pointer_event(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_client_pointer_event(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			 proto_tree *tree)
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Client pointer event");
@@ -2207,7 +2207,7 @@ vnc_client_pointer_event(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 
 static unsigned
-vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		    proto_tree *tree)
 {
 	uint32_t text_len;
@@ -2230,7 +2230,7 @@ vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 }
 
 static unsigned
-vnc_client_cut_text_extended(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_client_cut_text_extended(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		    proto_tree *tree)
 {
 	int message_length;
@@ -2263,7 +2263,7 @@ vnc_client_cut_text_extended(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 
 static void
-vnc_client_cut_text_extended_non_compatible(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset,
+vnc_client_cut_text_extended_non_compatible(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned *offset,
 		    proto_tree *tree, int message_length)
 {
 	int end_offset = *offset + message_length;
@@ -2348,7 +2348,7 @@ vnc_client_cut_text_extended_non_compatible(tvbuff_t *tvb, packet_info *pinfo _U
 
 
 static unsigned
-vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			      proto_tree *tree)
 {
 	unsigned    ii;
@@ -2555,7 +2555,7 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 }
 
 static uint32_t
-vnc_extended_desktop_size(tvbuff_t *tvb, int *offset, proto_tree *tree)
+vnc_extended_desktop_size(tvbuff_t *tvb, unsigned *offset, proto_tree *tree)
 {
 
 	uint8_t     i, num_of_screens;
@@ -2589,7 +2589,7 @@ vnc_extended_desktop_size(tvbuff_t *tvb, int *offset, proto_tree *tree)
 }
 
 static unsigned
-vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		 proto_tree *tree, const uint16_t width, const uint16_t height)
 {
 	uint8_t bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
@@ -2607,7 +2607,7 @@ vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 
 static unsigned
-vnc_copyrect_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset,
+vnc_copyrect_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned *offset,
 		      proto_tree *tree, const uint16_t width _U_, const uint16_t height _U_)
 {
 	proto_tree_add_item(tree, hf_vnc_copyrect_src_x_pos, tvb, *offset,
@@ -2623,7 +2623,7 @@ vnc_copyrect_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset,
 
 
 static unsigned
-vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		 proto_tree *tree, const uint16_t width _U_, const uint16_t height _U_)
 {
 	uint8_t     bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
@@ -2685,7 +2685,7 @@ vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 
 static unsigned
-vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		     proto_tree *tree, const uint16_t width, const uint16_t height)
 {
 	uint8_t     bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
@@ -2814,7 +2814,7 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 }
 
 static unsigned
-vnc_supported_messages(tvbuff_t *tvb, int *offset, proto_tree *tree,
+vnc_supported_messages(tvbuff_t *tvb, unsigned *offset, proto_tree *tree,
 		       const uint16_t width)
 {
 	VNC_BYTES_NEEDED(width);
@@ -2836,7 +2836,7 @@ vnc_supported_messages(tvbuff_t *tvb, int *offset, proto_tree *tree,
 }
 
 static unsigned
-vnc_supported_encodings(tvbuff_t *tvb, int *offset, proto_tree *tree,
+vnc_supported_encodings(tvbuff_t *tvb, unsigned *offset, proto_tree *tree,
 		        const uint16_t width, const uint16_t height)
 {
 	uint16_t i = width;
@@ -2855,7 +2855,7 @@ vnc_supported_encodings(tvbuff_t *tvb, int *offset, proto_tree *tree,
 }
 
 static unsigned
-vnc_server_identity(tvbuff_t *tvb, int *offset, proto_tree *tree,
+vnc_server_identity(tvbuff_t *tvb, unsigned *offset, proto_tree *tree,
 		    const uint16_t width)
 {
 	VNC_BYTES_NEEDED(width);
@@ -2867,13 +2867,13 @@ vnc_server_identity(tvbuff_t *tvb, int *offset, proto_tree *tree,
 }
 
 static unsigned
-vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 	       proto_tree *tree)
 {
 	uint8_t type;
 	uint16_t length;
 	uint16_t num, i;
-	int end;
+	unsigned end;
 	proto_tree *sub_tree;
 
 	/* Header */
@@ -3174,7 +3174,7 @@ vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 }
 
 static unsigned
-vnc_fence(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_fence(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 	  proto_tree *tree)
 {
 	unsigned payload_length;
@@ -3208,7 +3208,7 @@ vnc_fence(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 }
 
 static void
-vnc_qemu(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_qemu(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 	  proto_tree *tree)
 {
 	uint8_t message_subtype;
@@ -3228,7 +3228,7 @@ vnc_qemu(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 }
 
 static void
-vnc_qemu_extended_key_event(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_qemu_extended_key_event(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 	  proto_tree *tree)
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "QEMU Extended Key Event");
@@ -3244,7 +3244,7 @@ vnc_qemu_extended_key_event(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 }
 
 static unsigned
-vnc_context_information(tvbuff_t *tvb, int *offset, proto_tree *tree)
+vnc_context_information(tvbuff_t *tvb, unsigned *offset, proto_tree *tree)
 {
 	VNC_BYTES_NEEDED(20);
 
@@ -3277,7 +3277,7 @@ vnc_context_information(tvbuff_t *tvb, int *offset, proto_tree *tree)
 }
 
 static unsigned
-vnc_slrle_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_slrle_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		   proto_tree *tree, const uint16_t height)
 {
 	uint8_t depth = vnc_get_depth(pinfo);
@@ -3315,7 +3315,7 @@ vnc_slrle_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 }
 
 static unsigned
-vnc_h264_encoding(tvbuff_t *tvb, int *offset, proto_tree *tree)
+vnc_h264_encoding(tvbuff_t *tvb, unsigned *offset, proto_tree *tree)
 {
 	uint32_t nbytes;
 
@@ -3349,11 +3349,11 @@ vnc_h264_encoding(tvbuff_t *tvb, int *offset, proto_tree *tree)
 
 #if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG)
 static unsigned
-vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		  proto_tree *tree, const uint16_t width, const uint16_t height)
 #else
 static unsigned
-vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset,
+vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned *offset,
 		  proto_tree *tree, const uint16_t width _U_, const uint16_t height _U_)
 #endif
 {
@@ -3438,7 +3438,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset,
 
 
 static unsigned
-read_compact_len(tvbuff_t *tvb, int *offset, unsigned *length, unsigned *value_length)
+read_compact_len(tvbuff_t *tvb, unsigned *offset, unsigned *length, unsigned *value_length)
 {
 	int b;
 
@@ -3479,7 +3479,7 @@ read_compact_len(tvbuff_t *tvb, int *offset, unsigned *length, unsigned *value_l
 
 
 static unsigned
-process_compact_length_and_image_data(tvbuff_t *tvb, int *offset, proto_tree *tree)
+process_compact_length_and_image_data(tvbuff_t *tvb, unsigned *offset, proto_tree *tree)
 {
 	unsigned bytes_needed;
 	unsigned length, value_length;
@@ -3499,7 +3499,7 @@ process_compact_length_and_image_data(tvbuff_t *tvb, int *offset, proto_tree *tr
 
 
 static unsigned
-process_tight_rect_filter_palette(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+process_tight_rect_filter_palette(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 				  proto_tree *tree, int *bits_per_pixel)
 {
 	vnc_packet_t *per_packet_info;
@@ -3540,7 +3540,7 @@ process_tight_rect_filter_palette(tvbuff_t *tvb, packet_info *pinfo, int *offset
 }
 
 static unsigned
-vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		   proto_tree *tree, const uint16_t width _U_, const uint16_t height _U_)
 {
 	vnc_packet_t *per_packet_info;
@@ -3670,7 +3670,7 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 
 static unsigned
-decode_cursor(tvbuff_t *tvb, int *offset, proto_tree *tree,
+decode_cursor(tvbuff_t *tvb, unsigned *offset, proto_tree *tree,
 	      unsigned pixels_bytes, unsigned mask_bytes)
 {
 	unsigned total_bytes;
@@ -3691,7 +3691,7 @@ decode_cursor(tvbuff_t *tvb, int *offset, proto_tree *tree,
 
 
 static unsigned
-vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			 proto_tree *tree, const uint16_t width, const uint16_t height)
 {
 	uint8_t bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
@@ -3706,7 +3706,7 @@ vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 
 static unsigned
-vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset,
+vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned *offset,
 		      proto_tree *tree, const uint16_t width, const uint16_t height)
 {
 	int bitmap_row_bytes = (width + 7) / 8;
@@ -3723,7 +3723,7 @@ vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset,
 
 
 static unsigned
-vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 				proto_tree *tree)
 {
 	uint16_t number_of_colors;
@@ -3790,7 +3790,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 
 static void
-vnc_server_ring_bell(tvbuff_t *tvb _U_, packet_info *pinfo, int *offset _U_,
+vnc_server_ring_bell(tvbuff_t *tvb _U_, packet_info *pinfo, unsigned *offset _U_,
 		     proto_tree *tree _U_)
 {
 	col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Server ring bell on client");
@@ -3799,7 +3799,7 @@ vnc_server_ring_bell(tvbuff_t *tvb _U_, packet_info *pinfo, int *offset _U_,
 
 
 static unsigned
-vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		    proto_tree *tree)
 {
 	uint32_t    text_len;

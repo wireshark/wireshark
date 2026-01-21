@@ -208,11 +208,11 @@ static const value_string ext_cmd_string[] = {
 
 
 
-static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, unsigned offset, packet_info *pinfo, proto_tree *tree);
 static wcp_window_t *get_wcp_window_ptr(packet_info *pinfo);
 
 static void
-dissect_wcp_con_req(tvbuff_t *tvb, int offset, proto_tree *tree) {
+dissect_wcp_con_req(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
 
 /* WCP connector request message */
 	uint32_t alg_cnt;
@@ -232,7 +232,7 @@ dissect_wcp_con_req(tvbuff_t *tvb, int offset, proto_tree *tree) {
 }
 
 static void
-dissect_wcp_con_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
+dissect_wcp_con_ack(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
 
 	/* WCP connector ack message */
 
@@ -243,7 +243,7 @@ dissect_wcp_con_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 }
 
 static void
-dissect_wcp_init(tvbuff_t *tvb, int offset, proto_tree *tree) {
+dissect_wcp_init(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
 
 	/* WCP Initiate Request/Ack message */
 
@@ -256,7 +256,7 @@ dissect_wcp_init(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 
 static void
-dissect_wcp_reset(tvbuff_t *tvb, int offset, proto_tree *tree) {
+dissect_wcp_reset(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
 
 	/* Process WCP Reset Request/Ack message */
 
@@ -284,7 +284,7 @@ static void wcp_save_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree) {
 				len - (buf_end - buf_ptr->buf_cur));
 			buf_ptr->buf_cur += len - MAX_WIN_BUF_LEN;
 		} else {
-			proto_tree_add_expert(tree, pinfo, &ei_wcp_buffer_too_long, tvb, 0, -1);
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_wcp_buffer_too_long, tvb, 0);
 		}
 	}
 }
@@ -379,7 +379,7 @@ static int dissect_wcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 static uint8_t *
 decompressed_entry(uint8_t *dst, uint16_t data_offset,
-	uint16_t data_cnt, int *len, wcp_window_t *buf_ptr)
+	uint16_t data_cnt, unsigned *len, wcp_window_t *buf_ptr)
 {
 	const uint8_t *src;
 	uint8_t *buf_start, *buf_end;
@@ -439,15 +439,16 @@ wcp_window_t *get_wcp_window_ptr(packet_info *pinfo) {
 }
 
 
-static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
 
 	/* do the packet data uncompression and load it into the dst buffer */
 
 	proto_tree	*cd_tree, *sub_tree;
 	proto_item	*cd_item, *ti;
 
-	int len, i;
-	int cnt = tvb_reported_length(src_tvb) - 1;/* don't include check byte */
+	unsigned len;
+	int i;
+	unsigned cnt = tvb_reported_length(src_tvb) - 1;/* don't include check byte */
 
 	uint8_t *dst, *src, *buf_start, *buf_end, comp_flag_bits = 0;
 	uint16_t data_offset, data_cnt;
