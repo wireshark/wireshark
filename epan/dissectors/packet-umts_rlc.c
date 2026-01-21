@@ -1425,7 +1425,7 @@ translate_hex_key(char * char_key){
     key_in = wmem_alloc0(pinfo->pool, sizeof(uint8_t)*16);
     j= (int)(strlen(char_key)/2)-1;
     /*Translate "hex-string" into a byte aligned block */
-    for(i = (int)strlen(char_key); i> 0; i-=2 ){
+    for(i = (unsigned)strlen(char_key); i> 0; i-=2 ){
         key_in[j] =  ( (uint8_t)  (strtol( &char_key[i-2], NULL, 16 ) ));
         char_key[i-2] = '\0';
         j--;
@@ -1668,7 +1668,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
             ciphered_data_hf = (ext == 1) ? hf_rlc_ciphered_lis_data : hf_rlc_ciphered_data;
             /* Adding ciphered payload field to tree */
             proto_tree_add_item(tree, ciphered_data_hf, tvb, header_size, -1, ENC_NA);
-            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, header_size, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_rlc_ciphered_data, tvb, header_size);
             col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
             return;
 
@@ -1957,7 +1957,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (!fpinf || !rlcinf) {
-        proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0);
         return;
     }
 
@@ -1974,7 +1974,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
             ciphered_data_hf = (ext == 1) ? hf_rlc_ciphered_lis_data : hf_rlc_ciphered_data;
             /* Adding ciphered payload field to tree */
             proto_tree_add_item(tree, ciphered_data_hf, tvb, offs, -1, ENC_NA);
-            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, offs, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_rlc_ciphered_data, tvb, offs);
             col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
             return;
         }
@@ -2390,7 +2390,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (!fpinf || !rlcinf) {
-        proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0);
         return;
     }
 
@@ -2409,7 +2409,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
             ciphered_data_hf = (ext == 0x01) ? hf_rlc_ciphered_lis_data : hf_rlc_ciphered_data;
             /* Adding ciphered payload field to tree */
             proto_tree_add_item(tree, ciphered_data_hf, tvb, offs, -1, ENC_NA);
-            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, offs, -1);
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_rlc_ciphered_data, tvb, offs);
             col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
             return;
         }
@@ -2576,7 +2576,7 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
     if (!fpi || !rlci){
-        proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0);
         return 1;
     }
 
@@ -2616,7 +2616,7 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
     if (!fpi || !rlci) {
-        proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0);
         return 1;
     }
 
@@ -2683,7 +2683,7 @@ dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 static void
 report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
-                  tvbuff_t *tvb, int start, int length)
+                  tvbuff_t *tvb, unsigned start, unsigned length)
 {
     proto_item *ti;
     proto_tree *subtree;
@@ -2699,7 +2699,7 @@ report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
 static bool
 dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    int         offset             = 0;
+    unsigned    offset             = 0;
     fp_info    *fpi;
     rlc_info   *rlci;
     tvbuff_t   *rlc_tvb;
@@ -2720,15 +2720,15 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
        - conditional header bytes
        - tag for data
        - at least one byte of RLC PDU payload */
-    if (tvb_captured_length_remaining(tvb, offset) < (int)(strlen(RLC_START_STRING)+2+2)) {
+    if (tvb_captured_length_remaining(tvb, offset) < (unsigned)(strlen(RLC_START_STRING)+2+2)) {
         return false;
     }
 
     /* OK, compare with signature string */
-    if (tvb_strneql(tvb, offset, RLC_START_STRING, (int)strlen(RLC_START_STRING)) != 0) {
+    if (tvb_strneql(tvb, offset, RLC_START_STRING, (unsigned)strlen(RLC_START_STRING)) != 0) {
         return false;
     }
-    offset += (int)strlen(RLC_START_STRING);
+    offset += (unsigned)strlen(RLC_START_STRING);
 
     /* If redissecting, use previous info struct (if available) */
     fpi = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);

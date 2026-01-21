@@ -845,12 +845,12 @@ static const value_string suti_vals[] = {
 	/* Code to actually dissect the packets */
 
 static int
-dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
 	tvbuff_t	*l3_tvb;
 	tvbuff_t	*llc_tvb;
 	tvbuff_t	*new_tvb;
-	int		ie_offset;
+	unsigned	ie_offset;
 	uint8_t		ie_value;
 	uint16_t		ie_len = 0;
 	uint8_t		octet;
@@ -1603,9 +1603,9 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 static int
 dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int		offset = 0;
+	unsigned offset = 0;
 	uint8_t	octet, pd;
-	uint16_t msg_len;
+	unsigned msg_len;
 	proto_item* pd_item;
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -1627,7 +1627,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	pd = octet & 0x0f;
 	proto_tree_add_item(uma_tree, hf_uma_skip_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if ((octet & 0xf0) != 0 ){
-		proto_tree_add_expert(uma_tree, pinfo, &ei_uma_skip_this_message, tvb, offset, -1);
+		proto_tree_add_expert_remaining(uma_tree, pinfo, &ei_uma_skip_this_message, tvb, offset);
 		return tvb_reported_length(tvb);
 	}
 
@@ -1685,7 +1685,7 @@ static int
 dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
-	int		offset = 0;
+	unsigned offset = 0;
 	uint8_t	octet;
 	uint16_t msg_len;
 	proto_item* msg_item;
