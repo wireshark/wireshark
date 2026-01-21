@@ -2272,8 +2272,7 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
                 opt_offset += 1;
 
                 /* Status */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_naack_status, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
-                status = tvb_get_uint8(tvb, opt_offset);
+                proto_tree_add_item_ret_uint8(icmp6opt_tree, hf_icmpv6_opt_naack_status, tvb, opt_offset, 1, ENC_BIG_ENDIAN, &status);
                 opt_offset += 1;
 
                 if(status == 2){
@@ -2646,8 +2645,7 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
                 };
 
                 /* Status */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_status, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
-                status = tvb_get_uint8(tvb, opt_offset);
+                proto_tree_add_item_ret_uint8(icmp6opt_tree, hf_icmpv6_opt_aro_status, tvb, opt_offset, 1, ENC_BIG_ENDIAN, &status);
                 opt_offset += 1;
 
                 /* EARO Opaque */
@@ -3991,8 +3989,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
     };
 
     /* Qtype */
-    proto_tree_add_item(tree, hf_icmpv6_ni_qtype, tvb, ni_offset, 2, ENC_BIG_ENDIAN);
-    qtype = tvb_get_ntohs(tvb, ni_offset);
+    proto_tree_add_item_ret_uint16(tree, hf_icmpv6_ni_qtype, tvb, ni_offset, 2, ENC_BIG_ENDIAN, &qtype);
     ni_offset += 2;
 
     /* Flags */
@@ -4135,8 +4132,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo, proto_tree *tre
         mp_tree = proto_item_add_subtree(ti_mp, ett_icmpv6_rr_mp);
 
         /* OpCode */
-        proto_tree_add_item(mp_tree, hf_icmpv6_rr_pco_mp_opcode, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
-        opcode = tvb_get_uint8(tvb, rr_offset);
+        proto_tree_add_item_ret_uint8(mp_tree, hf_icmpv6_rr_pco_mp_opcode, tvb, rr_offset, 1, ENC_BIG_ENDIAN, &opcode);
         rr_offset += 1;
 
         /* OpLength */
@@ -4148,21 +4144,18 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo, proto_tree *tre
         rr_offset += 1;
 
         /* MatchLen  */
-        ti = proto_tree_add_item(mp_tree, hf_icmpv6_rr_pco_mp_matchlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
-        matchlen = tvb_get_uint8(tvb, rr_offset);
+        ti = proto_tree_add_item_ret_uint8(mp_tree, hf_icmpv6_rr_pco_mp_matchlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN, &matchlen);
         if (matchlen > 128) {
             expert_add_info(pinfo, ti, &ei_icmpv6_rr_pco_mp_matchlen);
         }
         rr_offset += 1;
 
         /* MinLen  */
-        proto_tree_add_item(mp_tree, hf_icmpv6_rr_pco_mp_minlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
-        minlen = tvb_get_uint8(tvb, rr_offset);
+        proto_tree_add_item_ret_uint8(mp_tree, hf_icmpv6_rr_pco_mp_minlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN, &minlen);
         rr_offset += 1;
 
         /* MaxLen  */
-        proto_tree_add_item(mp_tree, hf_icmpv6_rr_pco_mp_maxlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
-        maxlen = tvb_get_uint8(tvb, rr_offset);
+        proto_tree_add_item_ret_uint8(mp_tree, hf_icmpv6_rr_pco_mp_maxlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN, &maxlen);
         rr_offset += 1;
 
         /* Reserved  */
@@ -4208,8 +4201,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo, proto_tree *tre
             rr_offset += 1;
 
             /* KeepLen */
-            proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_keeplen, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
-            keeplen = tvb_get_uint8(tvb, rr_offset);
+            proto_tree_add_item_ret_uint8(up_tree, hf_icmpv6_rr_pco_up_keeplen, tvb, rr_offset, 1, ENC_BIG_ENDIAN, &keeplen);
             rr_offset += 1;
 
             /* FlagMask */
@@ -4270,8 +4262,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo, proto_tree *tre
         rr_offset +=1;
 
         /* MatchLen */
-        ti = proto_tree_add_item(rm_tree, hf_icmpv6_rr_rm_matchedlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
-        matchlen = tvb_get_uint8(tvb, rr_offset);
+        ti = proto_tree_add_item_ret_uint8(rm_tree, hf_icmpv6_rr_rm_matchedlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN, &matchlen);
         if (matchlen > 128) {
             expert_add_info(pinfo, ti, &ei_icmpv6_rr_pco_mp_matchedlen);
         }
@@ -4595,8 +4586,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         uint16_t identifier, sequence;
 
         /* Identifier */
-        proto_tree_add_item(icmp6_tree, hf_icmpv6_echo_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
-        identifier = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item_ret_uint16(icmp6_tree, hf_icmpv6_echo_identifier, tvb, offset, 2, ENC_BIG_ENDIAN, &identifier);
         offset += 2;
 
         /* Sequence Number */
@@ -5056,8 +5046,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 uint8_t subtype;
 
                 /* Subtype */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_fmip6_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
-                subtype = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint8(icmp6_tree, hf_icmpv6_fmip6_subtype, tvb, offset, 1, ENC_BIG_ENDIAN, &subtype);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(pinfo->pool, subtype, fmip6_subtype_val, "Unknown (%d)"));
                 offset += 1;
 

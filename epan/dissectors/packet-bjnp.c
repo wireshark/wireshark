@@ -92,12 +92,10 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   proto_tree_add_item (bjnp_tree, hf_bjnp_id, tvb, offset, 4, ENC_ASCII);
   offset += 4;
 
-  dev_type = tvb_get_uint8 (tvb, offset);
-  proto_tree_add_item (bjnp_tree, hf_dev_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8 (bjnp_tree, hf_dev_type, tvb, offset, 1, ENC_BIG_ENDIAN, &dev_type);
   offset++;
 
-  cmd_code = tvb_get_uint8 (tvb, offset);
-  proto_tree_add_item (bjnp_tree, hf_cmd_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8 (bjnp_tree, hf_cmd_code, tvb, offset, 1, ENC_BIG_ENDIAN, &cmd_code);
   offset++;
 
   info = wmem_strdup_printf(pinfo->pool, "%s: %s",
@@ -113,8 +111,7 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   proto_tree_add_item (bjnp_tree, hf_session_id, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  payload_len = tvb_get_ntohl (tvb, offset);
-  proto_tree_add_item (bjnp_tree, hf_payload_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (bjnp_tree, hf_payload_len, tvb, offset, 4, ENC_BIG_ENDIAN, &payload_len);
   offset += 4;
 
   if (payload_len > 0) {

@@ -5507,8 +5507,7 @@ dissect_acn_dmx_data_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
       data_offset += 2;
       proto_tree_add_item(pdu_tree, hf_acn_dmx_increment, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      dmx_count    = tvb_get_ntohs(tvb, data_offset);
-      proto_tree_add_item(pdu_tree, hf_acn_dmx_count, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint16(pdu_tree, hf_acn_dmx_count, tvb, data_offset, 2, ENC_BIG_ENDIAN, &dmx_count);
       data_offset += 2;
 
       if (protocol_id == ACN_PROTOCOL_ID_DMX_2 || protocol_id == ACN_PROTOCOL_ID_DMX_3) {

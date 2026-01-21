@@ -487,8 +487,7 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *ancp
         offset += 2;
         tech_type = 0;
     } else {
-        proto_tree_add_item(ancp_tree, hf_ancp_tech_type,     tvb, offset, 1, ENC_BIG_ENDIAN);
-        tech_type = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(ancp_tree, hf_ancp_tech_type,  tvb, offset, 1, ENC_BIG_ENDIAN, &tech_type);
         offset += 1;
 
         proto_tree_add_item(ancp_tree, hf_ancp_reserved,      tvb, offset, 1, ENC_NA);

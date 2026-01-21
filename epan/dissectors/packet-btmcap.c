@@ -115,8 +115,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             break;
     }
 
-    pitem = proto_tree_add_item(main_tree, hf_btmcap_op_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-    op_code = tvb_get_uint8(tvb, offset);
+    pitem = proto_tree_add_item_ret_uint(main_tree, hf_btmcap_op_code, tvb, offset, 1, ENC_BIG_ENDIAN, &op_code);
     offset += 1;
 
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(op_code, op_code_vals, "Unknown Op Code"));
@@ -135,8 +134,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             case 0x03: /* MD_RECONNECT_MDL_REQ */
             case 0x05: /* MD_ABORT_MDL_REQ */
             case 0x07: /* MD_DELETE_MDL_REQ */
-                pitem = proto_tree_add_item(main_tree, hf_btmcap_mdl_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-                mdl_id = tvb_get_ntohs(tvb, offset);
+                pitem = proto_tree_add_item_ret_uint(main_tree, hf_btmcap_mdl_id, tvb, offset, 2, ENC_BIG_ENDIAN, &mdl_id);
                 offset += 2;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - MDL ID: %u", mdl_id);
@@ -157,8 +155,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
                 if (op_code == 0x01) {
                     /* only MD_CREATE_MDL_REQ */
-                    pitem = proto_tree_add_item(main_tree, hf_btmcap_mdep_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    mdep_id = tvb_get_uint8(tvb, offset);
+                    pitem = proto_tree_add_item_ret_uint(main_tree, hf_btmcap_mdep_id, tvb, offset, 1, ENC_BIG_ENDIAN, &mdep_id);
                     offset += 1;
 
                     if (mdep_id <= 0x7F) {
@@ -187,8 +184,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     proto_item_append_text(pitem, " (Baseband Half-Slot Instant)");
                 offset += 4;
 
-                pitem = proto_tree_add_item(main_tree, hf_btmcap_timestamp_sync_time, tvb, offset, 8, ENC_BIG_ENDIAN);
-                timestamp_sync_time = tvb_get_ntoh64(tvb, offset);
+                pitem = proto_tree_add_item_ret_uint64(main_tree, hf_btmcap_timestamp_sync_time, tvb, offset, 8, ENC_BIG_ENDIAN, &timestamp_sync_time);
                 if (timestamp_sync_time == UINT64_C(0xFFFFFFFFFFFFFFFF))
                     proto_item_append_text(pitem, " (No Time Synchronization)");
                 else
@@ -211,8 +207,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     } else {
         /* isResponse */
 
-        proto_tree_add_item(main_tree, hf_btmcap_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-        response_code = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(main_tree, hf_btmcap_response_code, tvb, offset, 1, ENC_BIG_ENDIAN, &response_code);
         offset += 1;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(response_code, response_code_vals, "Unknown ResponseCode"));
@@ -235,16 +230,14 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     offset += 2;
                     break;
                 case 0x14: /* MD_SYNC_SET_RSP */
-                    pitem = proto_tree_add_item(main_tree, hf_btmcap_bluetooth_clock_sync_time, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    bluetooth_clock_sync_time = tvb_get_ntohl(tvb, offset);
+                    pitem = proto_tree_add_item_ret_uint(main_tree, hf_btmcap_bluetooth_clock_sync_time, tvb, offset, 4, ENC_BIG_ENDIAN, &bluetooth_clock_sync_time);
                     if (bluetooth_clock_sync_time == 0xFFFFFFFF)
                         proto_item_append_text(pitem, " (Instant Synchronization)");
                     else
                         proto_item_append_text(pitem, " (Baseband Half-Slot Instant)");
                     offset += 4;
 
-                    pitem = proto_tree_add_item(main_tree, hf_btmcap_timestamp_sync_time, tvb, offset, 8, ENC_BIG_ENDIAN);
-                    timestamp_sync_time = tvb_get_ntoh64(tvb, offset);
+                    pitem = proto_tree_add_item_ret_uint64(main_tree, hf_btmcap_timestamp_sync_time, tvb, offset, 8, ENC_BIG_ENDIAN, &timestamp_sync_time);
                     if (timestamp_sync_time == UINT64_C(0xFFFFFFFFFFFFFFFF))
                         proto_item_append_text(pitem, " (No Time Synchronization)");
                     else
@@ -257,8 +250,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             }
         } else {
             /* Standard Op Code */
-            pitem = proto_tree_add_item(main_tree, hf_btmcap_mdl_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-            mdl_id = tvb_get_ntohs(tvb, offset);
+            pitem = proto_tree_add_item_ret_uint(main_tree, hf_btmcap_mdl_id, tvb, offset, 2, ENC_BIG_ENDIAN, &mdl_id);
             offset += 2;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %u", mdl_id);

@@ -1197,8 +1197,7 @@ dissect_ipopt_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int pro
 
   field_tree = ip_var_option_header(tree, pinfo, tvb, proto, ett_ip_option_route, &tf, optlen);
 
-  ptr = tvb_get_uint8(tvb, offset + 2);
-  tf = proto_tree_add_item(field_tree, hf_ip_opt_ptr, tvb, offset + 2, 1, ENC_NA);
+  tf = proto_tree_add_item_ret_uint8(field_tree, hf_ip_opt_ptr, tvb, offset + 2, 1, ENC_NA, &ptr);
   if ((ptr < (optlen_min + 1)) || (ptr & 3)) {
     if (ptr < (optlen_min + 1)) {
       expert_add_info(pinfo, tf, &ei_ip_opt_ptr_before_address);
@@ -1289,8 +1288,7 @@ dissect_ipopt_record_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
   field_tree = ip_var_option_header(tree, pinfo, tvb, proto_ip_option_record_route, ett_ip_option_route, &tf, optlen);
 
-  ptr = tvb_get_uint8(tvb, offset + 2);
-  tf = proto_tree_add_item(field_tree, hf_ip_opt_ptr, tvb, offset + 2, 1, ENC_NA);
+  tf = proto_tree_add_item_ret_uint8(field_tree, hf_ip_opt_ptr, tvb, offset + 2, 1, ENC_NA, &ptr);
 
   if ((ptr < (IPOLEN_RR_MIN + 1)) || (ptr & 3)) {
     if (ptr < (IPOLEN_RR_MIN + 1)) {

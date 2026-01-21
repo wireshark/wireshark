@@ -392,12 +392,10 @@ dissect_le_configure_join_frame(tvbuff_t *tvb, packet_info* pinfo, int offset, p
   proto_tree_add_item(tree, hf_atm_le_configure_join_frame_max_frame_size, tvb, offset, 1, ENC_NA);
   offset += 1;
 
-  num_tlvs = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_atm_le_configure_join_frame_num_tlvs, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item_ret_uint8(tree, hf_atm_le_configure_join_frame_num_tlvs, tvb, offset, 1, ENC_NA, &num_tlvs);
   offset += 1;
 
-  name_size = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_atm_le_configure_join_frame_elan_name_size, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item_ret_uint8(tree, hf_atm_le_configure_join_frame_elan_name_size, tvb, offset, 1, ENC_NA, &name_size);
   offset += 1;
 
   proto_tree_add_item(tree, hf_atm_target_atm, tvb, offset, 20, ENC_NA);
@@ -430,8 +428,7 @@ dissect_le_registration_frame(tvbuff_t *tvb, packet_info* pinfo, int offset, pro
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 2, ENC_NA);
   offset += 2;
 
-  num_tlvs = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_atm_le_registration_frame_num_tlvs, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item_ret_uint8(tree, hf_atm_le_registration_frame_num_tlvs, tvb, offset, 1, ENC_NA, &num_tlvs);
   offset += 1;
 
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 53, ENC_NA);
@@ -457,8 +454,7 @@ dissect_le_arp_frame(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 2, ENC_NA);
   offset += 2;
 
-  num_tlvs = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_atm_le_arp_frame_num_tlvs, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item_ret_uint8(tree, hf_atm_le_arp_frame_num_tlvs, tvb, offset, 1, ENC_NA, &num_tlvs);
   offset += 1;
 
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 1, ENC_NA);

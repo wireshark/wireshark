@@ -1478,8 +1478,7 @@ parse_long_filename(proto_tree *tree, tvbuff_t *tvb, int offset, int org_offset)
 	proto_tree_add_item(tree, hf_afp_long_name_offset,tvb, offset, 2, ENC_BIG_ENDIAN);
 	if (lnameoff) {
 		tp_ofs = lnameoff +org_offset;
-		len = tvb_get_uint8(tvb, tp_ofs);
-		proto_tree_add_item(tree, hf_afp_path_len, tvb, tp_ofs,	 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint8(tree, hf_afp_path_len, tvb, tp_ofs,	 1, ENC_BIG_ENDIAN, &len);
 		tp_ofs++;
 		proto_tree_add_item(tree, hf_afp_path_name, tvb, tp_ofs, len, ENC_UTF_8);
 		tp_ofs += len;
@@ -2619,7 +2618,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 static int
 dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	int len;
+	uint16_t len;
 	int len_uam;
 	const char *uam;
 	uint8_t path_type;
@@ -2640,8 +2639,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_afp_user_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	/* only type 3 */
-	len = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_user_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_afp_user_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
 	offset += 2;
 	proto_tree_add_item(tree, hf_afp_user_name, tvb, offset, len, ENC_UTF_8);
 	offset += len;

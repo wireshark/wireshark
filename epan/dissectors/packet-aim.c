@@ -2419,8 +2419,7 @@ static int dissect_aim_generic_ext_status_repl(tvbuff_t *tvb, packet_info *pinfo
 	offset += 2;
 	proto_tree_add_item(gen_tree, hf_generic_ext_status_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(gen_tree, hf_generic_ext_status_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-	length = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(gen_tree, hf_generic_ext_status_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
 	offset += 1;
 	proto_tree_add_item(gen_tree, hf_generic_ext_status_data, tvb, offset, length, ENC_NA);
 	offset += 1;

@@ -2209,17 +2209,16 @@ def check_double_fetches(filename, contents, items, result):
     lines = contents.splitlines()
     contents = '\n'.join(line for line in lines if line.strip())
 
-    line_re = r'([\*a-zA-Z0-9_= ;\(\)\+\"\-\{\}\*\,\&\+\[\]\!]*?)\n'
+    line_re = r'(.*)\n'
 
     # Look for all calls in this file - note line before and after item added
     matches = re.finditer(r'\n' + line_re +
                           r'([\sa-z_\*=]*?)(proto_tree_add_item)\s*\(([a-zA-Z0-9_]+)\s*,\s*([a-zA-Z0-9_]+).*?\)\;\s*\n' +
                           line_re,
-                          contents, re.MULTILINE | re.DOTALL)
+                          contents, re.MULTILINE)
 
     for m in matches:
-        full_hf_name = m.group(5)
-        hf_name = m.group(5).split('_')[-1]
+        hf_name = m.group(5)
 
         prev_line = m.group(1)
         prev_line_tokens = prev_line.strip().split(' ')
@@ -2232,9 +2231,11 @@ def check_double_fetches(filename, contents, items, result):
 
         mask_value = 'unknown'
         item_type = 'unknown'
-        if full_hf_name in items:
-            mask_value = items[full_hf_name].mask_value
-            item_type = items[full_hf_name].item_type
+        if hf_name in items:
+            mask_value = items[hf_name].mask_value
+            item_type = items[hf_name].item_type
+        else:
+            continue
 
         # TODO: verify same value of offset for both calls?
 
@@ -2276,7 +2277,6 @@ def check_double_fetches(filename, contents, items, result):
                 suggest = 'proto_tree_add_item_ret_int64'
             else:
                 suggest = 'proto_tree_add_item_ret_uint64'
-
 
         if line_has_fetch_function(prev_line) and hf_name.endswith(first_prev_token) and '=' in prev_line_tokens:
             result.warn(filename, 'PREV: val=', first_prev_token, 'hfname=', hf_name,

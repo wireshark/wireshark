@@ -613,8 +613,7 @@ decode_sse(proto_tree *ext_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, 
                     "Cannot decode MSID Length - SSE too short");
         return;
     }
-    msid_len =  tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(ext_tree, hf_a11_ses_msid_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(ext_tree, hf_a11_ses_msid_len, tvb, offset, 1, ENC_BIG_ENDIAN, &msid_len);
     offset  += 1;
     ext_len -= 1;
 
@@ -744,8 +743,7 @@ dissect_3gpp2_service_option_profile(proto_tree  *tree, tvbuff_t  *tvb, packet_i
     while (tvb_reported_length_remaining(tvb,offset) > 0) {
         sub_type_length = tvb_get_uint8(tvb,offset+1);
 
-        sub_type = tvb_get_uint8(tvb,offset);
-        proto_tree_add_item(tree, hf_a11_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(tree, hf_a11_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_type);
         offset += 1;
         pi = proto_tree_add_item(tree, hf_a11_sub_type_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;

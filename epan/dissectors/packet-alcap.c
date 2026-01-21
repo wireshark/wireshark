@@ -1171,16 +1171,14 @@ static const char* dissect_fields_sut(packet_info* pinfo, tvbuff_t *tvb, proto_t
      *
      * 7.4.18 Served User Transport
      */
-    unsigned sut_len;
+    uint8_t sut_len;
 
     if (len < 2) {
         proto_tree_add_expert(tree, pinfo, &ei_alcap_parameter_field_bad_length, tvb, offset, len);
         return NULL;
     }
 
-    sut_len = tvb_get_uint8(tvb,offset);
-
-    proto_tree_add_item(tree, hf_alcap_sut_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_alcap_sut_len, tvb, offset, 1, ENC_BIG_ENDIAN, &sut_len);
     proto_tree_add_item(tree, hf_alcap_sut, tvb, offset, sut_len, ENC_NA);
 
     return NULL;
