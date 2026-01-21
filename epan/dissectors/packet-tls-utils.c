@@ -7844,7 +7844,7 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         if (ja4_data && wmem_strbuf_get_len(ja4_data->alpn) == 0) {
             const char alpn_first_char = (char)tvb_get_uint8(tvb,offset);
             const char alpn_last_char = (char)tvb_get_uint8(tvb,offset + name_length - 1);
-            if ((g_ascii_isprint(alpn_first_char)) && g_ascii_isprint(alpn_last_char)) {
+            if ((g_ascii_isalnum(alpn_first_char)) && g_ascii_isalnum(alpn_last_char)) {
                 wmem_strbuf_append_printf(ja4_data->alpn, "%c%c", alpn_first_char, alpn_last_char);
             }
             else {
