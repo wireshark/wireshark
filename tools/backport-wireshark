@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+if [ $# -lt 1 ]; then
+    echo "Backport a Debian wireshark source package to supported Ubuntu releases."
+    echo "Usage: $0 <source.dsc> [pocket] [comment]"
+    exit 1
+fi
+
+DSC=$1
+
+PACKAGE=$(basename $DSC | sed 's/_.*//')
+VERSION=$(basename $DSC | sed 's/[^_]*_//;s/.dsc$//')
+DIR=${PACKAGE}-backport-src
+POCKET=${2:-}
+COMMENT="${3:-}"
+[ -n "$POCKET" ] || VERSION_APPEND=~ppa1
+
+for DIST in $(ubuntu-distro-info --supported); do
+    DIST_VER="$(distro-info --series $DIST -r | cut -d" " -f1)"
+    dpkg-source -x $DSC $DIR
+    pushd $DIR
+    case $DIST in
+        *)
+            env EDITOR=touch dch -b --force-distribution -v$VERSION~ubuntu${DIST_VER}.0${VERSION_APPEND} -D ${DIST}${POCKET}
+            sed -i 's/\* $/* Rebuild for '${DIST^}"$COMMENT"/ debian/changelog
+            PRIOR_VERSION=$(rmadison -u ubuntu ${PACKAGE} | grep $DIST | cut -d' ' -f4 | tail -n1 | sed 's/~ubuntu1.\...\..$//')
+            [ -n "${PRIOR_VERSION}" ] || PRIOR_VERSION=0
+            dpkg-buildpackage -S -d -us -uc -sa -v${PRIOR_VERSION} --changes-option=-DDistribution=${DIST}
+            ;;
+    esac
+    popd
+    rm -rf $DIR
+done
