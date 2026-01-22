@@ -2173,7 +2173,6 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	if (!(conn_data->frame_start_ssl) && conn_data->clnt_caps & MYSQL_CAPS_SL) /* Next packet will be use SSL */
 	{
-		col_set_str(pinfo->cinfo, COL_INFO, "Response: SSL Handshake");
 		conn_data->frame_start_ssl = pinfo->num;
 		ssl_starttls_ack(tls_handle, pinfo, mysql_handle);
 	}
@@ -2204,6 +2203,14 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	} else { /* pre-4.1 */
 		proto_tree_add_item(login_tree, hf_mysql_max_packet, tvb, offset, 3, ENC_LITTLE_ENDIAN);
 		offset += 3;
+	}
+
+	// If client and server both set CLIENT_SSL then a lot of extra info is left out
+	// Protocol::SSLRequest: https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_connection_phase_packets_protocol_ssl_request.html
+	if ((conn_data->clnt_caps_ext & MYSQL_CAPS_SL)
+		&& (conn_data->srv_caps_ext & MYSQL_CAPS_SL)
+		&& !tvb_reported_length_remaining(tvb, offset)) {
+		return offset;
 	}
 
 	/* User name */
