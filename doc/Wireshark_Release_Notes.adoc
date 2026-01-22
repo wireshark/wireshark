@@ -55,23 +55,37 @@ The following features are either new or have been significantly updated since v
 // === Removed Dissectors
 
 
-//=== New File Format Decoding Support
+=== New File Format Decoding Support
 
-//[commaize]
-//--
-//--
+[commaize]
+--
+M-Module
+--
 
 === New Protocol Support
 
 // Add one protocol per line between the -- delimiters in the format
 // “Full protocol name (Abbreviation)”
-// git log --oneline --diff-filter=A --stat v4.3.0rc0.. epan/dissectors plugins
+// git log --oneline --diff-filter=A --stat v4.7.0rc0.. epan/dissectors plugins
 [commaize]
 --
-TrueConf Protocol (TrueConf)
-Real-Time Tracking Protocol (RTTrP)
-PosiStageNet (PSN)
+DCERPC SCARD_PACK
+ESUN
+Linux mac80211_hwsim Netlink
+Mikrotik RoMON
+Multicast Router Discovery (MRD)
+NATS
+NMEA 2000
 Object Transform Protocol (OTP)
+Perforce P4RPC
+PosiStageNet (PSN)
+TrueConf Protocol (TrueConf)
+RDP Conctrl virtual channel Protocol (CONCTRL)
+RDP Video Capture Virtual Channel Extension (RDPECAM)
+Real-Time Tracking Protocol (RTTrP)
+TrueConf
+Ultra Ethernet Transport (UET)
+ZigBee ZCL Generic Tunnel
 --
 
 === Updated Protocol Support
