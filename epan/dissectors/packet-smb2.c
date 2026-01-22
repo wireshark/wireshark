@@ -293,8 +293,6 @@ static int hf_smb2_mode_file_synchronous_io_nonalert;
 static int hf_smb2_mode_file_delete_on_close;
 static int hf_smb2_alignment_information;
 static int hf_smb2_buffer_code;
-static int hf_smb2_buffer_code_len;
-static int hf_smb2_buffer_code_flags_dyn;
 static int hf_smb2_olb_offset;
 static int hf_smb2_olb_length;
 static int hf_smb2_tag;
@@ -790,7 +788,6 @@ static int ett_smb2_posix_info;
 static int ett_smb2_file_name_info;
 static int ett_smb2_lock_info;
 static int ett_smb2_lock_flags;
-static int ett_smb2_buffercode;
 static int ett_smb2_ioctl_network_interface_capabilities;
 static int ett_smb2_tree_connect_flags;
 static int ett_qfr_entry;
@@ -3737,20 +3734,30 @@ dissect_smb2_oplock(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 static int
 dissect_smb2_buffercode(proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint16_t *length)
 {
-	proto_tree *tree;
-	proto_item *item = NULL;
 	uint16_t buffer_code;
 
 	/* dissect the first 2 bytes of the command PDU */
-	buffer_code = tvb_get_letohs(tvb, offset);
-	item = proto_tree_add_uint(parent_tree, hf_smb2_buffer_code, tvb, offset, 2, buffer_code);
-	tree = proto_item_add_subtree(item, ett_smb2_buffercode);
-	proto_tree_add_item(tree, hf_smb2_buffer_code_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_smb2_buffer_code_flags_dyn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	/* The StructureSize (called buffer_code here for historical reasons) is
+	 * a fixed size for a given message type. In most cases the Command code
+	 * and header response flag is sufficient to determine it, but in the
+	 * case of SMB2_COM_BREAK there are two possibilities, oplock and lease
+	 * break.
+	 *
+	 * Many structures are variable length; the general rule is that the
+	 * StructureSize is calculated as though the variable portion were
+	 * length 1. However, there are several exceptions - a NEGOTIATE Request
+	 * sets it to 36, which does not include any count for the Dialects
+	 * array (which must have at least one member), a WRITE Response sets
+	 * it to 17 even though there is no variable portion and the structure
+	 * is always 16 bytes in length, and a LOCK Request sets it to 48,
+	 * which is the size of a LOCK Request with a single SMB2_LOCK_ELEMENT
+	 * structure, even though the number of locks sent is variable.
+	 */
+	proto_tree_add_item_ret_uint16(parent_tree, hf_smb2_buffer_code, tvb, offset, 2, ENC_LITTLE_ENDIAN, &buffer_code);
 	offset += 2;
 
 	if (length) {
-		*length = buffer_code; /*&0xfffe don't mask it here, mask it on caller side */
+		*length = buffer_code;
 	}
 
 	return offset;
@@ -11211,8 +11218,7 @@ dissect_smb2_break_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	uint16_t buffer_code;
 
 	/* buffer code */
-	buffer_code = tvb_get_letohs(tvb, offset);
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, &buffer_code);
 
 	if (buffer_code == OPLOCK_BREAK_OPLOCK_STRUCTURE_SIZE) {
 		/* OPLOCK Break */
@@ -14329,13 +14335,8 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_buffer_code,
-			{ "StructureSize", "smb2.buffer_code", FT_UINT16, BASE_HEX,
-			NULL, 0, NULL, HFILL }
-		},
-
-		{ &hf_smb2_buffer_code_len,
-			{ "Fixed Part Length", "smb2.buffer_code.length", FT_UINT16, BASE_DEC,
-			NULL, 0xFFFE, "Length of fixed portion of PDU", HFILL }
+			{ "StructureSize", "smb2.buffer_code", FT_UINT16, BASE_DEC,
+			NULL, 0, "Fixed value for a given message type, regardless of the actual length", HFILL }
 		},
 
 		{ &hf_smb2_olb_length,
@@ -14346,11 +14347,6 @@ proto_register_smb2(void)
 		{ &hf_smb2_olb_offset,
 			{ "Blob Offset", "smb2.olb.offset", FT_UINT32, BASE_HEX,
 			NULL, 0, "Offset to the buffer", HFILL }
-		},
-
-		{ &hf_smb2_buffer_code_flags_dyn,
-			{ "Dynamic Part", "smb2.buffer_code.dynamic", FT_BOOLEAN, 16,
-			NULL, 0x0001, "Whether a dynamic length blob follows", HFILL }
 		},
 
 		{ &hf_smb2_ea_data,
@@ -16276,7 +16272,6 @@ proto_register_smb2(void)
 		&ett_smb2_aapl_create_context_response,
 		&ett_smb2_aapl_server_query_volume_caps,
 		&ett_smb2_integrity_flags,
-		&ett_smb2_buffercode,
 		&ett_smb2_ioctl_network_interface_capabilities,
 		&ett_smb2_tree_connect_flags,
 		&ett_qfr_entry,
