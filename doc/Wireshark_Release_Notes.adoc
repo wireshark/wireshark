@@ -50,6 +50,11 @@ The following features are either new or have been significantly updated since v
   The macOS icon now supports Liquid Glass and is sized according to Apple's specifications on older macOS versions.
   wsbuglink:18131[]
 
+* The RTP Player now supports AMR-WB encoded audio.
+
+* The protocol dissection API has been updated to more safely handle packet data offsets and lengths.
+  See the <<Major API Changes>> section below for details.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
