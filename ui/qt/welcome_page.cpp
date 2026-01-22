@@ -72,6 +72,14 @@ WelcomePage::WelcomePage(QWidget *parent) :
     welcome_ui_->recentCaptureFiles->setModel(proxyModel);
     welcome_ui_->recentCaptureFiles->setItemDelegate(new RecentCaptureFilesDelegate(welcome_ui_->recentCaptureFiles));
     welcome_ui_->recentCaptureFiles->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(welcome_ui_->recentCaptureFiles, &QListView::activated,
+        this, [this]() {
+            QModelIndex index = welcome_ui_->recentCaptureFiles->currentIndex();
+            if (index.isValid()) {
+                QString cfile = index.data(RecentCaptureFilesListModel::FilenameRole).toString();
+                emit recentFileActivated(cfile);
+            }
+        });
     connect(welcome_ui_->recentCaptureFiles, &QListView::customContextMenuRequested,
         this, &WelcomePage::showCaptureFilesContextMenu);
 
@@ -284,11 +292,6 @@ void WelcomePage::captureStarting()
 {
     welcome_ui_->interfaceFrame->ensureSelectedInterface();
     emit startCapture(QStringList());
-}
-
-void WelcomePage::openRecentItem(QListWidgetItem *item) {
-    QString cfPath = item->data(Qt::UserRole).toString();
-    emit recentFileActivated(cfPath);
 }
 
 void WelcomePage::resizeEvent(QResizeEvent *event)

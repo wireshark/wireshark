@@ -71,7 +71,6 @@ private slots:
     void interfaceListChanged();
     void setReleaseLabel();
     void captureFilterTextEdited(const QString capture_filter);
-    void openRecentItem(QListWidgetItem *item);
     void showCaptureFilesContextMenu(QPoint pos);
 
     void on_interfaceFrame_showExtcapOptions(QString device_name, bool startCaptureOnClose);
