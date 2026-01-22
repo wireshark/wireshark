@@ -73,6 +73,7 @@ FeatureSetEntryIndex_PDU
 FreqBandList_PDU
 HandoverCommand_PDU
 HandoverPreparationInformation_PDU
+IntendedServiceAreaInfo-areaCoordinates-r19_PDU
 LocationMeasurementInfo_PDU
 LTM-CSI-IM-ResourceSetToAddModList-r19_PDU
 LTM-CSI-IM-ResourceToAddModList-r19_PDU
@@ -205,6 +206,7 @@ FeatureSetEntryIndex
 FreqBandList
 HandoverCommand
 HandoverPreparationInformation
+IntendedServiceAreaInfo-areaCoordinates-r19
 LocationMeasurementInfo
 LTM-CSI-IM-ResourceSetToAddModList-r19
 LTM-CSI-IM-ResourceToAddModList-r19
@@ -2811,7 +2813,7 @@ RefLocOffset-r19/offsetLon-r19 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_50m_r1
 #.TYPE_ATTR
 RefLocOffset-r19/offsetLat-r19 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_50m_r19_fmt)
 
-#.FN_BODY IntendedServiceAreaInfo-r19/areaCoordinates-r19/polygonArea-r19 VAL_PTR = &polygon_tvb
+#.FN_BODY IntendedServiceAreaInfo-areaCoordinates-r19/polygonArea-r19 VAL_PTR = &polygon_tvb
   tvbuff_t *polygon_tvb = NULL;
 %(DEFAULT_BODY)s
   if (polygon_tvb) {

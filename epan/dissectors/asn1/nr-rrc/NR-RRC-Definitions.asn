@@ -4759,15 +4759,26 @@ SIB27-r19 ::=                     SEQUENCE {
 
 IntendedServiceAreaList-r19 ::=   SEQUENCE (SIZE (1..maxNrofMBS-Area-r19)) OF IntendedServiceAreaInfo-r19
 
+-- ws modification: define a dedicated type
+IntendedServiceAreaInfo-areaCoordinates-r19 ::= CHOICE {
+    polygonArea-r19                   OCTET STRING,
+    circleArea-r19                    SEQUENCE {
+        center-r19                      ReferenceLocation-r17,
+        radius-r19                      INTEGER(0..65535)
+    }
+}
+
 IntendedServiceAreaInfo-r19 ::=   SEQUENCE {
     intendedServiceAreaId-r19       MBS-IntendedAreaID-r19,
-    areaCoordinates-r19             CHOICE {
-        polygonArea-r19                   OCTET STRING,
-        circleArea-r19                    SEQUENCE {
-            center-r19                      ReferenceLocation-r17,
-            radius-r19                      INTEGER(0..65535)
-        }
-    }
+-- ws modification: define a dedicated type
+--    areaCoordinates-r19             CHOICE {
+--        polygonArea-r19                   OCTET STRING,
+--        circleArea-r19                    SEQUENCE {
+--            center-r19                      ReferenceLocation-r17,
+--            radius-r19                      INTEGER(0..65535)
+--        }
+--    }
+    areaCoordinates-r19 IntendedServiceAreaInfo-areaCoordinates-r19
 }
 
 MBS-IntendedAreaID-r19  ::= INTEGER (1..maxNrofMBS-Area-r19)

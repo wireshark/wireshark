@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V18.6.0 (2025-06)
+-- 3GPP TS 38.413 V19.1.0 (2025-12)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -90,6 +90,9 @@ FROM NGAP-CommonDataTypes
 	NASNonDeliveryIndication,
 	NGReset,
 	NGResetAcknowledge,
+	NGRemovalFailure,
+	NGRemovalRequest,
+	NGRemovalResponse,
 	NGSetupFailure,
 	NGSetupRequest,
 	NGSetupResponse,
@@ -156,7 +159,17 @@ FROM NGAP-CommonDataTypes
 	WriteReplaceWarningRequest,
 	WriteReplaceWarningResponse,
 	UplinkRIMInformationTransfer,
-	DownlinkRIMInformationTransfer
+	DownlinkRIMInformationTransfer,
+	InventoryRequest,
+	InventoryResponse,
+	InventoryFailure,
+	InventoryReport,
+	CommandRequest,
+	CommandResponse,
+	CommandFailure,
+	AIOTSessionReleaseCommand,
+	AIOTSessionReleaseComplete,
+	AIOTSessionReleaseRequest
 
 
 FROM NGAP-PDU-Contents
@@ -199,6 +212,7 @@ FROM NGAP-PDU-Contents
 	id-MulticastSessionUpdate,
 	id-NASNonDeliveryIndication,
 	id-NGReset,
+	id-NGRemoval,
 	id-NGSetup,
 	id-OverloadStart,
 	id-OverloadStop,
@@ -241,7 +255,12 @@ FROM NGAP-PDU-Contents
 	id-UplinkRANStatusTransfer,
 	id-UplinkRIMInformationTransfer,
 	id-UplinkUEAssociatedNRPPaTransport,
-	id-WriteReplaceWarning
+	id-WriteReplaceWarning,
+	id-InventoryRequest,
+	id-InventoryReport,
+	id-CommandRequest,
+	id-AIOTSessionRelease,
+	id-AIOTSessionReleaseRequest
 
 
 FROM NGAP-Constants;
@@ -343,7 +362,11 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-1 NGAP-ELEMENTARY-PROCEDURE ::= {
 	uEContextSuspend							|
 	uERadioCapabilityCheck			|
 	uERadioCapabilityIDMapping		|
-	writeReplaceWarning							,
+	writeReplaceWarning							|
+	nGRemoval									|
+	inventoryRequest							|
+	commandRequest								|
+	aIOTSessionRelease							,
 	...
 }
 
@@ -396,7 +419,9 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 	uplinkRANEarlyStatusTransfer				|
 	uplinkRANStatusTransfer			|
 	uplinkRIMInformationTransfer				|
-	uplinkUEAssociatedNRPPaTransport			,
+	uplinkUEAssociatedNRPPaTransport			|
+	inventoryReport								|
+	aIOTSessionReleaseRequest					,
 	...
 
 }
@@ -661,6 +686,14 @@ nGSetup NGAP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME		NGSetupResponse
 	UNSUCCESSFUL OUTCOME	NGSetupFailure
 	PROCEDURE CODE			id-NGSetup
+	CRITICALITY				reject
+}
+
+nGRemoval NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		NGRemovalRequest
+	SUCCESSFUL OUTCOME		NGRemovalResponse
+	UNSUCCESSFUL OUTCOME	NGRemovalFailure
+	PROCEDURE CODE			id-NGRemoval
 	CRITICALITY				reject
 }
 
@@ -943,5 +976,39 @@ downlinkRIMInformationTransfer NGAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+inventoryRequest NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		InventoryRequest
+	SUCCESSFUL OUTCOME		InventoryResponse
+	UNSUCCESSFUL OUTCOME	InventoryFailure
+	PROCEDURE CODE			id-InventoryRequest
+	CRITICALITY				reject
+}
+
+inventoryReport NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		InventoryReport
+	PROCEDURE CODE			id-InventoryReport
+	CRITICALITY				reject
+}
+
+commandRequest NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		CommandRequest
+	SUCCESSFUL OUTCOME		CommandResponse
+	UNSUCCESSFUL OUTCOME	CommandFailure
+	PROCEDURE CODE			id-CommandRequest
+	CRITICALITY				reject
+}
+
+aIOTSessionRelease NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		AIOTSessionReleaseCommand
+	SUCCESSFUL OUTCOME		AIOTSessionReleaseComplete
+	PROCEDURE CODE			id-AIOTSessionRelease
+	CRITICALITY				reject
+}
+
+aIOTSessionReleaseRequest NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		AIOTSessionReleaseRequest
+	PROCEDURE CODE			id-AIOTSessionReleaseRequest
+	CRITICALITY				reject
+}
 
 END

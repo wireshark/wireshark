@@ -1,7 +1,7 @@
 /* packet-ngap.c
  * Routines for NG-RAN NG Application Protocol (NGAP) packet dissection
  * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2018-2025, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2026, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v18.6.0 (2025-06)
+ * References: 3GPP TS 38.413 v19.1.0 (2025-12)
  */
 
 #include "config.h"
@@ -47,6 +47,7 @@
 #include "packet-http2.h"
 #include "packet-gtp.h"
 #include "packet-sctp.h"
+#include "packet-lpp.h"
 
 #define PNAME  "NG Application Protocol"
 #define PSNAME "NGAP"
@@ -193,6 +194,9 @@ static int ett_ngap_GlobalCable_ID;
 static int ett_ngap_UpdateFeedback;
 static int ett_ngap_successfulHOReportContainer;
 static int ett_ngap_successfulPSCellChangeReportContainer;
+static int ett_ngap_IntendedServiceAreaCoordinates;
+static int ett_ngap_MDT_circle_reference_location;
+static int ett_ngap_MDT_polygon;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15;
@@ -286,71 +290,83 @@ struct ngap_tap_t {
 #define MTYPE_NG_SETUP_REQUEST                            65
 #define MTYPE_NG_SETUP_RESPONSE                           66
 #define MTYPE_NG_SETUP_FAILURE                            67
-#define MTYPE_OVERLOAD_START                              68
-#define MTYPE_OVERLOAD_STOP                               69
-#define MTYPE_PAGING                                      70
-#define MTYPE_PATH_SWITCH_REQUEST                         71
-#define MTYPE_PATH_SWITCH_REQUEST_ACK                     72
-#define MTYPE_PATH_SWITCH_REQUEST_FAILURE                 73
-#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_REQUEST         74
-#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_RESPONSE        75
-#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_IND             76
-#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_CONFIRM         77
-#define MTYPE_PDU_SESSION_RESOURCE_NOTIFY                 78
-#define MTYPE_PDU_SESSION_RESOURCE_RELEASE_COMMAND        79
-#define MTYPE_PDU_SESSION_RESOURCE_RELEASE_RESPONSE       80
-#define MTYPE_PDU_SESSION_RESOURCE_SETUP_REQUEST          81
-#define MTYPE_PDU_SESSION_RESOURCE_SETUP_RESPONSE         82
-#define MTYPE_PRIVATE_MESSAGE                             83
-#define MTYPE_PWS_CANCEL_REQUEST                          84
-#define MTYPE_PWS_CANCEL_RESPONSE                         85
-#define MTYPE_PWS_FAILURE_INDICATION                      86
-#define MTYPE_PWS_RESTART_INDICATION                      87
-#define MTYPE_RAN_CONFIGURATION_UPDATE                    88
-#define MTYPE_RAN_CONFIGURATION_UPDATE_ACK                89
-#define MTYPE_RAN_CONFIGURATION_UPDATE_FAILURE            90
-#define MTYPE_RAN_CP_RELOCATION_IND                       91
-#define MTYPE_RAN_PAGING_REQUEST                          92
-#define MTYPE_REROUTE_NAS_REQUEST                         93
-#define MTYPE_RETRIEVE_UE_INFORMATION                     94
-#define MTYPE_RRC_INACTIVE_TRANSITION_REPORT              95
-#define MTYPE_SECONDARY_RAT_DATA_USAGE_REPORT             96
-#define MTYPE_TIMING_SYNCHRONISATION_STATUS_REQUEST       97
-#define MTYPE_TIMING_SYNCHRONISATION_STATUS_RESPONSE      98
-#define MTYPE_TIMING_SYNCHRONISATION_STATUS_FAILURE       99
-#define MTYPE_TIMING_SYNCHRONISATION_STATUS_REPORT        100
-#define MTYPE_TRACE_FAILURE_IND                           101
-#define MTYPE_TRACE_START                                 102
-#define MTYPE_UE_CONTEXT_MODIFICATION_REQUEST             103
-#define MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE            104
-#define MTYPE_UE_CONTEXT_MODIFICATION_FAILURE             105
-#define MTYPE_UE_CONTEXT_RELEASE_COMMAND                  106
-#define MTYPE_UE_CONTEXT_RELEASE_COMPLETE                 107
-#define MTYPE_UE_CONTEXT_RELEASE_REQUEST                  108
-#define MTYPE_UE_CONTEXT_RESUME_REQUEST                   109
-#define MTYPE_UE_CONTEXT_RESUME_RESPONSE                  110
-#define MTYPE_UE_CONTEXT_RESUME_FAILURE                   111
-#define MTYPE_UE_CONTEXT_SUSPEND_REQUEST                  112
-#define MTYPE_UE_CONTEXT_SUSPEND_RESPONSE                 113
-#define MTYPE_UE_CONTEXT_SUSPEND_FAILURE                  114
-#define MTYPE_UE_INFORMATION_TRANSFER                     115
-#define MTYPE_UE_RADIO_CAPABILITY_CHECK_REQUEST           116
-#define MTYPE_UE_RADIO_CAPABILITY_CHECK_RESPONSE          117
-#define MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_REQUEST      118
-#define MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_RESPONSE     119
-#define MTYPE_UE_RADIO_CAPABILITY_INFO_IND                120
-#define MTYPE_UE_TN_LAB_BINDING_RELEASE_REQUEST           121
-#define MTYPE_UPLINK_NAS_TRANSPORT                        122
-#define MTYPE_UPLINK_NON_UE_ASSOCIATED_NR_PPA_TRANSPORT   123
-#define MTYPE_UPLINK_RAN_CONFIGURATION_TRANSFER           124
-#define MTYPE_UPLINK_RAN_EARLY_STATUS_TRANSFER            125
-#define MTYPE_UPLINK_RAN_STATUS_TRANSFER                  126
-#define MTYPE_UPLINK_UE_ASSOCIATED_NR_PPA_TRANSPORT       127
-#define MTYPE_WRITE_REPLACE_WARNING_REQUEST               128
-#define MTYPE_WRITE_REPLACE_WARNING_RESPONSE              129
-#define MTYPE_UPLINK_RIM_INFORMATION_TRANSFER             130
-#define MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER           131
-
+#define MTYPE_NG_REMOVAL_REQUEST                          68
+#define MTYPE_NG_REMOVAL_RESPONSE                         69
+#define MTYPE_NG_REMOVAL_FAILURE                          70
+#define MTYPE_OVERLOAD_START                              71
+#define MTYPE_OVERLOAD_STOP                               72
+#define MTYPE_PAGING                                      73
+#define MTYPE_PATH_SWITCH_REQUEST                         74
+#define MTYPE_PATH_SWITCH_REQUEST_ACK                     75
+#define MTYPE_PATH_SWITCH_REQUEST_FAILURE                 76
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_REQUEST         77
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_RESPONSE        78
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_IND             79
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_CONFIRM         80
+#define MTYPE_PDU_SESSION_RESOURCE_NOTIFY                 81
+#define MTYPE_PDU_SESSION_RESOURCE_RELEASE_COMMAND        82
+#define MTYPE_PDU_SESSION_RESOURCE_RELEASE_RESPONSE       83
+#define MTYPE_PDU_SESSION_RESOURCE_SETUP_REQUEST          84
+#define MTYPE_PDU_SESSION_RESOURCE_SETUP_RESPONSE         85
+#define MTYPE_PRIVATE_MESSAGE                             86
+#define MTYPE_PWS_CANCEL_REQUEST                          87
+#define MTYPE_PWS_CANCEL_RESPONSE                         88
+#define MTYPE_PWS_FAILURE_INDICATION                      89
+#define MTYPE_PWS_RESTART_INDICATION                      90
+#define MTYPE_RAN_CONFIGURATION_UPDATE                    91
+#define MTYPE_RAN_CONFIGURATION_UPDATE_ACK                92
+#define MTYPE_RAN_CONFIGURATION_UPDATE_FAILURE            93
+#define MTYPE_RAN_CP_RELOCATION_IND                       94
+#define MTYPE_RAN_PAGING_REQUEST                          95
+#define MTYPE_REROUTE_NAS_REQUEST                         96
+#define MTYPE_RETRIEVE_UE_INFORMATION                     97
+#define MTYPE_RRC_INACTIVE_TRANSITION_REPORT              98
+#define MTYPE_SECONDARY_RAT_DATA_USAGE_REPORT             99
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_REQUEST       100
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_RESPONSE      101
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_FAILURE       102
+#define MTYPE_TIMING_SYNCHRONISATION_STATUS_REPORT        103
+#define MTYPE_TRACE_FAILURE_IND                           104
+#define MTYPE_TRACE_START                                 105
+#define MTYPE_UE_CONTEXT_MODIFICATION_REQUEST             106
+#define MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE            107
+#define MTYPE_UE_CONTEXT_MODIFICATION_FAILURE             108
+#define MTYPE_UE_CONTEXT_RELEASE_COMMAND                  109
+#define MTYPE_UE_CONTEXT_RELEASE_COMPLETE                 110
+#define MTYPE_UE_CONTEXT_RELEASE_REQUEST                  111
+#define MTYPE_UE_CONTEXT_RESUME_REQUEST                   112
+#define MTYPE_UE_CONTEXT_RESUME_RESPONSE                  113
+#define MTYPE_UE_CONTEXT_RESUME_FAILURE                   114
+#define MTYPE_UE_CONTEXT_SUSPEND_REQUEST                  115
+#define MTYPE_UE_CONTEXT_SUSPEND_RESPONSE                 116
+#define MTYPE_UE_CONTEXT_SUSPEND_FAILURE                  117
+#define MTYPE_UE_INFORMATION_TRANSFER                     118
+#define MTYPE_UE_RADIO_CAPABILITY_CHECK_REQUEST           119
+#define MTYPE_UE_RADIO_CAPABILITY_CHECK_RESPONSE          120
+#define MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_REQUEST      121
+#define MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_RESPONSE     122
+#define MTYPE_UE_RADIO_CAPABILITY_INFO_IND                123
+#define MTYPE_UE_TN_LAB_BINDING_RELEASE_REQUEST           124
+#define MTYPE_UPLINK_NAS_TRANSPORT                        125
+#define MTYPE_UPLINK_NON_UE_ASSOCIATED_NR_PPA_TRANSPORT   126
+#define MTYPE_UPLINK_RAN_CONFIGURATION_TRANSFER           127
+#define MTYPE_UPLINK_RAN_EARLY_STATUS_TRANSFER            128
+#define MTYPE_UPLINK_RAN_STATUS_TRANSFER                  129
+#define MTYPE_UPLINK_UE_ASSOCIATED_NR_PPA_TRANSPORT       130
+#define MTYPE_WRITE_REPLACE_WARNING_REQUEST               131
+#define MTYPE_WRITE_REPLACE_WARNING_RESPONSE              132
+#define MTYPE_UPLINK_RIM_INFORMATION_TRANSFER             133
+#define MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER           134
+#define MTYPE_INVENTORY_REQUEST                           135
+#define MTYPE_INVENTORY_RESPONSE                          136
+#define MTYPE_INVENTORY_FAILURE                           137
+#define MTYPE_INVENTORY_REPORT                            138
+#define MTYPE_COMMAND_REQUEST                             139
+#define MTYPE_COMMAND_RESPONSE                            140
+#define MTYPE_COMMAND_FAILURE                             141
+#define MTYPE_AIOT_SESSION_RELEASE_COMMAND                142
+#define MTYPE_AIOT_SESSION_RELEASE_COMPLETE               143
+#define MTYPE_AIOT_SESSION_RELEASE_REQUEST                144
 
 /* Value Strings. */
 static const value_string mtype_names[] = {
@@ -421,6 +437,9 @@ static const value_string mtype_names[] = {
     { MTYPE_NG_SETUP_REQUEST,                            "NGSetupRequest" },
     { MTYPE_NG_SETUP_RESPONSE,                           "NGSetupResponse" },
     { MTYPE_NG_SETUP_FAILURE,                            "NGSetupFailure" },
+    { MTYPE_NG_REMOVAL_REQUEST,                          "NGRemovalRequest" },
+    { MTYPE_NG_REMOVAL_RESPONSE,                         "NGRemovalResponse" },
+    { MTYPE_NG_REMOVAL_FAILURE,                          "NGRemovalFailure" },
     { MTYPE_OVERLOAD_START,                              "OverloadStart" },
     { MTYPE_OVERLOAD_STOP,                               "OverloadStop" },
     { MTYPE_PAGING,                                      "Paging" },
@@ -485,6 +504,16 @@ static const value_string mtype_names[] = {
     { MTYPE_WRITE_REPLACE_WARNING_RESPONSE,              "WriteReplaceWarningResponse" },
     { MTYPE_UPLINK_RIM_INFORMATION_TRANSFER,             "UplinkRIMInformationTransfer" },
     { MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER,           "DownlinkRIMInformationTransfer" },
+    { MTYPE_INVENTORY_REQUEST,                           "InventoryRequest" },
+    { MTYPE_INVENTORY_RESPONSE,                          "InventoryResponse" },
+    { MTYPE_INVENTORY_FAILURE,                           "InventoryFailure" },
+    { MTYPE_INVENTORY_REPORT,                            "InventoryReport" },
+    { MTYPE_COMMAND_REQUEST,                             "CommandRequest" },
+    { MTYPE_COMMAND_RESPONSE,                            "CommandResponse" },
+    { MTYPE_COMMAND_FAILURE,                             "CommandFailure" },
+    { MTYPE_AIOT_SESSION_RELEASE_COMMAND,                "AIOTSessionReleaseCommand" },
+    { MTYPE_AIOT_SESSION_RELEASE_COMPLETE,               "AIOTSessionReleaseComplete" },
+    { MTYPE_AIOT_SESSION_RELEASE_REQUEST,                "AIOTSessionReleaseRequest" },
     { 0,  NULL }
 };
 static value_string_ext mtype_names_ext = VALUE_STRING_EXT_INIT(mtype_names);
@@ -706,7 +735,7 @@ ngap_PacketDelayBudget_fmt(char *s, uint32_t v)
 }
 
 static void
-ngap_TimeUEStayedInCellEnhancedGranularity_fmt(char *s, uint32_t v)
+ngap_tenth_seconds_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
 }
@@ -770,6 +799,20 @@ static void
 ngap_N6Jitter_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%d)", (float)v/2, (int32_t)v);
+}
+
+static void
+ngap_AIoT_timeInterval_fmt(char *s, uint32_t v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%.2fs (%u)", (float)v/10, v);
+}
+
+static void
+ngap_50m_r19_fmt(char *s, uint32_t v)
+{
+  int32_t d = (int32_t)v;
+
+  snprintf(s, ITEM_LABEL_LENGTH, "%dm (%d)", d*50, d);
 }
 
 static struct ngap_private_data*
@@ -1513,6 +1556,9 @@ void proto_register_ngap(void) {
     &ett_ngap_UpdateFeedback,
     &ett_ngap_successfulHOReportContainer,
     &ett_ngap_successfulPSCellChangeReportContainer,
+    &ett_ngap_IntendedServiceAreaCoordinates,
+    &ett_ngap_MDT_circle_reference_location,
+    &ett_ngap_MDT_polygon,
 #include "packet-ngap-ettarr.c"
   };
 

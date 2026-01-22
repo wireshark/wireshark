@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V18.6.0 (2025-06)
+-- 3GPP TS 38.413 V19.1.0 (2025-12)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -114,6 +114,12 @@ id-TimingSynchronisationStatusReport		ProcedureCode ::= 77
 id-MTCommunicationHandling					ProcedureCode ::= 78
 id-RANPagingRequest							ProcedureCode ::= 79
 id-BroadcastSessionTransport				ProcedureCode ::= 80
+id-NGRemoval								ProcedureCode ::= 81
+id-InventoryRequest							ProcedureCode ::= 82
+id-InventoryReport							ProcedureCode ::= 83
+id-CommandRequest							ProcedureCode ::= 84
+id-AIOTSessionRelease						ProcedureCode ::= 85
+id-AIOTSessionReleaseRequest				ProcedureCode ::= 86
 
 
 
@@ -160,6 +166,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofExtSliceItems						INTEGER ::= 65535
 	maxnoofForbTACs								INTEGER ::= 4096
 	maxnoofFreqforMDT							INTEGER ::= 8
+	maxnoofGUAMIs								INTEGER ::= 1024
 	maxnoofMBSAreaSessionIDs					INTEGER ::= 256
 	maxnoofMBSFSAs								INTEGER ::= 64
 	maxnoofMBSQoSFlows							INTEGER ::= 64
@@ -228,6 +235,14 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofMDTSNPNs								INTEGER ::= 16
 	maxnoofPartiallyAllowedS-NSSAIs				INTEGER ::= 8
 	maxnoofRSPPQoSFlows							INTEGER ::= 2048
+	maxnoofSliceItemsforMDT						INTEGER ::= 1024
+	maxnoofAreaNTN								INTEGER ::= 8
+	maxnoofIntendedAreasforMBS					INTEGER ::= 65536
+	maxnoofRequestedSNSSAIs						INTEGER ::= 8
+	maxnoofReaders								INTEGER ::= 65535
+	maxnoofDevices								INTEGER ::= 65535
+	maxnoofAIoTAreas							INTEGER ::= 256
+	maxnoofThresholds							INTEGER ::= 8
 
 
 
@@ -685,8 +700,58 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-TAIMBSSupportList									ProtocolIE-ID ::= 441
 	id-ExtendedBackupAMFName    							ProtocolIE-ID ::= 442
 	id-ExtendedOldAMF			    						ProtocolIE-ID ::= 443
-
-
+	id-MBS-UP-FailureIndication 							ProtocolIE-ID ::= 444
+	id-RequestedTNLInfo										ProtocolIE-ID ::= 445
+	id-Aerial-UE-FlightInformationOngoingReporting-failed	ProtocolIE-ID ::= 446
+	id-NetworkSliceAreaScopeofMDT							ProtocolIE-ID ::= 447
+	id-GeographyBasedMDT									ProtocolIE-ID ::= 448
+	id-MBS-IntendedServiceAreaList							ProtocolIE-ID ::= 449
+	id-AMF-UE-NGAP-ID2										ProtocolIE-ID ::= 450
+	id-GUAMIList											ProtocolIE-ID ::= 451
+	id-GW-Context-Release-Indication						ProtocolIE-ID ::= 452
+	id-SourceAMF-GUAMI										ProtocolIE-ID ::= 453
+	id-RequestedNSSAI										ProtocolIE-ID ::= 454
+	id-Target-RAN-Node-ID									ProtocolIE-ID ::= 455
+	id-InventoryRequestTransfer							ProtocolIE-ID ::= 456
+	id-InventoryResponseTransfer						ProtocolIE-ID ::= 457
+	id-InventoryFailureTransfer							ProtocolIE-ID ::= 458
+	id-InventoryReportTransfer							ProtocolIE-ID ::= 459
+	id-CommandRequestTransfer							ProtocolIE-ID ::= 460
+	id-CommandResponseTransfer							ProtocolIE-ID ::= 461
+	id-CommandFailureTransfer							ProtocolIE-ID ::= 462
+	id-AIOTSessionReleaseCommandTransfer					ProtocolIE-ID ::= 463
+	id-AIOTSessionReleaseCompleteTransfer					ProtocolIE-ID ::= 464
+	id-AIOTSessionReleaseRequestTransfer				ProtocolIE-ID ::= 465
+	id-AIoT-CorrelationIdentifier							ProtocolIE-ID ::= 466
+	id-AIOTFIdentifier									ProtocolIE-ID ::= 467
+	id-AIoT-DeviceIdentificationRequested					ProtocolIE-ID ::= 468
+	id-AIoT-RequestedServiceAreaInformation					ProtocolIE-ID ::= 469
+	id-AIoT-InventoryAssistanceInformation					ProtocolIE-ID ::= 470
+	id-AIoT-FollowonCommandIndication						ProtocolIE-ID ::= 471
+	id-RAN-AIOT-Device-NGAP-ID								ProtocolIE-ID ::= 472
+	id-AIoT-CommandAssistanceInformation					ProtocolIE-ID ::= 473
+	id-AIoT-NASPDU										ProtocolIE-ID ::= 474
+	id-AIoT-Support											ProtocolIE-ID ::= 475
+	id-AIOTFName											ProtocolIE-ID ::= 476
+	id-LPWUSPSAssistanceInformation							ProtocolIE-ID ::= 477
+	id-FurtherExtendedUEIdentityIndexValue					ProtocolIE-ID ::= 478
+	id-FiveGProSeLayer2MHUEtoNetworkRelay					ProtocolIE-ID ::= 479
+	id-FiveGProSeLayer2MHIntermediateUEtoNetworkRelay		ProtocolIE-ID ::= 480
+	id-FiveGProSeLayer2MHRemote								ProtocolIE-ID ::= 481
+	id-FiveGProSeLayer3MHUEtoNetworkRelay					ProtocolIE-ID ::= 482
+	id-AdditionalULI										ProtocolIE-ID ::= 483
+	id-PduSetDelayBudgetDownlink							ProtocolIE-ID ::= 484
+	id-PduSetDelayBudgetUplink								ProtocolIE-ID ::= 485
+	id-PduSetErrorRateDownlink								ProtocolIE-ID ::= 486
+	id-PduSetErrorRateUplink								ProtocolIE-ID ::= 487
+	id-DLPDUSetInformationMarkingSupportIndication			ProtocolIE-ID ::= 488
+	id-MonitoringRequestonAvailableBitrate					ProtocolIE-ID ::= 489
+	id-MMSID												ProtocolIE-ID ::= 490
+	id-Indication-of-Bitrate-Adaptation						ProtocolIE-ID ::= 491
+	id-SCGActivationTime									ProtocolIE-ID ::= 492
+	id-Aerial-UE-FlightInformationReporting					ProtocolIE-ID ::= 493
+	id-Aerial-UE-FlightInformationReportingControl			ProtocolIE-ID ::= 494
+	id-LPWUSDisableIndication								ProtocolIE-ID ::= 495
 
 
 

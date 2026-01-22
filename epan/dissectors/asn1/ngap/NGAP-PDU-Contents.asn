@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V18.6.0 (2025-06)
+-- 3GPP TS 38.413 V19.1.0 (2025-12)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -24,6 +24,14 @@ IMPORTS
 
 	A2X-PC5-QoS-Parameters,
 	AerialUEsubscriptionInformation,
+	AdditionalULI,
+	AIoT-CorrelationIdentifier,
+	AIOTFIdentifier,
+	AIOTFName,
+	AIOTSessionReleaseCommandTransfer,
+	AIOTSessionReleaseCompleteTransfer,
+	AIOTSessionReleaseRequestTransfer,
+	AIoT-Support,
 	AllowedNSSAI,
 	AMFName,
 	AMFSetID,
@@ -47,7 +55,9 @@ IMPORTS
 	CEmodeBrestricted,
 	CEmodeBSupport-Indicator,
 	CNAssistedRANTuning,
-	ConcurrentWarningMessageInd,
+	CommandRequestTransfer,
+	CommandResponseTransfer,
+	CommandFailureTransfer,	ConcurrentWarningMessageInd,
 	CoreNetworkAssistanceInformationForInactive,
 	CPTransportLayerInformation,
 	CriticalityDiagnostics,
@@ -74,6 +84,9 @@ IMPORTS
 	FiveG-S-TMSI,
 	GlobalRANNodeID,
 	GUAMI,
+	GUAMIList,
+	GUAMIType,
+	GW-Context-Release-Indication,
 	HandoverFlag,
 	HandoverType,
 	IAB-Authorized,
@@ -83,8 +96,14 @@ IMPORTS
 	IndexToRFSP,
 	InfoOnRecommendedCellsAndRANNodesForPaging,
 	IntersystemSONConfigurationTransfer,
+	InventoryRequestTransfer,
+	InventoryResponseTransfer,
+	InventoryFailureTransfer,
+	InventoryReportTransfer,
 	LAI,
 	LocationReportingRequestType,
+	LPWUSPSAssistanceInformation,
+	LPWUSDisableIndication,
 	LTE-A2X-ServicesAuthorized,
 	LTEM-Indication,
 	LTEUESidelinkAggregateMaximumBitrate,
@@ -189,6 +208,7 @@ IMPORTS
 	PWSFailedCellIDList,
 	QMCConfigInfo,
 	QMCDeactivation,
+	RAN-AIOT-Device-NGAP-ID,
 	RANNodeName,
 	RANPagingPriority,
 	RANStatusTransfer-TransparentContainer,
@@ -200,6 +220,7 @@ IMPORTS
 	RedirectionVoiceFallback,
 	RelativeAMFCapacity,
 	RepetitionPeriod,
+	RequestedNSSAI,
 	ResetType,
 	RGLevelWirelineAccessCharacteristics,
 	RIMInformationTransfer,
@@ -278,6 +299,14 @@ FROM NGAP-Containers
 
 	id-A2X-PC5-QoS-Parameters,
 	id-AerialUEsubscriptionInformation,
+	id-AdditionalULI,
+	id-AIoT-CorrelationIdentifier,
+	id-AIOTFIdentifier,
+	id-AIOTFName,
+	id-AIOTSessionReleaseCommandTransfer,
+	id-AIOTSessionReleaseCompleteTransfer,
+	id-AIOTSessionReleaseRequestTransfer,
+	id-AIoT-Support,
 	id-AllowedNSSAI,
 	id-AMFName,
 	id-AMFOverloadResponse,
@@ -289,6 +318,7 @@ FROM NGAP-Containers
 	id-AMF-TNLAssociationToUpdateList,
 	id-AMFTrafficLoadReductionIndication,
 	id-AMF-UE-NGAP-ID,
+	id-AMF-UE-NGAP-ID2,
 	id-AssistanceDataForPaging,
 	id-AssociatedSessionID,
 	id-AUN3DeviceAccessInfo,
@@ -304,6 +334,9 @@ FROM NGAP-Containers
 	id-CEmodeBrestricted,
 	id-CEmodeBSupport-Indicator,
 	id-CNAssistedRANTuning,
+	id-CommandRequestTransfer,
+	id-CommandResponseTransfer,
+	id-CommandFailureTransfer,
 	id-ConcurrentWarningMessageInd,
 	id-CoreNetworkAssistanceInformationForInactive,
 	id-CriticalityDiagnostics,
@@ -333,6 +366,9 @@ FROM NGAP-Containers
 	id-FiveG-S-TMSI,
 	id-GlobalRANNodeID,
 	id-GUAMI,
+	id-GUAMIList,
+	id-GUAMIType,
+	id-GW-Context-Release-Indication,
 	id-HandoverFlag,
 	id-HandoverType,
 	id-IAB-Authorized,
@@ -343,7 +379,13 @@ FROM NGAP-Containers
 	id-InfoOnRecommendedCellsAndRANNodesForPaging,
 	id-IntersystemSONConfigurationTransferDL,
 	id-IntersystemSONConfigurationTransferUL,
+	id-InventoryRequestTransfer,
+	id-InventoryResponseTransfer,
+	id-InventoryFailureTransfer,
+	id-InventoryReportTransfer,
 	id-LocationReportingRequestType,
+	id-LPWUSPSAssistanceInformation,
+	id-LPWUSDisableIndication,
 	id-LTE-A2X-ServicesAuthorized,
 	id-LTE-A2X-UE-PC5-AggregateMaximumBitRate,
 	id-LTEM-Indication,
@@ -453,6 +495,7 @@ FROM NGAP-Containers
 	id-PWSFailedCellIDList,
 	id-QMCConfigInfo,
 	id-QMCDeactivation,
+	id-RAN-AIOT-Device-NGAP-ID,
 	id-RANNodeName,
 	id-RANPagingPriority,
 	id-RANStatusTransfer-TransparentContainer,
@@ -464,6 +507,7 @@ FROM NGAP-Containers
 	id-RedirectionVoiceFallback,
 	id-RelativeAMFCapacity,
 	id-RepetitionPeriod,
+	id-RequestedNSSAI,
 	id-ResetType,
 	id-RGLevelWirelineAccessCharacteristics,
 	id-RIMInformationTransfer,
@@ -482,6 +526,7 @@ FROM NGAP-Containers
 	id-S-NSSAI,
 	id-SONConfigurationTransferDL,
 	id-SONConfigurationTransferUL,
+	id-SourceAMF-GUAMI,
 	id-SourceAMF-UE-NGAP-ID,
 	id-SourceToTarget-AMFInformationReroute,
 	id-SourceToTarget-TransparentContainer,
@@ -489,6 +534,7 @@ FROM NGAP-Containers
 	id-SupportedTAList,
 	id-Suspend-Request-Indication,
 	id-Suspend-Response-Indication,
+	id-Target-RAN-Node-ID,
 	id-TAI,
 	id-TAIListForPaging,
 	id-TAIListForRestart,
@@ -531,7 +577,8 @@ FROM NGAP-Containers
 	id-WUS-Assistance-Information,
 	id-XrDeviceWith2Rx,
 	id-SLPositioningRangingServiceInfo,
-	id-ExtendedOldAMF
+	id-ExtendedOldAMF,
+	id-Aerial-UE-FlightInformationOngoingReporting-failed
 
 
 FROM NGAP-Constants;
@@ -836,7 +883,8 @@ InitialContextSetupRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-MobileIAB-Authorized					CRITICALITY ignore	TYPE MobileIAB-Authorized								PRESENCE optional		}|
 	{ ID id-Partially-Allowed-NSSAI					CRITICALITY ignore	TYPE Partially-Allowed-NSSAI							PRESENCE optional		}|
 	{ ID id-SLPositioningRangingServiceInfo			CRITICALITY ignore	TYPE SLPositioningRangingServiceInfo				PRESENCE optional		}|
-	{ ID id-ExtendedOldAMF							CRITICALITY ignore	TYPE Extended-AMFName									PRESENCE optional		},
+	{ ID id-ExtendedOldAMF							CRITICALITY ignore	TYPE Extended-AMFName									PRESENCE optional		}|
+	{ ID id-AMF-UE-NGAP-ID2							CRITICALITY ignore	TYPE AMF-UE-NGAP-ID										PRESENCE optional		},
 	...
 }
 
@@ -902,7 +950,8 @@ UEContextReleaseRequest-IEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID						CRITICALITY reject	TYPE AMF-UE-NGAP-ID								PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID						CRITICALITY reject	TYPE RAN-UE-NGAP-ID								PRESENCE mandatory	}|
 	{ ID id-PDUSessionResourceListCxtRelReq		CRITICALITY reject	TYPE PDUSessionResourceListCxtRelReq		PRESENCE optional		}|
-	{ ID id-Cause								CRITICALITY ignore	TYPE Cause										PRESENCE mandatory	},
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause										PRESENCE mandatory	}|
+	{ ID id-GW-Context-Release-Indication		CRITICALITY reject	TYPE GW-Context-Release-Indication			PRESENCE optional		},
 	...
 }
 
@@ -1413,7 +1462,9 @@ HandoverRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-MobileIAB-Authorized					CRITICALITY ignore	TYPE MobileIAB-Authorized							PRESENCE optional		}|
 	{ ID id-NoPDUSessionIndication					CRITICALITY ignore	TYPE NoPDUSessionIndication 						PRESENCE optional		}|
 	{ ID id-Partially-Allowed-NSSAI					CRITICALITY ignore	TYPE Partially-Allowed-NSSAI						PRESENCE optional		}|
-	{ ID id-SLPositioningRangingServiceInfo			CRITICALITY ignore	TYPE SLPositioningRangingServiceInfo			PRESENCE optional		},
+	{ ID id-SLPositioningRangingServiceInfo			CRITICALITY ignore	TYPE SLPositioningRangingServiceInfo			PRESENCE optional		}|
+	{ ID id-AMF-UE-NGAP-ID2							CRITICALITY ignore	TYPE AMF-UE-NGAP-ID									PRESENCE optional		}|
+	{ ID id-Target-RAN-Node-ID						CRITICALITY ignore	TYPE GlobalRANNodeID								PRESENCE optional		},
 	...
 }
 
@@ -1512,7 +1563,8 @@ PathSwitchRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-PDUSessionResourceFailedToSetupListPSReq	CRITICALITY ignore	TYPE PDUSessionResourceFailedToSetupListPSReq		PRESENCE optional		}|
 	{ ID id-RRC-Resume-Cause							CRITICALITY ignore	TYPE RRCEstablishmentCause								PRESENCE optional		}|
 	{ ID id-RedCapIndication							CRITICALITY ignore	TYPE RedCapIndication										PRESENCE optional		}|
-	{ ID id-ERedCapIndication							CRITICALITY ignore	TYPE ERedCapIndication									PRESENCE optional		},
+	{ ID id-ERedCapIndication							CRITICALITY ignore	TYPE ERedCapIndication									PRESENCE optional		}|
+	{ ID id-SourceAMF-GUAMI							CRITICALITY ignore	TYPE GUAMI													PRESENCE optional		},
 	...
 }
 
@@ -1569,7 +1621,8 @@ PathSwitchRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-A2X-PC5-QoS-Parameters						CRITICALITY ignore	TYPE A2X-PC5-QoS-Parameters							PRESENCE optional		}|
 	{ ID id-MobileIAB-Authorized				   	    CRITICALITY ignore	TYPE MobileIAB-Authorized							PRESENCE optional		}|
 	{ ID id-Partially-Allowed-NSSAI						CRITICALITY ignore	TYPE Partially-Allowed-NSSAI						PRESENCE optional		}|
-	{ ID id-SLPositioningRangingServiceInfo				CRITICALITY ignore	TYPE SLPositioningRangingServiceInfo				PRESENCE optional		},
+	{ ID id-SLPositioningRangingServiceInfo				CRITICALITY ignore	TYPE SLPositioningRangingServiceInfo				PRESENCE optional		}|
+	{ ID id-AMF-UE-NGAP-ID2								CRITICALITY ignore	TYPE AMF-UE-NGAP-ID										PRESENCE optional		},
 	...
 }
 
@@ -1788,7 +1841,9 @@ PagingIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-CEmodeBrestricted				CRITICALITY ignore	TYPE CEmodeBrestricted					PRESENCE optional		}|
 	{ ID id-NR-PagingeDRXInformation		CRITICALITY ignore	TYPE NR-PagingeDRXInformation			PRESENCE optional		}|
 	{ ID id-PagingCause						CRITICALITY ignore	TYPE PagingCause						PRESENCE optional		}|
-	{ ID id-PEIPSassistanceInformation		CRITICALITY ignore	TYPE PEIPSassistanceInformation			PRESENCE optional		},
+	{ ID id-PEIPSassistanceInformation		CRITICALITY ignore	TYPE PEIPSassistanceInformation			PRESENCE optional		}|
+	{ ID id-LPWUSPSAssistanceInformation	CRITICALITY ignore	TYPE LPWUSPSAssistanceInformation		PRESENCE optional		}|
+	{ ID id-LPWUSDisableIndication      	CRITICALITY ignore	TYPE LPWUSDisableIndication  		   PRESENCE optional		},
 	...
 }
 
@@ -1831,7 +1886,10 @@ InitialUEMessage-IEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-MobileIABNodeIndication					CRITICALITY reject	TYPE MobileIABNodeIndication						PRESENCE optional		}|
 	{ ID id-Partially-Allowed-NSSAI					CRITICALITY ignore	TYPE Partially-Allowed-NSSAI	   				PRESENCE optional		}|
 	{ ID id-ERedCapIndication						CRITICALITY ignore	TYPE ERedCapIndication								PRESENCE optional		}|
-	{ ID id-AUN3DeviceAccessInfo					CRITICALITY ignore	TYPE AUN3DeviceAccessInfo							PRESENCE optional		},
+	{ ID id-AUN3DeviceAccessInfo					CRITICALITY ignore	TYPE AUN3DeviceAccessInfo							PRESENCE optional		}|
+	{ ID id-GUAMI									CRITICALITY ignore	TYPE GUAMI											PRESENCE optional		}|
+	{ ID id-GUAMIType								CRITICALITY ignore	TYPE GUAMIType										PRESENCE optional		}|
+	{ ID id-RequestedNSSAI							CRITICALITY ignore	TYPE RequestedNSSAI								PRESENCE optional		},
 	...
 }
 
@@ -1958,6 +2016,63 @@ RerouteNASRequest-IEs NGAP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
+-- NG Removal Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- NG REMOVAL REQUEST
+--
+-- **************************************************************
+
+NGRemovalRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {NGRemovalRequestIEs} },
+	...
+}
+
+NGRemovalRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-GlobalRANNodeID				CRITICALITY reject	TYPE GlobalRANNodeID				PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- NG REMOVAL RESPONSE
+--
+-- **************************************************************
+
+NGRemovalResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {NGRemovalResponseIEs} },
+	...
+}
+
+NGRemovalResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AMFName 					CRITICALITY reject	TYPE AMFName					PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional		}|
+	{ ID id-Extended-AMFName			CRITICALITY ignore	TYPE Extended-AMFName			PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- NG REMOVAL FAILURE
+--
+-- **************************************************************
+
+NGRemovalFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {NGRemovalFailureIEs} },
+	...
+}
+
+NGRemovalFailureIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
 -- NG Setup Elementary Procedure
 --
 -- **************************************************************
@@ -1980,7 +2095,9 @@ NGSetupRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-DefaultPagingDRX			CRITICALITY ignore	TYPE PagingDRX						PRESENCE mandatory	}|
 	{ ID id-UERetentionInformation		CRITICALITY ignore	TYPE UERetentionInformation			PRESENCE optional	}|
 	{ ID id-NB-IoT-DefaultPagingDRX		CRITICALITY ignore	TYPE NB-IoT-DefaultPagingDRX		PRESENCE optional	}|
-	{ ID id-Extended-RANNodeName		CRITICALITY ignore	TYPE Extended-RANNodeName			PRESENCE optional	},
+	{ ID id-Extended-RANNodeName		CRITICALITY ignore	TYPE Extended-RANNodeName			PRESENCE optional	}|
+	{ ID id-AIoT-Support				CRITICALITY reject	TYPE AIoT-Support					PRESENCE optional	}|
+	{ ID id-AdditionalULI				CRITICALITY ignore	TYPE AdditionalULI 					PRESENCE optional	},
 	...
 }
 
@@ -2004,7 +2121,9 @@ NGSetupResponseIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-UERetentionInformation		CRITICALITY ignore	TYPE UERetentionInformation		PRESENCE optional		}|
 	{ ID id-IAB-Supported				CRITICALITY ignore	TYPE IAB-Supported				PRESENCE optional		}|
 	{ ID id-Extended-AMFName			CRITICALITY ignore	TYPE Extended-AMFName			PRESENCE optional		}|
-	{ ID id-MobileIAB-Supported			CRITICALITY ignore	TYPE MobileIAB-Supported    	PRESENCE optional		},
+	{ ID id-MobileIAB-Supported			CRITICALITY ignore	TYPE MobileIAB-Supported    	PRESENCE optional		}|
+	{ ID id-AIOTFIdentifier				CRITICALITY reject	TYPE AIOTFIdentifier			PRESENCE optional		}|
+	{ ID id-AIOTFName					CRITICALITY reject	TYPE AIOTFName					PRESENCE optional		},
 	...
 }
 
@@ -2050,7 +2169,9 @@ RANConfigurationUpdateIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-GlobalRANNodeID							CRITICALITY ignore	TYPE GlobalRANNodeID								PRESENCE optional	}|
 	{ ID id-NGRAN-TNLAssociationToRemoveList		CRITICALITY reject	TYPE NGRAN-TNLAssociationToRemoveList			PRESENCE optional	}|
 	{ ID id-NB-IoT-DefaultPagingDRX					CRITICALITY ignore	TYPE NB-IoT-DefaultPagingDRX						PRESENCE optional	}|
-	{ ID id-Extended-RANNodeName					CRITICALITY ignore	TYPE Extended-RANNodeName							PRESENCE optional	},
+	{ ID id-Extended-RANNodeName					CRITICALITY ignore	TYPE Extended-RANNodeName							PRESENCE optional	}|
+	{ ID id-AdditionalULI							CRITICALITY ignore	TYPE AdditionalULI 									PRESENCE optional	}|
+	{ ID id-AIoT-Support							CRITICALITY reject	TYPE AIoT-Support									PRESENCE optional	},
 	...
 }
 
@@ -2255,7 +2376,8 @@ OverloadStart ::= SEQUENCE {
 OverloadStartIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMFOverloadResponse						CRITICALITY reject	TYPE OverloadResponse							PRESENCE optional 	}|
 	{ ID id-AMFTrafficLoadReductionIndication		CRITICALITY ignore	TYPE TrafficLoadReductionIndication		PRESENCE optional		}|
-	{ ID id-OverloadStartNSSAIList					CRITICALITY ignore	TYPE OverloadStartNSSAIList					PRESENCE optional		},
+	{ ID id-OverloadStartNSSAIList					CRITICALITY ignore	TYPE OverloadStartNSSAIList					PRESENCE optional		}|
+	{ ID id-GUAMIList						CRITICALITY ignore	TYPE GUAMIList									PRESENCE optional		},
 	...
 }
 
@@ -2271,6 +2393,7 @@ OverloadStop ::= SEQUENCE {
 }
 
 OverloadStopIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-GUAMIList			CRITICALITY ignore	TYPE GUAMIList		PRESENCE optional		},
 	...
 }
 
@@ -2664,7 +2787,14 @@ LocationReportingFailureIndication ::= SEQUENCE {
 LocationReportingFailureIndicationIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID			CRITICALITY reject	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID			CRITICALITY reject	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
-	{ ID id-Cause					CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	},
+	{ ID id-Cause					CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-Aerial-UE-FlightInformationOngoingReporting-failed			CRITICALITY ignore	TYPE Aerial-UE-FlightInformationOngoingReporting-failed					PRESENCE optional},
+	...
+}
+
+
+Aerial-UE-FlightInformationOngoingReporting-failed::= ENUMERATED {
+	true,
 	...
 }
 
@@ -3757,5 +3887,280 @@ RANPagingRequestIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
+-- **************************************************************
+--
+-- A-IoT ELEMENTARY PROCEDURES
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Inventory Request Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- INVENTORY REQUEST
+--
+-- **************************************************************
+
+InventoryRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {InventoryRequestIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+InventoryRequestTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING InventoryRequestTransfer)
+
+InventoryRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AIOTFIdentifier				CRITICALITY reject	TYPE AIOTFIdentifier												PRESENCE mandatory	}|
+	{ ID id-AIoT-CorrelationIdentifier	CRITICALITY reject	TYPE AIoT-CorrelationIdentifier										PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-InventoryRequestTransfer	CRITICALITY reject	TYPE OCTET STRING (CONTAINING InventoryRequestTransfer)		PRESENCE mandatory	},
+	{ ID id-InventoryRequestTransfer	CRITICALITY reject	TYPE InventoryRequestTransfer-OCTET-STRING		PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- INVENTORY RESPONSE
+--
+-- **************************************************************
+
+InventoryResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {InventoryResponseIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+InventoryResponseTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING InventoryResponseTransfer)
+
+InventoryResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AIOTFIdentifier				CRITICALITY reject	TYPE AIOTFIdentifier												PRESENCE mandatory	}|
+	{ ID id-AIoT-CorrelationIdentifier	CRITICALITY reject	TYPE AIoT-CorrelationIdentifier										PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-InventoryResponseTransfer	CRITICALITY reject	TYPE OCTET STRING (CONTAINING InventoryResponseTransfer)	PRESENCE mandatory	}|
+	{ ID id-InventoryResponseTransfer	CRITICALITY reject	TYPE InventoryResponseTransfer-OCTET-STRING	PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics											PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- INVENTORY FAILURE
+--
+-- **************************************************************
+
+InventoryFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {InventoryFailureIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+InventoryFailureTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING InventoryFailureTransfer)
+
+InventoryFailureIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AIOTFIdentifier				CRITICALITY ignore	TYPE AIOTFIdentifier												PRESENCE mandatory	}|
+	{ ID id-AIoT-CorrelationIdentifier	CRITICALITY ignore	TYPE AIoT-CorrelationIdentifier										PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-InventoryFailureTransfer	CRITICALITY ignore	TYPE OCTET STRING (CONTAINING InventoryFailureTransfer	)	PRESENCE mandatory	}|
+	{ ID id-InventoryFailureTransfer	CRITICALITY ignore	TYPE InventoryFailureTransfer-OCTET-STRING	PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause															PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics											PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+
+-- Inventory Report procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- INVENTORY REPORT
+--
+-- **************************************************************
+
+InventoryReport ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {  InventoryReportIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+InventoryReportTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING InventoryReportTransfer)
+
+InventoryReportIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AIOTFIdentifier				CRITICALITY reject	TYPE AIOTFIdentifier												PRESENCE mandatory	}|
+	{ ID id-AIoT-CorrelationIdentifier	CRITICALITY reject	TYPE AIoT-CorrelationIdentifier										PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-InventoryReportTransfer		CRITICALITY reject	TYPE OCTET STRING (CONTAINING InventoryReportTransfer	)	PRESENCE mandatory	},
+	{ ID id-InventoryReportTransfer		CRITICALITY reject	TYPE InventoryReportTransfer-OCTET-STRING	PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- Command Request Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- COMMAND REQUEST
+--
+-- **************************************************************
+
+CommandRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {CommandRequestIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+CommandRequestTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING CommandRequestTransfer)
+
+CommandRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AIOTFIdentifier				CRITICALITY reject	TYPE AIOTFIdentifier												PRESENCE mandatory	}|
+	{ ID id-AIoT-CorrelationIdentifier	CRITICALITY reject	TYPE AIoT-CorrelationIdentifier										PRESENCE mandatory	}|
+	{ ID id-RAN-AIOT-Device-NGAP-ID		CRITICALITY reject	TYPE RAN-AIOT-Device-NGAP-ID										PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-CommandRequestTransfer		CRITICALITY reject	TYPE OCTET STRING (CONTAINING CommandRequestTransfer)		PRESENCE mandatory	},
+	{ ID id-CommandRequestTransfer		CRITICALITY reject	TYPE CommandRequestTransfer-OCTET-STRING		PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- COMMAND RESPONSE
+--
+-- **************************************************************
+
+CommandResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {CommandResponseIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+CommandResponseTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING CommandResponseTransfer)
+
+CommandResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AIOTFIdentifier				CRITICALITY reject	TYPE AIOTFIdentifier												PRESENCE mandatory	}|
+	{ ID id-AIoT-CorrelationIdentifier	CRITICALITY reject	TYPE AIoT-CorrelationIdentifier										PRESENCE mandatory	}|
+	{ ID id-RAN-AIOT-Device-NGAP-ID		CRITICALITY reject	TYPE RAN-AIOT-Device-NGAP-ID										PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-CommandResponseTransfer		CRITICALITY reject	TYPE OCTET STRING (CONTAINING CommandResponseTransfer)		PRESENCE mandatory	}|
+	{ ID id-CommandResponseTransfer		CRITICALITY reject	TYPE CommandResponseTransfer-OCTET-STRING		PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics											PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- COMMAND FAILURE
+--
+-- **************************************************************
+
+CommandFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {CommandFailureIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+CommandFailureTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING CommandFailureTransfer)
+
+CommandFailureIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AIOTFIdentifier				CRITICALITY ignore	TYPE AIOTFIdentifier												PRESENCE mandatory	}|
+	{ ID id-AIoT-CorrelationIdentifier	CRITICALITY ignore	TYPE AIoT-CorrelationIdentifier										PRESENCE mandatory	}|
+	{ ID id-RAN-AIOT-Device-NGAP-ID		CRITICALITY ignore	TYPE RAN-AIOT-Device-NGAP-ID										PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-CommandFailureTransfer		CRITICALITY ignore	TYPE OCTET STRING (CONTAINING CommandFailureTransfer	)		PRESENCE mandatory	}|
+	{ ID id-CommandFailureTransfer		CRITICALITY ignore	TYPE CommandFailureTransfer-OCTET-STRING		PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause															PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics											PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- A-IoT Session Release Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- AIOT SESSION RELEASE COMMAND
+--
+-- **************************************************************
+
+AIOTSessionReleaseCommand ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {AIOTSessionReleaseCommandIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+AIOTSessionReleaseCommandTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING AIOTSessionReleaseCommandTransfer)
+
+AIOTSessionReleaseCommandIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AIOTFIdentifier						CRITICALITY reject	TYPE AIOTFIdentifier									PRESENCE mandatory	}|
+	{ ID id-AIoT-CorrelationIdentifier			CRITICALITY reject	TYPE AIoT-CorrelationIdentifier						PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-AIOTSessionReleaseCommandTransfer	CRITICALITY reject	TYPE OCTET STRING (CONTAINING AIOTSessionReleaseCommandTransfer)		PRESENCE mandatory	},
+	{ ID id-AIOTSessionReleaseCommandTransfer	CRITICALITY reject	TYPE AIOTSessionReleaseCommandTransfer-OCTET-STRING		PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- AIOT SESSION RELEASE COMPLETE
+--
+-- **************************************************************
+
+AIOTSessionReleaseComplete ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {AIOTSessionReleaseCompleteIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+AIOTSessionReleaseCompleteTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING AIOTSessionReleaseCompleteTransfer)
+
+AIOTSessionReleaseCompleteIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AIOTFIdentifier						CRITICALITY ignore	TYPE AIOTFIdentifier									PRESENCE mandatory	}|
+	{ ID id-AIoT-CorrelationIdentifier			CRITICALITY ignore	TYPE AIoT-CorrelationIdentifier						PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-AIOTSessionReleaseCompleteTransfer	CRITICALITY ignore	TYPE OCTET STRING (CONTAINING AIOTSessionReleaseCompleteTransfer)	PRESENCE mandatory	}|
+	{ ID id-AIOTSessionReleaseCompleteTransfer	CRITICALITY ignore	TYPE AIOTSessionReleaseCompleteTransfer-OCTET-STRING	PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- A-IoT Session Release Request Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- AIOT SESSION RELEASE REQUEST
+--
+-- **************************************************************
+
+AIOTSessionReleaseRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {AIOTSessionReleaseRequestIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+AIOTSessionReleaseRequestTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING AIOTSessionReleaseRequestTransfer)
+
+AIOTSessionReleaseRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AIOTFIdentifier						CRITICALITY reject	TYPE AIOTFIdentifier									PRESENCE mandatory	}|
+	{ ID id-AIoT-CorrelationIdentifier			CRITICALITY reject	TYPE AIoT-CorrelationIdentifier						PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-AIOTSessionReleaseRequestTransfer	CRITICALITY reject	TYPE OCTET STRING (CONTAINING AIOTSessionReleaseRequestTransfer)		PRESENCE mandatory	},
+	{ ID id-AIOTSessionReleaseRequestTransfer	CRITICALITY reject	TYPE AIOTSessionReleaseRequestTransfer-OCTET-STRING		PRESENCE mandatory	},
+	...
+}
 
 END
