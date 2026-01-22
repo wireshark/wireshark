@@ -134,27 +134,30 @@ static int hf_srvloc_url_lifetime;
 static int hf_srvloc_url_urllen;
 static int hf_srvloc_url_url;
 static int hf_srvloc_url_numauths;
+#if 0
 static int hf_srvloc_add_ref_ip;
 static int hf_srvloc_srvrply_svcname;
+#endif
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_srvloc_timestamp;
 static int hf_srvloc_authentication_block;
 static int hf_srvloc_transaction_id;
 static int hf_srvloc_block_structure_descriptor;
-static int hf_srvloc_communication_type;
 static int hf_srvloc_language;
-static int hf_srvloc_socket;
 static int hf_srvloc_encoding;
-static int hf_srvloc_node;
 static int hf_srvloc_item;
-static int hf_srvloc_service_type;
-static int hf_srvloc_network;
 static int hf_srvloc_service_type_count;
 static int hf_srvloc_dialect;
 static int hf_srvloc_authenticator_length;
+#if 0
+static int hf_srvloc_service_type;
+static int hf_srvloc_communication_type;
 static int hf_srvloc_protocol;
 static int hf_srvloc_port;
-
+static int hf_srvloc_network;
+static int hf_srvloc_node;
+static int hf_srvloc_socket;
+#endif
 
 static int ett_srvloc;
 static int ett_srvloc_attr;
@@ -374,74 +377,11 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, unsigned offset, unsigned
         }
 }
 
-/*
- * XXX - is this trying to guess the byte order?
+#if 0
+/* This used to have support for SLP as used by a Netware Server
+ * The following URL amazingly still works as of January 2026:
+ * https://support.novell.com/docs/Tids/Solutions/10027163.html
  *
- *      http://www.iana.org/assignments/character-sets
- *
- * says of ISO-10646-UCS-2, which has the code 1000 (this routine is used
- * with CHARSET_ISO_10646_UCS_2, which is #defined to be 1000):
- *
- *      this needs to specify network byte order: the standard
- *      does not specify (it is a 16-bit integer space)
- *
- * Does that mean that in SRVLOC, ISO-10646-UCS-2 is always big-endian?
- * If so, can we just use "tvb_get_string_enc()" and be
- * done with it?
- *
- * XXX - this is also used with CHARSET_UTF_8.  Is that a cut-and-pasteo?
- */
-static const char*
-unicode_to_bytes(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length, bool endianness)
-{
-    const uint8_t *ascii_text = tvb_get_string_enc(scope, tvb, offset, length, ENC_ASCII);
-    unsigned      i, j       = 0;
-    uint8_t       c_char, c_char1;
-    uint8_t      *byte_array;
-
-    /* XXX - Is this the correct behavior? */
-    if (length < 1)
-        return "";
-
-    if (endianness) {
-        byte_array = (uint8_t *)wmem_alloc(scope, length*2 + 1);
-        for (i = length; i > 0; i--) {
-            c_char = ascii_text[i];
-            if (c_char != 0) {
-                if (i == 0)
-                    break;
-                i--;
-                c_char1 = ascii_text[i];
-                if (c_char1 == 0) {
-                    if (i == 0)
-                        break;
-                    i--;
-                    c_char1 = ascii_text[i];
-                }
-                byte_array[j] = c_char1;
-                j++;
-                byte_array[j] = c_char;
-                j++;
-            }
-        }
-    }
-    else
-    {
-        byte_array = (uint8_t *)wmem_alloc(scope, length + 1);
-        for (i = 0; i < length; i++) {
-            c_char = ascii_text[i];
-            if (c_char != 0) {
-                byte_array[j] = c_char;
-                j++;
-            }
-        }
-    }
-
-    byte_array[j]=0;
-    return (const char*)byte_array;
-}
-
-/*
  * Format of x-x-x-xxxxxxxx. Each of these entries represents the service binding to UDP, TCP, or IPX.
  * The first digit is the protocol family: 2 for TCP/UPD, 6 for IPX.
  * The second digit is the socket type: 1 for socket stream (TCP), 2 for datagram (UDP and IPX).
@@ -471,18 +411,18 @@ static const value_string srvloc_prot[] = {
     { 1000, "IPX" },
     { 0, NULL }
 };
+#endif
 
 static void
-attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, unsigned offset, unsigned length,
-    uint16_t encoding)
+attr_list2(packet_info *pinfo _U_, proto_tree *tree, int hf, tvbuff_t *tvb, unsigned offset, unsigned length, uint16_t encoding _U_)
 {
-    const char *attr_type;
-    unsigned i, svc, type_len, foffset=offset;
-    uint32_t prot;
-    const char *byte_value;
-    proto_tree  *srvloc_tree;
+    //uint32_t     cnt;
     proto_item  *ti;
-    char *tmp;
+    proto_tree  *attr_tree;
+
+    /* if we were to decode:
+     * For slp v2, these 9 characters: (),\!<=>~ and 0x00-1F, 0x7f are reserved and must be escaped in the form \HH
+     */
 
     /*
      * <attr-list> ::= <attribute> | <attribute>, <attr-list>
@@ -490,222 +430,64 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, unsigned 
      * <attr-val-list> ::= <attr-val> | <attr-val>, <attr-val-list>
      */
 
-    /* To deal with a text-based protocol in an arbitrary, possibly variable
-     * length encoding, possibly the correct way is to retrieve the string,
-     * add it as a new data source if necessary, and parse it there. Otherwise
-     * it's difficult to match up offsets in the frame with offsets of string
-     * locations.
-     *
-     * This whole routine seems very broken, but then again this protocol
-     * is quite obsolete.
-     */
-    switch (encoding) {
-
-    case IANA_CS_ISO_10646_UCS_2:
-        while (offset+2<length) {
-            /* Skip the '(' (two bytes in UCS-2) */
-            offset += 2;
-            /* If the length passed is longer than the actual payload then this must be an incomplete packet. */
-            if (tvb_reported_length_remaining(tvb, 4)<(unsigned)length) {
-                proto_tree_add_expert_remaining(tree, pinfo, &ei_srvloc_malformed, tvb, offset);
-                break;
-            }
-            /* Parse the attribute name */
-            tmp = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length-offset, ENC_UCS_2|ENC_BIG_ENDIAN);
-            type_len = (int)strcspn(tmp, "=");
-            attr_type = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, type_len*2, ENC_UCS_2|ENC_BIG_ENDIAN);
-            proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
-            offset += (type_len*2)+2;
-            if (strcmp(attr_type, "svcname-ws")==0) {
-                /* This is the attribute svcname */
-                tmp = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length-offset, ENC_UCS_2|ENC_BIG_ENDIAN);
-                type_len = (int)strcspn(tmp, ")");
-                add_v1_string(tree, hf_srvloc_srvrply_svcname, tvb, offset, type_len*2, encoding);
-                offset += (type_len*2)+4;
-                attr_type = "";
-            } else if (strcmp(attr_type, "svcaddr-ws")==0) {
-                /* This is the attribute svcaddr */
-                i=1;
-                for (foffset = offset; foffset<length; foffset += 2) {
-
-                    srvloc_tree = proto_tree_add_subtree_format(tree, tvb, foffset, -1, ett_srvloc_attr, NULL, "Item %d", i);
-
-                    svc = tvb_get_uint8(tvb, foffset+1);
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_service_type, tvb, foffset+1, 1, ENC_NA);
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_communication_type, tvb, foffset+5, 1, ENC_NA);
-                    foffset += 9;
-                    if (svc == 50) {
-                        if (tvb_get_uint8(tvb, foffset)==54) { /* TCP */
-                            proto_tree_add_item(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 1, ENC_BIG_ENDIAN);
-                            foffset += 2;
-                        }
-                        else
-                        {
-                            byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset, 4, false); /* UDP */
-                            prot = (uint32_t)strtoul(byte_value, NULL, 10);
-                            proto_tree_add_uint(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 4, prot);
-                            foffset += 4;
-                        }
-                    }
-                    else
-                    {
-                        byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset, 8, false); /* IPX */
-                        prot = (uint32_t)strtoul(byte_value, NULL, 10);
-                        ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 4, prot);
-                        proto_item_set_len(ti, 8);
-                        foffset += 8;
-                    }
-                    if (svc == 50) {
-                        byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset, 16, true); /* IP Address */
-                        prot = (uint32_t)strtoul(byte_value, NULL, 16);
-                        proto_tree_add_ipv4(srvloc_tree, hf_srvloc_add_ref_ip, tvb, foffset+2, 16, prot);
-                        byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset+18, 8, false); /* Port */
-                        prot = (uint32_t)strtoul(byte_value, NULL, 16);
-                        ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_port, tvb, foffset+18, 4, prot);
-                        proto_item_set_len(ti, 8);
-                    }
-                    else
-                    {
-                        byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset+2, 16, false); /* IPX Network Address */
-                        prot = (uint32_t)strtoul(byte_value, NULL, 16);
-                        ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_network, tvb, foffset+2, 4, prot);
-                        proto_item_set_len(ti, 16);
-                        byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset+18, 24, false); /* IPX Node Address */
-                        prot = (uint32_t)strtoul(byte_value, NULL, 16);
-                        ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_node, tvb, foffset+18, 4, prot);
-                        proto_item_set_len(ti, 24);
-                        byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset+42, 8, false);  /* Socket */
-                        prot = (uint32_t)strtoul(byte_value, NULL, 16);
-                        ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_socket, tvb, foffset+42, 4, prot);
-                        proto_item_set_len(ti, 8);
-                    }
-                    i++;
-                    foffset += 57;
-                }
-                offset = foffset;
-                attr_type = "";
-            }
-            /* If there are no more supported attributes available then abort dissection */
-            if (strcmp(attr_type, "svcaddr-ws")!=0 && strcmp(attr_type, "svcname-ws")!=0 && strcmp(attr_type, "")!=0) {
-                break;
-            }
-        }
-        break;
-
-    case IANA_CS_UTF_8:
-        type_len = (int)strcspn((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII), "=");
-        attr_type = unicode_to_bytes(pinfo->pool, tvb, offset+1, type_len-1, false);
-        proto_tree_add_string(tree, hf, tvb, offset+1, type_len-1, attr_type);
-        i=1;
-        for (foffset = offset + (type_len); foffset<length; foffset++) {
-
-            srvloc_tree = proto_tree_add_subtree_format(tree, tvb, foffset, -1, ett_srvloc_attr, NULL, "Item %d", i);
-
-            svc = tvb_get_uint8(tvb, foffset+1);
-            proto_tree_add_item(srvloc_tree, hf_srvloc_service_type, tvb, foffset+1, 1, ENC_NA);
-            proto_tree_add_item(srvloc_tree, hf_srvloc_communication_type, tvb, foffset+3, 1, ENC_NA);
-            foffset += 5;
-            if (svc == 50) {
-                if (tvb_get_uint8(tvb, foffset)==54) { /* TCP */
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 1, ENC_BIG_ENDIAN);
-                    foffset += 1;
-                }
-                else
-                {
-                    /* UDP */
-                    byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset, 2, false); /* UDP */
-                    prot = (uint32_t)strtoul(byte_value, NULL, 10);
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 2, prot);
-                    foffset += 2;
-                }
-            }
-            else
-            {
-                byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset, 4, false); /* IPX */
-                prot = (uint32_t)strtoul(byte_value, NULL, 10);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 4, prot);
-                foffset += 4;
-            }
-            if (svc == 50) {
-                byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset, 8, true); /* IP Address */
-                prot = (uint32_t)strtoul(byte_value, NULL, 16);
-                proto_tree_add_ipv4(srvloc_tree, hf_srvloc_add_ref_ip, tvb, foffset+1, 8, prot);
-                byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset+9, 4, false); /* Port */
-                prot = (uint32_t)strtoul(byte_value, NULL, 16);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_port, tvb, foffset+9, 4, prot);
-            }
-            else
-            {
-                byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset+1, 8, false); /* IPX Network Address */
-                prot = (uint32_t)strtoul(byte_value, NULL, 16);
-                ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_network, tvb, foffset+1, 4, prot);
-                proto_item_set_len(ti, 8);
-                byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset+9, 12, false); /* IPX Node Address */
-                prot = (uint32_t)strtoul(byte_value, NULL, 16);
-                ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_node, tvb, foffset+9, 4, prot);
-                proto_item_set_len(ti, 12);
-                byte_value = unicode_to_bytes(pinfo->pool, tvb, foffset+21, 4, false);  /* Socket */
-                prot = (uint32_t)strtoul(byte_value, NULL, 16);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_socket, tvb, foffset+21, 4, prot);
-            }
-            i++;
-            foffset += 28;
-        }
-        break;
-
-
-    default:
-            /* XXX - need to handle specific encodings */
-            proto_tree_add_item(tree, hf, tvb, offset, length, ENC_ASCII|ENC_NA);
-            break;
-    }
-}
-
-static void
-attr_list2(packet_info *pinfo, proto_tree *tree, int hf, tvbuff_t *tvb, unsigned offset, unsigned length, uint16_t encoding _U_)
-{
-    char        *start;
-    uint8_t      c;
-    uint32_t     x;
-    uint32_t     cnt;
-    proto_item  *ti;
-    proto_tree  *attr_tree;
-
-    /* if we were to decode:
-     * For slp, these 9 characters: (),\!<=>~ and 0x00-1F, 0x7f are reserved and must be escaped in the form \HH
-     */
-
     /* create a sub tree for attributes */
     ti = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_UTF_8|ENC_NA);
     attr_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
 
-    /* this will ensure there is a terminating null */
-    start = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UTF_8);
+    /* You *cannot* assume that the offset in the decoded string is the same as
+     * the offset in the packet, if there is fuzzed data where REPLACEMENT
+     * CHARACTERS end up being used. It can even be shorter, resulting in a
+     * segfault. */
+    /* Really this should look for ')' too because it is legal to have multiple
+     * values for a single attribute, and thus multiple commas.  */
+    //cnt = 0;
+    tvbuff_t *attr_tvb = tvb_new_subset_length(tvb, offset, length);
+    unsigned start_offset, end_offset;
+    start_offset = 0;
+    while (tvb_captured_length_remaining(attr_tvb, start_offset)) {
+        tvb_find_uint8_remaining(attr_tvb, start_offset, ',', &end_offset);
+        //cnt++;
+        // I don't care enough to add the item # here.
+        proto_tree_add_item(attr_tree, hf_srvloc_item, attr_tvb, start_offset, end_offset - start_offset, ENC_UTF_8);
+        start_offset = end_offset + 1;
+    }
+}
 
-    cnt = 0;
-    x = 0;
-    c = start[x];
-    while (c) {
-        if  (c == ',') {
-            cnt++; /* Attribute count */
-            start[x] = 0;
-            proto_tree_add_string_format(attr_tree, hf_srvloc_item, tvb, offset, x, start, "Item %d: %s", cnt, start);
-            offset += x+1;
-            start += x+1;
-            /* reset string length */
-            x = 0;
-            c = start[x];
-        } else {
-            /* increment and get next */
-            x++;
-            c = start[x];
-        }
+static void
+attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, unsigned offset, unsigned length,
+    uint16_t encoding)
+{
+
+    /*
+     * <attr-list> ::= <attribute> | <attribute>, <attr-list>
+     * <attribute> ::= (<attr-tag>=<attr-val-list>) | <keyword>
+     * <attr-val-list> ::= <attr-val> | <attr-val>, <attr-val-list>
+     */
+
+    const uint8_t *attr_list;
+    tvbuff_t *attr_tvb;
+
+    /* In srvloc v1, HTML/XML style numeric character references were used to
+     * escape, which should be the same in UCS-2 and UTF-8, but we don't
+     * handle that. */
+
+    switch (encoding) {
+
+    case IANA_CS_ISO_10646_UCS_2:
+        attr_list = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UCS_2|ENC_BIG_ENDIAN);
+        attr_tvb = tvb_new_child_real_data(tvb, attr_list, (unsigned)strlen((const char*)attr_list), (unsigned)strlen((const char*)attr_list));
+        add_new_data_source(pinfo, attr_tvb, "Attribute List");
+        break;
+
+    case IANA_CS_UTF_8:
+    default: /* XXX - need to handle specific encodings */
+        attr_tvb = tvb_new_subset_length(tvb, offset, length);
     }
-    /* display anything remaining */
-    if (x) {
-        cnt++;
-        proto_tree_add_string_format(attr_tree, hf_srvloc_item, tvb, offset, x, start, "Item %d: %s", cnt, start);
-    }
+
+    /* Since we don't handle the different kind of escaping, just use
+     * the same attribute list function as v2, after we've taken care
+     * of the encoding, as they have the same ABNF. */
+    attr_list2(pinfo, tree, hf, attr_tvb, 0, tvb_reported_length(attr_tvb), encoding);
 }
 
 static unsigned
@@ -1791,6 +1573,7 @@ proto_register_srvloc(void)
           { "Auths", "srvloc.saadvert.authcount", FT_UINT8, BASE_DEC, NULL, 0x0,
             "Number of Authentication Blocks", HFILL}
         },
+#if 0
         { &hf_srvloc_add_ref_ip,
           { "IP Address", "srvloc.list.ipaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
             "IP Address of SLP server", HFILL}
@@ -1799,11 +1582,13 @@ proto_register_srvloc(void)
           { "Service Name Value", "srvloc.srvrply.svcname", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
+#endif
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_srvloc_timestamp, { "Timestamp", "srvloc.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL }},
       { &hf_srvloc_block_structure_descriptor, { "Block Structure Descriptor", "srvloc.block_structure_descriptor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_srvloc_authenticator_length, { "Authenticator length", "srvloc.authenticator_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_srvloc_authentication_block, { "Authentication block", "srvloc.authentication_block", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#if 0
       { &hf_srvloc_service_type, { "Service Type", "srvloc.service_type", FT_UINT8, BASE_DEC, VALS(srvloc_svc), 0x0, NULL, HFILL }},
       { &hf_srvloc_communication_type, { "Communication Type", "srvloc.communication_type", FT_UINT8, BASE_DEC, VALS(srvloc_ss), 0x0, NULL, HFILL }},
       { &hf_srvloc_protocol, { "Protocol", "srvloc.protocol", FT_UINT32, BASE_DEC, VALS(srvloc_prot), 0x0, NULL, HFILL }},
@@ -1811,6 +1596,7 @@ proto_register_srvloc(void)
       { &hf_srvloc_network, { "Network", "srvloc.network", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_srvloc_node, { "Node", "srvloc.node", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_srvloc_socket, { "Socket", "srvloc.socket", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+#endif
       { &hf_srvloc_item, { "Item", "srvloc.item", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_srvloc_dialect, { "Dialect", "srvloc.dialect", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_srvloc_language, { "Language", "srvloc.language", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
