@@ -122,8 +122,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned      number;
     unsigned      parameter_length;
 
-    pitem = proto_tree_add_item(tree, hf_bthcrp_control_pdu_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-    control_pdu_id = tvb_get_ntohs(tvb, offset);
+    pitem = proto_tree_add_item_ret_uint16(tree, hf_bthcrp_control_pdu_id, tvb, offset, 2, ENC_BIG_ENDIAN, &control_pdu_id);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Control: %s %s",
@@ -250,8 +249,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 col_append_fstr(pinfo->cinfo, COL_INFO, " -  Register: %s", val_to_str_const(notification_register, register_vals, "unknown register"));
                 offset += 1;
 
-                proto_tree_add_item(tree, hf_bthcrp_callback_context_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                context_id = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_callback_context_id, tvb, offset, 4, ENC_BIG_ENDIAN, &context_id);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Callback ContextID: %u", context_id);
                 offset += 4;
 
@@ -311,8 +309,7 @@ dissect_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return offset;
     }
 
-    pitem = proto_tree_add_item(tree, hf_bthcrp_notification_pdu_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-    notification_pdu_id = tvb_get_ntohs(tvb, offset);
+    pitem = proto_tree_add_item_ret_uint16(tree, hf_bthcrp_notification_pdu_id, tvb, offset, 2, ENC_BIG_ENDIAN, &notification_pdu_id);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Notification: %s", val_to_str_const(notification_pdu_id, notification_pdu_id_vals,  "Unknown PDU ID"));

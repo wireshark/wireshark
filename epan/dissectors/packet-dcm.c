@@ -1873,8 +1873,8 @@ dissect_dcm_assoc_user_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     offset += primary_field_length;
 
     if (type == 2) {
-        secondary_field_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_secondary_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint16(assoc_item_user_identify_tree, hf_dcm_info_user_identify_secondary_field_length, tvb, offset, 2,
+                                       ENC_BIG_ENDIAN, &secondary_field_length);
         offset += 2;
 
         proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_secondary_field, tvb, offset, secondary_field_length, ENC_UTF_8);
@@ -3998,8 +3998,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
     proto_tree_add_item(dcm_ptree, hf_dcm_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
-    pdu_len = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(dcm_ptree, hf_dcm_pdu_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(dcm_ptree, hf_dcm_pdu_len, tvb, offset, 4, ENC_BIG_ENDIAN, &pdu_len);
     offset += 4;
 
     /* Find previously detected association, else create a new one object*/

@@ -825,8 +825,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             }
             break;
         case 0x0154: /* LE Multi Advertising */
-            proto_tree_add_item(main_tree, hf_broadcom_le_multi_advertising_subcode, tvb, offset, 1, ENC_NA);
-            subcode = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(main_tree, hf_broadcom_le_multi_advertising_subcode, tvb, offset, 1, ENC_NA, &subcode);
             offset += 1;
 
             switch (subcode) {
@@ -995,8 +994,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             }
             break;
         case 0x015D: /* A2DP Hardware Offload */
-            proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_subcode, tvb, offset, 1, ENC_NA);
-            subcode = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(main_tree, hf_broadcom_a2dp_hardware_offload_subcode, tvb, offset, 1, ENC_NA, &subcode);
             offset += 1;
 
             switch (subcode) {
@@ -1369,8 +1367,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
                 break;
             case 0x0156: /* LE Batch Scan */
-                proto_tree_add_item(main_tree, hf_broadcom_le_batch_scan_subcode, tvb, offset, 1, ENC_NA);
-                subcode = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint8(main_tree, hf_broadcom_le_batch_scan_subcode, tvb, offset, 1, ENC_NA, &subcode);
                 offset += 1;
 
                 if (subcode == 0x04 && status == STATUS_SUCCESS) { /* Read Results*/

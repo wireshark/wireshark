@@ -207,32 +207,28 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 
     switch(parameter_id) {
         case 0x00: /* MaxMsgSize */
-            proto_tree_add_item(ptree, hf_btsap_parameter_max_msg_size, tvb, offset, 2, ENC_BIG_ENDIAN);
-            max_msg_size = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(ptree, hf_btsap_parameter_max_msg_size, tvb, offset, 2, ENC_BIG_ENDIAN, &max_msg_size);
             proto_item_append_text(parameter_item, "%u", max_msg_size);
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %u", max_msg_size);
             length = 2;
             padding_length = 2;
             break;
         case 0x01: /* ConnectionStatus */
-            proto_tree_add_item(ptree, hf_btsap_parameter_connection_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-            connection_status = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(ptree, hf_btsap_parameter_connection_status, tvb, offset, 1, ENC_BIG_ENDIAN, &connection_status);
             proto_item_append_text(parameter_item, "%s", val_to_str_const(connection_status, connection_status_vals, "Unknown"));
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(connection_status, connection_status_vals, "Unknown"));
             length = 1;
             padding_length = 3;
             break;
         case 0x02: /* ResultCode */
-            proto_tree_add_item(ptree, hf_btsap_parameter_result_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-            result_code = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(ptree, hf_btsap_parameter_result_code, tvb, offset, 1, ENC_BIG_ENDIAN, &result_code);
             proto_item_append_text(parameter_item, "%s", val_to_str_const(result_code, result_code_vals, "Unknown"));
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(result_code, result_code_vals, "Unknown"));
             length = 1;
             padding_length = 3;
             break;
         case 0x03: /* DisconnectionType */
-            proto_tree_add_item(ptree, hf_btsap_parameter_disconnection_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            disconnection_type = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(ptree, hf_btsap_parameter_disconnection_type, tvb, offset, 1, ENC_BIG_ENDIAN, &disconnection_type);
             proto_item_append_text(parameter_item, "%s", val_to_str_const(disconnection_type, disconnection_type_vals, "Unknown"));
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(disconnection_type, disconnection_type_vals, "Unknown"));
             length = 1;
@@ -307,16 +303,14 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
             padding_length = 3;
             break;
         case 0x08: /* StatusChange */
-            proto_tree_add_item(ptree, hf_btsap_parameter_status_change, tvb, offset, 1, ENC_BIG_ENDIAN);
-            status_change = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(ptree, hf_btsap_parameter_status_change, tvb, offset, 1, ENC_BIG_ENDIAN, &status_change);
             proto_item_append_text(parameter_item, "%s", val_to_str_const(status_change, status_change_vals, "Unknown"));
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(status_change, status_change_vals, "Unknown"));
             length = 1;
             padding_length = 3;
             break;
         case 0x09: /* TransportProtocol */
-            proto_tree_add_item(ptree, hf_btsap_parameter_transport_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
-            transport_protocol = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(ptree, hf_btsap_parameter_transport_protocol, tvb, offset, 1, ENC_BIG_ENDIAN, &transport_protocol);
             proto_item_append_text(parameter_item, "%u", transport_protocol);
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %u", transport_protocol);
             length = 1;
@@ -399,13 +393,11 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             break;
     }
 
-    proto_tree_add_item(btsap_tree, hf_btsap_header_msg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    msg_id = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(btsap_tree, hf_btsap_header_msg_id, tvb, offset, 1, ENC_BIG_ENDIAN, &msg_id);
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(msg_id, msg_id_vals, "Unknown MsgID"));
     offset += 1;
 
-    proto_tree_add_item(btsap_tree, hf_btsap_header_number_of_parameters, tvb, offset, 1, ENC_BIG_ENDIAN);
-    number_of_parameters = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(btsap_tree, hf_btsap_header_number_of_parameters, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_parameters);
     offset += 1;
 
     proto_tree_add_item(btsap_tree, hf_btsap_header_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);

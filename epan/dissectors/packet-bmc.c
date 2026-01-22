@@ -94,8 +94,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     bit_reversed_tvb = tvb_new_child_real_data(tvb, reversing_buffer, len, len);
     add_new_data_source(pinfo, bit_reversed_tvb, "Bit-reversed Data");
 
-    message_type = tvb_get_uint8(bit_reversed_tvb, offset);
-    proto_tree_add_item(bmc_tree, hf_bmc_message_type, bit_reversed_tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(bmc_tree, hf_bmc_message_type, bit_reversed_tvb, offset, 1, ENC_BIG_ENDIAN, &message_type);
     offset++;
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, message_type, message_type_vals,"Reserved 0x%02x"));
 
@@ -199,12 +198,10 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_item_set_len(ti, offset-saved_offset);
 
     if (tvb_reported_length_remaining(tvb,offset)) {
-        future_extension_bitmap = tvb_get_uint8(tvb,offset);
-        proto_tree_add_item(tree, hf_bmc_future_extension_bitmap, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(tree, hf_bmc_future_extension_bitmap, tvb, offset, 1, ENC_BIG_ENDIAN, &future_extension_bitmap);
         offset += 1;
         if (future_extension_bitmap & 0x01) {
-            length_of_serial_number_list = tvb_get_uint8(tvb,offset);
-            proto_tree_add_item(tree, hf_bmc_length_of_serial_number_list, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_bmc_length_of_serial_number_list, tvb, offset, 1, ENC_BIG_ENDIAN, &length_of_serial_number_list);
             offset += 1;
 
             for (entry=0; entry<length_of_serial_number_list; entry++) {

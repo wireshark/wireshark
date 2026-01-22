@@ -540,12 +540,9 @@ dissect_bittorrent_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    case BITTORRENT_MESSAGE_REQUEST:
    case BITTORRENT_MESSAGE_CANCEL:
    case BITT_FAST_EX_REJECT_REQUEST:
-      piece_index = tvb_get_ntohl(tvb, offset);
-      proto_tree_add_uint(mtree, hf_bittorrent_piece_index, tvb, offset, 4, piece_index); offset += 4;
-      piece_begin = tvb_get_ntohl(tvb, offset);
-      proto_tree_add_uint(mtree, hf_bittorrent_piece_begin, tvb, offset, 4, piece_begin); offset += 4;
-      piece_length = tvb_get_ntohl(tvb, offset);
-      proto_tree_add_uint(mtree, hf_bittorrent_piece_length, tvb, offset, 4, piece_length);
+      proto_tree_add_item_ret_uint(mtree, hf_bittorrent_piece_index, tvb, offset, 4, ENC_BIG_ENDIAN, &piece_index); offset += 4;
+      proto_tree_add_item_ret_uint(mtree, hf_bittorrent_piece_begin, tvb, offset, 4, ENC_BIG_ENDIAN, &piece_begin); offset += 4;
+      proto_tree_add_item_ret_uint(mtree, hf_bittorrent_piece_length, tvb, offset, 4, ENC_BIG_ENDIAN, &piece_length);
       proto_item_append_text(ti, ", Piece (Idx:0x%x,Begin:0x%x,Len:0x%x)", piece_index, piece_begin, piece_length);
 
       col_append_fstr(pinfo->cinfo, COL_INFO, ", Piece (Idx:0x%x,Begin:0x%x,Len:0x%x)", piece_index, piece_begin, piece_length);

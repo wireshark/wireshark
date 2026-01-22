@@ -3355,8 +3355,7 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
             switch (cmd_id) {
                 case ZBEE_ZCL_ON_OFF_CMD_OFF_WITH_EFFECT:
-                    proto_tree_add_item(payload_tree, hf_zbee_zcl_on_off_effect_identifier, tvb, offset, 1, ENC_NA);
-                    effect_identifier = tvb_get_uint8(tvb, offset);
+                    proto_tree_add_item_ret_uint8(payload_tree, hf_zbee_zcl_on_off_effect_identifier, tvb, offset, 1, ENC_NA, &effect_identifier);
                     offset += 1;
                     switch (effect_identifier) {
                         case 0x00:
@@ -10041,8 +10040,7 @@ dissect_zcl_ota_imagenotify(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
     uint8_t payload_type;
 
     /* Retrieve 'Payload type' field */
-    payload_type = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_ota_payload_type, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_ota_payload_type, tvb, *offset, 1, ENC_NA, &payload_type);
     *offset += 1;
 
     /* Retrieve 'Query Jitter' field */
@@ -12445,16 +12443,14 @@ dissect_zcl_appl_ctrl_attr_func(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
     uint16_t func_id;
 
     /* ID */
-    func_id = tvb_get_letohs(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_appl_ctrl_attr_func_id, tvb, *offset, 2,ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_zbee_zcl_appl_ctrl_attr_func_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN, &func_id);
     *offset += 2;
 
     proto_item_append_text(tree, ", %s",
     val_to_str_ext_const(func_id, &zbee_zcl_appl_ctrl_attr_names_ext, "Reserved"));
 
     /* Data Type */
-    func_data_type = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_appl_ctrl_attr_func_data_type, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_appl_ctrl_attr_func_data_type, tvb, *offset, 1, ENC_NA, &func_data_type);
     *offset += 1;
 
     /* Function Data Dissector */

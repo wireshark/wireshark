@@ -149,24 +149,21 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     uint16_t     list_length;
     unsigned     i_item;
 
-    proto_tree_add_item(tree, hf_btbnep_control_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    control_type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_btbnep_control_type, tvb, offset, 1, ENC_BIG_ENDIAN, &control_type);
     offset += 1;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(control_type, control_type_vals,  "Unknown type"));
 
     switch(control_type) {
         case 0x00: /* Command Not Understood */
-            proto_tree_add_item(tree, hf_btbnep_unknown_control_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            unknown_control_type = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_btbnep_unknown_control_type, tvb, offset, 1, ENC_BIG_ENDIAN, &unknown_control_type);
             offset += 1;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Unknown(%s)", val_to_str_const(unknown_control_type, control_type_vals,  "Unknown type"));
 
             break;
         case 0x01: /* Setup Connection Request */
-            proto_tree_add_item(tree, hf_btbnep_uuid_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-            uuid_size = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_btbnep_uuid_size, tvb, offset, 1, ENC_BIG_ENDIAN, &uuid_size);
             offset += 1;
 
             pitem = proto_tree_add_item(tree, hf_btbnep_destination_service_uuid, tvb, offset, uuid_size, ENC_NA);
@@ -184,15 +181,14 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
                     val_to_str_ext_const(uuid_src, &bluetooth_uuid_vals_ext,  "Unknown uuid"));
             break;
         case 0x02: /* Setup Connection Response */
-            proto_tree_add_item(tree, hf_btbnep_setup_connection_response_message, tvb, offset, 2, ENC_BIG_ENDIAN);
-            response_message = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(tree, hf_btbnep_setup_connection_response_message, tvb, offset, 2, ENC_BIG_ENDIAN, &response_message);
             offset += 2;
+
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
                     val_to_str_const(response_message, setup_connection_response_message_vals,  "Unknown response message"));
             break;
         case 0x03: /* Filter Net Type Set */
-            proto_tree_add_item(tree, hf_btbnep_list_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-            list_length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(tree, hf_btbnep_list_length, tvb, offset, 2, ENC_BIG_ENDIAN, &list_length);
             offset += 2;
 
             for (i_item = 0; i_item + 4 > i_item && i_item < list_length; i_item += 4) {
@@ -204,15 +200,13 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             }
             break;
         case 0x04: /* Filter Net Type Response */
-            proto_tree_add_item(tree, hf_btbnep_filter_net_type_response_message, tvb, offset, 2, ENC_BIG_ENDIAN);
-            response_message = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(tree, hf_btbnep_filter_net_type_response_message, tvb, offset, 2, ENC_BIG_ENDIAN, &response_message);
             offset += 2;
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
                     val_to_str_const(response_message, filter_net_type_response_message_vals,  "Unknown response message"));
             break;
         case 0x05: /*Filter Multi Addr Set*/
-            proto_tree_add_item(tree, hf_btbnep_list_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-            list_length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(tree, hf_btbnep_list_length, tvb, offset, 2, ENC_BIG_ENDIAN, &list_length);
             offset += 2;
 
             for (i_item = 0; i_item + 12 > i_item && i_item < list_length; i_item += 12) {
@@ -224,8 +218,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             }
             break;
         case 0x06: /* Filter Multi Addr Response */
-            proto_tree_add_item(tree, hf_btbnep_filter_multi_addr_response_message, tvb, offset, 2, ENC_BIG_ENDIAN);
-            response_message = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(tree, hf_btbnep_filter_multi_addr_response_message, tvb, offset, 2, ENC_BIG_ENDIAN, &response_message);
             offset += 2;
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
                     val_to_str_const(response_message, filter_multi_addr_response_message_vals,  "Unknown response message"));
@@ -242,7 +235,7 @@ dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 {
     uint8_t extension_flag;
     uint8_t extension_type;
-    uint16_t extension_length;
+    uint8_t extension_length;
     uint8_t type;
 
     proto_tree_add_item(tree, hf_btbnep_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -252,8 +245,7 @@ dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     extension_type = type >> 1;
     offset += 1;
 
-    proto_tree_add_item(tree, hf_btbnep_extension_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-    extension_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_btbnep_extension_length, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_length);
     offset += 2;
 
     if (extension_type == 0x00) {
@@ -497,7 +489,7 @@ proto_register_btbnep(void)
         },
         { &hf_btbnep_extension_length,
             { "Extension Length",                  "btbnep.extension_length",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btbnep_unknown_control_type,

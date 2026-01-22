@@ -2261,8 +2261,7 @@ cmd_cnvt_get_values(tvbuff_t *tvb, int offset, proto_tree *pt)
     uint8_t num_signals;
     int length;
     int i;
-    num_signals = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN, &num_signals);
     offset += 1;
     for(i=0;i< num_signals; i++) {
         proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_signal_name, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);
@@ -2279,8 +2278,7 @@ resp_cnvt_get_values(tvbuff_t *tvb, int offset, proto_tree *pt)
     float fvalue;
     int i;
     int length;
-    num_signals = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN, &num_signals);
     offset += 1;
     for(i=0;i< num_signals; i++) {
         /* flag */
@@ -2315,8 +2313,7 @@ cmd_cnvt_get_units(tvbuff_t *tvb, int offset, proto_tree *pt)
     uint8_t num_signals;
     int length;
     int i;
-    num_signals = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN, &num_signals);
     offset += 1;
     for(i=0;i< num_signals; i++) {
         proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_signal_name, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);
@@ -2331,8 +2328,7 @@ resp_cnvt_get_units(tvbuff_t *tvb, int offset, proto_tree *pt)
     uint8_t num_signals;
     int i;
     int length;
-    num_signals = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN, &num_signals);
     offset += 1;
     for(i=0;i< num_signals; i++) {
         /* string */
@@ -2349,8 +2345,7 @@ cmd_cnvt_set_values(tvbuff_t *tvb, int offset, proto_tree *pt)
     int length;
     int i;
     float fvalue;
-    num_signals = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN, &num_signals);
     offset += 1;
     for(i=0;i< num_signals; i++) {
         proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_signal_name, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);

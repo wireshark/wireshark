@@ -2173,8 +2173,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_DID_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_did_specification_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    specification_id = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_did_specification_id, tvb, offset, 2, ENC_BIG_ENDIAN, &specification_id);
                     wmem_strbuf_append_printf(info_buf, "%x.%02x (0x%04x)", specification_id >> 8, specification_id & 0xFF, specification_id);
                     break;
                 case 0x201:
@@ -2192,8 +2191,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     wmem_strbuf_append_printf(info_buf, "%s (0x%04x)", str_val, vendor_id);
                     break;
                 case 0x202:
-                    entry_item = proto_tree_add_item(next_tree, hf_did_product_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    product_id = tvb_get_ntohs(tvb, offset);
+                    entry_item = proto_tree_add_item_ret_uint16(next_tree, hf_did_product_id, tvb, offset, 2, ENC_BIG_ENDIAN, &product_id);
 
                     if (service_did_vendor_id_source == DID_VENDOR_ID_SOURCE_USB_FORUM) {
                         str_val = val_to_str_ext_const(service_did_vendor_id << 16 | product_id, &ext_usb_products_vals, "Unknown");
@@ -2204,8 +2202,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     }
                     break;
                 case 0x203:
-                    proto_tree_add_item(next_tree, hf_did_version, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    version = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_did_version, tvb, offset, 2, ENC_BIG_ENDIAN, &version);
                     wmem_strbuf_append_printf(info_buf, "%x.%x.%x (0x%04x)", version >> 8, (version >> 4) & 0xF, version & 0xF, version);
                     break;
                 case 0x204:
@@ -2214,8 +2211,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     wmem_strbuf_append(info_buf, primary_record ? "true" : "false");
                     break;
                 case 0x205:
-                    proto_tree_add_item(next_tree, hf_did_vendor_id_source, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    vendor_id_source = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_did_vendor_id_source, tvb, offset, 2, ENC_BIG_ENDIAN, &vendor_id_source);
                     wmem_strbuf_append_printf(info_buf, "%s (0x%04x)",
                             val_to_str_const(vendor_id_source, did_vendor_id_source_vals, "Unknown"),
                             vendor_id_source);
@@ -2374,8 +2370,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_GNSS_SERVER_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_gnss_supported_features, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    supported_features = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint(next_tree, hf_gnss_supported_features, tvb, offset, 2, ENC_BIG_ENDIAN, &supported_features);
                     wmem_strbuf_append_printf(info_buf, "reserved (0x%04x)", supported_features);
                     break;
                 default:
@@ -2385,8 +2380,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_PBAP_PSE_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_pbap_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    psm = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_pbap_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN, &psm);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
                     if (!pinfo->fd->visited  && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
@@ -2449,8 +2443,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_FTP_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_ftp_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    psm = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_ftp_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN, &psm);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
                     if (!pinfo->fd->visited  && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
@@ -2463,8 +2456,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_MAP_ACCESS_SRV_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_map_mas_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    psm = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_map_mas_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN, &psm);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
                     if (!pinfo->fd->visited  && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
@@ -2507,8 +2499,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_MAP_NOTIFICATION_SRV_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_map_mns_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    psm = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_map_mns_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN, &psm);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
                     if (!pinfo->fd->visited  && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
@@ -2599,8 +2590,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         proto_item_set_len(entry_item, (new_offset - entry_offset) + length);
                         entry_offset = new_offset;
 
-                        proto_tree_add_item(next_tree, hf_hdp_supported_features_mdep_id, tvb, entry_offset, 1, ENC_BIG_ENDIAN);
-                        mdep_id = tvb_get_uint8(tvb, entry_offset);
+                        proto_tree_add_item_ret_uint8(next_tree, hf_hdp_supported_features_mdep_id, tvb, entry_offset, 1, ENC_BIG_ENDIAN, &mdep_id);
                         proto_item_append_text(entry_item, ": %u (0x%02x)", mdep_id, mdep_id);
                         entry_offset += length;
 
@@ -2740,8 +2730,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_OPP_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_opp_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    psm = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_opp_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN, &psm);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
                     if (!pinfo->fd->visited && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
@@ -2833,13 +2822,11 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_HID_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_hid_device_release_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    version = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_hid_device_release_number, tvb, offset, 2, ENC_BIG_ENDIAN, &version);
                     wmem_strbuf_append_printf(info_buf, "%x.%x.%x (0x%04x)", version >> 8, (version >> 4) & 0xF, version & 0xF, version);
                     break;
                 case 0x201:
-                    proto_tree_add_item(next_tree, hf_hid_parser_version, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    version = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_hid_parser_version, tvb, offset, 2, ENC_BIG_ENDIAN, &version);
                     wmem_strbuf_append_printf(info_buf, "%x.%x.%x (0x%04x)", version >> 8, (version >> 4) & 0xF, version & 0xF, version);
                     break;
                 case 0x202:
@@ -2945,13 +2932,11 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x20B:
-                    proto_tree_add_item(next_tree, hf_hid_profile_version, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    version = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_hid_profile_version, tvb, offset, 2, ENC_BIG_ENDIAN, &version);
                     wmem_strbuf_append_printf(info_buf, "%x.%x.%x (0x%04x)", version >> 8, (version >> 4) & 0xF, version & 0xF, version);
                     break;
                 case 0x20C:
-                    proto_tree_add_item(next_tree, hf_hid_supervision_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    value = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint(next_tree, hf_hid_supervision_timeout, tvb, offset, 2, ENC_BIG_ENDIAN, &value);
                     wmem_strbuf_append_printf(info_buf, "%u", value);
                     break;
                 case 0x20D:
@@ -2965,13 +2950,11 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x20F:
-                    proto_tree_add_item(next_tree, hf_hid_ssr_host_max_latency, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    value = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint(next_tree, hf_hid_ssr_host_max_latency, tvb, offset, 2, ENC_BIG_ENDIAN, &value);
                     wmem_strbuf_append_printf(info_buf, "%u", value);
                     break;
                 case 0x210:
-                    proto_tree_add_item(next_tree, hf_hid_ssr_host_min_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    value = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint(next_tree, hf_hid_ssr_host_min_timeout, tvb, offset, 2, ENC_BIG_ENDIAN, &value);
                     wmem_strbuf_append_printf(info_buf, "%u", value);
                     break;
                 default:
@@ -2982,8 +2965,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_BIP_RESPONDER_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    psm = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN, &psm);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
                     if (!pinfo->fd->visited && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
@@ -3077,8 +3059,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_BIP_REF_OBJ_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    psm = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN, &psm);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
                     if (!pinfo->fd->visited && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
@@ -3089,7 +3070,6 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_bip_supported_functions_reserved_1_11, tvb, offset, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_bip_supported_functions_get_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
                     value = tvb_get_ntohl(tvb, offset);
-
                     wmem_strbuf_append_printf(info_buf, "%s%s",
                             (value & 0x0001) ? "GetCapabilities " : "",
                             (value & 0x1000) ? "GetPartialImage " : "");
@@ -3101,8 +3081,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_BIP_AUTO_ARCH_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_item(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    psm = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item_ret_uint16(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN, &psm);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
                     if (!pinfo->fd->visited)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
@@ -4272,8 +4251,7 @@ dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     wmem_array_t  *uuid_array;
     bluetooth_uuid_t uuid;
 
-    proto_tree_add_item(tree, hf_sdp_service_record_handle, tvb, offset, 4, ENC_BIG_ENDIAN);
-    record_handle = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_sdp_service_record_handle, tvb, offset, 4, ENC_BIG_ENDIAN, &record_handle);
     col_append_fstr(pinfo->cinfo, COL_INFO, ": 0x%08x - ", record_handle);
     offset += 4;
 
@@ -4305,8 +4283,7 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
     uint32_t       record_handle = 0;
     bluetooth_uuid_t uuid;
 
-    proto_tree_add_item(tree, hf_attribute_list_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
-    attribute_list_byte_count = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_attribute_list_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN, &attribute_list_byte_count);
     offset += 2;
 
     reassemble_continuation_state(tvb, pinfo,
@@ -4436,8 +4413,7 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
     bluetooth_uuid_t uuid;
     wmem_array_t  *uuid_array = NULL;
 
-    proto_tree_add_item(tree, hf_attribute_list_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
-    attribute_list_byte_count = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_attribute_list_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN, &attribute_list_byte_count);
     offset += 2;
 
     reassemble_continuation_state(tvb, pinfo,
@@ -4514,8 +4490,7 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
     }
 
-    proto_tree_add_item(st, hf_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    pdu_id = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(st, hf_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN, &pdu_id);
     offset += 1;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",

@@ -1310,8 +1310,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
       proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, ENC_NA);
       offset++;
-      count = tvb_get_ntohs(tvb, offset);
-      ti = proto_tree_add_item(zip_tree, hf_zip_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item_ret_uint16(zip_tree, hf_zip_count, tvb, offset, 2, ENC_BIG_ENDIAN, &count);
       offset += 2;
       sub_tree = proto_item_add_subtree(ti, ett_zip_zones_list);
       for (i = 0; i < count; i++) {

@@ -6434,16 +6434,14 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, unsigned offset
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            sabm_len = tvb_get_uint8(tvb, offset + 4);
-            ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_app_spec_link_attrs_sabm_len, tvb, offset + 4, 1, ENC_NA);
+            ti = proto_tree_add_item_ret_uint8(tlv_tree, hf_bgp_ls_tlv_app_spec_link_attrs_sabm_len, tvb, offset + 4, 1, ENC_NA, &sabm_len);
             if (sabm_len != 0 && sabm_len != 4 && sabm_len != 8) {
                 expert_add_info_format(pinfo, ti, &ei_bgp_ls_error,
                                        "Unexpected SABM Length (%u) in BGP-LS Application-Specific Link Attributes TLV, it must be 0/4/8 bytes!",
                                        sabm_len);
                 break;
             }
-            udabm_len = tvb_get_uint8(tvb, offset + 5);
-            ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_app_spec_link_attrs_udabm_len, tvb, offset + 5, 1, ENC_NA);
+            ti = proto_tree_add_item_ret_uint8(tlv_tree, hf_bgp_ls_tlv_app_spec_link_attrs_udabm_len, tvb, offset + 5, 1, ENC_NA, &udabm_len);
             if (udabm_len != 0 && udabm_len != 4 && udabm_len != 8) {
                 expert_add_info_format(pinfo, ti, &ei_bgp_ls_error,
                                        "Unexpected UDABM Length (%u) in BGP-LS Application Specific Link Attributes TLV, it must be 0/4/8 bytes!",
@@ -8780,15 +8778,13 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         case BGP_CAPABILITY_FQDN:{
             uint8_t hostname_len, domain_name_len;
 
-            proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_hostname_len, tvb, offset, 1, ENC_NA);
-            hostname_len = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(cap_tree, hf_bgp_cap_fqdn_hostname_len, tvb, offset, 1, ENC_NA, &hostname_len);
             offset += 1;
 
             proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_hostname, tvb, offset, hostname_len, ENC_ASCII);
             offset += hostname_len;
 
-            proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_domain_name_len, tvb, offset, 1, ENC_NA);
-            domain_name_len = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(cap_tree, hf_bgp_cap_fqdn_domain_name_len, tvb, offset, 1, ENC_NA, &domain_name_len);
             offset += 1;
 
             proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_domain_name, tvb, offset, domain_name_len, ENC_ASCII);
@@ -8893,8 +8889,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         case BGP_CAPABILITY_SOFT_VERSION:{
             uint8_t soft_version_len;
 
-            proto_tree_add_item(cap_tree, hf_bgp_cap_soft_version_len, tvb, offset, 1, ENC_NA);
-            soft_version_len = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(cap_tree, hf_bgp_cap_soft_version_len, tvb, offset, 1, ENC_NA, &soft_version_len);
             offset += 1;
 
             proto_tree_add_item(cap_tree, hf_bgp_cap_soft_version, tvb, offset, soft_version_len, ENC_ASCII);
@@ -11493,8 +11488,7 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
 
     /* print error code */
-    proto_tree_add_item(tree, hf_bgp_notify_major_error, tvb, offset, 1, ENC_BIG_ENDIAN);
-    major_error = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_bgp_notify_major_error, tvb, offset, 1, ENC_BIG_ENDIAN, &major_error);
     offset += 1;
 
     switch(major_error){

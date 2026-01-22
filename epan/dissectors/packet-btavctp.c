@@ -162,14 +162,12 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     offset++;
 
     if (packet_type == PACKET_TYPE_START) {
-        proto_tree_add_item(btavctp_tree, hf_btavctp_number_of_packets,  tvb, offset, 1, ENC_BIG_ENDIAN);
-        number_of_packets = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(btavctp_tree, hf_btavctp_number_of_packets,  tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_packets);
         offset++;
     }
 
     if (packet_type == PACKET_TYPE_SINGLE || packet_type == PACKET_TYPE_START) {
-        proto_tree_add_item(btavctp_tree, hf_btavctp_pid,  tvb, offset, 2, ENC_BIG_ENDIAN);
-        pid = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item_ret_uint(btavctp_tree, hf_btavctp_pid,  tvb, offset, 2, ENC_BIG_ENDIAN, &pid);
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID ) == NULL) {
             char *value_data;

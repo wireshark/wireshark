@@ -838,8 +838,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
             break;
         case 0x17: /* Link PDU Trace */
-            proto_tree_add_item(main_tree, hf_intel_link_pdu_trace_type, tvb, offset, 1, ENC_NA);
-            type = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(main_tree, hf_intel_link_pdu_trace_type, tvb, offset, 1, ENC_NA, &type);
             offset += 1;
 
             proto_tree_add_item(main_tree, hf_intel_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);

@@ -708,8 +708,7 @@ dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info 
 {
     uint8_t down_reason;
 
-    down_reason = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_peer_down_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_peer_down_reason, tvb, offset, 1, ENC_BIG_ENDIAN, &down_reason);
     offset += 1;
 
     /* bmp version 3 */

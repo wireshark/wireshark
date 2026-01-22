@@ -1289,8 +1289,8 @@ dissect_capwap_data_message_bindings_ieee80211(tvbuff_t *tvb, proto_tree *data_m
 
         proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi_snr, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
-        ti = proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi_data_rate, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-        data_rate = tvb_get_ntohs(tvb, offset+2);
+        ti = proto_tree_add_item_ret_uint16(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi_data_rate, tvb, offset+2, 2,
+                                            ENC_BIG_ENDIAN, &data_rate);
         proto_item_append_text(ti, " (%.1f Mb/s)", ((float)data_rate / 10));
     }
     else
@@ -1555,8 +1555,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
 {
     unsigned element_id, i;
 
-    proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-    element_id = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint(sub_msg_element_type_tree, hf_capwap_fortinet_element_id, tvb, offset, 2, ENC_BIG_ENDIAN, &element_id);
     proto_item_append_text(msg_element_type_item, ": Fortinet %s", val_to_str(pinfo->pool, element_id, fortinet_element_id_vals,"Unknown Vendor Specific Element Type (%02d)") );
     offset += 2;
 
@@ -1650,8 +1649,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
         break;
         case VSP_FORTINET_MGMT_VAP:{ /* 50 */
             uint16_t sn_length;
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_sn_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-            sn_length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_sn_length, tvb, offset, 2, ENC_BIG_ENDIAN, &sn_length);
             offset += 2;
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_sn, tvb, offset, sn_length, ENC_ASCII);
             offset += sn_length;
@@ -2063,8 +2061,7 @@ dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_
 {
     unsigned element_id;
 
-    proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-    element_id = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint(sub_msg_element_type_tree, hf_capwap_cisco_element_id, tvb, offset, 2, ENC_BIG_ENDIAN, &element_id);
     proto_item_append_text(msg_element_type_item, ": Cisco %s", val_to_str(pinfo->pool, element_id, cisco_element_id_vals,"Unknown Vendor Specific Element Type (%02d)") );
     offset += 2;
 
@@ -2527,8 +2524,8 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_descriptor_radio_in_use, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         if (global_capwap_draft_8_cisco == 0)
         {
-            number_encrypt = tvb_get_uint8(tvb,offset+6);
-            msg_element_type_item_flag = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_descriptor_number_encrypt, tvb, offset+6, 1, ENC_BIG_ENDIAN);
+            msg_element_type_item_flag = proto_tree_add_item_ret_uint(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_descriptor_number_encrypt,
+                                                                      tvb, offset+6, 1, ENC_BIG_ENDIAN, &number_encrypt);
             sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_encryption_capabilities);
             for (i=0; i < number_encrypt; i++) {
                 dissect_capwap_encryption_capabilities(tvb, sub_msg_element_type_flag_tree, offset+4+3+i*3);

@@ -117,11 +117,9 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 
   proto_tree_add_item(ziop_tree, hf_ziop_magic, tvb, offset, 4, ENC_ASCII);
   offset += 4;
-  proto_tree_add_item(ziop_tree, hf_ziop_giop_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
-  giop_version_major = tvb_get_uint8(tvb, offset);
+  proto_tree_add_item_ret_uint8(ziop_tree, hf_ziop_giop_version_major, tvb, offset, 1, ENC_BIG_ENDIAN, &giop_version_major);
   offset++;
-  proto_tree_add_item(ziop_tree, hf_ziop_giop_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
-  giop_version_minor = tvb_get_uint8(tvb, offset);
+  proto_tree_add_item_ret_uint8(ziop_tree, hf_ziop_giop_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN, &giop_version_minor);
   offset++;
 
   if ( (giop_version_major < 1) ||
@@ -149,8 +147,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
                                         flags, "0x%02x (%s)", flags, label);
   offset++;
 
-  proto_tree_add_item(ziop_tree, hf_ziop_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-  message_type = tvb_get_uint8(tvb, offset);
+  proto_tree_add_item_ret_uint8(ziop_tree, hf_ziop_message_type, tvb, offset, 1, ENC_BIG_ENDIAN, &message_type);
   offset++;
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s",

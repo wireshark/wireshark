@@ -1319,8 +1319,7 @@ parse_vol_bitmap (proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t bitmap)
 		offset += 4;
 	}
 	if ((bitmap & kFPVolNameBit)) {
-		nameoff = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_vol_name_offset,tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_afp_vol_name_offset,tvb, offset, 2, ENC_BIG_ENDIAN, &nameoff);
 		offset += 2;
 	}
 	if ((bitmap & kFPVolExtBytesFreeBit)) {
@@ -1337,7 +1336,7 @@ parse_vol_bitmap (proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t bitmap)
 	}
 	if (nameoff) {
 		uint8_t len;
-
+		/* TODO: this doesn't look right! */
 		len = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(tree, hf_afp_vol_name, tvb, offset, 1, ENC_UTF_8|ENC_BIG_ENDIAN);
 		offset += len +1;
@@ -2645,8 +2644,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += len;
 
 	/* directory service */
-	path_type = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_path_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_afp_path_type, tvb, offset, 1, ENC_BIG_ENDIAN, &path_type);
 	offset++;
 	/* FIXME use 16 bit len + unicode from smb dissector */
 	switch (path_type) {
@@ -2659,8 +2657,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += len;
 		break;
 	case 3:
-		len = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item( tree, hf_afp_path_unicode_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16( tree, hf_afp_path_unicode_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
 		offset += 2;
 		proto_tree_add_item(tree, hf_afp_path_name, tvb, offset, len, ENC_UTF_8);
 		offset += len;

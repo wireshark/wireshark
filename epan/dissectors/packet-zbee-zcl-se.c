@@ -13329,9 +13329,8 @@ dissect_zcl_device_management_set_event_configuration(proto_tree *tree, tvbuff_t
     /* Event Configuration Payload */
     switch (config_control) {
         case ZBEE_ZCL_DEVICE_MANAGEMENT_CONFIGURATION_CONTROL_APPLY_BY_LIST:
-            number_of_events = tvb_get_uint8(tvb, *offset);
             /* Number of Events */
-            proto_tree_add_item(tree, hf_zbee_zcl_device_management_set_event_configuration_event_configuration_number_of_events, tvb, *offset, 1, ENC_NA);
+            proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_device_management_set_event_configuration_event_configuration_number_of_events, tvb, *offset, 1, ENC_NA, &number_of_events);
             *offset += 1;
 
             /* Event IDs */
