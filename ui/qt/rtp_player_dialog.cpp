@@ -1306,10 +1306,20 @@ void RtpPlayerDialog::updateGraphs()
 
 void RtpPlayerDialog::playFinished(RtpAudioStream *stream, QAudio::Error error)
 {
-    if ((error != QAudio::NoError) && (error != QAudio::UnderrunError)) {
-        setPlaybackError(tr("Playback of stream %1 failed!")
-            .arg(stream->getIDAsQString())
-        );
+    if (error != QAudio::NoError) {
+#if (QT_VERSION < QT_VERSION_CHECK(6, 11, 0))
+        if (error != QAudio::UnderrunError) {
+            setPlaybackError(tr("Playback of stream %1 failed!")
+                .arg(stream->getIDAsQString())
+            );
+        }
+#else
+        if (stream->outputState() != QAudio::IdleState) {
+            setPlaybackError(tr("Playback of stream %1 failed!")
+                .arg(stream->getIDAsQString())
+            );
+        }
+#endif // QT_VERSION < QT_VERSION_CHECK(6,11,0)
     }
     playing_streams_.removeOne(stream);
     if (playing_streams_.isEmpty()) {
