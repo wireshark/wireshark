@@ -15,10 +15,10 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 #include <wsutil/ws_roundup.h>
 #include "packet-wccp.h"
-#include "data-iana.h"
 
 void proto_register_wccp(void);
 void proto_reg_handoff_wccp(void);

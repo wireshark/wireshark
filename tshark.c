@@ -69,9 +69,8 @@
 #include <epan/decode_as.h>
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
-#include <epan/enterprises.h>
+#include <epan/iana-info.h>
 #include <epan/manuf.h>
-#include <epan/services.h>
 #include <epan/secrets.h>
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"

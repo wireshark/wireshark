@@ -36,6 +36,7 @@
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 
 #include "packet-tcp.h"
 #include "packet-cip.h"
@@ -44,7 +45,6 @@
 #include "packet-dtls.h"
 #include "packet-tls.h"
 #include "packet-tls-utils.h"
-#include "data-iana.h"
 
 void proto_register_enip(void);
 void proto_reg_handoff_enip(void);

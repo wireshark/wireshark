@@ -15,10 +15,10 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/uuid_types.h>
+#include <epan/iana-info.h>
 #include "packet-rpc.h"
 #include "packet-portmap.h"
 #include "packet-ip.h"
-#include "data-iana.h"
 
 /*
  * See:

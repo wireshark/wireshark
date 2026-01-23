@@ -47,6 +47,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/array.h>
 #include <wsutil/str_util.h>
@@ -56,7 +57,6 @@
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
 #include "packet-ip.h"
-#include "data-iana.h"
 
 void proto_register_mip6(void);
 void proto_reg_handoff_mip6(void);

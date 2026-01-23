@@ -29,13 +29,13 @@
 #include <epan/srt_table.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 #include <proto.h>
 #include <tvbuff.h>
 #include <wsutil/array.h>
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-ip.h"
-#include "data-iana.h"
 
 void proto_register_pfcp(void);
 void proto_reg_handoff_pfcp(void);

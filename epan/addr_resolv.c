@@ -23,7 +23,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>
 
-#include "enterprises.h"
+#include "iana-info.h"
 #include "manuf.h"
 
 /*
@@ -95,7 +95,6 @@
 #include <epan/maxmind_db.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
-#include "services.h"
 
 #define ENAME_HOSTS     "hosts"
 #define ENAME_SUBNETS   "subnets"
@@ -1119,12 +1118,10 @@ try_enterprises_lookup(uint32_t value)
 {
     /* Trying extra entries first. N.B. This does allow entries to be overwritten and found.. */
     const char *name = (const char *)g_hash_table_lookup(enterprises_hashtable, GUINT_TO_POINTER(value));
-    if (name) {
+    if (name)
         return name;
-    }
-    else {
-        return global_enterprises_lookup(value);
-    }
+
+    return val_to_str_ext_const(value, &enterprise_val_ext, "Unknown");
 }
 
 const char *

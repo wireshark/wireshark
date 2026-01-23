@@ -28,10 +28,10 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
 #include "packet-ppp.h"
-#include "data-iana.h"
 
 
 /* Store the last connection number we've seen.

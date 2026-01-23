@@ -22,12 +22,12 @@
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/array.h>
 #include <wsutil/ws_padding_to.h>
 
 #include "packet-tcp.h"
-#include "data-iana.h"
 
 void proto_register_xmcp(void);
 

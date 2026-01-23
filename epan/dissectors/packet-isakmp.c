@@ -43,13 +43,13 @@
 #include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/str_util.h>
 #include "packet-x509if.h"
 #include "packet-x509af.h"
 #include "packet-gsm_a_common.h"
 #include "packet-isakmp.h"
 #include "packet-ber.h"
-#include "data-iana.h"
 
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/array.h>

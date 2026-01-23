@@ -11,9 +11,9 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 #include "packet-e212.h"
 #include "packet-tls.h"
-#include "data-iana.h"
 
 void proto_reg_handoff_li5g(void);
 void proto_register_li5g(void);

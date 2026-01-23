@@ -29,6 +29,7 @@
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
@@ -38,7 +39,6 @@
 #include <wsutil/ws_assert.h>
 
 #include "packet-tcp.h"
-#include "data-iana.h"
 
 
 void proto_register_tcp(void);

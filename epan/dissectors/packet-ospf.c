@@ -66,12 +66,12 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/ws_roundup.h>
 #include <wsutil/ws_padding_to.h>
 
 #include "packet-rsvp.h"
-#include "data-iana.h"
 
 void proto_register_ospf(void);
 void proto_reg_handoff_ospf(void);

@@ -27,9 +27,9 @@
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include <epan/iana-info.h>
 #include "packet-rohc.h"
 #include "packet-rtp_pt.h"
-#include "data-iana.h"
 
 void proto_register_rohc(void);
 void proto_reg_handoff_rohc(void);

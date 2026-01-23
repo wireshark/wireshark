@@ -22,10 +22,10 @@
 #include <epan/to_str.h>
 #include <epan/aftypes.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/ws_padding_to.h>
 
-#include "data-iana.h"
 
 void proto_register_dtpt(void);
 

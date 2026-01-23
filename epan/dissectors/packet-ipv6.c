@@ -35,12 +35,12 @@
 #include <epan/to_str.h>
 #include <epan/exported_pdu.h>
 #include <epan/exceptions.h>
-#include <epan/iana-ip.h>
+#include <epan/iana-info.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 
 #include <wiretap/erf_record.h>
-#include "data-iana.h"
 #include "packet-ip.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"

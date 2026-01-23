@@ -21,12 +21,12 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 
 #include <wsutil/str_util.h>
 #include "packet-frame.h"
 #include "packet-osi.h"
-#include "data-iana.h"
 
 void proto_register_cotp(void);
 void proto_register_cltp(void);

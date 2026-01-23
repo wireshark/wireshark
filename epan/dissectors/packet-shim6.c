@@ -18,9 +18,9 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include <epan/in_cksum.h>
+#include <epan/iana-info.h>
 
 #include "packet-ip.h"
-#include "data-iana.h"
 
 void proto_register_shim6(void);
 void proto_reg_handoff_shim6(void);

@@ -27,7 +27,7 @@
 #include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include "packet-acdr.h"
-#include "data-iana.h"
+#include <epan/iana-info.h>
 
 #define ACDR_VERSION_MAJOR 0
 #define ACDR_VERSION_MINOR 9

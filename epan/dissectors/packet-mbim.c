@@ -46,13 +46,13 @@
 #include <epan/conversation.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 #include <wiretap/wtap.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
 #include "packet-usb.h"
 #include "packet-mbim.h"
-#include "data-iana.h"
 
 
 void proto_register_mbim(void);

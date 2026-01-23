@@ -32,11 +32,11 @@
 #include <epan/tvbuff.h>
 #include <epan/strutil.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 #include <wsutil/to_str.h>
 
 #include "packet-tcp.h"
 #include "packet-udp.h"
-#include "data-iana.h"
 #include "packet-knxip.h"
 #include "packet-knxip_decrypt.h"
 

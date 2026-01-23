@@ -22,11 +22,11 @@
 #include <epan/reassemble.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/array.h>
 
 #include "packet-ip.h"
-#include "data-iana.h"
 
 static bool pref_reassemble = true;
 static bool pref_check_checksum;

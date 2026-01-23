@@ -56,6 +56,7 @@
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 
 #include <wsutil/crc32.h>
@@ -65,7 +66,6 @@
 #include <wsutil/ws_roundup.h>
 
 #include "packet-sctp.h"
-#include "data-iana.h"
 
  /*
   * Based on https://www.iana.org/assignments/sctp-parameters/sctp-parameters.xhtml

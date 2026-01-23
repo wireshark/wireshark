@@ -33,7 +33,7 @@
 #include <epan/conversation_filter.h>
 #include <epan/exported_pdu.h>
 #include <epan/decode_as.h>
-#include "data-iana.h"
+#include <epan/iana-info.h>
 
 void proto_register_udp(void);
 void proto_reg_handoff_udp(void);

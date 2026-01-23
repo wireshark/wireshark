@@ -21,7 +21,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-sctp.h"
-#include "data-iana.h"
+#include <epan/iana-info.h>
 
 
 void proto_register_componentstatusprotocol(void);

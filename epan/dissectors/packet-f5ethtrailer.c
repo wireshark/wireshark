@@ -196,8 +196,8 @@ Notes:
 #include <epan/proto_data.h>
 #include <epan/conversation_filter.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 
-#include "data-iana.h"
 #include "packet-ip.h"
 #include "packet-tcp.h"
 #include <epan/to_str.h>

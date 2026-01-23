@@ -13,7 +13,7 @@
 #include <wireshark.h>
 #include <wsutil/plugins.h>
 #include <epan/dfilter/dfilter-plugin.h>
-#include <epan/iana-ip.h>
+#include <epan/iana-info.h>
 #include <epan/exceptions.h>
 
 #ifndef PLUGIN_VERSION
@@ -85,15 +85,15 @@ df_func_ip_special_mask(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval
         if (ptr == NULL)
             continue;
         mask = 0;
-        if (ptr->reserved > 0)
+        if (ptr->reserved)
             mask |= (1UL << 0);
-        if (ptr->global > 0)
+        if (ptr->global)
             mask |= (1UL << 1);
-        if (ptr->forwardable > 0)
+        if (ptr->forwardable)
             mask |= (1UL << 2);
-        if (ptr->destination > 0)
+        if (ptr->destination)
             mask |= (1UL << 3);
-        if (ptr->source > 0)
+        if (ptr->source)
             mask |= (1UL << 4);
         fv_res = fvalue_new(FT_UINT32);
         fvalue_set_uinteger(fv_res, mask);

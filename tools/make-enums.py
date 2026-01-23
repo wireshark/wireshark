@@ -84,7 +84,7 @@ static ws_enum_t const all_enums[] = {
 
 epan_files = [
     "epan/address.h",
-    "epan/dissectors/data-iana.h",
+    "epan/iana-info.h",
     "epan/ftypes/ftypes.h",
     "epan/proto.h",         # PyClibrary 0.3.0 needs this after ftypes.h
     "epan/stat_groups.h",

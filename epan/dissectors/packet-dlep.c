@@ -29,9 +29,9 @@
 #include <epan/to_str.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include <epan/iana-info.h>
 
 #include "packet-tcp.h"
-#include "data-iana.h"
 
 /* Section 13: DLEP Data Items */
 

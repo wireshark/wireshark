@@ -17,8 +17,8 @@
 #include <epan/in_cksum.h>
 #include <epan/to_str.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
-#include "data-iana.h"
 #include "packet-igmp.h"
 
 void proto_register_pim(void);

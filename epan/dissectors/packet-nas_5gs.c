@@ -23,6 +23,7 @@
 #include <epan/to_str.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/array.h>
 #include <wsutil/pow2.h>
@@ -31,7 +32,6 @@
 
 #include "packet-gsm_a_common.h"
 #include "packet-media-type.h"
-#include "data-iana.h"
 #include "packet-tcp.h"
 
 void proto_register_nas_5gs(void);

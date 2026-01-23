@@ -110,11 +110,11 @@
 #include <epan/to_str.h>
 #include <epan/in_cksum.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 
 #include <wsutil/str_util.h>
 #include "packet-igmp.h"
-#include "data-iana.h"
 
 
 void proto_register_igmp(void);

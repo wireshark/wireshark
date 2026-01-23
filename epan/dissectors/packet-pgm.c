@@ -19,9 +19,9 @@
 #include <epan/ptvcursor.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 
-#include "data-iana.h"
 /*
  * RFC 3208
  *

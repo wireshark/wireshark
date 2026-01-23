@@ -15,13 +15,13 @@
 #include <epan/prefs.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 #include <wsutil/str_util.h>
 #include <wiretap/wtap.h>
 #include <wiretap/erf_record.h>
 
 #include "packet-erf.h"
 #include "packet-ptp.h"
-#include "data-iana.h"
 
 /*
 */

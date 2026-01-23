@@ -33,10 +33,10 @@
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 #include <wsutil/pint.h>
 
-#include "data-iana.h"
 #include "packet-ip.h"
 #include "packet-icmp.h"
 

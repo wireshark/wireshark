@@ -34,9 +34,9 @@
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 
-#include "data-iana.h"
 #include "packet-diffserv-mpls-common.h"
 #include "packet-ldp.h"
 

@@ -101,6 +101,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
@@ -110,7 +111,6 @@
 #include "packet-ip.h"
 #include "packet-diffserv-mpls-common.h"
 #include "packet-osi.h"
-#include "data-iana.h"
 
 /* RSVP over UDP encapsulation */
 #define UDP_PORT_PRSVP 3455

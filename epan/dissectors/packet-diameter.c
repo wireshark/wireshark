@@ -58,7 +58,7 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <wsutil/strtoi.h>
-#include "data-iana.h"
+#include <epan/iana-info.h>
 #include "packet-tcp.h"
 #include "packet-diameter.h"
 #include "packet-tls.h"
@@ -1177,7 +1177,7 @@ address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *dia
 	len = len-2;
 
 	proto_tree_add_item_ret_uint(pt, t->hf_address_type, tvb, 0, 2, ENC_NA, &addr_type);
-	/* See data-iana.h and https://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml */
+	/* See iana-info.h and https://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml */
 	switch (addr_type ) {
 		case AFNUM_IP:
 			if (len != 4) {

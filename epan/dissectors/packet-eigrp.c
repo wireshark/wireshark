@@ -18,12 +18,12 @@
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 
 #include "packet-eigrp.h"
 #include "packet-ipx.h"
 #include "packet-atalk.h"
-#include "data-iana.h"
 
 /*
  * Originally Cisco proprietary; now the subject of RFC 7868.

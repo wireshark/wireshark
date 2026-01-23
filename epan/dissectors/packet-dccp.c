@@ -60,7 +60,7 @@
 #include <wsutil/str_util.h>
 
 #include "packet-dccp.h"
-#include "data-iana.h"
+#include <epan/iana-info.h>
 
 /*
  * Some definitions and the dissect_options() logic have been taken

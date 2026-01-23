@@ -36,7 +36,7 @@
 #include "packet-nsh.h"
 #include "packet-acdr.h"
 #include "packet-mctp.h"
-#include "data-iana.h"
+#include <epan/iana-info.h>
 #include <epan/crc32-tvb.h>
 #include <wiretap/erf_record.h>
 

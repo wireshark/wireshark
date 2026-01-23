@@ -79,7 +79,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	iana_charsets.h
 	in_cksum.h
 	introspection.h
-	iana-ip.h
+	iana-info.h
 	ip_opts.h
 	maxmind_db.h
 	media_params.h
@@ -160,7 +160,6 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	disabled_protos.c
 	conversation_filter.c
 	dvb_chartbl.c
-	enterprises.c
 	epan.c
 	ex-opt.c
 	except.c
@@ -178,7 +177,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	golay.c
 	guid-utils.c
 	iana_charsets.c
-	iana-ip.c
+	iana-info.c
 	in_cksum.c
 	introspection.c
 	manuf.c
@@ -203,7 +202,6 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	rtd_table.c
 	secrets.c
 	sequence_analysis.c
-	services.c
 	show_exception.c
 	srt_table.c
 	stat_tap_ui.c

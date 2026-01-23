@@ -17,9 +17,9 @@
 #include <epan/etypes.h>
 #include <epan/crc32-tvb.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 #include <wsutil/crc32.h>
-#include "data-iana.h"
 
 void proto_reg_handoff_qnet6(void);
 void proto_register_qnet6(void);

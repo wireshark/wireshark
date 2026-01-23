@@ -19,7 +19,7 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/ws_roundup.h>
-#include "data-iana.h"
+#include <epan/iana-info.h>
 
 void proto_register_openflow_v6(void);
 void proto_reg_handoff_openflow_v6(void);

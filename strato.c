@@ -66,9 +66,8 @@
 #include <epan/decode_as.h>
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
-#include <epan/enterprises.h>
+#include <epan/iana-info.h>
 #include <epan/manuf.h>
-#include <epan/services.h>
 #include <epan/secrets.h>
 #include "ui/taps.h"
 #include "ui/util.h"

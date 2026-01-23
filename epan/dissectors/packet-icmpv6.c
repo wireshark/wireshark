@@ -36,6 +36,7 @@
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 #include <wsutil/pow2.h>
 
@@ -47,7 +48,6 @@
 #include "packet-ieee802154.h"
 #include "packet-6lowpan.h"
 #include "packet-ip.h"
-#include "data-iana.h"
 
 void proto_register_icmpv6(void);
 void proto_reg_handoff_icmpv6(void);

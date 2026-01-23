@@ -75,11 +75,11 @@
 #include <epan/etypes.h>
 #include <epan/to_str.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 #include "packet-ppp.h"
 #include "packet-llc.h"
 #include "packet-arcnet.h"
-#include "data-iana.h"
 
 
 void proto_register_vines_frp(void);

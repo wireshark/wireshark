@@ -32,11 +32,11 @@
 #include <epan/proto_data.h>
 #include <epan/exported_pdu.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 #include <wiretap/erf_record.h>
 #include <wsutil/str_util.h>
 
-#include "data-iana.h"
 #include "packet-ip.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"

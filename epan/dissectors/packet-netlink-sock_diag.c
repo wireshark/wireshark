@@ -14,9 +14,9 @@
 #include <epan/etypes.h>
 #include <epan/strutil.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 #include "packet-netlink.h"
-#include "data-iana.h"
 
 void proto_register_netlink_sock_diag(void);
 void proto_reg_handoff_netlink_sock_diag(void);

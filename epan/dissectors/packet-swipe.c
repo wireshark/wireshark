@@ -15,7 +15,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include "data-iana.h"
+#include <epan/iana-info.h>
 
 void proto_register_swipe(void);
 void proto_reg_handoff_swipe(void);

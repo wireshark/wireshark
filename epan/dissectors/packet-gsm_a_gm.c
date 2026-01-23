@@ -104,13 +104,13 @@
 #include <epan/etypes.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 #include "packet-ber.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 #include "packet-ppp.h"
 #include "packet-e164.h"
-#include "data-iana.h"
 
 void proto_register_gsm_a_gm(void);
 void proto_reg_handoff_gsm_a_gm(void);

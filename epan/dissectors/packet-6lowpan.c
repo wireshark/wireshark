@@ -26,7 +26,7 @@
 #include <epan/etypes.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
-#include "data-iana.h"
+#include <epan/iana-info.h>
 #include "packet-ip.h"
 #include "packet-6lowpan.h"
 #include "packet-btl2cap.h"

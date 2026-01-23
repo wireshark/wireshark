@@ -23,12 +23,12 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/ws_roundup.h>
 
 #include "packet-nsh.h"
 #include "packet-vxlan.h"
-#include "data-iana.h"
 
 #define MD_TYPE_1 1
 #define MD_TYPE_2 2

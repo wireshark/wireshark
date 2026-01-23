@@ -45,13 +45,13 @@
 #include <epan/etypes.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/array.h>
 #include <wsutil/ws_roundup.h>
 #include <wsutil/ws_padding_to.h>
 
 #include "packet-sflow.h"
-#include "data-iana.h"
 
 #define SFLOW_UDP_PORTS "6343"
 

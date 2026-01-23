@@ -45,6 +45,7 @@
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/iana-info.h>
 
 #include "packet-ppp.h"
 #include "packet-mpls.h"
@@ -55,7 +56,6 @@
 #include "packet-l2tp.h"
 #include "packet-vxlan.h"
 #include "packet-nsh.h"
-#include "data-iana.h"
 
 
 void proto_register_mpls(void);

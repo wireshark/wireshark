@@ -17,9 +17,9 @@
 #include <epan/in_cksum.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/array.h>
-#include "data-iana.h"
 
 void proto_register_xip_serval(void);
 void proto_reg_handoff_xip_serval(void);

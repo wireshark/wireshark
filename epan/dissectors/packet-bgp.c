@@ -78,7 +78,7 @@
 #include <epan/tfs.h>
 #include <epan/exceptions.h>
 #include <wsutil/str_util.h>
-#include "data-iana.h"
+#include <epan/iana-info.h>
 #include "packet-ip.h"
 #include "packet-tcp.h"
 #include "packet-ldp.h"

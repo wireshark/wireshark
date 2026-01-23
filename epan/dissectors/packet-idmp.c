@@ -23,12 +23,12 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
+#include <epan/iana-info.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/array.h>
 
 #include "packet-tcp.h"
-#include "data-iana.h"
 
 #include "packet-ber.h"
 #include "packet-ros.h"

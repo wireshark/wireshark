@@ -39,7 +39,7 @@
 #include <epan/tfs.h>
 #include "packet-ax25.h"
 #include "packet-xdlc.h"
-#include "data-iana.h"
+#include <epan/iana-info.h>
 
 #define STRLEN	80
 

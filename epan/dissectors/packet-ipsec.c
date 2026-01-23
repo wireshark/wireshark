@@ -73,13 +73,13 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <wiretap/secrets-types.h>
 #include <stdio.h>    /* for sscanf() */
 #include <epan/uat-int.h>
+#include <epan/iana-info.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/pint.h>
 
 #include "packet-ipsec.h"
 #include "packet-ip.h"
-#include "data-iana.h"
 
 void proto_register_ipsec(void);
 void proto_reg_handoff_ipsec(void);

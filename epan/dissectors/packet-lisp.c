@@ -18,9 +18,9 @@
 #include <epan/oui.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <epan/iana-info.h>
 #include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
-#include "data-iana.h"
 
 void proto_register_lisp(void);
 void proto_reg_handoff_lisp(void);
