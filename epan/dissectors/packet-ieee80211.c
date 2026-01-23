@@ -814,16 +814,16 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_MULTIPLE_AOD_FEEDBACK,               "Multiple AOD Feedback" },
   { ETAG_MULTIPLE_BEST_AWV_ID,                "Multiple Best AWV ID" },
   { ETAG_LOS_LIKELIHOOD,                      "LOS Likelihood" },
-  { ETAG_EHT_OPERATION,                       "EHT Operation (802.11be D3.0)" },
-  { ETAG_MULTI_LINK,                          "Multi-Link (802.11be D3.0)" },
-  { ETAG_EHT_CAPABILITIES,                    "EHT Capabilities (802.11be D3.0)" },
-  { ETAG_TID_TO_LINK_MAPPING,                 "TID-To-Link Mapping (802.11be D3.0)" },
-  { ETAG_MULTI_LINK_TRAFFIC,                  "Multi-Link Traffic Indication (802.11be D3.0)" },
-  { ETAG_QOS_CHARACTERISTICS,                 "QoS Characteristics (802.11be D3.0)" },
+  { ETAG_EHT_OPERATION,                       "EHT Operation" },
+  { ETAG_MULTI_LINK,                          "Multi-Link" },
+  { ETAG_EHT_CAPABILITIES,                    "EHT Capabilities" },
+  { ETAG_TID_TO_LINK_MAPPING,                 "TID-To-Link Mapping" },
+  { ETAG_MULTI_LINK_TRAFFIC,                  "Multi-Link Traffic Indication" },
+  { ETAG_QOS_CHARACTERISTICS,                 "QoS Characteristics" },
   { ETAG_AKM_SUITE_SELECTOR,                  "AKM Suite Selector" },
-  { ETAG_MLO_LINK_INFORMATION,                "MLO Link Information (802.11be D3.0)" },
-  { ETAG_AID_BITMAP,                          "AID Bitmap (802.11be D3.0)" },
-  { ETAG_BANDWIDTH_INDICATION,                "Bandwidth Indication (802.11be D3.0)" },
+  { ETAG_MLO_LINK_INFORMATION,                "MLO Link Information" },
+  { ETAG_AID_BITMAP,                          "AID Bitmap" },
+  { ETAG_BANDWIDTH_INDICATION,                "Bandwidth Indication" },
   { ETAG_NONAP_STA_REGULATORY_CONNECT,        "Non-AP STA Regulatory Connectivity" },
   { 0, NULL }
 };
@@ -1151,6 +1151,7 @@ static const value_string ieee80211_status_code[] = {
   { 139, "Link not accepted because the link on which the (Re)Association Request frame is transmitted is not accepted"},
   { 140, "EPCS priority access is temporarily denied because the receiving AP MLD is unable to verify that the non-AP MLD is authorized for an unspecified reason"},
   { 141, "Operation parameter update denied because the requested operation parameters or capabilities are not acceptable"},
+  { 142, "The non-AP STA MAC address is used by an existing associated non-AP STA"},
   {   0, NULL}
 };
 value_string_ext ieee80211_status_code_ext = VALUE_STRING_EXT_INIT(ieee80211_status_code);
@@ -4703,12 +4704,12 @@ static int hf_ieee80211_eht_common_info_medium_sync_threshold;
 static int hf_ieee80211_eht_common_info_medium_sync_max_txops;
 static int hf_ieee80211_eht_common_field_eml_capabilities;
 static int hf_ieee80211_eht_common_info_eml_capa_emlsr_support;
-static int hf_ieee80211_eht_common_info_eml_capa_emlsr_padding_delay;
-static int hf_ieee80211_eht_common_info_eml_capa_emlsr_transition_delay;
+static int hf_ieee80211_eht_common_info_eml_capa_emlsr_emlmr_padding_delay;
+static int hf_ieee80211_eht_common_info_eml_capa_emlsr_emlmr_transition_delay;
 static int hf_ieee80211_eht_common_info_eml_capa_emlmr_support;
-static int hf_ieee80211_eht_common_info_eml_capa_emlmr_delay;
+static int hf_ieee80211_eht_common_info_eml_capa_reserved1;
 static int hf_ieee80211_eht_common_info_eml_capa_transition_timeout;
-static int hf_ieee80211_eht_common_info_eml_capa_reserved;
+static int hf_ieee80211_eht_common_info_eml_capa_reserved2;
 static int hf_ieee80211_eht_common_field_mld_capabilities;
 static int hf_ieee80211_eht_common_info_mld_max_simul_links;
 static int hf_ieee80211_eht_common_info_mld_srs_support;
@@ -18675,7 +18676,7 @@ add_ff_eht_mimo_control_etc(proto_tree *tree _U_, tvbuff_t *tvb _U_,
    * Validate nc_index and nr_index and go no further if they exceed the
    * limits.
    *
-   * 802.11be D3.0
+   * 802.11be
    */
   if (nc_index > 7) {
     expert_add_info_format(pinfo, mci, &ei_ieee80211_eht_invalid_nc_nr,
@@ -29201,12 +29202,12 @@ static int * const eht_medium_sync_delay_hdrs[] = {
 
 static int * const eht_eml_capabilities_hdrs[] = {
   &hf_ieee80211_eht_common_info_eml_capa_emlsr_support,
-  &hf_ieee80211_eht_common_info_eml_capa_emlsr_padding_delay,
-  &hf_ieee80211_eht_common_info_eml_capa_emlsr_transition_delay,
+  &hf_ieee80211_eht_common_info_eml_capa_emlsr_emlmr_padding_delay,
+  &hf_ieee80211_eht_common_info_eml_capa_emlsr_emlmr_transition_delay,
   &hf_ieee80211_eht_common_info_eml_capa_emlmr_support,
-  &hf_ieee80211_eht_common_info_eml_capa_emlmr_delay,
+  &hf_ieee80211_eht_common_info_eml_capa_reserved1,
   &hf_ieee80211_eht_common_info_eml_capa_transition_timeout,
-  &hf_ieee80211_eht_common_info_eml_capa_reserved,
+  &hf_ieee80211_eht_common_info_eml_capa_reserved2,
   NULL
 };
 
@@ -60434,14 +60435,14 @@ proto_register_ieee80211(void)
       "wlan.eht.multi_link.common_info.eml_capabilities.emlsr_support",
       FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_common_info_eml_capa_emlsr_padding_delay,
-     {"EMLSR Padding Delay",
-      "wlan.eht.multi_link.common_info.eml_capabilities.emlsr_padding_delay",
+    {&hf_ieee80211_eht_common_info_eml_capa_emlsr_emlmr_padding_delay,
+     {"EMLSR/EMLMR Padding Delay",
+      "wlan.eht.multi_link.common_info.eml_capabilities.emlsr_emlmr_padding_delay",
       FT_UINT16, BASE_DEC, NULL, 0x000E, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_common_info_eml_capa_emlsr_transition_delay,
-     {"EMLSR Transition Delay",
-      "wlan.eht.multi_link.common_info.eml_capabilities.emlsr_transition_delay",
+    {&hf_ieee80211_eht_common_info_eml_capa_emlsr_emlmr_transition_delay,
+     {"EMLSR/EMLMR Transition Delay",
+      "wlan.eht.multi_link.common_info.eml_capabilities.emlsr_emlmr_transition_delay",
       FT_UINT16, BASE_DEC, NULL, 0x0070, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_eml_capa_emlmr_support,
@@ -60449,9 +60450,9 @@ proto_register_ieee80211(void)
       "wlan.eht.multi_link.common_info.eml_capabilities.emlmr_support",
       FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_common_info_eml_capa_emlmr_delay,
-     {"EMLMR Delay",
-      "wlan.eht.multi_link.common_info.eml_capabilities.emlmr_delay",
+    {&hf_ieee80211_eht_common_info_eml_capa_reserved1,
+     {"Reserved",
+      "wlan.eht.multi_link.common_info.eml_capabilities.capa_reserved1",
       FT_UINT16, BASE_DEC, NULL, 0x0700, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_eml_capa_transition_timeout,
@@ -60459,9 +60460,9 @@ proto_register_ieee80211(void)
       "wlan.eht.multi_link.common_info.eml_capabilities.transition_timeout",
       FT_UINT16, BASE_DEC, NULL, 0x7800, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_common_info_eml_capa_reserved,
+    {&hf_ieee80211_eht_common_info_eml_capa_reserved2,
      {"Reserved",
-      "wlan.eht.multi_link.common_info.eml_capabilities.capa_reserved",
+      "wlan.eht.multi_link.common_info.eml_capabilities.capa_reserved2",
       FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_field_mld_capabilities,
@@ -60597,7 +60598,7 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, NULL, STA_CTRL_COMPLETE_PROFILE, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_mac_address_present,
-     {"MAC Address Present",
+     {"STA MAC Address Present",
       "wlan.eht.multi_link.sta_profile.sta_control.mac_address_present",
       FT_BOOLEAN, 16, NULL, STA_CTRL_MAC_ADDR_PRESENT, NULL, HFILL }},
 
@@ -60751,7 +60752,7 @@ proto_register_ieee80211(void)
       "In Octets unit", HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_operation_para_info_amsdu_length,
-     {"A-MSDU length",
+     {"Maximum A-MSDU length",
       "wlan.eht.multi_link.sta_profile.sta_info.operation_parameter_info.amsdu_length",
       FT_BOOLEAN, 16, TFS(&ht_max_amsdu_flag), 0x0004,
       NULL, HFILL }},
@@ -61078,7 +61079,7 @@ proto_register_ieee80211(void)
       FT_UINT24, BASE_DEC, NULL, 0x0007c0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_phy_bits_40_63_support_of_mcx_15,
-     {"Support Of MCS 15",
+     {"Support Of MCS 15 In MRU",
       "wlan.eht.phy_capabilities.bits_40_63.support_of_mcs_15",
       FT_UINT24, BASE_DEC, NULL, 0x007800, NULL, HFILL }},
 
@@ -61137,7 +61138,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_phy_bits_64_71,
      {"EHT PHY Bits 64-71", "wlan.eht.phy_capabilities.bits_64_71",
-      FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_phy_bits_64_71_rx_1024_qam_wid_bw_dl_ofdma_sup,
      {"Rx 1024-QAM In Wider Bandwidth DL OFDMA Support",
@@ -61146,7 +61147,7 @@ proto_register_ieee80211(void)
       0x01, NULL, HFILL }},
 
     {&hf_ieee80211_eht_phy_bits_64_71_rx_4096_qam_wid_bw_dl_ofdma_sup,
-     {"Rx 4096-QAM In Wider Bandwidth DL OFDMA SUpport",
+     {"Rx 4096-QAM In Wider Bandwidth DL OFDMA Support",
       "wlan.eht.phy_capabilities.bits_64_71.rx_4096_qam_in_wider_bw_dl_ofdma",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
       0x02, NULL, HFILL }},
@@ -61179,42 +61180,42 @@ proto_register_ieee80211(void)
        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_rx_max_nss_20mhz_0_7,
-     {"RX Max NSS That Supports EHt-MCS 0-7",
+     {"RX Max NSS That Supports EHT-MCS 0-7",
       "wlan.eht.supported_eht_mcs_bss_non_sta.rx_max_nss_supports_eht_mcs_0_7",
       FT_UINT32, BASE_HEX, NULL, 0x0000000F, NULL, HFILL }},
 
     {&hf_ieee80211_eht_tx_max_nss_20mhz_0_7,
-     {"TX Max NSS That Supports EHt-MCS 0-7",
+     {"TX Max NSS That Supports EHT-MCS 0-7",
       "wlan.eht.supported_eht_mcs_bss_non_sta.tx_max_nss_supports_eht_mcs_0_7",
       FT_UINT32, BASE_HEX, NULL, 0x000000F0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_rx_max_nss_20mhz_8_9,
-     {"RX Max NSS That Supports EHt-MCS 8-9",
+     {"RX Max NSS That Supports EHT-MCS 8-9",
       "wlan.eht.supported_eht_mcs_bss_non_sta.rx_max_nss_supports_eht_mcs_8_9",
       FT_UINT32, BASE_HEX, NULL, 0x00000F00, NULL, HFILL }},
 
     {&hf_ieee80211_eht_tx_max_nss_20mhz_8_9,
-     {"TX Max NSS That Supports EHt-MCS 8-9",
+     {"TX Max NSS That Supports EHT-MCS 8-9",
       "wlan.eht.supported_eht_mcs_bss_non_sta.tx_max_nss_supports_eht_mcs_8_9",
       FT_UINT32, BASE_HEX, NULL, 0x0000F000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_rx_max_nss_20mhz_10_11,
-     {"RX Max NSS That Supports EHt-MCS 10-11",
+     {"RX Max NSS That Supports EHT-MCS 10-11",
       "wlan.eht.supported_eht_mcs_bss_non_sta.rx_max_nss_supports_eht_mcs_10_11",
       FT_UINT32, BASE_HEX, NULL, 0x000F0000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_tx_max_nss_20mhz_10_11,
-     {"TX Max NSS That Supports EHt-MCS 10-11",
+     {"TX Max NSS That Supports EHT-MCS 10-11",
       "wlan.eht.supported_eht_mcs_bss_non_sta.tx_max_nss_supports_eht_mcs_10_11",
       FT_UINT32, BASE_HEX, NULL, 0x00F00000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_rx_max_nss_20mhz_12_13,
-     {"RX Max NSS That Supports EHt-MCS 12-13",
+     {"RX Max NSS That Supports EHT-MCS 12-13",
       "wlan.eht.supported_eht_mcs_bss_non_sta.rx_max_nss_supports_eht_mcs_12_13",
       FT_UINT32, BASE_HEX, NULL, 0x0F000000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_tx_max_nss_20mhz_12_13,
-     {"TX Max NSS That Supports EHt-MCS 12-13",
+     {"TX Max NSS That Supports EHT-MCS 12-13",
       "wlan.eht.supported_eht_mcs_bss_non_sta.tx_max_nss_supports_eht_mcs_12_13",
       FT_UINT32, BASE_HEX, NULL, 0xF0000000, NULL, HFILL }},
 
@@ -61367,7 +61368,7 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_ttl_mapping_presence,
-     {"Link Mapping Presence Indicator",
+     {"Link Mapping Presence Bitmap",
       "wlan.eht.tid_to_link_mapping.control.link_mapping_presence_indicator",
       FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
 
@@ -61412,7 +61413,7 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_traffic_control,
-     {"Multi-Link Traffic Control",
+     {"Multi-Link Traffic Indication Control",
       "wlan.eht.multi_link_traffic.traffic_control",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
@@ -61429,7 +61430,7 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_traffic_indication,
-     {"Traffic Indication List",
+     {"Per-Link Traffic Indication List",
       "wlan.eht.multi_link_traffic.traffic_indication_list",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
@@ -61496,7 +61497,7 @@ proto_register_ieee80211(void)
       FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_burst_size,
-     {"Burst Size", "wlan.eht.qos_characteristics.burst_size",
+     {"Delay Bounded Burst Size", "wlan.eht.qos_characteristics.burst_size",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_msdu_lifetime,
