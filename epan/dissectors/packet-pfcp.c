@@ -5,7 +5,7 @@
  * Copyright 2017-2018, Anders Broman <anders.broman@ericsson.com>
  *
  * Updates and corrections:
- * Copyright 2017-2025, Joakim Karlsson <oakimk@gmail.com>
+ * Copyright 2017-2026, Joakim Karlsson <oakimk@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V19.3.0 (2025-09-28)
+ * Ref 3GPP TS 29.244 V19.4.0 (2025-12)
  */
 #include "config.h"
 
@@ -2108,7 +2108,10 @@ static const value_string pfcp_ie_type[] = {
     { 396, "Session Reflector Mode (STAMP)"},                       /* 	Fixed / Clause 8.2.279	1 */
     { 397, "PFD Partial Failure Information"},                      /*  Extendable / Table 7.4.3.2-2	Not Applicable */
     { 398, "Transport Level Marking Indications"},                  /* 	Fixed / Clause 8.2.280	1 */
-    //399 to 32767 Spare. For future use.
+    { 399, "Redundant N3/N9 Transmission Information"},             /* 	Extendable / Table 7.5.8.6-5	Not Applicable */
+    { 400, "Local N3/N9 Tunnel Information"},                       /* 	Extendable / Table 7.5.8.6-6	Not Applicable */
+    { 401, "Remote N3/N9 Tunnel Information"},                      /* 	Extendable / Table 7.5.8.6-7	Not Applicable */
+    //402 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -11101,7 +11104,10 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    396 */    { dissect_pfcp_ie_not_decoded },                                /* Session Reflector Mode (STAMP)                   Fixed / Clause 8.2.279	1 */
 /*    397 */    { dissect_pfcp_ie_not_decoded },                                /* PFD Partial Failure Information                  Extendable / Table 7.4.3.2-2	Not Applicable */
 /*    398 */    { dissect_pfcp_ie_not_decoded },                                /* Transport Level Marking Indications              Fixed / Clause 8.2.280	1 */
-//354 to 32767 Spare. For future use.
+/*    399 */    { dissect_pfcp_ie_not_decoded },                                /* Redundant N3/N9 Transmission Information	Extendable / Table 7.5.8.6-5	Not Applicable */
+/*    400 */    { dissect_pfcp_ie_not_decoded },                                /* Local N3/N9 Tunnel Information 	                Extendable / Table 7.5.8.6-6	Not Applicable */
+/*    401 */    { dissect_pfcp_ie_not_decoded },                                /* Remote N3/N9 Tunnel Information 	                Extendable / Table 7.5.8.6-7	Not Applicable */
+//402 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
