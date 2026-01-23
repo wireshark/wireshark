@@ -53,6 +53,7 @@ private:
     int group_;
     int severity_;
     int hf_id_;
+    int row_;
     // Half-hearted attempt at conserving memory. If this isn't sufficient,
     // PacketListRecord interns column strings in a GStringChunk.
     QByteArray protocol_;
