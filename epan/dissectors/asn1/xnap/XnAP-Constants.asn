@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V18.6.0 (2025-06)
+-- 3GPP TS 38.423 V19.1.0 (2025-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -78,6 +78,15 @@ id-partialUEContextTransfer										ProcedureCode ::= 49
 id-rachIndication												ProcedureCode ::= 50
 id-dataCollectionReportingInitiation							ProcedureCode ::= 51
 id-dataCollectionReporting										ProcedureCode ::= 52
+id-ODSIB1ConfigurationProvision									ProcedureCode ::= 53
+id-ODSIB1ConfigurationProvisionStatusUpdate						ProcedureCode ::= 54
+id-lTMConfigurationUpdate										ProcedureCode ::= 55
+id-cSIRSCoordination											ProcedureCode ::= 56
+id-cellSwitchNotification										ProcedureCode ::= 57
+id-tAInformationTransfer										ProcedureCode ::= 58
+id-lTMCancel													ProcedureCode ::= 59
+id-cLI-Indication												ProcedureCode ::= 60
+id-scgFailureIndication											ProcedureCode ::= 61
 
 
 
@@ -213,6 +222,24 @@ maxnoofCAGforMDT							INTEGER ::= 256
 maxnoofMDTSNPNs								INTEGER ::= 16
 maxnoofSecurityConfigurations				INTEGER ::= 8
 maxnoofRSPPQoSFlows							INTEGER ::= 2048
+maxnoofThresholds							INTEGER ::= 8
+maxnoofEarlyRACHResourcesID					INTEGER	::= 8
+maxnoofLTMCells								INTEGER	::= 8
+maxNoSSBs									INTEGER	::= 255
+maxnoofTAList								INTEGER	::= 8
+maxnoofPreambleIndexes						INTEGER ::= 64
+maxnoofCSIResourceConfigurations			INTEGER ::= 112
+maxnoofNZP-CSI-RS-ResourcesPerSet			INTEGER ::= 64
+maxnoofSRS-Resource							INTEGER ::= 64
+maxnoofFailedSliceMeasObjects				INTEGER ::= 124
+maxnoofSliceItemsforMDT						INTEGER ::= 1024
+maxnoofAreaNTNforMDT						INTEGER ::= 32
+maxnoofLTMCellsPlusOne						INTEGER ::= 9
+maxnoofSCGSecurityConfigurations			INTEGER ::= 8
+maxnoofLTM-CSI-ResourcesPerSet				INTEGER ::= 512
+
+
+
 
 
 -- **************************************************************
@@ -632,7 +659,7 @@ id-UEAssociatedInfoResult-List																		ProtocolIE-ID ::= 406
 id-ProtocolIE-ID-407-not-to-be-used																	ProtocolIE-ID ::= 407
 id-UETrajectoryCollectionConfiguration																ProtocolIE-ID ::= 408
 id-UEPerformanceCollectionConfiguration																ProtocolIE-ID ::= 409
-id-CellMeasurementResultForDataCollection-List															ProtocolIE-ID ::= 410
+id-CellMeasurementResultForDataCollection-List														ProtocolIE-ID ::= 410
 id-CellToReportForDataCollection-List																ProtocolIE-ID ::= 411
 id-FiveGProSeLayer2Multipath																		ProtocolIE-ID ::= 412
 id-FiveGProSeLayer2UEtoUERelay																		ProtocolIE-ID ::= 413
@@ -697,6 +724,80 @@ id-BarringExemptionforEmerCallInfo																	ProtocolIE-ID ::= 471
 id-Transmission-Bandwidth-asymmetric																ProtocolIE-ID ::= 472
 id-SRSPositioningConfigOrActivationRequest															ProtocolIE-ID ::= 473
 id-NRPPaPositioningInformation																		ProtocolIE-ID ::= 474
+id-AerialUEFlightInformationReportingControl														ProtocolIE-ID ::= 475
+id-PDCPSNGapTransfer-UL																				ProtocolIE-ID ::= 476
+id-RequestType																						ProtocolIE-ID ::= 477
+id-NES-Cell-ID																						ProtocolIE-ID ::= 478
+id-Cell-A-ID																						ProtocolIE-ID ::= 479
+id-ProvisionStatus																					ProtocolIE-ID ::= 480
+id-ECNMarkingorCongestionInformationReportingStatus													ProtocolIE-ID ::= 481
+id-AdditionalDRBSetupInfoList													 					ProtocolIE-ID ::= 482
+id-PSIbasedSDUdiscardUL																				ProtocolIE-ID ::= 483
+id-PSIbasedSDUdiscardDL																				ProtocolIE-ID ::= 484
+id-DLPDUSetInformationMarkingSupportIndication														ProtocolIE-ID ::= 485
+id-PduSetDelayBudgetDownlink 																		ProtocolIE-ID ::= 486
+id-PduSetDelayBudgetUplink																			ProtocolIE-ID ::= 487
+id-PduSetErrorRateDownlink																			ProtocolIE-ID ::= 488
+id-PduSetErrorRateUplink																			ProtocolIE-ID ::= 489
+id-MonitoringRequestonAvailableBitrate																ProtocolIE-ID ::= 490
+id-MMSID																							ProtocolIE-ID ::= 491
+id-Indication-of-bitrate-adaptation																	ProtocolIE-ID ::= 492
+id-LTMHandoverInformationRequest																	ProtocolIE-ID ::= 493
+id-EarlySyncInformationRequest																		ProtocolIE-ID ::= 494
+id-LTMHandoverInformationRequestAcknowledge															ProtocolIE-ID ::= 495
+id-EarlySyncInformationResponse																		ProtocolIE-ID ::= 496
+id-LTMCellSwitchInformation																			ProtocolIE-ID ::= 497
+id-LTMUEAssociationInformation-List																	ProtocolIE-ID ::= 498
+id-CellSwitchTAInformation-List																		ProtocolIE-ID ::= 499
+id-TAInformation-List																				ProtocolIE-ID ::= 500
+id-LTMUpdatesToCandidateNodeInformation																ProtocolIE-ID ::= 501
+id-LTMUpdatesToCandidateCellInformation-List														ProtocolIE-ID ::= 502
+id-LTMUESecurityInformation																			ProtocolIE-ID ::= 503
+id-NGRAN-Node1-ID																					ProtocolIE-ID ::= 504
+id-NGRAN-Node2-ID																					ProtocolIE-ID ::= 505
+id-LTMUpdatesFromCandidateCellInformation-List														ProtocolIE-ID ::= 506
+id-LTMCandidateCellsToBeCancelled-List																ProtocolIE-ID ::= 507
+id-CSI-RSCoordinationRequest																		ProtocolIE-ID ::= 508
+id-CSI-RSCoordinationResponse																		ProtocolIE-ID ::= 509
+id-CLI-MeasurementResult-List																		ProtocolIE-ID ::= 510
+id-SBFD-Frequency-Configuration																		ProtocolIE-ID ::= 511
+id-NZP-CSI-RS-Resources-Config																		ProtocolIE-ID ::= 512
+id-SRS-Resource-Configuration																		ProtocolIE-ID ::= 513
+id-SRS-Resource-Indication																			ProtocolIE-ID ::= 514
+id-WAB-MT-ID																						ProtocolIE-ID ::= 515
+id-LPWUSPSassistanceInformation																		ProtocolIE-ID ::= 516
+id-FurtherExtended-UEIdentityIndexValue																ProtocolIE-ID ::= 517
+id-Future-Coverage-Modification-List																ProtocolIE-ID ::= 518
+id-SliceToReportForDataCollection-List																ProtocolIE-ID ::= 519
+id-PredictedSliceAvailableCapacity																	ProtocolIE-ID ::= 520
+id-SliceMeasurementInitiationResult																	ProtocolIE-ID ::= 521
+id-SliceUEPerformance																				ProtocolIE-ID ::= 522
+id-NetworkSliceAreaScopeofMDT																		ProtocolIE-ID ::= 523
+id-GeographicalArea																				ProtocolIE-ID ::= 524
+id-GeographyBasedMDT																					ProtocolIE-ID ::= 525
+id-TimeSCG-Failure																					ProtocolIE-ID ::= 526
+id-FailureType																						ProtocolIE-ID ::= 527
+id-FiveGProSeLayer3MHUEtoNetworkRelay																ProtocolIE-ID ::= 528
+id-FiveGProSeLayer2MHUEtoNetworkRelay																ProtocolIE-ID ::= 529
+id-FiveGProSeLayer2MHIntermediateUEtoNetworkRelay													ProtocolIE-ID ::= 530
+id-FiveGProSeLayer2MHRemote																			ProtocolIE-ID ::= 531
+id-LTMInformationSCG-AddReq																			ProtocolIE-ID ::= 532
+id-LTMInformationSCG-AddReqAck																		ProtocolIE-ID ::= 533
+id-LTMInformationSCG-ModReq																			ProtocolIE-ID ::= 534
+id-LTMInterSNExecutionNotification																	ProtocolIE-ID ::= 535
+id-LTMPSCellInformation-AddReq																		ProtocolIE-ID ::= 536
+id-LTMPSCellInformation-AddReqAck																	ProtocolIE-ID ::= 537
+id-LTMPSCellInformation-UpdateReq																	ProtocolIE-ID ::= 538
+id-LTMPSCellInformation-UpdateReqAck																ProtocolIE-ID ::= 539
+id-LTMPSCellInformation-UpdateRequired																ProtocolIE-ID ::= 540
+id-LTMPSCellInformation-UpdateConfirm																ProtocolIE-ID ::= 541
+id-LTMPSCellInformation-ChangeRequired																ProtocolIE-ID ::= 542
+id-LTMPSCellInformation-ChangeConfirm																ProtocolIE-ID ::= 543
+id-LTM-DC-DataForwarding-Indicator																	ProtocolIE-ID ::= 544
+id-SemipersistentPositioningInformation																ProtocolIE-ID ::= 545
+id-UEAveragePacketLossUL																			ProtocolIE-ID ::= 546
+id-LP-WUS-Disable-Indication																		ProtocolIE-ID ::= 547
+id-ContinuousMDT																					ProtocolIE-ID ::= 548
 
 
 END

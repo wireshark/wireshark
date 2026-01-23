@@ -6,7 +6,7 @@
 /* packet-xnap.c
  * Routines for dissecting NG-RAN Xn application protocol (XnAP)
  * 3GPP TS 38.423 packet dissection
- * Copyright 2018-2025, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2026, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V18.6.0 (2025-06)
+ * 3GPP TS 38.423 V19.1.0 (2025-12)
  */
 
 #include "config.h"
@@ -41,6 +41,7 @@
 #include "packet-f1ap.h"
 #include "packet-nrppa.h"
 #include "packet-sctp.h"
+#include "packet-lpp.h"
 
 
 #define PNAME  "NG-RAN Xn Application Protocol (XnAP)"
@@ -179,6 +180,21 @@
 #define maxnoofMDTSNPNs                16
 #define maxnoofSecurityConfigurations  8
 #define maxnoofRSPPQoSFlows            2048
+#define maxnoofThresholds              8
+#define maxnoofEarlyRACHResourcesID    8
+#define maxnoofLTMCells                8
+#define maxNoSSBs                      255
+#define maxnoofTAList                  8
+#define maxnoofPreambleIndexes         64
+#define maxnoofCSIResourceConfigurations 112
+#define maxnoofNZP_CSI_RS_ResourcesPerSet 64
+#define maxnoofSRS_Resource            64
+#define maxnoofFailedSliceMeasObjects  124
+#define maxnoofSliceItemsforMDT        1024
+#define maxnoofAreaNTNforMDT           32
+#define maxnoofLTMCellsPlusOne         9
+#define maxnoofSCGSecurityConfigurations 8
+#define maxnoofLTM_CSI_ResourcesPerSet 512
 
 typedef enum _ProcedureCode_enum {
   id_handoverPreparation =   0,
@@ -233,7 +249,16 @@ typedef enum _ProcedureCode_enum {
   id_partialUEContextTransfer =  49,
   id_rachIndication =  50,
   id_dataCollectionReportingInitiation =  51,
-  id_dataCollectionReporting =  52
+  id_dataCollectionReporting =  52,
+  id_ODSIB1ConfigurationProvision =  53,
+  id_ODSIB1ConfigurationProvisionStatusUpdate =  54,
+  id_lTMConfigurationUpdate =  55,
+  id_cSIRSCoordination =  56,
+  id_cellSwitchNotification =  57,
+  id_tAInformationTransfer =  58,
+  id_lTMCancel =  59,
+  id_cLI_Indication =  60,
+  id_scgFailureIndication =  61
 } ProcedureCode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
@@ -711,7 +736,81 @@ typedef enum _ProtocolIE_ID_enum {
   id_BarringExemptionforEmerCallInfo = 471,
   id_Transmission_Bandwidth_asymmetric = 472,
   id_SRSPositioningConfigOrActivationRequest = 473,
-  id_NRPPaPositioningInformation = 474
+  id_NRPPaPositioningInformation = 474,
+  id_AerialUEFlightInformationReportingControl = 475,
+  id_PDCPSNGapTransfer_UL = 476,
+  id_RequestType = 477,
+  id_NES_Cell_ID = 478,
+  id_Cell_A_ID = 479,
+  id_ProvisionStatus = 480,
+  id_ECNMarkingorCongestionInformationReportingStatus = 481,
+  id_AdditionalDRBSetupInfoList = 482,
+  id_PSIbasedSDUdiscardUL = 483,
+  id_PSIbasedSDUdiscardDL = 484,
+  id_DLPDUSetInformationMarkingSupportIndication = 485,
+  id_PduSetDelayBudgetDownlink = 486,
+  id_PduSetDelayBudgetUplink = 487,
+  id_PduSetErrorRateDownlink = 488,
+  id_PduSetErrorRateUplink = 489,
+  id_MonitoringRequestonAvailableBitrate = 490,
+  id_MMSID     = 491,
+  id_Indication_of_bitrate_adaptation = 492,
+  id_LTMHandoverInformationRequest = 493,
+  id_EarlySyncInformationRequest = 494,
+  id_LTMHandoverInformationRequestAcknowledge = 495,
+  id_EarlySyncInformationResponse = 496,
+  id_LTMCellSwitchInformation = 497,
+  id_LTMUEAssociationInformation_List = 498,
+  id_CellSwitchTAInformation_List = 499,
+  id_TAInformation_List = 500,
+  id_LTMUpdatesToCandidateNodeInformation = 501,
+  id_LTMUpdatesToCandidateCellInformation_List = 502,
+  id_LTMUESecurityInformation = 503,
+  id_NGRAN_Node1_ID = 504,
+  id_NGRAN_Node2_ID = 505,
+  id_LTMUpdatesFromCandidateCellInformation_List = 506,
+  id_LTMCandidateCellsToBeCancelled_List = 507,
+  id_CSI_RSCoordinationRequest = 508,
+  id_CSI_RSCoordinationResponse = 509,
+  id_CLI_MeasurementResult_List = 510,
+  id_SBFD_Frequency_Configuration = 511,
+  id_NZP_CSI_RS_Resources_Config = 512,
+  id_SRS_Resource_Configuration = 513,
+  id_SRS_Resource_Indication = 514,
+  id_WAB_MT_ID = 515,
+  id_LPWUSPSassistanceInformation = 516,
+  id_FurtherExtended_UEIdentityIndexValue = 517,
+  id_Future_Coverage_Modification_List = 518,
+  id_SliceToReportForDataCollection_List = 519,
+  id_PredictedSliceAvailableCapacity = 520,
+  id_SliceMeasurementInitiationResult = 521,
+  id_SliceUEPerformance = 522,
+  id_NetworkSliceAreaScopeofMDT = 523,
+  id_GeographicalArea = 524,
+  id_GeographyBasedMDT = 525,
+  id_TimeSCG_Failure = 526,
+  id_FailureType = 527,
+  id_FiveGProSeLayer3MHUEtoNetworkRelay = 528,
+  id_FiveGProSeLayer2MHUEtoNetworkRelay = 529,
+  id_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay = 530,
+  id_FiveGProSeLayer2MHRemote = 531,
+  id_LTMInformationSCG_AddReq = 532,
+  id_LTMInformationSCG_AddReqAck = 533,
+  id_LTMInformationSCG_ModReq = 534,
+  id_LTMInterSNExecutionNotification = 535,
+  id_LTMPSCellInformation_AddReq = 536,
+  id_LTMPSCellInformation_AddReqAck = 537,
+  id_LTMPSCellInformation_UpdateReq = 538,
+  id_LTMPSCellInformation_UpdateReqAck = 539,
+  id_LTMPSCellInformation_UpdateRequired = 540,
+  id_LTMPSCellInformation_UpdateConfirm = 541,
+  id_LTMPSCellInformation_ChangeRequired = 542,
+  id_LTMPSCellInformation_ChangeConfirm = 543,
+  id_LTM_DC_DataForwarding_Indicator = 544,
+  id_SemipersistentPositioningInformation = 545,
+  id_UEAveragePacketLossUL = 546,
+  id_LP_WUS_Disable_Indication = 547,
+  id_ContinuousMDT = 548
 } ProtocolIE_ID_enum;
 
 typedef enum _GlobalNG_RANNode_ID_enum {
@@ -782,6 +881,7 @@ static int hf_xnap_nodemeasurementFailedReportCharacteristics_AveragePacketLossD
 static int hf_xnap_nodemeasurementFailedReportCharacteristics_MeasuredUETrajectory;
 static int hf_xnap_nodemeasurementFailedReportCharacteristics_Reserved;
 static int hf_xnap_extensionValue_data;
+static int hf_xnap_AerialUEFlightInformationReportingControl_PDU;  /* AerialUEFlightInformationReportingControl */
 static int hf_xnap_A2XPC5QoSParameters_PDU;       /* A2XPC5QoSParameters */
 static int hf_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_PDU;  /* AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated */
 static int hf_xnap_AdditionLocationInformation_PDU;  /* AdditionLocationInformation */
@@ -790,6 +890,7 @@ static int hf_xnap_Additional_UL_NG_U_TNLatUPF_List_PDU;  /* Additional_UL_NG_U_
 static int hf_xnap_Additional_Measurement_Timing_Configuration_List_PDU;  /* Additional_Measurement_Timing_Configuration_List */
 static int hf_xnap_ActivationIDforCellActivation_PDU;  /* ActivationIDforCellActivation */
 static int hf_xnap_DataCollectionID_PDU;          /* DataCollectionID */
+static int hf_xnap_AdditionalDRBSetupInfoList_PDU;  /* AdditionalDRBSetupInfoList */
 static int hf_xnap_AerialUESubscriptionInformation_PDU;  /* AerialUESubscriptionInformation */
 static int hf_xnap_AlternativeQoSParaSetList_PDU;  /* AlternativeQoSParaSetList */
 static int hf_xnap_AMF_Region_Information_PDU;    /* AMF_Region_Information */
@@ -813,6 +914,7 @@ static int hf_xnap_CellToReport_PDU;              /* CellToReport */
 static int hf_xnap_CellToReportForDataCollection_List_PDU;  /* CellToReportForDataCollection_List */
 static int hf_xnap_CellBasedUETrajectoryPrediction_PDU;  /* CellBasedUETrajectoryPrediction */
 static int hf_xnap_CellMeasurementInitiationResult_List_PDU;  /* CellMeasurementInitiationResult_List */
+static int hf_xnap_CLI_MeasurementResult_List_PDU;  /* CLI_MeasurementResult_List */
 static int hf_xnap_CellMeasurementResultForDataCollection_List_PDU;  /* CellMeasurementResultForDataCollection_List */
 static int hf_xnap_CHOConfiguration_PDU;          /* CHOConfiguration */
 static int hf_xnap_ClockQualityReportingControlInfo_PDU;  /* ClockQualityReportingControlInfo */
@@ -847,6 +949,9 @@ static int hf_xnap_CPCInformationUpdate_PDU;      /* CPCInformationUpdate */
 static int hf_xnap_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
 static int hf_xnap_C_RNTI_PDU;                    /* C_RNTI */
 static int hf_xnap_CSI_RSTransmissionIndication_PDU;  /* CSI_RSTransmissionIndication */
+static int hf_xnap_CellSwitchTAInformation_List_PDU;  /* CellSwitchTAInformation_List */
+static int hf_xnap_CSI_RSCoordinationRequestList_PDU;  /* CSI_RSCoordinationRequestList */
+static int hf_xnap_CSI_RSCoordinationResultList_PDU;  /* CSI_RSCoordinationResultList */
 static int hf_xnap_XnUAddressInfoperPDUSession_List_PDU;  /* XnUAddressInfoperPDUSession_List */
 static int hf_xnap_DataForwardingInfoFromTargetE_UTRANnode_PDU;  /* DataForwardingInfoFromTargetE_UTRANnode */
 static int hf_xnap_DataforwardingandOffloadingInfofromSource_PDU;  /* DataforwardingandOffloadingInfofromSource */
@@ -862,9 +967,12 @@ static int hf_xnap_DRB_List_PDU;                  /* DRB_List */
 static int hf_xnap_DRB_List_withCause_PDU;        /* DRB_List_withCause */
 static int hf_xnap_DRB_Number_PDU;                /* DRB_Number */
 static int hf_xnap_DRBsSubjectToStatusTransfer_List_PDU;  /* DRBsSubjectToStatusTransfer_List */
+static int hf_xnap_PDCPSNGapTransfer_UL_PDU;      /* PDCPSNGapTransfer_UL */
 static int hf_xnap_DuplicationActivation_PDU;     /* DuplicationActivation */
+static int hf_xnap_DLPDUSetInformationMarkingSupportIndication_PDU;  /* DLPDUSetInformationMarkingSupportIndication */
 static int hf_xnap_EarlyMeasurement_PDU;          /* EarlyMeasurement */
 static int hf_xnap_ECNMarkingorCongestionInformationReportingRequest_PDU;  /* ECNMarkingorCongestionInformationReportingRequest */
+static int hf_xnap_ECNMarkingorCongestionInformationReportingStatus_PDU;  /* ECNMarkingorCongestionInformationReportingStatus */
 static int hf_xnap_EquivalentSNPNs_PDU;           /* EquivalentSNPNs */
 static int hf_xnap_ERedcap_Bcast_Information_PDU;  /* ERedcap_Bcast_Information */
 static int hf_xnap_EUTRAPagingeDRXInformation_PDU;  /* EUTRAPagingeDRXInformation */
@@ -876,6 +984,9 @@ static int hf_xnap_ExtendedRATRestrictionInformation_PDU;  /* ExtendedRATRestric
 static int hf_xnap_ExtendedPacketDelayBudget_PDU;  /* ExtendedPacketDelayBudget */
 static int hf_xnap_ExtendedSliceSupportList_PDU;  /* ExtendedSliceSupportList */
 static int hf_xnap_ExtendedUEIdentityIndexValue_PDU;  /* ExtendedUEIdentityIndexValue */
+static int hf_xnap_EarlySyncInformationRequest_PDU;  /* EarlySyncInformationRequest */
+static int hf_xnap_EarlySyncInformation_PDU;      /* EarlySyncInformation */
+static int hf_xnap_FailureType_PDU;               /* FailureType */
 static int hf_xnap_F1CTrafficContainer_PDU;       /* F1CTrafficContainer */
 static int hf_xnap_F1_terminatingIAB_donorIndicator_PDU;  /* F1_terminatingIAB_donorIndicator */
 static int hf_xnap_FiveGCMobilityRestrictionListContainer_PDU;  /* FiveGCMobilityRestrictionListContainer */
@@ -883,8 +994,15 @@ static int hf_xnap_FiveGProSeAuthorized_PDU;      /* FiveGProSeAuthorized */
 static int hf_xnap_FiveGProSeLayer2Multipath_PDU;  /* FiveGProSeLayer2Multipath */
 static int hf_xnap_FiveGProSeLayer2UEtoUERelay_PDU;  /* FiveGProSeLayer2UEtoUERelay */
 static int hf_xnap_FiveGProSeLayer2UEtoUERemote_PDU;  /* FiveGProSeLayer2UEtoUERemote */
+static int hf_xnap_FiveGProSeLayer3MHUEtoNetworkRelay_PDU;  /* FiveGProSeLayer3MHUEtoNetworkRelay */
+static int hf_xnap_FiveGProSeLayer2MHUEtoNetworkRelay_PDU;  /* FiveGProSeLayer2MHUEtoNetworkRelay */
+static int hf_xnap_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay_PDU;  /* FiveGProSeLayer2MHIntermediateUEtoNetworkRelay */
+static int hf_xnap_FiveGProSeLayer2MHRemote_PDU;  /* FiveGProSeLayer2MHRemote */
 static int hf_xnap_FiveGProSePC5QoSParameters_PDU;  /* FiveGProSePC5QoSParameters */
 static int hf_xnap_FrequencyShift7p5khz_PDU;      /* FrequencyShift7p5khz */
+static int hf_xnap_FurtherExtended_UEIdentityIndexValue_PDU;  /* FurtherExtended_UEIdentityIndexValue */
+static int hf_xnap_Future_Coverage_Modification_List_PDU;  /* Future_Coverage_Modification_List */
+static int hf_xnap_GeographyBasedMDT_PDU;         /* GeographyBasedMDT */
 static int hf_xnap_GNB_DU_Cell_Resource_Configuration_PDU;  /* GNB_DU_Cell_Resource_Configuration */
 static int hf_xnap_GlobalCell_ID_PDU;             /* GlobalCell_ID */
 static int hf_xnap_GlobalNG_RANCell_ID_PDU;       /* GlobalNG_RANCell_ID */
@@ -896,6 +1014,7 @@ static int hf_xnap_IABNodeIndication_PDU;         /* IABNodeIndication */
 static int hf_xnap_IAB_TNL_Address_Request_PDU;   /* IAB_TNL_Address_Request */
 static int hf_xnap_IAB_TNL_Address_Response_PDU;  /* IAB_TNL_Address_Response */
 static int hf_xnap_IABTNLAddressException_PDU;    /* IABTNLAddressException */
+static int hf_xnap_Indication_of_bitrate_adaptation_PDU;  /* Indication_of_bitrate_adaptation */
 static int hf_xnap_InitiatingCondition_FailureIndication_PDU;  /* InitiatingCondition_FailureIndication */
 static int hf_xnap_xnap_IntendedTDD_DL_ULConfiguration_NR_PDU;  /* IntendedTDD_DL_ULConfiguration_NR */
 static int hf_xnap_InterfaceInstanceIndication_PDU;  /* InterfaceInstanceIndication */
@@ -905,9 +1024,33 @@ static int hf_xnap_Full_and_Short_I_RNTI_Profile_List_PDU;  /* Full_and_Short_I_
 static int hf_xnap_SCGUEHistoryInformation_PDU;   /* SCGUEHistoryInformation */
 static int hf_xnap_LocationInformationSNReporting_PDU;  /* LocationInformationSNReporting */
 static int hf_xnap_LocationReportingInformation_PDU;  /* LocationReportingInformation */
+static int hf_xnap_LPWUSPSassistanceInformation_PDU;  /* LPWUSPSassistanceInformation */
+static int hf_xnap_LP_WUS_Disable_Indication_PDU;  /* LP_WUS_Disable_Indication */
 static int hf_xnap_LTEA2XServicesAuthorized_PDU;  /* LTEA2XServicesAuthorized */
 static int hf_xnap_LTEV2XServicesAuthorized_PDU;  /* LTEV2XServicesAuthorized */
 static int hf_xnap_LTEUESidelinkAggregateMaximumBitRate_PDU;  /* LTEUESidelinkAggregateMaximumBitRate */
+static int hf_xnap_LTMHandoverInformationRequest_PDU;  /* LTMHandoverInformationRequest */
+static int hf_xnap_LTMHandoverInformationRequestAcknowledge_PDU;  /* LTMHandoverInformationRequestAcknowledge */
+static int hf_xnap_LTMCellSwitchInformation_PDU;  /* LTMCellSwitchInformation */
+static int hf_xnap_LTMUEAssociationInformation_List_PDU;  /* LTMUEAssociationInformation_List */
+static int hf_xnap_LTMUpdatesToCandidateNodeInformation_PDU;  /* LTMUpdatesToCandidateNodeInformation */
+static int hf_xnap_LTMUpdatesToCandidateCellInformation_List_PDU;  /* LTMUpdatesToCandidateCellInformation_List */
+static int hf_xnap_LTMUpdatesFromCandidateCellInformation_List_PDU;  /* LTMUpdatesFromCandidateCellInformation_List */
+static int hf_xnap_LTMUESecurityInformation_PDU;  /* LTMUESecurityInformation */
+static int hf_xnap_LTMCandidateCellsToBeCancelled_List_PDU;  /* LTMCandidateCellsToBeCancelled_List */
+static int hf_xnap_LTMInformationSCG_AddReq_PDU;  /* LTMInformationSCG_AddReq */
+static int hf_xnap_LTMInformationSCG_AddReqAck_PDU;  /* LTMInformationSCG_AddReqAck */
+static int hf_xnap_LTMInformationSCG_ModReq_PDU;  /* LTMInformationSCG_ModReq */
+static int hf_xnap_LTMInterSNExecutionNotification_PDU;  /* LTMInterSNExecutionNotification */
+static int hf_xnap_LTM_DC_DataForwarding_Indicator_PDU;  /* LTM_DC_DataForwarding_Indicator */
+static int hf_xnap_LTMPSCellInformation_AddReq_PDU;  /* LTMPSCellInformation_AddReq */
+static int hf_xnap_LTMPSCellInformation_AddReqAck_PDU;  /* LTMPSCellInformation_AddReqAck */
+static int hf_xnap_LTMPSCellInformation_UpdateReq_PDU;  /* LTMPSCellInformation_UpdateReq */
+static int hf_xnap_LTMPSCellInformation_UpdateReqAck_PDU;  /* LTMPSCellInformation_UpdateReqAck */
+static int hf_xnap_LTMPSCellInformation_UpdateRequired_PDU;  /* LTMPSCellInformation_UpdateRequired */
+static int hf_xnap_LTMPSCellInformation_UpdateConfirm_PDU;  /* LTMPSCellInformation_UpdateConfirm */
+static int hf_xnap_LTMPSCellInformation_ChangeRequired_PDU;  /* LTMPSCellInformation_ChangeRequired */
+static int hf_xnap_LTMPSCellInformation_ChangeConfirm_PDU;  /* LTMPSCellInformation_ChangeConfirm */
 static int hf_xnap_MBSCommServiceType_PDU;        /* MBSCommServiceType */
 static int hf_xnap_M4ReportAmountMDT_PDU;         /* M4ReportAmountMDT */
 static int hf_xnap_M5ReportAmountMDT_PDU;         /* M5ReportAmountMDT */
@@ -935,6 +1078,8 @@ static int hf_xnap_MobilityInformation_PDU;       /* MobilityInformation */
 static int hf_xnap_MobilityParametersModificationRange_PDU;  /* MobilityParametersModificationRange */
 static int hf_xnap_MobilityParametersInformation_PDU;  /* MobilityParametersInformation */
 static int hf_xnap_MobilityRestrictionList_PDU;   /* MobilityRestrictionList */
+static int hf_xnap_MonitoringRequestonAvailableBitrate_PDU;  /* MonitoringRequestonAvailableBitrate */
+static int hf_xnap_MMSID_PDU;                     /* MMSID */
 static int hf_xnap_CNTypeRestrictionsForEquivalent_PDU;  /* CNTypeRestrictionsForEquivalent */
 static int hf_xnap_CNTypeRestrictionsForServing_PDU;  /* CNTypeRestrictionsForServing */
 static int hf_xnap_MR_DC_ResourceCoordinationInfo_PDU;  /* MR_DC_ResourceCoordinationInfo */
@@ -944,6 +1089,7 @@ static int hf_xnap_N6JitterInformation_PDU;       /* N6JitterInformation */
 static int hf_xnap_NBIoT_UL_DL_AlignmentOffset_PDU;  /* NBIoT_UL_DL_AlignmentOffset */
 static int hf_xnap_NE_DC_TDM_Pattern_PDU;         /* NE_DC_TDM_Pattern */
 static int hf_xnap_Neighbour_NG_RAN_Node_List_PDU;  /* Neighbour_NG_RAN_Node_List */
+static int hf_xnap_NetworkSliceAreaScopeofMDT_PDU;  /* NetworkSliceAreaScopeofMDT */
 static int hf_xnap_NID_PDU;                       /* NID */
 static int hf_xnap_NRCarrierList_PDU;             /* NRCarrierList */
 static int hf_xnap_NRCellPRACHConfig_PDU;         /* NRCellPRACHConfig */
@@ -975,8 +1121,10 @@ static int hf_xnap_NG_RANTraceID_PDU;             /* NG_RANTraceID */
 static int hf_xnap_NonGBRResources_Offered_PDU;   /* NonGBRResources_Offered */
 static int hf_xnap_NRV2XServicesAuthorized_PDU;   /* NRV2XServicesAuthorized */
 static int hf_xnap_NRUESidelinkAggregateMaximumBitRate_PDU;  /* NRUESidelinkAggregateMaximumBitRate */
+static int hf_xnap_NZP_CSI_RS_Resources_Config_PDU;  /* NZP_CSI_RS_Resources_Config */
 static int hf_xnap_OffsetOfNbiotChannelNumberToEARFCN_PDU;  /* OffsetOfNbiotChannelNumberToEARFCN */
 static int hf_xnap_PositioningInformation_PDU;    /* PositioningInformation */
+static int hf_xnap_PacketErrorRate_PDU;           /* PacketErrorRate */
 static int hf_xnap_PagingCause_PDU;               /* PagingCause */
 static int hf_xnap_PEIPSassistanceInformation_PDU;  /* PEIPSassistanceInformation */
 static int hf_xnap_PagingDRX_PDU;                 /* PagingDRX */
@@ -1002,8 +1150,11 @@ static int hf_xnap_PrivacyIndicator_PDU;          /* PrivacyIndicator */
 static int hf_xnap_PSCellChangeHistory_PDU;       /* PSCellChangeHistory */
 static int hf_xnap_PSCellHistoryInformationRetrieve_PDU;  /* PSCellHistoryInformationRetrieve */
 static int hf_xnap_PSCellListContainer_PDU;       /* PSCellListContainer */
+static int hf_xnap_PSIbasedSDUdiscardUL_PDU;      /* PSIbasedSDUdiscardUL */
+static int hf_xnap_PSIbasedSDUdiscardDL_PDU;      /* PSIbasedSDUdiscardDL */
 static int hf_xnap_PNI_NPN_AreaScopeofMDT_PDU;    /* PNI_NPN_AreaScopeofMDT */
 static int hf_xnap_PNI_NPNBasedMDT_PDU;           /* PNI_NPNBasedMDT */
+static int hf_xnap_PredictedSliceAvailableCapacityGroup_PDU;  /* PredictedSliceAvailableCapacityGroup */
 static int hf_xnap_QMCConfigInfo_PDU;             /* QMCConfigInfo */
 static int hf_xnap_QMCCoordinationRequest_PDU;    /* QMCCoordinationRequest */
 static int hf_xnap_QMCCoordinationResponse_PDU;   /* QMCCoordinationResponse */
@@ -1038,6 +1189,7 @@ static int hf_xnap_RRCConnReestab_Indicator_PDU;  /* RRCConnReestab_Indicator */
 static int hf_xnap_RRCResumeCause_PDU;            /* RRCResumeCause */
 static int hf_xnap_RaReportIndicationList_PDU;    /* RaReportIndicationList */
 static int hf_xnap_RadioResourceStatusNR_U_PDU;   /* RadioResourceStatusNR_U */
+static int hf_xnap_SBFD_Frequency_Configuration_PDU;  /* SBFD_Frequency_Configuration */
 static int hf_xnap_SCGreconfigNotification_PDU;   /* SCGreconfigNotification */
 static int hf_xnap_S_CPAC_Request_PDU;            /* S_CPAC_Request */
 static int hf_xnap_S_CPAC_Request_Info_PDU;       /* S_CPAC_Request_Info */
@@ -1074,6 +1226,8 @@ static int hf_xnap_SplitSRBsTypes_PDU;            /* SplitSRBsTypes */
 static int hf_xnap_SPRAvailability_PDU;           /* SPRAvailability */
 static int hf_xnap_SRSPositioningConfigOrActivationRequest_PDU;  /* SRSPositioningConfigOrActivationRequest */
 static int hf_xnap_SRSConfiguration_PDU;          /* SRSConfiguration */
+static int hf_xnap_SRS_Resource_Indication_PDU;   /* SRS_Resource_Indication */
+static int hf_xnap_SRS_Resource_Configuration_PDU;  /* SRS_Resource_Configuration */
 static int hf_xnap_SSB_PositionsInBurst_PDU;      /* SSB_PositionsInBurst */
 static int hf_xnap_SSBOffsets_List_PDU;           /* SSBOffsets_List */
 static int hf_xnap_SuccessfulHOReportInformation_PDU;  /* SuccessfulHOReportInformation */
@@ -1083,6 +1237,10 @@ static int hf_xnap_SurvivalTime_PDU;              /* SurvivalTime */
 static int hf_xnap_SNPN_CellBasedMDT_PDU;         /* SNPN_CellBasedMDT */
 static int hf_xnap_SNPN_TAIBasedMDT_PDU;          /* SNPN_TAIBasedMDT */
 static int hf_xnap_SNPN_BasedMDT_PDU;             /* SNPN_BasedMDT */
+static int hf_xnap_SliceToReportForDataCollection_List_PDU;  /* SliceToReportForDataCollection_List */
+static int hf_xnap_SliceMeasurementInitiationResult_PDU;  /* SliceMeasurementInitiationResult */
+static int hf_xnap_SliceUEPerformance_PDU;        /* SliceUEPerformance */
+static int hf_xnap_SemipersistentPositioningInformation_PDU;  /* SemipersistentPositioningInformation */
 static int hf_xnap_TAINSAGSupportList_PDU;        /* TAINSAGSupportList */
 static int hf_xnap_TAISliceUnavailableCellList_PDU;  /* TAISliceUnavailableCellList */
 static int hf_xnap_TAISupport_List_PDU;           /* TAISupport_List */
@@ -1090,6 +1248,7 @@ static int hf_xnap_TargetCellinEUTRAN_PDU;        /* TargetCellinEUTRAN */
 static int hf_xnap_Target_CGI_PDU;                /* Target_CGI */
 static int hf_xnap_TDDULDLConfigurationCommonNR_PDU;  /* TDDULDLConfigurationCommonNR */
 static int hf_xnap_TargetCellList_PDU;            /* TargetCellList */
+static int hf_xnap_TimeSCG_Failure_PDU;           /* TimeSCG_Failure */
 static int hf_xnap_TimeSinceFailure_PDU;          /* TimeSinceFailure */
 static int hf_xnap_TimeSynchronizationAssistanceInformation_PDU;  /* TimeSynchronizationAssistanceInformation */
 static int hf_xnap_TimeToWait_PDU;                /* TimeToWait */
@@ -1103,6 +1262,7 @@ static int hf_xnap_TransportLayerAddress_PDU;     /* TransportLayerAddress */
 static int hf_xnap_TraceActivation_PDU;           /* TraceActivation */
 static int hf_xnap_TrafficToBeReleaseInformation_PDU;  /* TrafficToBeReleaseInformation */
 static int hf_xnap_TSCTrafficCharacteristics_PDU;  /* TSCTrafficCharacteristics */
+static int hf_xnap_TAInformation_List_PDU;        /* TAInformation_List */
 static int hf_xnap_UEAggregateMaximumBitRate_PDU;  /* UEAggregateMaximumBitRate */
 static int hf_xnap_UEContextKeptIndicator_PDU;    /* UEContextKeptIndicator */
 static int hf_xnap_UEContextID_PDU;               /* UEContextID */
@@ -1126,8 +1286,10 @@ static int hf_xnap_UserPlaneTrafficActivityReport_PDU;  /* UserPlaneTrafficActiv
 static int hf_xnap_UserPlaneFailureIndication_PDU;  /* UserPlaneFailureIndication */
 static int hf_xnap_URIaddress_PDU;                /* URIaddress */
 static int hf_xnap_UEAssociatedInfoResult_List_PDU;  /* UEAssociatedInfoResult_List */
+static int hf_xnap_UEAveragePacketLossUL_PDU;     /* UEAveragePacketLossUL */
 static int hf_xnap_UEPerformanceCollectionConfiguration_PDU;  /* UEPerformanceCollectionConfiguration */
 static int hf_xnap_UETrajectoryCollectionConfiguration_PDU;  /* UETrajectoryCollectionConfiguration */
+static int hf_xnap_WAB_MT_ID_PDU;                 /* WAB_MT_ID */
 static int hf_xnap_XnBenefitValue_PDU;            /* XnBenefitValue */
 static int hf_xnap_XR_Bcast_Information_PDU;      /* XR_Bcast_Information */
 static int hf_xnap_HandoverRequest_PDU;           /* HandoverRequest */
@@ -1235,6 +1397,7 @@ static int hf_xnap_TraceStart_PDU;                /* TraceStart */
 static int hf_xnap_DeactivateTrace_PDU;           /* DeactivateTrace */
 static int hf_xnap_FailureIndication_PDU;         /* FailureIndication */
 static int hf_xnap_HandoverReport_PDU;            /* HandoverReport */
+static int hf_xnap_SCGFailureIndication_PDU;      /* SCGFailureIndication */
 static int hf_xnap_ResourceStatusRequest_PDU;     /* ResourceStatusRequest */
 static int hf_xnap_ResourceStatusResponse_PDU;    /* ResourceStatusResponse */
 static int hf_xnap_ResourceStatusFailure_PDU;     /* ResourceStatusFailure */
@@ -1276,6 +1439,21 @@ static int hf_xnap_DataCollectionRequest_PDU;     /* DataCollectionRequest */
 static int hf_xnap_DataCollectionResponse_PDU;    /* DataCollectionResponse */
 static int hf_xnap_DataCollectionFailure_PDU;     /* DataCollectionFailure */
 static int hf_xnap_DataCollectionUpdate_PDU;      /* DataCollectionUpdate */
+static int hf_xnap_ODSIB1ConfigurationProvisionRequest_PDU;  /* ODSIB1ConfigurationProvisionRequest */
+static int hf_xnap_RequestTypeChoice_PDU;         /* RequestTypeChoice */
+static int hf_xnap_ODSIB1ConfigurationProvisionResponse_PDU;  /* ODSIB1ConfigurationProvisionResponse */
+static int hf_xnap_ODSIB1ConfigurationProvisionFailure_PDU;  /* ODSIB1ConfigurationProvisionFailure */
+static int hf_xnap_ODSIB1ConfigurationProvisionStatusUpdate_PDU;  /* ODSIB1ConfigurationProvisionStatusUpdate */
+static int hf_xnap_ProvisionStatus_PDU;           /* ProvisionStatus */
+static int hf_xnap_CellSwitchNotification_PDU;    /* CellSwitchNotification */
+static int hf_xnap_TAInformationTransfer_PDU;     /* TAInformationTransfer */
+static int hf_xnap_LTMConfigurationUpdate_PDU;    /* LTMConfigurationUpdate */
+static int hf_xnap_LTMConfigurationUpdateAcknowledge_PDU;  /* LTMConfigurationUpdateAcknowledge */
+static int hf_xnap_LTMConfigurationUpdateFailure_PDU;  /* LTMConfigurationUpdateFailure */
+static int hf_xnap_LTMCancel_PDU;                 /* LTMCancel */
+static int hf_xnap_CSIRSCoordinationRequest_PDU;  /* CSIRSCoordinationRequest */
+static int hf_xnap_CSIRSCoordinationResponse_PDU;  /* CSIRSCoordinationResponse */
+static int hf_xnap_CLI_Indication_PDU;            /* CLI_Indication */
 static int hf_xnap_XnAP_PDU_PDU;                  /* XnAP_PDU */
 static int hf_xnap_local;                         /* INTEGER_0_maxPrivateIEs */
 static int hf_xnap_global;                        /* T_global */
@@ -1289,15 +1467,20 @@ static int hf_xnap_extensionValue;                /* T_extensionValue */
 static int hf_xnap_PrivateIE_Container_item;      /* PrivateIE_Field */
 static int hf_xnap_private_id;                    /* PrivateIE_ID */
 static int hf_xnap_privateIE_Field_value;         /* PrivateIE_Field_value */
+static int hf_xnap_higherAltitudeThreshold;       /* Altitude */
+static int hf_xnap_lowerAltitudeThreshold;        /* Altitude */
+static int hf_xnap_aerialUEReportingPeriodicity;  /* AerialUEReportingPeriodicity */
+static int hf_xnap_iE_Extensions;                 /* ProtocolExtensionContainer */
 static int hf_xnap_a2XPC5QoSFlowList;             /* A2XPC5QoSFlowList */
 static int hf_xnap_aA2XPC5LinkAggregateBitRates;  /* BitRate */
-static int hf_xnap_iE_Extensions;                 /* ProtocolExtensionContainer */
 static int hf_xnap_A2XPC5QoSFlowList_item;        /* A2XPC5QoSFlowItem */
 static int hf_xnap_a2XpQI;                        /* FiveQI */
 static int hf_xnap_a2Xpc5FlowBitRates;            /* A2XPC5FlowBitRates */
 static int hf_xnap_a2Xrange;                      /* Range */
 static int hf_xnap_a2XguaranteedFlowBitRate;      /* BitRate */
 static int hf_xnap_a2XmaximumFlowBitRate;         /* BitRate */
+static int hf_xnap_AvailableBitrateReportThresholdList_item;  /* AvailableBitrateReportThresholdItem */
+static int hf_xnap_reportingThreshold;            /* ReportingThreshold */
 static int hf_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_item;  /* AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_Item */
 static int hf_xnap_pDUSessionResourceChangeConfirmInfo_SNterminated;  /* PDUSessionResourceChangeConfirmInfo_SNterminated */
 static int hf_xnap_uL_AveragePacketDelay;         /* AveragePacketDelayValue */
@@ -1314,6 +1497,12 @@ static int hf_xnap_mBS_ServiceArea;               /* MBS_ServiceArea */
 static int hf_xnap_mBS_MappingandDataForwardingRequestInfofromSource;  /* MBS_MappingandDataForwardingRequestInfofromSource */
 static int hf_xnap_nGRAN_Node1_Measurement_ID;    /* Measurement_ID */
 static int hf_xnap_nGRAN_Node2_Measurement_ID;    /* Measurement_ID */
+static int hf_xnap_AdditionalDRBSetupInfoList_item;  /* AdditionalDRBsToBeSetupInfo_Item */
+static int hf_xnap_drb_ID;                        /* DRB_ID */
+static int hf_xnap_additionalQoSFlowMappedtoDRBSetupInfoList;  /* AdditionalQoSFlowMappedtoDRBSetupInfoList */
+static int hf_xnap_eCNMarkingorCongestionInformationReportingStatus;  /* ECNMarkingorCongestionInformationReportingStatus */
+static int hf_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList_item;  /* AdditionalQoSFlowMappedtoDRBSetupInfoList_Item */
+static int hf_xnap_qoSFlowIdentifier;             /* QoSFlowIdentifier */
 static int hf_xnap_priorityLevel;                 /* INTEGER_0_15_ */
 static int hf_xnap_pre_emption_capability;        /* T_pre_emption_capability */
 static int hf_xnap_pre_emption_vulnerability;     /* T_pre_emption_vulnerability */
@@ -1432,6 +1621,10 @@ static int hf_xnap_CellBasedUETrajectoryPrediction_item;  /* PredictedUETrajecto
 static int hf_xnap_CellMeasurementInitiationResult_List_item;  /* CellMeasurementInitiationResult_Item */
 static int hf_xnap_cellID;                        /* GlobalNG_RANCell_ID */
 static int hf_xnap_cellMeasurementFailureCause_List;  /* CellMeasurementFailureCause_List */
+static int hf_xnap_CLI_MeasurementResult_List_item;  /* CLI_MeasurementResult_Item */
+static int hf_xnap_ssbIndex;                      /* INTEGER_0_63_ */
+static int hf_xnap_nZP_CSI_RS_ResourceIndication;  /* INTEGER_1_64_ */
+static int hf_xnap_cLI_MitigationIndication;      /* CLI_MitigationIndication */
 static int hf_xnap_CellMeasurementResultForDataCollection_List_item;  /* CellInfoResultForDataCollection_Item */
 static int hf_xnap_predictedRadioResourceStatus;  /* RadioResourceStatus */
 static int hf_xnap_predictedNumberofActiveUEs;    /* NumberofActiveUEs */
@@ -1482,6 +1675,8 @@ static int hf_xnap_cho_Candidate_PSCells_list;    /* CHO_Candidate_PSCells_list 
 static int hf_xnap_CHO_Candidate_PSCells_list_item;  /* CHO_Candidate_PSCells_Item */
 static int hf_xnap_pscell_id;                     /* NR_CGI */
 static int hf_xnap_target2source_NG_RANNode_Container;  /* OCTET_STRING */
+static int hf_xnap_referenceLocation;             /* T_referenceLocation */
+static int hf_xnap_distanceRadius;                /* INTEGER_1_65535_ */
 static int hf_xnap_Conditional_Reconfig_List_item;  /* Conditional_Reconfig_Item */
 static int hf_xnap_pCell_ID_01;                   /* Target_CGI */
 static int hf_xnap_pSCell_ID;                     /* NR_CGI */
@@ -1538,6 +1733,32 @@ static int hf_xnap_CSI_RS_MTC_Neighbour_List_item;  /* CSI_RS_MTC_Neighbour_Item
 static int hf_xnap_CAGListforMDT_item;            /* CAGListforMDTItem */
 static int hf_xnap_plmnID;                        /* PLMN_Identity */
 static int hf_xnap_cAGID;                         /* CAG_Identifier */
+static int hf_xnap_cSIResourceConfigurationToAddModList;  /* T_cSIResourceConfigurationToAddModList */
+static int hf_xnap_cSIResourceConfigurationToReleaseList;  /* T_cSIResourceConfigurationToReleaseList */
+static int hf_xnap_periodicNZP_CSI_RS_ResourceConfiguration;  /* NZP_CSI_RS_ResourceConfiguration */
+static int hf_xnap_semiPersistentNZP_CSI_RS_ResourceConfiguration;  /* NZP_CSI_RS_ResourceConfiguration */
+static int hf_xnap_periodicNZP_CSI_RS_ResourceSetConfiguration;  /* NZP_CSI_RS_ResourceSetConfiguration */
+static int hf_xnap_semiPersistentNZP_CSI_RS_ResourceSetConfiguration;  /* NZP_CSI_RS_ResourceSetConfiguration */
+static int hf_xnap_periodicCSI_IM_ResourceConfiguration;  /* CSI_IM_ResourceConfiguration */
+static int hf_xnap_semiPersistentCSI_IM_ResourceConfiguration;  /* CSI_IM_ResourceConfiguration */
+static int hf_xnap_cSI_RSResourceToAddModList;    /* T_cSI_RSResourceToAddModList */
+static int hf_xnap_cSI_RSResourceToReleaseList;   /* T_cSI_RSResourceToReleaseList */
+static int hf_xnap_cSI_RSResourceSetToAddModList;  /* T_cSI_RSResourceSetToAddModList */
+static int hf_xnap_cSI_RSResourceSetToReleaseList;  /* T_cSI_RSResourceSetToReleaseList */
+static int hf_xnap_cSI_IMResourceToAddModList;    /* T_cSI_IMResourceToAddModList */
+static int hf_xnap_cSI_IMResourceToReleaseList;   /* T_cSI_IMResourceToReleaseList */
+static int hf_xnap_cSI_IMResourceSetToAddModList;  /* T_cSI_IMResourceSetToAddModList */
+static int hf_xnap_cSI_IMResourceSetToReleaseList;  /* T_cSI_IMResourceSetToReleaseList */
+static int hf_xnap_CellSwitchTAInformation_List_item;  /* CellSwitchTAInformation_Item */
+static int hf_xnap_candidateCellID;               /* NR_CGI */
+static int hf_xnap_tAValue;                       /* TAValue */
+static int hf_xnap_tagIDPointer;                  /* TagIDPointer */
+static int hf_xnap_CSI_RSCoordinationRequestList_item;  /* CSI_RSCoordinationRequest_Item */
+static int hf_xnap_transmissionRequest;           /* T_transmissionRequest */
+static int hf_xnap_cSIResourceConfigurationID;    /* INTEGER_0_111 */
+static int hf_xnap_tci_State_InformationList;     /* Tci_State_InformationList */
+static int hf_xnap_CSI_RSCoordinationResultList_item;  /* CSI_RSCoordinationResult_Item */
+static int hf_xnap_transmissionStatus;            /* T_transmissionStatus */
 static int hf_xnap_XnUAddressInfoperPDUSession_List_item;  /* XnUAddressInfoperPDUSession_Item */
 static int hf_xnap_pduSession_ID;                 /* PDUSession_ID */
 static int hf_xnap_dataForwardingInfoFromTargetNGRANnode;  /* DataForwardingInfoFromTargetNGRANnode */
@@ -1559,7 +1780,6 @@ static int hf_xnap_QoSFLowsToBeForwarded_List_item;  /* QoSFLowsToBeForwarded_It
 static int hf_xnap_dl_dataforwarding;             /* DLForwarding */
 static int hf_xnap_ul_dataforwarding;             /* ULForwarding */
 static int hf_xnap_DataForwardingResponseDRBItemList_item;  /* DataForwardingResponseDRBItem */
-static int hf_xnap_drb_ID;                        /* DRB_ID */
 static int hf_xnap_dlForwardingUPTNL;             /* UPTransportLayerInformation */
 static int hf_xnap_ulForwardingUPTNL;             /* UPTransportLayerInformation */
 static int hf_xnap_activationSFN;                 /* ActivationSFN */
@@ -1596,6 +1816,10 @@ static int hf_xnap_receiveStatusofPDCPSDU;        /* BIT_STRING_SIZE_1_2048 */
 static int hf_xnap_cOUNTValue;                    /* COUNT_PDCP_SN12 */
 static int hf_xnap_receiveStatusofPDCPSDU_01;     /* BIT_STRING_SIZE_1_131072 */
 static int hf_xnap_cOUNTValue_01;                 /* COUNT_PDCP_SN18 */
+static int hf_xnap_pdcp_sn_12bits_01;             /* DRBStatusTransfer12bitsSN_ULGap */
+static int hf_xnap_pdcp_sn_18bits_01;             /* DRBStatusTransfer18bitsSN_ULGap */
+static int hf_xnap_discardBitmap;                 /* BIT_STRING_SIZE_1_2048 */
+static int hf_xnap_discardBitmap_01;              /* BIT_STRING_SIZE_1_131072 */
 static int hf_xnap_DRBToQoSFlowMapping_List_item;  /* DRBToQoSFlowMapping_Item */
 static int hf_xnap_qosFlows_List;                 /* QoSFlows_List */
 static int hf_xnap_DUF_Slot_Config_List_item;     /* DUF_Slot_Config_Item */
@@ -1606,6 +1830,8 @@ static int hf_xnap_fiveQI;                        /* FiveQI */
 static int hf_xnap_delayCritical;                 /* T_delayCritical */
 static int hf_xnap_averagingWindow;               /* AveragingWindow */
 static int hf_xnap_maximumDataBurstVolume;        /* MaximumDataBurstVolume */
+static int hf_xnap_DataForwardingInfoForLTM_List_item;  /* DataForwardingInfoForLTM_Item */
+static int hf_xnap_pDUSessionID;                  /* PDUSession_ID */
 static int hf_xnap_eCNMarkingAtRANRequest;        /* ECNMarkingAtRANRequest */
 static int hf_xnap_eCNMarkingAtUPFRequest;        /* ECNMarkingAtUPFRequest */
 static int hf_xnap_congestionInformationRequest;  /* CongestionInformationRequest */
@@ -1652,6 +1878,17 @@ static int hf_xnap_iPsecTLA;                      /* TransportLayerAddress */
 static int hf_xnap_gtptlas;                       /* GTPTLAs */
 static int hf_xnap_GTPTLAs_item;                  /* GTPTLA_Item */
 static int hf_xnap_gTPTransportLayerAddresses;    /* TransportLayerAddress */
+static int hf_xnap_earlySyncConfigurationRequest;  /* T_earlySyncConfigurationRequest */
+static int hf_xnap_earlyRACHResourcesProviders_List;  /* EarlyRACHResourcesProviders_List */
+static int hf_xnap_earlyULSyncConfig;             /* EarlyULSyncConfig */
+static int hf_xnap_earlyULSyncConfigSUL;          /* EarlyULSyncConfig */
+static int hf_xnap_EarlyRACHResourcesProviders_List_item;  /* EarlyRACHResourcesProviders_Item */
+static int hf_xnap_globalgNBID;                   /* GlobalgNB_ID */
+static int hf_xnap_earlyRACHResourcesRequesterID;  /* EarlyRACHResourcesRequesterID */
+static int hf_xnap_rACHConfiguration;             /* T_rACHConfiguration */
+static int hf_xnap_earlyRACHResources_List;       /* EarlyRACHResources_List */
+static int hf_xnap_EarlyRACHResources_List_item;  /* EarlyRACHResources_Item */
+static int hf_xnap_preambleIndexList;             /* PreambleIndexList */
 static int hf_xnap_f1TerminatingBHInformation_List;  /* F1TerminatingBHInformation_List */
 static int hf_xnap_F1TerminatingBHInformation_List_item;  /* F1TerminatingBHInformation_Item */
 static int hf_xnap_dLTNLAddress;                  /* IABTNLAddress */
@@ -1671,7 +1908,6 @@ static int hf_xnap_fiveGproSerange;               /* Range */
 static int hf_xnap_fiveGproSeguaranteedFlowBitRate;  /* BitRate */
 static int hf_xnap_fiveGproSemaximumFlowBitRate;  /* BitRate */
 static int hf_xnap_Flows_Mapped_To_DRB_List_item;  /* Flows_Mapped_To_DRB_Item */
-static int hf_xnap_qoSFlowIdentifier;             /* QoSFlowIdentifier */
 static int hf_xnap_qoSFlowLevelQoSParameters;     /* QoSFlowLevelQoSParameters */
 static int hf_xnap_qoSFlowMappingIndication;      /* QoSFlowMappingIndication */
 static int hf_xnap_FreqDomainHSNAconfiguration_List_item;  /* FreqDomainHSNAconfiguration_List_Item */
@@ -1682,11 +1918,23 @@ static int hf_xnap_slotIndex;                     /* INTEGER_1_maxnoofHSNASlots 
 static int hf_xnap_hSNADownlink;                  /* HSNADownlink */
 static int hf_xnap_hSNAUplink;                    /* HSNAUplink */
 static int hf_xnap_hSNAFlexible;                  /* HSNAFlexible */
+static int hf_xnap_Future_Coverage_Modification_List_item;  /* Future_Coverage_Modification_Item */
+static int hf_xnap_nR_CGI;                        /* NR_CGI */
+static int hf_xnap_future_cellCoverageState;      /* INTEGER_0_63_ */
+static int hf_xnap_future_SSB_Coverage_Modification_List;  /* Future_SSB_Coverage_Modification_List */
+static int hf_xnap_predicted_Coverage_Modification_Cause;  /* Predicted_CoverageModificationCause */
+static int hf_xnap_timeForFutureCoverageState;    /* INTEGER_1_60_ */
+static int hf_xnap_Future_SSB_Coverage_Modification_List_item;  /* Future_SSB_Coverage_Modification_Item */
+static int hf_xnap_sSBIndex;                      /* INTEGER_0_63 */
+static int hf_xnap_future_SSBCoverageState;       /* INTEGER_0_15_ */
 static int hf_xnap_maxFlowBitRateDL;              /* BitRate */
 static int hf_xnap_maxFlowBitRateUL;              /* BitRate */
 static int hf_xnap_notificationControl;           /* T_notificationControl */
 static int hf_xnap_maxPacketLossRateDL;           /* PacketLossRate */
 static int hf_xnap_maxPacketLossRateUL;           /* PacketLossRate */
+static int hf_xnap_geographicalArea;              /* GeographicalArea */
+static int hf_xnap_nTNGeographicalArea;           /* NTNGeographicalArea */
+static int hf_xnap_nTNPLMNList;                   /* MDTPLMNList */
 static int hf_xnap_gnb_id;                        /* GNB_ID_Choice */
 static int hf_xnap_subcarrierSpacing;             /* SubcarrierSpacing */
 static int hf_xnap_dUFTransmissionPeriodicity;    /* DUFTransmissionPeriodicity */
@@ -1818,11 +2066,81 @@ static int hf_xnap_loggingInterval;               /* LoggingInterval */
 static int hf_xnap_loggingDuration;               /* LoggingDuration */
 static int hf_xnap_reportType;                    /* ReportType */
 static int hf_xnap_areaScopeOfNeighCellsList;     /* AreaScopeOfNeighCellsList */
+static int hf_xnap_lPWUScNsubgroupID;             /* LPWUSCNsubgroupID */
 static int hf_xnap_aerialUE;                      /* AerialUE */
 static int hf_xnap_aerialControllerUE;            /* AerialControllerUE */
 static int hf_xnap_vehicleUE;                     /* VehicleUE */
 static int hf_xnap_pedestrianUE;                  /* PedestrianUE */
 static int hf_xnap_uESidelinkAggregateMaximumBitRate;  /* BitRate */
+static int hf_xnap_lTMIndicator;                  /* LTMIndicator */
+static int hf_xnap_proposedLTM_NoSecurityChangeID_List;  /* LTM_NoSecurityChangeID_List */
+static int hf_xnap_referenceConfiguration;        /* ReferenceConfiguration */
+static int hf_xnap_lTMConfigurationIDMappingList;  /* LTMConfigurationIDMappingList */
+static int hf_xnap_cSIResourceConfiguration;      /* CSIResourceConfiguration */
+static int hf_xnap_requestForCSI_RSResourceConfigForLayer1Measurements;  /* RequestForCSI_RSResourceConfigForLayer1Measurements */
+static int hf_xnap_proposedLTML2ResetConfig_List;  /* LTML2ResetConfig_List */
+static int hf_xnap_LTMConfigurationIDMappingList_item;  /* LTMConfigurationIDMapping_Item */
+static int hf_xnap_lTMCellID;                     /* NR_CGI */
+static int hf_xnap_lTMConfigurationID;            /* LTMConfigurationID */
+static int hf_xnap_LTM_NoSecurityChangeID_List_item;  /* LTM_NoSecurityChangeID */
+static int hf_xnap_LTML2ResetConfig_List_item;    /* LTML2ResetConfig */
+static int hf_xnap_sSBInformation;                /* SSBInformation */
+static int hf_xnap_tCIStateConfigurationList;     /* T_tCIStateConfigurationList */
+static int hf_xnap_lTMCandidateConfiguration;     /* T_lTMCandidateConfiguration */
+static int hf_xnap_lTM_NoSecurityChangeID;        /* LTM_NoSecurityChangeID */
+static int hf_xnap_completeCandidateConfigurationIndicator;  /* CompleteCandidateConfigurationIndicator */
+static int hf_xnap_cSI_RSResourceConfigurationForLayer1Measurements;  /* CSI_RSResourceConfiguration */
+static int hf_xnap_cSI_RSResourceConfigurationForEarlyCSIAcquisition;  /* CSI_RSResourceConfiguration */
+static int hf_xnap_lTMCFRAResourceInformation;    /* LTMCFRAResourceInformation */
+static int hf_xnap_ltML2ResetConfig;              /* LTML2ResetConfig */
+static int hf_xnap_jointorDLTCIStateID;           /* JointorDLTCIStateID */
+static int hf_xnap_uLTCIStateID;                  /* ULTCIStateID */
+static int hf_xnap_LTMUEAssociationInformation_List_item;  /* LTMUEAssociationInformation_Item */
+static int hf_xnap_lastTarget_NG_RANnodeUEXnAPID;  /* NG_RANnodeUEXnAPID */
+static int hf_xnap_LTMUpdatesToCandidateCellInformation_List_item;  /* LTMUpdatesToCandidateCellInformation_Item */
+static int hf_xnap_earlySyncInformation;          /* EarlySyncInformation */
+static int hf_xnap_ueBasedTAMeasurementConfiguration;  /* T_ueBasedTAMeasurementConfiguration */
+static int hf_xnap_aSSecurityInformation;         /* AS_SecurityInformation */
+static int hf_xnap_lTMUEAssociation;              /* LTMUEAssociationInformation_List */
+static int hf_xnap_dataForwardingInfoForLTM_List;  /* DataForwardingInfoForLTM_List */
+static int hf_xnap_lTMCFRAResourceConfiguration;  /* T_lTMCFRAResourceConfiguration */
+static int hf_xnap_lTMCFRAResourceConfigurationSUL;  /* T_lTMCFRAResourceConfigurationSUL */
+static int hf_xnap_LTMUpdatesFromCandidateCellInformation_List_item;  /* LTMUpdatesFromCandidateCellInformation_Item */
+static int hf_xnap_lTMCandidateConfiguration_01;  /* T_lTMCandidateConfiguration_01 */
+static int hf_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition;  /* T_cSI_RSReportConfigurationForEarlyCSIAcquisition */
+static int hf_xnap_lTMUESecurityCapabilities;     /* LTMUESecurityCapabilities */
+static int hf_xnap_lTMUserPlaneSecurityInformation_List;  /* LTMUserPlaneSecurityInformation_List */
+static int hf_xnap_nr_EncyptionAlgorithms;        /* T_nr_EncyptionAlgorithms */
+static int hf_xnap_nr_IntegrityProtectionAlgorithms;  /* T_nr_IntegrityProtectionAlgorithms */
+static int hf_xnap_LTMUserPlaneSecurityInformation_List_item;  /* LTMUserPlaneSecurityInformation_Item */
+static int hf_xnap_securityIndication;            /* SecurityIndication */
+static int hf_xnap_LTMCandidateCellsToBeCancelled_List_item;  /* LTMCandidateCellsToBeCancelled_Item */
+static int hf_xnap_targetCellID;                  /* NR_CGI */
+static int hf_xnap_lTMReconfig;                   /* T_lTMReconfig */
+static int hf_xnap_lTM_RequestIndication;         /* T_lTM_RequestIndication */
+static int hf_xnap_maxNrofPSCellsToPrepare;       /* MaxNrofPSCellsToPrepare */
+static int hf_xnap_suggestedLTMCandidatePSCellList;  /* LTM_PSCell_Request_List */
+static int hf_xnap_cSI_ResourceConfiguration;     /* CSIResourceConfiguration */
+static int hf_xnap_sCG_ReferenceConfigRequest;    /* T_sCG_ReferenceConfigRequest */
+static int hf_xnap_lTM_ConfigurationIDMappingList;  /* LTMConfigurationIDMappingList */
+static int hf_xnap_lTM_CandidatePSCellPreparedList;  /* LTM_PSCell_Prepared_List */
+static int hf_xnap_multipleSN_List;               /* MultipleCandidateSN_List */
+static int hf_xnap_lTM_SCG_SecurityConfiguration;  /* LTM_SCG_SecurityConfiguration_List */
+static int hf_xnap_lTM_CandidatePSCellToBeCancelled;  /* LTMCandidateCellsToBeCancelled_List */
+static int hf_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition_01;  /* T_cSI_RSReportConfigurationForEarlyCSIAcquisition_01 */
+static int hf_xnap_lTM_RequestIndication_01;      /* LTM_RequestIndication */
+static int hf_xnap_multipleSNChangeRequired_List;  /* MultipleCandidateSNChangeRequired_List */
+static int hf_xnap_LTM_PSCell_Request_List_item;  /* LTM_PSCell_Request_Item */
+static int hf_xnap_earlySyncInformationRequest;   /* EarlySyncInformationRequest */
+static int hf_xnap_LTM_PSCell_Prepared_List_item;  /* LTM_PSCell_Prepared_Item */
+static int hf_xnap_tCI_StatesConfigurationsList;  /* T_tCI_StatesConfigurationsList */
+static int hf_xnap_complete_CandidateConfigurationIndicator;  /* T_complete_CandidateConfigurationIndicator */
+static int hf_xnap_lTML2ResetConfig;              /* LTML2ResetConfig */
+static int hf_xnap_LTM_SCG_SecurityConfiguration_List_item;  /* LTM_SCG_SecurityConfiguration_Item */
+static int hf_xnap_lTM_SCG_SecurityConfig_Info;   /* LTM_SCG_SecurityConfig_Info_List */
+static int hf_xnap_LTM_SCG_SecurityConfig_Info_List_item;  /* LTM_SCG_SecurityConfig_Info_Item */
+static int hf_xnap_s_ng_RANnode_SecurityKey;      /* S_NG_RANnode_SecurityKey */
+static int hf_xnap_sk_counter;                    /* SK_COUNTER */
 static int hf_xnap_s_BasedMDT;                    /* S_BasedMDT */
 static int hf_xnap_m1reportingTrigger;            /* M1ReportingTrigger */
 static int hf_xnap_m1thresholdeventA2;            /* M1ThresholdEventA2 */
@@ -1901,6 +2219,9 @@ static int hf_xnap_equivalent_PLMNs_item;         /* PLMN_Identity */
 static int hf_xnap_rat_Restrictions;              /* RAT_RestrictionsList */
 static int hf_xnap_forbiddenAreaInformation;      /* ForbiddenAreaList */
 static int hf_xnap_serviceAreaInformation;        /* ServiceAreaList */
+static int hf_xnap_monitoringRequest;             /* MonitoringRequest */
+static int hf_xnap_dlAvailableBitrateReportThresholds;  /* AvailableBitrateReportThresholdList */
+static int hf_xnap_ulAvailableBitrateReportThresholds;  /* AvailableBitrateReportThresholdList */
 static int hf_xnap_CNTypeRestrictionsForEquivalent_item;  /* CNTypeRestrictionsForEquivalentItem */
 static int hf_xnap_plmn_Identity;                 /* PLMN_Identity */
 static int hf_xnap_cn_Type;                       /* T_cn_Type */
@@ -1931,6 +2252,10 @@ static int hf_xnap_measuredtrajectoryCellInfo;    /* MeasuredTrajectoryCellInfo 
 static int hf_xnap_nG_RAN_Cell_01;                /* MeasuredTrajectoryNGRANCellInfo */
 static int hf_xnap_globalNG_RANCell_ID_01;        /* GlobalNG_RANCell_ID */
 static int hf_xnap_timeUEStaysInCell;             /* INTEGER_0_4095 */
+static int hf_xnap_MultipleCandidateSN_List_item;  /* MultipleCandidateSN_Item */
+static int hf_xnap_s_NG_RANnodeID;                /* GlobalNG_RANNode_ID */
+static int hf_xnap_MultipleCandidateSNChangeRequired_List_item;  /* MultipleCandidateSNChangeRequired_Item */
+static int hf_xnap_sN_to_MN_Container_01;         /* T_sN_to_MN_Container_01 */
 static int hf_xnap_n6JitterLowerBound;            /* INTEGER_M127_127 */
 static int hf_xnap_n6JitterUpperBound;            /* INTEGER_M127_127 */
 static int hf_xnap_NACellResourceConfigurationList_item;  /* NACellResourceConfiguration_Item */
@@ -1957,6 +2282,9 @@ static int hf_xnap_nr_FreqInfo;                   /* NRFrequencyInfo */
 static int hf_xnap_Neighbour_NG_RAN_Node_List_item;  /* Neighbour_NG_RAN_Node_Item */
 static int hf_xnap_globalNG_RANNodeID;            /* GlobalNG_RANNode_ID */
 static int hf_xnap_local_NG_RAN_Node_Identifier;  /* Local_NG_RAN_Node_Identifier */
+static int hf_xnap_NetworkSliceListforMDT_item;   /* NetworkSliceItemforMDT */
+static int hf_xnap_sliceMDTList;                  /* SliceMDTList */
+static int hf_xnap_networkSliceListforMDT;        /* NetworkSliceListforMDT */
 static int hf_xnap_NRCarrierList_item;            /* NRCarrierItem */
 static int hf_xnap_carrierSCS;                    /* NRSCS */
 static int hf_xnap_offsetToCarrier;               /* INTEGER_0_2199_ */
@@ -2045,6 +2373,14 @@ static int hf_xnap_routingID;                     /* RoutingID */
 static int hf_xnap_nRPPaTransactionID;            /* INTEGER_0_32767 */
 static int hf_xnap_ul_Transmission_Bandwidth;     /* NRTransmissionBandwidth */
 static int hf_xnap_dl_Transmission_Bandwidth;     /* NRTransmissionBandwidth */
+static int hf_xnap_nZP_CSI_RS_ResourceSet;        /* T_nZP_CSI_RS_ResourceSet */
+static int hf_xnap_nZP_CSI_RS_Resource_List;      /* NZP_CSI_RS_Resource_List */
+static int hf_xnap_NZP_CSI_RS_Resource_List_item;  /* NZP_CSI_RS_Resource_Item */
+static int hf_xnap_nZP_CSI_RS_Resource;           /* T_nZP_CSI_RS_Resource */
+static int hf_xnap_NTNGeographicalArea_item;      /* NTNGeographicalAreaItem */
+static int hf_xnap_circle;                        /* Circle */
+static int hf_xnap_polygon;                       /* Polygon */
+static int hf_xnap_cHOICE_Extensions;             /* ProtocolIE_Single_Container */
 static int hf_xnap_requestedSRSTransmissionCharacteristics;  /* RequestedSRSTransmissionCharacteristics */
 static int hf_xnap_pER_Scalar;                    /* PER_Scalar */
 static int hf_xnap_pER_Exponent;                  /* PER_Exponent */
@@ -2090,7 +2426,6 @@ static int hf_xnap_s_NSSAI;                       /* S_NSSAI */
 static int hf_xnap_pduSessionAMBR;                /* PDUSessionAggregateMaximumBitRate */
 static int hf_xnap_uL_NG_U_TNLatUPF;              /* UPTransportLayerInformation */
 static int hf_xnap_source_DL_NG_U_TNL_Information;  /* UPTransportLayerInformation */
-static int hf_xnap_securityIndication;            /* SecurityIndication */
 static int hf_xnap_pduSessionType;                /* PDUSessionType */
 static int hf_xnap_pduSessionNetworkInstance;     /* PDUSessionNetworkInstance */
 static int hf_xnap_qosFlowsToBeSetup_List;        /* QoSFlowsToBeSetup_List */
@@ -2170,7 +2505,6 @@ static int hf_xnap_dRBsToBeSetupList_item;        /* DRBsToBeSetupList_BearerSet
 static int hf_xnap_dRB_ID;                        /* DRB_ID */
 static int hf_xnap_mN_Xn_U_TNLInfoatM;            /* UPTransportLayerInformation */
 static int hf_xnap_PDUSessionResourceSecondaryRATUsageList_item;  /* PDUSessionResourceSecondaryRATUsageItem */
-static int hf_xnap_pDUSessionID;                  /* PDUSession_ID */
 static int hf_xnap_secondaryRATUsageInformation;  /* SecondaryRATUsageInformation */
 static int hf_xnap_rATType;                       /* T_rATType */
 static int hf_xnap_pDUSessionTimedReportList;     /* VolumeTimedReportList */
@@ -2191,6 +2525,10 @@ static int hf_xnap_protectedFootprintTimePattern;  /* ProtectedE_UTRAFootprintTi
 static int hf_xnap_protectedFootprintTimeperiodicity;  /* INTEGER_1_320_ */
 static int hf_xnap_protectedFootrpintStartTime;   /* INTEGER_1_20_ */
 static int hf_xnap_cAGListforMDT;                 /* CAGListforMDT */
+static int hf_xnap_PreambleIndexList_item;        /* PreambleIndex */
+static int hf_xnap_predictedSliceAvailableCapacity;  /* SliceAvailableCapacity */
+static int hf_xnap_cellCapacityClassValueDownlink;  /* CellCapacityClassValue */
+static int hf_xnap_cellCapacityClassValueUplink;  /* CellCapacityClassValue */
 static int hf_xnap_uEAppLayerMeasInfoList;        /* UEAppLayerMeasInfoList */
 static int hf_xnap_UEAppLayerMeasInfoList_item;   /* UEAppLayerMeasInfo_Item */
 static int hf_xnap_uEAppLayerMeasConfigInfo;      /* UEAppLayerMeasConfigInfo */
@@ -2304,8 +2642,6 @@ static int hf_xnap_ng_ran_TraceID;                /* NG_RANTraceID */
 static int hf_xnap_s_CPAC_Security_Config_List;   /* S_CPAC_SecurityConfig_List */
 static int hf_xnap_s_CPAC_MultiTargetSN_List;     /* S_CPAC_MultiTargetSN_List */
 static int hf_xnap_S_CPAC_SecurityConfig_List_item;  /* S_CPAC_SecurityConfig_Item */
-static int hf_xnap_s_ng_RANnode_SecurityKey;      /* S_NG_RANnode_SecurityKey */
-static int hf_xnap_sk_counter;                    /* SK_COUNTER */
 static int hf_xnap_S_CPAC_MultiTargetSN_List_item;  /* S_CPAC_MultiTargetSN_Item */
 static int hf_xnap_recommendedCandidatePSCells;   /* OCTET_STRING */
 static int hf_xnap_secondarydataForwardingInfoFromTarget;  /* DataForwardingInfoFromTargetNGRANnode */
@@ -2397,8 +2733,9 @@ static int hf_xnap_dl_resourceBitmap;             /* DataTrafficResources */
 static int hf_xnap_SliceAvailableCapacity_item;   /* SliceAvailableCapacity_Item */
 static int hf_xnap_pLMNIdentity;                  /* PLMN_Identity */
 static int hf_xnap_sNSSAIAvailableCapacity_List;  /* SNSSAIAvailableCapacity_List */
-static int hf_xnap_SNSSAIAvailableCapacity_List_item;  /* SNSSAIAvailableCapacity_Item */
+static int hf_xnap_SliceMDTList_item;             /* SliceMDTItem */
 static int hf_xnap_sNSSAI;                        /* S_NSSAI */
+static int hf_xnap_SNSSAIAvailableCapacity_List_item;  /* SNSSAIAvailableCapacity_Item */
 static int hf_xnap_sliceAvailableCapacityValueDownlink;  /* INTEGER_0_100 */
 static int hf_xnap_sliceAvailableCapacityValueUplink;  /* INTEGER_0_100 */
 static int hf_xnap_SliceRadioResourceStatus_List_item;  /* SliceRadioResourceStatus_Item */
@@ -2428,8 +2765,10 @@ static int hf_xnap_sd;                            /* OCTET_STRING_SIZE_3 */
 static int hf_xnap_specialSubframePattern;        /* SpecialSubframePatterns_E_UTRA */
 static int hf_xnap_cyclicPrefixDL;                /* CyclicPrefix_E_UTRA_DL */
 static int hf_xnap_cyclicPrefixUL;                /* CyclicPrefix_E_UTRA_UL */
+static int hf_xnap_sRS_Resource_Configuration_List;  /* SRS_Resource_Configuration_List */
+static int hf_xnap_SRS_Resource_Configuration_List_item;  /* SRS_Resource_Configuration_List_Item */
+static int hf_xnap_sRS_Resource;                  /* T_sRS_Resource */
 static int hf_xnap_SSBAreaCapacityValue_List_item;  /* SSBAreaCapacityValue_List_Item */
-static int hf_xnap_sSBIndex;                      /* INTEGER_0_63 */
 static int hf_xnap_ssbAreaCapacityValue;          /* INTEGER_0_100 */
 static int hf_xnap_SSBAreaRadioResourceStatus_List_item;  /* SSBAreaRadioResourceStatus_List_Item */
 static int hf_xnap_ssb_Area_DL_GBR_PRB_usage;     /* DL_GBR_PRB_usage */
@@ -2470,7 +2809,36 @@ static int hf_xnap_sNPN_TAIListforMDT;            /* SNPN_TAIListforMDT */
 static int hf_xnap_SNPN_TAIListforMDT_item;       /* SNPN_TAIforMDT_Item */
 static int hf_xnap_sNPNListforMDT;                /* SNPNListforMDT */
 static int hf_xnap_SNPNListforMDT_item;           /* SNPNforMDT_Item */
+static int hf_xnap_SSBInformation_item;           /* SSBInformation_Item */
+static int hf_xnap_sSBConfig;                     /* SSBConfig */
+static int hf_xnap_pCI;                           /* NRPCI */
+static int hf_xnap_sSB_Transmit_power;            /* INTEGER_M60_50 */
+static int hf_xnap_sSB_periodicity;               /* T_sSB_periodicity */
+static int hf_xnap_sSB_half_frame_offset;         /* INTEGER_0_1 */
+static int hf_xnap_sSB_SFN_offset;                /* INTEGER_0_15 */
+static int hf_xnap_sSB_position_in_burst;         /* SSB_PositionsInBurst */
+static int hf_xnap_SliceToReportForDataCollection_List_item;  /* SliceToReportForDataCollection_List_Item */
+static int hf_xnap_sliceMeasurementInitiationResult_List;  /* SliceMeasurementInitiationResult_List */
+static int hf_xnap_SliceMeasurementInitiationResult_List_item;  /* SliceMeasurementInitiationResult_Item */
+static int hf_xnap_sNSSAIMeasurementInitiationResult_List;  /* SNSSAIMeasurementInitiationResult_List */
+static int hf_xnap_SNSSAIMeasurementInitiationResult_List_item;  /* SNSSAIMeasurementInitiationResult_Item */
+static int hf_xnap_sNSSAIMeasurementFailureCause_List;  /* SNSSAIMeasurementFailureCause_List */
+static int hf_xnap_SNSSAIMeasurementFailureCause_List_item;  /* SNSSAIMeasurementFailureCause_Item */
+static int hf_xnap_sNSSAIMeasurementFailedReportCharacteristics;  /* BIT_STRING_SIZE_32 */
+static int hf_xnap_s_NSSAIUEPerformance_List;     /* S_NSSAIUEPerformance_List */
+static int hf_xnap_S_NSSAIUEPerformance_List_item;  /* S_NSSAIUEPerformance_Item */
+static int hf_xnap_sliceBasedUEPerformance;       /* SliceBasedUEPerformance */
+static int hf_xnap_sliceAverageUEThroughputDL;    /* BitRate */
+static int hf_xnap_sliceAverageUEThroughputUL;    /* BitRate */
+static int hf_xnap_sliceAverageUEPacketDelay;     /* AveragePacketDelay */
+static int hf_xnap_sliceAveragePacketDropDL;      /* INTEGER_0_1000000_ */
+static int hf_xnap_sliceAveragePacketLossUL;      /* INTEGER_0_1000000_ */
+static int hf_xnap_sRSTransmissionType;           /* T_sRSTransmissionType */
+static int hf_xnap_sRSResourceSetID;              /* T_sRSResourceSetID */
+static int hf_xnap_sRSSpatialRelation;            /* T_sRSSpatialRelation */
+static int hf_xnap_spatialRelationInforperSRSResource;  /* T_spatialRelationInforperSRSResource */
 static int hf_xnap_tAListforMDT;                  /* TAListforMDT */
+static int hf_xnap_Tci_State_InformationList_item;  /* Tci_State_Information_Item */
 static int hf_xnap_tAIListforMDT;                 /* TAIListforMDT */
 static int hf_xnap_TAIListforMDT_item;            /* TAIforMDT_Item */
 static int hf_xnap_TAINSAGSupportList_item;       /* TAINSAGSupportItem */
@@ -2522,6 +2890,9 @@ static int hf_xnap_tSCAssistanceInformationDownlink;  /* TSCAssistanceInformatio
 static int hf_xnap_tSCAssistanceInformationUplink;  /* TSCAssistanceInformation */
 static int hf_xnap_periodicity;                   /* INTEGER_0_640000_ */
 static int hf_xnap_burstArrivalTime;              /* T_burstArrivalTime */
+static int hf_xnap_TAInformation_List_item;       /* TAInformation_Item */
+static int hf_xnap_preambleIndex;                 /* PreambleIndex */
+static int hf_xnap_rA_RNTI;                       /* RA_RNTI */
 static int hf_xnap_dl_UE_AMBR;                    /* BitRate */
 static int hf_xnap_ul_UE_AMBR;                    /* BitRate */
 static int hf_xnap_serviceType;                   /* ServiceType */
@@ -2562,8 +2933,8 @@ static int hf_xnap_ueRLFReportContainerLTEExtendBand;  /* UERLFReportContainerLT
 static int hf_xnap_UESliceMaximumBitRateList_item;  /* UESliceMaximumBitRate_Item */
 static int hf_xnap_dl_UE_Slice_MBR;               /* BitRate */
 static int hf_xnap_ul_UE_Slice_MBR;               /* BitRate */
-static int hf_xnap_nr_EncyptionAlgorithms;        /* T_nr_EncyptionAlgorithms */
-static int hf_xnap_nr_IntegrityProtectionAlgorithms;  /* T_nr_IntegrityProtectionAlgorithms */
+static int hf_xnap_nr_EncyptionAlgorithms_01;     /* T_nr_EncyptionAlgorithms_01 */
+static int hf_xnap_nr_IntegrityProtectionAlgorithms_01;  /* T_nr_IntegrityProtectionAlgorithms_01 */
 static int hf_xnap_e_utra_EncyptionAlgorithms;    /* T_e_utra_EncyptionAlgorithms */
 static int hf_xnap_e_utra_IntegrityProtectionAlgorithms;  /* T_e_utra_IntegrityProtectionAlgorithms */
 static int hf_xnap_uL_PDCP;                       /* UL_UE_Configuration */
@@ -2579,7 +2950,7 @@ static int hf_xnap_measuredUETrajectory;          /* MeasuredUETrajectory */
 static int hf_xnap_dL_UE_AverageThroughput;       /* BitRate */
 static int hf_xnap_uL_UE_AverageThroughput;       /* BitRate */
 static int hf_xnap_uE_AveragePacketDelay;         /* AveragePacketDelay */
-static int hf_xnap_uE_AveragePacketLossDL;        /* PacketLossRate */
+static int hf_xnap_uE_AveragePacketDropDL;        /* INTEGER_0_1000000_ */
 static int hf_xnap_collectionTimeDurationForUEPerformance;  /* INTEGER_1_5000_ */
 static int hf_xnap_collectionTimeDurationForUETrajectory;  /* INTEGER_1_4096_ */
 static int hf_xnap_numberOfVisitedCells;          /* INTEGER_1_16_ */
@@ -2588,6 +2959,8 @@ static int hf_xnap_startTimeStamp;                /* T_startTimeStamp */
 static int hf_xnap_endTimeStamp;                  /* T_endTimeStamp */
 static int hf_xnap_usageCountUL;                  /* INTEGER_0_18446744073709551615 */
 static int hf_xnap_usageCountDL;                  /* INTEGER_0_18446744073709551615 */
+static int hf_xnap_nrCGI;                         /* NR_CGI */
+static int hf_xnap_cRNTI;                         /* BIT_STRING_SIZE_16 */
 static int hf_xnap_wlanMeasConfig;                /* WLANMeasConfig */
 static int hf_xnap_wlanMeasConfigNameList;        /* WLANMeasConfigNameList */
 static int hf_xnap_wlan_rssi;                     /* T_wlan_rssi */
@@ -2691,10 +3064,9 @@ static int hf_xnap_nr_cells_item;                 /* NR_CGI */
 static int hf_xnap_e_utra_cells;                  /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI */
 static int hf_xnap_e_utra_cells_item;             /* E_UTRA_CGI */
 static int hf_xnap_ToBeActivatedNRCellsAndSSBsList_item;  /* ToBeActivatedNRCellsAndSSBs_Item */
-static int hf_xnap_nrCGI;                         /* NR_CGI */
 static int hf_xnap_sSBstobeActivatedList;         /* SEQUENCE_SIZE_1_maxnoofSSBAreas_OF_SSBsToBeActivated_Item */
 static int hf_xnap_sSBstobeActivatedList_item;    /* SSBsToBeActivated_Item */
-static int hf_xnap_ssbIndex;                      /* INTEGER_0_63 */
+static int hf_xnap_ssbIndex_01;                   /* INTEGER_0_63 */
 static int hf_xnap_ActivatedNRCellsAndSSBsList_item;  /* ActivatedNRCellsAndSSBs_Item */
 static int hf_xnap_sSBsActivatedList;             /* SEQUENCE_SIZE_1_maxnoofSSBAreas_OF_SSBsActivated_Item */
 static int hf_xnap_sSBsActivatedList_item;        /* SSBsActivated_Item */
@@ -2719,6 +3091,11 @@ static int hf_xnap_BoundaryNodeCellsList_item;    /* BoundaryNodeCellsList_Item 
 static int hf_xnap_boundaryNodeCellInformation;   /* IABCellInformation */
 static int hf_xnap_ParentNodeCellsList_item;      /* ParentNodeCellsList_Item */
 static int hf_xnap_parentNodeCellInformation;     /* IABCellInformation */
+static int hf_xnap_start;                         /* ODSIB1ConfigurationInformation */
+static int hf_xnap_stop;                          /* NR_CGI */
+static int hf_xnap_oDSIB1Configuration;           /* OCTET_STRING */
+static int hf_xnap_nES_Cell_ID;                   /* NR_CGI */
+static int hf_xnap_cEll_A_ID;                     /* NR_CGI */
 static int hf_xnap_initiatingMessage;             /* InitiatingMessage */
 static int hf_xnap_successfulOutcome;             /* SuccessfulOutcome */
 static int hf_xnap_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
@@ -2726,6 +3103,14 @@ static int hf_xnap_initiatingMessage_value;       /* InitiatingMessage_value */
 static int hf_xnap_successfulOutcome_value;       /* SuccessfulOutcome_value */
 static int hf_xnap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
 /* named bits */
+static int hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0;
+static int hf_xnap_T_nr_EncyptionAlgorithms_nea1_128;
+static int hf_xnap_T_nr_EncyptionAlgorithms_nea2_128;
+static int hf_xnap_T_nr_EncyptionAlgorithms_nea3_128;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128;
 static int hf_xnap_RAT_RestrictionInformation_e_UTRA;
 static int hf_xnap_RAT_RestrictionInformation_nR;
 static int hf_xnap_RAT_RestrictionInformation_nR_unlicensed;
@@ -2738,14 +3123,14 @@ static int hf_xnap_T_interfaces_to_trace_x_nc;
 static int hf_xnap_T_interfaces_to_trace_uu;
 static int hf_xnap_T_interfaces_to_trace_f1_c;
 static int hf_xnap_T_interfaces_to_trace_e1;
-static int hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0;
-static int hf_xnap_T_nr_EncyptionAlgorithms_nea1_128;
-static int hf_xnap_T_nr_EncyptionAlgorithms_nea2_128;
-static int hf_xnap_T_nr_EncyptionAlgorithms_nea3_128;
-static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0;
-static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128;
-static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128;
-static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128;
+static int hf_xnap_T_nr_EncyptionAlgorithms_01_spare_bit0;
+static int hf_xnap_T_nr_EncyptionAlgorithms_01_nea1_128;
+static int hf_xnap_T_nr_EncyptionAlgorithms_01_nea2_128;
+static int hf_xnap_T_nr_EncyptionAlgorithms_01_nea3_128;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_spare_bit0;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_nia1_128;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_nia2_128;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_nia3_128;
 static int hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit0;
 static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128;
 static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea2_128;
@@ -2812,6 +3197,38 @@ static int ett_xnap_ReportCharacteristicsForDataCollection;
 static int ett_xnap_SRSConfiguration;
 static int ett_xnap_PSCellListContainer;
 static int ett_xnap_SuccessfulPSCellChangeReportContainer;
+static int ett_xnap_Circle_referenceLocation;
+static int ett_xnap_cSIResourceConfigurationToAddModList;
+static int ett_xnap_cSIResourceConfigurationToReleaseList;
+static int ett_xnap_cSI_RSResourceToAddModList;
+static int ett_xnap_cSI_RSResourceToReleaseList;
+static int ett_xnap_cSI_RSResourceSetToAddModList;
+static int ett_xnap_cSI_RSResourceSetToReleaseList;
+static int ett_xnap_cSI_IMResourceToAddModList;
+static int ett_xnap_cSI_IMResourceToReleaseList;
+static int ett_xnap_cSI_IMResourceSetToAddModList;
+static int ett_xnap_cSI_IMResourceSetToReleaseList;
+static int ett_xnap_rACHConfiguration;
+static int ett_xnap_JointorDLTCIStateID;
+static int ett_xnap_tCIStateConfigurationList;
+static int ett_xnap_lTMCandidateConfiguration;
+static int ett_xnap_ueBasedTAMeasurementConfiguration;
+static int ett_xnap_lTMCFRAResourceConfiguration;
+static int ett_xnap_lTMCFRAResourceConfigurationSUL;
+static int ett_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition;
+static int ett_xnap_tCI_StatesConfigurationsList;
+static int ett_xnap_sN_to_MN_Container;
+static int ett_xnap_nZP_CSI_RS_ResourceSet;
+static int ett_xnap_nZP_CSI_RS_Resource;
+static int ett_xnap_Polygon;
+static int ett_xnap_ReferenceConfiguration;
+static int ett_xnap_SBFD_Frequency_Configuration;
+static int ett_xnap_sRS_Resource;
+static int ett_xnap_sRSResourceSetID;
+static int ett_xnap_sRSSpatialRelation;
+static int ett_xnap_spatialRelationInforperSRSResource;
+static int ett_xnap_TagIDPointer;
+static int ett_xnap_ULTCIStateID;
 static int ett_xnap_PrivateIE_ID;
 static int ett_xnap_ProtocolIE_Container;
 static int ett_xnap_ProtocolIE_Field;
@@ -2819,10 +3236,13 @@ static int ett_xnap_ProtocolExtensionContainer;
 static int ett_xnap_ProtocolExtensionField;
 static int ett_xnap_PrivateIE_Container;
 static int ett_xnap_PrivateIE_Field;
+static int ett_xnap_AerialUEFlightInformationReportingControl;
 static int ett_xnap_A2XPC5QoSParameters;
 static int ett_xnap_A2XPC5QoSFlowList;
 static int ett_xnap_A2XPC5QoSFlowItem;
 static int ett_xnap_A2XPC5FlowBitRates;
+static int ett_xnap_AvailableBitrateReportThresholdList;
+static int ett_xnap_AvailableBitrateReportThresholdItem;
 static int ett_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated;
 static int ett_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_Item;
 static int ett_xnap_AveragePacketDelay;
@@ -2834,6 +3254,10 @@ static int ett_xnap_Additional_Measurement_Timing_Configuration_List;
 static int ett_xnap_Additional_Measurement_Timing_Configuration_Item;
 static int ett_xnap_Active_MBS_SessionInformation;
 static int ett_xnap_DataCollectionID;
+static int ett_xnap_AdditionalDRBSetupInfoList;
+static int ett_xnap_AdditionalDRBsToBeSetupInfo_Item;
+static int ett_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList;
+static int ett_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList_Item;
 static int ett_xnap_AllocationandRetentionPriority;
 static int ett_xnap_AllowedCAG_ID_List_perPLMN;
 static int ett_xnap_AllowedPNI_NPN_ID_List;
@@ -2904,6 +3328,8 @@ static int ett_xnap_CellToReportForDataCollection_Item;
 static int ett_xnap_CellBasedUETrajectoryPrediction;
 static int ett_xnap_CellMeasurementInitiationResult_List;
 static int ett_xnap_CellMeasurementInitiationResult_Item;
+static int ett_xnap_CLI_MeasurementResult_List;
+static int ett_xnap_CLI_MeasurementResult_Item;
 static int ett_xnap_CellMeasurementResultForDataCollection_List;
 static int ett_xnap_CellInfoResultForDataCollection_Item;
 static int ett_xnap_Cell_Type_Choice;
@@ -2930,6 +3356,7 @@ static int ett_xnap_CHO_target_SN_node_list;
 static int ett_xnap_CHO_target_SN_node_Item;
 static int ett_xnap_CHO_Candidate_PSCells_list;
 static int ett_xnap_CHO_Candidate_PSCells_Item;
+static int ett_xnap_Circle;
 static int ett_xnap_Conditional_Reconfig_List;
 static int ett_xnap_Conditional_Reconfig_Item;
 static int ett_xnap_Connectivity_Support;
@@ -2974,6 +3401,17 @@ static int ett_xnap_CSI_RS_MTC_Neighbour_List;
 static int ett_xnap_CSI_RS_MTC_Neighbour_Item;
 static int ett_xnap_CAGListforMDT;
 static int ett_xnap_CAGListforMDTItem;
+static int ett_xnap_CSIResourceConfiguration;
+static int ett_xnap_CSI_RSResourceConfiguration;
+static int ett_xnap_NZP_CSI_RS_ResourceConfiguration;
+static int ett_xnap_NZP_CSI_RS_ResourceSetConfiguration;
+static int ett_xnap_CSI_IM_ResourceConfiguration;
+static int ett_xnap_CellSwitchTAInformation_List;
+static int ett_xnap_CellSwitchTAInformation_Item;
+static int ett_xnap_CSI_RSCoordinationRequestList;
+static int ett_xnap_CSI_RSCoordinationRequest_Item;
+static int ett_xnap_CSI_RSCoordinationResultList;
+static int ett_xnap_CSI_RSCoordinationResult_Item;
 static int ett_xnap_XnUAddressInfoperPDUSession_List;
 static int ett_xnap_XnUAddressInfoperPDUSession_Item;
 static int ett_xnap_DataForwardingInfoFromTargetE_UTRANnode;
@@ -3010,11 +3448,16 @@ static int ett_xnap_DRBsSubjectToStatusTransfer_Item;
 static int ett_xnap_DRBBStatusTransferChoice;
 static int ett_xnap_DRBBStatusTransfer12bitsSN;
 static int ett_xnap_DRBBStatusTransfer18bitsSN;
+static int ett_xnap_PDCPSNGapTransfer_UL;
+static int ett_xnap_DRBStatusTransfer12bitsSN_ULGap;
+static int ett_xnap_DRBStatusTransfer18bitsSN_ULGap;
 static int ett_xnap_DRBToQoSFlowMapping_List;
 static int ett_xnap_DRBToQoSFlowMapping_Item;
 static int ett_xnap_DUF_Slot_Config_List;
 static int ett_xnap_DUF_Slot_Config_Item;
 static int ett_xnap_Dynamic5QIDescriptor;
+static int ett_xnap_DataForwardingInfoForLTM_List;
+static int ett_xnap_DataForwardingInfoForLTM_Item;
 static int ett_xnap_ECNMarkingorCongestionInformationReportingRequest;
 static int ett_xnap_EquivalentSNPNs;
 static int ett_xnap_E_UTRA_CGI;
@@ -3039,6 +3482,13 @@ static int ett_xnap_ExtTLAs;
 static int ett_xnap_ExtTLA_Item;
 static int ett_xnap_GTPTLAs;
 static int ett_xnap_GTPTLA_Item;
+static int ett_xnap_EarlySyncInformationRequest;
+static int ett_xnap_EarlySyncInformation;
+static int ett_xnap_EarlyRACHResourcesProviders_List;
+static int ett_xnap_EarlyRACHResourcesProviders_Item;
+static int ett_xnap_EarlyULSyncConfig;
+static int ett_xnap_EarlyRACHResources_List;
+static int ett_xnap_EarlyRACHResources_Item;
 static int ett_xnap_F1_TerminatingTopologyBHInformation;
 static int ett_xnap_F1TerminatingBHInformation_List;
 static int ett_xnap_F1TerminatingBHInformation_Item;
@@ -3053,7 +3503,13 @@ static int ett_xnap_FreqDomainHSNAconfiguration_List;
 static int ett_xnap_FreqDomainHSNAconfiguration_List_Item;
 static int ett_xnap_FreqDomainSlotHSNAconfiguration_List;
 static int ett_xnap_FreqDomainSlotHSNAconfiguration_List_Item;
+static int ett_xnap_Future_Coverage_Modification_List;
+static int ett_xnap_Future_Coverage_Modification_Item;
+static int ett_xnap_Future_SSB_Coverage_Modification_List;
+static int ett_xnap_Future_SSB_Coverage_Modification_Item;
 static int ett_xnap_GBRQoSFlowInfo;
+static int ett_xnap_GeographyBasedMDT;
+static int ett_xnap_GeographicalArea;
 static int ett_xnap_GlobalgNB_ID;
 static int ett_xnap_GNB_DU_Cell_Resource_Configuration;
 static int ett_xnap_GNB_ID_Choice;
@@ -3110,9 +3566,52 @@ static int ett_xnap_TAIsinAoI_Item;
 static int ett_xnap_LocationReportingInformation;
 static int ett_xnap_LoggedEventTriggeredConfig;
 static int ett_xnap_LoggedMDT_NR;
+static int ett_xnap_LPWUSPSassistanceInformation;
 static int ett_xnap_LTEA2XServicesAuthorized;
 static int ett_xnap_LTEV2XServicesAuthorized;
 static int ett_xnap_LTEUESidelinkAggregateMaximumBitRate;
+static int ett_xnap_LTMHandoverInformationRequest;
+static int ett_xnap_LTMConfigurationIDMappingList;
+static int ett_xnap_LTMConfigurationIDMapping_Item;
+static int ett_xnap_LTM_NoSecurityChangeID_List;
+static int ett_xnap_LTML2ResetConfig_List;
+static int ett_xnap_LTMHandoverInformationRequestAcknowledge;
+static int ett_xnap_LTMCellSwitchInformation;
+static int ett_xnap_LTMUEAssociationInformation_List;
+static int ett_xnap_LTMUEAssociationInformation_Item;
+static int ett_xnap_LTMUpdatesToCandidateNodeInformation;
+static int ett_xnap_LTMUpdatesToCandidateCellInformation_List;
+static int ett_xnap_LTMUpdatesToCandidateCellInformation_Item;
+static int ett_xnap_LTMCFRAResourceInformation;
+static int ett_xnap_LTMUpdatesFromCandidateCellInformation_List;
+static int ett_xnap_LTMUpdatesFromCandidateCellInformation_Item;
+static int ett_xnap_LTMUESecurityInformation;
+static int ett_xnap_LTMUESecurityCapabilities;
+static int ett_xnap_T_nr_EncyptionAlgorithms;
+static int ett_xnap_T_nr_IntegrityProtectionAlgorithms;
+static int ett_xnap_LTMUserPlaneSecurityInformation_List;
+static int ett_xnap_LTMUserPlaneSecurityInformation_Item;
+static int ett_xnap_LTMCandidateCellsToBeCancelled_List;
+static int ett_xnap_LTMCandidateCellsToBeCancelled_Item;
+static int ett_xnap_LTMInformationSCG_AddReq;
+static int ett_xnap_LTMInformationSCG_AddReqAck;
+static int ett_xnap_LTMInformationSCG_ModReq;
+static int ett_xnap_LTMPSCellInformation_AddReq;
+static int ett_xnap_LTMPSCellInformation_AddReqAck;
+static int ett_xnap_LTMPSCellInformation_UpdateReq;
+static int ett_xnap_LTMPSCellInformation_UpdateReqAck;
+static int ett_xnap_LTMPSCellInformation_UpdateRequired;
+static int ett_xnap_LTMPSCellInformation_UpdateConfirm;
+static int ett_xnap_LTMPSCellInformation_ChangeRequired;
+static int ett_xnap_LTMPSCellInformation_ChangeConfirm;
+static int ett_xnap_LTM_PSCell_Request_List;
+static int ett_xnap_LTM_PSCell_Request_Item;
+static int ett_xnap_LTM_PSCell_Prepared_List;
+static int ett_xnap_LTM_PSCell_Prepared_Item;
+static int ett_xnap_LTM_SCG_SecurityConfiguration_List;
+static int ett_xnap_LTM_SCG_SecurityConfiguration_Item;
+static int ett_xnap_LTM_SCG_SecurityConfig_Info_List;
+static int ett_xnap_LTM_SCG_SecurityConfig_Info_Item;
 static int ett_xnap_MDTAlignmentInfo;
 static int ett_xnap_M1Configuration;
 static int ett_xnap_M1PeriodicReporting;
@@ -3159,6 +3658,7 @@ static int ett_xnap_MobilityParametersModificationRange;
 static int ett_xnap_MobilityParametersInformation;
 static int ett_xnap_MobilityRestrictionList;
 static int ett_xnap_SEQUENCE_SIZE_1_maxnoofEPLMNs_OF_PLMN_Identity;
+static int ett_xnap_MonitoringRequestonAvailableBitrate;
 static int ett_xnap_CNTypeRestrictionsForEquivalent;
 static int ett_xnap_CNTypeRestrictionsForEquivalentItem;
 static int ett_xnap_RAT_RestrictionsList;
@@ -3181,6 +3681,10 @@ static int ett_xnap_MeasuredUETrajectory;
 static int ett_xnap_MeasuredUETrajectory_Item;
 static int ett_xnap_MeasuredTrajectoryCellInfo;
 static int ett_xnap_MeasuredTrajectoryNGRANCellInfo;
+static int ett_xnap_MultipleCandidateSN_List;
+static int ett_xnap_MultipleCandidateSN_Item;
+static int ett_xnap_MultipleCandidateSNChangeRequired_List;
+static int ett_xnap_MultipleCandidateSNChangeRequired_Item;
 static int ett_xnap_N6JitterInformation;
 static int ett_xnap_NACellResourceConfigurationList;
 static int ett_xnap_NACellResourceConfiguration_Item;
@@ -3194,6 +3698,9 @@ static int ett_xnap_NeighbourInformation_NR_ModeFDDInfo;
 static int ett_xnap_NeighbourInformation_NR_ModeTDDInfo;
 static int ett_xnap_Neighbour_NG_RAN_Node_List;
 static int ett_xnap_Neighbour_NG_RAN_Node_Item;
+static int ett_xnap_NetworkSliceListforMDT;
+static int ett_xnap_NetworkSliceItemforMDT;
+static int ett_xnap_NetworkSliceAreaScopeofMDT;
 static int ett_xnap_NRCarrierList;
 static int ett_xnap_NRCarrierItem;
 static int ett_xnap_NG_RAN_Cell_Identity;
@@ -3246,6 +3753,11 @@ static int ett_xnap_NRPPaPositioningInformation;
 static int ett_xnap_Transmission_Bandwidth_asymmetric;
 static int ett_xnap_NRV2XServicesAuthorized;
 static int ett_xnap_NRUESidelinkAggregateMaximumBitRate;
+static int ett_xnap_NZP_CSI_RS_Resources_Config;
+static int ett_xnap_NZP_CSI_RS_Resource_List;
+static int ett_xnap_NZP_CSI_RS_Resource_Item;
+static int ett_xnap_NTNGeographicalArea;
+static int ett_xnap_NTNGeographicalAreaItem;
 static int ett_xnap_PositioningInformation;
 static int ett_xnap_PacketErrorRate;
 static int ett_xnap_PEIPSassistanceInformation;
@@ -3346,6 +3858,8 @@ static int ett_xnap_ProtectedE_UTRAResource_Item;
 static int ett_xnap_ProtectedE_UTRAFootprintTimePattern;
 static int ett_xnap_PNI_NPN_AreaScopeofMDT;
 static int ett_xnap_PNI_NPNBasedMDT;
+static int ett_xnap_PreambleIndexList;
+static int ett_xnap_PredictedSliceAvailableCapacityGroup;
 static int ett_xnap_QMCConfigInfo;
 static int ett_xnap_UEAppLayerMeasInfoList;
 static int ett_xnap_UEAppLayerMeasInfo_Item;
@@ -3467,6 +3981,8 @@ static int ett_xnap_SharedResourceType_ULDL_Sharing_DL_Resources;
 static int ett_xnap_SharedResourceType_ULDL_Sharing_DL_ResourcesChanged;
 static int ett_xnap_SliceAvailableCapacity;
 static int ett_xnap_SliceAvailableCapacity_Item;
+static int ett_xnap_SliceMDTList;
+static int ett_xnap_SliceMDTItem;
 static int ett_xnap_SNSSAIAvailableCapacity_List;
 static int ett_xnap_SNSSAIAvailableCapacity_Item;
 static int ett_xnap_SliceRadioResourceStatus_List;
@@ -3488,6 +4004,9 @@ static int ett_xnap_SlotConfiguration_List_Item;
 static int ett_xnap_S_NSSAI;
 static int ett_xnap_SNPNIdentity;
 static int ett_xnap_SpecialSubframeInfo_E_UTRA;
+static int ett_xnap_SRS_Resource_Configuration;
+static int ett_xnap_SRS_Resource_Configuration_List;
+static int ett_xnap_SRS_Resource_Configuration_List_Item;
 static int ett_xnap_SSBAreaCapacityValue_List;
 static int ett_xnap_SSBAreaCapacityValue_List_Item;
 static int ett_xnap_SSBAreaRadioResourceStatus_List;
@@ -3523,7 +4042,26 @@ static int ett_xnap_SNPN_TAIforMDT_Item;
 static int ett_xnap_SNPN_BasedMDT;
 static int ett_xnap_SNPNListforMDT;
 static int ett_xnap_SNPNforMDT_Item;
+static int ett_xnap_SSBInformation;
+static int ett_xnap_SSBInformation_Item;
+static int ett_xnap_SSBConfig;
+static int ett_xnap_SliceToReportForDataCollection_List;
+static int ett_xnap_SliceToReportForDataCollection_List_Item;
+static int ett_xnap_SliceMeasurementInitiationResult;
+static int ett_xnap_SliceMeasurementInitiationResult_List;
+static int ett_xnap_SliceMeasurementInitiationResult_Item;
+static int ett_xnap_SNSSAIMeasurementInitiationResult_List;
+static int ett_xnap_SNSSAIMeasurementInitiationResult_Item;
+static int ett_xnap_SNSSAIMeasurementFailureCause_List;
+static int ett_xnap_SNSSAIMeasurementFailureCause_Item;
+static int ett_xnap_SliceUEPerformance;
+static int ett_xnap_S_NSSAIUEPerformance_List;
+static int ett_xnap_S_NSSAIUEPerformance_Item;
+static int ett_xnap_SliceBasedUEPerformance;
+static int ett_xnap_SemipersistentPositioningInformation;
 static int ett_xnap_TABasedMDT;
+static int ett_xnap_Tci_State_InformationList;
+static int ett_xnap_Tci_State_Information_Item;
 static int ett_xnap_TAIBasedMDT;
 static int ett_xnap_TAIListforMDT;
 static int ett_xnap_TAIforMDT_Item;
@@ -3569,6 +4107,8 @@ static int ett_xnap_TrafficToBeRelease_List;
 static int ett_xnap_TrafficToBeRelease_Item;
 static int ett_xnap_TSCTrafficCharacteristics;
 static int ett_xnap_TSCAssistanceInformation;
+static int ett_xnap_TAInformation_List;
+static int ett_xnap_TAInformation_Item;
 static int ett_xnap_UEAggregateMaximumBitRate;
 static int ett_xnap_UEAppLayerMeasConfigInfo;
 static int ett_xnap_UEContextID;
@@ -3588,8 +4128,8 @@ static int ett_xnap_UERLFReportContainerLTEExtension;
 static int ett_xnap_UESliceMaximumBitRateList;
 static int ett_xnap_UESliceMaximumBitRate_Item;
 static int ett_xnap_UESecurityCapabilities;
-static int ett_xnap_T_nr_EncyptionAlgorithms;
-static int ett_xnap_T_nr_IntegrityProtectionAlgorithms;
+static int ett_xnap_T_nr_EncyptionAlgorithms_01;
+static int ett_xnap_T_nr_IntegrityProtectionAlgorithms_01;
 static int ett_xnap_T_e_utra_EncyptionAlgorithms;
 static int ett_xnap_T_e_utra_IntegrityProtectionAlgorithms;
 static int ett_xnap_ULConfiguration;
@@ -3606,6 +4146,7 @@ static int ett_xnap_UEPerformanceCollectionConfiguration;
 static int ett_xnap_UETrajectoryCollectionConfiguration;
 static int ett_xnap_VolumeTimedReportList;
 static int ett_xnap_VolumeTimedReport_Item;
+static int ett_xnap_WAB_MT_ID;
 static int ett_xnap_WLANMeasurementConfiguration;
 static int ett_xnap_WLANMeasConfigNameList;
 static int ett_xnap_HandoverRequest;
@@ -3742,6 +4283,7 @@ static int ett_xnap_TraceStart;
 static int ett_xnap_DeactivateTrace;
 static int ett_xnap_FailureIndication;
 static int ett_xnap_HandoverReport;
+static int ett_xnap_SCGFailureIndication;
 static int ett_xnap_ResourceStatusRequest;
 static int ett_xnap_ResourceStatusResponse;
 static int ett_xnap_ResourceStatusFailure;
@@ -3795,6 +4337,21 @@ static int ett_xnap_DataCollectionRequest;
 static int ett_xnap_DataCollectionResponse;
 static int ett_xnap_DataCollectionFailure;
 static int ett_xnap_DataCollectionUpdate;
+static int ett_xnap_ODSIB1ConfigurationProvisionRequest;
+static int ett_xnap_RequestTypeChoice;
+static int ett_xnap_ODSIB1ConfigurationInformation;
+static int ett_xnap_ODSIB1ConfigurationProvisionResponse;
+static int ett_xnap_ODSIB1ConfigurationProvisionFailure;
+static int ett_xnap_ODSIB1ConfigurationProvisionStatusUpdate;
+static int ett_xnap_CellSwitchNotification;
+static int ett_xnap_TAInformationTransfer;
+static int ett_xnap_LTMConfigurationUpdate;
+static int ett_xnap_LTMConfigurationUpdateAcknowledge;
+static int ett_xnap_LTMConfigurationUpdateFailure;
+static int ett_xnap_LTMCancel;
+static int ett_xnap_CSIRSCoordinationRequest;
+static int ett_xnap_CSIRSCoordinationResponse;
+static int ett_xnap_CLI_Indication;
 static int ett_xnap_XnAP_PDU;
 static int ett_xnap_InitiatingMessage;
 static int ett_xnap_SuccessfulOutcome;
@@ -3898,6 +4455,20 @@ static void
 xnap_N6Jitter_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%d)", (float)v/2, (int32_t)v);
+}
+
+static void
+xnap_50m_fmt(char *s, uint32_t v)
+{
+  int32_t d = (int32_t)v;
+
+  snprintf(s, ITEM_LABEL_LENGTH, "%dm (%d)", d*50, d);
+}
+
+static void
+xnap_tenth_seconds_fmt(char *s, uint32_t v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
 }
 
 typedef enum {
@@ -4066,6 +4637,15 @@ static const value_string xnap_ProcedureCode_vals[] = {
   { id_rachIndication, "id-rachIndication" },
   { id_dataCollectionReportingInitiation, "id-dataCollectionReportingInitiation" },
   { id_dataCollectionReporting, "id-dataCollectionReporting" },
+  { id_ODSIB1ConfigurationProvision, "id-ODSIB1ConfigurationProvision" },
+  { id_ODSIB1ConfigurationProvisionStatusUpdate, "id-ODSIB1ConfigurationProvisionStatusUpdate" },
+  { id_lTMConfigurationUpdate, "id-lTMConfigurationUpdate" },
+  { id_cSIRSCoordination, "id-cSIRSCoordination" },
+  { id_cellSwitchNotification, "id-cellSwitchNotification" },
+  { id_tAInformationTransfer, "id-tAInformationTransfer" },
+  { id_lTMCancel, "id-lTMCancel" },
+  { id_cLI_Indication, "id-cLI-Indication" },
+  { id_scgFailureIndication, "id-scgFailureIndication" },
   { 0, NULL }
 };
 
@@ -4560,6 +5140,80 @@ static const value_string xnap_ProtocolIE_ID_vals[] = {
   { id_Transmission_Bandwidth_asymmetric, "id-Transmission-Bandwidth-asymmetric" },
   { id_SRSPositioningConfigOrActivationRequest, "id-SRSPositioningConfigOrActivationRequest" },
   { id_NRPPaPositioningInformation, "id-NRPPaPositioningInformation" },
+  { id_AerialUEFlightInformationReportingControl, "id-AerialUEFlightInformationReportingControl" },
+  { id_PDCPSNGapTransfer_UL, "id-PDCPSNGapTransfer-UL" },
+  { id_RequestType, "id-RequestType" },
+  { id_NES_Cell_ID, "id-NES-Cell-ID" },
+  { id_Cell_A_ID, "id-Cell-A-ID" },
+  { id_ProvisionStatus, "id-ProvisionStatus" },
+  { id_ECNMarkingorCongestionInformationReportingStatus, "id-ECNMarkingorCongestionInformationReportingStatus" },
+  { id_AdditionalDRBSetupInfoList, "id-AdditionalDRBSetupInfoList" },
+  { id_PSIbasedSDUdiscardUL, "id-PSIbasedSDUdiscardUL" },
+  { id_PSIbasedSDUdiscardDL, "id-PSIbasedSDUdiscardDL" },
+  { id_DLPDUSetInformationMarkingSupportIndication, "id-DLPDUSetInformationMarkingSupportIndication" },
+  { id_PduSetDelayBudgetDownlink, "id-PduSetDelayBudgetDownlink" },
+  { id_PduSetDelayBudgetUplink, "id-PduSetDelayBudgetUplink" },
+  { id_PduSetErrorRateDownlink, "id-PduSetErrorRateDownlink" },
+  { id_PduSetErrorRateUplink, "id-PduSetErrorRateUplink" },
+  { id_MonitoringRequestonAvailableBitrate, "id-MonitoringRequestonAvailableBitrate" },
+  { id_MMSID, "id-MMSID" },
+  { id_Indication_of_bitrate_adaptation, "id-Indication-of-bitrate-adaptation" },
+  { id_LTMHandoverInformationRequest, "id-LTMHandoverInformationRequest" },
+  { id_EarlySyncInformationRequest, "id-EarlySyncInformationRequest" },
+  { id_LTMHandoverInformationRequestAcknowledge, "id-LTMHandoverInformationRequestAcknowledge" },
+  { id_EarlySyncInformationResponse, "id-EarlySyncInformationResponse" },
+  { id_LTMCellSwitchInformation, "id-LTMCellSwitchInformation" },
+  { id_LTMUEAssociationInformation_List, "id-LTMUEAssociationInformation-List" },
+  { id_CellSwitchTAInformation_List, "id-CellSwitchTAInformation-List" },
+  { id_TAInformation_List, "id-TAInformation-List" },
+  { id_LTMUpdatesToCandidateNodeInformation, "id-LTMUpdatesToCandidateNodeInformation" },
+  { id_LTMUpdatesToCandidateCellInformation_List, "id-LTMUpdatesToCandidateCellInformation-List" },
+  { id_LTMUESecurityInformation, "id-LTMUESecurityInformation" },
+  { id_NGRAN_Node1_ID, "id-NGRAN-Node1-ID" },
+  { id_NGRAN_Node2_ID, "id-NGRAN-Node2-ID" },
+  { id_LTMUpdatesFromCandidateCellInformation_List, "id-LTMUpdatesFromCandidateCellInformation-List" },
+  { id_LTMCandidateCellsToBeCancelled_List, "id-LTMCandidateCellsToBeCancelled-List" },
+  { id_CSI_RSCoordinationRequest, "id-CSI-RSCoordinationRequest" },
+  { id_CSI_RSCoordinationResponse, "id-CSI-RSCoordinationResponse" },
+  { id_CLI_MeasurementResult_List, "id-CLI-MeasurementResult-List" },
+  { id_SBFD_Frequency_Configuration, "id-SBFD-Frequency-Configuration" },
+  { id_NZP_CSI_RS_Resources_Config, "id-NZP-CSI-RS-Resources-Config" },
+  { id_SRS_Resource_Configuration, "id-SRS-Resource-Configuration" },
+  { id_SRS_Resource_Indication, "id-SRS-Resource-Indication" },
+  { id_WAB_MT_ID, "id-WAB-MT-ID" },
+  { id_LPWUSPSassistanceInformation, "id-LPWUSPSassistanceInformation" },
+  { id_FurtherExtended_UEIdentityIndexValue, "id-FurtherExtended-UEIdentityIndexValue" },
+  { id_Future_Coverage_Modification_List, "id-Future-Coverage-Modification-List" },
+  { id_SliceToReportForDataCollection_List, "id-SliceToReportForDataCollection-List" },
+  { id_PredictedSliceAvailableCapacity, "id-PredictedSliceAvailableCapacity" },
+  { id_SliceMeasurementInitiationResult, "id-SliceMeasurementInitiationResult" },
+  { id_SliceUEPerformance, "id-SliceUEPerformance" },
+  { id_NetworkSliceAreaScopeofMDT, "id-NetworkSliceAreaScopeofMDT" },
+  { id_GeographicalArea, "id-GeographicalArea" },
+  { id_GeographyBasedMDT, "id-GeographyBasedMDT" },
+  { id_TimeSCG_Failure, "id-TimeSCG-Failure" },
+  { id_FailureType, "id-FailureType" },
+  { id_FiveGProSeLayer3MHUEtoNetworkRelay, "id-FiveGProSeLayer3MHUEtoNetworkRelay" },
+  { id_FiveGProSeLayer2MHUEtoNetworkRelay, "id-FiveGProSeLayer2MHUEtoNetworkRelay" },
+  { id_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay, "id-FiveGProSeLayer2MHIntermediateUEtoNetworkRelay" },
+  { id_FiveGProSeLayer2MHRemote, "id-FiveGProSeLayer2MHRemote" },
+  { id_LTMInformationSCG_AddReq, "id-LTMInformationSCG-AddReq" },
+  { id_LTMInformationSCG_AddReqAck, "id-LTMInformationSCG-AddReqAck" },
+  { id_LTMInformationSCG_ModReq, "id-LTMInformationSCG-ModReq" },
+  { id_LTMInterSNExecutionNotification, "id-LTMInterSNExecutionNotification" },
+  { id_LTMPSCellInformation_AddReq, "id-LTMPSCellInformation-AddReq" },
+  { id_LTMPSCellInformation_AddReqAck, "id-LTMPSCellInformation-AddReqAck" },
+  { id_LTMPSCellInformation_UpdateReq, "id-LTMPSCellInformation-UpdateReq" },
+  { id_LTMPSCellInformation_UpdateReqAck, "id-LTMPSCellInformation-UpdateReqAck" },
+  { id_LTMPSCellInformation_UpdateRequired, "id-LTMPSCellInformation-UpdateRequired" },
+  { id_LTMPSCellInformation_UpdateConfirm, "id-LTMPSCellInformation-UpdateConfirm" },
+  { id_LTMPSCellInformation_ChangeRequired, "id-LTMPSCellInformation-ChangeRequired" },
+  { id_LTMPSCellInformation_ChangeConfirm, "id-LTMPSCellInformation-ChangeConfirm" },
+  { id_LTM_DC_DataForwarding_Indicator, "id-LTM-DC-DataForwarding-Indicator" },
+  { id_SemipersistentPositioningInformation, "id-SemipersistentPositioningInformation" },
+  { id_UEAveragePacketLossUL, "id-UEAveragePacketLossUL" },
+  { id_LP_WUS_Disable_Indication, "id-LP-WUS-Disable-Indication" },
+  { id_ContinuousMDT, "id-ContinuousMDT" },
   { 0, NULL }
 };
 
@@ -4731,6 +5385,61 @@ dissect_xnap_PrivateIE_Container(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ct
 
 
 static unsigned
+dissect_xnap_Altitude(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -420, 10000U, NULL, true);
+
+  return offset;
+}
+
+
+static const value_string xnap_AerialUEReportingPeriodicity_vals[] = {
+  {   0, "ms120" },
+  {   1, "ms240" },
+  {   2, "ms480" },
+  {   3, "ms640" },
+  {   4, "ms1024" },
+  {   5, "ms2048" },
+  {   6, "ms5120" },
+  {   7, "ms10240" },
+  {   8, "ms20480" },
+  {   9, "ms40960" },
+  {  10, "min1" },
+  {  11, "min6" },
+  {  12, "min12" },
+  {  13, "min30" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_AerialUEReportingPeriodicity(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     14, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t AerialUEFlightInformationReportingControl_sequence[] = {
+  { &hf_xnap_higherAltitudeThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_Altitude },
+  { &hf_xnap_lowerAltitudeThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_Altitude },
+  { &hf_xnap_aerialUEReportingPeriodicity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_AerialUEReportingPeriodicity },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_AerialUEFlightInformationReportingControl(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_AerialUEFlightInformationReportingControl, AerialUEFlightInformationReportingControl_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
 dissect_xnap_FiveQI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, true);
@@ -4830,6 +5539,45 @@ static unsigned
 dissect_xnap_A2XPC5QoSParameters(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_xnap_A2XPC5QoSParameters, A2XPC5QoSParameters_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_ReportingThreshold(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4000000000U, NULL, true);
+
+  return offset;
+}
+
+
+static const per_sequence_t AvailableBitrateReportThresholdItem_sequence[] = {
+  { &hf_xnap_reportingThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ReportingThreshold },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_AvailableBitrateReportThresholdItem(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_AvailableBitrateReportThresholdItem, AvailableBitrateReportThresholdItem_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t AvailableBitrateReportThresholdList_sequence_of[1] = {
+  { &hf_xnap_AvailableBitrateReportThresholdList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_AvailableBitrateReportThresholdItem },
+};
+
+static unsigned
+dissect_xnap_AvailableBitrateReportThresholdList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_AvailableBitrateReportThresholdList, AvailableBitrateReportThresholdList_sequence_of,
+                                                  1, maxnoofThresholds, false);
 
   return offset;
 }
@@ -6001,6 +6749,82 @@ dissect_xnap_DataCollectionID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t
 }
 
 
+static const per_sequence_t AdditionalQoSFlowMappedtoDRBSetupInfoList_Item_sequence[] = {
+  { &hf_xnap_qoSFlowIdentifier, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_QoSFlowIdentifier },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList_Item, AdditionalQoSFlowMappedtoDRBSetupInfoList_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t AdditionalQoSFlowMappedtoDRBSetupInfoList_sequence_of[1] = {
+  { &hf_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList_Item },
+};
+
+static unsigned
+dissect_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList, AdditionalQoSFlowMappedtoDRBSetupInfoList_sequence_of,
+                                                  1, maxnoofQoSFlows, false);
+
+  return offset;
+}
+
+
+static const value_string xnap_ECNMarkingorCongestionInformationReportingStatus_vals[] = {
+  {   0, "active" },
+  {   1, "not-active" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_ECNMarkingorCongestionInformationReportingStatus(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t AdditionalDRBsToBeSetupInfo_Item_sequence[] = {
+  { &hf_xnap_drb_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_DRB_ID },
+  { &hf_xnap_additionalQoSFlowMappedtoDRBSetupInfoList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList },
+  { &hf_xnap_eCNMarkingorCongestionInformationReportingStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ECNMarkingorCongestionInformationReportingStatus },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_AdditionalDRBsToBeSetupInfo_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_AdditionalDRBsToBeSetupInfo_Item, AdditionalDRBsToBeSetupInfo_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t AdditionalDRBSetupInfoList_sequence_of[1] = {
+  { &hf_xnap_AdditionalDRBSetupInfoList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_AdditionalDRBsToBeSetupInfo_Item },
+};
+
+static unsigned
+dissect_xnap_AdditionalDRBSetupInfoList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_AdditionalDRBSetupInfoList, AdditionalDRBSetupInfoList_sequence_of,
+                                                  1, maxnoofDRBs, false);
+
+  return offset;
+}
+
+
 static const value_string xnap_AerialControllerUE_vals[] = {
   {   0, "authorized" },
   {   1, "not-authorized" },
@@ -6851,6 +7675,7 @@ static const value_string xnap_NRNRB_vals[] = {
   {  38, "nrb188" },
   {  39, "nrb242" },
   {  40, "nrb15" },
+  {  41, "nrb35" },
   { 0, NULL }
 };
 
@@ -6860,7 +7685,7 @@ static value_string_ext xnap_NRNRB_vals_ext = VALUE_STRING_EXT_INIT(xnap_NRNRB_v
 static unsigned
 dissect_xnap_NRNRB(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     29, NULL, true, 12, NULL);
+                                     29, NULL, true, 13, NULL);
 
   return offset;
 }
@@ -9231,6 +10056,73 @@ dissect_xnap_CellMeasurementInitiationResult_List(tvbuff_t *tvb _U_, uint32_t of
 }
 
 
+
+static unsigned
+dissect_xnap_INTEGER_0_63_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 63U, NULL, true);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_INTEGER_1_64_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 64U, NULL, true);
+
+  return offset;
+}
+
+
+static const value_string xnap_CLI_MitigationIndication_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_CLI_MitigationIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CLI_MeasurementResult_Item_sequence[] = {
+  { &hf_xnap_cellID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_GlobalNG_RANCell_ID },
+  { &hf_xnap_ssbIndex       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_INTEGER_0_63_ },
+  { &hf_xnap_nZP_CSI_RS_ResourceIndication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_INTEGER_1_64_ },
+  { &hf_xnap_cLI_MitigationIndication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CLI_MitigationIndication },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CLI_MeasurementResult_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CLI_MeasurementResult_Item, CLI_MeasurementResult_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CLI_MeasurementResult_List_sequence_of[1] = {
+  { &hf_xnap_CLI_MeasurementResult_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_CLI_MeasurementResult_Item },
+};
+
+static unsigned
+dissect_xnap_CLI_MeasurementResult_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_CLI_MeasurementResult_List, CLI_MeasurementResult_List_sequence_of,
+                                                  1, maxnoofCellsinNG_RANnode, false);
+
+  return offset;
+}
+
+
 static const per_sequence_t CellInfoResultForDataCollection_Item_sequence[] = {
   { &hf_xnap_cellID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_GlobalNG_RANCell_ID },
   { &hf_xnap_predictedRadioResourceStatus, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_RadioResourceStatus },
@@ -10014,6 +10906,49 @@ dissect_xnap_CHO_CPAC_Information(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_c
 
 
 static unsigned
+dissect_xnap_T_referenceLocation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_Circle_referenceLocation);
+    dissect_lpp_Ellipsoid_Point_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_INTEGER_1_65535_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 65535U, NULL, true);
+
+  return offset;
+}
+
+
+static const per_sequence_t Circle_sequence[] = {
+  { &hf_xnap_referenceLocation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_referenceLocation },
+  { &hf_xnap_distanceRadius , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_1_65535_ },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_Circle(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_Circle, Circle_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
 dissect_xnap_CNsubgroupID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 7U, NULL, true);
@@ -10187,16 +11122,6 @@ static unsigned
 dissect_xnap_CoverageModificationCause(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, true, 1, NULL);
-
-  return offset;
-}
-
-
-
-static unsigned
-dissect_xnap_INTEGER_0_63_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 63U, NULL, true);
 
   return offset;
 }
@@ -10902,6 +11827,484 @@ dissect_xnap_CAGListforMDT(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *a
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_xnap_CAGListforMDT, CAGListforMDT_sequence_of,
                                                   1, maxnoofCAGforMDT, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSIResourceConfigurationToAddModList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSIResourceConfigurationToAddModList);
+    dissect_nr_rrc_LTM_CSI_ResourceConfigToAddModList_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSIResourceConfigurationToReleaseList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSIResourceConfigurationToReleaseList);
+    dissect_nr_rrc_LTM_CSI_ResourceConfigToReleaseList_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t CSIResourceConfiguration_sequence[] = {
+  { &hf_xnap_cSIResourceConfigurationToAddModList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSIResourceConfigurationToAddModList },
+  { &hf_xnap_cSIResourceConfigurationToReleaseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSIResourceConfigurationToReleaseList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CSIResourceConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CSIResourceConfiguration, CSIResourceConfiguration_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_CompleteCandidateConfigurationIndicator_vals[] = {
+  {   0, "complete" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_CompleteCandidateConfigurationIndicator(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSI_RSResourceToAddModList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSResourceToAddModList);
+    dissect_nr_rrc_LTM_NZP_CSI_RS_ResourceToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSI_RSResourceToReleaseList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSResourceToReleaseList);
+    dissect_nr_rrc_LTM_NZP_CSI_RS_ResourceToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t NZP_CSI_RS_ResourceConfiguration_sequence[] = {
+  { &hf_xnap_cSI_RSResourceToAddModList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSI_RSResourceToAddModList },
+  { &hf_xnap_cSI_RSResourceToReleaseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSI_RSResourceToReleaseList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_NZP_CSI_RS_ResourceConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_NZP_CSI_RS_ResourceConfiguration, NZP_CSI_RS_ResourceConfiguration_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSI_RSResourceSetToAddModList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSResourceSetToAddModList);
+    dissect_nr_rrc_LTM_NZP_CSI_RS_ResourceSetToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSI_RSResourceSetToReleaseList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSResourceSetToReleaseList);
+    dissect_nr_rrc_LTM_NZP_CSI_RS_ResourceSetToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t NZP_CSI_RS_ResourceSetConfiguration_sequence[] = {
+  { &hf_xnap_cSI_RSResourceSetToAddModList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSI_RSResourceSetToAddModList },
+  { &hf_xnap_cSI_RSResourceSetToReleaseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSI_RSResourceSetToReleaseList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_NZP_CSI_RS_ResourceSetConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_NZP_CSI_RS_ResourceSetConfiguration, NZP_CSI_RS_ResourceSetConfiguration_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSI_IMResourceToAddModList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_IMResourceToAddModList);
+    dissect_nr_rrc_LTM_CSI_IM_ResourceToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSI_IMResourceToReleaseList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_IMResourceToReleaseList);
+    dissect_nr_rrc_LTM_CSI_IM_ResourceToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSI_IMResourceSetToAddModList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_IMResourceSetToAddModList);
+    dissect_nr_rrc_LTM_CSI_IM_ResourceSetToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSI_IMResourceSetToReleaseList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_IMResourceSetToReleaseList);
+    dissect_nr_rrc_LTM_CSI_IM_ResourceSetToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_IM_ResourceConfiguration_sequence[] = {
+  { &hf_xnap_cSI_IMResourceToAddModList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSI_IMResourceToAddModList },
+  { &hf_xnap_cSI_IMResourceToReleaseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSI_IMResourceToReleaseList },
+  { &hf_xnap_cSI_IMResourceSetToAddModList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSI_IMResourceSetToAddModList },
+  { &hf_xnap_cSI_IMResourceSetToReleaseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSI_IMResourceSetToReleaseList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CSI_IM_ResourceConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CSI_IM_ResourceConfiguration, CSI_IM_ResourceConfiguration_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_RSResourceConfiguration_sequence[] = {
+  { &hf_xnap_periodicNZP_CSI_RS_ResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_NZP_CSI_RS_ResourceConfiguration },
+  { &hf_xnap_semiPersistentNZP_CSI_RS_ResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_NZP_CSI_RS_ResourceConfiguration },
+  { &hf_xnap_periodicNZP_CSI_RS_ResourceSetConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_NZP_CSI_RS_ResourceSetConfiguration },
+  { &hf_xnap_semiPersistentNZP_CSI_RS_ResourceSetConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_NZP_CSI_RS_ResourceSetConfiguration },
+  { &hf_xnap_periodicCSI_IM_ResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSI_IM_ResourceConfiguration },
+  { &hf_xnap_semiPersistentCSI_IM_ResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSI_IM_ResourceConfiguration },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CSI_RSResourceConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CSI_RSResourceConfiguration, CSI_RSResourceConfiguration_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_TAValue(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4095U, NULL, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_TagIDPointer(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_TagIDPointer);
+    dissect_nr_rrc_Tag_Id_ptr_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t CellSwitchTAInformation_Item_sequence[] = {
+  { &hf_xnap_candidateCellID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_tAValue        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_TAValue },
+  { &hf_xnap_tagIDPointer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_TagIDPointer },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CellSwitchTAInformation_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CellSwitchTAInformation_Item, CellSwitchTAInformation_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellSwitchTAInformation_List_sequence_of[1] = {
+  { &hf_xnap_CellSwitchTAInformation_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_CellSwitchTAInformation_Item },
+};
+
+static unsigned
+dissect_xnap_CellSwitchTAInformation_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_CellSwitchTAInformation_List, CellSwitchTAInformation_List_sequence_of,
+                                                  1, maxnoofTAList, false);
+
+  return offset;
+}
+
+
+static const value_string xnap_T_transmissionRequest_vals[] = {
+  {   0, "activate" },
+  {   1, "deactivate" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_transmissionRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_INTEGER_0_111(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 111U, NULL, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_JointorDLTCIStateID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_JointorDLTCIStateID);
+    dissect_nr_rrc_TCI_StateId_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t Tci_State_Information_Item_sequence[] = {
+  { &hf_xnap_jointorDLTCIStateID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_JointorDLTCIStateID },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_Tci_State_Information_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_Tci_State_Information_Item, Tci_State_Information_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Tci_State_InformationList_sequence_of[1] = {
+  { &hf_xnap_Tci_State_InformationList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_Tci_State_Information_Item },
+};
+
+static unsigned
+dissect_xnap_Tci_State_InformationList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_Tci_State_InformationList, Tci_State_InformationList_sequence_of,
+                                                  1, maxnoofLTM_CSI_ResourcesPerSet, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_RSCoordinationRequest_Item_sequence[] = {
+  { &hf_xnap_transmissionRequest, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_transmissionRequest },
+  { &hf_xnap_cSIResourceConfigurationID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_111 },
+  { &hf_xnap_tci_State_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_Tci_State_InformationList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CSI_RSCoordinationRequest_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CSI_RSCoordinationRequest_Item, CSI_RSCoordinationRequest_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_RSCoordinationRequestList_sequence_of[1] = {
+  { &hf_xnap_CSI_RSCoordinationRequestList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_CSI_RSCoordinationRequest_Item },
+};
+
+static unsigned
+dissect_xnap_CSI_RSCoordinationRequestList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_CSI_RSCoordinationRequestList, CSI_RSCoordinationRequestList_sequence_of,
+                                                  1, maxnoofCSIResourceConfigurations, false);
+
+  return offset;
+}
+
+
+static const value_string xnap_T_transmissionStatus_vals[] = {
+  {   0, "activated" },
+  {   1, "deactivated" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_transmissionStatus(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_RSCoordinationResult_Item_sequence[] = {
+  { &hf_xnap_transmissionStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_transmissionStatus },
+  { &hf_xnap_cSIResourceConfigurationID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_111 },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CSI_RSCoordinationResult_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CSI_RSCoordinationResult_Item, CSI_RSCoordinationResult_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_RSCoordinationResultList_sequence_of[1] = {
+  { &hf_xnap_CSI_RSCoordinationResultList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_CSI_RSCoordinationResult_Item },
+};
+
+static unsigned
+dissect_xnap_CSI_RSCoordinationResultList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_CSI_RSCoordinationResultList, CSI_RSCoordinationResultList_sequence_of,
+                                                  1, maxnoofCSIResourceConfigurations, false);
 
   return offset;
 }
@@ -11991,6 +13394,60 @@ dissect_xnap_DRBsSubjectToStatusTransfer_List(tvbuff_t *tvb _U_, uint32_t offset
 }
 
 
+static const per_sequence_t DRBStatusTransfer12bitsSN_ULGap_sequence[] = {
+  { &hf_xnap_discardBitmap  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_BIT_STRING_SIZE_1_2048 },
+  { &hf_xnap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_DRBStatusTransfer12bitsSN_ULGap(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_DRBStatusTransfer12bitsSN_ULGap, DRBStatusTransfer12bitsSN_ULGap_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRBStatusTransfer18bitsSN_ULGap_sequence[] = {
+  { &hf_xnap_discardBitmap_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_BIT_STRING_SIZE_1_131072 },
+  { &hf_xnap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_DRBStatusTransfer18bitsSN_ULGap(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_DRBStatusTransfer18bitsSN_ULGap, DRBStatusTransfer18bitsSN_ULGap_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_PDCPSNGapTransfer_UL_vals[] = {
+  {   0, "pdcp-sn-12bits" },
+  {   1, "pdcp-sn-18bits" },
+  {   2, "choice-extension" },
+  { 0, NULL }
+};
+
+static const per_choice_t PDCPSNGapTransfer_UL_choice[] = {
+  {   0, &hf_xnap_pdcp_sn_12bits_01, ASN1_NO_EXTENSIONS     , dissect_xnap_DRBStatusTransfer12bitsSN_ULGap },
+  {   1, &hf_xnap_pdcp_sn_18bits_01, ASN1_NO_EXTENSIONS     , dissect_xnap_DRBStatusTransfer18bitsSN_ULGap },
+  {   2, &hf_xnap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_xnap_ProtocolIE_Single_Container },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_PDCPSNGapTransfer_UL(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_xnap_PDCPSNGapTransfer_UL, PDCPSNGapTransfer_UL_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const value_string xnap_Permutation_vals[] = {
   {   0, "dfu" },
   {   1, "ufd" },
@@ -12198,6 +13655,51 @@ static unsigned
 dissect_xnap_DuplicationActivation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t DataForwardingInfoForLTM_Item_sequence[] = {
+  { &hf_xnap_pDUSessionID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_PDUSession_ID },
+  { &hf_xnap_dataForwardingInfoFromTargetNGRANnode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_DataForwardingInfoFromTargetNGRANnode },
+  { &hf_xnap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_DataForwardingInfoForLTM_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_DataForwardingInfoForLTM_Item, DataForwardingInfoForLTM_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DataForwardingInfoForLTM_List_sequence_of[1] = {
+  { &hf_xnap_DataForwardingInfoForLTM_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_DataForwardingInfoForLTM_Item },
+};
+
+static unsigned
+dissect_xnap_DataForwardingInfoForLTM_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_DataForwardingInfoForLTM_List, DataForwardingInfoForLTM_List_sequence_of,
+                                                  1, maxnoofPDUSessions, false);
+
+  return offset;
+}
+
+
+static const value_string xnap_DLPDUSetInformationMarkingSupportIndication_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_DLPDUSetInformationMarkingSupportIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -12768,6 +14270,7 @@ static const value_string xnap_EventType_vals[] = {
   {   0, "report-upon-change-of-serving-cell" },
   {   1, "report-UE-moving-presence-into-or-out-of-the-Area-of-Interest" },
   {   2, "report-upon-change-of-serving-cell-and-Area-of-Interest" },
+  {   3, "report-aerial-UE-flight-information" },
   { 0, NULL }
 };
 
@@ -12775,7 +14278,7 @@ static const value_string xnap_EventType_vals[] = {
 static unsigned
 dissect_xnap_EventType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, true, 1, NULL);
+                                     2, NULL, true, 2, NULL);
 
   return offset;
 }
@@ -13153,6 +14656,197 @@ dissect_xnap_ExtTLAs(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U
 }
 
 
+static const value_string xnap_T_earlySyncConfigurationRequest_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_earlySyncConfigurationRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_EarlyRACHResourcesRequesterID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
+                                                            0U, UINT64_C(68719476735), NULL, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t EarlyRACHResourcesProviders_Item_sequence[] = {
+  { &hf_xnap_globalgNBID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_GlobalgNB_ID },
+  { &hf_xnap_earlyRACHResourcesRequesterID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_EarlyRACHResourcesRequesterID },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_EarlyRACHResourcesProviders_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_EarlyRACHResourcesProviders_Item, EarlyRACHResourcesProviders_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t EarlyRACHResourcesProviders_List_sequence_of[1] = {
+  { &hf_xnap_EarlyRACHResourcesProviders_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_EarlyRACHResourcesProviders_Item },
+};
+
+static unsigned
+dissect_xnap_EarlyRACHResourcesProviders_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_EarlyRACHResourcesProviders_List, EarlyRACHResourcesProviders_List_sequence_of,
+                                                  1, maxnoofEarlyRACHResourcesID, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t EarlySyncInformationRequest_sequence[] = {
+  { &hf_xnap_earlySyncConfigurationRequest, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_earlySyncConfigurationRequest },
+  { &hf_xnap_earlyRACHResourcesProviders_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_EarlyRACHResourcesProviders_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_EarlySyncInformationRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_EarlySyncInformationRequest, EarlySyncInformationRequest_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_rACHConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_rACHConfiguration);
+    dissect_nr_rrc_EarlyUL_SyncConfig_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_PreambleIndex(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 63U, NULL, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t PreambleIndexList_sequence_of[1] = {
+  { &hf_xnap_PreambleIndexList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_PreambleIndex },
+};
+
+static unsigned
+dissect_xnap_PreambleIndexList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_PreambleIndexList, PreambleIndexList_sequence_of,
+                                                  1, maxnoofPreambleIndexes, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t EarlyRACHResources_Item_sequence[] = {
+  { &hf_xnap_globalgNBID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_GlobalgNB_ID },
+  { &hf_xnap_earlyRACHResourcesRequesterID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_EarlyRACHResourcesRequesterID },
+  { &hf_xnap_preambleIndexList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_PreambleIndexList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_EarlyRACHResources_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_EarlyRACHResources_Item, EarlyRACHResources_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t EarlyRACHResources_List_sequence_of[1] = {
+  { &hf_xnap_EarlyRACHResources_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_EarlyRACHResources_Item },
+};
+
+static unsigned
+dissect_xnap_EarlyRACHResources_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_EarlyRACHResources_List, EarlyRACHResources_List_sequence_of,
+                                                  1, maxnoofEarlyRACHResourcesID, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t EarlyULSyncConfig_sequence[] = {
+  { &hf_xnap_rACHConfiguration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_rACHConfiguration },
+  { &hf_xnap_earlyRACHResources_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_EarlyRACHResources_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_EarlyULSyncConfig(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_EarlyULSyncConfig, EarlyULSyncConfig_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t EarlySyncInformation_sequence[] = {
+  { &hf_xnap_earlyULSyncConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_EarlyULSyncConfig },
+  { &hf_xnap_earlyULSyncConfigSUL, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_EarlyULSyncConfig },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_EarlySyncInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_EarlySyncInformation, EarlySyncInformation_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_FailureType_vals[] = {
+  {   0, "toolateCPCExecution" },
+  {   1, "cPCorCPA-ExecutiontowrongPSCell" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_FailureType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 
 static unsigned
 dissect_xnap_F1CTrafficContainer(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -13474,6 +15168,70 @@ dissect_xnap_FiveGProSeLayer2UEtoUERemote(tvbuff_t *tvb _U_, uint32_t offset _U_
 }
 
 
+static const value_string xnap_FiveGProSeLayer3MHUEtoNetworkRelay_vals[] = {
+  {   0, "authorized" },
+  {   1, "not-authorized" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_FiveGProSeLayer3MHUEtoNetworkRelay(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_FiveGProSeLayer2MHUEtoNetworkRelay_vals[] = {
+  {   0, "authorized" },
+  {   1, "not-authorized" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_FiveGProSeLayer2MHUEtoNetworkRelay(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay_vals[] = {
+  {   0, "authorized" },
+  {   1, "not-authorized" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_FiveGProSeLayer2MHRemote_vals[] = {
+  {   0, "authorized" },
+  {   1, "not-authorized" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_FiveGProSeLayer2MHRemote(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t FiveGProSePC5FlowBitRates_sequence[] = {
   { &hf_xnap_fiveGproSeguaranteedFlowBitRate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_BitRate },
   { &hf_xnap_fiveGproSemaximumFlowBitRate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_BitRate },
@@ -13712,6 +15470,206 @@ static unsigned
 dissect_xnap_FrequencyShift7p5khz(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_FurtherExtended_UEIdentityIndexValue(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     20, 20, false, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Future_SSB_Coverage_Modification_Item_sequence[] = {
+  { &hf_xnap_sSBIndex       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_63 },
+  { &hf_xnap_future_SSBCoverageState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_15_ },
+  { &hf_xnap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_Future_SSB_Coverage_Modification_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_Future_SSB_Coverage_Modification_Item, Future_SSB_Coverage_Modification_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Future_SSB_Coverage_Modification_List_sequence_of[1] = {
+  { &hf_xnap_Future_SSB_Coverage_Modification_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_Future_SSB_Coverage_Modification_Item },
+};
+
+static unsigned
+dissect_xnap_Future_SSB_Coverage_Modification_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_Future_SSB_Coverage_Modification_List, Future_SSB_Coverage_Modification_List_sequence_of,
+                                                  1, maxnoofSSBAreas, false);
+
+  return offset;
+}
+
+
+static const value_string xnap_Predicted_CoverageModificationCause_vals[] = {
+  {   0, "coverage" },
+  {   1, "cell-edge-capacity" },
+  {   2, "cancel" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_Predicted_CoverageModificationCause(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_INTEGER_1_60_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 60U, NULL, true);
+
+  return offset;
+}
+
+
+static const per_sequence_t Future_Coverage_Modification_Item_sequence[] = {
+  { &hf_xnap_nR_CGI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_future_cellCoverageState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_63_ },
+  { &hf_xnap_future_SSB_Coverage_Modification_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_Future_SSB_Coverage_Modification_List },
+  { &hf_xnap_predicted_Coverage_Modification_Cause, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_Predicted_CoverageModificationCause },
+  { &hf_xnap_timeForFutureCoverageState, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_INTEGER_1_60_ },
+  { &hf_xnap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_Future_Coverage_Modification_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_Future_Coverage_Modification_Item, Future_Coverage_Modification_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Future_Coverage_Modification_List_sequence_of[1] = {
+  { &hf_xnap_Future_Coverage_Modification_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_Future_Coverage_Modification_Item },
+};
+
+static unsigned
+dissect_xnap_Future_Coverage_Modification_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_Future_Coverage_Modification_List, Future_Coverage_Modification_List_sequence_of,
+                                                  1, maxnoofCellsinNG_RANnode, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_Polygon(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_Polygon);
+    dissect_lpp_Polygon_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const value_string xnap_NTNGeographicalAreaItem_vals[] = {
+  {   0, "circle" },
+  {   1, "polygon" },
+  {   2, "cHOICE-Extensions" },
+  { 0, NULL }
+};
+
+static const per_choice_t NTNGeographicalAreaItem_choice[] = {
+  {   0, &hf_xnap_circle         , ASN1_NO_EXTENSIONS     , dissect_xnap_Circle },
+  {   1, &hf_xnap_polygon        , ASN1_NO_EXTENSIONS     , dissect_xnap_Polygon },
+  {   2, &hf_xnap_cHOICE_Extensions, ASN1_NO_EXTENSIONS     , dissect_xnap_ProtocolIE_Single_Container },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_NTNGeographicalAreaItem(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_xnap_NTNGeographicalAreaItem, NTNGeographicalAreaItem_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NTNGeographicalArea_sequence_of[1] = {
+  { &hf_xnap_NTNGeographicalArea_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_NTNGeographicalAreaItem },
+};
+
+static unsigned
+dissect_xnap_NTNGeographicalArea(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_NTNGeographicalArea, NTNGeographicalArea_sequence_of,
+                                                  1, maxnoofAreaNTNforMDT, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t MDTPLMNList_sequence_of[1] = {
+  { &hf_xnap_MDTPLMNList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_PLMN_Identity },
+};
+
+static unsigned
+dissect_xnap_MDTPLMNList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_MDTPLMNList, MDTPLMNList_sequence_of,
+                                                  1, maxnoofMDTPLMNs, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t GeographicalArea_sequence[] = {
+  { &hf_xnap_nTNGeographicalArea, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NTNGeographicalArea },
+  { &hf_xnap_nTNPLMNList    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_MDTPLMNList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_GeographicalArea(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_GeographicalArea, GeographicalArea_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GeographyBasedMDT_sequence[] = {
+  { &hf_xnap_geographicalArea, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_GeographicalArea },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_GeographyBasedMDT(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_GeographyBasedMDT, GeographyBasedMDT_sequence);
 
   return offset;
 }
@@ -13980,6 +15938,7 @@ static const value_string xnap_HandoverReportType_vals[] = {
   {   0, "hoTooEarly" },
   {   1, "hoToWrongCell" },
   {   2, "intersystempingpong" },
+  {   3, "tooLateCHOwithcandidateSCG" },
   { 0, NULL }
 };
 
@@ -13987,7 +15946,7 @@ static const value_string xnap_HandoverReportType_vals[] = {
 static unsigned
 dissect_xnap_HandoverReportType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, true, 0, NULL);
+                                     3, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -15238,6 +17197,21 @@ dissect_xnap_ImmediateMDT_NR(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t 
 }
 
 
+static const value_string xnap_Indication_of_bitrate_adaptation_vals[] = {
+  {   0, "uplink" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_Indication_of_bitrate_adaptation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 static const value_string xnap_NG_RAN_CellPCI_vals[] = {
   {   0, "nr" },
   {   1, "e-utra" },
@@ -16178,6 +18152,46 @@ dissect_xnap_LowerLayerPresenceStatusChange(tvbuff_t *tvb _U_, uint32_t offset _
 }
 
 
+
+static unsigned
+dissect_xnap_LPWUSCNsubgroupID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 30U, NULL, true);
+
+  return offset;
+}
+
+
+static const per_sequence_t LPWUSPSassistanceInformation_sequence[] = {
+  { &hf_xnap_lPWUScNsubgroupID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LPWUSCNsubgroupID },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LPWUSPSassistanceInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LPWUSPSassistanceInformation, LPWUSPSassistanceInformation_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_LP_WUS_Disable_Indication_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_LP_WUS_Disable_Indication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t LTEA2XServicesAuthorized_sequence[] = {
   { &hf_xnap_aerialUE       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_AerialUE },
   { &hf_xnap_aerialControllerUE, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_AerialControllerUE },
@@ -16252,6 +18266,1358 @@ static unsigned
 dissect_xnap_LTEUESidelinkAggregateMaximumBitRate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_xnap_LTEUESidelinkAggregateMaximumBitRate, LTEUESidelinkAggregateMaximumBitRate_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_LTMIndicator_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_LTMIndicator(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_LTM_NoSecurityChangeID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 9U, NULL, true);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTM_NoSecurityChangeID_List_sequence_of[1] = {
+  { &hf_xnap_LTM_NoSecurityChangeID_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_NoSecurityChangeID },
+};
+
+static unsigned
+dissect_xnap_LTM_NoSecurityChangeID_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTM_NoSecurityChangeID_List, LTM_NoSecurityChangeID_List_sequence_of,
+                                                  1, maxnoofLTMCells, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_ReferenceConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ReferenceConfiguration);
+    dissect_nr_rrc_LTM_ReferenceConfiguration_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_LTMConfigurationID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 8U, NULL, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMConfigurationIDMapping_Item_sequence[] = {
+  { &hf_xnap_lTMCellID      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_lTMConfigurationID, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTMConfigurationID },
+  { &hf_xnap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMConfigurationIDMapping_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMConfigurationIDMapping_Item, LTMConfigurationIDMapping_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMConfigurationIDMappingList_sequence_of[1] = {
+  { &hf_xnap_LTMConfigurationIDMappingList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTMConfigurationIDMapping_Item },
+};
+
+static unsigned
+dissect_xnap_LTMConfigurationIDMappingList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTMConfigurationIDMappingList, LTMConfigurationIDMappingList_sequence_of,
+                                                  1, maxnoofLTMCells, false);
+
+  return offset;
+}
+
+
+static const value_string xnap_RequestForCSI_RSResourceConfigForLayer1Measurements_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_RequestForCSI_RSResourceConfigForLayer1Measurements(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_LTML2ResetConfig(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 9U, NULL, true);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTML2ResetConfig_List_sequence_of[1] = {
+  { &hf_xnap_LTML2ResetConfig_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTML2ResetConfig },
+};
+
+static unsigned
+dissect_xnap_LTML2ResetConfig_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTML2ResetConfig_List, LTML2ResetConfig_List_sequence_of,
+                                                  1, maxnoofLTMCells, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMHandoverInformationRequest_sequence[] = {
+  { &hf_xnap_lTMIndicator   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LTMIndicator },
+  { &hf_xnap_proposedLTM_NoSecurityChangeID_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTM_NoSecurityChangeID_List },
+  { &hf_xnap_targetNG_RANnodeUEXnAPID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_NG_RANnodeUEXnAPID },
+  { &hf_xnap_referenceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ReferenceConfiguration },
+  { &hf_xnap_lTMConfigurationIDMappingList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMConfigurationIDMappingList },
+  { &hf_xnap_cSIResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSIResourceConfiguration },
+  { &hf_xnap_requestForCSI_RSResourceConfigForLayer1Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_RequestForCSI_RSResourceConfigForLayer1Measurements },
+  { &hf_xnap_proposedLTML2ResetConfig_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTML2ResetConfig_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMHandoverInformationRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMHandoverInformationRequest, LTMHandoverInformationRequest_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_INTEGER_M60_50(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -60, 50U, NULL, false);
+
+  return offset;
+}
+
+
+static const value_string xnap_T_sSB_periodicity_vals[] = {
+  {   0, "ms5" },
+  {   1, "ms10" },
+  {   2, "ms20" },
+  {   3, "ms40" },
+  {   4, "ms80" },
+  {   5, "ms160" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_sSB_periodicity(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     6, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_INTEGER_0_1(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1U, NULL, false);
+
+  return offset;
+}
+
+
+static const value_string xnap_SSB_PositionsInBurst_vals[] = {
+  {   0, "shortBitmap" },
+  {   1, "mediumBitmap" },
+  {   2, "longBitmap" },
+  {   3, "choice-extension" },
+  { 0, NULL }
+};
+
+static const per_choice_t SSB_PositionsInBurst_choice[] = {
+  {   0, &hf_xnap_shortBitmap    , ASN1_NO_EXTENSIONS     , dissect_xnap_BIT_STRING_SIZE_4 },
+  {   1, &hf_xnap_mediumBitmap   , ASN1_NO_EXTENSIONS     , dissect_xnap_BIT_STRING_SIZE_8 },
+  {   2, &hf_xnap_longBitmap     , ASN1_NO_EXTENSIONS     , dissect_xnap_BIT_STRING_SIZE_64 },
+  {   3, &hf_xnap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_xnap_ProtocolIE_Single_Container },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SSB_PositionsInBurst(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_xnap_SSB_PositionsInBurst, SSB_PositionsInBurst_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SSBConfig_sequence[] = {
+  { &hf_xnap_sSB_freqInfo   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SSB_freqInfo },
+  { &hf_xnap_sSB_subcarrierSpacing, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SSB_subcarrierSpacing },
+  { &hf_xnap_sSB_Transmit_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_M60_50 },
+  { &hf_xnap_sSB_periodicity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_sSB_periodicity },
+  { &hf_xnap_sSB_half_frame_offset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_1 },
+  { &hf_xnap_sSB_SFN_offset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_15 },
+  { &hf_xnap_sSB_position_in_burst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_SSB_PositionsInBurst },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SSBConfig(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SSBConfig, SSBConfig_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SSBInformation_Item_sequence[] = {
+  { &hf_xnap_sSBConfig      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SSBConfig },
+  { &hf_xnap_pCI            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NRPCI },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SSBInformation_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SSBInformation_Item, SSBInformation_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SSBInformation_sequence_of[1] = {
+  { &hf_xnap_SSBInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_SSBInformation_Item },
+};
+
+static unsigned
+dissect_xnap_SSBInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_SSBInformation, SSBInformation_sequence_of,
+                                                  1, maxNoSSBs, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_tCIStateConfigurationList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_tCIStateConfigurationList);
+    dissect_nr_rrc_LTM_TCI_Info_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_lTMCandidateConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_lTMCandidateConfiguration);
+    dissect_nr_rrc_RRCReconfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_lTMCFRAResourceConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_lTMCFRAResourceConfiguration);
+    dissect_nr_rrc_RACH_ConfigDedicated_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_lTMCFRAResourceConfigurationSUL(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_lTMCFRAResourceConfigurationSUL);
+    dissect_nr_rrc_RACH_ConfigDedicated_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMCFRAResourceInformation_sequence[] = {
+  { &hf_xnap_lTMCFRAResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_lTMCFRAResourceConfiguration },
+  { &hf_xnap_lTMCFRAResourceConfigurationSUL, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_lTMCFRAResourceConfigurationSUL },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMCFRAResourceInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMCFRAResourceInformation, LTMCFRAResourceInformation_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMHandoverInformationRequestAcknowledge_sequence[] = {
+  { &hf_xnap_sSBInformation , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SSBInformation },
+  { &hf_xnap_tCIStateConfigurationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_tCIStateConfigurationList },
+  { &hf_xnap_lTMCandidateConfiguration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_lTMCandidateConfiguration },
+  { &hf_xnap_lTM_NoSecurityChangeID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_NoSecurityChangeID },
+  { &hf_xnap_completeCandidateConfigurationIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CompleteCandidateConfigurationIndicator },
+  { &hf_xnap_cSI_RSResourceConfigurationForLayer1Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSI_RSResourceConfiguration },
+  { &hf_xnap_cSI_RSResourceConfigurationForEarlyCSIAcquisition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSI_RSResourceConfiguration },
+  { &hf_xnap_lTMCFRAResourceInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMCFRAResourceInformation },
+  { &hf_xnap_ltML2ResetConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTML2ResetConfig },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMHandoverInformationRequestAcknowledge(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMHandoverInformationRequestAcknowledge, LTMHandoverInformationRequestAcknowledge_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_ULTCIStateID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ULTCIStateID);
+    dissect_nr_rrc_TCI_UL_StateId_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMCellSwitchInformation_sequence[] = {
+  { &hf_xnap_jointorDLTCIStateID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_JointorDLTCIStateID },
+  { &hf_xnap_uLTCIStateID   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ULTCIStateID },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMCellSwitchInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMCellSwitchInformation, LTMCellSwitchInformation_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUEAssociationInformation_Item_sequence[] = {
+  { &hf_xnap_candidateCellID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_lastTarget_NG_RANnodeUEXnAPID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NG_RANnodeUEXnAPID },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMUEAssociationInformation_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMUEAssociationInformation_Item, LTMUEAssociationInformation_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUEAssociationInformation_List_sequence_of[1] = {
+  { &hf_xnap_LTMUEAssociationInformation_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTMUEAssociationInformation_Item },
+};
+
+static unsigned
+dissect_xnap_LTMUEAssociationInformation_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTMUEAssociationInformation_List, LTMUEAssociationInformation_List_sequence_of,
+                                                  1, maxnoofLTMCells, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUpdatesToCandidateNodeInformation_sequence[] = {
+  { &hf_xnap_referenceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ReferenceConfiguration },
+  { &hf_xnap_lTMConfigurationIDMappingList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMConfigurationIDMappingList },
+  { &hf_xnap_cSIResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSIResourceConfiguration },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMUpdatesToCandidateNodeInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMUpdatesToCandidateNodeInformation, LTMUpdatesToCandidateNodeInformation_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_ueBasedTAMeasurementConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ueBasedTAMeasurementConfiguration);
+    dissect_nr_rrc_LTM_UE_MeasuredTA_ID_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUpdatesToCandidateCellInformation_Item_sequence[] = {
+  { &hf_xnap_candidateCellID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_earlySyncInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_EarlySyncInformation },
+  { &hf_xnap_lTMCFRAResourceInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMCFRAResourceInformation },
+  { &hf_xnap_ueBasedTAMeasurementConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_ueBasedTAMeasurementConfiguration },
+  { &hf_xnap_aSSecurityInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_AS_SecurityInformation },
+  { &hf_xnap_lTM_NoSecurityChangeID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTM_NoSecurityChangeID },
+  { &hf_xnap_lTMUEAssociation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMUEAssociationInformation_List },
+  { &hf_xnap_dataForwardingInfoForLTM_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_DataForwardingInfoForLTM_List },
+  { &hf_xnap_lastTarget_NG_RANnodeUEXnAPID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_NG_RANnodeUEXnAPID },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMUpdatesToCandidateCellInformation_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMUpdatesToCandidateCellInformation_Item, LTMUpdatesToCandidateCellInformation_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUpdatesToCandidateCellInformation_List_sequence_of[1] = {
+  { &hf_xnap_LTMUpdatesToCandidateCellInformation_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTMUpdatesToCandidateCellInformation_Item },
+};
+
+static unsigned
+dissect_xnap_LTMUpdatesToCandidateCellInformation_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTMUpdatesToCandidateCellInformation_List, LTMUpdatesToCandidateCellInformation_List_sequence_of,
+                                                  1, maxnoofLTMCells, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_lTMCandidateConfiguration_01(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_lTMCandidateConfiguration);
+    dissect_nr_rrc_RRCReconfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSI_RSReportConfigurationForEarlyCSIAcquisition(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition);
+    dissect_nr_rrc_LTM_CSI_ReportConfig_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUpdatesFromCandidateCellInformation_Item_sequence[] = {
+  { &hf_xnap_candidateCellID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_lTMCandidateConfiguration_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_lTMCandidateConfiguration_01 },
+  { &hf_xnap_completeCandidateConfigurationIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CompleteCandidateConfigurationIndicator },
+  { &hf_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSI_RSReportConfigurationForEarlyCSIAcquisition },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMUpdatesFromCandidateCellInformation_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMUpdatesFromCandidateCellInformation_Item, LTMUpdatesFromCandidateCellInformation_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUpdatesFromCandidateCellInformation_List_sequence_of[1] = {
+  { &hf_xnap_LTMUpdatesFromCandidateCellInformation_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTMUpdatesFromCandidateCellInformation_Item },
+};
+
+static unsigned
+dissect_xnap_LTMUpdatesFromCandidateCellInformation_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTMUpdatesFromCandidateCellInformation_List, LTMUpdatesFromCandidateCellInformation_List_sequence_of,
+                                                  1, maxnoofLTMCells, false);
+
+  return offset;
+}
+
+
+static int * const T_nr_EncyptionAlgorithms_bits[] = {
+  &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0,
+  &hf_xnap_T_nr_EncyptionAlgorithms_nea1_128,
+  &hf_xnap_T_nr_EncyptionAlgorithms_nea2_128,
+  &hf_xnap_T_nr_EncyptionAlgorithms_nea3_128,
+  NULL
+};
+
+static unsigned
+dissect_xnap_T_nr_EncyptionAlgorithms(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     16, 16, true, T_nr_EncyptionAlgorithms_bits, 4, NULL, NULL);
+
+  return offset;
+}
+
+
+static int * const T_nr_IntegrityProtectionAlgorithms_bits[] = {
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0,
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128,
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128,
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128,
+  NULL
+};
+
+static unsigned
+dissect_xnap_T_nr_IntegrityProtectionAlgorithms(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     16, 16, true, T_nr_IntegrityProtectionAlgorithms_bits, 4, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUESecurityCapabilities_sequence[] = {
+  { &hf_xnap_nr_EncyptionAlgorithms, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_nr_EncyptionAlgorithms },
+  { &hf_xnap_nr_IntegrityProtectionAlgorithms, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_nr_IntegrityProtectionAlgorithms },
+  { &hf_xnap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMUESecurityCapabilities(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMUESecurityCapabilities, LTMUESecurityCapabilities_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_T_integrityProtectionIndication_vals[] = {
+  {   0, "required" },
+  {   1, "preferred" },
+  {   2, "not-needed" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_integrityProtectionIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_T_confidentialityProtectionIndication_vals[] = {
+  {   0, "required" },
+  {   1, "preferred" },
+  {   2, "not-needed" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_confidentialityProtectionIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_MaxIPrate_vals[] = {
+  {   0, "bitrate64kbs" },
+  {   1, "max-UErate" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_MaxIPrate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MaximumIPdatarate_sequence[] = {
+  { &hf_xnap_maxIPrate_UL   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_MaxIPrate },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_MaximumIPdatarate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_MaximumIPdatarate, MaximumIPdatarate_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SecurityIndication_sequence[] = {
+  { &hf_xnap_integrityProtectionIndication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_integrityProtectionIndication },
+  { &hf_xnap_confidentialityProtectionIndication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_confidentialityProtectionIndication },
+  { &hf_xnap_maximumIPdatarate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_MaximumIPdatarate },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SecurityIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SecurityIndication, SecurityIndication_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUserPlaneSecurityInformation_Item_sequence[] = {
+  { &hf_xnap_pDUSessionID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_PDUSession_ID },
+  { &hf_xnap_securityIndication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_SecurityIndication },
+  { &hf_xnap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMUserPlaneSecurityInformation_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMUserPlaneSecurityInformation_Item, LTMUserPlaneSecurityInformation_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUserPlaneSecurityInformation_List_sequence_of[1] = {
+  { &hf_xnap_LTMUserPlaneSecurityInformation_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTMUserPlaneSecurityInformation_Item },
+};
+
+static unsigned
+dissect_xnap_LTMUserPlaneSecurityInformation_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTMUserPlaneSecurityInformation_List, LTMUserPlaneSecurityInformation_List_sequence_of,
+                                                  1, maxnoofPDUSessions, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMUESecurityInformation_sequence[] = {
+  { &hf_xnap_lTMUESecurityCapabilities, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LTMUESecurityCapabilities },
+  { &hf_xnap_lTMUserPlaneSecurityInformation_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LTMUserPlaneSecurityInformation_List },
+  { &hf_xnap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMUESecurityInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMUESecurityInformation, LTMUESecurityInformation_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMCandidateCellsToBeCancelled_Item_sequence[] = {
+  { &hf_xnap_targetCellID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMCandidateCellsToBeCancelled_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMCandidateCellsToBeCancelled_Item, LTMCandidateCellsToBeCancelled_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMCandidateCellsToBeCancelled_List_sequence_of[1] = {
+  { &hf_xnap_LTMCandidateCellsToBeCancelled_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTMCandidateCellsToBeCancelled_Item },
+};
+
+static unsigned
+dissect_xnap_LTMCandidateCellsToBeCancelled_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTMCandidateCellsToBeCancelled_List, LTMCandidateCellsToBeCancelled_List_sequence_of,
+                                                  0, maxnoofLTMCells, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMInformationSCG_AddReq_sequence[] = {
+  { &hf_xnap_source_M_NGRAN_node_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_GlobalNG_RANNode_ID },
+  { &hf_xnap_source_M_NGRAN_node_UE_XnAP_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NG_RANnodeUEXnAPID },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMInformationSCG_AddReq(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMInformationSCG_AddReq, LTMInformationSCG_AddReq_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMInformationSCG_AddReqAck_sequence[] = {
+  { &hf_xnap_pCell_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_GlobalNG_RANCell_ID },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMInformationSCG_AddReqAck(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMInformationSCG_AddReqAck, LTMInformationSCG_AddReqAck_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_T_lTMReconfig_vals[] = {
+  {   0, "intra-mn-ltm" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_lTMReconfig(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMInformationSCG_ModReq_sequence[] = {
+  { &hf_xnap_lTMReconfig    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_lTMReconfig },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMInformationSCG_ModReq(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMInformationSCG_ModReq, LTMInformationSCG_ModReq_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_LTMInterSNExecutionNotification_vals[] = {
+  {   0, "executed" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_LTMInterSNExecutionNotification(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_LTM_DC_DataForwarding_Indicator_vals[] = {
+  {   0, "triggered" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_LTM_DC_DataForwarding_Indicator(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_T_lTM_RequestIndication_vals[] = {
+  {   0, "request" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_lTM_RequestIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_MaxNrofPSCellsToPrepare(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 8U, NULL, true);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTM_PSCell_Request_Item_sequence[] = {
+  { &hf_xnap_pscell_id      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_earlySyncInformationRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_EarlySyncInformationRequest },
+  { &hf_xnap_requestForCSI_RSResourceConfigForLayer1Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_RequestForCSI_RSResourceConfigForLayer1Measurements },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTM_PSCell_Request_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTM_PSCell_Request_Item, LTM_PSCell_Request_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTM_PSCell_Request_List_sequence_of[1] = {
+  { &hf_xnap_LTM_PSCell_Request_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_PSCell_Request_Item },
+};
+
+static unsigned
+dissect_xnap_LTM_PSCell_Request_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTM_PSCell_Request_List, LTM_PSCell_Request_List_sequence_of,
+                                                  1, maxnoofLTMCells, false);
+
+  return offset;
+}
+
+
+static const value_string xnap_T_sCG_ReferenceConfigRequest_vals[] = {
+  {   0, "request" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_sCG_ReferenceConfigRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMPSCellInformation_AddReq_sequence[] = {
+  { &hf_xnap_lTM_RequestIndication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_lTM_RequestIndication },
+  { &hf_xnap_maxNrofPSCellsToPrepare, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_MaxNrofPSCellsToPrepare },
+  { &hf_xnap_suggestedLTMCandidatePSCellList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_PSCell_Request_List },
+  { &hf_xnap_proposedLTM_NoSecurityChangeID_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_NoSecurityChangeID_List },
+  { &hf_xnap_cSI_ResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSIResourceConfiguration },
+  { &hf_xnap_sCG_ReferenceConfigRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_sCG_ReferenceConfigRequest },
+  { &hf_xnap_lTM_ConfigurationIDMappingList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMConfigurationIDMappingList },
+  { &hf_xnap_proposedLTML2ResetConfig_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTML2ResetConfig_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMPSCellInformation_AddReq(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMPSCellInformation_AddReq, LTMPSCellInformation_AddReq_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_tCI_StatesConfigurationsList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_tCI_StatesConfigurationsList);
+    dissect_nr_rrc_LTM_TCI_Info_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const value_string xnap_T_complete_CandidateConfigurationIndicator_vals[] = {
+  {   0, "complete" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_complete_CandidateConfigurationIndicator(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTM_PSCell_Prepared_Item_sequence[] = {
+  { &hf_xnap_pscell_id      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_lTM_NoSecurityChangeID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_NoSecurityChangeID },
+  { &hf_xnap_tCI_StatesConfigurationsList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_tCI_StatesConfigurationsList },
+  { &hf_xnap_sSBInformation , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SSBInformation },
+  { &hf_xnap_earlySyncInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_EarlySyncInformation },
+  { &hf_xnap_lTMCFRAResourceInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMCFRAResourceInformation },
+  { &hf_xnap_cSI_RSResourceConfigurationForLayer1Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSI_RSResourceConfiguration },
+  { &hf_xnap_cSI_RSResourceConfigurationForEarlyCSIAcquisition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSI_RSResourceConfiguration },
+  { &hf_xnap_complete_CandidateConfigurationIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_complete_CandidateConfigurationIndicator },
+  { &hf_xnap_lTML2ResetConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTML2ResetConfig },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTM_PSCell_Prepared_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTM_PSCell_Prepared_Item, LTM_PSCell_Prepared_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTM_PSCell_Prepared_List_sequence_of[1] = {
+  { &hf_xnap_LTM_PSCell_Prepared_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_PSCell_Prepared_Item },
+};
+
+static unsigned
+dissect_xnap_LTM_PSCell_Prepared_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTM_PSCell_Prepared_List, LTM_PSCell_Prepared_List_sequence_of,
+                                                  1, maxnoofLTMCells, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMPSCellInformation_AddReqAck_sequence[] = {
+  { &hf_xnap_lTM_CandidatePSCellPreparedList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTM_PSCell_Prepared_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMPSCellInformation_AddReqAck(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMPSCellInformation_AddReqAck, LTMPSCellInformation_AddReqAck_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MultipleCandidateSN_Item_sequence[] = {
+  { &hf_xnap_s_NG_RANnodeID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_GlobalNG_RANNode_ID },
+  { &hf_xnap_lTM_CandidatePSCellPreparedList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTM_PSCell_Prepared_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_MultipleCandidateSN_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_MultipleCandidateSN_Item, MultipleCandidateSN_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MultipleCandidateSN_List_sequence_of[1] = {
+  { &hf_xnap_MultipleCandidateSN_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_MultipleCandidateSN_Item },
+};
+
+static unsigned
+dissect_xnap_MultipleCandidateSN_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_MultipleCandidateSN_List, MultipleCandidateSN_List_sequence_of,
+                                                  1, maxnoofTargetSNs, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_S_NG_RANnode_SecurityKey(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     256, 256, false, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_SK_COUNTER(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 65535U, NULL, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTM_SCG_SecurityConfig_Info_Item_sequence[] = {
+  { &hf_xnap_s_ng_RANnode_SecurityKey, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_S_NG_RANnode_SecurityKey },
+  { &hf_xnap_sk_counter     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SK_COUNTER },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTM_SCG_SecurityConfig_Info_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTM_SCG_SecurityConfig_Info_Item, LTM_SCG_SecurityConfig_Info_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTM_SCG_SecurityConfig_Info_List_sequence_of[1] = {
+  { &hf_xnap_LTM_SCG_SecurityConfig_Info_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_SCG_SecurityConfig_Info_Item },
+};
+
+static unsigned
+dissect_xnap_LTM_SCG_SecurityConfig_Info_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTM_SCG_SecurityConfig_Info_List, LTM_SCG_SecurityConfig_Info_List_sequence_of,
+                                                  1, maxnoofSCGSecurityConfigurations, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTM_SCG_SecurityConfiguration_Item_sequence[] = {
+  { &hf_xnap_lTM_NoSecurityChangeID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_NoSecurityChangeID },
+  { &hf_xnap_lTM_SCG_SecurityConfig_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_SCG_SecurityConfig_Info_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTM_SCG_SecurityConfiguration_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTM_SCG_SecurityConfiguration_Item, LTM_SCG_SecurityConfiguration_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTM_SCG_SecurityConfiguration_List_sequence_of[1] = {
+  { &hf_xnap_LTM_SCG_SecurityConfiguration_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_SCG_SecurityConfiguration_Item },
+};
+
+static unsigned
+dissect_xnap_LTM_SCG_SecurityConfiguration_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_LTM_SCG_SecurityConfiguration_List, LTM_SCG_SecurityConfiguration_List_sequence_of,
+                                                  1, maxnoofLTMCellsPlusOne, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMPSCellInformation_UpdateReq_sequence[] = {
+  { &hf_xnap_multipleSN_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_MultipleCandidateSN_List },
+  { &hf_xnap_cSI_ResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSIResourceConfiguration },
+  { &hf_xnap_lTM_ConfigurationIDMappingList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMConfigurationIDMappingList },
+  { &hf_xnap_proposedLTM_NoSecurityChangeID_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTM_NoSecurityChangeID_List },
+  { &hf_xnap_lTM_SCG_SecurityConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTM_SCG_SecurityConfiguration_List },
+  { &hf_xnap_lTM_CandidatePSCellToBeCancelled, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMCandidateCellsToBeCancelled_List },
+  { &hf_xnap_proposedLTML2ResetConfig_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTML2ResetConfig_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMPSCellInformation_UpdateReq(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMPSCellInformation_UpdateReq, LTMPSCellInformation_UpdateReq_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_cSI_RSReportConfigurationForEarlyCSIAcquisition_01(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition);
+    dissect_nr_rrc_LTM_CSI_ReportConfig_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMPSCellInformation_UpdateReqAck_sequence[] = {
+  { &hf_xnap_lTM_CandidatePSCellPreparedList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTM_PSCell_Prepared_List },
+  { &hf_xnap_cSI_ResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSIResourceConfiguration },
+  { &hf_xnap_lTM_ConfigurationIDMappingList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMConfigurationIDMappingList },
+  { &hf_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_cSI_RSReportConfigurationForEarlyCSIAcquisition_01 },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMPSCellInformation_UpdateReqAck(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMPSCellInformation_UpdateReqAck, LTMPSCellInformation_UpdateReqAck_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMPSCellInformation_UpdateRequired_sequence[] = {
+  { &hf_xnap_lTM_CandidatePSCellToBeCancelled, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMCandidateCellsToBeCancelled_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMPSCellInformation_UpdateRequired(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMPSCellInformation_UpdateRequired, LTMPSCellInformation_UpdateRequired_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMPSCellInformation_UpdateConfirm_sequence[] = {
+  { &hf_xnap_lTM_CandidatePSCellPreparedList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTM_PSCell_Prepared_List },
+  { &hf_xnap_cSI_ResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSIResourceConfiguration },
+  { &hf_xnap_lTM_ConfigurationIDMappingList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMConfigurationIDMappingList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMPSCellInformation_UpdateConfirm(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMPSCellInformation_UpdateConfirm, LTMPSCellInformation_UpdateConfirm_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_LTM_RequestIndication_vals[] = {
+  {   0, "request" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_LTM_RequestIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_sN_to_MN_Container_01(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_sN_to_MN_Container);
+    dissect_nr_rrc_CG_Config_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t MultipleCandidateSNChangeRequired_Item_sequence[] = {
+  { &hf_xnap_s_NG_RANnodeID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_GlobalNG_RANNode_ID },
+  { &hf_xnap_maxNrofPSCellsToPrepare, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_MaxNrofPSCellsToPrepare },
+  { &hf_xnap_sN_to_MN_Container_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_sN_to_MN_Container_01 },
+  { &hf_xnap_suggestedLTMCandidatePSCellList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTM_PSCell_Request_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_MultipleCandidateSNChangeRequired_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_MultipleCandidateSNChangeRequired_Item, MultipleCandidateSNChangeRequired_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MultipleCandidateSNChangeRequired_List_sequence_of[1] = {
+  { &hf_xnap_MultipleCandidateSNChangeRequired_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_MultipleCandidateSNChangeRequired_Item },
+};
+
+static unsigned
+dissect_xnap_MultipleCandidateSNChangeRequired_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_MultipleCandidateSNChangeRequired_List, MultipleCandidateSNChangeRequired_List_sequence_of,
+                                                  1, maxnoofTargetSNs, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMPSCellInformation_ChangeRequired_sequence[] = {
+  { &hf_xnap_lTM_RequestIndication_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_LTM_RequestIndication },
+  { &hf_xnap_multipleSNChangeRequired_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_MultipleCandidateSNChangeRequired_List },
+  { &hf_xnap_cSI_ResourceConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CSIResourceConfiguration },
+  { &hf_xnap_lTM_ConfigurationIDMappingList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTMConfigurationIDMappingList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMPSCellInformation_ChangeRequired(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMPSCellInformation_ChangeRequired, LTMPSCellInformation_ChangeRequired_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMPSCellInformation_ChangeConfirm_sequence[] = {
+  { &hf_xnap_lTM_SCG_SecurityConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_LTM_SCG_SecurityConfiguration_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMPSCellInformation_ChangeConfirm(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMPSCellInformation_ChangeConfirm, LTMPSCellInformation_ChangeConfirm_sequence);
 
   return offset;
 }
@@ -16432,37 +19798,6 @@ static unsigned
 dissect_xnap_MaskedIMEISV(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      64, 64, false, NULL, 0, NULL, NULL);
-
-  return offset;
-}
-
-
-static const value_string xnap_MaxIPrate_vals[] = {
-  {   0, "bitrate64kbs" },
-  {   1, "max-UErate" },
-  { 0, NULL }
-};
-
-
-static unsigned
-dissect_xnap_MaxIPrate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, true, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t MaximumIPdatarate_sequence[] = {
-  { &hf_xnap_maxIPrate_UL   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_MaxIPrate },
-  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static unsigned
-dissect_xnap_MaximumIPdatarate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_xnap_MaximumIPdatarate, MaximumIPdatarate_sequence);
 
   return offset;
 }
@@ -16786,20 +20121,6 @@ dissect_xnap_MDTMode_NR(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_xnap_MDTMode_NR, MDTMode_NR_choice,
                                  NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t MDTPLMNList_sequence_of[1] = {
-  { &hf_xnap_MDTPLMNList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_PLMN_Identity },
-};
-
-static unsigned
-dissect_xnap_MDTPLMNList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_xnap_MDTPLMNList, MDTPLMNList_sequence_of,
-                                                  1, maxnoofMDTPLMNs, false);
 
   return offset;
 }
@@ -17200,6 +20521,51 @@ static unsigned
 dissect_xnap_MobilityRestrictionList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_xnap_MobilityRestrictionList, MobilityRestrictionList_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_MonitoringRequest_vals[] = {
+  {   0, "ul" },
+  {   1, "dl" },
+  {   2, "both" },
+  {   3, "stop" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_MonitoringRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MonitoringRequestonAvailableBitrate_sequence[] = {
+  { &hf_xnap_monitoringRequest, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_MonitoringRequest },
+  { &hf_xnap_dlAvailableBitrateReportThresholds, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_AvailableBitrateReportThresholdList },
+  { &hf_xnap_ulAvailableBitrateReportThresholds, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_AvailableBitrateReportThresholdList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_MonitoringRequestonAvailableBitrate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_MonitoringRequestonAvailableBitrate, MonitoringRequestonAvailableBitrate_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_MMSID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 1, false, NULL);
 
   return offset;
 }
@@ -17759,6 +21125,80 @@ dissect_xnap_Neighbour_NG_RAN_Node_List(tvbuff_t *tvb _U_, uint32_t offset _U_, 
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_xnap_Neighbour_NG_RAN_Node_List, Neighbour_NG_RAN_Node_List_sequence_of,
                                                   0, maxnoofNeighbour_NG_RAN_Nodes, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t SliceMDTItem_sequence[] = {
+  { &hf_xnap_sNSSAI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_S_NSSAI },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SliceMDTItem(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SliceMDTItem, SliceMDTItem_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SliceMDTList_sequence_of[1] = {
+  { &hf_xnap_SliceMDTList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_SliceMDTItem },
+};
+
+static unsigned
+dissect_xnap_SliceMDTList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_SliceMDTList, SliceMDTList_sequence_of,
+                                                  1, maxnoofSliceItemsforMDT, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t NetworkSliceItemforMDT_sequence[] = {
+  { &hf_xnap_plmnID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_PLMN_Identity },
+  { &hf_xnap_sliceMDTList   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SliceMDTList },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_NetworkSliceItemforMDT(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_NetworkSliceItemforMDT, NetworkSliceItemforMDT_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t NetworkSliceListforMDT_sequence_of[1] = {
+  { &hf_xnap_NetworkSliceListforMDT_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_NetworkSliceItemforMDT },
+};
+
+static unsigned
+dissect_xnap_NetworkSliceListforMDT(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_NetworkSliceListforMDT, NetworkSliceListforMDT_sequence_of,
+                                                  1, maxnoofMDTPLMNs, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t NetworkSliceAreaScopeofMDT_sequence[] = {
+  { &hf_xnap_networkSliceListforMDT, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NetworkSliceListforMDT },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_NetworkSliceAreaScopeofMDT(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_NetworkSliceAreaScopeofMDT, NetworkSliceAreaScopeofMDT_sequence);
 
   return offset;
 }
@@ -19059,6 +22499,85 @@ dissect_xnap_NSAG_ID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U
 }
 
 
+
+static unsigned
+dissect_xnap_T_nZP_CSI_RS_ResourceSet(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_nZP_CSI_RS_ResourceSet);
+    dissect_nr_rrc_NZP_CSI_RS_ResourceSet_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_nZP_CSI_RS_Resource(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_nZP_CSI_RS_Resource);
+    dissect_nr_rrc_NZP_CSI_RS_Resource_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t NZP_CSI_RS_Resource_Item_sequence[] = {
+  { &hf_xnap_nZP_CSI_RS_Resource, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_nZP_CSI_RS_Resource },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_NZP_CSI_RS_Resource_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_NZP_CSI_RS_Resource_Item, NZP_CSI_RS_Resource_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t NZP_CSI_RS_Resource_List_sequence_of[1] = {
+  { &hf_xnap_NZP_CSI_RS_Resource_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_NZP_CSI_RS_Resource_Item },
+};
+
+static unsigned
+dissect_xnap_NZP_CSI_RS_Resource_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_NZP_CSI_RS_Resource_List, NZP_CSI_RS_Resource_List_sequence_of,
+                                                  1, maxnoofNZP_CSI_RS_ResourcesPerSet, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t NZP_CSI_RS_Resources_Config_sequence[] = {
+  { &hf_xnap_nZP_CSI_RS_ResourceSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_nZP_CSI_RS_ResourceSet },
+  { &hf_xnap_nZP_CSI_RS_Resource_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NZP_CSI_RS_Resource_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_NZP_CSI_RS_Resources_Config(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_NZP_CSI_RS_Resources_Config, NZP_CSI_RS_Resources_Config_sequence);
+
+  return offset;
+}
+
+
 static const value_string xnap_OffsetOfNbiotChannelNumberToEARFCN_vals[] = {
   {   0, "minusTen" },
   {   1, "minusNine" },
@@ -19649,57 +23168,6 @@ dissect_xnap_PDUSessionResourcesNotAdmitted_List(tvbuff_t *tvb _U_, uint32_t off
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_xnap_PDUSessionResourcesNotAdmitted_List, PDUSessionResourcesNotAdmitted_List_sequence_of,
                                                   1, maxnoofPDUSessions, false);
-
-  return offset;
-}
-
-
-static const value_string xnap_T_integrityProtectionIndication_vals[] = {
-  {   0, "required" },
-  {   1, "preferred" },
-  {   2, "not-needed" },
-  { 0, NULL }
-};
-
-
-static unsigned
-dissect_xnap_T_integrityProtectionIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, true, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string xnap_T_confidentialityProtectionIndication_vals[] = {
-  {   0, "required" },
-  {   1, "preferred" },
-  {   2, "not-needed" },
-  { 0, NULL }
-};
-
-
-static unsigned
-dissect_xnap_T_confidentialityProtectionIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, true, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t SecurityIndication_sequence[] = {
-  { &hf_xnap_integrityProtectionIndication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_integrityProtectionIndication },
-  { &hf_xnap_confidentialityProtectionIndication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_confidentialityProtectionIndication },
-  { &hf_xnap_maximumIPdatarate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_MaximumIPdatarate },
-  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static unsigned
-dissect_xnap_SecurityIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_xnap_SecurityIndication, SecurityIndication_sequence);
 
   return offset;
 }
@@ -21232,6 +24700,38 @@ dissect_xnap_PSCellListContainer(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ct
 }
 
 
+static const value_string xnap_PSIbasedSDUdiscardUL_vals[] = {
+  {   0, "start" },
+  {   1, "stop" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_PSIbasedSDUdiscardUL(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_PSIbasedSDUdiscardDL_vals[] = {
+  {   0, "configured" },
+  {   1, "not-configured" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_PSIbasedSDUdiscardDL(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t PNI_NPN_AreaScopeofMDT_sequence[] = {
   { &hf_xnap_cAGListforMDT  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_CAGListforMDT },
   { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
@@ -21257,6 +24757,23 @@ static unsigned
 dissect_xnap_PNI_NPNBasedMDT(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_xnap_PNI_NPNBasedMDT, PNI_NPNBasedMDT_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PredictedSliceAvailableCapacityGroup_sequence[] = {
+  { &hf_xnap_predictedSliceAvailableCapacity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SliceAvailableCapacity },
+  { &hf_xnap_cellCapacityClassValueDownlink, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CellCapacityClassValue },
+  { &hf_xnap_cellCapacityClassValueUplink, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CellCapacityClassValue },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_PredictedSliceAvailableCapacityGroup(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_PredictedSliceAvailableCapacityGroup, PredictedSliceAvailableCapacityGroup_sequence);
 
   return offset;
 }
@@ -21959,6 +25476,8 @@ dissect_xnap_QoERVQoEReportingPaths(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1
 static const value_string xnap_T_notificationInformation_vals[] = {
   {   0, "fulfilled" },
   {   1, "not-fulfilled" },
+  {   2, "not-fulfilled-dl" },
+  {   3, "not-fulfilled-ul" },
   { 0, NULL }
 };
 
@@ -21966,7 +25485,7 @@ static const value_string xnap_T_notificationInformation_vals[] = {
 static unsigned
 dissect_xnap_T_notificationInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, true, 0, NULL);
+                                     2, NULL, true, 2, NULL);
 
   return offset;
 }
@@ -22758,6 +26277,33 @@ dissect_xnap_RadioResourceStatusNR_U(tvbuff_t *tvb _U_, uint32_t offset _U_, asn
 }
 
 
+
+static unsigned
+dissect_xnap_RA_RNTI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 65535U, NULL, true);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_SBFD_Frequency_Configuration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_SBFD_Frequency_Configuration);
+    dissect_nr_rrc_SBFD_Subband_Allocation_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
 static const value_string xnap_SCGreconfigNotification_vals[] = {
   {   0, "executed" },
   {   1, "executed-deleted" },
@@ -22785,26 +26331,6 @@ static unsigned
 dissect_xnap_S_CPAC_Request(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, true, 0, NULL);
-
-  return offset;
-}
-
-
-
-static unsigned
-dissect_xnap_S_NG_RANnode_SecurityKey(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     256, 256, false, NULL, 0, NULL, NULL);
-
-  return offset;
-}
-
-
-
-static unsigned
-dissect_xnap_SK_COUNTER(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, false);
 
   return offset;
 }
@@ -24090,27 +27616,77 @@ dissect_xnap_SRSConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t
 }
 
 
-static const value_string xnap_SSB_PositionsInBurst_vals[] = {
-  {   0, "shortBitmap" },
-  {   1, "mediumBitmap" },
-  {   2, "longBitmap" },
-  {   3, "choice-extension" },
+static const value_string xnap_SRS_Resource_Indication_vals[] = {
+  {   0, "true" },
   { 0, NULL }
 };
 
-static const per_choice_t SSB_PositionsInBurst_choice[] = {
-  {   0, &hf_xnap_shortBitmap    , ASN1_NO_EXTENSIONS     , dissect_xnap_BIT_STRING_SIZE_4 },
-  {   1, &hf_xnap_mediumBitmap   , ASN1_NO_EXTENSIONS     , dissect_xnap_BIT_STRING_SIZE_8 },
-  {   2, &hf_xnap_longBitmap     , ASN1_NO_EXTENSIONS     , dissect_xnap_BIT_STRING_SIZE_64 },
-  {   3, &hf_xnap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_xnap_ProtocolIE_Single_Container },
-  { 0, NULL, 0, NULL }
+
+static unsigned
+dissect_xnap_SRS_Resource_Indication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_sRS_Resource(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_sRS_Resource);
+    dissect_nr_rrc_SRS_Resource_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t SRS_Resource_Configuration_List_Item_sequence[] = {
+  { &hf_xnap_sRS_Resource   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_sRS_Resource },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static unsigned
-dissect_xnap_SSB_PositionsInBurst(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_xnap_SSB_PositionsInBurst, SSB_PositionsInBurst_choice,
-                                 NULL);
+dissect_xnap_SRS_Resource_Configuration_List_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SRS_Resource_Configuration_List_Item, SRS_Resource_Configuration_List_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SRS_Resource_Configuration_List_sequence_of[1] = {
+  { &hf_xnap_SRS_Resource_Configuration_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_SRS_Resource_Configuration_List_Item },
+};
+
+static unsigned
+dissect_xnap_SRS_Resource_Configuration_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_SRS_Resource_Configuration_List, SRS_Resource_Configuration_List_sequence_of,
+                                                  1, maxnoofSRS_Resource, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t SRS_Resource_Configuration_sequence[] = {
+  { &hf_xnap_sRS_Resource_Configuration_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SRS_Resource_Configuration_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SRS_Resource_Configuration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SRS_Resource_Configuration, SRS_Resource_Configuration_sequence);
 
   return offset;
 }
@@ -24415,6 +27991,311 @@ dissect_xnap_SNPN_BasedMDT(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *a
 }
 
 
+static const per_sequence_t SliceToReportForDataCollection_List_Item_sequence[] = {
+  { &hf_xnap_pLMNIdentity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_PLMN_Identity },
+  { &hf_xnap_sNSSAIlist     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SNSSAI_list },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SliceToReportForDataCollection_List_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SliceToReportForDataCollection_List_Item, SliceToReportForDataCollection_List_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SliceToReportForDataCollection_List_sequence_of[1] = {
+  { &hf_xnap_SliceToReportForDataCollection_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_SliceToReportForDataCollection_List_Item },
+};
+
+static unsigned
+dissect_xnap_SliceToReportForDataCollection_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_SliceToReportForDataCollection_List, SliceToReportForDataCollection_List_sequence_of,
+                                                  1, maxnoofBPLMNs, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     32, 32, false, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SNSSAIMeasurementFailureCause_Item_sequence[] = {
+  { &hf_xnap_sNSSAIMeasurementFailedReportCharacteristics, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_BIT_STRING_SIZE_32 },
+  { &hf_xnap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_Cause },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SNSSAIMeasurementFailureCause_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SNSSAIMeasurementFailureCause_Item, SNSSAIMeasurementFailureCause_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SNSSAIMeasurementFailureCause_List_sequence_of[1] = {
+  { &hf_xnap_SNSSAIMeasurementFailureCause_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_SNSSAIMeasurementFailureCause_Item },
+};
+
+static unsigned
+dissect_xnap_SNSSAIMeasurementFailureCause_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_SNSSAIMeasurementFailureCause_List, SNSSAIMeasurementFailureCause_List_sequence_of,
+                                                  1, maxnoofFailedSliceMeasObjects, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t SNSSAIMeasurementInitiationResult_Item_sequence[] = {
+  { &hf_xnap_sNSSAI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_S_NSSAI },
+  { &hf_xnap_sNSSAIMeasurementFailureCause_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_SNSSAIMeasurementFailureCause_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SNSSAIMeasurementInitiationResult_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SNSSAIMeasurementInitiationResult_Item, SNSSAIMeasurementInitiationResult_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SNSSAIMeasurementInitiationResult_List_sequence_of[1] = {
+  { &hf_xnap_SNSSAIMeasurementInitiationResult_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_SNSSAIMeasurementInitiationResult_Item },
+};
+
+static unsigned
+dissect_xnap_SNSSAIMeasurementInitiationResult_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_SNSSAIMeasurementInitiationResult_List, SNSSAIMeasurementInitiationResult_List_sequence_of,
+                                                  1, maxnoofSliceItems, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t SliceMeasurementInitiationResult_Item_sequence[] = {
+  { &hf_xnap_pLMNIdentity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_PLMN_Identity },
+  { &hf_xnap_sNSSAIMeasurementInitiationResult_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SNSSAIMeasurementInitiationResult_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SliceMeasurementInitiationResult_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SliceMeasurementInitiationResult_Item, SliceMeasurementInitiationResult_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SliceMeasurementInitiationResult_List_sequence_of[1] = {
+  { &hf_xnap_SliceMeasurementInitiationResult_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_SliceMeasurementInitiationResult_Item },
+};
+
+static unsigned
+dissect_xnap_SliceMeasurementInitiationResult_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_SliceMeasurementInitiationResult_List, SliceMeasurementInitiationResult_List_sequence_of,
+                                                  1, maxnoofBPLMNs, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t SliceMeasurementInitiationResult_sequence[] = {
+  { &hf_xnap_sliceMeasurementInitiationResult_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SliceMeasurementInitiationResult_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SliceMeasurementInitiationResult(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SliceMeasurementInitiationResult, SliceMeasurementInitiationResult_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_INTEGER_0_1000000_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1000000U, NULL, true);
+
+  return offset;
+}
+
+
+static const per_sequence_t SliceBasedUEPerformance_sequence[] = {
+  { &hf_xnap_sliceAverageUEThroughputDL, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_BitRate },
+  { &hf_xnap_sliceAverageUEThroughputUL, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_BitRate },
+  { &hf_xnap_sliceAverageUEPacketDelay, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_AveragePacketDelay },
+  { &hf_xnap_sliceAveragePacketDropDL, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_INTEGER_0_1000000_ },
+  { &hf_xnap_sliceAveragePacketLossUL, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_INTEGER_0_1000000_ },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SliceBasedUEPerformance(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SliceBasedUEPerformance, SliceBasedUEPerformance_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t S_NSSAIUEPerformance_Item_sequence[] = {
+  { &hf_xnap_sNSSAI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_S_NSSAI },
+  { &hf_xnap_sliceBasedUEPerformance, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SliceBasedUEPerformance },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_S_NSSAIUEPerformance_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_S_NSSAIUEPerformance_Item, S_NSSAIUEPerformance_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t S_NSSAIUEPerformance_List_sequence_of[1] = {
+  { &hf_xnap_S_NSSAIUEPerformance_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_S_NSSAIUEPerformance_Item },
+};
+
+static unsigned
+dissect_xnap_S_NSSAIUEPerformance_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_S_NSSAIUEPerformance_List, S_NSSAIUEPerformance_List_sequence_of,
+                                                  1, maxnoofSliceItems, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t SliceUEPerformance_sequence[] = {
+  { &hf_xnap_pLMNIdentity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_PLMN_Identity },
+  { &hf_xnap_s_NSSAIUEPerformance_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_S_NSSAIUEPerformance_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SliceUEPerformance(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SliceUEPerformance, SliceUEPerformance_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_T_sRSTransmissionType_vals[] = {
+  {   0, "activate" },
+  {   1, "deactivate" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_T_sRSTransmissionType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_sRSResourceSetID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_sRSResourceSetID);
+    dissect_nrppa_SRSResourceSetID_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_sRSSpatialRelation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_sRSSpatialRelation);
+    dissect_nrppa_SpatialRelationInfo_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_T_spatialRelationInforperSRSResource(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &param_tvb);
+
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_spatialRelationInforperSRSResource);
+    dissect_nrppa_SpatialRelationPerSRSResource_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t SemipersistentPositioningInformation_sequence[] = {
+  { &hf_xnap_sRSTransmissionType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_sRSTransmissionType },
+  { &hf_xnap_sRSResourceSetID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_sRSResourceSetID },
+  { &hf_xnap_sRSSpatialRelation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_sRSSpatialRelation },
+  { &hf_xnap_spatialRelationInforperSRSResource, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_spatialRelationInforperSRSResource },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SemipersistentPositioningInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SemipersistentPositioningInformation, SemipersistentPositioningInformation_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t TAINSAGSupportItem_sequence[] = {
   { &hf_xnap_nSAG_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NSAG_ID },
   { &hf_xnap_nSAGSliceSupportList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ExtendedSliceSupportList },
@@ -24667,6 +28548,16 @@ dissect_xnap_TargetCellList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *
 
 
 static unsigned
+dissect_xnap_TimeSCG_Failure(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1023U, NULL, false);
+
+  return offset;
+}
+
+
+
+static unsigned
 dissect_xnap_TimeSinceFailure(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 172800U, NULL, true);
@@ -24686,16 +28577,6 @@ static unsigned
 dissect_xnap_T_timeDistributionIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, true, 0, NULL);
-
-  return offset;
-}
-
-
-
-static unsigned
-dissect_xnap_INTEGER_0_1000000_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1000000U, NULL, true);
 
   return offset;
 }
@@ -24943,6 +28824,9 @@ static const value_string xnap_Trace_Depth_vals[] = {
   {   3, "minimumWithoutVendorSpecificExtension" },
   {   4, "mediumWithoutVendorSpecificExtension" },
   {   5, "maximumWithoutVendorSpecificExtension" },
+  {   6, "minimumOnlyVendorSpecificTraceRecord" },
+  {   7, "mediumOnlyVendorSpecificTraceRecord" },
+  {   8, "maximumOnlyVendorSpecificTraceRecord" },
   { 0, NULL }
 };
 
@@ -24950,7 +28834,7 @@ static const value_string xnap_Trace_Depth_vals[] = {
 static unsigned
 dissect_xnap_Trace_Depth(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, true, 0, NULL);
+                                     6, NULL, true, 3, NULL);
 
   return offset;
 }
@@ -25136,6 +29020,40 @@ dissect_xnap_TSCTrafficCharacteristics(tvbuff_t *tvb _U_, uint32_t offset _U_, a
 }
 
 
+static const per_sequence_t TAInformation_Item_sequence[] = {
+  { &hf_xnap_earlyRACHResourcesRequesterID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_EarlyRACHResourcesRequesterID },
+  { &hf_xnap_candidateCellID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_tAValue        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_TAValue },
+  { &hf_xnap_preambleIndex  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_PreambleIndex },
+  { &hf_xnap_rA_RNTI        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_RA_RNTI },
+  { &hf_xnap_tagIDPointer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_TagIDPointer },
+  { &hf_xnap_ie_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_TAInformation_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_TAInformation_Item, TAInformation_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t TAInformation_List_sequence_of[1] = {
+  { &hf_xnap_TAInformation_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_TAInformation_Item },
+};
+
+static unsigned
+dissect_xnap_TAInformation_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_xnap_TAInformation_List, TAInformation_List_sequence_of,
+                                                  1, maxnoofTAList, false);
+
+  return offset;
+}
+
+
 static const per_sequence_t UEAggregateMaximumBitRate_sequence[] = {
   { &hf_xnap_dl_UE_AMBR     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_BitRate },
   { &hf_xnap_ul_UE_AMBR     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_BitRate },
@@ -25224,35 +29142,35 @@ dissect_xnap_UEContextID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *act
 }
 
 
-static int * const T_nr_EncyptionAlgorithms_bits[] = {
-  &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0,
-  &hf_xnap_T_nr_EncyptionAlgorithms_nea1_128,
-  &hf_xnap_T_nr_EncyptionAlgorithms_nea2_128,
-  &hf_xnap_T_nr_EncyptionAlgorithms_nea3_128,
+static int * const T_nr_EncyptionAlgorithms_01_bits[] = {
+  &hf_xnap_T_nr_EncyptionAlgorithms_01_spare_bit0,
+  &hf_xnap_T_nr_EncyptionAlgorithms_01_nea1_128,
+  &hf_xnap_T_nr_EncyptionAlgorithms_01_nea2_128,
+  &hf_xnap_T_nr_EncyptionAlgorithms_01_nea3_128,
   NULL
 };
 
 static unsigned
-dissect_xnap_T_nr_EncyptionAlgorithms(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_xnap_T_nr_EncyptionAlgorithms_01(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, true, T_nr_EncyptionAlgorithms_bits, 4, NULL, NULL);
+                                     16, 16, true, T_nr_EncyptionAlgorithms_01_bits, 4, NULL, NULL);
 
   return offset;
 }
 
 
-static int * const T_nr_IntegrityProtectionAlgorithms_bits[] = {
-  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0,
-  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128,
-  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128,
-  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128,
+static int * const T_nr_IntegrityProtectionAlgorithms_01_bits[] = {
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_spare_bit0,
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_nia1_128,
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_nia2_128,
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_nia3_128,
   NULL
 };
 
 static unsigned
-dissect_xnap_T_nr_IntegrityProtectionAlgorithms(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_xnap_T_nr_IntegrityProtectionAlgorithms_01(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, true, T_nr_IntegrityProtectionAlgorithms_bits, 4, NULL, NULL);
+                                     16, 16, true, T_nr_IntegrityProtectionAlgorithms_01_bits, 4, NULL, NULL);
 
   return offset;
 }
@@ -25293,8 +29211,8 @@ dissect_xnap_T_e_utra_IntegrityProtectionAlgorithms(tvbuff_t *tvb _U_, uint32_t 
 
 
 static const per_sequence_t UESecurityCapabilities_sequence[] = {
-  { &hf_xnap_nr_EncyptionAlgorithms, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_nr_EncyptionAlgorithms },
-  { &hf_xnap_nr_IntegrityProtectionAlgorithms, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_nr_IntegrityProtectionAlgorithms },
+  { &hf_xnap_nr_EncyptionAlgorithms_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_nr_EncyptionAlgorithms_01 },
+  { &hf_xnap_nr_IntegrityProtectionAlgorithms_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_nr_IntegrityProtectionAlgorithms_01 },
   { &hf_xnap_e_utra_EncyptionAlgorithms, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_e_utra_EncyptionAlgorithms },
   { &hf_xnap_e_utra_IntegrityProtectionAlgorithms, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_T_e_utra_IntegrityProtectionAlgorithms },
   { &hf_xnap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
@@ -25718,7 +29636,7 @@ static const per_sequence_t UEPerformance_sequence[] = {
   { &hf_xnap_dL_UE_AverageThroughput, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_BitRate },
   { &hf_xnap_uL_UE_AverageThroughput, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_BitRate },
   { &hf_xnap_uE_AveragePacketDelay, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_AveragePacketDelay },
-  { &hf_xnap_uE_AveragePacketLossDL, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_PacketLossRate },
+  { &hf_xnap_uE_AveragePacketDropDL, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_INTEGER_0_1000000_ },
   { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -25758,6 +29676,16 @@ dissect_xnap_UEAssociatedInfoResult_List(tvbuff_t *tvb _U_, uint32_t offset _U_,
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_xnap_UEAssociatedInfoResult_List, UEAssociatedInfoResult_List_sequence_of,
                                                   1, maxnoofUEReports, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_xnap_UEAveragePacketLossUL(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1000000U, NULL, true);
 
   return offset;
 }
@@ -25809,6 +29737,22 @@ static unsigned
 dissect_xnap_UETrajectoryCollectionConfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_xnap_UETrajectoryCollectionConfiguration, UETrajectoryCollectionConfiguration_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t WAB_MT_ID_sequence[] = {
+  { &hf_xnap_nrCGI          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_cRNTI          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_BIT_STRING_SIZE_16 },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_WAB_MT_ID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_WAB_MT_ID, WAB_MT_ID_sequence);
 
   return offset;
 }
@@ -27996,7 +31940,7 @@ dissect_xnap_ServedCellsToActivate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
 
 
 static const per_sequence_t SSBsToBeActivated_Item_sequence[] = {
-  { &hf_xnap_ssbIndex       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_63 },
+  { &hf_xnap_ssbIndex_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_63 },
   { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -28094,7 +32038,7 @@ dissect_xnap_ActivatedServedCells(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_c
 
 
 static const per_sequence_t SSBsActivated_Item_sequence[] = {
-  { &hf_xnap_ssbIndex       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_63 },
+  { &hf_xnap_ssbIndex_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_63 },
   { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -28282,6 +32226,21 @@ dissect_xnap_HandoverReport(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverReport");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_xnap_HandoverReport, HandoverReport_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SCGFailureIndication_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_SCGFailureIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCGFailureIndication");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_SCGFailureIndication, SCGFailureIndication_sequence);
 
   return offset;
 }
@@ -29073,9 +33032,260 @@ static const per_sequence_t DataCollectionUpdate_sequence[] = {
 static unsigned
 dissect_xnap_DataCollectionUpdate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataCollectionUpdate");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_xnap_DataCollectionUpdate, DataCollectionUpdate_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ODSIB1ConfigurationProvisionRequest_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_ODSIB1ConfigurationProvisionRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ODSIB1ConfigurationProvisionRequest");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_ODSIB1ConfigurationProvisionRequest, ODSIB1ConfigurationProvisionRequest_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ODSIB1ConfigurationInformation_sequence[] = {
+  { &hf_xnap_oDSIB1Configuration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_OCTET_STRING },
+  { &hf_xnap_nES_Cell_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
+  { &hf_xnap_cEll_A_ID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_NR_CGI },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_ODSIB1ConfigurationInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_ODSIB1ConfigurationInformation, ODSIB1ConfigurationInformation_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_RequestTypeChoice_vals[] = {
+  {   0, "start" },
+  {   1, "stop" },
+  {   2, "choice-extension" },
+  { 0, NULL }
+};
+
+static const per_choice_t RequestTypeChoice_choice[] = {
+  {   0, &hf_xnap_start          , ASN1_NO_EXTENSIONS     , dissect_xnap_ODSIB1ConfigurationInformation },
+  {   1, &hf_xnap_stop           , ASN1_NO_EXTENSIONS     , dissect_xnap_NR_CGI },
+  {   2, &hf_xnap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_xnap_ProtocolIE_Single_Container },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_RequestTypeChoice(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_xnap_RequestTypeChoice, RequestTypeChoice_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t ODSIB1ConfigurationProvisionResponse_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_ODSIB1ConfigurationProvisionResponse(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ODSIB1ConfigurationProvisionResponse");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_ODSIB1ConfigurationProvisionResponse, ODSIB1ConfigurationProvisionResponse_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ODSIB1ConfigurationProvisionFailure_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_ODSIB1ConfigurationProvisionFailure(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ODSIB1ConfigurationProvisionFailure");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_ODSIB1ConfigurationProvisionFailure, ODSIB1ConfigurationProvisionFailure_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ODSIB1ConfigurationProvisionStatusUpdate_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_ODSIB1ConfigurationProvisionStatusUpdate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ODSIB1ConfigurationProvisionStatusUpdate");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_ODSIB1ConfigurationProvisionStatusUpdate, ODSIB1ConfigurationProvisionStatusUpdate_sequence);
+
+  return offset;
+}
+
+
+static const value_string xnap_ProvisionStatus_vals[] = {
+  {   0, "stopped" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_xnap_ProvisionStatus(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellSwitchNotification_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CellSwitchNotification(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellSwitchNotification");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CellSwitchNotification, CellSwitchNotification_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t TAInformationTransfer_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_TAInformationTransfer(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TAInformationTransfer");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_TAInformationTransfer, TAInformationTransfer_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMConfigurationUpdate_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMConfigurationUpdate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LTMConfigurationUpdate");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMConfigurationUpdate, LTMConfigurationUpdate_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMConfigurationUpdateAcknowledge_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMConfigurationUpdateAcknowledge(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LTMConfigurationUpdateAcknowledge");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMConfigurationUpdateAcknowledge, LTMConfigurationUpdateAcknowledge_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMConfigurationUpdateFailure_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMConfigurationUpdateFailure(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LTMConfigurationUpdateFailure");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMConfigurationUpdateFailure, LTMConfigurationUpdateFailure_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMCancel_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_LTMCancel(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LTMCancel");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_LTMCancel, LTMCancel_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSIRSCoordinationRequest_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CSIRSCoordinationRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CSIRSCoordinationRequest");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CSIRSCoordinationRequest, CSIRSCoordinationRequest_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSIRSCoordinationResponse_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CSIRSCoordinationResponse(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CSIRSCoordinationResponse");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CSIRSCoordinationResponse, CSIRSCoordinationResponse_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CLI_Indication_sequence[] = {
+  { &hf_xnap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_xnap_CLI_Indication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CLI-Indication");
+
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_CLI_Indication, CLI_Indication_sequence);
 
   return offset;
 }
@@ -29190,6 +33400,14 @@ dissect_xnap_XnAP_PDU(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _
 
 /*--- PDUs ---*/
 
+static int dissect_AerialUEFlightInformationReportingControl_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_AerialUEFlightInformationReportingControl(tvb, offset, &asn1_ctx, tree, hf_xnap_AerialUEFlightInformationReportingControl_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_A2XPC5QoSParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -29251,6 +33469,14 @@ static int dissect_DataCollectionID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_DataCollectionID(tvb, offset, &asn1_ctx, tree, hf_xnap_DataCollectionID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_AdditionalDRBSetupInfoList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_AdditionalDRBSetupInfoList(tvb, offset, &asn1_ctx, tree, hf_xnap_AdditionalDRBSetupInfoList_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -29435,6 +33661,14 @@ static int dissect_CellMeasurementInitiationResult_List_PDU(tvbuff_t *tvb _U_, p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_CellMeasurementInitiationResult_List(tvb, offset, &asn1_ctx, tree, hf_xnap_CellMeasurementInitiationResult_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CLI_MeasurementResult_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_CLI_MeasurementResult_List(tvb, offset, &asn1_ctx, tree, hf_xnap_CLI_MeasurementResult_List_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -29710,6 +33944,30 @@ static int dissect_CSI_RSTransmissionIndication_PDU(tvbuff_t *tvb _U_, packet_in
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CellSwitchTAInformation_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_CellSwitchTAInformation_List(tvb, offset, &asn1_ctx, tree, hf_xnap_CellSwitchTAInformation_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CSI_RSCoordinationRequestList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_CSI_RSCoordinationRequestList(tvb, offset, &asn1_ctx, tree, hf_xnap_CSI_RSCoordinationRequestList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CSI_RSCoordinationResultList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_CSI_RSCoordinationResultList(tvb, offset, &asn1_ctx, tree, hf_xnap_CSI_RSCoordinationResultList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_XnUAddressInfoperPDUSession_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -29830,11 +34088,27 @@ static int dissect_DRBsSubjectToStatusTransfer_List_PDU(tvbuff_t *tvb _U_, packe
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_PDCPSNGapTransfer_UL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_PDCPSNGapTransfer_UL(tvb, offset, &asn1_ctx, tree, hf_xnap_PDCPSNGapTransfer_UL_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_DuplicationActivation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_DuplicationActivation(tvb, offset, &asn1_ctx, tree, hf_xnap_DuplicationActivation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DLPDUSetInformationMarkingSupportIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_DLPDUSetInformationMarkingSupportIndication(tvb, offset, &asn1_ctx, tree, hf_xnap_DLPDUSetInformationMarkingSupportIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -29851,6 +34125,14 @@ static int dissect_ECNMarkingorCongestionInformationReportingRequest_PDU(tvbuff_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_ECNMarkingorCongestionInformationReportingRequest(tvb, offset, &asn1_ctx, tree, hf_xnap_ECNMarkingorCongestionInformationReportingRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ECNMarkingorCongestionInformationReportingStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_ECNMarkingorCongestionInformationReportingStatus(tvb, offset, &asn1_ctx, tree, hf_xnap_ECNMarkingorCongestionInformationReportingStatus_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -29942,6 +34224,30 @@ static int dissect_ExtendedUEIdentityIndexValue_PDU(tvbuff_t *tvb _U_, packet_in
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_EarlySyncInformationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_EarlySyncInformationRequest(tvb, offset, &asn1_ctx, tree, hf_xnap_EarlySyncInformationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_EarlySyncInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_EarlySyncInformation(tvb, offset, &asn1_ctx, tree, hf_xnap_EarlySyncInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_FailureType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_FailureType(tvb, offset, &asn1_ctx, tree, hf_xnap_FailureType_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_F1CTrafficContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -29998,6 +34304,38 @@ static int dissect_FiveGProSeLayer2UEtoUERemote_PDU(tvbuff_t *tvb _U_, packet_in
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_FiveGProSeLayer3MHUEtoNetworkRelay_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_FiveGProSeLayer3MHUEtoNetworkRelay(tvb, offset, &asn1_ctx, tree, hf_xnap_FiveGProSeLayer3MHUEtoNetworkRelay_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_FiveGProSeLayer2MHUEtoNetworkRelay_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_FiveGProSeLayer2MHUEtoNetworkRelay(tvb, offset, &asn1_ctx, tree, hf_xnap_FiveGProSeLayer2MHUEtoNetworkRelay_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay(tvb, offset, &asn1_ctx, tree, hf_xnap_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_FiveGProSeLayer2MHRemote_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_FiveGProSeLayer2MHRemote(tvb, offset, &asn1_ctx, tree, hf_xnap_FiveGProSeLayer2MHRemote_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_FiveGProSePC5QoSParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -30011,6 +34349,30 @@ static int dissect_FrequencyShift7p5khz_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_FrequencyShift7p5khz(tvb, offset, &asn1_ctx, tree, hf_xnap_FrequencyShift7p5khz_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_FurtherExtended_UEIdentityIndexValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_FurtherExtended_UEIdentityIndexValue(tvb, offset, &asn1_ctx, tree, hf_xnap_FurtherExtended_UEIdentityIndexValue_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Future_Coverage_Modification_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_Future_Coverage_Modification_List(tvb, offset, &asn1_ctx, tree, hf_xnap_Future_Coverage_Modification_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GeographyBasedMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_GeographyBasedMDT(tvb, offset, &asn1_ctx, tree, hf_xnap_GeographyBasedMDT_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -30102,6 +34464,14 @@ static int dissect_IABTNLAddressException_PDU(tvbuff_t *tvb _U_, packet_info *pi
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Indication_of_bitrate_adaptation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_Indication_of_bitrate_adaptation(tvb, offset, &asn1_ctx, tree, hf_xnap_Indication_of_bitrate_adaptation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_InitiatingCondition_FailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -30174,6 +34544,22 @@ static int dissect_LocationReportingInformation_PDU(tvbuff_t *tvb _U_, packet_in
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_LPWUSPSassistanceInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LPWUSPSassistanceInformation(tvb, offset, &asn1_ctx, tree, hf_xnap_LPWUSPSassistanceInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LP_WUS_Disable_Indication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LP_WUS_Disable_Indication(tvb, offset, &asn1_ctx, tree, hf_xnap_LP_WUS_Disable_Indication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_LTEA2XServicesAuthorized_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -30195,6 +34581,182 @@ static int dissect_LTEUESidelinkAggregateMaximumBitRate_PDU(tvbuff_t *tvb _U_, p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_LTEUESidelinkAggregateMaximumBitRate(tvb, offset, &asn1_ctx, tree, hf_xnap_LTEUESidelinkAggregateMaximumBitRate_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMHandoverInformationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMHandoverInformationRequest(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMHandoverInformationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMHandoverInformationRequestAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMHandoverInformationRequestAcknowledge(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMHandoverInformationRequestAcknowledge_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMCellSwitchInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMCellSwitchInformation(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMCellSwitchInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMUEAssociationInformation_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMUEAssociationInformation_List(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMUEAssociationInformation_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMUpdatesToCandidateNodeInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMUpdatesToCandidateNodeInformation(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMUpdatesToCandidateNodeInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMUpdatesToCandidateCellInformation_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMUpdatesToCandidateCellInformation_List(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMUpdatesToCandidateCellInformation_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMUpdatesFromCandidateCellInformation_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMUpdatesFromCandidateCellInformation_List(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMUpdatesFromCandidateCellInformation_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMUESecurityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMUESecurityInformation(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMUESecurityInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMCandidateCellsToBeCancelled_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMCandidateCellsToBeCancelled_List(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMCandidateCellsToBeCancelled_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMInformationSCG_AddReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMInformationSCG_AddReq(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMInformationSCG_AddReq_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMInformationSCG_AddReqAck_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMInformationSCG_AddReqAck(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMInformationSCG_AddReqAck_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMInformationSCG_ModReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMInformationSCG_ModReq(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMInformationSCG_ModReq_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMInterSNExecutionNotification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMInterSNExecutionNotification(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMInterSNExecutionNotification_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTM_DC_DataForwarding_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTM_DC_DataForwarding_Indicator(tvb, offset, &asn1_ctx, tree, hf_xnap_LTM_DC_DataForwarding_Indicator_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMPSCellInformation_AddReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMPSCellInformation_AddReq(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMPSCellInformation_AddReq_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMPSCellInformation_AddReqAck_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMPSCellInformation_AddReqAck(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMPSCellInformation_AddReqAck_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMPSCellInformation_UpdateReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMPSCellInformation_UpdateReq(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMPSCellInformation_UpdateReq_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMPSCellInformation_UpdateReqAck_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMPSCellInformation_UpdateReqAck(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMPSCellInformation_UpdateReqAck_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMPSCellInformation_UpdateRequired_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMPSCellInformation_UpdateRequired(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMPSCellInformation_UpdateRequired_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMPSCellInformation_UpdateConfirm_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMPSCellInformation_UpdateConfirm(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMPSCellInformation_UpdateConfirm_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMPSCellInformation_ChangeRequired_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMPSCellInformation_ChangeRequired(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMPSCellInformation_ChangeRequired_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMPSCellInformation_ChangeConfirm_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMPSCellInformation_ChangeConfirm(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMPSCellInformation_ChangeConfirm_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -30414,6 +34976,22 @@ static int dissect_MobilityRestrictionList_PDU(tvbuff_t *tvb _U_, packet_info *p
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_MonitoringRequestonAvailableBitrate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_MonitoringRequestonAvailableBitrate(tvb, offset, &asn1_ctx, tree, hf_xnap_MonitoringRequestonAvailableBitrate_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MMSID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_MMSID(tvb, offset, &asn1_ctx, tree, hf_xnap_MMSID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CNTypeRestrictionsForEquivalent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -30483,6 +35061,14 @@ static int dissect_Neighbour_NG_RAN_Node_List_PDU(tvbuff_t *tvb _U_, packet_info
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_Neighbour_NG_RAN_Node_List(tvb, offset, &asn1_ctx, tree, hf_xnap_Neighbour_NG_RAN_Node_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_NetworkSliceAreaScopeofMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_NetworkSliceAreaScopeofMDT(tvb, offset, &asn1_ctx, tree, hf_xnap_NetworkSliceAreaScopeofMDT_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -30734,6 +35320,14 @@ static int dissect_NRUESidelinkAggregateMaximumBitRate_PDU(tvbuff_t *tvb _U_, pa
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_NZP_CSI_RS_Resources_Config_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_NZP_CSI_RS_Resources_Config(tvb, offset, &asn1_ctx, tree, hf_xnap_NZP_CSI_RS_Resources_Config_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_OffsetOfNbiotChannelNumberToEARFCN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -30747,6 +35341,14 @@ static int dissect_PositioningInformation_PDU(tvbuff_t *tvb _U_, packet_info *pi
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_PositioningInformation(tvb, offset, &asn1_ctx, tree, hf_xnap_PositioningInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PacketErrorRate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_PacketErrorRate(tvb, offset, &asn1_ctx, tree, hf_xnap_PacketErrorRate_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -30950,6 +35552,22 @@ static int dissect_PSCellListContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_PSIbasedSDUdiscardUL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_PSIbasedSDUdiscardUL(tvb, offset, &asn1_ctx, tree, hf_xnap_PSIbasedSDUdiscardUL_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PSIbasedSDUdiscardDL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_PSIbasedSDUdiscardDL(tvb, offset, &asn1_ctx, tree, hf_xnap_PSIbasedSDUdiscardDL_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_PNI_NPN_AreaScopeofMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -30963,6 +35581,14 @@ static int dissect_PNI_NPNBasedMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_PNI_NPNBasedMDT(tvb, offset, &asn1_ctx, tree, hf_xnap_PNI_NPNBasedMDT_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PredictedSliceAvailableCapacityGroup_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_PredictedSliceAvailableCapacityGroup(tvb, offset, &asn1_ctx, tree, hf_xnap_PredictedSliceAvailableCapacityGroup_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -31235,6 +35861,14 @@ static int dissect_RadioResourceStatusNR_U_PDU(tvbuff_t *tvb _U_, packet_info *p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_RadioResourceStatusNR_U(tvb, offset, &asn1_ctx, tree, hf_xnap_RadioResourceStatusNR_U_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SBFD_Frequency_Configuration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_SBFD_Frequency_Configuration(tvb, offset, &asn1_ctx, tree, hf_xnap_SBFD_Frequency_Configuration_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -31526,6 +36160,22 @@ static int dissect_SRSConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_SRS_Resource_Indication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_SRS_Resource_Indication(tvb, offset, &asn1_ctx, tree, hf_xnap_SRS_Resource_Indication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SRS_Resource_Configuration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_SRS_Resource_Configuration(tvb, offset, &asn1_ctx, tree, hf_xnap_SRS_Resource_Configuration_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_SSB_PositionsInBurst_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -31598,6 +36248,38 @@ static int dissect_SNPN_BasedMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_SliceToReportForDataCollection_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_SliceToReportForDataCollection_List(tvb, offset, &asn1_ctx, tree, hf_xnap_SliceToReportForDataCollection_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SliceMeasurementInitiationResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_SliceMeasurementInitiationResult(tvb, offset, &asn1_ctx, tree, hf_xnap_SliceMeasurementInitiationResult_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SliceUEPerformance_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_SliceUEPerformance(tvb, offset, &asn1_ctx, tree, hf_xnap_SliceUEPerformance_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SemipersistentPositioningInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_SemipersistentPositioningInformation(tvb, offset, &asn1_ctx, tree, hf_xnap_SemipersistentPositioningInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_TAINSAGSupportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -31651,6 +36333,14 @@ static int dissect_TargetCellList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_TargetCellList(tvb, offset, &asn1_ctx, tree, hf_xnap_TargetCellList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_TimeSCG_Failure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_TimeSCG_Failure(tvb, offset, &asn1_ctx, tree, hf_xnap_TimeSCG_Failure_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -31755,6 +36445,14 @@ static int dissect_TSCTrafficCharacteristics_PDU(tvbuff_t *tvb _U_, packet_info 
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_TSCTrafficCharacteristics(tvb, offset, &asn1_ctx, tree, hf_xnap_TSCTrafficCharacteristics_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_TAInformation_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_TAInformation_List(tvb, offset, &asn1_ctx, tree, hf_xnap_TAInformation_List_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -31942,6 +36640,14 @@ static int dissect_UEAssociatedInfoResult_List_PDU(tvbuff_t *tvb _U_, packet_inf
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_UEAveragePacketLossUL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_UEAveragePacketLossUL(tvb, offset, &asn1_ctx, tree, hf_xnap_UEAveragePacketLossUL_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_UEPerformanceCollectionConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -31955,6 +36661,14 @@ static int dissect_UETrajectoryCollectionConfiguration_PDU(tvbuff_t *tvb _U_, pa
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_UETrajectoryCollectionConfiguration(tvb, offset, &asn1_ctx, tree, hf_xnap_UETrajectoryCollectionConfiguration_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_WAB_MT_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_WAB_MT_ID(tvb, offset, &asn1_ctx, tree, hf_xnap_WAB_MT_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -32814,6 +37528,14 @@ static int dissect_HandoverReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_SCGFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_SCGFailureIndication(tvb, offset, &asn1_ctx, tree, hf_xnap_SCGFailureIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_ResourceStatusRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -33142,6 +37864,126 @@ static int dissect_DataCollectionUpdate_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_ODSIB1ConfigurationProvisionRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_ODSIB1ConfigurationProvisionRequest(tvb, offset, &asn1_ctx, tree, hf_xnap_ODSIB1ConfigurationProvisionRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RequestTypeChoice_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_RequestTypeChoice(tvb, offset, &asn1_ctx, tree, hf_xnap_RequestTypeChoice_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ODSIB1ConfigurationProvisionResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_ODSIB1ConfigurationProvisionResponse(tvb, offset, &asn1_ctx, tree, hf_xnap_ODSIB1ConfigurationProvisionResponse_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ODSIB1ConfigurationProvisionFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_ODSIB1ConfigurationProvisionFailure(tvb, offset, &asn1_ctx, tree, hf_xnap_ODSIB1ConfigurationProvisionFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ODSIB1ConfigurationProvisionStatusUpdate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_ODSIB1ConfigurationProvisionStatusUpdate(tvb, offset, &asn1_ctx, tree, hf_xnap_ODSIB1ConfigurationProvisionStatusUpdate_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ProvisionStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_ProvisionStatus(tvb, offset, &asn1_ctx, tree, hf_xnap_ProvisionStatus_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CellSwitchNotification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_CellSwitchNotification(tvb, offset, &asn1_ctx, tree, hf_xnap_CellSwitchNotification_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_TAInformationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_TAInformationTransfer(tvb, offset, &asn1_ctx, tree, hf_xnap_TAInformationTransfer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMConfigurationUpdate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMConfigurationUpdate(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMConfigurationUpdate_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMConfigurationUpdateAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMConfigurationUpdateAcknowledge(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMConfigurationUpdateAcknowledge_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMConfigurationUpdateFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMConfigurationUpdateFailure(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMConfigurationUpdateFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMCancel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_LTMCancel(tvb, offset, &asn1_ctx, tree, hf_xnap_LTMCancel_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CSIRSCoordinationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_CSIRSCoordinationRequest(tvb, offset, &asn1_ctx, tree, hf_xnap_CSIRSCoordinationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CSIRSCoordinationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_CSIRSCoordinationResponse(tvb, offset, &asn1_ctx, tree, hf_xnap_CSIRSCoordinationResponse_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CLI_Indication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_CLI_Indication(tvb, offset, &asn1_ctx, tree, hf_xnap_CLI_Indication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_XnAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -33466,6 +38308,10 @@ void proto_register_xnap(void) {
       { "Data", "xnap.extensionValue.data",
         FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_AerialUEFlightInformationReportingControl_PDU,
+      { "AerialUEFlightInformationReportingControl", "xnap.AerialUEFlightInformationReportingControl_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_A2XPC5QoSParameters_PDU,
       { "A2XPC5QoSParameters", "xnap.A2XPC5QoSParameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -33497,6 +38343,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_DataCollectionID_PDU,
       { "DataCollectionID", "xnap.DataCollectionID_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_AdditionalDRBSetupInfoList_PDU,
+      { "AdditionalDRBSetupInfoList", "xnap.AdditionalDRBSetupInfoList",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_AerialUESubscriptionInformation_PDU,
       { "AerialUESubscriptionInformation", "xnap.AerialUESubscriptionInformation",
@@ -33588,6 +38438,10 @@ void proto_register_xnap(void) {
         NULL, HFILL }},
     { &hf_xnap_CellMeasurementInitiationResult_List_PDU,
       { "CellMeasurementInitiationResult-List", "xnap.CellMeasurementInitiationResult_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_CLI_MeasurementResult_List_PDU,
+      { "CLI-MeasurementResult-List", "xnap.CLI_MeasurementResult_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_CellMeasurementResultForDataCollection_List_PDU,
@@ -33726,6 +38580,18 @@ void proto_register_xnap(void) {
       { "CSI-RSTransmissionIndication", "xnap.CSI_RSTransmissionIndication",
         FT_UINT32, BASE_DEC, VALS(xnap_CSI_RSTransmissionIndication_vals), 0,
         NULL, HFILL }},
+    { &hf_xnap_CellSwitchTAInformation_List_PDU,
+      { "CellSwitchTAInformation-List", "xnap.CellSwitchTAInformation_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_CSI_RSCoordinationRequestList_PDU,
+      { "CSI-RSCoordinationRequestList", "xnap.CSI_RSCoordinationRequestList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_CSI_RSCoordinationResultList_PDU,
+      { "CSI-RSCoordinationResultList", "xnap.CSI_RSCoordinationResultList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_XnUAddressInfoperPDUSession_List_PDU,
       { "XnUAddressInfoperPDUSession-List", "xnap.XnUAddressInfoperPDUSession_List",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -33786,9 +38652,17 @@ void proto_register_xnap(void) {
       { "DRBsSubjectToStatusTransfer-List", "xnap.DRBsSubjectToStatusTransfer_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_PDCPSNGapTransfer_UL_PDU,
+      { "PDCPSNGapTransfer-UL", "xnap.PDCPSNGapTransfer_UL",
+        FT_UINT32, BASE_DEC, VALS(xnap_PDCPSNGapTransfer_UL_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_DuplicationActivation_PDU,
       { "DuplicationActivation", "xnap.DuplicationActivation",
         FT_UINT32, BASE_DEC, VALS(xnap_DuplicationActivation_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_DLPDUSetInformationMarkingSupportIndication_PDU,
+      { "DLPDUSetInformationMarkingSupportIndication", "xnap.DLPDUSetInformationMarkingSupportIndication",
+        FT_UINT32, BASE_DEC, VALS(xnap_DLPDUSetInformationMarkingSupportIndication_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_EarlyMeasurement_PDU,
       { "EarlyMeasurement", "xnap.EarlyMeasurement",
@@ -33797,6 +38671,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_ECNMarkingorCongestionInformationReportingRequest_PDU,
       { "ECNMarkingorCongestionInformationReportingRequest", "xnap.ECNMarkingorCongestionInformationReportingRequest",
         FT_UINT32, BASE_DEC, VALS(xnap_ECNMarkingorCongestionInformationReportingRequest_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_ECNMarkingorCongestionInformationReportingStatus_PDU,
+      { "ECNMarkingorCongestionInformationReportingStatus", "xnap.ECNMarkingorCongestionInformationReportingStatus",
+        FT_UINT32, BASE_DEC, VALS(xnap_ECNMarkingorCongestionInformationReportingStatus_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_EquivalentSNPNs_PDU,
       { "EquivalentSNPNs", "xnap.EquivalentSNPNs",
@@ -33842,6 +38720,18 @@ void proto_register_xnap(void) {
       { "ExtendedUEIdentityIndexValue", "xnap.ExtendedUEIdentityIndexValue",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_EarlySyncInformationRequest_PDU,
+      { "EarlySyncInformationRequest", "xnap.EarlySyncInformationRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_EarlySyncInformation_PDU,
+      { "EarlySyncInformation", "xnap.EarlySyncInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_FailureType_PDU,
+      { "FailureType", "xnap.FailureType",
+        FT_UINT32, BASE_DEC, VALS(xnap_FailureType_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_F1CTrafficContainer_PDU,
       { "F1CTrafficContainer", "xnap.F1CTrafficContainer",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -33870,6 +38760,22 @@ void proto_register_xnap(void) {
       { "FiveGProSeLayer2UEtoUERemote", "xnap.FiveGProSeLayer2UEtoUERemote",
         FT_UINT32, BASE_DEC, VALS(xnap_FiveGProSeLayer2UEtoUERemote_vals), 0,
         NULL, HFILL }},
+    { &hf_xnap_FiveGProSeLayer3MHUEtoNetworkRelay_PDU,
+      { "FiveGProSeLayer3MHUEtoNetworkRelay", "xnap.FiveGProSeLayer3MHUEtoNetworkRelay",
+        FT_UINT32, BASE_DEC, VALS(xnap_FiveGProSeLayer3MHUEtoNetworkRelay_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_FiveGProSeLayer2MHUEtoNetworkRelay_PDU,
+      { "FiveGProSeLayer2MHUEtoNetworkRelay", "xnap.FiveGProSeLayer2MHUEtoNetworkRelay",
+        FT_UINT32, BASE_DEC, VALS(xnap_FiveGProSeLayer2MHUEtoNetworkRelay_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay_PDU,
+      { "FiveGProSeLayer2MHIntermediateUEtoNetworkRelay", "xnap.FiveGProSeLayer2MHIntermediateUEtoNetworkRelay",
+        FT_UINT32, BASE_DEC, VALS(xnap_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_FiveGProSeLayer2MHRemote_PDU,
+      { "FiveGProSeLayer2MHRemote", "xnap.FiveGProSeLayer2MHRemote",
+        FT_UINT32, BASE_DEC, VALS(xnap_FiveGProSeLayer2MHRemote_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_FiveGProSePC5QoSParameters_PDU,
       { "FiveGProSePC5QoSParameters", "xnap.FiveGProSePC5QoSParameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -33877,6 +38783,18 @@ void proto_register_xnap(void) {
     { &hf_xnap_FrequencyShift7p5khz_PDU,
       { "FrequencyShift7p5khz", "xnap.FrequencyShift7p5khz",
         FT_UINT32, BASE_DEC, VALS(xnap_FrequencyShift7p5khz_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_FurtherExtended_UEIdentityIndexValue_PDU,
+      { "FurtherExtended-UEIdentityIndexValue", "xnap.FurtherExtended_UEIdentityIndexValue",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_Future_Coverage_Modification_List_PDU,
+      { "Future-Coverage-Modification-List", "xnap.Future_Coverage_Modification_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_GeographyBasedMDT_PDU,
+      { "GeographyBasedMDT", "xnap.GeographyBasedMDT_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_GNB_DU_Cell_Resource_Configuration_PDU,
       { "GNB-DU-Cell-Resource-Configuration", "xnap.GNB_DU_Cell_Resource_Configuration_element",
@@ -33922,6 +38840,10 @@ void proto_register_xnap(void) {
       { "IABTNLAddressException", "xnap.IABTNLAddressException",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_Indication_of_bitrate_adaptation_PDU,
+      { "Indication-of-bitrate-adaptation", "xnap.Indication_of_bitrate_adaptation",
+        FT_UINT32, BASE_DEC, VALS(xnap_Indication_of_bitrate_adaptation_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_InitiatingCondition_FailureIndication_PDU,
       { "InitiatingCondition-FailureIndication", "xnap.InitiatingCondition_FailureIndication",
         FT_UINT32, BASE_DEC, VALS(xnap_InitiatingCondition_FailureIndication_vals), 0,
@@ -33958,6 +38880,14 @@ void proto_register_xnap(void) {
       { "LocationReportingInformation", "xnap.LocationReportingInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_LPWUSPSassistanceInformation_PDU,
+      { "LPWUSPSassistanceInformation", "xnap.LPWUSPSassistanceInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LP_WUS_Disable_Indication_PDU,
+      { "LP-WUS-Disable-Indication", "xnap.LP_WUS_Disable_Indication",
+        FT_UINT32, BASE_DEC, VALS(xnap_LP_WUS_Disable_Indication_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_LTEA2XServicesAuthorized_PDU,
       { "LTEA2XServicesAuthorized", "xnap.LTEA2XServicesAuthorized_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -33968,6 +38898,94 @@ void proto_register_xnap(void) {
         NULL, HFILL }},
     { &hf_xnap_LTEUESidelinkAggregateMaximumBitRate_PDU,
       { "LTEUESidelinkAggregateMaximumBitRate", "xnap.LTEUESidelinkAggregateMaximumBitRate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMHandoverInformationRequest_PDU,
+      { "LTMHandoverInformationRequest", "xnap.LTMHandoverInformationRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMHandoverInformationRequestAcknowledge_PDU,
+      { "LTMHandoverInformationRequestAcknowledge", "xnap.LTMHandoverInformationRequestAcknowledge_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMCellSwitchInformation_PDU,
+      { "LTMCellSwitchInformation", "xnap.LTMCellSwitchInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMUEAssociationInformation_List_PDU,
+      { "LTMUEAssociationInformation-List", "xnap.LTMUEAssociationInformation_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMUpdatesToCandidateNodeInformation_PDU,
+      { "LTMUpdatesToCandidateNodeInformation", "xnap.LTMUpdatesToCandidateNodeInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMUpdatesToCandidateCellInformation_List_PDU,
+      { "LTMUpdatesToCandidateCellInformation-List", "xnap.LTMUpdatesToCandidateCellInformation_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMUpdatesFromCandidateCellInformation_List_PDU,
+      { "LTMUpdatesFromCandidateCellInformation-List", "xnap.LTMUpdatesFromCandidateCellInformation_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMUESecurityInformation_PDU,
+      { "LTMUESecurityInformation", "xnap.LTMUESecurityInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMCandidateCellsToBeCancelled_List_PDU,
+      { "LTMCandidateCellsToBeCancelled-List", "xnap.LTMCandidateCellsToBeCancelled_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMInformationSCG_AddReq_PDU,
+      { "LTMInformationSCG-AddReq", "xnap.LTMInformationSCG_AddReq_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMInformationSCG_AddReqAck_PDU,
+      { "LTMInformationSCG-AddReqAck", "xnap.LTMInformationSCG_AddReqAck_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMInformationSCG_ModReq_PDU,
+      { "LTMInformationSCG-ModReq", "xnap.LTMInformationSCG_ModReq_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMInterSNExecutionNotification_PDU,
+      { "LTMInterSNExecutionNotification", "xnap.LTMInterSNExecutionNotification",
+        FT_UINT32, BASE_DEC, VALS(xnap_LTMInterSNExecutionNotification_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTM_DC_DataForwarding_Indicator_PDU,
+      { "LTM-DC-DataForwarding-Indicator", "xnap.LTM_DC_DataForwarding_Indicator",
+        FT_UINT32, BASE_DEC, VALS(xnap_LTM_DC_DataForwarding_Indicator_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMPSCellInformation_AddReq_PDU,
+      { "LTMPSCellInformation-AddReq", "xnap.LTMPSCellInformation_AddReq_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMPSCellInformation_AddReqAck_PDU,
+      { "LTMPSCellInformation-AddReqAck", "xnap.LTMPSCellInformation_AddReqAck_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMPSCellInformation_UpdateReq_PDU,
+      { "LTMPSCellInformation-UpdateReq", "xnap.LTMPSCellInformation_UpdateReq_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMPSCellInformation_UpdateReqAck_PDU,
+      { "LTMPSCellInformation-UpdateReqAck", "xnap.LTMPSCellInformation_UpdateReqAck_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMPSCellInformation_UpdateRequired_PDU,
+      { "LTMPSCellInformation-UpdateRequired", "xnap.LTMPSCellInformation_UpdateRequired_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMPSCellInformation_UpdateConfirm_PDU,
+      { "LTMPSCellInformation-UpdateConfirm", "xnap.LTMPSCellInformation_UpdateConfirm_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMPSCellInformation_ChangeRequired_PDU,
+      { "LTMPSCellInformation-ChangeRequired", "xnap.LTMPSCellInformation_ChangeRequired_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMPSCellInformation_ChangeConfirm_PDU,
+      { "LTMPSCellInformation-ChangeConfirm", "xnap.LTMPSCellInformation_ChangeConfirm_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_MBSCommServiceType_PDU,
@@ -34078,6 +39096,14 @@ void proto_register_xnap(void) {
       { "MobilityRestrictionList", "xnap.MobilityRestrictionList_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_MonitoringRequestonAvailableBitrate_PDU,
+      { "MonitoringRequestonAvailableBitrate", "xnap.MonitoringRequestonAvailableBitrate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_MMSID_PDU,
+      { "MMSID", "xnap.MMSID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_CNTypeRestrictionsForEquivalent_PDU,
       { "CNTypeRestrictionsForEquivalent", "xnap.CNTypeRestrictionsForEquivalent",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -34113,6 +39139,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_Neighbour_NG_RAN_Node_List_PDU,
       { "Neighbour-NG-RAN-Node-List", "xnap.Neighbour_NG_RAN_Node_List",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_NetworkSliceAreaScopeofMDT_PDU,
+      { "NetworkSliceAreaScopeofMDT", "xnap.NetworkSliceAreaScopeofMDT_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_NID_PDU,
       { "NID", "xnap.NID",
@@ -34238,12 +39268,20 @@ void proto_register_xnap(void) {
       { "NRUESidelinkAggregateMaximumBitRate", "xnap.NRUESidelinkAggregateMaximumBitRate_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_NZP_CSI_RS_Resources_Config_PDU,
+      { "NZP-CSI-RS-Resources-Config", "xnap.NZP_CSI_RS_Resources_Config_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_OffsetOfNbiotChannelNumberToEARFCN_PDU,
       { "OffsetOfNbiotChannelNumberToEARFCN", "xnap.OffsetOfNbiotChannelNumberToEARFCN",
         FT_UINT32, BASE_DEC, VALS(xnap_OffsetOfNbiotChannelNumberToEARFCN_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_PositioningInformation_PDU,
       { "PositioningInformation", "xnap.PositioningInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_PacketErrorRate_PDU,
+      { "PacketErrorRate", "xnap.PacketErrorRate_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_PagingCause_PDU,
@@ -34346,12 +39384,24 @@ void proto_register_xnap(void) {
       { "PSCellListContainer", "xnap.PSCellListContainer",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_PSIbasedSDUdiscardUL_PDU,
+      { "PSIbasedSDUdiscardUL", "xnap.PSIbasedSDUdiscardUL",
+        FT_UINT32, BASE_DEC, VALS(xnap_PSIbasedSDUdiscardUL_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_PSIbasedSDUdiscardDL_PDU,
+      { "PSIbasedSDUdiscardDL", "xnap.PSIbasedSDUdiscardDL",
+        FT_UINT32, BASE_DEC, VALS(xnap_PSIbasedSDUdiscardDL_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_PNI_NPN_AreaScopeofMDT_PDU,
       { "PNI-NPN-AreaScopeofMDT", "xnap.PNI_NPN_AreaScopeofMDT_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_PNI_NPNBasedMDT_PDU,
       { "PNI-NPNBasedMDT", "xnap.PNI_NPNBasedMDT_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_PredictedSliceAvailableCapacityGroup_PDU,
+      { "PredictedSliceAvailableCapacityGroup", "xnap.PredictedSliceAvailableCapacityGroup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_QMCConfigInfo_PDU,
@@ -34489,6 +39539,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_RadioResourceStatusNR_U_PDU,
       { "RadioResourceStatusNR-U", "xnap.RadioResourceStatusNR_U_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_SBFD_Frequency_Configuration_PDU,
+      { "SBFD-Frequency-Configuration", "xnap.SBFD_Frequency_Configuration",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_SCGreconfigNotification_PDU,
       { "SCGreconfigNotification", "xnap.SCGreconfigNotification",
@@ -34634,6 +39688,14 @@ void proto_register_xnap(void) {
       { "SRSConfiguration", "xnap.SRSConfiguration",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_SRS_Resource_Indication_PDU,
+      { "SRS-Resource-Indication", "xnap.SRS_Resource_Indication",
+        FT_UINT32, BASE_DEC, VALS(xnap_SRS_Resource_Indication_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_SRS_Resource_Configuration_PDU,
+      { "SRS-Resource-Configuration", "xnap.SRS_Resource_Configuration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_SSB_PositionsInBurst_PDU,
       { "SSB-PositionsInBurst", "xnap.SSB_PositionsInBurst",
         FT_UINT32, BASE_DEC, VALS(xnap_SSB_PositionsInBurst_vals), 0,
@@ -34670,6 +39732,22 @@ void proto_register_xnap(void) {
       { "SNPN-BasedMDT", "xnap.SNPN_BasedMDT_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_SliceToReportForDataCollection_List_PDU,
+      { "SliceToReportForDataCollection-List", "xnap.SliceToReportForDataCollection_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_SliceMeasurementInitiationResult_PDU,
+      { "SliceMeasurementInitiationResult", "xnap.SliceMeasurementInitiationResult_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_SliceUEPerformance_PDU,
+      { "SliceUEPerformance", "xnap.SliceUEPerformance_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_SemipersistentPositioningInformation_PDU,
+      { "SemipersistentPositioningInformation", "xnap.SemipersistentPositioningInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_TAINSAGSupportList_PDU,
       { "TAINSAGSupportList", "xnap.TAINSAGSupportList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -34697,6 +39775,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_TargetCellList_PDU,
       { "TargetCellList", "xnap.TargetCellList",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_TimeSCG_Failure_PDU,
+      { "TimeSCG-Failure", "xnap.TimeSCG_Failure",
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(xnap_tenth_seconds_fmt), 0,
         NULL, HFILL }},
     { &hf_xnap_TimeSinceFailure_PDU,
       { "TimeSinceFailure", "xnap.TimeSinceFailure",
@@ -34749,6 +39831,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_TSCTrafficCharacteristics_PDU,
       { "TSCTrafficCharacteristics", "xnap.TSCTrafficCharacteristics_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_TAInformation_List_PDU,
+      { "TAInformation-List", "xnap.TAInformation_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_UEAggregateMaximumBitRate_PDU,
       { "UEAggregateMaximumBitRate", "xnap.UEAggregateMaximumBitRate_element",
@@ -34842,12 +39928,20 @@ void proto_register_xnap(void) {
       { "UEAssociatedInfoResult-List", "xnap.UEAssociatedInfoResult_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_UEAveragePacketLossUL_PDU,
+      { "UEAveragePacketLossUL", "xnap.UEAveragePacketLossUL",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_UEPerformanceCollectionConfiguration_PDU,
       { "UEPerformanceCollectionConfiguration", "xnap.UEPerformanceCollectionConfiguration_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_UETrajectoryCollectionConfiguration_PDU,
       { "UETrajectoryCollectionConfiguration", "xnap.UETrajectoryCollectionConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_WAB_MT_ID_PDU,
+      { "WAB-MT-ID", "xnap.WAB_MT_ID_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_XnBenefitValue_PDU,
@@ -35278,6 +40372,10 @@ void proto_register_xnap(void) {
       { "HandoverReport", "xnap.HandoverReport_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_SCGFailureIndication_PDU,
+      { "SCGFailureIndication", "xnap.SCGFailureIndication_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_ResourceStatusRequest_PDU,
       { "ResourceStatusRequest", "xnap.ResourceStatusRequest_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -35442,6 +40540,66 @@ void proto_register_xnap(void) {
       { "DataCollectionUpdate", "xnap.DataCollectionUpdate_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_ODSIB1ConfigurationProvisionRequest_PDU,
+      { "ODSIB1ConfigurationProvisionRequest", "xnap.ODSIB1ConfigurationProvisionRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_RequestTypeChoice_PDU,
+      { "RequestTypeChoice", "xnap.RequestTypeChoice",
+        FT_UINT32, BASE_DEC, VALS(xnap_RequestTypeChoice_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_ODSIB1ConfigurationProvisionResponse_PDU,
+      { "ODSIB1ConfigurationProvisionResponse", "xnap.ODSIB1ConfigurationProvisionResponse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_ODSIB1ConfigurationProvisionFailure_PDU,
+      { "ODSIB1ConfigurationProvisionFailure", "xnap.ODSIB1ConfigurationProvisionFailure_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_ODSIB1ConfigurationProvisionStatusUpdate_PDU,
+      { "ODSIB1ConfigurationProvisionStatusUpdate", "xnap.ODSIB1ConfigurationProvisionStatusUpdate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_ProvisionStatus_PDU,
+      { "ProvisionStatus", "xnap.ProvisionStatus",
+        FT_UINT32, BASE_DEC, VALS(xnap_ProvisionStatus_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_CellSwitchNotification_PDU,
+      { "CellSwitchNotification", "xnap.CellSwitchNotification_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_TAInformationTransfer_PDU,
+      { "TAInformationTransfer", "xnap.TAInformationTransfer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMConfigurationUpdate_PDU,
+      { "LTMConfigurationUpdate", "xnap.LTMConfigurationUpdate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMConfigurationUpdateAcknowledge_PDU,
+      { "LTMConfigurationUpdateAcknowledge", "xnap.LTMConfigurationUpdateAcknowledge_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMConfigurationUpdateFailure_PDU,
+      { "LTMConfigurationUpdateFailure", "xnap.LTMConfigurationUpdateFailure_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMCancel_PDU,
+      { "LTMCancel", "xnap.LTMCancel_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_CSIRSCoordinationRequest_PDU,
+      { "CSIRSCoordinationRequest", "xnap.CSIRSCoordinationRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_CSIRSCoordinationResponse_PDU,
+      { "CSIRSCoordinationResponse", "xnap.CSIRSCoordinationResponse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_CLI_Indication_PDU,
+      { "CLI-Indication", "xnap.CLI_Indication_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_XnAP_PDU_PDU,
       { "XnAP-PDU", "xnap.XnAP_PDU",
         FT_UINT32, BASE_DEC, VALS(xnap_XnAP_PDU_vals), 0,
@@ -35494,6 +40652,22 @@ void proto_register_xnap(void) {
       { "value", "xnap.privateIE_Field_value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PrivateIE_Field_value", HFILL }},
+    { &hf_xnap_higherAltitudeThreshold,
+      { "higherAltitudeThreshold", "xnap.higherAltitudeThreshold",
+        FT_INT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_meters), 0,
+        "Altitude", HFILL }},
+    { &hf_xnap_lowerAltitudeThreshold,
+      { "lowerAltitudeThreshold", "xnap.lowerAltitudeThreshold",
+        FT_INT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_meters), 0,
+        "Altitude", HFILL }},
+    { &hf_xnap_aerialUEReportingPeriodicity,
+      { "aerialUEReportingPeriodicity", "xnap.aerialUEReportingPeriodicity",
+        FT_UINT32, BASE_DEC, VALS(xnap_AerialUEReportingPeriodicity_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_iE_Extensions,
+      { "iE-Extensions", "xnap.iE_Extensions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolExtensionContainer", HFILL }},
     { &hf_xnap_a2XPC5QoSFlowList,
       { "a2XPC5QoSFlowList", "xnap.a2XPC5QoSFlowList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -35502,10 +40676,6 @@ void proto_register_xnap(void) {
       { "aA2XPC5LinkAggregateBitRates", "xnap.aA2XPC5LinkAggregateBitRates",
         FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0,
         "BitRate", HFILL }},
-    { &hf_xnap_iE_Extensions,
-      { "iE-Extensions", "xnap.iE_Extensions",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ProtocolExtensionContainer", HFILL }},
     { &hf_xnap_A2XPC5QoSFlowList_item,
       { "A2XPC5QoSFlowItem", "xnap.A2XPC5QoSFlowItem_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -35530,6 +40700,14 @@ void proto_register_xnap(void) {
       { "a2XmaximumFlowBitRate", "xnap.a2XmaximumFlowBitRate",
         FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0,
         "BitRate", HFILL }},
+    { &hf_xnap_AvailableBitrateReportThresholdList_item,
+      { "AvailableBitrateReportThresholdItem", "xnap.AvailableBitrateReportThresholdItem_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_reportingThreshold,
+      { "reportingThreshold", "xnap.reportingThreshold",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_kbps), 0,
+        NULL, HFILL }},
     { &hf_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_item,
       { "AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated-Item", "xnap.AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -35594,6 +40772,30 @@ void proto_register_xnap(void) {
       { "nGRAN-Node2-Measurement-ID", "xnap.nGRAN_Node2_Measurement_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Measurement_ID", HFILL }},
+    { &hf_xnap_AdditionalDRBSetupInfoList_item,
+      { "AdditionalDRBsToBeSetupInfo-Item", "xnap.AdditionalDRBsToBeSetupInfo_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_drb_ID,
+      { "drb-ID", "xnap.drb_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_additionalQoSFlowMappedtoDRBSetupInfoList,
+      { "additionalQoSFlowMappedtoDRBSetupInfoList", "xnap.additionalQoSFlowMappedtoDRBSetupInfoList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_eCNMarkingorCongestionInformationReportingStatus,
+      { "eCNMarkingorCongestionInformationReportingStatus", "xnap.eCNMarkingorCongestionInformationReportingStatus",
+        FT_UINT32, BASE_DEC, VALS(xnap_ECNMarkingorCongestionInformationReportingStatus_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList_item,
+      { "AdditionalQoSFlowMappedtoDRBSetupInfoList-Item", "xnap.AdditionalQoSFlowMappedtoDRBSetupInfoList_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_qoSFlowIdentifier,
+      { "qoSFlowIdentifier", "xnap.qoSFlowIdentifier",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_priorityLevel,
       { "priorityLevel", "xnap.priorityLevel",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -36066,6 +41268,22 @@ void proto_register_xnap(void) {
       { "cellMeasurementFailureCause-List", "xnap.cellMeasurementFailureCause_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_CLI_MeasurementResult_List_item,
+      { "CLI-MeasurementResult-Item", "xnap.CLI_MeasurementResult_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_ssbIndex,
+      { "ssbIndex", "xnap.ssbIndex",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_63_", HFILL }},
+    { &hf_xnap_nZP_CSI_RS_ResourceIndication,
+      { "nZP-CSI-RS-ResourceIndication", "xnap.nZP_CSI_RS_ResourceIndication",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_64_", HFILL }},
+    { &hf_xnap_cLI_MitigationIndication,
+      { "cLI-MitigationIndication", "xnap.cLI_MitigationIndication",
+        FT_UINT32, BASE_DEC, VALS(xnap_CLI_MitigationIndication_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_CellMeasurementResultForDataCollection_List_item,
       { "CellInfoResultForDataCollection-Item", "xnap.CellInfoResultForDataCollection_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -36266,6 +41484,14 @@ void proto_register_xnap(void) {
       { "target2source-NG-RANNode-Container", "xnap.target2source_NG_RANNode_Container",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
+    { &hf_xnap_referenceLocation,
+      { "referenceLocation", "xnap.referenceLocation",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_distanceRadius,
+      { "distanceRadius", "xnap.distanceRadius",
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(xnap_50m_fmt), 0,
+        "INTEGER_1_65535_", HFILL }},
     { &hf_xnap_Conditional_Reconfig_List_item,
       { "Conditional-Reconfig-Item", "xnap.Conditional_Reconfig_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -36490,6 +41716,110 @@ void proto_register_xnap(void) {
       { "cAGID", "xnap.cAGID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "CAG_Identifier", HFILL }},
+    { &hf_xnap_cSIResourceConfigurationToAddModList,
+      { "cSIResourceConfigurationToAddModList", "xnap.cSIResourceConfigurationToAddModList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSIResourceConfigurationToReleaseList,
+      { "cSIResourceConfigurationToReleaseList", "xnap.cSIResourceConfigurationToReleaseList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_periodicNZP_CSI_RS_ResourceConfiguration,
+      { "periodicNZP-CSI-RS-ResourceConfiguration", "xnap.periodicNZP_CSI_RS_ResourceConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NZP_CSI_RS_ResourceConfiguration", HFILL }},
+    { &hf_xnap_semiPersistentNZP_CSI_RS_ResourceConfiguration,
+      { "semiPersistentNZP-CSI-RS-ResourceConfiguration", "xnap.semiPersistentNZP_CSI_RS_ResourceConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NZP_CSI_RS_ResourceConfiguration", HFILL }},
+    { &hf_xnap_periodicNZP_CSI_RS_ResourceSetConfiguration,
+      { "periodicNZP-CSI-RS-ResourceSetConfiguration", "xnap.periodicNZP_CSI_RS_ResourceSetConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NZP_CSI_RS_ResourceSetConfiguration", HFILL }},
+    { &hf_xnap_semiPersistentNZP_CSI_RS_ResourceSetConfiguration,
+      { "semiPersistentNZP-CSI-RS-ResourceSetConfiguration", "xnap.semiPersistentNZP_CSI_RS_ResourceSetConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NZP_CSI_RS_ResourceSetConfiguration", HFILL }},
+    { &hf_xnap_periodicCSI_IM_ResourceConfiguration,
+      { "periodicCSI-IM-ResourceConfiguration", "xnap.periodicCSI_IM_ResourceConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CSI_IM_ResourceConfiguration", HFILL }},
+    { &hf_xnap_semiPersistentCSI_IM_ResourceConfiguration,
+      { "semiPersistentCSI-IM-ResourceConfiguration", "xnap.semiPersistentCSI_IM_ResourceConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CSI_IM_ResourceConfiguration", HFILL }},
+    { &hf_xnap_cSI_RSResourceToAddModList,
+      { "cSI-RSResourceToAddModList", "xnap.cSI_RSResourceToAddModList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSI_RSResourceToReleaseList,
+      { "cSI-RSResourceToReleaseList", "xnap.cSI_RSResourceToReleaseList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSI_RSResourceSetToAddModList,
+      { "cSI-RSResourceSetToAddModList", "xnap.cSI_RSResourceSetToAddModList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSI_RSResourceSetToReleaseList,
+      { "cSI-RSResourceSetToReleaseList", "xnap.cSI_RSResourceSetToReleaseList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSI_IMResourceToAddModList,
+      { "cSI-IMResourceToAddModList", "xnap.cSI_IMResourceToAddModList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSI_IMResourceToReleaseList,
+      { "cSI-IMResourceToReleaseList", "xnap.cSI_IMResourceToReleaseList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSI_IMResourceSetToAddModList,
+      { "cSI-IMResourceSetToAddModList", "xnap.cSI_IMResourceSetToAddModList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSI_IMResourceSetToReleaseList,
+      { "cSI-IMResourceSetToReleaseList", "xnap.cSI_IMResourceSetToReleaseList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_CellSwitchTAInformation_List_item,
+      { "CellSwitchTAInformation-Item", "xnap.CellSwitchTAInformation_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_candidateCellID,
+      { "candidateCellID", "xnap.candidateCellID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_CGI", HFILL }},
+    { &hf_xnap_tAValue,
+      { "tAValue", "xnap.tAValue",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_tagIDPointer,
+      { "tagIDPointer", "xnap.tagIDPointer",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_CSI_RSCoordinationRequestList_item,
+      { "CSI-RSCoordinationRequest-Item", "xnap.CSI_RSCoordinationRequest_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_transmissionRequest,
+      { "transmissionRequest", "xnap.transmissionRequest",
+        FT_UINT32, BASE_DEC, VALS(xnap_T_transmissionRequest_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSIResourceConfigurationID,
+      { "cSIResourceConfigurationID", "xnap.cSIResourceConfigurationID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_111", HFILL }},
+    { &hf_xnap_tci_State_InformationList,
+      { "tci-State-InformationList", "xnap.tci_State_InformationList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_CSI_RSCoordinationResultList_item,
+      { "CSI-RSCoordinationResult-Item", "xnap.CSI_RSCoordinationResult_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_transmissionStatus,
+      { "transmissionStatus", "xnap.transmissionStatus",
+        FT_UINT32, BASE_DEC, VALS(xnap_T_transmissionStatus_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_XnUAddressInfoperPDUSession_List_item,
       { "XnUAddressInfoperPDUSession-Item", "xnap.XnUAddressInfoperPDUSession_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -36573,10 +41903,6 @@ void proto_register_xnap(void) {
     { &hf_xnap_DataForwardingResponseDRBItemList_item,
       { "DataForwardingResponseDRBItem", "xnap.DataForwardingResponseDRBItem_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_xnap_drb_ID,
-      { "drb-ID", "xnap.drb_ID",
-        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_dlForwardingUPTNL,
       { "dlForwardingUPTNL", "xnap.dlForwardingUPTNL",
@@ -36722,6 +42048,22 @@ void proto_register_xnap(void) {
       { "cOUNTValue", "xnap.cOUNTValue_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "COUNT_PDCP_SN18", HFILL }},
+    { &hf_xnap_pdcp_sn_12bits_01,
+      { "pdcp-sn-12bits", "xnap.pdcp_sn_12bits_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DRBStatusTransfer12bitsSN_ULGap", HFILL }},
+    { &hf_xnap_pdcp_sn_18bits_01,
+      { "pdcp-sn-18bits", "xnap.pdcp_sn_18bits_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DRBStatusTransfer18bitsSN_ULGap", HFILL }},
+    { &hf_xnap_discardBitmap,
+      { "discardBitmap", "xnap.discardBitmap",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_1_2048", HFILL }},
+    { &hf_xnap_discardBitmap_01,
+      { "discardBitmap", "xnap.discardBitmap",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_1_131072", HFILL }},
     { &hf_xnap_DRBToQoSFlowMapping_List_item,
       { "DRBToQoSFlowMapping-Item", "xnap.DRBToQoSFlowMapping_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -36762,6 +42104,14 @@ void proto_register_xnap(void) {
       { "maximumDataBurstVolume", "xnap.maximumDataBurstVolume",
         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0,
         NULL, HFILL }},
+    { &hf_xnap_DataForwardingInfoForLTM_List_item,
+      { "DataForwardingInfoForLTM-Item", "xnap.DataForwardingInfoForLTM_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_pDUSessionID,
+      { "pDUSessionID", "xnap.pDUSessionID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PDUSession_ID", HFILL }},
     { &hf_xnap_eCNMarkingAtRANRequest,
       { "eCNMarkingAtRANRequest", "xnap.eCNMarkingAtRANRequest",
         FT_UINT32, BASE_DEC, VALS(xnap_ECNMarkingAtRANRequest_vals), 0,
@@ -36946,6 +42296,50 @@ void proto_register_xnap(void) {
       { "gTPTransportLayerAddresses", "xnap.gTPTransportLayerAddresses",
         FT_BYTES, BASE_NONE, NULL, 0,
         "TransportLayerAddress", HFILL }},
+    { &hf_xnap_earlySyncConfigurationRequest,
+      { "earlySyncConfigurationRequest", "xnap.earlySyncConfigurationRequest",
+        FT_UINT32, BASE_DEC, VALS(xnap_T_earlySyncConfigurationRequest_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_earlyRACHResourcesProviders_List,
+      { "earlyRACHResourcesProviders-List", "xnap.earlyRACHResourcesProviders_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_earlyULSyncConfig,
+      { "earlyULSyncConfig", "xnap.earlyULSyncConfig_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_earlyULSyncConfigSUL,
+      { "earlyULSyncConfigSUL", "xnap.earlyULSyncConfigSUL_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EarlyULSyncConfig", HFILL }},
+    { &hf_xnap_EarlyRACHResourcesProviders_List_item,
+      { "EarlyRACHResourcesProviders-Item", "xnap.EarlyRACHResourcesProviders_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_globalgNBID,
+      { "globalgNBID", "xnap.globalgNBID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GlobalgNB_ID", HFILL }},
+    { &hf_xnap_earlyRACHResourcesRequesterID,
+      { "earlyRACHResourcesRequesterID", "xnap.earlyRACHResourcesRequesterID",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_rACHConfiguration,
+      { "rACHConfiguration", "xnap.rACHConfiguration",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_earlyRACHResources_List,
+      { "earlyRACHResources-List", "xnap.earlyRACHResources_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_EarlyRACHResources_List_item,
+      { "EarlyRACHResources-Item", "xnap.EarlyRACHResources_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_preambleIndexList,
+      { "preambleIndexList", "xnap.preambleIndexList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_f1TerminatingBHInformation_List,
       { "f1TerminatingBHInformation-List", "xnap.f1TerminatingBHInformation_List",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -37022,10 +42416,6 @@ void proto_register_xnap(void) {
       { "Flows-Mapped-To-DRB-Item", "xnap.Flows_Mapped_To_DRB_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_qoSFlowIdentifier,
-      { "qoSFlowIdentifier", "xnap.qoSFlowIdentifier",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
     { &hf_xnap_qoSFlowLevelQoSParameters,
       { "qoSFlowLevelQoSParameters", "xnap.qoSFlowLevelQoSParameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -37066,6 +42456,42 @@ void proto_register_xnap(void) {
       { "hSNAFlexible", "xnap.hSNAFlexible",
         FT_UINT32, BASE_DEC, VALS(xnap_HSNAFlexible_vals), 0,
         NULL, HFILL }},
+    { &hf_xnap_Future_Coverage_Modification_List_item,
+      { "Future-Coverage-Modification-Item", "xnap.Future_Coverage_Modification_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_nR_CGI,
+      { "nR-CGI", "xnap.nR_CGI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_future_cellCoverageState,
+      { "future-cellCoverageState", "xnap.future_cellCoverageState",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_63_", HFILL }},
+    { &hf_xnap_future_SSB_Coverage_Modification_List,
+      { "future-SSB-Coverage-Modification-List", "xnap.future_SSB_Coverage_Modification_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_predicted_Coverage_Modification_Cause,
+      { "predicted-Coverage-Modification-Cause", "xnap.predicted_Coverage_Modification_Cause",
+        FT_UINT32, BASE_DEC, VALS(xnap_Predicted_CoverageModificationCause_vals), 0,
+        "Predicted_CoverageModificationCause", HFILL }},
+    { &hf_xnap_timeForFutureCoverageState,
+      { "timeForFutureCoverageState", "xnap.timeForFutureCoverageState",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0,
+        "INTEGER_1_60_", HFILL }},
+    { &hf_xnap_Future_SSB_Coverage_Modification_List_item,
+      { "Future-SSB-Coverage-Modification-Item", "xnap.Future_SSB_Coverage_Modification_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sSBIndex,
+      { "sSBIndex", "xnap.sSBIndex",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_63", HFILL }},
+    { &hf_xnap_future_SSBCoverageState,
+      { "future-SSBCoverageState", "xnap.future_SSBCoverageState",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15_", HFILL }},
     { &hf_xnap_maxFlowBitRateDL,
       { "maxFlowBitRateDL", "xnap.maxFlowBitRateDL",
         FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0,
@@ -37086,6 +42512,18 @@ void proto_register_xnap(void) {
       { "maxPacketLossRateUL", "xnap.maxPacketLossRateUL",
         FT_UINT32, BASE_CUSTOM, CF_FUNC(xnap_PacketLossRate_fmt), 0,
         "PacketLossRate", HFILL }},
+    { &hf_xnap_geographicalArea,
+      { "geographicalArea", "xnap.geographicalArea_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_nTNGeographicalArea,
+      { "nTNGeographicalArea", "xnap.nTNGeographicalArea",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_nTNPLMNList,
+      { "nTNPLMNList", "xnap.nTNPLMNList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MDTPLMNList", HFILL }},
     { &hf_xnap_gnb_id,
       { "gnb-id", "xnap.gnb_id",
         FT_UINT32, BASE_DEC, VALS(xnap_GNB_ID_Choice_vals), 0,
@@ -37610,6 +43048,10 @@ void proto_register_xnap(void) {
       { "areaScopeOfNeighCellsList", "xnap.areaScopeOfNeighCellsList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_lPWUScNsubgroupID,
+      { "lPWUScNsubgroupID", "xnap.lPWUScNsubgroupID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_aerialUE,
       { "aerialUE", "xnap.aerialUE",
         FT_UINT32, BASE_DEC, VALS(xnap_AerialUE_vals), 0,
@@ -37630,6 +43072,282 @@ void proto_register_xnap(void) {
       { "uESidelinkAggregateMaximumBitRate", "xnap.uESidelinkAggregateMaximumBitRate",
         FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0,
         "BitRate", HFILL }},
+    { &hf_xnap_lTMIndicator,
+      { "lTMIndicator", "xnap.lTMIndicator",
+        FT_UINT32, BASE_DEC, VALS(xnap_LTMIndicator_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_proposedLTM_NoSecurityChangeID_List,
+      { "proposedLTM-NoSecurityChangeID-List", "xnap.proposedLTM_NoSecurityChangeID_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LTM_NoSecurityChangeID_List", HFILL }},
+    { &hf_xnap_referenceConfiguration,
+      { "referenceConfiguration", "xnap.referenceConfiguration",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTMConfigurationIDMappingList,
+      { "lTMConfigurationIDMappingList", "xnap.lTMConfigurationIDMappingList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSIResourceConfiguration,
+      { "cSIResourceConfiguration", "xnap.cSIResourceConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_requestForCSI_RSResourceConfigForLayer1Measurements,
+      { "requestForCSI-RSResourceConfigForLayer1Measurements", "xnap.requestForCSI_RSResourceConfigForLayer1Measurements",
+        FT_UINT32, BASE_DEC, VALS(xnap_RequestForCSI_RSResourceConfigForLayer1Measurements_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_proposedLTML2ResetConfig_List,
+      { "proposedLTML2ResetConfig-List", "xnap.proposedLTML2ResetConfig_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LTML2ResetConfig_List", HFILL }},
+    { &hf_xnap_LTMConfigurationIDMappingList_item,
+      { "LTMConfigurationIDMapping-Item", "xnap.LTMConfigurationIDMapping_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTMCellID,
+      { "lTMCellID", "xnap.lTMCellID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_CGI", HFILL }},
+    { &hf_xnap_lTMConfigurationID,
+      { "lTMConfigurationID", "xnap.lTMConfigurationID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTM_NoSecurityChangeID_List_item,
+      { "LTM-NoSecurityChangeID", "xnap.LTM_NoSecurityChangeID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTML2ResetConfig_List_item,
+      { "LTML2ResetConfig", "xnap.LTML2ResetConfig",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sSBInformation,
+      { "sSBInformation", "xnap.sSBInformation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_tCIStateConfigurationList,
+      { "tCIStateConfigurationList", "xnap.tCIStateConfigurationList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTMCandidateConfiguration,
+      { "lTMCandidateConfiguration", "xnap.lTMCandidateConfiguration",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTM_NoSecurityChangeID,
+      { "lTM-NoSecurityChangeID", "xnap.lTM_NoSecurityChangeID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_completeCandidateConfigurationIndicator,
+      { "completeCandidateConfigurationIndicator", "xnap.completeCandidateConfigurationIndicator",
+        FT_UINT32, BASE_DEC, VALS(xnap_CompleteCandidateConfigurationIndicator_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_cSI_RSResourceConfigurationForLayer1Measurements,
+      { "cSI-RSResourceConfigurationForLayer1Measurements", "xnap.cSI_RSResourceConfigurationForLayer1Measurements_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CSI_RSResourceConfiguration", HFILL }},
+    { &hf_xnap_cSI_RSResourceConfigurationForEarlyCSIAcquisition,
+      { "cSI-RSResourceConfigurationForEarlyCSIAcquisition", "xnap.cSI_RSResourceConfigurationForEarlyCSIAcquisition_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CSI_RSResourceConfiguration", HFILL }},
+    { &hf_xnap_lTMCFRAResourceInformation,
+      { "lTMCFRAResourceInformation", "xnap.lTMCFRAResourceInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_ltML2ResetConfig,
+      { "ltML2ResetConfig", "xnap.ltML2ResetConfig",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_jointorDLTCIStateID,
+      { "jointorDLTCIStateID", "xnap.jointorDLTCIStateID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_uLTCIStateID,
+      { "uLTCIStateID", "xnap.uLTCIStateID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMUEAssociationInformation_List_item,
+      { "LTMUEAssociationInformation-Item", "xnap.LTMUEAssociationInformation_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lastTarget_NG_RANnodeUEXnAPID,
+      { "lastTarget-NG-RANnodeUEXnAPID", "xnap.lastTarget_NG_RANnodeUEXnAPID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "NG_RANnodeUEXnAPID", HFILL }},
+    { &hf_xnap_LTMUpdatesToCandidateCellInformation_List_item,
+      { "LTMUpdatesToCandidateCellInformation-Item", "xnap.LTMUpdatesToCandidateCellInformation_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_earlySyncInformation,
+      { "earlySyncInformation", "xnap.earlySyncInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_ueBasedTAMeasurementConfiguration,
+      { "ueBasedTAMeasurementConfiguration", "xnap.ueBasedTAMeasurementConfiguration",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_aSSecurityInformation,
+      { "aSSecurityInformation", "xnap.aSSecurityInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AS_SecurityInformation", HFILL }},
+    { &hf_xnap_lTMUEAssociation,
+      { "lTMUEAssociation", "xnap.lTMUEAssociation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LTMUEAssociationInformation_List", HFILL }},
+    { &hf_xnap_dataForwardingInfoForLTM_List,
+      { "dataForwardingInfoForLTM-List", "xnap.dataForwardingInfoForLTM_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTMCFRAResourceConfiguration,
+      { "lTMCFRAResourceConfiguration", "xnap.lTMCFRAResourceConfiguration",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTMCFRAResourceConfigurationSUL,
+      { "lTMCFRAResourceConfigurationSUL", "xnap.lTMCFRAResourceConfigurationSUL",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMUpdatesFromCandidateCellInformation_List_item,
+      { "LTMUpdatesFromCandidateCellInformation-Item", "xnap.LTMUpdatesFromCandidateCellInformation_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTMCandidateConfiguration_01,
+      { "lTMCandidateConfiguration", "xnap.lTMCandidateConfiguration",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_lTMCandidateConfiguration_01", HFILL }},
+    { &hf_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition,
+      { "cSI-RSReportConfigurationForEarlyCSIAcquisition", "xnap.cSI_RSReportConfigurationForEarlyCSIAcquisition",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTMUESecurityCapabilities,
+      { "lTMUESecurityCapabilities", "xnap.lTMUESecurityCapabilities_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTMUserPlaneSecurityInformation_List,
+      { "lTMUserPlaneSecurityInformation-List", "xnap.lTMUserPlaneSecurityInformation_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_nr_EncyptionAlgorithms,
+      { "nr-EncyptionAlgorithms", "xnap.nr_EncyptionAlgorithms",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_nr_IntegrityProtectionAlgorithms,
+      { "nr-IntegrityProtectionAlgorithms", "xnap.nr_IntegrityProtectionAlgorithms",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMUserPlaneSecurityInformation_List_item,
+      { "LTMUserPlaneSecurityInformation-Item", "xnap.LTMUserPlaneSecurityInformation_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_securityIndication,
+      { "securityIndication", "xnap.securityIndication_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTMCandidateCellsToBeCancelled_List_item,
+      { "LTMCandidateCellsToBeCancelled-Item", "xnap.LTMCandidateCellsToBeCancelled_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_targetCellID,
+      { "targetCellID", "xnap.targetCellID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_CGI", HFILL }},
+    { &hf_xnap_lTMReconfig,
+      { "lTMReconfig", "xnap.lTMReconfig",
+        FT_UINT32, BASE_DEC, VALS(xnap_T_lTMReconfig_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTM_RequestIndication,
+      { "lTM-RequestIndication", "xnap.lTM_RequestIndication",
+        FT_UINT32, BASE_DEC, VALS(xnap_T_lTM_RequestIndication_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_maxNrofPSCellsToPrepare,
+      { "maxNrofPSCellsToPrepare", "xnap.maxNrofPSCellsToPrepare",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_suggestedLTMCandidatePSCellList,
+      { "suggestedLTMCandidatePSCellList", "xnap.suggestedLTMCandidatePSCellList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LTM_PSCell_Request_List", HFILL }},
+    { &hf_xnap_cSI_ResourceConfiguration,
+      { "cSI-ResourceConfiguration", "xnap.cSI_ResourceConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CSIResourceConfiguration", HFILL }},
+    { &hf_xnap_sCG_ReferenceConfigRequest,
+      { "sCG-ReferenceConfigRequest", "xnap.sCG_ReferenceConfigRequest",
+        FT_UINT32, BASE_DEC, VALS(xnap_T_sCG_ReferenceConfigRequest_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTM_ConfigurationIDMappingList,
+      { "lTM-ConfigurationIDMappingList", "xnap.lTM_ConfigurationIDMappingList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LTMConfigurationIDMappingList", HFILL }},
+    { &hf_xnap_lTM_CandidatePSCellPreparedList,
+      { "lTM-CandidatePSCellPreparedList", "xnap.lTM_CandidatePSCellPreparedList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LTM_PSCell_Prepared_List", HFILL }},
+    { &hf_xnap_multipleSN_List,
+      { "multipleSN-List", "xnap.multipleSN_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MultipleCandidateSN_List", HFILL }},
+    { &hf_xnap_lTM_SCG_SecurityConfiguration,
+      { "lTM-SCG-SecurityConfiguration", "xnap.lTM_SCG_SecurityConfiguration",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LTM_SCG_SecurityConfiguration_List", HFILL }},
+    { &hf_xnap_lTM_CandidatePSCellToBeCancelled,
+      { "lTM-CandidatePSCellToBeCancelled", "xnap.lTM_CandidatePSCellToBeCancelled",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LTMCandidateCellsToBeCancelled_List", HFILL }},
+    { &hf_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition_01,
+      { "cSI-RSReportConfigurationForEarlyCSIAcquisition", "xnap.cSI_RSReportConfigurationForEarlyCSIAcquisition",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_cSI_RSReportConfigurationForEarlyCSIAcquisition_01", HFILL }},
+    { &hf_xnap_lTM_RequestIndication_01,
+      { "lTM-RequestIndication", "xnap.lTM_RequestIndication",
+        FT_UINT32, BASE_DEC, VALS(xnap_LTM_RequestIndication_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_multipleSNChangeRequired_List,
+      { "multipleSNChangeRequired-List", "xnap.multipleSNChangeRequired_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MultipleCandidateSNChangeRequired_List", HFILL }},
+    { &hf_xnap_LTM_PSCell_Request_List_item,
+      { "LTM-PSCell-Request-Item", "xnap.LTM_PSCell_Request_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_earlySyncInformationRequest,
+      { "earlySyncInformationRequest", "xnap.earlySyncInformationRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTM_PSCell_Prepared_List_item,
+      { "LTM-PSCell-Prepared-Item", "xnap.LTM_PSCell_Prepared_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_tCI_StatesConfigurationsList,
+      { "tCI-StatesConfigurationsList", "xnap.tCI_StatesConfigurationsList",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_complete_CandidateConfigurationIndicator,
+      { "complete-CandidateConfigurationIndicator", "xnap.complete_CandidateConfigurationIndicator",
+        FT_UINT32, BASE_DEC, VALS(xnap_T_complete_CandidateConfigurationIndicator_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTML2ResetConfig,
+      { "lTML2ResetConfig", "xnap.lTML2ResetConfig",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_LTM_SCG_SecurityConfiguration_List_item,
+      { "LTM-SCG-SecurityConfiguration-Item", "xnap.LTM_SCG_SecurityConfiguration_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_lTM_SCG_SecurityConfig_Info,
+      { "lTM-SCG-SecurityConfig-Info", "xnap.lTM_SCG_SecurityConfig_Info",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LTM_SCG_SecurityConfig_Info_List", HFILL }},
+    { &hf_xnap_LTM_SCG_SecurityConfig_Info_List_item,
+      { "LTM-SCG-SecurityConfig-Info-Item", "xnap.LTM_SCG_SecurityConfig_Info_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_s_ng_RANnode_SecurityKey,
+      { "s-ng-RANnode-SecurityKey", "xnap.s_ng_RANnode_SecurityKey",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sk_counter,
+      { "sk-counter", "xnap.sk_counter",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_s_BasedMDT,
       { "s-BasedMDT", "xnap.s_BasedMDT_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -37942,6 +43660,18 @@ void proto_register_xnap(void) {
       { "serviceAreaInformation", "xnap.serviceAreaInformation",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ServiceAreaList", HFILL }},
+    { &hf_xnap_monitoringRequest,
+      { "monitoringRequest", "xnap.monitoringRequest",
+        FT_UINT32, BASE_DEC, VALS(xnap_MonitoringRequest_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_dlAvailableBitrateReportThresholds,
+      { "dlAvailableBitrateReportThresholds", "xnap.dlAvailableBitrateReportThresholds",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AvailableBitrateReportThresholdList", HFILL }},
+    { &hf_xnap_ulAvailableBitrateReportThresholds,
+      { "ulAvailableBitrateReportThresholds", "xnap.ulAvailableBitrateReportThresholds",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AvailableBitrateReportThresholdList", HFILL }},
     { &hf_xnap_CNTypeRestrictionsForEquivalent_item,
       { "CNTypeRestrictionsForEquivalentItem", "xnap.CNTypeRestrictionsForEquivalentItem_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -38062,6 +43792,22 @@ void proto_register_xnap(void) {
       { "timeUEStaysInCell", "xnap.timeUEStaysInCell",
         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0,
         "INTEGER_0_4095", HFILL }},
+    { &hf_xnap_MultipleCandidateSN_List_item,
+      { "MultipleCandidateSN-Item", "xnap.MultipleCandidateSN_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_s_NG_RANnodeID,
+      { "s-NG-RANnodeID", "xnap.s_NG_RANnodeID",
+        FT_UINT32, BASE_DEC, VALS(xnap_GlobalNG_RANNode_ID_vals), 0,
+        "GlobalNG_RANNode_ID", HFILL }},
+    { &hf_xnap_MultipleCandidateSNChangeRequired_List_item,
+      { "MultipleCandidateSNChangeRequired-Item", "xnap.MultipleCandidateSNChangeRequired_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sN_to_MN_Container_01,
+      { "sN-to-MN-Container", "xnap.sN_to_MN_Container",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_sN_to_MN_Container_01", HFILL }},
     { &hf_xnap_n6JitterLowerBound,
       { "n6JitterLowerBound", "xnap.n6JitterLowerBound",
         FT_INT32, BASE_CUSTOM, CF_FUNC(xnap_N6Jitter_fmt), 0,
@@ -38165,6 +43911,18 @@ void proto_register_xnap(void) {
     { &hf_xnap_local_NG_RAN_Node_Identifier,
       { "local-NG-RAN-Node-Identifier", "xnap.local_NG_RAN_Node_Identifier",
         FT_UINT32, BASE_DEC, VALS(xnap_Local_NG_RAN_Node_Identifier_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_NetworkSliceListforMDT_item,
+      { "NetworkSliceItemforMDT", "xnap.NetworkSliceItemforMDT_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sliceMDTList,
+      { "sliceMDTList", "xnap.sliceMDTList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_networkSliceListforMDT,
+      { "networkSliceListforMDT", "xnap.networkSliceListforMDT",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_NRCarrierList_item,
       { "NRCarrierItem", "xnap.NRCarrierItem_element",
@@ -38518,6 +44276,38 @@ void proto_register_xnap(void) {
       { "dl-Transmission-Bandwidth", "xnap.dl_Transmission_Bandwidth_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "NRTransmissionBandwidth", HFILL }},
+    { &hf_xnap_nZP_CSI_RS_ResourceSet,
+      { "nZP-CSI-RS-ResourceSet", "xnap.nZP_CSI_RS_ResourceSet",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_nZP_CSI_RS_Resource_List,
+      { "nZP-CSI-RS-Resource-List", "xnap.nZP_CSI_RS_Resource_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_NZP_CSI_RS_Resource_List_item,
+      { "NZP-CSI-RS-Resource-Item", "xnap.NZP_CSI_RS_Resource_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_nZP_CSI_RS_Resource,
+      { "nZP-CSI-RS-Resource", "xnap.nZP_CSI_RS_Resource",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_NTNGeographicalArea_item,
+      { "NTNGeographicalAreaItem", "xnap.NTNGeographicalAreaItem",
+        FT_UINT32, BASE_DEC, VALS(xnap_NTNGeographicalAreaItem_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_circle,
+      { "circle", "xnap.circle_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_polygon,
+      { "polygon", "xnap.polygon",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_cHOICE_Extensions,
+      { "cHOICE-Extensions", "xnap.cHOICE_Extensions_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtocolIE_Single_Container", HFILL }},
     { &hf_xnap_requestedSRSTransmissionCharacteristics,
       { "requestedSRSTransmissionCharacteristics", "xnap.requestedSRSTransmissionCharacteristics",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -38698,10 +44488,6 @@ void proto_register_xnap(void) {
       { "source-DL-NG-U-TNL-Information", "xnap.source_DL_NG_U_TNL_Information",
         FT_UINT32, BASE_DEC, VALS(xnap_UPTransportLayerInformation_vals), 0,
         "UPTransportLayerInformation", HFILL }},
-    { &hf_xnap_securityIndication,
-      { "securityIndication", "xnap.securityIndication_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_xnap_pduSessionType,
       { "pduSessionType", "xnap.pduSessionType",
         FT_UINT32, BASE_DEC, VALS(xnap_PDUSessionType_vals), 0,
@@ -39018,10 +44804,6 @@ void proto_register_xnap(void) {
       { "PDUSessionResourceSecondaryRATUsageItem", "xnap.PDUSessionResourceSecondaryRATUsageItem_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_pDUSessionID,
-      { "pDUSessionID", "xnap.pDUSessionID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "PDUSession_ID", HFILL }},
     { &hf_xnap_secondaryRATUsageInformation,
       { "secondaryRATUsageInformation", "xnap.secondaryRATUsageInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -39102,6 +44884,22 @@ void proto_register_xnap(void) {
       { "cAGListforMDT", "xnap.cAGListforMDT",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_PreambleIndexList_item,
+      { "PreambleIndex", "xnap.PreambleIndex",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_predictedSliceAvailableCapacity,
+      { "predictedSliceAvailableCapacity", "xnap.predictedSliceAvailableCapacity",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SliceAvailableCapacity", HFILL }},
+    { &hf_xnap_cellCapacityClassValueDownlink,
+      { "cellCapacityClassValueDownlink", "xnap.cellCapacityClassValueDownlink",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CellCapacityClassValue", HFILL }},
+    { &hf_xnap_cellCapacityClassValueUplink,
+      { "cellCapacityClassValueUplink", "xnap.cellCapacityClassValueUplink",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CellCapacityClassValue", HFILL }},
     { &hf_xnap_uEAppLayerMeasInfoList,
       { "uEAppLayerMeasInfoList", "xnap.uEAppLayerMeasInfoList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -39554,14 +45352,6 @@ void proto_register_xnap(void) {
       { "S-CPAC-SecurityConfig-Item", "xnap.S_CPAC_SecurityConfig_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_s_ng_RANnode_SecurityKey,
-      { "s-ng-RANnode-SecurityKey", "xnap.s_ng_RANnode_SecurityKey",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_xnap_sk_counter,
-      { "sk-counter", "xnap.sk_counter",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
     { &hf_xnap_S_CPAC_MultiTargetSN_List_item,
       { "S-CPAC-MultiTargetSN-Item", "xnap.S_CPAC_MultiTargetSN_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -39926,14 +45716,18 @@ void proto_register_xnap(void) {
       { "sNSSAIAvailableCapacity-List", "xnap.sNSSAIAvailableCapacity_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_SNSSAIAvailableCapacity_List_item,
-      { "SNSSAIAvailableCapacity-Item", "xnap.SNSSAIAvailableCapacity_Item_element",
+    { &hf_xnap_SliceMDTList_item,
+      { "SliceMDTItem", "xnap.SliceMDTItem_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_sNSSAI,
       { "sNSSAI", "xnap.sNSSAI_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "S_NSSAI", HFILL }},
+    { &hf_xnap_SNSSAIAvailableCapacity_List_item,
+      { "SNSSAIAvailableCapacity-Item", "xnap.SNSSAIAvailableCapacity_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_sliceAvailableCapacityValueDownlink,
       { "sliceAvailableCapacityValueDownlink", "xnap.sliceAvailableCapacityValueDownlink",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -40050,14 +45844,22 @@ void proto_register_xnap(void) {
       { "cyclicPrefixUL", "xnap.cyclicPrefixUL",
         FT_UINT32, BASE_DEC, VALS(xnap_CyclicPrefix_E_UTRA_UL_vals), 0,
         "CyclicPrefix_E_UTRA_UL", HFILL }},
+    { &hf_xnap_sRS_Resource_Configuration_List,
+      { "sRS-Resource-Configuration-List", "xnap.sRS_Resource_Configuration_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_SRS_Resource_Configuration_List_item,
+      { "SRS-Resource-Configuration-List-Item", "xnap.SRS_Resource_Configuration_List_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sRS_Resource,
+      { "sRS-Resource", "xnap.sRS_Resource",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_SSBAreaCapacityValue_List_item,
       { "SSBAreaCapacityValue-List-Item", "xnap.SSBAreaCapacityValue_List_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_sSBIndex,
-      { "sSBIndex", "xnap.sSBIndex",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_63", HFILL }},
     { &hf_xnap_ssbAreaCapacityValue,
       { "ssbAreaCapacityValue", "xnap.ssbAreaCapacityValue",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -40218,9 +46020,125 @@ void proto_register_xnap(void) {
       { "SNPNforMDT-Item", "xnap.SNPNforMDT_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_SSBInformation_item,
+      { "SSBInformation-Item", "xnap.SSBInformation_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sSBConfig,
+      { "sSBConfig", "xnap.sSBConfig_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_pCI,
+      { "pCI", "xnap.pCI",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "NRPCI", HFILL }},
+    { &hf_xnap_sSB_Transmit_power,
+      { "sSB-Transmit-power", "xnap.sSB_Transmit_power",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER_M60_50", HFILL }},
+    { &hf_xnap_sSB_periodicity,
+      { "sSB-periodicity", "xnap.sSB_periodicity",
+        FT_UINT32, BASE_DEC, VALS(xnap_T_sSB_periodicity_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_sSB_half_frame_offset,
+      { "sSB-half-frame-offset", "xnap.sSB_half_frame_offset",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_1", HFILL }},
+    { &hf_xnap_sSB_SFN_offset,
+      { "sSB-SFN-offset", "xnap.sSB_SFN_offset",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
+    { &hf_xnap_sSB_position_in_burst,
+      { "sSB-position-in-burst", "xnap.sSB_position_in_burst",
+        FT_UINT32, BASE_DEC, VALS(xnap_SSB_PositionsInBurst_vals), 0,
+        "SSB_PositionsInBurst", HFILL }},
+    { &hf_xnap_SliceToReportForDataCollection_List_item,
+      { "SliceToReportForDataCollection-List-Item", "xnap.SliceToReportForDataCollection_List_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sliceMeasurementInitiationResult_List,
+      { "sliceMeasurementInitiationResult-List", "xnap.sliceMeasurementInitiationResult_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_SliceMeasurementInitiationResult_List_item,
+      { "SliceMeasurementInitiationResult-Item", "xnap.SliceMeasurementInitiationResult_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sNSSAIMeasurementInitiationResult_List,
+      { "sNSSAIMeasurementInitiationResult-List", "xnap.sNSSAIMeasurementInitiationResult_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_SNSSAIMeasurementInitiationResult_List_item,
+      { "SNSSAIMeasurementInitiationResult-Item", "xnap.SNSSAIMeasurementInitiationResult_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sNSSAIMeasurementFailureCause_List,
+      { "sNSSAIMeasurementFailureCause-List", "xnap.sNSSAIMeasurementFailureCause_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_SNSSAIMeasurementFailureCause_List_item,
+      { "SNSSAIMeasurementFailureCause-Item", "xnap.SNSSAIMeasurementFailureCause_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sNSSAIMeasurementFailedReportCharacteristics,
+      { "sNSSAIMeasurementFailedReportCharacteristics", "xnap.sNSSAIMeasurementFailedReportCharacteristics",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_32", HFILL }},
+    { &hf_xnap_s_NSSAIUEPerformance_List,
+      { "s-NSSAIUEPerformance-List", "xnap.s_NSSAIUEPerformance_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_S_NSSAIUEPerformance_List_item,
+      { "S-NSSAIUEPerformance-Item", "xnap.S_NSSAIUEPerformance_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sliceBasedUEPerformance,
+      { "sliceBasedUEPerformance", "xnap.sliceBasedUEPerformance_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sliceAverageUEThroughputDL,
+      { "sliceAverageUEThroughputDL", "xnap.sliceAverageUEThroughputDL",
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0,
+        "BitRate", HFILL }},
+    { &hf_xnap_sliceAverageUEThroughputUL,
+      { "sliceAverageUEThroughputUL", "xnap.sliceAverageUEThroughputUL",
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0,
+        "BitRate", HFILL }},
+    { &hf_xnap_sliceAverageUEPacketDelay,
+      { "sliceAverageUEPacketDelay", "xnap.sliceAverageUEPacketDelay_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AveragePacketDelay", HFILL }},
+    { &hf_xnap_sliceAveragePacketDropDL,
+      { "sliceAveragePacketDropDL", "xnap.sliceAveragePacketDropDL",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_1000000_", HFILL }},
+    { &hf_xnap_sliceAveragePacketLossUL,
+      { "sliceAveragePacketLossUL", "xnap.sliceAveragePacketLossUL",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_1000000_", HFILL }},
+    { &hf_xnap_sRSTransmissionType,
+      { "sRSTransmissionType", "xnap.sRSTransmissionType",
+        FT_UINT32, BASE_DEC, VALS(xnap_T_sRSTransmissionType_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_sRSResourceSetID,
+      { "sRSResourceSetID", "xnap.sRSResourceSetID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_sRSSpatialRelation,
+      { "sRSSpatialRelation", "xnap.sRSSpatialRelation",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_spatialRelationInforperSRSResource,
+      { "spatialRelationInforperSRSResource", "xnap.spatialRelationInforperSRSResource",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_tAListforMDT,
       { "tAListforMDT", "xnap.tAListforMDT",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_Tci_State_InformationList_item,
+      { "Tci-State-Information-Item", "xnap.Tci_State_Information_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_tAIListforMDT,
       { "tAIListforMDT", "xnap.tAIListforMDT",
@@ -40426,6 +46344,18 @@ void proto_register_xnap(void) {
       { "burstArrivalTime", "xnap.burstArrivalTime",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_TAInformation_List_item,
+      { "TAInformation-Item", "xnap.TAInformation_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_preambleIndex,
+      { "preambleIndex", "xnap.preambleIndex",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_rA_RNTI,
+      { "rA-RNTI", "xnap.rA_RNTI",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_dl_UE_AMBR,
       { "dl-UE-AMBR", "xnap.dl_UE_AMBR",
         FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0,
@@ -40586,14 +46516,14 @@ void proto_register_xnap(void) {
       { "ul-UE-Slice-MBR", "xnap.ul_UE_Slice_MBR",
         FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0,
         "BitRate", HFILL }},
-    { &hf_xnap_nr_EncyptionAlgorithms,
+    { &hf_xnap_nr_EncyptionAlgorithms_01,
       { "nr-EncyptionAlgorithms", "xnap.nr_EncyptionAlgorithms",
         FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_xnap_nr_IntegrityProtectionAlgorithms,
+        "T_nr_EncyptionAlgorithms_01", HFILL }},
+    { &hf_xnap_nr_IntegrityProtectionAlgorithms_01,
       { "nr-IntegrityProtectionAlgorithms", "xnap.nr_IntegrityProtectionAlgorithms",
         FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "T_nr_IntegrityProtectionAlgorithms_01", HFILL }},
     { &hf_xnap_e_utra_EncyptionAlgorithms,
       { "e-utra-EncyptionAlgorithms", "xnap.e_utra_EncyptionAlgorithms",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -40654,10 +46584,10 @@ void proto_register_xnap(void) {
       { "uE-AveragePacketDelay", "xnap.uE_AveragePacketDelay_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "AveragePacketDelay", HFILL }},
-    { &hf_xnap_uE_AveragePacketLossDL,
-      { "uE-AveragePacketLossDL", "xnap.uE_AveragePacketLossDL",
-        FT_UINT32, BASE_CUSTOM, CF_FUNC(xnap_PacketLossRate_fmt), 0,
-        "PacketLossRate", HFILL }},
+    { &hf_xnap_uE_AveragePacketDropDL,
+      { "uE-AveragePacketDropDL", "xnap.uE_AveragePacketDropDL",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_1000000_", HFILL }},
     { &hf_xnap_collectionTimeDurationForUEPerformance,
       { "collectionTimeDurationForUEPerformance", "xnap.collectionTimeDurationForUEPerformance",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -40690,6 +46620,14 @@ void proto_register_xnap(void) {
       { "usageCountDL", "xnap.usageCountDL",
         FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0,
         "INTEGER_0_18446744073709551615", HFILL }},
+    { &hf_xnap_nrCGI,
+      { "nrCGI", "xnap.nrCGI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_CGI", HFILL }},
+    { &hf_xnap_cRNTI,
+      { "cRNTI", "xnap.cRNTI",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_16", HFILL }},
     { &hf_xnap_wlanMeasConfig,
       { "wlanMeasConfig", "xnap.wlanMeasConfig",
         FT_UINT32, BASE_DEC, VALS(xnap_WLANMeasConfig_vals), 0,
@@ -41102,10 +47040,6 @@ void proto_register_xnap(void) {
       { "ToBeActivatedNRCellsAndSSBs-Item", "xnap.ToBeActivatedNRCellsAndSSBs_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_nrCGI,
-      { "nrCGI", "xnap.nrCGI_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "NR_CGI", HFILL }},
     { &hf_xnap_sSBstobeActivatedList,
       { "sSBstobeActivatedList", "xnap.sSBstobeActivatedList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -41114,7 +47048,7 @@ void proto_register_xnap(void) {
       { "SSBsToBeActivated-Item", "xnap.SSBsToBeActivated_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_ssbIndex,
+    { &hf_xnap_ssbIndex_01,
       { "ssbIndex", "xnap.ssbIndex",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_63", HFILL }},
@@ -41214,6 +47148,26 @@ void proto_register_xnap(void) {
       { "parentNodeCellInformation", "xnap.parentNodeCellInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "IABCellInformation", HFILL }},
+    { &hf_xnap_start,
+      { "start", "xnap.start_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ODSIB1ConfigurationInformation", HFILL }},
+    { &hf_xnap_stop,
+      { "stop", "xnap.stop_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_CGI", HFILL }},
+    { &hf_xnap_oDSIB1Configuration,
+      { "oDSIB1Configuration", "xnap.oDSIB1Configuration",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_xnap_nES_Cell_ID,
+      { "nES-Cell-ID", "xnap.nES_Cell_ID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_CGI", HFILL }},
+    { &hf_xnap_cEll_A_ID,
+      { "cEll-A-ID", "xnap.cEll_A_ID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_CGI", HFILL }},
     { &hf_xnap_initiatingMessage,
       { "initiatingMessage", "xnap.initiatingMessage_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -41238,6 +47192,38 @@ void proto_register_xnap(void) {
       { "value", "xnap.unsuccessfulOutcome_value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
+    { &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0,
+      { "spare_bit0", "xnap.T.nr.EncyptionAlgorithms.spare.bit0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_xnap_T_nr_EncyptionAlgorithms_nea1_128,
+      { "nea1-128", "xnap.T.nr.EncyptionAlgorithms.nea1.128",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_xnap_T_nr_EncyptionAlgorithms_nea2_128,
+      { "nea2-128", "xnap.T.nr.EncyptionAlgorithms.nea2.128",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_xnap_T_nr_EncyptionAlgorithms_nea3_128,
+      { "nea3-128", "xnap.T.nr.EncyptionAlgorithms.nea3.128",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0,
+      { "spare_bit0", "xnap.T.nr.IntegrityProtectionAlgorithms.spare.bit0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128,
+      { "nia1-128", "xnap.T.nr.IntegrityProtectionAlgorithms.nia1.128",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128,
+      { "nia2-128", "xnap.T.nr.IntegrityProtectionAlgorithms.nia2.128",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128,
+      { "nia3-128", "xnap.T.nr.IntegrityProtectionAlgorithms.nia3.128",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
     { &hf_xnap_RAT_RestrictionInformation_e_UTRA,
       { "e-UTRA", "xnap.RAT.RestrictionInformation.e.UTRA",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -41286,36 +47272,36 @@ void proto_register_xnap(void) {
       { "e1", "xnap.T.interfaces.to.trace.e1",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
-    { &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0,
-      { "spare_bit0", "xnap.T.nr.EncyptionAlgorithms.spare.bit0",
+    { &hf_xnap_T_nr_EncyptionAlgorithms_01_spare_bit0,
+      { "spare_bit0", "xnap.T.nr.EncyptionAlgorithms.01.spare.bit0",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
-    { &hf_xnap_T_nr_EncyptionAlgorithms_nea1_128,
-      { "nea1-128", "xnap.T.nr.EncyptionAlgorithms.nea1.128",
+    { &hf_xnap_T_nr_EncyptionAlgorithms_01_nea1_128,
+      { "nea1-128", "xnap.T.nr.EncyptionAlgorithms.01.nea1.128",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
-    { &hf_xnap_T_nr_EncyptionAlgorithms_nea2_128,
-      { "nea2-128", "xnap.T.nr.EncyptionAlgorithms.nea2.128",
+    { &hf_xnap_T_nr_EncyptionAlgorithms_01_nea2_128,
+      { "nea2-128", "xnap.T.nr.EncyptionAlgorithms.01.nea2.128",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
-    { &hf_xnap_T_nr_EncyptionAlgorithms_nea3_128,
-      { "nea3-128", "xnap.T.nr.EncyptionAlgorithms.nea3.128",
+    { &hf_xnap_T_nr_EncyptionAlgorithms_01_nea3_128,
+      { "nea3-128", "xnap.T.nr.EncyptionAlgorithms.01.nea3.128",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0,
-      { "spare_bit0", "xnap.T.nr.IntegrityProtectionAlgorithms.spare.bit0",
+    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_spare_bit0,
+      { "spare_bit0", "xnap.T.nr.IntegrityProtectionAlgorithms.01.spare.bit0",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
-    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128,
-      { "nia1-128", "xnap.T.nr.IntegrityProtectionAlgorithms.nia1.128",
+    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_nia1_128,
+      { "nia1-128", "xnap.T.nr.IntegrityProtectionAlgorithms.01.nia1.128",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
-    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128,
-      { "nia2-128", "xnap.T.nr.IntegrityProtectionAlgorithms.nia2.128",
+    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_nia2_128,
+      { "nia2-128", "xnap.T.nr.IntegrityProtectionAlgorithms.01.nia2.128",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
-    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128,
-      { "nia3-128", "xnap.T.nr.IntegrityProtectionAlgorithms.nia3.128",
+    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_01_nia3_128,
+      { "nia3-128", "xnap.T.nr.IntegrityProtectionAlgorithms.01.nia3.128",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit0,
@@ -41410,6 +47396,38 @@ void proto_register_xnap(void) {
     &ett_xnap_SRSConfiguration,
     &ett_xnap_PSCellListContainer,
     &ett_xnap_SuccessfulPSCellChangeReportContainer,
+    &ett_xnap_Circle_referenceLocation,
+    &ett_xnap_cSIResourceConfigurationToAddModList,
+    &ett_xnap_cSIResourceConfigurationToReleaseList,
+    &ett_xnap_cSI_RSResourceToAddModList,
+    &ett_xnap_cSI_RSResourceToReleaseList,
+    &ett_xnap_cSI_RSResourceSetToAddModList,
+    &ett_xnap_cSI_RSResourceSetToReleaseList,
+    &ett_xnap_cSI_IMResourceToAddModList,
+    &ett_xnap_cSI_IMResourceToReleaseList,
+    &ett_xnap_cSI_IMResourceSetToAddModList,
+    &ett_xnap_cSI_IMResourceSetToReleaseList,
+    &ett_xnap_rACHConfiguration,
+    &ett_xnap_JointorDLTCIStateID,
+    &ett_xnap_tCIStateConfigurationList,
+    &ett_xnap_lTMCandidateConfiguration,
+    &ett_xnap_ueBasedTAMeasurementConfiguration,
+    &ett_xnap_lTMCFRAResourceConfiguration,
+    &ett_xnap_lTMCFRAResourceConfigurationSUL,
+    &ett_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition,
+    &ett_xnap_tCI_StatesConfigurationsList,
+    &ett_xnap_sN_to_MN_Container,
+    &ett_xnap_nZP_CSI_RS_ResourceSet,
+    &ett_xnap_nZP_CSI_RS_Resource,
+    &ett_xnap_Polygon,
+    &ett_xnap_ReferenceConfiguration,
+    &ett_xnap_SBFD_Frequency_Configuration,
+    &ett_xnap_sRS_Resource,
+    &ett_xnap_sRSResourceSetID,
+    &ett_xnap_sRSSpatialRelation,
+    &ett_xnap_spatialRelationInforperSRSResource,
+    &ett_xnap_TagIDPointer,
+    &ett_xnap_ULTCIStateID,
     &ett_xnap_PrivateIE_ID,
     &ett_xnap_ProtocolIE_Container,
     &ett_xnap_ProtocolIE_Field,
@@ -41417,10 +47435,13 @@ void proto_register_xnap(void) {
     &ett_xnap_ProtocolExtensionField,
     &ett_xnap_PrivateIE_Container,
     &ett_xnap_PrivateIE_Field,
+    &ett_xnap_AerialUEFlightInformationReportingControl,
     &ett_xnap_A2XPC5QoSParameters,
     &ett_xnap_A2XPC5QoSFlowList,
     &ett_xnap_A2XPC5QoSFlowItem,
     &ett_xnap_A2XPC5FlowBitRates,
+    &ett_xnap_AvailableBitrateReportThresholdList,
+    &ett_xnap_AvailableBitrateReportThresholdItem,
     &ett_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated,
     &ett_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_Item,
     &ett_xnap_AveragePacketDelay,
@@ -41432,6 +47453,10 @@ void proto_register_xnap(void) {
     &ett_xnap_Additional_Measurement_Timing_Configuration_Item,
     &ett_xnap_Active_MBS_SessionInformation,
     &ett_xnap_DataCollectionID,
+    &ett_xnap_AdditionalDRBSetupInfoList,
+    &ett_xnap_AdditionalDRBsToBeSetupInfo_Item,
+    &ett_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList,
+    &ett_xnap_AdditionalQoSFlowMappedtoDRBSetupInfoList_Item,
     &ett_xnap_AllocationandRetentionPriority,
     &ett_xnap_AllowedCAG_ID_List_perPLMN,
     &ett_xnap_AllowedPNI_NPN_ID_List,
@@ -41502,6 +47527,8 @@ void proto_register_xnap(void) {
     &ett_xnap_CellBasedUETrajectoryPrediction,
     &ett_xnap_CellMeasurementInitiationResult_List,
     &ett_xnap_CellMeasurementInitiationResult_Item,
+    &ett_xnap_CLI_MeasurementResult_List,
+    &ett_xnap_CLI_MeasurementResult_Item,
     &ett_xnap_CellMeasurementResultForDataCollection_List,
     &ett_xnap_CellInfoResultForDataCollection_Item,
     &ett_xnap_Cell_Type_Choice,
@@ -41528,6 +47555,7 @@ void proto_register_xnap(void) {
     &ett_xnap_CHO_target_SN_node_Item,
     &ett_xnap_CHO_Candidate_PSCells_list,
     &ett_xnap_CHO_Candidate_PSCells_Item,
+    &ett_xnap_Circle,
     &ett_xnap_Conditional_Reconfig_List,
     &ett_xnap_Conditional_Reconfig_Item,
     &ett_xnap_Connectivity_Support,
@@ -41572,6 +47600,17 @@ void proto_register_xnap(void) {
     &ett_xnap_CSI_RS_MTC_Neighbour_Item,
     &ett_xnap_CAGListforMDT,
     &ett_xnap_CAGListforMDTItem,
+    &ett_xnap_CSIResourceConfiguration,
+    &ett_xnap_CSI_RSResourceConfiguration,
+    &ett_xnap_NZP_CSI_RS_ResourceConfiguration,
+    &ett_xnap_NZP_CSI_RS_ResourceSetConfiguration,
+    &ett_xnap_CSI_IM_ResourceConfiguration,
+    &ett_xnap_CellSwitchTAInformation_List,
+    &ett_xnap_CellSwitchTAInformation_Item,
+    &ett_xnap_CSI_RSCoordinationRequestList,
+    &ett_xnap_CSI_RSCoordinationRequest_Item,
+    &ett_xnap_CSI_RSCoordinationResultList,
+    &ett_xnap_CSI_RSCoordinationResult_Item,
     &ett_xnap_XnUAddressInfoperPDUSession_List,
     &ett_xnap_XnUAddressInfoperPDUSession_Item,
     &ett_xnap_DataForwardingInfoFromTargetE_UTRANnode,
@@ -41608,11 +47647,16 @@ void proto_register_xnap(void) {
     &ett_xnap_DRBBStatusTransferChoice,
     &ett_xnap_DRBBStatusTransfer12bitsSN,
     &ett_xnap_DRBBStatusTransfer18bitsSN,
+    &ett_xnap_PDCPSNGapTransfer_UL,
+    &ett_xnap_DRBStatusTransfer12bitsSN_ULGap,
+    &ett_xnap_DRBStatusTransfer18bitsSN_ULGap,
     &ett_xnap_DRBToQoSFlowMapping_List,
     &ett_xnap_DRBToQoSFlowMapping_Item,
     &ett_xnap_DUF_Slot_Config_List,
     &ett_xnap_DUF_Slot_Config_Item,
     &ett_xnap_Dynamic5QIDescriptor,
+    &ett_xnap_DataForwardingInfoForLTM_List,
+    &ett_xnap_DataForwardingInfoForLTM_Item,
     &ett_xnap_ECNMarkingorCongestionInformationReportingRequest,
     &ett_xnap_EquivalentSNPNs,
     &ett_xnap_E_UTRA_CGI,
@@ -41637,6 +47681,13 @@ void proto_register_xnap(void) {
     &ett_xnap_ExtTLA_Item,
     &ett_xnap_GTPTLAs,
     &ett_xnap_GTPTLA_Item,
+    &ett_xnap_EarlySyncInformationRequest,
+    &ett_xnap_EarlySyncInformation,
+    &ett_xnap_EarlyRACHResourcesProviders_List,
+    &ett_xnap_EarlyRACHResourcesProviders_Item,
+    &ett_xnap_EarlyULSyncConfig,
+    &ett_xnap_EarlyRACHResources_List,
+    &ett_xnap_EarlyRACHResources_Item,
     &ett_xnap_F1_TerminatingTopologyBHInformation,
     &ett_xnap_F1TerminatingBHInformation_List,
     &ett_xnap_F1TerminatingBHInformation_Item,
@@ -41651,7 +47702,13 @@ void proto_register_xnap(void) {
     &ett_xnap_FreqDomainHSNAconfiguration_List_Item,
     &ett_xnap_FreqDomainSlotHSNAconfiguration_List,
     &ett_xnap_FreqDomainSlotHSNAconfiguration_List_Item,
+    &ett_xnap_Future_Coverage_Modification_List,
+    &ett_xnap_Future_Coverage_Modification_Item,
+    &ett_xnap_Future_SSB_Coverage_Modification_List,
+    &ett_xnap_Future_SSB_Coverage_Modification_Item,
     &ett_xnap_GBRQoSFlowInfo,
+    &ett_xnap_GeographyBasedMDT,
+    &ett_xnap_GeographicalArea,
     &ett_xnap_GlobalgNB_ID,
     &ett_xnap_GNB_DU_Cell_Resource_Configuration,
     &ett_xnap_GNB_ID_Choice,
@@ -41708,9 +47765,52 @@ void proto_register_xnap(void) {
     &ett_xnap_LocationReportingInformation,
     &ett_xnap_LoggedEventTriggeredConfig,
     &ett_xnap_LoggedMDT_NR,
+    &ett_xnap_LPWUSPSassistanceInformation,
     &ett_xnap_LTEA2XServicesAuthorized,
     &ett_xnap_LTEV2XServicesAuthorized,
     &ett_xnap_LTEUESidelinkAggregateMaximumBitRate,
+    &ett_xnap_LTMHandoverInformationRequest,
+    &ett_xnap_LTMConfigurationIDMappingList,
+    &ett_xnap_LTMConfigurationIDMapping_Item,
+    &ett_xnap_LTM_NoSecurityChangeID_List,
+    &ett_xnap_LTML2ResetConfig_List,
+    &ett_xnap_LTMHandoverInformationRequestAcknowledge,
+    &ett_xnap_LTMCellSwitchInformation,
+    &ett_xnap_LTMUEAssociationInformation_List,
+    &ett_xnap_LTMUEAssociationInformation_Item,
+    &ett_xnap_LTMUpdatesToCandidateNodeInformation,
+    &ett_xnap_LTMUpdatesToCandidateCellInformation_List,
+    &ett_xnap_LTMUpdatesToCandidateCellInformation_Item,
+    &ett_xnap_LTMCFRAResourceInformation,
+    &ett_xnap_LTMUpdatesFromCandidateCellInformation_List,
+    &ett_xnap_LTMUpdatesFromCandidateCellInformation_Item,
+    &ett_xnap_LTMUESecurityInformation,
+    &ett_xnap_LTMUESecurityCapabilities,
+    &ett_xnap_T_nr_EncyptionAlgorithms,
+    &ett_xnap_T_nr_IntegrityProtectionAlgorithms,
+    &ett_xnap_LTMUserPlaneSecurityInformation_List,
+    &ett_xnap_LTMUserPlaneSecurityInformation_Item,
+    &ett_xnap_LTMCandidateCellsToBeCancelled_List,
+    &ett_xnap_LTMCandidateCellsToBeCancelled_Item,
+    &ett_xnap_LTMInformationSCG_AddReq,
+    &ett_xnap_LTMInformationSCG_AddReqAck,
+    &ett_xnap_LTMInformationSCG_ModReq,
+    &ett_xnap_LTMPSCellInformation_AddReq,
+    &ett_xnap_LTMPSCellInformation_AddReqAck,
+    &ett_xnap_LTMPSCellInformation_UpdateReq,
+    &ett_xnap_LTMPSCellInformation_UpdateReqAck,
+    &ett_xnap_LTMPSCellInformation_UpdateRequired,
+    &ett_xnap_LTMPSCellInformation_UpdateConfirm,
+    &ett_xnap_LTMPSCellInformation_ChangeRequired,
+    &ett_xnap_LTMPSCellInformation_ChangeConfirm,
+    &ett_xnap_LTM_PSCell_Request_List,
+    &ett_xnap_LTM_PSCell_Request_Item,
+    &ett_xnap_LTM_PSCell_Prepared_List,
+    &ett_xnap_LTM_PSCell_Prepared_Item,
+    &ett_xnap_LTM_SCG_SecurityConfiguration_List,
+    &ett_xnap_LTM_SCG_SecurityConfiguration_Item,
+    &ett_xnap_LTM_SCG_SecurityConfig_Info_List,
+    &ett_xnap_LTM_SCG_SecurityConfig_Info_Item,
     &ett_xnap_MDTAlignmentInfo,
     &ett_xnap_M1Configuration,
     &ett_xnap_M1PeriodicReporting,
@@ -41757,6 +47857,7 @@ void proto_register_xnap(void) {
     &ett_xnap_MobilityParametersInformation,
     &ett_xnap_MobilityRestrictionList,
     &ett_xnap_SEQUENCE_SIZE_1_maxnoofEPLMNs_OF_PLMN_Identity,
+    &ett_xnap_MonitoringRequestonAvailableBitrate,
     &ett_xnap_CNTypeRestrictionsForEquivalent,
     &ett_xnap_CNTypeRestrictionsForEquivalentItem,
     &ett_xnap_RAT_RestrictionsList,
@@ -41779,6 +47880,10 @@ void proto_register_xnap(void) {
     &ett_xnap_MeasuredUETrajectory_Item,
     &ett_xnap_MeasuredTrajectoryCellInfo,
     &ett_xnap_MeasuredTrajectoryNGRANCellInfo,
+    &ett_xnap_MultipleCandidateSN_List,
+    &ett_xnap_MultipleCandidateSN_Item,
+    &ett_xnap_MultipleCandidateSNChangeRequired_List,
+    &ett_xnap_MultipleCandidateSNChangeRequired_Item,
     &ett_xnap_N6JitterInformation,
     &ett_xnap_NACellResourceConfigurationList,
     &ett_xnap_NACellResourceConfiguration_Item,
@@ -41792,6 +47897,9 @@ void proto_register_xnap(void) {
     &ett_xnap_NeighbourInformation_NR_ModeTDDInfo,
     &ett_xnap_Neighbour_NG_RAN_Node_List,
     &ett_xnap_Neighbour_NG_RAN_Node_Item,
+    &ett_xnap_NetworkSliceListforMDT,
+    &ett_xnap_NetworkSliceItemforMDT,
+    &ett_xnap_NetworkSliceAreaScopeofMDT,
     &ett_xnap_NRCarrierList,
     &ett_xnap_NRCarrierItem,
     &ett_xnap_NG_RAN_Cell_Identity,
@@ -41844,6 +47952,11 @@ void proto_register_xnap(void) {
     &ett_xnap_Transmission_Bandwidth_asymmetric,
     &ett_xnap_NRV2XServicesAuthorized,
     &ett_xnap_NRUESidelinkAggregateMaximumBitRate,
+    &ett_xnap_NZP_CSI_RS_Resources_Config,
+    &ett_xnap_NZP_CSI_RS_Resource_List,
+    &ett_xnap_NZP_CSI_RS_Resource_Item,
+    &ett_xnap_NTNGeographicalArea,
+    &ett_xnap_NTNGeographicalAreaItem,
     &ett_xnap_PositioningInformation,
     &ett_xnap_PacketErrorRate,
     &ett_xnap_PEIPSassistanceInformation,
@@ -41944,6 +48057,8 @@ void proto_register_xnap(void) {
     &ett_xnap_ProtectedE_UTRAFootprintTimePattern,
     &ett_xnap_PNI_NPN_AreaScopeofMDT,
     &ett_xnap_PNI_NPNBasedMDT,
+    &ett_xnap_PreambleIndexList,
+    &ett_xnap_PredictedSliceAvailableCapacityGroup,
     &ett_xnap_QMCConfigInfo,
     &ett_xnap_UEAppLayerMeasInfoList,
     &ett_xnap_UEAppLayerMeasInfo_Item,
@@ -42065,6 +48180,8 @@ void proto_register_xnap(void) {
     &ett_xnap_SharedResourceType_ULDL_Sharing_DL_ResourcesChanged,
     &ett_xnap_SliceAvailableCapacity,
     &ett_xnap_SliceAvailableCapacity_Item,
+    &ett_xnap_SliceMDTList,
+    &ett_xnap_SliceMDTItem,
     &ett_xnap_SNSSAIAvailableCapacity_List,
     &ett_xnap_SNSSAIAvailableCapacity_Item,
     &ett_xnap_SliceRadioResourceStatus_List,
@@ -42086,6 +48203,9 @@ void proto_register_xnap(void) {
     &ett_xnap_S_NSSAI,
     &ett_xnap_SNPNIdentity,
     &ett_xnap_SpecialSubframeInfo_E_UTRA,
+    &ett_xnap_SRS_Resource_Configuration,
+    &ett_xnap_SRS_Resource_Configuration_List,
+    &ett_xnap_SRS_Resource_Configuration_List_Item,
     &ett_xnap_SSBAreaCapacityValue_List,
     &ett_xnap_SSBAreaCapacityValue_List_Item,
     &ett_xnap_SSBAreaRadioResourceStatus_List,
@@ -42121,7 +48241,26 @@ void proto_register_xnap(void) {
     &ett_xnap_SNPN_BasedMDT,
     &ett_xnap_SNPNListforMDT,
     &ett_xnap_SNPNforMDT_Item,
+    &ett_xnap_SSBInformation,
+    &ett_xnap_SSBInformation_Item,
+    &ett_xnap_SSBConfig,
+    &ett_xnap_SliceToReportForDataCollection_List,
+    &ett_xnap_SliceToReportForDataCollection_List_Item,
+    &ett_xnap_SliceMeasurementInitiationResult,
+    &ett_xnap_SliceMeasurementInitiationResult_List,
+    &ett_xnap_SliceMeasurementInitiationResult_Item,
+    &ett_xnap_SNSSAIMeasurementInitiationResult_List,
+    &ett_xnap_SNSSAIMeasurementInitiationResult_Item,
+    &ett_xnap_SNSSAIMeasurementFailureCause_List,
+    &ett_xnap_SNSSAIMeasurementFailureCause_Item,
+    &ett_xnap_SliceUEPerformance,
+    &ett_xnap_S_NSSAIUEPerformance_List,
+    &ett_xnap_S_NSSAIUEPerformance_Item,
+    &ett_xnap_SliceBasedUEPerformance,
+    &ett_xnap_SemipersistentPositioningInformation,
     &ett_xnap_TABasedMDT,
+    &ett_xnap_Tci_State_InformationList,
+    &ett_xnap_Tci_State_Information_Item,
     &ett_xnap_TAIBasedMDT,
     &ett_xnap_TAIListforMDT,
     &ett_xnap_TAIforMDT_Item,
@@ -42167,6 +48306,8 @@ void proto_register_xnap(void) {
     &ett_xnap_TrafficToBeRelease_Item,
     &ett_xnap_TSCTrafficCharacteristics,
     &ett_xnap_TSCAssistanceInformation,
+    &ett_xnap_TAInformation_List,
+    &ett_xnap_TAInformation_Item,
     &ett_xnap_UEAggregateMaximumBitRate,
     &ett_xnap_UEAppLayerMeasConfigInfo,
     &ett_xnap_UEContextID,
@@ -42186,8 +48327,8 @@ void proto_register_xnap(void) {
     &ett_xnap_UESliceMaximumBitRateList,
     &ett_xnap_UESliceMaximumBitRate_Item,
     &ett_xnap_UESecurityCapabilities,
-    &ett_xnap_T_nr_EncyptionAlgorithms,
-    &ett_xnap_T_nr_IntegrityProtectionAlgorithms,
+    &ett_xnap_T_nr_EncyptionAlgorithms_01,
+    &ett_xnap_T_nr_IntegrityProtectionAlgorithms_01,
     &ett_xnap_T_e_utra_EncyptionAlgorithms,
     &ett_xnap_T_e_utra_IntegrityProtectionAlgorithms,
     &ett_xnap_ULConfiguration,
@@ -42204,6 +48345,7 @@ void proto_register_xnap(void) {
     &ett_xnap_UETrajectoryCollectionConfiguration,
     &ett_xnap_VolumeTimedReportList,
     &ett_xnap_VolumeTimedReport_Item,
+    &ett_xnap_WAB_MT_ID,
     &ett_xnap_WLANMeasurementConfiguration,
     &ett_xnap_WLANMeasConfigNameList,
     &ett_xnap_HandoverRequest,
@@ -42340,6 +48482,7 @@ void proto_register_xnap(void) {
     &ett_xnap_DeactivateTrace,
     &ett_xnap_FailureIndication,
     &ett_xnap_HandoverReport,
+    &ett_xnap_SCGFailureIndication,
     &ett_xnap_ResourceStatusRequest,
     &ett_xnap_ResourceStatusResponse,
     &ett_xnap_ResourceStatusFailure,
@@ -42393,6 +48536,21 @@ void proto_register_xnap(void) {
     &ett_xnap_DataCollectionResponse,
     &ett_xnap_DataCollectionFailure,
     &ett_xnap_DataCollectionUpdate,
+    &ett_xnap_ODSIB1ConfigurationProvisionRequest,
+    &ett_xnap_RequestTypeChoice,
+    &ett_xnap_ODSIB1ConfigurationInformation,
+    &ett_xnap_ODSIB1ConfigurationProvisionResponse,
+    &ett_xnap_ODSIB1ConfigurationProvisionFailure,
+    &ett_xnap_ODSIB1ConfigurationProvisionStatusUpdate,
+    &ett_xnap_CellSwitchNotification,
+    &ett_xnap_TAInformationTransfer,
+    &ett_xnap_LTMConfigurationUpdate,
+    &ett_xnap_LTMConfigurationUpdateAcknowledge,
+    &ett_xnap_LTMConfigurationUpdateFailure,
+    &ett_xnap_LTMCancel,
+    &ett_xnap_CSIRSCoordinationRequest,
+    &ett_xnap_CSIRSCoordinationResponse,
+    &ett_xnap_CLI_Indication,
     &ett_xnap_XnAP_PDU,
     &ett_xnap_InitiatingMessage,
     &ett_xnap_SuccessfulOutcome,
@@ -42743,6 +48901,52 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.ies", id_NodeAssociatedInfoResult, create_dissector_handle(dissect_NodeAssociatedInfoResult_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_SLPositioning_Ranging_Services_Info, create_dissector_handle(dissect_SLPositioning_Ranging_Services_Info_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_SRSPositioningConfigOrActivationRequest, create_dissector_handle(dissect_SRSPositioningConfigOrActivationRequest_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_RequestType, create_dissector_handle(dissect_RequestTypeChoice_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_NES_Cell_ID, create_dissector_handle(dissect_NR_CGI_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_Cell_A_ID, create_dissector_handle(dissect_NR_CGI_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_ProvisionStatus, create_dissector_handle(dissect_ProvisionStatus_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMHandoverInformationRequest, create_dissector_handle(dissect_LTMHandoverInformationRequest_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_EarlySyncInformationRequest, create_dissector_handle(dissect_EarlySyncInformationRequest_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMHandoverInformationRequestAcknowledge, create_dissector_handle(dissect_LTMHandoverInformationRequestAcknowledge_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_EarlySyncInformationResponse, create_dissector_handle(dissect_EarlySyncInformation_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMCellSwitchInformation, create_dissector_handle(dissect_LTMCellSwitchInformation_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMUEAssociationInformation_List, create_dissector_handle(dissect_LTMUEAssociationInformation_List_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_CellSwitchTAInformation_List, create_dissector_handle(dissect_CellSwitchTAInformation_List_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_TAInformation_List, create_dissector_handle(dissect_TAInformation_List_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMUpdatesToCandidateNodeInformation, create_dissector_handle(dissect_LTMUpdatesToCandidateNodeInformation_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMUpdatesToCandidateCellInformation_List, create_dissector_handle(dissect_LTMUpdatesToCandidateCellInformation_List_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMUESecurityInformation, create_dissector_handle(dissect_LTMUESecurityInformation_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_NGRAN_Node1_ID, create_dissector_handle(dissect_NG_RANnodeUEXnAPID_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_NGRAN_Node2_ID, create_dissector_handle(dissect_NG_RANnodeUEXnAPID_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMUpdatesFromCandidateCellInformation_List, create_dissector_handle(dissect_LTMUpdatesFromCandidateCellInformation_List_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMCandidateCellsToBeCancelled_List, create_dissector_handle(dissect_LTMCandidateCellsToBeCancelled_List_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_CSI_RSCoordinationRequest, create_dissector_handle(dissect_CSI_RSCoordinationRequestList_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_CSI_RSCoordinationResponse, create_dissector_handle(dissect_CSI_RSCoordinationResultList_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_CLI_MeasurementResult_List, create_dissector_handle(dissect_CLI_MeasurementResult_List_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_SRS_Resource_Indication, create_dissector_handle(dissect_SRS_Resource_Indication_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_WAB_MT_ID, create_dissector_handle(dissect_WAB_MT_ID_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LPWUSPSassistanceInformation, create_dissector_handle(dissect_LPWUSPSassistanceInformation_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_FurtherExtended_UEIdentityIndexValue, create_dissector_handle(dissect_FurtherExtended_UEIdentityIndexValue_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_Future_Coverage_Modification_List, create_dissector_handle(dissect_Future_Coverage_Modification_List_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_GeographyBasedMDT, create_dissector_handle(dissect_GeographyBasedMDT_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_TimeSCG_Failure, create_dissector_handle(dissect_TimeSCG_Failure_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_FailureType, create_dissector_handle(dissect_FailureType_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMInformationSCG_AddReq, create_dissector_handle(dissect_LTMInformationSCG_AddReq_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMInformationSCG_AddReqAck, create_dissector_handle(dissect_LTMInformationSCG_AddReqAck_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMInformationSCG_ModReq, create_dissector_handle(dissect_LTMInformationSCG_ModReq_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMInterSNExecutionNotification, create_dissector_handle(dissect_LTMInterSNExecutionNotification_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMPSCellInformation_AddReq, create_dissector_handle(dissect_LTMPSCellInformation_AddReq_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMPSCellInformation_AddReqAck, create_dissector_handle(dissect_LTMPSCellInformation_AddReqAck_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMPSCellInformation_UpdateReq, create_dissector_handle(dissect_LTMPSCellInformation_UpdateReq_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMPSCellInformation_UpdateReqAck, create_dissector_handle(dissect_LTMPSCellInformation_UpdateReqAck_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMPSCellInformation_UpdateRequired, create_dissector_handle(dissect_LTMPSCellInformation_UpdateRequired_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMPSCellInformation_UpdateConfirm, create_dissector_handle(dissect_LTMPSCellInformation_UpdateConfirm_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMPSCellInformation_ChangeRequired, create_dissector_handle(dissect_LTMPSCellInformation_ChangeRequired_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTMPSCellInformation_ChangeConfirm, create_dissector_handle(dissect_LTMPSCellInformation_ChangeConfirm_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LTM_DC_DataForwarding_Indicator, create_dissector_handle(dissect_LTM_DC_DataForwarding_Indicator_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_SemipersistentPositioningInformation, create_dissector_handle(dissect_SemipersistentPositioningInformation_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_LP_WUS_Disable_Indication, create_dissector_handle(dissect_LP_WUS_Disable_Indication_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_ContinuousMDT, create_dissector_handle(dissect_NG_RANTraceID_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_Additional_UL_NG_U_TNLatUPF_List, create_dissector_handle(dissect_Additional_UL_NG_U_TNLatUPF_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_SecondarydataForwardingInfoFromTarget_List, create_dissector_handle(dissect_SecondarydataForwardingInfoFromTarget_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_LastE_UTRANPLMNIdentity, create_dissector_handle(dissect_PLMN_Identity_PDU, proto_xnap));
@@ -42903,6 +49107,34 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.extension", id_BarringExemptionforEmerCallInfo, create_dissector_handle(dissect_BarringExemptionforEmerCallInfo_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_Transmission_Bandwidth_asymmetric, create_dissector_handle(dissect_Transmission_Bandwidth_asymmetric_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_NRPPaPositioningInformation, create_dissector_handle(dissect_NRPPaPositioningInformation_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_AerialUEFlightInformationReportingControl, create_dissector_handle(dissect_AerialUEFlightInformationReportingControl_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_PDCPSNGapTransfer_UL, create_dissector_handle(dissect_PDCPSNGapTransfer_UL_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_ECNMarkingorCongestionInformationReportingStatus, create_dissector_handle(dissect_ECNMarkingorCongestionInformationReportingStatus_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_AdditionalDRBSetupInfoList, create_dissector_handle(dissect_AdditionalDRBSetupInfoList_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_PSIbasedSDUdiscardUL, create_dissector_handle(dissect_PSIbasedSDUdiscardUL_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_PSIbasedSDUdiscardDL, create_dissector_handle(dissect_PSIbasedSDUdiscardDL_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_DLPDUSetInformationMarkingSupportIndication, create_dissector_handle(dissect_DLPDUSetInformationMarkingSupportIndication_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_PduSetDelayBudgetDownlink, create_dissector_handle(dissect_ExtendedPacketDelayBudget_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_PduSetDelayBudgetUplink, create_dissector_handle(dissect_ExtendedPacketDelayBudget_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_PduSetErrorRateDownlink, create_dissector_handle(dissect_PacketErrorRate_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_PduSetErrorRateUplink, create_dissector_handle(dissect_PacketErrorRate_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_MonitoringRequestonAvailableBitrate, create_dissector_handle(dissect_MonitoringRequestonAvailableBitrate_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_MMSID, create_dissector_handle(dissect_MMSID_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_Indication_of_bitrate_adaptation, create_dissector_handle(dissect_Indication_of_bitrate_adaptation_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_SBFD_Frequency_Configuration, create_dissector_handle(dissect_SBFD_Frequency_Configuration_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_NZP_CSI_RS_Resources_Config, create_dissector_handle(dissect_NZP_CSI_RS_Resources_Config_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_SRS_Resource_Configuration, create_dissector_handle(dissect_SRS_Resource_Configuration_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_SliceToReportForDataCollection_List, create_dissector_handle(dissect_SliceToReportForDataCollection_List_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_PredictedSliceAvailableCapacity, create_dissector_handle(dissect_PredictedSliceAvailableCapacityGroup_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_SliceMeasurementInitiationResult, create_dissector_handle(dissect_SliceMeasurementInitiationResult_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_SliceUEPerformance, create_dissector_handle(dissect_SliceUEPerformance_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_NetworkSliceAreaScopeofMDT, create_dissector_handle(dissect_NetworkSliceAreaScopeofMDT_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_FiveGProSeLayer3MHUEtoNetworkRelay, create_dissector_handle(dissect_FiveGProSeLayer3MHUEtoNetworkRelay_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_FiveGProSeLayer2MHUEtoNetworkRelay, create_dissector_handle(dissect_FiveGProSeLayer2MHUEtoNetworkRelay_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay, create_dissector_handle(dissect_FiveGProSeLayer2MHIntermediateUEtoNetworkRelay_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_FiveGProSeLayer2MHRemote, create_dissector_handle(dissect_FiveGProSeLayer2MHRemote_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_SemipersistentPositioningInformation, create_dissector_handle(dissect_SemipersistentPositioningInformation_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_UEAveragePacketLossUL, create_dissector_handle(dissect_UEAveragePacketLossUL_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_xnap));
@@ -42965,6 +49197,7 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.proc.imsg", id_earlyStatusTransfer, create_dissector_handle(dissect_EarlyStatusTransfer_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.imsg", id_failureIndication, create_dissector_handle(dissect_FailureIndication_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.imsg", id_handoverReport, create_dissector_handle(dissect_HandoverReport_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.imsg", id_scgFailureIndication, create_dissector_handle(dissect_SCGFailureIndication_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.imsg", id_resourceStatusReportingInitiation, create_dissector_handle(dissect_ResourceStatusRequest_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.sout", id_resourceStatusReportingInitiation, create_dissector_handle(dissect_ResourceStatusResponse_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.uout", id_resourceStatusReportingInitiation, create_dissector_handle(dissect_ResourceStatusFailure_PDU, proto_xnap));
@@ -42992,5 +49225,18 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.proc.sout", id_dataCollectionReportingInitiation, create_dissector_handle(dissect_DataCollectionResponse_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.uout", id_dataCollectionReportingInitiation, create_dissector_handle(dissect_DataCollectionFailure_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.imsg", id_dataCollectionReporting, create_dissector_handle(dissect_DataCollectionUpdate_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.imsg", id_ODSIB1ConfigurationProvision, create_dissector_handle(dissect_ODSIB1ConfigurationProvisionRequest_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.sout", id_ODSIB1ConfigurationProvision, create_dissector_handle(dissect_ODSIB1ConfigurationProvisionResponse_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.uout", id_ODSIB1ConfigurationProvision, create_dissector_handle(dissect_ODSIB1ConfigurationProvisionFailure_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.imsg", id_ODSIB1ConfigurationProvisionStatusUpdate, create_dissector_handle(dissect_ODSIB1ConfigurationProvisionStatusUpdate_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.imsg", id_lTMConfigurationUpdate, create_dissector_handle(dissect_LTMConfigurationUpdate_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.sout", id_lTMConfigurationUpdate, create_dissector_handle(dissect_LTMConfigurationUpdateAcknowledge_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.uout", id_lTMConfigurationUpdate, create_dissector_handle(dissect_LTMConfigurationUpdateFailure_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.imsg", id_cSIRSCoordination, create_dissector_handle(dissect_CSIRSCoordinationRequest_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.sout", id_cSIRSCoordination, create_dissector_handle(dissect_CSIRSCoordinationResponse_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.imsg", id_cellSwitchNotification, create_dissector_handle(dissect_CellSwitchNotification_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.imsg", id_tAInformationTransfer, create_dissector_handle(dissect_TAInformationTransfer_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.imsg", id_lTMCancel, create_dissector_handle(dissect_LTMCancel_PDU, proto_xnap));
+  dissector_add_uint("xnap.proc.imsg", id_cLI_Indication, create_dissector_handle(dissect_CLI_Indication_PDU, proto_xnap));
 
 }

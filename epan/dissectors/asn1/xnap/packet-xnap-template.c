@@ -1,7 +1,7 @@
 /* packet-xnap.c
  * Routines for dissecting NG-RAN Xn application protocol (XnAP)
  * 3GPP TS 38.423 packet dissection
- * Copyright 2018-2025, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2026, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V18.6.0 (2025-06)
+ * 3GPP TS 38.423 V19.1.0 (2025-12)
  */
 
 #include "config.h"
@@ -36,6 +36,7 @@
 #include "packet-f1ap.h"
 #include "packet-nrppa.h"
 #include "packet-sctp.h"
+#include "packet-lpp.h"
 
 
 #define PNAME  "NG-RAN Xn Application Protocol (XnAP)"
@@ -168,6 +169,38 @@ static int ett_xnap_ReportCharacteristicsForDataCollection;
 static int ett_xnap_SRSConfiguration;
 static int ett_xnap_PSCellListContainer;
 static int ett_xnap_SuccessfulPSCellChangeReportContainer;
+static int ett_xnap_Circle_referenceLocation;
+static int ett_xnap_cSIResourceConfigurationToAddModList;
+static int ett_xnap_cSIResourceConfigurationToReleaseList;
+static int ett_xnap_cSI_RSResourceToAddModList;
+static int ett_xnap_cSI_RSResourceToReleaseList;
+static int ett_xnap_cSI_RSResourceSetToAddModList;
+static int ett_xnap_cSI_RSResourceSetToReleaseList;
+static int ett_xnap_cSI_IMResourceToAddModList;
+static int ett_xnap_cSI_IMResourceToReleaseList;
+static int ett_xnap_cSI_IMResourceSetToAddModList;
+static int ett_xnap_cSI_IMResourceSetToReleaseList;
+static int ett_xnap_rACHConfiguration;
+static int ett_xnap_JointorDLTCIStateID;
+static int ett_xnap_tCIStateConfigurationList;
+static int ett_xnap_lTMCandidateConfiguration;
+static int ett_xnap_ueBasedTAMeasurementConfiguration;
+static int ett_xnap_lTMCFRAResourceConfiguration;
+static int ett_xnap_lTMCFRAResourceConfigurationSUL;
+static int ett_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition;
+static int ett_xnap_tCI_StatesConfigurationsList;
+static int ett_xnap_sN_to_MN_Container;
+static int ett_xnap_nZP_CSI_RS_ResourceSet;
+static int ett_xnap_nZP_CSI_RS_Resource;
+static int ett_xnap_Polygon;
+static int ett_xnap_ReferenceConfiguration;
+static int ett_xnap_SBFD_Frequency_Configuration;
+static int ett_xnap_sRS_Resource;
+static int ett_xnap_sRSResourceSetID;
+static int ett_xnap_sRSSpatialRelation;
+static int ett_xnap_spatialRelationInforperSRSResource;
+static int ett_xnap_TagIDPointer;
+static int ett_xnap_ULTCIStateID;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -268,6 +301,20 @@ static void
 xnap_N6Jitter_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%d)", (float)v/2, (int32_t)v);
+}
+
+static void
+xnap_50m_fmt(char *s, uint32_t v)
+{
+  int32_t d = (int32_t)v;
+
+  snprintf(s, ITEM_LABEL_LENGTH, "%dm (%d)", d*50, d);
+}
+
+static void
+xnap_tenth_seconds_fmt(char *s, uint32_t v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
 }
 
 typedef enum {
@@ -697,6 +744,38 @@ void proto_register_xnap(void) {
     &ett_xnap_SRSConfiguration,
     &ett_xnap_PSCellListContainer,
     &ett_xnap_SuccessfulPSCellChangeReportContainer,
+    &ett_xnap_Circle_referenceLocation,
+    &ett_xnap_cSIResourceConfigurationToAddModList,
+    &ett_xnap_cSIResourceConfigurationToReleaseList,
+    &ett_xnap_cSI_RSResourceToAddModList,
+    &ett_xnap_cSI_RSResourceToReleaseList,
+    &ett_xnap_cSI_RSResourceSetToAddModList,
+    &ett_xnap_cSI_RSResourceSetToReleaseList,
+    &ett_xnap_cSI_IMResourceToAddModList,
+    &ett_xnap_cSI_IMResourceToReleaseList,
+    &ett_xnap_cSI_IMResourceSetToAddModList,
+    &ett_xnap_cSI_IMResourceSetToReleaseList,
+    &ett_xnap_rACHConfiguration,
+    &ett_xnap_JointorDLTCIStateID,
+    &ett_xnap_tCIStateConfigurationList,
+    &ett_xnap_lTMCandidateConfiguration,
+    &ett_xnap_ueBasedTAMeasurementConfiguration,
+    &ett_xnap_lTMCFRAResourceConfiguration,
+    &ett_xnap_lTMCFRAResourceConfigurationSUL,
+    &ett_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition,
+    &ett_xnap_tCI_StatesConfigurationsList,
+    &ett_xnap_sN_to_MN_Container,
+    &ett_xnap_nZP_CSI_RS_ResourceSet,
+    &ett_xnap_nZP_CSI_RS_Resource,
+    &ett_xnap_Polygon,
+    &ett_xnap_ReferenceConfiguration,
+    &ett_xnap_SBFD_Frequency_Configuration,
+    &ett_xnap_sRS_Resource,
+    &ett_xnap_sRSResourceSetID,
+    &ett_xnap_sRSSpatialRelation,
+    &ett_xnap_spatialRelationInforperSRSResource,
+    &ett_xnap_TagIDPointer,
+    &ett_xnap_ULTCIStateID,
 #include "packet-xnap-ettarr.c"
   };
 

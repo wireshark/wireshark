@@ -135,12 +135,13 @@ static int hf_nrppa_SCS_SpecificCarrier_PDU;      /* SCS_SpecificCarrier */
 static int hf_nrppa_RelativeTime1900_PDU;         /* RelativeTime1900 */
 static int hf_nrppa_SFNInitialisationTime_EUTRA_PDU;  /* SFNInitialisationTime_EUTRA */
 static int hf_nrppa_SlotNumber_PDU;               /* SlotNumber */
-static int hf_nrppa_SpatialRelationInfo_PDU;      /* SpatialRelationInfo */
-static int hf_nrppa_SpatialRelationPerSRSResource_PDU;  /* SpatialRelationPerSRSResource */
+static int hf_nrppa_nrppa_SpatialRelationInfo_PDU;  /* SpatialRelationInfo */
+static int hf_nrppa_nrppa_SpatialRelationPerSRSResource_PDU;  /* SpatialRelationPerSRSResource */
 static int hf_nrppa_nrppa_SRSConfiguration_PDU;   /* SRSConfiguration */
 static int hf_nrppa_SrsFrequency_PDU;             /* SrsFrequency */
 static int hf_nrppa_SRSPortIndex_PDU;             /* SRSPortIndex */
 static int hf_nrppa_SRSPosPeriodicConfigHyperSFNIndex_PDU;  /* SRSPosPeriodicConfigHyperSFNIndex */
+static int hf_nrppa_nrppa_SRSResourceSetID_PDU;   /* SRSResourceSetID */
 static int hf_nrppa_SRSResourcetype_PDU;          /* SRSResourcetype */
 static int hf_nrppa_SRSTransmissionStatus_PDU;    /* SRSTransmissionStatus */
 static int hf_nrppa_StartRBIndex_PDU;             /* StartRBIndex */
@@ -13607,19 +13608,19 @@ static int dissect_SlotNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_SpatialRelationInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+int dissect_nrppa_SpatialRelationInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
-  offset = dissect_nrppa_SpatialRelationInfo(tvb, offset, &asn1_ctx, tree, hf_nrppa_SpatialRelationInfo_PDU);
+  offset = dissect_nrppa_SpatialRelationInfo(tvb, offset, &asn1_ctx, tree, hf_nrppa_nrppa_SpatialRelationInfo_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_SpatialRelationPerSRSResource_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+int dissect_nrppa_SpatialRelationPerSRSResource_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
-  offset = dissect_nrppa_SpatialRelationPerSRSResource(tvb, offset, &asn1_ctx, tree, hf_nrppa_SpatialRelationPerSRSResource_PDU);
+  offset = dissect_nrppa_SpatialRelationPerSRSResource(tvb, offset, &asn1_ctx, tree, hf_nrppa_nrppa_SpatialRelationPerSRSResource_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -13652,6 +13653,14 @@ static int dissect_SRSPosPeriodicConfigHyperSFNIndex_PDU(tvbuff_t *tvb _U_, pack
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_nrppa_SRSPosPeriodicConfigHyperSFNIndex(tvb, offset, &asn1_ctx, tree, hf_nrppa_SRSPosPeriodicConfigHyperSFNIndex_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nrppa_SRSResourceSetID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_nrppa_SRSResourceSetID(tvb, offset, &asn1_ctx, tree, hf_nrppa_nrppa_SRSResourceSetID_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -14811,11 +14820,11 @@ void proto_register_nrppa(void) {
       { "SlotNumber", "nrppa.SlotNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_nrppa_SpatialRelationInfo_PDU,
+    { &hf_nrppa_nrppa_SpatialRelationInfo_PDU,
       { "SpatialRelationInfo", "nrppa.SpatialRelationInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nrppa_SpatialRelationPerSRSResource_PDU,
+    { &hf_nrppa_nrppa_SpatialRelationPerSRSResource_PDU,
       { "SpatialRelationPerSRSResource", "nrppa.SpatialRelationPerSRSResource_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -14834,6 +14843,10 @@ void proto_register_nrppa(void) {
     { &hf_nrppa_SRSPosPeriodicConfigHyperSFNIndex_PDU,
       { "SRSPosPeriodicConfigHyperSFNIndex", "nrppa.SRSPosPeriodicConfigHyperSFNIndex",
         FT_UINT32, BASE_DEC, VALS(nrppa_SRSPosPeriodicConfigHyperSFNIndex_vals), 0,
+        NULL, HFILL }},
+    { &hf_nrppa_nrppa_SRSResourceSetID_PDU,
+      { "SRSResourceSetID", "nrppa.SRSResourceSetID",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_nrppa_SRSResourcetype_PDU,
       { "SRSResourcetype", "nrppa.SRSResourcetype_element",
@@ -18414,8 +18427,8 @@ proto_reg_handoff_nrppa(void)
   dissector_add_uint("nrppa.ies", id_PositioningDataInformation, create_dissector_handle(dissect_PositioningDataInformation_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_PositioningDataUnavailable, create_dissector_handle(dissect_PositioningDataUnavailable_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_GeographicalCoordinates, create_dissector_handle(dissect_GeographicalCoordinates_PDU, proto_nrppa));
-  dissector_add_uint("nrppa.extension", id_SRSSpatialRelation, create_dissector_handle(dissect_SpatialRelationInfo_PDU, proto_nrppa));
-  dissector_add_uint("nrppa.extension", id_SRSSpatialRelationPerSRSResource, create_dissector_handle(dissect_SpatialRelationPerSRSResource_PDU, proto_nrppa));
+  dissector_add_uint("nrppa.extension", id_SRSSpatialRelation, create_dissector_handle(dissect_nrppa_SpatialRelationInfo_PDU, proto_nrppa));
+  dissector_add_uint("nrppa.extension", id_SRSSpatialRelationPerSRSResource, create_dissector_handle(dissect_nrppa_SpatialRelationPerSRSResource_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_PRS_Resource_ID, create_dissector_handle(dissect_PRS_Resource_ID_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_AoA_SearchWindow, create_dissector_handle(dissect_AoA_AssistanceInfo_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_MultipleULAoA, create_dissector_handle(dissect_MultipleULAoA_PDU, proto_nrppa));

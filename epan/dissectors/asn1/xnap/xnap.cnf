@@ -44,6 +44,7 @@ PrivateIE-Field/value privateIE_Field_value
 ExtTLA-Item/gTPTransportLayerAddresses gtptlas
 
 #.OMIT_ASSIGNMENT
+CSIResourceConfigurationID
 Presence
 ProtocolIE-FieldPair
 ProtocolIE-ContainerList
@@ -1055,6 +1056,293 @@ TimeSinceFailure DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
     dissect_nr_rrc_SuccessPSCell_Report_r18_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.TYPE_ATTR
+Altitude DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meters)
+
+#.FN_BODY Circle/referenceLocation VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_Circle_referenceLocation);
+    dissect_lpp_Ellipsoid_Point_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+Circle/distanceRadius DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_50m_fmt)
+
+#.FN_BODY CSIResourceConfiguration/cSIResourceConfigurationToAddModList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSIResourceConfigurationToAddModList);
+    dissect_nr_rrc_LTM_CSI_ResourceConfigToAddModList_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CSIResourceConfiguration/cSIResourceConfigurationToReleaseList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSIResourceConfigurationToReleaseList);
+    dissect_nr_rrc_LTM_CSI_ResourceConfigToReleaseList_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NZP-CSI-RS-ResourceConfiguration/cSI-RSResourceToAddModList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSResourceToAddModList);
+    dissect_nr_rrc_LTM_NZP_CSI_RS_ResourceToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NZP-CSI-RS-ResourceConfiguration/cSI-RSResourceToReleaseList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSResourceToReleaseList);
+    dissect_nr_rrc_LTM_NZP_CSI_RS_ResourceToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NZP-CSI-RS-ResourceSetConfiguration/cSI-RSResourceSetToAddModList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSResourceSetToAddModList);
+    dissect_nr_rrc_LTM_NZP_CSI_RS_ResourceSetToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NZP-CSI-RS-ResourceSetConfiguration/cSI-RSResourceSetToReleaseList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSResourceSetToReleaseList);
+    dissect_nr_rrc_LTM_NZP_CSI_RS_ResourceSetToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CSI-IM-ResourceConfiguration/cSI-IMResourceToAddModList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_IMResourceToAddModList);
+    dissect_nr_rrc_LTM_CSI_IM_ResourceToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CSI-IM-ResourceConfiguration/cSI-IMResourceToReleaseList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_IMResourceToReleaseList);
+    dissect_nr_rrc_LTM_CSI_IM_ResourceToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CSI-IM-ResourceConfiguration/cSI-IMResourceSetToAddModList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_IMResourceSetToAddModList);
+    dissect_nr_rrc_LTM_CSI_IM_ResourceSetToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CSI-IM-ResourceConfiguration/cSI-IMResourceSetToReleaseList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_IMResourceSetToReleaseList);
+    dissect_nr_rrc_LTM_CSI_IM_ResourceSetToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY EarlyULSyncConfig/rACHConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_rACHConfiguration);
+    dissect_nr_rrc_EarlyUL_SyncConfig_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+Future-Coverage-Modification-Item/timeForFutureCoverageState DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
+
+#.FN_BODY JointorDLTCIStateID VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_JointorDLTCIStateID);
+    dissect_nr_rrc_TCI_StateId_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTMHandoverInformationRequestAcknowledge/tCIStateConfigurationList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_tCIStateConfigurationList);
+    dissect_nr_rrc_LTM_TCI_Info_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTMHandoverInformationRequestAcknowledge/lTMCandidateConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_lTMCandidateConfiguration);
+    dissect_nr_rrc_RRCReconfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTMUpdatesToCandidateCellInformation-Item/ueBasedTAMeasurementConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ueBasedTAMeasurementConfiguration);
+    dissect_nr_rrc_LTM_UE_MeasuredTA_ID_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTMCFRAResourceInformation/lTMCFRAResourceConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_lTMCFRAResourceConfiguration);
+    dissect_nr_rrc_RACH_ConfigDedicated_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTMCFRAResourceInformation/lTMCFRAResourceConfigurationSUL VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_lTMCFRAResourceConfigurationSUL);
+    dissect_nr_rrc_RACH_ConfigDedicated_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTMUpdatesFromCandidateCellInformation-Item/lTMCandidateConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_lTMCandidateConfiguration);
+    dissect_nr_rrc_RRCReconfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTMUpdatesFromCandidateCellInformation-Item/cSI-RSReportConfigurationForEarlyCSIAcquisition VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition);
+    dissect_nr_rrc_LTM_CSI_ReportConfig_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTMPSCellInformation-UpdateReqAck/cSI-RSReportConfigurationForEarlyCSIAcquisition VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_cSI_RSReportConfigurationForEarlyCSIAcquisition);
+    dissect_nr_rrc_LTM_CSI_ReportConfig_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTM-PSCell-Prepared-Item/tCI-StatesConfigurationsList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_tCI_StatesConfigurationsList);
+    dissect_nr_rrc_LTM_TCI_Info_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MultipleCandidateSNChangeRequired-Item/sN-to-MN-Container VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_sN_to_MN_Container);
+    dissect_nr_rrc_CG_Config_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NZP-CSI-RS-Resources-Config/nZP-CSI-RS-ResourceSet VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_nZP_CSI_RS_ResourceSet);
+    dissect_nr_rrc_NZP_CSI_RS_ResourceSet_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NZP-CSI-RS-Resource-Item/nZP-CSI-RS-Resource VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_nZP_CSI_RS_Resource);
+    dissect_nr_rrc_NZP_CSI_RS_Resource_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY Polygon VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_Polygon);
+    dissect_lpp_Polygon_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+ReportingThreshold DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kbps)
+
+#.FN_BODY ReferenceConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ReferenceConfiguration);
+    dissect_nr_rrc_LTM_ReferenceConfiguration_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SBFD-Frequency-Configuration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_SBFD_Frequency_Configuration);
+    dissect_nr_rrc_SBFD_Subband_Allocation_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SRS-Resource-Configuration-List-Item/sRS-Resource VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_sRS_Resource);
+    dissect_nr_rrc_SRS_Resource_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SemipersistentPositioningInformation/sRSResourceSetID VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_sRSResourceSetID);
+    dissect_nrppa_SRSResourceSetID_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SemipersistentPositioningInformation/sRSSpatialRelation VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_sRSSpatialRelation);
+    dissect_nrppa_SpatialRelationInfo_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SemipersistentPositioningInformation/spatialRelationInforperSRSResource VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_spatialRelationInforperSRSResource);
+    dissect_nrppa_SpatialRelationPerSRSResource_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+TimeSCG-Failure DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(xnap_tenth_seconds_fmt)
+
+#.FN_BODY TagIDPointer VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_TagIDPointer);
+    dissect_nr_rrc_Tag_Id_ptr_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY ULTCIStateID VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ULTCIStateID);
+    dissect_nr_rrc_TCI_UL_StateId_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.END
 
 #.FN_HDR HandoverRequest
@@ -1181,6 +1469,8 @@ TimeSinceFailure DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "FailureIndication");
 #.FN_HDR HandoverReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverReport");
+#.FN_HDR SCGFailureIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCGFailureIndication");
 #.FN_HDR ResourceStatusRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusRequest");
 #.FN_HDR ResourceStatusResponse
@@ -1235,6 +1525,32 @@ TimeSinceFailure DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataCollectionFailure");
 #.FN_HDR DataCollectionUpdate
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataCollectionUpdate");
+#.FN_HDR ODSIB1ConfigurationProvisionRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ODSIB1ConfigurationProvisionRequest");
+#.FN_HDR ODSIB1ConfigurationProvisionResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ODSIB1ConfigurationProvisionResponse");
+#.FN_HDR ODSIB1ConfigurationProvisionFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ODSIB1ConfigurationProvisionFailure");
+#.FN_HDR ODSIB1ConfigurationProvisionStatusUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ODSIB1ConfigurationProvisionStatusUpdate");
+#.FN_HDR LTMConfigurationUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LTMConfigurationUpdate");
+#.FN_HDR LTMConfigurationUpdateAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LTMConfigurationUpdateAcknowledge");
+#.FN_HDR LTMConfigurationUpdateFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LTMConfigurationUpdateFailure");
+#.FN_HDR CSIRSCoordinationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CSIRSCoordinationRequest");
+#.FN_HDR CSIRSCoordinationResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CSIRSCoordinationResponse");
+#.FN_HDR CellSwitchNotification
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellSwitchNotification");
+#.FN_HDR TAInformationTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TAInformationTransfer");
+#.FN_HDR LTMCancel
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LTMCancel");
+#.FN_HDR CLI-Indication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CLI-Indication");
 
 #.ASSIGN_VALUE_TO_TYPE  # XnAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -1291,6 +1607,15 @@ id-partialUEContextTransfer                             ProcedureCode
 id-rachIndication                                       ProcedureCode
 id-dataCollectionReportingInitiation                    ProcedureCode
 id-dataCollectionReporting                              ProcedureCode
+id-ODSIB1ConfigurationProvision                         ProcedureCode
+id-ODSIB1ConfigurationProvisionStatusUpdate             ProcedureCode
+id-lTMConfigurationUpdate                               ProcedureCode
+id-cSIRSCoordination                                    ProcedureCode
+id-cellSwitchNotification                               ProcedureCode
+id-tAInformationTransfer                                ProcedureCode
+id-lTMCancel                                            ProcedureCode
+id-cLI-Indication                                       ProcedureCode
+id-scgFailureIndication                                 ProcedureCode
 
 # ProtocolIE-ID
 id-ActivatedServedCells                                             ProtocolIE-ID
@@ -1767,6 +2092,80 @@ id-BarringExemptionforEmerCallInfo                                  ProtocolIE-I
 id-Transmission-Bandwidth-asymmetric                                ProtocolIE-ID
 id-SRSPositioningConfigOrActivationRequest                          ProtocolIE-ID
 id-NRPPaPositioningInformation                                      ProtocolIE-ID
+id-AerialUEFlightInformationReportingControl                        ProtocolIE-ID
+id-PDCPSNGapTransfer-UL                                             ProtocolIE-ID
+id-RequestType                                                      ProtocolIE-ID
+id-NES-Cell-ID                                                      ProtocolIE-ID
+id-Cell-A-ID                                                        ProtocolIE-ID
+id-ProvisionStatus                                                  ProtocolIE-ID
+id-ECNMarkingorCongestionInformationReportingStatus                 ProtocolIE-ID
+id-AdditionalDRBSetupInfoList                                       ProtocolIE-ID
+id-PSIbasedSDUdiscardUL                                             ProtocolIE-ID
+id-PSIbasedSDUdiscardDL                                             ProtocolIE-ID
+id-DLPDUSetInformationMarkingSupportIndication                      ProtocolIE-ID
+id-PduSetDelayBudgetDownlink                                        ProtocolIE-ID
+id-PduSetDelayBudgetUplink                                          ProtocolIE-ID
+id-PduSetErrorRateDownlink                                          ProtocolIE-ID
+id-PduSetErrorRateUplink                                            ProtocolIE-ID
+id-MonitoringRequestonAvailableBitrate                              ProtocolIE-ID
+id-MMSID                                                            ProtocolIE-ID
+id-Indication-of-bitrate-adaptation                                 ProtocolIE-ID
+id-LTMHandoverInformationRequest                                    ProtocolIE-ID
+id-EarlySyncInformationRequest                                      ProtocolIE-ID
+id-LTMHandoverInformationRequestAcknowledge                         ProtocolIE-ID
+id-EarlySyncInformationResponse                                     ProtocolIE-ID
+id-LTMCellSwitchInformation                                         ProtocolIE-ID
+id-LTMUEAssociationInformation-List                                 ProtocolIE-ID
+id-CellSwitchTAInformation-List                                     ProtocolIE-ID
+id-TAInformation-List                                               ProtocolIE-ID
+id-LTMUpdatesToCandidateNodeInformation                             ProtocolIE-ID
+id-LTMUpdatesToCandidateCellInformation-List                        ProtocolIE-ID
+id-LTMUESecurityInformation                                         ProtocolIE-ID
+id-NGRAN-Node1-ID                                                   ProtocolIE-ID
+id-NGRAN-Node2-ID                                                   ProtocolIE-ID
+id-LTMUpdatesFromCandidateCellInformation-List                      ProtocolIE-ID
+id-LTMCandidateCellsToBeCancelled-List                              ProtocolIE-ID
+id-CSI-RSCoordinationRequest                                        ProtocolIE-ID
+id-CSI-RSCoordinationResponse                                       ProtocolIE-ID
+id-CLI-MeasurementResult-List                                       ProtocolIE-ID
+id-SBFD-Frequency-Configuration                                     ProtocolIE-ID
+id-NZP-CSI-RS-Resources-Config                                      ProtocolIE-ID
+id-SRS-Resource-Configuration                                       ProtocolIE-ID
+id-SRS-Resource-Indication                                          ProtocolIE-ID
+id-WAB-MT-ID                                                        ProtocolIE-ID
+id-LPWUSPSassistanceInformation                                     ProtocolIE-ID
+id-FurtherExtended-UEIdentityIndexValue                             ProtocolIE-ID
+id-Future-Coverage-Modification-List                                ProtocolIE-ID
+id-SliceToReportForDataCollection-List                              ProtocolIE-ID
+id-PredictedSliceAvailableCapacity                                  ProtocolIE-ID
+id-SliceMeasurementInitiationResult                                 ProtocolIE-ID
+id-SliceUEPerformance                                               ProtocolIE-ID
+id-NetworkSliceAreaScopeofMDT                                       ProtocolIE-ID
+id-GeographicalArea                                                 ProtocolIE-ID
+id-GeographyBasedMDT                                                ProtocolIE-ID
+id-TimeSCG-Failure                                                  ProtocolIE-ID
+id-FailureType                                                      ProtocolIE-ID
+id-FiveGProSeLayer3MHUEtoNetworkRelay                               ProtocolIE-ID
+id-FiveGProSeLayer2MHUEtoNetworkRelay                               ProtocolIE-ID
+id-FiveGProSeLayer2MHIntermediateUEtoNetworkRelay                   ProtocolIE-ID
+id-FiveGProSeLayer2MHRemote                                         ProtocolIE-ID
+id-LTMInformationSCG-AddReq                                         ProtocolIE-ID
+id-LTMInformationSCG-AddReqAck                                      ProtocolIE-ID
+id-LTMInformationSCG-ModReq                                         ProtocolIE-ID
+id-LTMInterSNExecutionNotification                                  ProtocolIE-ID
+id-LTMPSCellInformation-AddReq                                      ProtocolIE-ID
+id-LTMPSCellInformation-AddReqAck                                   ProtocolIE-ID
+id-LTMPSCellInformation-UpdateReq                                   ProtocolIE-ID
+id-LTMPSCellInformation-UpdateReqAck                                ProtocolIE-ID
+id-LTMPSCellInformation-UpdateRequired                              ProtocolIE-ID
+id-LTMPSCellInformation-UpdateConfirm                               ProtocolIE-ID
+id-LTMPSCellInformation-ChangeRequired                              ProtocolIE-ID
+id-LTMPSCellInformation-ChangeConfirm                               ProtocolIE-ID
+id-LTM-DC-DataForwarding-Indicator                                  ProtocolIE-ID
+id-SemipersistentPositioningInformation                             ProtocolIE-ID
+id-UEAveragePacketLossUL                                            ProtocolIE-ID
+id-LP-WUS-Disable-Indication                                        ProtocolIE-ID
+id-ContinuousMDT                                                    ProtocolIE-ID
 
 
 #.REGISTER
@@ -1839,7 +2238,7 @@ SCGConfigurationQuery                             N xnap.ies id-SCGConfiguration
 PLMN-Identity                                     N xnap.ies id-selectedPLMN
 ServedCellsToActivate                             N xnap.ies id-ServedCellsToActivate
 ServedCellsToUpdate-E-UTRA                        N xnap.ies id-servedCellsToUpdate-E-UTRA
-#id-ServedCellsToUpdateInitiatingNodeChoice
+#id-ServedCellsToUpdateInitiatingNodeChoice unused
 ServedCellsToUpdate-NR                            N xnap.ies id-servedCellsToUpdate-NR
 S-NG-RANnode-SecurityKey                          N xnap.ies id-s-ng-RANnode-SecurityKey
 UEAggregateMaximumBitRate                         N xnap.ies id-S-NG-RANnodeUE-AMBR
@@ -2086,6 +2485,53 @@ ReportingPeriodicityForDataCollection             N xnap.ies id-ReportingPeriodi
 NodeAssociatedInfoResult                          N xnap.ies id-NodeAssociatedInfoResult
 SLPositioning-Ranging-Services-Info               N xnap.ies id-SLPositioning-Ranging-Services-Info
 SRSPositioningConfigOrActivationRequest           N xnap.ies id-SRSPositioningConfigOrActivationRequest
+RequestTypeChoice                                 N xnap.ies id-RequestType
+NR-CGI                                            N xnap.ies id-NES-Cell-ID
+NR-CGI                                            N xnap.ies id-Cell-A-ID
+ProvisionStatus                                   N xnap.ies id-ProvisionStatus
+LTMHandoverInformationRequest                     N xnap.ies id-LTMHandoverInformationRequest
+EarlySyncInformationRequest                       N xnap.ies id-EarlySyncInformationRequest
+LTMHandoverInformationRequestAcknowledge          N xnap.ies id-LTMHandoverInformationRequestAcknowledge
+EarlySyncInformation                              N xnap.ies id-EarlySyncInformationResponse
+LTMCellSwitchInformation                          N xnap.ies id-LTMCellSwitchInformation
+LTMUEAssociationInformation-List                  N xnap.ies id-LTMUEAssociationInformation-List
+CellSwitchTAInformation-List                      N xnap.ies id-CellSwitchTAInformation-List
+TAInformation-List                                N xnap.ies id-TAInformation-List
+LTMUpdatesToCandidateNodeInformation              N xnap.ies id-LTMUpdatesToCandidateNodeInformation
+LTMUpdatesToCandidateCellInformation-List         N xnap.ies id-LTMUpdatesToCandidateCellInformation-List
+LTMUESecurityInformation                          N xnap.ies id-LTMUESecurityInformation
+NG-RANnodeUEXnAPID                                N xnap.ies id-NGRAN-Node1-ID
+NG-RANnodeUEXnAPID                                N xnap.ies id-NGRAN-Node2-ID
+LTMUpdatesFromCandidateCellInformation-List       N xnap.ies id-LTMUpdatesFromCandidateCellInformation-List
+LTMCandidateCellsToBeCancelled-List               N xnap.ies id-LTMCandidateCellsToBeCancelled-List
+CSI-RSCoordinationRequestList                     N xnap.ies id-CSI-RSCoordinationRequest
+CSI-RSCoordinationResultList                      N xnap.ies id-CSI-RSCoordinationResponse
+CLI-MeasurementResult-List                        N xnap.ies id-CLI-MeasurementResult-List
+SRS-Resource-Indication                           N xnap.ies id-SRS-Resource-Indication
+WAB-MT-ID                                         N xnap.ies id-WAB-MT-ID
+LPWUSPSassistanceInformation                      N xnap.ies id-LPWUSPSassistanceInformation
+FurtherExtended-UEIdentityIndexValue              N xnap.ies id-FurtherExtended-UEIdentityIndexValue
+Future-Coverage-Modification-List                 N xnap.ies id-Future-Coverage-Modification-List
+# id-GeographicalArea unused
+GeographyBasedMDT                                 N xnap.ies id-GeographyBasedMDT
+TimeSCG-Failure                                   N xnap.ies id-TimeSCG-Failure
+FailureType                                       N xnap.ies id-FailureType
+LTMInformationSCG-AddReq                          N xnap.ies id-LTMInformationSCG-AddReq
+LTMInformationSCG-AddReqAck                       N xnap.ies id-LTMInformationSCG-AddReqAck
+LTMInformationSCG-ModReq                          N xnap.ies id-LTMInformationSCG-ModReq
+LTMInterSNExecutionNotification                   N xnap.ies id-LTMInterSNExecutionNotification
+LTMPSCellInformation-AddReq                       N xnap.ies id-LTMPSCellInformation-AddReq
+LTMPSCellInformation-AddReqAck                    N xnap.ies id-LTMPSCellInformation-AddReqAck
+LTMPSCellInformation-UpdateReq                    N xnap.ies id-LTMPSCellInformation-UpdateReq
+LTMPSCellInformation-UpdateReqAck                 N xnap.ies id-LTMPSCellInformation-UpdateReqAck
+LTMPSCellInformation-UpdateRequired               N xnap.ies id-LTMPSCellInformation-UpdateRequired
+LTMPSCellInformation-UpdateConfirm                N xnap.ies id-LTMPSCellInformation-UpdateConfirm
+LTMPSCellInformation-ChangeRequired               N xnap.ies id-LTMPSCellInformation-ChangeRequired
+LTMPSCellInformation-ChangeConfirm                N xnap.ies id-LTMPSCellInformation-ChangeConfirm
+LTM-DC-DataForwarding-Indicator                   N xnap.ies id-LTM-DC-DataForwarding-Indicator
+SemipersistentPositioningInformation              N xnap.ies id-SemipersistentPositioningInformation
+LP-WUS-Disable-Indication                         N xnap.ies id-LP-WUS-Disable-Indication
+NG-RANTraceID                                     N xnap.ies id-ContinuousMDT
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                                 N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -2248,6 +2694,34 @@ MN-only-MDT-collection                                           N xnap.extensio
 BarringExemptionforEmerCallInfo                                  N xnap.extension id-BarringExemptionforEmerCallInfo
 Transmission-Bandwidth-asymmetric                                N xnap.extension id-Transmission-Bandwidth-asymmetric
 NRPPaPositioningInformation                                      N xnap.extension id-NRPPaPositioningInformation
+AerialUEFlightInformationReportingControl                        N xnap.extension id-AerialUEFlightInformationReportingControl
+PDCPSNGapTransfer-UL                                             N xnap.extension id-PDCPSNGapTransfer-UL
+ECNMarkingorCongestionInformationReportingStatus                 N xnap.extension id-ECNMarkingorCongestionInformationReportingStatus
+AdditionalDRBSetupInfoList                                       N xnap.extension id-AdditionalDRBSetupInfoList
+PSIbasedSDUdiscardUL                                             N xnap.extension id-PSIbasedSDUdiscardUL
+PSIbasedSDUdiscardDL                                             N xnap.extension id-PSIbasedSDUdiscardDL
+DLPDUSetInformationMarkingSupportIndication                      N xnap.extension id-DLPDUSetInformationMarkingSupportIndication
+ExtendedPacketDelayBudget                                        N xnap.extension id-PduSetDelayBudgetDownlink
+ExtendedPacketDelayBudget                                        N xnap.extension id-PduSetDelayBudgetUplink
+PacketErrorRate                                                  N xnap.extension id-PduSetErrorRateDownlink
+PacketErrorRate                                                  N xnap.extension id-PduSetErrorRateUplink
+MonitoringRequestonAvailableBitrate                              N xnap.extension id-MonitoringRequestonAvailableBitrate
+MMSID                                                            N xnap.extension id-MMSID
+Indication-of-bitrate-adaptation                                 N xnap.extension id-Indication-of-bitrate-adaptation
+SBFD-Frequency-Configuration                                     N xnap.extension id-SBFD-Frequency-Configuration
+NZP-CSI-RS-Resources-Config                                      N xnap.extension id-NZP-CSI-RS-Resources-Config
+SRS-Resource-Configuration                                       N xnap.extension id-SRS-Resource-Configuration
+SliceToReportForDataCollection-List                              N xnap.extension id-SliceToReportForDataCollection-List
+PredictedSliceAvailableCapacityGroup                             N xnap.extension id-PredictedSliceAvailableCapacity
+SliceMeasurementInitiationResult                                 N xnap.extension id-SliceMeasurementInitiationResult
+SliceUEPerformance                                               N xnap.extension id-SliceUEPerformance
+NetworkSliceAreaScopeofMDT                                       N xnap.extension id-NetworkSliceAreaScopeofMDT
+FiveGProSeLayer3MHUEtoNetworkRelay                               N xnap.extension id-FiveGProSeLayer3MHUEtoNetworkRelay
+FiveGProSeLayer2MHUEtoNetworkRelay                               N xnap.extension id-FiveGProSeLayer2MHUEtoNetworkRelay
+FiveGProSeLayer2MHIntermediateUEtoNetworkRelay                   N xnap.extension id-FiveGProSeLayer2MHIntermediateUEtoNetworkRelay
+FiveGProSeLayer2MHRemote                                         N xnap.extension id-FiveGProSeLayer2MHRemote
+SemipersistentPositioningInformation                             N xnap.extension id-SemipersistentPositioningInformation
+UEAveragePacketLossUL                                            N xnap.extension id-UEAveragePacketLossUL
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation
@@ -2347,6 +2821,8 @@ FailureIndication                          N xnap.proc.imsg id-failureIndication
 
 HandoverReport                             N xnap.proc.imsg id-handoverReport
 
+SCGFailureIndication                       N xnap.proc.imsg id-scgFailureIndication
+
 ResourceStatusRequest                      N xnap.proc.imsg id-resourceStatusReportingInitiation
 ResourceStatusResponse                     N xnap.proc.sout id-resourceStatusReportingInitiation
 ResourceStatusFailure                      N xnap.proc.uout id-resourceStatusReportingInitiation
@@ -2390,4 +2866,25 @@ DataCollectionResponse                     N xnap.proc.sout id-dataCollectionRep
 DataCollectionFailure                      N xnap.proc.uout id-dataCollectionReportingInitiation
 
 DataCollectionUpdate                       N xnap.proc.imsg id-dataCollectionReporting
+
+ODSIB1ConfigurationProvisionRequest        N xnap.proc.imsg id-ODSIB1ConfigurationProvision
+ODSIB1ConfigurationProvisionResponse       N xnap.proc.sout id-ODSIB1ConfigurationProvision
+ODSIB1ConfigurationProvisionFailure        N xnap.proc.uout id-ODSIB1ConfigurationProvision
+
+ODSIB1ConfigurationProvisionStatusUpdate   N xnap.proc.imsg id-ODSIB1ConfigurationProvisionStatusUpdate
+
+LTMConfigurationUpdate                     N xnap.proc.imsg id-lTMConfigurationUpdate
+LTMConfigurationUpdateAcknowledge          N xnap.proc.sout id-lTMConfigurationUpdate
+LTMConfigurationUpdateFailure              N xnap.proc.uout id-lTMConfigurationUpdate
+
+CSIRSCoordinationRequest                   N xnap.proc.imsg id-cSIRSCoordination
+CSIRSCoordinationResponse                  N xnap.proc.sout id-cSIRSCoordination
+
+CellSwitchNotification                     N xnap.proc.imsg id-cellSwitchNotification
+
+TAInformationTransfer                      N xnap.proc.imsg id-tAInformationTransfer
+
+LTMCancel                                  N xnap.proc.imsg id-lTMCancel
+
+CLI-Indication                             N xnap.proc.imsg id-cLI-Indication
 #.END

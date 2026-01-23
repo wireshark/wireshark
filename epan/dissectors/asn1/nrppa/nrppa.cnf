@@ -19,13 +19,19 @@ SRSResourceID-Item
 #.EXPORTS
 Assistance-Information_PDU
 AssistanceInformationFailureList_PDU
+SpatialRelationInfo_PDU
+SpatialRelationPerSRSResource_PDU
 SRSConfiguration_PDU
+SRSResourceSetID_PDU
 
 #.PDU
 Assistance-Information
 AssistanceInformationFailureList
 NRPPA-PDU
+SpatialRelationInfo
+SpatialRelationPerSRSResource
 SRSConfiguration
+SRSResourceSetID
 
 #.TYPE_RENAME
 InitiatingMessage/value InitiatingMessage_value

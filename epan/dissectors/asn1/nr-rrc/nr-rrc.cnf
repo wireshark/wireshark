@@ -76,15 +76,21 @@ HandoverPreparationInformation_PDU
 IntendedServiceAreaInfo-areaCoordinates-r19_PDU
 LocationMeasurementInfo_PDU
 LTM-CSI-IM-ResourceSetToAddModList-r19_PDU
+LTM-CSI-IM-ResourceSetToReleaseList-r19_PDU
 LTM-CSI-IM-ResourceToAddModList-r19_PDU
+LTM-CSI-IM-ResourceToReleaseList-r19_PDU
+LTM-CSI-ReportConfig-r18_PDU
 LTM-CSI-ReportConfigId-r18_PDU
 LTM-CSI-ResourceConfigToAddModList-r18_PDU
 LTM-CSI-ResourceConfigToReleaseList-r18_PDU
 LTM-NoSecurityChangeId-r19_PDU
 LTM-NZP-CSI-RS-ResourceSetToAddModList-r19_PDU
+LTM-NZP-CSI-RS-ResourceSetToReleaseList-r19_PDU
 LTM-NZP-CSI-RS-ResourceToAddModList-r19_PDU
 LTM-NZP-CSI-RS-ResourceToReleaseList-r19_PDU
+LTM-ReferenceConfiguration-r18_PDU
 LTM-TCI-Info-r18_PDU
+LTM-UE-MeasuredTA-ID-r18_PDU
 MBS-NeighbourCellList-r17_PDU
 MBSInterestIndication-r17_PDU
 MBSMulticastConfiguration-r18_PDU
@@ -169,6 +175,7 @@ SRS-PosRRC-InactiveValidityAreaConfig-r18_PDU
 SRS-Resource_PDU
 SuccessHO-Report-r17_PDU
 SuccessPSCell-Report-r18_PDU
+Tag-Id-ptr-r18_PDU
 TCI-StateId_PDU
 TCI-UL-StateId-r17_PDU
 TDD-UL-DL-ConfigCommon_PDU
@@ -209,15 +216,21 @@ HandoverPreparationInformation
 IntendedServiceAreaInfo-areaCoordinates-r19
 LocationMeasurementInfo
 LTM-CSI-IM-ResourceSetToAddModList-r19
+LTM-CSI-IM-ResourceSetToReleaseList-r19
 LTM-CSI-IM-ResourceToAddModList-r19
+LTM-CSI-IM-ResourceToReleaseList-r19
+LTM-CSI-ReportConfig-r18
 LTM-CSI-ReportConfigId-r18
 LTM-CSI-ResourceConfigToAddModList-r18
 LTM-CSI-ResourceConfigToReleaseList-r18
 LTM-NoSecurityChangeId-r19
 LTM-NZP-CSI-RS-ResourceSetToAddModList-r19
+LTM-NZP-CSI-RS-ResourceSetToReleaseList-r19
 LTM-NZP-CSI-RS-ResourceToAddModList-r19
 LTM-NZP-CSI-RS-ResourceToReleaseList-r19
+LTM-ReferenceConfiguration-r18
 LTM-TCI-Info-r18
+LTM-UE-MeasuredTA-ID-r18
 MBS-NeighbourCellList-r17
 MBSInterestIndication-r17
 MBSMulticastConfiguration-r18
@@ -313,6 +326,7 @@ SRS-PosRRC-InactiveValidityAreaConfig-r18
 SRS-Resource
 SuccessHO-Report-r17
 SuccessPSCell-Report-r18
+Tag-Id-ptr-r18
 TCI-StateId
 TCI-UL-StateId-r17
 TDD-UL-DL-ConfigCommon
@@ -621,7 +635,7 @@ SCellConfig/eag_3/sCellSIB20-r17/setup setup-SCellSIB20-r17
 ConditionalReconfiguration-r16/eag_1/scpac-ReferenceConfiguration-r18/setup setup-ReferenceConfiguration-r18
 PDSCH-ServingCellConfig/eag_2/pdsch-CodeBlockGroupTransmissionList-r16/setup setup-PDSCH-CodeBlockGroupTransmissionList-r16
 PDSCH-ServingCellConfig/eag_3/downlinkHARQ-FeedbackDisabled-r17/setup setup-DownlinkHARQ-FeedbackDisabled-r17
-LTM-Config-r18/ltm-ReferenceConfiguration-r18/setup setup-ReferenceConfiguration-r18
+LTM-ReferenceConfiguration-r18/setup setup-ReferenceConfiguration-r18
 PUSCH-ServingCellConfig/codeBlockGroupTransmission/setup setup-PUSCH-CodeBlockGroupTransmission
 PUSCH-ServingCellConfig/eag_2/maxMIMO-LayersDCI-0-2-r16/setup setup-MaxMIMO-LayersDCI-0-2-r16
 PUSCH-ServingCellConfig/eag_3/uplinkHARQ-mode-r17/setup setup-UplinkHARQ-mode-r17
