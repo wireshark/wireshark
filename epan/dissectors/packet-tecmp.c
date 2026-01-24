@@ -2486,7 +2486,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_frame_crc, sub_tvb, offset2, 3, ENC_BIG_ENDIAN);
                 } else if (tecmp_msg_type == TECMP_MSG_TYPE_REPLAY_DATA && tvb_captured_length_remaining(sub_tvb, offset2) >= 3) {
                     uint32_t cycle_rep = 0;
-                    proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_cycle_repetition, sub_tvb, offset2, 1, ENC_BIG_ENDIAN, &cycle_rep);
+                    ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_cycle_repetition, sub_tvb, offset2, 1, ENC_BIG_ENDIAN, &cycle_rep);
                     if (cycle_rep != 1 && cycle_rep != 2 && cycle_rep != 4 && cycle_rep != 8 && cycle_rep != 16 && cycle_rep != 32 && cycle_rep != 64) {
                         expert_add_info(pinfo, ti, &ei_tecmp_payload_invalid_cycle_repetition);
                     }
