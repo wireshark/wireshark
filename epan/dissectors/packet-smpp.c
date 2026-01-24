@@ -1525,20 +1525,17 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *offset
                 (*offset) += 1;
                 break;
             case  0x020A:       /* source_port  */
-                proto_tree_add_item(sub_tree, hf_smpp_source_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
-                source_port = tvb_get_ntohs(tvb, *offset);
+                proto_tree_add_item_ret_uint16(sub_tree, hf_smpp_source_port, tvb, *offset, 2, ENC_BIG_ENDIAN, &source_port);
                 source_port_found = true;
                 (*offset) += 2;
                 break;
             case  0x020B:       /* destination_port     */
-                proto_tree_add_item(sub_tree, hf_smpp_destination_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
-                dest_port = tvb_get_ntohs(tvb, *offset);
+                proto_tree_add_item_ret_uint16(sub_tree, hf_smpp_destination_port, tvb, *offset, 2, ENC_BIG_ENDIAN, &dest_port);
                 dest_port_found = true;
                 (*offset) += 2;
                 break;
             case  0x020C:       /* sar_msg_ref_num      */
-                proto_tree_add_item(sub_tree, hf_smpp_sar_msg_ref_num, tvb, *offset, 2, ENC_BIG_ENDIAN);
-                sm_id = tvb_get_ntohs(tvb, *offset);
+                proto_tree_add_item_ret_uint16(sub_tree, hf_smpp_sar_msg_ref_num, tvb, *offset, 2, ENC_BIG_ENDIAN, &sm_id);
                 sm_id_found = true;
                 (*offset) += 2;
                 break;

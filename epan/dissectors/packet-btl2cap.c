@@ -1679,8 +1679,7 @@ dissect_inforequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 {
     uint16_t info_type;
 
-    info_type = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_info_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_info_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, &info_type);
     offset   += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str_const(info_type, info_type_vals, "Unknown type"));
@@ -1692,12 +1691,10 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 {
     uint16_t    info_type, result;
 
-    info_type = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_info_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_info_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, &info_type);
     offset   += 2;
 
-    result    = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btl2cap_info_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_btl2cap_info_result, tvb, offset, 2, ENC_LITTLE_ENDIAN, &result);
     offset   += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s, %s)",
@@ -2037,12 +2034,10 @@ dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     item = proto_tree_add_item(tree, hf_btl2cap_min_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset) * 1.25);
     offset += 2;
-    item = proto_tree_add_item(tree, hf_btl2cap_max_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset) * 1.25);
-    max_interval = tvb_get_letohs(tvb, offset);
+    item = proto_tree_add_item_ret_uint16(tree, hf_btl2cap_max_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &max_interval);
+    proto_item_append_text(item, " (%g msec)",  max_interval * 1.25);
     offset += 2;
-    item = proto_tree_add_item(tree, hf_btl2cap_peripheral_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    peripheral_latency = tvb_get_letohs(tvb, offset);
+    item = proto_tree_add_item_ret_uint16(tree, hf_btl2cap_peripheral_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN, &peripheral_latency);
 
     if(peripheral_latency >= 500 || max_interval == 0 ||
        peripheral_latency > 10.0 * tvb_get_letohs(tvb, offset + 2) / (max_interval *1.25))
@@ -2917,16 +2912,13 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     "Command: ");
             btl2cap_cmd_tree = proto_item_add_subtree(ti_command, ett_btl2cap_cmd);
 
-            cmd_code = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_code,   tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint8(btl2cap_cmd_tree, hf_btl2cap_cmd_code,   tvb, offset, 1, ENC_LITTLE_ENDIAN, &cmd_code);
             offset += 1;
 
-            cmd_ident = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_ident,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint8(btl2cap_cmd_tree, hf_btl2cap_cmd_ident,  tvb, offset, 1, ENC_LITTLE_ENDIAN, &cmd_ident);
             offset += 1;
 
-            cmd_length = tvb_get_letohs(tvb, offset);
-            proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint16(btl2cap_cmd_tree, hf_btl2cap_cmd_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cmd_length);
             proto_item_set_len(ti_command, cmd_length + 4);
             offset += 2;
 

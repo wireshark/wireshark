@@ -1067,15 +1067,13 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
     if (length < 1)
         return -1;
     address_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_cdp_address, &ti, "Truncated address");
-    protocol_type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(address_tree, hf_cdp_protocol_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(address_tree, hf_cdp_protocol_type, tvb, offset, 1, ENC_BIG_ENDIAN, &protocol_type);
     offset += 1;
     length -= 1;
 
     if (length < 1)
         return -1;
-    protocol_length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(address_tree, hf_cdp_protocol_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(address_tree, hf_cdp_protocol_length, tvb, offset, 1, ENC_BIG_ENDIAN, &protocol_length);
     offset += 1;
     length -= 1;
 
@@ -1104,8 +1102,7 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
 
     if (length < 2)
         return -1;
-    address_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(address_tree, hf_cdp_address_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(address_tree, hf_cdp_address_length, tvb, offset, 2, ENC_BIG_ENDIAN, &address_length);
     offset += 2;
     length -= 2;
 

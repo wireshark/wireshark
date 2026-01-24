@@ -6331,8 +6331,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_regulatory_certification_data_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        count = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint16(tree, hf_btatt_regulatory_certification_data_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &count);
         list_length += 2;
         offset += 2;
 
@@ -6381,14 +6380,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
                 }
 
                 if (item_length > 2) {
-                    proto_tree_add_item(authorizing_body_data_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    certification_data_list_count = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item_ret_uint16(authorizing_body_data_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_count,
+                                                   tvb, offset, 2, ENC_LITTLE_ENDIAN, &certification_data_list_count);
                     offset += 2;
                 }
 
                 if (item_length > 4) {
-                    proto_tree_add_item(authorizing_body_data_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    certification_data_list_length = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item_ret_uint16(authorizing_body_data_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_length,
+                                                   tvb, offset, 2, ENC_LITTLE_ENDIAN, &certification_data_list_length);
                     offset += 2;
                 }
 
@@ -11789,12 +11788,10 @@ dissect_btgatt_nordic_dfu_control_point(tvbuff_t *tvb, packet_info *pinfo, proto
 
         break;
     case 0x10: /* Response Code */
-        proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_request_opcode, tvb, offset, 1, ENC_NA);
-        request_opcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(tree, hf_gatt_nordic_dfu_control_point_request_opcode, tvb, offset, 1, ENC_NA, &request_opcode);
         offset += 1;
 
-        proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_response_value, tvb, offset, 1, ENC_NA);
-        status = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(tree, hf_gatt_nordic_dfu_control_point_response_value, tvb, offset, 1, ENC_NA, &status);
         offset += 1;
 
         if (request_opcode == 0x07 && status == 0x01) { /* Report Received Image Size && Success */

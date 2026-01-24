@@ -3782,8 +3782,7 @@ dissect_btle_acl(tvbuff_t *tvb,
         }
         break;
     case 0x03: /* Control PDU */
-        control_proc_item = proto_tree_add_item(btle_tree, hf_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        control_opcode = tvb_get_uint8(tvb, offset);
+        control_proc_item = proto_tree_add_item_ret_uint8(btle_tree, hf_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN, &control_opcode);
         offset += 1;
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Control Opcode: %s",
@@ -5417,8 +5416,7 @@ dissect_btle_broadcast_iso(tvbuff_t *tvb,
         break;
 
     case 0x03: /* BIG Control PDU */
-        proto_tree_add_item(btle_tree, hf_big_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        control_opcode = tvb_get_uint8(tvb, offset);
+		proto_tree_add_item_ret_uint8(btle_tree, hf_big_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN, &control_opcode);
         offset += 1;
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "BIG Control Opcode: %s",

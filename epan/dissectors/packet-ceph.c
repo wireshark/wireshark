@@ -2304,13 +2304,11 @@ unsigned c_dissect_eversion(proto_tree *root, int hf,
 	tree = proto_item_add_subtree(ti, ett_eversion);
 
 	/*** version_t ***/
-	ver = tvb_get_letoh64(tvb, off);
-	proto_tree_add_item(tree, hf_version, tvb, off, 8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint64(tree, hf_version, tvb, off, 8, ENC_LITTLE_ENDIAN, &ver);
 	off += 8;
 
 	/*** epoch_t ***/
-	epoch = tvb_get_letohl(tvb, off);
-	proto_tree_add_item(tree, hf_epoch, tvb, off, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_epoch, tvb, off, 4, ENC_LITTLE_ENDIAN, &epoch);
 	off += 4;
 
 	proto_item_append_text(ti,
@@ -2474,14 +2472,12 @@ unsigned c_dissect_path(proto_tree *root, int hf,
 	ti   = proto_tree_add_item(root, hf, tvb, off, -1, ENC_NA);
 	tree = proto_item_add_subtree(ti, ett_filepath);
 
-	v = tvb_get_uint8(tvb, off);
-	ti2 = proto_tree_add_item(tree, hf_path_ver, tvb, off, 1, ENC_LITTLE_ENDIAN);
+	ti2 = proto_tree_add_item_ret_uint(tree, hf_path_ver, tvb, off, 1, ENC_LITTLE_ENDIAN, &v);
 	/* XXX - should we quit if this doesn't return 0? */
 	c_warn_ver(ti2, v, 1, 1, data);
 	off += 1;
 
-	inode = tvb_get_letoh64(tvb, off);
-	proto_tree_add_item(tree, hf_path_inode, tvb, off, 8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint64(tree, hf_path_inode, tvb, off, 8, ENC_LITTLE_ENDIAN, &inode);
 	off += 8;
 
 	off = c_dissect_str(tree, hf_path_rel, &rel, tvb, data->pinfo, off);
@@ -2509,9 +2505,8 @@ unsigned c_dissect_mds_release(proto_tree *root, int hf,
 	ti   = proto_tree_add_item(root, hf, tvb, off, -1, ENC_NA);
 	tree = proto_item_add_subtree(ti, ett_mds_release);
 
-	inode = tvb_get_letoh64(tvb, off);
-	proto_tree_add_item(tree, hf_mds_release_inode,
-			    tvb, off, 8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint64(tree, hf_mds_release_inode,
+				tvb, off, 8, ENC_LITTLE_ENDIAN, &inode);
 	off += 8;
 
 	proto_tree_add_item(tree, hf_mds_release_capid,
@@ -3064,14 +3059,12 @@ unsigned c_dissect_osd_superblock(proto_tree *root,
 			    tvb, off, 16, ENC_BIG_ENDIAN);
 	off += 16;
 
-	role = tvb_get_letohl(tvb, off);
-	proto_tree_add_item(tree, hf_osd_superblock_role,
-			    tvb, off, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_osd_superblock_role,
+				tvb, off, 4, ENC_LITTLE_ENDIAN, &role);
 	off += 4;
 
-	epoch = tvb_get_letohl(tvb, off);
-	proto_tree_add_item(tree, hf_osd_superblock_epoch,
-			    tvb, off, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_osd_superblock_epoch,
+				tvb, off, 4, ENC_LITTLE_ENDIAN, &epoch);
 	off += 4;
 
 	proto_tree_add_item(tree, hf_osd_superblock_map_old,
@@ -5013,9 +5006,8 @@ unsigned c_dissect_msg_osd_map(proto_tree *root,
 				    tvb, off, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti2, ett_msg_osd_map_inc);
 
-		epoch = tvb_get_letohl(tvb, off);
-		proto_tree_add_item(subtree, hf_msg_osd_map_epoch,
-				    tvb, off, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(subtree, hf_msg_osd_map_epoch,
+					tvb, off, 4, ENC_LITTLE_ENDIAN, &epoch);
 		off += 4;
 
 		off = c_dissect_osdmap_inc(subtree, tvb, off, data);
@@ -5036,9 +5028,8 @@ unsigned c_dissect_msg_osd_map(proto_tree *root,
 					  tvb, off, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti2, ett_msg_osd_map_full);
 
-		epoch = tvb_get_letohl(tvb, off);
-		proto_tree_add_item(subtree, hf_msg_osd_map_epoch,
-				    tvb, off, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(subtree, hf_msg_osd_map_epoch,
+					tvb, off, 4, ENC_LITTLE_ENDIAN, &epoch);
 		off += 4;
 
 		off = c_dissect_osdmap(subtree, tvb, off, data);
@@ -6073,14 +6064,12 @@ unsigned c_dissect_msg_client_caps(proto_tree *root,
 			    tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
 
-	inode = tvb_get_letoh64(tvb, off);
-	proto_tree_add_item(tree, hf_msg_client_caps_inode,
-			    tvb, off, 8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint64(tree, hf_msg_client_caps_inode,
+				tvb, off, 8, ENC_LITTLE_ENDIAN, &inode);
 	off += 8;
 
-	relam = tvb_get_letoh64(tvb, off);
-	proto_tree_add_item(tree, hf_msg_client_caps_relam,
-			    tvb, off, 8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint64(tree, hf_msg_client_caps_relam,
+				tvb, off, 8, ENC_LITTLE_ENDIAN, &relam);
 	off += 8;
 
 	proto_tree_add_item(tree, hf_msg_client_caps_cap_id,
@@ -7842,7 +7831,7 @@ proto_register_ceph(void)
 		} },
 		{ &hf_osd_superblock_role, {
 			"Role", "ceph.osd_superblock.role",
-			FT_INT32, BASE_DEC, NULL, 0,
+			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL
 		} },
 		{ &hf_osd_superblock_epoch, {

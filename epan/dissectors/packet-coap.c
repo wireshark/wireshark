@@ -1395,16 +1395,14 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	if (parent_protocol == PARENT_OTHER) {
 		proto_tree_add_item(coap_tree, hf_coap_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(coap_tree, hf_coap_ttype, tvb, offset, 1, ENC_BIG_ENDIAN);
-		ttype = (tvb_get_uint8(tvb, offset) & COAP_TYPE_MASK) >> 4;
+		proto_tree_add_item_ret_uint8(coap_tree, hf_coap_ttype, tvb, offset, 1, ENC_BIG_ENDIAN, &ttype);
 
 		proto_tree_add_item_ret_uint(coap_tree, hf_coap_token_len, tvb, offset, 1, ENC_BIG_ENDIAN, &token_len);
 		offset += 1;
 
 		code = dissect_coap_code(tvb, coap_tree, &offset, &dissect_coap_hf, &code_class);
 
-		proto_tree_add_item(coap_tree, hf_coap_mid, tvb, offset, 2, ENC_BIG_ENDIAN);
-		mid = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item_ret_uint(coap_tree, hf_coap_mid, tvb, offset, 2, ENC_BIG_ENDIAN, &mid);
 		offset += 2;
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,

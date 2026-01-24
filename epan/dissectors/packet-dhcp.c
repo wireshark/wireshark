@@ -3740,8 +3740,7 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 			{
 			case 9:
 				while (suboptoff < subopt_end) {
-					enterprise = tvb_get_ntohl(tvb, suboptoff);
-					vti = proto_tree_add_item(o82_v_tree, hf_dhcp_option82_vi_enterprise, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
+					vti = proto_tree_add_item_ret_uint(o82_v_tree, hf_dhcp_option82_vi_enterprise, tvb, suboptoff, 4, ENC_BIG_ENDIAN, &enterprise);
 					suboptoff += 4;
 
 					o82_sub_tree = proto_item_add_subtree(vti, ett_dhcp_option82_suboption9);

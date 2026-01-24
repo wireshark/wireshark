@@ -1486,10 +1486,8 @@ dissect_mode_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pin
    proto_tree *mode_tree;
    uint8_t     mode_byte;
 
-   mode_byte = tvb_get_uint8(tvb, offset);
-
    /* dissect Mode Byte bits */
-   mode_item = proto_tree_add_item(tree, hf_cipsafety_mode_byte, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+   mode_item = proto_tree_add_item_ret_uint8(tree, hf_cipsafety_mode_byte, tvb, offset, 1, ENC_LITTLE_ENDIAN, &mode_byte);
    mode_tree = proto_item_add_subtree( mode_item, ett_cipsafety_mode_byte);
 
    proto_tree_add_item(mode_tree, hf_cipsafety_mode_byte_ping_count,               tvb, offset, 1, ENC_LITTLE_ENDIAN);

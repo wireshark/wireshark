@@ -483,16 +483,13 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
   proto_tree_add_item (pft_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII);
 
   offset += 2;
-  seq = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (pft_tree, hf_edcp_pseq, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16 (pft_tree, hf_edcp_pseq, tvb, offset, 2, ENC_BIG_ENDIAN, &seq);
 
   offset += 2;
-  findex = tvb_get_ntoh24 (tvb, offset);
-  proto_tree_add_item (pft_tree, hf_edcp_findex, tvb, offset, 3, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (pft_tree, hf_edcp_findex, tvb, offset, 3, ENC_BIG_ENDIAN, &findex);
 
   offset += 3;
-  fcount = tvb_get_ntoh24 (tvb, offset);
-  proto_tree_add_item (pft_tree, hf_edcp_fcount, tvb, offset, 3, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (pft_tree, hf_edcp_fcount, tvb, offset, 3, ENC_BIG_ENDIAN, &fcount);
 
   offset += 3;
   plen = tvb_get_ntohs (tvb, offset);

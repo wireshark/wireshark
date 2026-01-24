@@ -2305,8 +2305,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, ui
              */
             curr_offset = curr_offset + de_gmm_rai(tvb, tree, pinfo, curr_offset , 6, add_string, string_len);
             /* Octet 10 - 11 RNC-ID (or Extended RNC-ID) */
-            rnc_id = tvb_get_ntohs(tvb, curr_offset);
-            proto_tree_add_item(tree, hf_bssgp_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint16(tree, hf_bssgp_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &rnc_id);
 
             if (add_string) {
                 char *str = ws_strdup_printf(" %s, RNC-ID %u", add_string, rnc_id);
@@ -2472,8 +2471,7 @@ de_bssgp_mbms_ra_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint3
     curr_offset = offset;
 
     /* octet 3 Number of Routing Area Identifications Spare Spare Spare Spare */
-    num_ra_ids = tvb_get_uint8(tvb,curr_offset) >> 4;
-    proto_tree_add_item(tree, hf_bssgp_mbms_num_ra_ids, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_bssgp_mbms_num_ra_ids, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_ra_ids);
 
     /* octet 4 - 11 Routing Area Identification 1 (etc)*/
     for (i = 0; i < num_ra_ids; i++) {
@@ -2761,8 +2759,7 @@ de_bssgp_rnc_identifier(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uin
      */
     curr_offset = curr_offset + de_gmm_rai(tvb, tree, pinfo, curr_offset, 6, add_string, string_len);
     /* Octet 9 - 10 RNC ID (or Extended RNC-ID or Corresponding RNC-ID) */
-    rnc_id = tvb_get_ntohs(tvb, curr_offset);
-    proto_tree_add_item(tree, hf_bssgp_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_bssgp_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &rnc_id);
     curr_offset+=2;
 
     if (add_string) {

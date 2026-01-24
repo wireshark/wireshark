@@ -1673,8 +1673,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
         suboptoff += subopt_len;
         break;
     case PKT_CCCV6_IETF_PROV_SRV:
-        proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_type, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-        type = tvb_get_uint8(tvb, suboptoff);
+        proto_tree_add_item_ret_uint8(pkt_s_tree, hf_packetcable_cccV6_prov_srv_type, tvb, suboptoff, 1, ENC_BIG_ENDIAN, &type);
 
         /** Type 0 is FQDN **/
         if (type == 0) {
@@ -2296,8 +2295,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
 
-        proto_tree_add_item(subtree, hf_option_s46_dmr_pref_len, tvb, off, 1, ENC_BIG_ENDIAN);
-        dmr_pref_len = tvb_get_uint8(tvb, off);
+        proto_tree_add_item_ret_uint8(subtree, hf_option_s46_dmr_pref_len, tvb, off, 1, ENC_BIG_ENDIAN, &dmr_pref_len);
 
         if (dmr_pref_len > 128) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_DMR: malformed option");
@@ -2357,8 +2355,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
 
-        proto_tree_add_item(subtree, hf_option_s46_portparam_psid_len, tvb, off + 1, 1, ENC_BIG_ENDIAN);
-        psid_len = tvb_get_uint8(tvb, off + 1);
+        proto_tree_add_item_ret_uint8(subtree, hf_option_s46_portparam_psid_len, tvb, off + 1, 1, ENC_BIG_ENDIAN, &psid_len);
 
         if (psid_len > 16) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_PORTPARAMS: malformed option");
@@ -3347,8 +3344,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         //
         // This is a very active discussion area in the IETF, so more parameters are expected in the future.
 
-        int adn_len = 0;
-        int addrs_len = 0;
+        uint16_t adn_len = 0;
+        uint16_t addrs_len = 0;
         // off is an offset from the beginning of a DHCPv6 packet. It is NOT zero when we start.
         int offset = 0; // offset within the DNR option. This starts at zero.
         tvbuff_t *next_tvb;
@@ -3366,8 +3363,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         offset += 2;
 
         // Parsing authentication-domain-name (len + FQDN field)
-        proto_tree_add_item(subtree, hf_dnr_auth_domain_name_len, tvb, off+offset, 2, ENC_BIG_ENDIAN);
-        adn_len = tvb_get_ntohs(tvb, off+offset);
+        proto_tree_add_item_ret_uint16(subtree, hf_dnr_auth_domain_name_len, tvb, off+offset, 2, ENC_BIG_ENDIAN, &adn_len);
         offset += 2;
         if (optlen < offset + adn_len) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
@@ -3390,8 +3386,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                 "DNR v6 error: truncated option (Addr Length truncated)");
             break;
         }
-        addrs_len = tvb_get_ntohs(tvb, off+offset);
-        proto_tree_add_item(subtree, hf_dnr_addrs_len, tvb, off+offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint16(subtree, hf_dnr_addrs_len, tvb, off+offset, 2, ENC_BIG_ENDIAN, &addrs_len);
         offset += 2;
 
         if (addrs_len % 16) {

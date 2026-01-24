@@ -4267,15 +4267,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(rr_tree, hf_dns_tkey_signature_expiration, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
 
-      proto_tree_add_item(rr_tree, hf_dns_tkey_mode, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      tkey_mode = tvb_get_ntohs(tvb, cur_offset);
+      proto_tree_add_item_ret_uint16(rr_tree, hf_dns_tkey_mode, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &tkey_mode);
       cur_offset += 2;
 
       proto_tree_add_item(rr_tree, hf_dns_tkey_error, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
 
-      proto_tree_add_item(rr_tree, hf_dns_tkey_key_size, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      tkey_keylen = tvb_get_ntohs(tvb, cur_offset);
+      proto_tree_add_item_ret_uint16(rr_tree, hf_dns_tkey_key_size, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &tkey_keylen);
       cur_offset += 2;
 
       if (tkey_keylen != 0) {

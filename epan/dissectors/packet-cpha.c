@@ -338,12 +338,10 @@ static int dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
   proto_tree *  ntree = NULL;
   uint16_t      report_code, id_num;
 
-  proto_tree_add_item(tree, hf_id_num, tvb, offset, 2, ENC_BIG_ENDIAN);
-  id_num = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_item_ret_uint16(tree, hf_id_num, tvb, offset, 2, ENC_BIG_ENDIAN, &id_num);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_report_code, tvb, offset, 2, ENC_BIG_ENDIAN);
-  report_code = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_item_ret_uint16(tree, hf_report_code, tvb, offset, 2, ENC_BIG_ENDIAN, &report_code);
   offset += 2;
 
   proto_tree_add_item(tree, hf_ha_mode, tvb, offset, 2, ENC_BIG_ENDIAN);

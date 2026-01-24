@@ -353,8 +353,7 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             }
             offset += 1;
 
-            expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_output_oob_size, tvb, offset, 1, ENC_NA);
-            output_oob_size = tvb_get_uint8(tvb, offset);
+            expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_output_oob_size, tvb, offset, 1, ENC_NA, &output_oob_size);
             if (output_oob_size >= 9) {
                 expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_output_oob_size);
                 proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
@@ -375,8 +374,7 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             }
             offset += 2;
 
-            expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_input_oob_size, tvb, offset, 1, ENC_NA);
-            input_oob_size = tvb_get_uint8(tvb, offset);
+            expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_input_oob_size, tvb, offset, 1, ENC_NA, &input_oob_size);
             if (input_oob_size >= 9) {
                 expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_input_oob_size);
                 proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
@@ -398,24 +396,21 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
         break;
         case PROVISIONING_START_PDU:
-            expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_algorithm, tvb, offset, 1, ENC_NA);
-            provisioning_algorithm = tvb_get_uint8(tvb, offset);
+            expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_algorithm, tvb, offset, 1, ENC_NA, &provisioning_algorithm);
             if (provisioning_algorithm >= 1) {
                 expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_algorithm);
                 proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
             }
             offset += 1;
 
-            expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_public_key, tvb, offset, 1, ENC_NA);
-            provisioning_public_key = tvb_get_uint8(tvb, offset);
+            expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_public_key, tvb, offset, 1, ENC_NA, &provisioning_public_key);
             if (provisioning_public_key >= 2) {
                 expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_public_key);
                 proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
             }
             offset += 1;
 
-            expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_authentication_method, tvb, offset, 1, ENC_NA);
-            authentication_method = tvb_get_uint8(tvb, offset);
+            expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_authentication_method, tvb, offset, 1, ENC_NA, &authentication_method);
             offset += 1;
 
             switch(authentication_method){
@@ -543,8 +538,7 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
              //No parameters for this PDU
         break;
         case PROVISIONING_FAILED_PDU:
-            expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_error_code, tvb, offset, 1, ENC_NA);
-            error_code = tvb_get_uint8(tvb, offset);
+            expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_error_code, tvb, offset, 1, ENC_NA, &error_code);
             if (error_code >= 9) {
                 expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_error_code);
                 proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);

@@ -367,13 +367,11 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         secondary_header_tree = proto_tree_add_subtree(ccsds_tree, tvb, offset, CCSDS_SECONDARY_HEADER_LENGTH,
                         ett_ccsds_secondary_header, &secondary_header, "Secondary CCSDS Header");
 
-                    /* command ccsds secondary header flags */
-            coarse_time = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(secondary_header_tree, hf_ccsds_coarse_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+        /* command ccsds secondary header flags */
+        proto_tree_add_item_ret_uint(secondary_header_tree, hf_ccsds_coarse_time, tvb, offset, 4, ENC_BIG_ENDIAN, &coarse_time);
         offset += 4;
 
-        fine_time = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(secondary_header_tree, hf_ccsds_fine_time, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(secondary_header_tree, hf_ccsds_fine_time, tvb, offset, 1, ENC_BIG_ENDIAN, &fine_time);
         ++offset;
 
         time_string = embedded_time_to_string ( pinfo->pool, coarse_time, fine_time );

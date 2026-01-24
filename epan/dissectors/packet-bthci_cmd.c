@@ -4126,8 +4126,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             break;
 
         case 0x0005: /* Set Event Filter */
-            proto_tree_add_item(tree, hf_bthci_cmd_filter_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            filter_type = tvb_get_uint8(tvb, 3);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_filter_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &filter_type);
             offset++;
             switch (filter_type) {
 
@@ -5864,8 +5863,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=2;
             proto_tree_add_item(tree, hf_bthci_cmd_max_transport_latency_p_to_c, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
-            proto_tree_add_item(tree, hf_bthci_cmd_cis_count, tvb, offset, 1, ENC_NA);
-            cis_count = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_cis_count, tvb, offset, 1, ENC_NA, &cis_count);
             offset++;
 
             for (int i = 0; i < cis_count; i++) {
@@ -5912,8 +5910,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_framing, tvb, offset, 1, ENC_NA);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_cmd_cis_count, tvb, offset, 1, ENC_NA);
-            cis_count = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_cis_count, tvb, offset, 1, ENC_NA, &cis_count);
             offset++;
 
             for (int i = 0; i < cis_count; i++) {
@@ -5951,8 +5948,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             {
             uint8_t cis_count;
             uint32_t k_shandle, chandle;
-            proto_tree_add_item(tree, hf_bthci_cmd_cis_count, tvb, offset, 1, ENC_NA);
-            cis_count = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_cis_count, tvb, offset, 1, ENC_NA, &cis_count);
             offset++;
             for (int i = 0; i < cis_count; i++) {
                 sub_item = proto_tree_add_none_format(tree, hf_bthci_cmd_cis_params, tvb, offset, 4, "CIS Handle: 0x%03x, Connection Handle: 0x%03x",
@@ -6093,8 +6089,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_sync_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
-            proto_tree_add_item(tree, hf_bthci_cmd_num_bis, tvb, offset, 1, ENC_NA);
-            num_bis = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_num_bis, tvb, offset, 1, ENC_NA, &num_bis);
             offset++;
             for (int i = 0; i < num_bis; i++) {
                 proto_tree_add_item(tree, hf_bthci_cmd_bis_index, tvb, offset, 1, ENC_NA);
@@ -6127,8 +6122,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset = dissect_coding_format(tree, hf_bthci_cmd_coding_format, tvb, offset, ett_coding_format);
             proto_tree_add_item(tree, hf_bthci_cmd_controller_delay, tvb, offset, 3, ENC_LITTLE_ENDIAN);
             offset+=3;
-            codec_length = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_bthci_cmd_codec_config_length, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_codec_config_length, tvb, offset, 1, ENC_NA, &codec_length);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_codec_config, tvb, offset, codec_length, ENC_NA);
             offset += codec_length;
@@ -6228,8 +6222,8 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_adv_decision_flags, ett_adv_properties, hfx_bthci_cmd_adv_decision_flags, ENC_NA);
             offset += 1;
-            uint8_t data_length = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_bthci_cmd_le_data_length, tvb, offset, 1, ENC_NA);
+            uint8_t data_length;
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_le_data_length, tvb, offset, 1, ENC_NA, &data_length);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_adv_decision_data, tvb, offset, data_length, ENC_NA);
             offset+=data_length;
@@ -6238,14 +6232,12 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x0081: /* LE Set Decision Instructions */
             {
             uint8_t num_tests, test_field;
-            proto_tree_add_item(tree, hf_bthci_cmd_num_tests, tvb, offset, 1, ENC_NA);
-            num_tests = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_num_tests, tvb, offset, 1, ENC_NA, &num_tests);
             offset++;
             for (int i = 0; i < num_tests; i++) {
                 proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_adv_test_flags, ett_adv_test_flags, hfx_bthci_cmd_adv_test_flags, ENC_NA);
                 offset += 1;
-                test_field = tvb_get_uint8(tvb, offset);
-                item = proto_tree_add_item(tree, hf_bthci_cmd_adv_test_field, tvb, offset, 1, ENC_NA);
+                item = proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_adv_test_field, tvb, offset, 1, ENC_NA, &test_field);
                 if (test_field > 16) {
                     if (test_field <= 24)
                         proto_item_append_text(item, " (Arbitrary Data, exactly %u octets)", test_field - 16);
@@ -6556,13 +6548,11 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_cs_override_config, ett_override_config, hfx_bthci_cmd_override_config, ENC_LITTLE_ENDIAN);
             override_config = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             offset += 2;
-            proto_tree_add_item(tree, hf_bthci_cmd_cs_override_param_length, tvb, offset, 1, ENC_NA);
-            length = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_cs_override_param_length, tvb, offset, 1, ENC_NA, &length);
             offset++;
             sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_override_params, NULL, "Override Parameter Data");
             if (override_config & (1 << 0)) {
-              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_channel_length, tvb, offset, 1, ENC_NA);
-              length = tvb_get_uint8(tvb, offset);
+              proto_tree_add_item_ret_uint8(sub_tree, hf_bthci_cmd_override_param_channel_length, tvb, offset, 1, ENC_NA, &length);
               offset++;
               proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_channels, tvb, offset, length, ENC_NA);
               offset += length;
@@ -11369,8 +11359,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
                 uint16_t      product_id;
                 const char   *str_val;
 
-                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_did_vendor_id_source, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                vendor_id_source = tvb_get_letohs(tvb, offset);
+                proto_tree_add_item_ret_uint16(entry_tree, hf_btcommon_eir_ad_did_vendor_id_source, tvb, offset, 2, ENC_LITTLE_ENDIAN, &vendor_id_source);
                 offset += 2;
 
                 if (vendor_id_source == DID_VENDOR_ID_SOURCE_BLUETOOTH_SIG) {
@@ -11385,8 +11374,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
                 vendor_id = tvb_get_letohs(tvb, offset);
                 offset += 2;
 
-                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_did_product_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                product_id = tvb_get_letohs(tvb, offset);
+                sub_item = proto_tree_add_item_ret_uint16(entry_tree, hf_btcommon_eir_ad_did_product_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &product_id);
                 offset += 2;
 
                 if (vendor_id_source == DID_VENDOR_ID_SOURCE_USB_FORUM) {
@@ -11619,8 +11607,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             while (offset < end_offset) {
                 uint8_t organization_id;
 
-                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_tds_organization_id, tvb, offset, 1, ENC_NA);
-                organization_id = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint8(entry_tree, hf_btcommon_eir_ad_tds_organization_id, tvb, offset, 1, ENC_NA, &organization_id);
                 offset += 1;
 
                 if (p_get_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_TDS_ORGANIZATION_ID) == NULL) {
@@ -11807,8 +11794,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
         case 0xFF: /* Manufacturer Specific */ {
             uint16_t company_id;
 
-            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            company_id = tvb_get_letohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(entry_tree, hf_btcommon_eir_ad_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &company_id);
             offset += 2;
             length -= 2;
 

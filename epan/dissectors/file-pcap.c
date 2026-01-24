@@ -145,8 +145,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree_add_item_ret_uint(header_tree, hf_pcap_header_snapshot_length, tvb, offset, 4, encoding, &snap_length);
     offset += 4;
 
-    proto_tree_add_item(header_tree, hf_pcap_header_link_type, tvb, offset, 4, encoding);
-    link_type = tvb_get_uint32(tvb, offset, encoding);
+    proto_tree_add_item_ret_uint(header_tree, hf_pcap_header_link_type, tvb, offset, 4, encoding, &link_type);
     offset += 4;
 
     while (offset < (int) tvb_reported_length(tvb)) {

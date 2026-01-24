@@ -20,6 +20,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/* TODO: don't fetch each value than add it to tree - just use proto_tree_add_item(), or ret_ variants if need values */
+
 #include "config.h"
 
 #include <stdlib.h>	/* for strtoul() */
@@ -624,8 +626,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 expert_add_info_format(pinfo, expert_item, &ei_srvloc_error, "Error: %s", val_to_str(pinfo->pool, expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
             }
             offset += 2;
-            count = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvrply_urlcount, tvb, offset, 2, count);
+            proto_tree_add_item_ret_uint(srvloc_tree, hf_srvloc_srvrply_urlcount, tvb, offset, 2, ENC_BIG_ENDIAN, &count);
             offset += 2;
             while (count > 0) {
                 offset = dissect_url_entry_v1(tvb, offset, srvloc_tree,

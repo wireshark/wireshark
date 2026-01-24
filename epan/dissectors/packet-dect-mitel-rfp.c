@@ -726,11 +726,9 @@ SYS-LED Message
 static unsigned dissect_dect_mitel_rfp_sys_led(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	uint8_t led_id, led_color;
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_led_id, tvb, offset, 1, ENC_NA);
-	led_id = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(tree, hf_dect_mitel_rfp_sys_led_id, tvb, offset, 1, ENC_NA, &led_id);
 	offset++;
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_led_color, tvb, offset, 1, ENC_NA);
-	led_color = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(tree, hf_dect_mitel_rfp_sys_led_color, tvb, offset, 1, ENC_NA, &led_color);
 	offset++;
 	col_append_fstr(pinfo->cinfo, COL_INFO, "LED %d:%s", led_id,
 		val_to_str(pinfo->pool, led_color, dect_mitel_rfp_sys_led_color_val, "Unknown: %02x"));
@@ -746,8 +744,7 @@ SYS-HEARTBEAT-INTERVAL Message
 static unsigned dissect_dect_mitel_rfp_sys_heartbeat_interval(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	uint8_t interval;
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_heartbeat_interval_value, tvb, offset, 1, ENC_BIG_ENDIAN);
-	interval = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(tree, hf_dect_mitel_rfp_sys_heartbeat_interval_value, tvb, offset, 1, ENC_BIG_ENDIAN, &interval);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "Interval: %ds", interval);
 	offset++;
 
@@ -1470,8 +1467,7 @@ static unsigned dissect_dect_mitel_rfp_sync_system_search_cfm(tvbuff_t *tvb, pac
 	uint8_t item_count;
 	proto_tree *item_tree;
 
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sync_system_search_cfm_count, tvb, offset, 1, ENC_BIG_ENDIAN);
-	item_count = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(tree, hf_dect_mitel_rfp_sync_system_search_cfm_count, tvb, offset, 1, ENC_BIG_ENDIAN, &item_count);
 	offset++;
 
 	for (uint8_t i = 0; i < item_count; i++) {
@@ -1511,8 +1507,7 @@ static unsigned dissect_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind(tvbuff_t *tv
 	uint8_t item_count;
 	proto_tree *item_tree;
 
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_count, tvb, offset, 1, ENC_BIG_ENDIAN);
-	item_count = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(tree, hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_count, tvb, offset, 1, ENC_BIG_ENDIAN, &item_count);
 	offset++;
 
 	for (uint8_t i = 0; i < item_count; i++) {
@@ -1546,14 +1541,12 @@ static unsigned dissect_dect_mitel_rfp_sync(tvbuff_t *tvb, packet_info *pinfo, p
 {
 	uint16_t message_type;
 	uint8_t payload_length;
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sync_payload_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-	message_type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_dect_mitel_rfp_sync_payload_type, tvb, offset, 2, ENC_BIG_ENDIAN, &message_type);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(pinfo->pool, message_type, dect_mitel_rfp_sync_payload_type_val, " Unknown 0x%04x"));
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sync_payload_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-	payload_length = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(tree, hf_dect_mitel_rfp_sync_payload_length, tvb, offset, 1, ENC_BIG_ENDIAN, &payload_length);
 	offset++;
 
 	if (payload_length > 0) {

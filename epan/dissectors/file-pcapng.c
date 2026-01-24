@@ -1547,8 +1547,7 @@ dissect_pb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
     proto_item_append_text(argp->block_item, " %u", argp->info->frame_number);
 
-    proto_tree_add_item(tree, hf_pcapng_packet_block_interface_id, tvb, offset, 2, argp->info->encoding);
-    interface_id = tvb_get_uint16(tvb, offset, argp->info->encoding);
+    proto_tree_add_item_ret_uint(tree, hf_pcapng_packet_block_interface_id, tvb, offset, 2, argp->info->encoding, &interface_id);
     offset += 2;
     interface_description = get_interface_description(argp->info, interface_id,
                                                       pinfo, argp->block_tree);
@@ -1775,8 +1774,7 @@ dissect_isb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     uint32_t interface_id;
     struct interface_description *interface_description;
 
-    proto_tree_add_item(tree, hf_pcapng_interface_id, tvb, offset, 4, argp->info->encoding);
-    interface_id = tvb_get_uint32(tvb, offset, argp->info->encoding);
+    proto_tree_add_item_ret_uint(tree, hf_pcapng_interface_id, tvb, offset, 4, argp->info->encoding, &interface_id);
     offset += 4;
     interface_description = get_interface_description(argp->info, interface_id,
                                                       pinfo, argp->block_tree);
@@ -1800,8 +1798,7 @@ dissect_epb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
     proto_item_append_text(argp->block_item, " %u", argp->info->frame_number);
 
-    proto_tree_add_item(tree, hf_pcapng_interface_id, tvb, offset, 4, argp->info->encoding);
-    interface_id = tvb_get_uint32(tvb, offset, argp->info->encoding);
+    proto_tree_add_item_ret_uint(tree, hf_pcapng_interface_id, tvb, offset, 4, argp->info->encoding, &interface_id);
     offset += 4;
     interface_description = get_interface_description(argp->info, interface_id,
                                                       pinfo, argp->block_tree);

@@ -1129,8 +1129,7 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
     proto_tree_add_item(dlt_tree, hf_dlt_msg_ctr, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(dlt_tree, hf_dlt_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(dlt_tree, hf_dlt_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
     offset += 2;
 
     if ((header_type & DLT_HDR_TYPE_WITH_ECU_ID) == DLT_HDR_TYPE_WITH_ECU_ID) {
@@ -1169,8 +1168,7 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
             val_to_str_const(msg_type_info_comb, dlt_msg_type_info, "Unknown Message Type Info"), msg_type_info);
         offset += 1;
 
-        num_of_args = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(ext_hdr_tree, hf_dlt_num_of_args, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item_ret_uint8(ext_hdr_tree, hf_dlt_num_of_args, tvb, offset, 1, ENC_NA, &num_of_args);
         offset += 1;
 
         proto_tree_add_item(ext_hdr_tree, hf_dlt_app_id, tvb, offset, 4, ENC_ASCII);

@@ -2610,8 +2610,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         uint8_t failed_over;
 
-        proto_tree_add_item(tree, hf_observe_failed_over, tvb, offset, 1, ENC_BIG_ENDIAN);
-        failed_over = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(tree, hf_observe_failed_over, tvb, offset, 1, ENC_BIG_ENDIAN, &failed_over);
         offset++;
         proto_tree_add_item(tree, hf_observe_vbucket, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;

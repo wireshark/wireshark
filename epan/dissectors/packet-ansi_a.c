@@ -2258,16 +2258,10 @@ elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
 
     NO_MORE_DATA_CHECK(len);
 
-    proto_tree_add_item(tree, hf_ansi_a_cm2_scm_band_class_count, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    band_class_count = tvb_get_uint8(tvb, curr_offset);
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_cm2_scm_band_class_count, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &band_class_count);
     curr_offset++;
 
-    proto_tree_add_item(tree, hf_ansi_a_cm2_scm_band_class_entry_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    band_class_entry_len = tvb_get_uint8(tvb, curr_offset);
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_cm2_scm_band_class_entry_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &band_class_entry_len);
     curr_offset++;
 
     NO_MORE_DATA_CHECK(len);
@@ -4940,10 +4934,7 @@ elem_is2000_nn_scr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_is2000_nn_scr_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    fill_bits = tvb_get_uint8(tvb, curr_offset) & 0x07;
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_is2000_nn_scr_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &fill_bits);
     curr_offset++;
 
     NO_MORE_DATA_CHECK(len);
@@ -5032,10 +5023,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
 
     proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_fch_info_geo_loc_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_fch_info_geo_loc_incl, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_fch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    fill_bits = tvb_get_uint8(tvb, curr_offset) & 0x07;
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_is2000_mob_cap_fch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &fill_bits);
     curr_offset++;
 
     if (oct_len > 0)
@@ -5063,10 +5051,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
     curr_offset++;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_dcch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    fill_bits = tvb_get_uint8(tvb, curr_offset) & 0x07;
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_is2000_mob_cap_dcch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &fill_bits);
     curr_offset++;
 
     if (oct_len > 0)
@@ -5095,10 +5080,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
     curr_offset++;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_for_pdch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    fill_bits = tvb_get_uint8(tvb, curr_offset) & 0x07;
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_is2000_mob_cap_for_pdch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &fill_bits);
     curr_offset++;
 
     if (oct_len > 0)
@@ -5127,10 +5109,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
     curr_offset++;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_rev_pdch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    fill_bits = tvb_get_uint8(tvb, curr_offset) & 0x07;
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_is2000_mob_cap_rev_pdch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &fill_bits);
     curr_offset++;
 
     if (oct_len > 0)

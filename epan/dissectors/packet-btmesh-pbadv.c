@@ -243,11 +243,9 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     switch (gpcf) {
         //Transaction Start
         case TRANSACTION_START:
-            proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_segn, tvb, offset, 1, ENC_NA);
-            segn = (tvb_get_uint8(tvb, offset) & 0xFC) >> 2;
+            proto_tree_add_item_ret_uint8(sub_tree_generic_provisioning, hf_btmesh_gpcf_segn, tvb, offset, 1, ENC_NA, &segn);
             offset += 1;
-            total_length = (uint32_t)tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-            proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_total_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(sub_tree_generic_provisioning, hf_btmesh_gpcf_total_length, tvb, offset, 2, ENC_BIG_ENDIAN, &total_length);
             offset += 2;
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_fcs, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -314,8 +312,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         break;
         //Provisioning Bearer Control
         case PROVISIONING_BEARER_CONTROL:
-            proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_bearer_opcode, tvb, offset, 1, ENC_NA);
-            gpcf_bearer_opcode = (tvb_get_uint8(tvb, offset) & 0xFC) >> 2;
+            proto_tree_add_item_ret_uint8(sub_tree_generic_provisioning, hf_btmesh_gpcf_bearer_opcode, tvb, offset, 1, ENC_NA, &gpcf_bearer_opcode);
             offset += 1;
             switch(gpcf_bearer_opcode) {
                 case LINK_OPEN:

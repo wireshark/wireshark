@@ -2205,8 +2205,7 @@ dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
     uint8_t evt_num_keys;
 
-    evt_num_keys = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_bthci_evt_num_keys, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_bthci_evt_num_keys, tvb, offset, 1, ENC_LITTLE_ENDIAN, &evt_num_keys);
     offset += 1;
 
     while (evt_num_keys--) {
@@ -2393,8 +2392,7 @@ dissect_bthci_evt_number_of_completed_packets(tvbuff_t *tvb, int offset, packet_
 {
     uint8_t evt_num_handles;
 
-    evt_num_handles = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_bthci_evt_num_handles, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_bthci_evt_num_handles, tvb, offset, 1, ENC_LITTLE_ENDIAN, &evt_num_handles);
     offset += 1;
 
     while (evt_num_handles--) {
@@ -2816,8 +2814,7 @@ dissect_bthci_evt_inquire_result_with_rssi(tvbuff_t *tvb, int offset,
 {
     uint8_t num, evt_num_responses;
 
-    evt_num_responses = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_bthci_evt_num_responses, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_bthci_evt_num_responses, tvb, offset, 1, ENC_LITTLE_ENDIAN, &evt_num_responses);
     offset += 1;
 
     for (num = 0; num < evt_num_responses; num++) {
@@ -3060,8 +3057,7 @@ dissect_bthci_evt_cs_result_steps(tvbuff_t *tvb, int offset, packet_info *pinfo 
                                              step_counter, tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset + 1));
     step_tree = proto_item_add_subtree(step_item, ett_cs_step);
 
-    step_mode = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(step_tree, hf_bthci_evt_step_mode, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(step_tree, hf_bthci_evt_step_mode, tvb, offset, 1, ENC_NA, &step_mode);
     offset += 1;
     proto_tree_add_item(step_tree, hf_bthci_evt_step_channel, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -3144,8 +3140,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     switch(subevent_code) {
         case 0x01: /* LE Connection Complete */
-            proto_tree_add_item(tree, hf_bthci_evt_status,                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            status = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_evt_status,              tvb, offset, 1, ENC_LITTLE_ENDIAN, &status);
             send_hci_summary_status_tap(status, pinfo, bluetooth_data);
             offset += 1;
 
@@ -6502,8 +6497,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_cig_id, tvb, offset, 1, ENC_NA);
             offset += 1;
-            proto_tree_add_item(tree, hf_bthci_evt_cis_count, tvb, offset, 1, ENC_NA);
-            cis_count = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_evt_cis_count, tvb, offset, 1, ENC_NA, &cis_count);
             offset += 1;
             for (i = 0; i < cis_count; i++) {
                 proto_tree_add_item(tree, hf_bthci_evt_cis_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -7073,8 +7067,7 @@ dissect_bthci_evt_inquire_result(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 {
     uint8_t num, evt_num_responses;
 
-    evt_num_responses = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_bthci_evt_num_responses, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_bthci_evt_num_responses, tvb, offset, 1, ENC_LITTLE_ENDIAN, &evt_num_responses);
     offset += 1;
 
     for (num = 0; num < evt_num_responses; num++) {

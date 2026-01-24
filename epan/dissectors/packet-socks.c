@@ -42,9 +42,6 @@
  *  pinfo->src or pinfo->dst structure before calling next dissector.
 */
 
-
-
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -649,8 +646,7 @@ server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree_add_item( tree, hf_socks_subnegotiation_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        auth_status = tvb_get_uint8(tvb, offset);
-        ti = proto_tree_add_item(tree, hf_server_auth_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item_ret_uint8(tree, hf_server_auth_status, tvb, offset, 1, ENC_BIG_ENDIAN, &auth_status);
         if(auth_status != 0)
             proto_item_append_text(ti, " (failure)");
         else

@@ -1014,11 +1014,9 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
     uint8_t lss_bc_mask;
     uint16_t lss_abt_delay;
 
-    proto_tree_add_item(canopen_type_tree,
-            hf_canopen_lss_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
     /* LSS command specifier */
-    lss_cs = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(canopen_type_tree,
+            hf_canopen_lss_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN, &lss_cs);
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(pinfo->pool, lss_cs, lss_cs_code, "Unknown (0x%x)"));
     offset++;
 
