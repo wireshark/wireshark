@@ -1,7 +1,7 @@
 /* packet-tecmp.c
  * Technically Enhanced Capture Module Protocol (TECMP) dissector.
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2019-2025 Dr. Lars Voelker
+ * Copyright 2019-2026 Dr. Lars Völker
  * Copyright 2020      Ayoub Kaanich
  *
  * Wireshark - Network traffic analyzer
@@ -195,6 +195,7 @@ static int hf_tecmp_payload_data_cycle;
 static int hf_tecmp_payload_data_frame_id;
 static int hf_tecmp_payload_data_header_crc;
 static int hf_tecmp_payload_data_frame_crc;
+static int hf_tecmp_payload_data_cycle_repetition;
 
 /* Analog */
 static int hf_tecmp_payload_data_analog_value_raw;
@@ -340,6 +341,7 @@ static dissector_handle_t asam_cmp_handle;
 /*** expert info items ***/
 static expert_field ei_tecmp_payload_length_mismatch;
 static expert_field ei_tecmp_payload_header_crc_overflow;
+static expert_field ei_tecmp_payload_invalid_cycle_repetition;
 
 /* TECMP Type Names */
 
@@ -2067,7 +2069,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
 
                 /* new for TECMP 1.6 */
-                if (tvb_captured_length_remaining(sub_tvb, offset2) >= 5) {
+                if (tecmp_msg_type == TECMP_MSG_TYPE_LOG_STREAM && tvb_captured_length_remaining(sub_tvb, offset2) >= 5) {
                     uint32_t header_crc = 0;
                     ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_header_crc, sub_tvb, offset2, 2, ENC_BIG_ENDIAN, &header_crc);
                     if (header_crc > DATA_FR_HEADER_CRC_MAX) {
@@ -2075,6 +2077,19 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     }
                     offset2 += 2;
                     proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_frame_crc, sub_tvb, offset2, 3, ENC_BIG_ENDIAN);
+                } else if (tecmp_msg_type == TECMP_MSG_TYPE_REPLAY_DATA && tvb_captured_length_remaining(sub_tvb, offset2) >= 3) {
+                    uint32_t cycle_rep = 0;
+                    ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_cycle_repetition, sub_tvb, offset2, 1, ENC_BIG_ENDIAN, &cycle_rep);
+                    if (cycle_rep != 1 && cycle_rep != 2 && cycle_rep != 4 && cycle_rep != 8 && cycle_rep != 16 && cycle_rep != 32 && cycle_rep != 64) {
+                        expert_add_info(pinfo, ti, &ei_tecmp_payload_invalid_cycle_repetition);
+                    }
+                    offset2 += 1;
+
+                    uint32_t header_crc = 0;
+                    ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_header_crc, sub_tvb, offset2, 2, ENC_BIG_ENDIAN, &header_crc);
+                    if (header_crc > DATA_FR_HEADER_CRC_MAX) {
+                        expert_add_info(pinfo, ti, &ei_tecmp_payload_header_crc_overflow);
+                    }
                 }
                 break;
 
@@ -2497,6 +2512,9 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data_frame_crc,
             { "Frame CRC", "tecmp.payload.data.frame_crc",
             FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_data_cycle_repetition,
+            { "Cycle Repetition", "tecmp.payload.data.cycle_repetition",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
         { &hf_tecmp_payload_data_length,
             { "Payload Length", "tecmp.payload.data.payload_length",
@@ -2980,6 +2998,8 @@ proto_register_tecmp_payload(void) {
            PI_PROTOCOL, PI_WARN, "Payload Length and the length of Payload present in packet do not match!", EXPFILL }},
          { &ei_tecmp_payload_header_crc_overflow, { "tecmp.payload.header_crc_overflow",
            PI_PROTOCOL, PI_WARN, "Header CRC may only be up to 0x07ff!", EXPFILL }},
+         { &ei_tecmp_payload_invalid_cycle_repetition, { "tecmp.payload.invalid_cycle_repetition",
+           PI_PROTOCOL, PI_WARN, "Cycle Repetition can only be 1, 2, 4, 8, 16, 32, or 64!", EXPFILL }},
     };
 
     proto_tecmp_payload = proto_register_protocol("Technically Enhanced Capture Module Protocol Payload",
