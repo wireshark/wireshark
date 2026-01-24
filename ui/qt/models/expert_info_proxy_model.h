@@ -39,6 +39,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
     virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
