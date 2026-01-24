@@ -18,6 +18,7 @@ ExpertPacketItem::ExpertPacketItem(const expert_info_t& expert_info, column_info
     group_(expert_info.group),
     severity_(expert_info.severity),
     hf_id_(expert_info.hf_index),
+    row_(0),
     protocol_(expert_info.protocol),
     summary_(expert_info.summary),
     parentItem_(parent)
@@ -55,6 +56,8 @@ QString ExpertPacketItem::groupKey(bool group_by_summary) {
 
 void ExpertPacketItem::appendChild(ExpertPacketItem* child, QString hash)
 {
+    // childItems_ is only appended to, so this row never changes.
+    child->row_ = static_cast<int>(childItems_.size());
     childItems_.append(child);
     hashChild_[hash] = child;
 }
@@ -76,10 +79,7 @@ int ExpertPacketItem::childCount() const
 
 int ExpertPacketItem::row() const
 {
-    if (parentItem_)
-        return static_cast<int>(parentItem_->childItems_.indexOf(const_cast<ExpertPacketItem*>(this)));
-
-    return 0;
+    return row_;
 }
 
 ExpertPacketItem* ExpertPacketItem::parentItem()
