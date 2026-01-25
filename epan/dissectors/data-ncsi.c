@@ -6,8 +6,8 @@
  *
  * List of PCI IDs
  *
- * Version: 2026.01.21
- * Date:    2026-01-21 03:15:02
+ * Version: 2026.01.25
+ * Date:    2026-01-25 03:15:01
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -4129,8 +4129,9 @@ static pci_id_t const pci_vid_1002[] = {
 {0x1002, 0x731F, 0x1DA2, 0xE409, "Sapphire Technology Limited Navi 10 [Radeon RX 5600 OEM/5600 XT / 5700/5700 XT](0x1DA2-0xE409)"},
 {0x1002, 0x731F, 0x1DA2, 0xE410, "Sapphire NITRO+ RX 5700 XT(0x1DA2-0xE410)"},
 {0x1002, 0x731F, 0x1DA2, 0xE411, "Navi 10 [Radeon RX 5600 OEM/5600 XT / 5700/5700 XT]Navi 10 [Radeon RX 5600 OEM/5600 XT / 5700/5700 XT](0x1DA2-0xE411)"},
-{0x1002, 0x7340, 0xFFFF, 0xFFFF, "Navi 14 [Radeon RX 5500/5500M / Pro 5500M](0x7340)"},
+{0x1002, 0x7340, 0xFFFF, 0xFFFF, "Navi 14 [Radeon RX 5500/5500M / Pro 5300/5500M](0x7340)"},
 {0x1002, 0x7340, 0x106B, 0x0210, "Radeon Pro 5300M(0x106B-0x0210)"},
+{0x1002, 0x7340, 0x106B, 0x0219, "iMac (Retina 5K, 27-inch, 2020) [Radeon Pro 5300](0x106B-0x0219)"},
 {0x1002, 0x7341, 0xFFFF, 0xFFFF, "Navi 14 [Radeon Pro W5500](0x7341)"},
 {0x1002, 0x7347, 0xFFFF, 0xFFFF, "Navi 14 [Radeon Pro W5500M](0x7347)"},
 {0x1002, 0x734F, 0xFFFF, 0xFFFF, "Navi 14 [Radeon Pro W5300M](0x734F)"},
@@ -4244,6 +4245,7 @@ static pci_id_t const pci_vid_1002[] = {
 {0x1002, 0x7550, 0x1DA2, 0xE490, "Navi 48 XTX [Sapphire Pulse Radeon RX 9070 XT](0x1DA2-0xE490)"},
 {0x1002, 0x7551, 0xFFFF, 0xFFFF, "Navi 48 [Radeon AI PRO R9700](0x7551)"},
 {0x1002, 0x7590, 0xFFFF, 0xFFFF, "Navi 44 [Radeon RX 9060 XT](0x7590)"},
+{0x1002, 0x7590, 0x1458, 0x2429, "GV-R9060XTGAMING OC-16GD [Radeon RX 9060 XT GAMING OC 16G](0x1458-0x2429)"},
 {0x1002, 0x7590, 0x1EAE, 0x8601, "RX-96TS316W7 [SWIFT RX 9060 XT OC White Triple Fan Gaming Edition 16GB](0x1EAE-0x8601)"},
 {0x1002, 0x75A0, 0xFFFF, 0xFFFF, "Aqua Vanjaram [Instinct MI350X](0x75A0)"},
 {0x1002, 0x75A3, 0xFFFF, 0xFFFF, "Aqua Vanjaram [Instinct MI355X](0x75A3)"},
@@ -29243,6 +29245,7 @@ static pci_id_t const pci_vid_1846[] = {
 
 static pci_id_t const pci_vid_1849[] = {
 {0x1849, 0xFFFF, 0xFFFF, 0xFFFF, "ASRock Incorporation(0x1849)"},
+{0x1849, 0x1150, 0xFFFF, 0xFFFF, "ASPEED AST1150 PCI-to-PCI Bridge(0x1150)"},
 {0x1849, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_1849[] */
 
@@ -30414,7 +30417,7 @@ static pci_id_t const pci_vid_1A03[] = {
 {0x1A03, 0x2000, 0x15D9, 0x086B, "X10DRS (AST2400 BMC)(0x15D9-0x086B)"},
 {0x1A03, 0x2000, 0x15D9, 0x1B95, "H12SSL-i (AST2500 BMC)(0x15D9-0x1B95)"},
 {0x1A03, 0x2000, 0x15D9, 0x1D50, "X14DBG-AP (AST2600 BMC)(0x15D9-0x1D50)"},
-{0x1A03, 0x2000, 0x1849, 0x2000, "ROME2D32LM3 (AST2500 BMC)(0x1849-0x2000)"},
+{0x1A03, 0x2000, 0x1849, 0x2000, "Onboard Graphics(0x1849-0x2000)"},
 }; /* pci_vid_1A03[] */
 
 static pci_id_t const pci_vid_1A05[] = {
@@ -31551,6 +31554,8 @@ static pci_id_t const pci_vid_1C00[] = {
 {0x1C00, 0x3250, 0xFFFF, 0xFFFF, "CH384 Dual Port Serial and Parallel Port Adapter(0x3250)"},
 {0x1C00, 0x3252, 0xFFFF, 0xFFFF, "CH382 PCIe Dual Port Serial Adapter(0x3252)"},
 {0x1C00, 0x3253, 0xFFFF, 0xFFFF, "CH352/CH382 PCI/PCIe Dual Port Serial Adapter(0x3253)"},
+{0x1C00, 0x3470, 0xFFFF, 0xFFFF, "CH384 Serial Adapter, 4-port mode(0x3470)"},
+{0x1C00, 0x3853, 0xFFFF, 0xFFFF, "CH384 Serial Adapter, 8-port mode(0x3853)"},
 }; /* pci_vid_1C00[] */
 
 static pci_id_t const pci_vid_1C09[] = {
@@ -32035,6 +32040,12 @@ static pci_id_t const pci_vid_1CC4[] = {
 {0x1CC4, 0x5201, 0xFFFF, 0xFFFF, "AM520 PCIe 3.0 NVMe SSD 128GB(0x5201)"},
 {0x1CC4, 0x5212, 0xFFFF, 0xFFFF, "AM521 PCIe 3.0 NVMe SSD 256GB(0x5212)"},
 {0x1CC4, 0x5414, 0xFFFF, 0xFFFF, "AM541 PCIe 4.0 NVMe SSD 1024GB(0x5414)"},
+{0x1CC4, 0x6020, 0xFFFF, 0xFFFF, "NVMe SSD Controller UM3X1X series(0x6020)"},
+{0x1CC4, 0x6020, 0x1CC4, 0x8320, "NVMe SSD UM301a M.2 480GB(0x1CC4-0x8320)"},
+{0x1CC4, 0x6020, 0x1CC4, 0x8321, "NVMe SSD UM301a M.2 960GB(0x1CC4-0x8321)"},
+{0x1CC4, 0x6020, 0x1CC4, 0x8322, "NVMe SSD UM301a M.2 1.92TB(0x1CC4-0x8322)"},
+{0x1CC4, 0x6020, 0x1EA0, 0x8320, "NVMe SSD TM1300 M.2 480GB(0x1EA0-0x8320)"},
+{0x1CC4, 0x6020, 0x1EA0, 0x8322, "NVMe SSD TM1300 M.2 1.92TB(0x1EA0-0x8322)"},
 {0x1CC4, 0x6201, 0xFFFF, 0xFFFF, "AM620 PCIe 3.0 NVMe SSD 128GB(0x6201)"},
 {0x1CC4, 0x6202, 0xFFFF, 0xFFFF, "AM620 PCIe 3.0 NVMe SSD 256GB(0x6202)"},
 {0x1CC4, 0x6203, 0xFFFF, 0xFFFF, "AM620 PCIe 3.0 NVMe SSD 512GB(0x6203)"},
@@ -32113,6 +32124,8 @@ static pci_id_t const pci_vid_1CC4[] = {
 {0x1CC4, 0x8030, 0x1EA0, 0x6125, "NVMe SSD TP3510 U.2 15.36TB(0x1EA0-0x6125)"},
 {0x1CC4, 0x8030, 0x1EA0, 0x6224, "NVMe SSD TP3510 E3.S 7.68TB(0x1EA0-0x6224)"},
 {0x1CC4, 0x8030, 0x1EA0, 0x6225, "NVMe SSD TP3510 E3.S 15.36TB(0x1EA0-0x6225)"},
+{0x1CC4, 0x8030, 0x1EA0, 0x7124, "NVMe SSD TP3512 U.2 7.68TB(0x1EA0-0x7124)"},
+{0x1CC4, 0x8030, 0x1EA0, 0x7125, "NVMe SSD TP3512 U.2 15.36TB(0x1EA0-0x7125)"},
 }; /* pci_vid_1CC4[] */
 
 static pci_id_t const pci_vid_1CC5[] = {
@@ -33224,6 +33237,7 @@ static pci_id_t const pci_vid_1DE5[] = {
 {0x1DE5, 0xFFFF, 0xFFFF, 0xFFFF, "Eideticom, Inc(0x1DE5)"},
 {0x1DE5, 0x1000, 0xFFFF, 0xFFFF, "IO Memory Controller(0x1000)"},
 {0x1DE5, 0x2000, 0xFFFF, 0xFFFF, "NoLoad Hardware Development Kit(0x2000)"},
+{0x1DE5, 0x2100, 0xFFFF, 0xFFFF, "NoLoad Accelerator Platform(0x2100)"},
 {0x1DE5, 0x3000, 0xFFFF, 0xFFFF, "eBPF-based PCIe Accelerator(0x3000)"},
 }; /* pci_vid_1DE5[] */
 
@@ -35360,6 +35374,10 @@ static pci_id_t const pci_vid_2048[] = {
 {0x2048, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing SpaceControl Technology Co.Ltd(0x2048)"},
 }; /* pci_vid_2048[] */
 
+static pci_id_t const pci_vid_2052[] = {
+{0x2052, 0xFFFF, 0xFFFF, 0xFFFF, "Frontgrade Gaisler AB(0x2052)"},
+}; /* pci_vid_2052[] */
+
 static pci_id_t const pci_vid_2058[] = {
 {0x2058, 0xFFFF, 0xFFFF, 0xFFFF, "Lime Microsystems Ltd.(0x2058)"},
 }; /* pci_vid_2058[] */
@@ -35376,6 +35394,24 @@ static pci_id_t const pci_vid_205C[] = {
 static pci_id_t const pci_vid_205D[] = {
 {0x205D, 0xFFFF, 0xFFFF, 0xFFFF, "Shanghai Zijing Xinjie Intelligent Technology Co., Ltd.(0x205D)"},
 }; /* pci_vid_205D[] */
+
+static pci_id_t const pci_vid_205E[] = {
+{0x205E, 0xFFFF, 0xFFFF, 0xFFFF, "SDTECH(0x205E)"},
+{0x205E, 0x0000, 0xFFFF, 0xFFFF, "SD85xxx PCIe Gen5 Switch(0x0000)"},
+{0x205E, 0x0000, 0x205E, 0x0048, "SD85048 PCIe Gen 5 48 lane Switch Upstream/Downstream Port(0x205E-0x0048)"},
+{0x205E, 0x0000, 0x205E, 0x0096, "SD85096 PCIe Gen 5 96 lane Switch Upstream/Downstream Port(0x205E-0x0096)"},
+{0x205E, 0x0000, 0x205E, 0x0104, "SD85104 PCIe Gen 5 104 lane Switch Upstream/Downstream Port(0x205E-0x0104)"},
+{0x205E, 0x0000, 0x205E, 0x0105, "SD85104 PCIe Gen 5 104 lane Switch Upstream/Downstream Port(0x205E-0x0105)"},
+{0x205E, 0x0000, 0x205E, 0x0144, "SD85144 PCIe Gen 5 144 lane Switch Upstream/Downstream Port(0x205E-0x0144)"},
+{0x205E, 0x0000, 0x205E, 0x2004, "SD85000 PCIe NT Endpoint(0x205E-0x2004)"},
+{0x205E, 0x0000, 0x205E, 0x2005, "SD85000 PCIe gDMA Endpoint(0x205E-0x2005)"},
+{0x205E, 0x0000, 0x205E, 0x2006, "SD85000 PCIe Management Endpoint(0x205E-0x2006)"},
+{0x205E, 0x5048, 0xFFFF, 0xFFFF, "SD85048 PCIe Gen 5 48 lane Switch Upstream/Downstream Port(0x5048)"},
+{0x205E, 0x5096, 0xFFFF, 0xFFFF, "SD85096 PCIe Gen 5 96 lane Switch Upstream/Downstream Port(0x5096)"},
+{0x205E, 0x5104, 0xFFFF, 0xFFFF, "SD85104 PCIe Gen 5 104 lane Switch Upstream/Downstream Port(0x5104)"},
+{0x205E, 0x5105, 0xFFFF, 0xFFFF, "SD85104 PCIe Gen 5 104 lane Switch Upstream/Downstream Port(0x5105)"},
+{0x205E, 0x5144, 0xFFFF, 0xFFFF, "SD85144 PCIe Gen 5 144 lane Switch Upstream/Downstream Port(0x5144)"},
+}; /* pci_vid_205E[] */
 
 static pci_id_t const pci_vid_2061[] = {
 {0x2061, 0xFFFF, 0xFFFF, 0xFFFF, "Unis Flash Memory(0x2061)"},
@@ -46367,7 +46403,7 @@ static pci_id_t const pci_vid_8086[] = {
 {0x8086, 0xE35D, 0xFFFF, 0xFFFF, "Panther Lake CSME HECI #1(0xE35D)"},
 {0x8086, 0xE360, 0xFFFF, 0xFFFF, "Panther Lake Thunderbolt 4 PCI Express Root Port #2(0xE360)"},
 {0x8086, 0xE361, 0xFFFF, 0xFFFF, "Panther Lake PCI Express Root Port C1(0xE361)"},
-{0x8086, 0xE362, 0xFFFF, 0xFFFF, "Primary to Sideband (P2SB) Bridge IOE(0xE362)"},
+{0x8086, 0xE362, 0xFFFF, 0xFFFF, "Panther Lake Primary to Sideband (P2SB) Bridge IOE(0xE362)"},
 {0x8086, 0xE363, 0xFFFF, 0xFFFF, "Panther Lake PCI Express Root Port C3(0xE363)"},
 {0x8086, 0xE364, 0xFFFF, 0xFFFF, "Panther Lake PCI Express Root Port C4(0xE364)"},
 {0x8086, 0xE365, 0xFFFF, 0xFFFF, "Panther Lake PCI Express Root Port D1(0xE365)"},
@@ -48068,7 +48104,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x0F62, 1, pci_vid_0F62 },
 {0x1000, 839, pci_vid_1000 },
 {0x1001, 10, pci_vid_1001 },
-{0x1002, 3295, pci_vid_1002 },
+{0x1002, 3297, pci_vid_1002 },
 {0x1003, 2, pci_vid_1003 },
 {0x1004, 34, pci_vid_1004 },
 {0x1005, 8, pci_vid_1005 },
@@ -49708,7 +49744,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1830, 5, pci_vid_1830 },
 {0x183B, 5, pci_vid_183B },
 {0x1846, 1, pci_vid_1846 },
-{0x1849, 2, pci_vid_1849 },
+{0x1849, 3, pci_vid_1849 },
 {0x184A, 2, pci_vid_184A },
 {0x1850, 2, pci_vid_1850 },
 {0x1851, 1, pci_vid_1851 },
@@ -49927,7 +49963,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1BF5, 2, pci_vid_1BF5 },
 {0x1BFC, 1, pci_vid_1BFC },
 {0x1BFD, 1, pci_vid_1BFD },
-{0x1C00, 7, pci_vid_1C00 },
+{0x1C00, 9, pci_vid_1C00 },
 {0x1C09, 13, pci_vid_1C09 },
 {0x1C19, 4, pci_vid_1C19 },
 {0x1C1C, 2, pci_vid_1C1C },
@@ -49954,7 +49990,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1CB5, 2, pci_vid_1CB5 },
 {0x1CB8, 1, pci_vid_1CB8 },
 {0x1CC1, 40, pci_vid_1CC1 },
-{0x1CC4, 101, pci_vid_1CC4 },
+{0x1CC4, 109, pci_vid_1CC4 },
 {0x1CC5, 3, pci_vid_1CC5 },
 {0x1CC7, 3, pci_vid_1CC7 },
 {0x1CCF, 2, pci_vid_1CCF },
@@ -50029,7 +50065,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1DE0, 6, pci_vid_1DE0 },
 {0x1DE1, 5, pci_vid_1DE1 },
 {0x1DE4, 2, pci_vid_1DE4 },
-{0x1DE5, 4, pci_vid_1DE5 },
+{0x1DE5, 5, pci_vid_1DE5 },
 {0x1DED, 8, pci_vid_1DED },
 {0x1DEE, 27, pci_vid_1DEE },
 {0x1DEF, 27, pci_vid_1DEF },
@@ -50178,9 +50214,11 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x203B, 1, pci_vid_203B },
 {0x2046, 1, pci_vid_2046 },
 {0x2048, 1, pci_vid_2048 },
+{0x2052, 1, pci_vid_2052 },
 {0x2058, 1, pci_vid_2058 },
 {0x205C, 6, pci_vid_205C },
 {0x205D, 1, pci_vid_205D },
+{0x205E, 15, pci_vid_205E },
 {0x2061, 43, pci_vid_2061 },
 {0x2063, 33, pci_vid_2063 },
 {0x206D, 1, pci_vid_206D },
@@ -50500,7 +50538,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2487 VIDs */
+}; /* We have 2489 VIDs */
 
 static int vid_search(const void *key, const void *tbl_entry)
 {

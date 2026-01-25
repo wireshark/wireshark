@@ -6981,6 +6981,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Capturing from %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Clear Menu</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -9598,6 +9602,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>User Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not found</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13739,10 +13747,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>not found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Copy file path</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15943,10 +15947,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Clear Menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source> before closing the file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16062,6 +16062,14 @@ a:hover {
     </message>
     <message>
         <source> before updating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> before exporting PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> before stripping headers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

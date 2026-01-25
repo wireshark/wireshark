@@ -4,7 +4,7 @@
 * This file is auto generated, do not edit!
 * See tools/asterix/README.md for details.
 *
-* Data source: ['https://zoranbosnjak.github.io/asterix-specs', 'git revision: 970a0101fd8df7925d1948d7d37952bbaaae7a48']
+* Data source: ['https://zoranbosnjak.github.io/asterix-specs', 'git revision: 20395d25b7e20597716e81efa2c54482f3d197ef']
 *
 * Generated definitions for ASTERIX dissector
 *

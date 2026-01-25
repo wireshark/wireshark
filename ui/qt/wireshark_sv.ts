@@ -7040,6 +7040,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Capturing from %1</source>
         <translation>Fångar från %1</translation>
     </message>
+    <message>
+        <source>Clear Menu</source>
+        <translation>Töm menyn</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -8459,7 +8463,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Open %1 preferences…</source>
-        <translation>Öppna %1 inställningar …</translation>
+        <translation>Öppna %1-inställningar …</translation>
     </message>
     <message>
         <source>Invalid value.</source>
@@ -9140,7 +9144,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Open %1 preferences…</source>
-        <translation>Öppna %1 inställningar …</translation>
+        <translation>Öppna %1-inställningar …</translation>
     </message>
 </context>
 <context>
@@ -9691,6 +9695,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>User Interface</source>
         <translation>Användargränssnitt</translation>
     </message>
+    <message>
+        <source>not found</source>
+        <translation>hittades inte</translation>
+    </message>
 </context>
 <context>
     <name>QObject::QObject::QObject</name>
@@ -10213,10 +10221,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message numerus="yes">
         <source> %Ln stream(s), </source>
-        <oldsource> %1 streams, </oldsource>
-        <translation type="unfinished">
-            <numerusform> %1 strömmar, </numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform> %Ln ström, </numerusform>
+            <numerusform> %Ln strömmar, </numerusform>
         </translation>
     </message>
     <message>
@@ -10861,10 +10868,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message numerus="yes">
         <source>%Ln stream(s)</source>
-        <oldsource>%1 streams</oldsource>
-        <translation type="unfinished">
-            <numerusform>%1 strömmar</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln ström</numerusform>
+            <numerusform>%Ln strömmar</numerusform>
         </translation>
     </message>
     <message>
@@ -11222,18 +11228,16 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message numerus="yes">
         <source>%Ln stream(s)</source>
-        <oldsource>%1 streams</oldsource>
-        <translation type="unfinished">
-            <numerusform>%1 strömmar</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln ström</numerusform>
+            <numerusform>%Ln strömmar</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %1 selected, %Ln total packet(s)</source>
-        <oldsource>, %1 selected, %2 total packets</oldsource>
-        <translation type="unfinished">
-            <numerusform>, %1 valda, %2 paket totalt</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>, %1 vald, %Ln paket totalt</numerusform>
+            <numerusform>, %1 valda, %Ln paket totalt</numerusform>
         </translation>
     </message>
     <message>
@@ -12806,11 +12810,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Axis SI Units</source>
-        <translation type="unfinished"></translation>
+        <translation>Axelns SI-enheter</translation>
     </message>
     <message>
         <source>Toggle axis SI units</source>
-        <translation type="unfinished"></translation>
+        <translation>Växla SI-enheter för axel</translation>
     </message>
     <message>
         <source>U</source>
@@ -13860,50 +13864,7 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <oldsource>&lt;html&gt;&lt;head&gt;
-&lt;style&gt;
-a:link {
-  color: palette(text);
-  text-decoration: none;
-}
-a:hover {
-  color: palette(text);
-  text-decoration: underline;
-}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table&gt;&lt;tr&gt;
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://gitlab.com/wireshark/wireshark/-/wikis/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://sharkfest.wireshark.org/&quot;&gt;SharkFest&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://discord.com/invite/ts9GZCjGj5&quot;&gt;Wireshark Discord&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://wiresharkfoundation.org/donate/&quot;&gt;Donate&lt;/a&gt;&lt;/th&gt;
-
-&lt;/tr&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished">&lt;html&gt;&lt;head&gt;
+        <translation>&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
   color: palette(text);
@@ -13938,11 +13899,11 @@ a:hover {
 
 &lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
 
-&lt;th&gt;&lt;a href=&quot;https://discord.com/invite/ts9GZCjGj5&quot;&gt;Wireshark Discord&lt;/a&gt;&lt;/th&gt;
+&lt;th&gt;&lt;a href=&quot;https://discord.gg/fT2jvkawGj&quot;&gt;Wireshark Discord&lt;/a&gt;&lt;/th&gt;
 
 &lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
 
-&lt;th&gt;&lt;a href=&quot;https://wiresharkfoundation.org/donate/&quot;&gt;Donate&lt;/a&gt;&lt;/th&gt;
+&lt;th&gt;&lt;a href=&quot;https://wiresharkfoundation.org/donate/&quot;&gt;Donera&lt;/a&gt;&lt;/th&gt;
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -13985,10 +13946,6 @@ a:hover {
     <message>
         <source> You have disabled automatic updates.</source>
         <translation> Du har inaktiverat automatiska uppdateringar.</translation>
-    </message>
-    <message>
-        <source>not found</source>
-        <translation>finns inte</translation>
     </message>
     <message>
         <source>Copy file path</source>
@@ -16182,10 +16139,6 @@ a:hover {
         <translation>%1: %2</translation>
     </message>
     <message>
-        <source>Clear Menu</source>
-        <translation>Töm menyn</translation>
-    </message>
-    <message>
         <source> before closing the file</source>
         <translation> före filen stängs</translation>
     </message>
@@ -16302,6 +16255,14 @@ a:hover {
     <message>
         <source> before updating</source>
         <translation> före uppdatering</translation>
+    </message>
+    <message>
+        <source> before exporting PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> before stripping headers</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
