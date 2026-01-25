@@ -28,7 +28,6 @@ typedef struct _quic_stream_info {
     uint64_t    stream_id;      /**< 62-bit Stream ID. */
     uint64_t    stream_offset;  /**< 62-bit stream offset. */
     uint32_t    offset;         /**< Offset within the stream (different for reassembled data). */
-    uint32_t    inorder_offset; /**< Offset of the inorder data. */
     struct quic_info_data *quic_info;    /**< Opaque data structure to find the QUIC session. */
     bool        from_server;
 } quic_stream_info;
