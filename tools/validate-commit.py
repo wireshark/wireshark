@@ -110,6 +110,12 @@ def extract_subject(subject):
 
 
 def verify_body(body):
+    git_cut_marker = '\n# ------------------------ >8 ------------------------\n'
+    cut_index = body.find(git_cut_marker)
+    if cut_index == -1:
+        cut_index = len(body) - 1
+    body = body[0:cut_index + 1]
+
     bodynocomments = re.sub('^#.*$', '', body, flags=re.MULTILINE)
     old_lines = bodynocomments.splitlines(True)
     is_good = True
