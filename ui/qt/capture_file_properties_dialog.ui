@@ -24,13 +24,6 @@
     <widget class="QWidget" name="">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QLabel" name="detailsLabel">
-        <property name="text">
-         <string>Details</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QTextEdit" name="detailsTextEdit">
         <property name="readOnly">
          <bool>true</bool>
