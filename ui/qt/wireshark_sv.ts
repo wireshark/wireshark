@@ -7783,7 +7783,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Open %1 preferences…</source>
-        <translation>Öppna %1 inställningar …</translation>
+        <translation>Öppna %1-inställningar …</translation>
     </message>
     <message>
         <source>Invalid value.</source>
@@ -8453,7 +8453,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Open %1 preferences…</source>
-        <translation>Öppna %1 inställningar …</translation>
+        <translation>Öppna %1-inställningar …</translation>
     </message>
 </context>
 <context>
