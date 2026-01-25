@@ -3251,6 +3251,11 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			offset = mysql_dissect_binlog_event_packet(tvb, pinfo, offset, tree, pi);
 			break;
 		default:
+			if (current_state == FIELD_PACKET) {
+				proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, current_state, state_vals, "Unknown (%u)"));
+				offset = mysql_dissect_field_packet(tvb, pi, offset, tree, pinfo, conn_data, my_frame_data);
+				break;
+			}
 			proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
 			offset+=1;
 			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, RESPONSE_OK, state_vals, "Unknown (%u)"));
@@ -3825,66 +3830,103 @@ mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi _U_, int offset, proto_
 {
 	uint8_t fld_type;
 	uint16_t fld_flag;
-	unsigned fld_encoding;
+	unsigned fld_encoding = 0;
 	int length = tvb_reported_length(tvb);
 	mysql_state_t current_state = my_frame_data->state;
 
 	unsigned encoding = my_frame_data->encoding_results;
-
-	/* Are these fields optional? a trace suggests they are...*/
-	offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_catalog, encoding);
-	if (offset >= length) {
-		return offset;
-	}
-	offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_db, encoding);
-	offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_table, encoding);
-	offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_org_table, encoding);
-	offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_name, encoding);
-	offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_org_name, encoding);
-
-	// mariadb extended metadata infos
-	if (conn_data->mariadb_client_ext_caps & MARIADB_CAPS_EM
-		&& conn_data->mariadb_server_ext_caps & MARIADB_CAPS_EM) {
-		uint64_t extended_length;
-		proto_item *extended_tree = NULL;
-		proto_item *tf;
-		int fle;
-
-		fle = tvb_get_fle(tvb, tree, offset, &extended_length, NULL);
-		tf = proto_tree_add_item(tree, hf_mariadb_extmeta_data, tvb, offset, fle + (uint32_t) extended_length, ENC_NA);
-		extended_tree = proto_item_add_subtree(tf, ett_extmeta_data);
-		proto_tree_add_uint64(tf, hf_mariadb_extmeta_length, tvb, offset, fle, extended_length);
-		offset += fle;
-
-		while (extended_length > 0) {
-			length = add_extended_meta_entry_to_tree(tvb, pinfo, extended_tree, offset);
-			offset += length;
-			extended_length -= length;
+	if (conn_data->clnt_caps & MYSQL_CAPS_CU)
+	{
+		/* Are these fields optional? a trace suggests they are...*/
+		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_catalog, encoding);
+		if (offset >= length) {
+			return offset;
 		}
+		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_db, encoding);
+		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_table, encoding);
+		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_org_table, encoding);
+		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_name, encoding);
+		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_org_name, encoding);
+
+		// mariadb extended metadata infos
+		if (conn_data->mariadb_client_ext_caps & MARIADB_CAPS_EM
+			&& conn_data->mariadb_server_ext_caps & MARIADB_CAPS_EM) {
+			uint64_t extended_length;
+			proto_item *extended_tree = NULL;
+			proto_item *tf;
+			int fle;
+
+			fle = tvb_get_fle(tvb, tree, offset, &extended_length, NULL);
+			tf = proto_tree_add_item(tree, hf_mariadb_extmeta_data, tvb, offset, fle + (uint32_t) extended_length, ENC_NA);
+			extended_tree = proto_item_add_subtree(tf, ett_extmeta_data);
+			proto_tree_add_uint64(tf, hf_mariadb_extmeta_length, tvb, offset, fle, extended_length);
+			offset += fle;
+
+			while (extended_length > 0) {
+				length = add_extended_meta_entry_to_tree(tvb, pinfo, extended_tree, offset);
+				offset += length;
+				extended_length -= length;
+			}
+		}
+
+		offset +=1; /* filler */
+
+		uint32_t charsetnr;
+		proto_tree_add_item_ret_uint(tree, hf_mysql_fld_charsetnr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &charsetnr);
+		fld_encoding = collation_to_encoding(charsetnr, conn_data->is_mariadb_server);
+		offset += 2; /* charset */
+	} else {
+		/*
+		 * Pre 4.1: Protocol::ColumnDefinition320
+		 * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_text_resultset_column_definition.html#sec_protocol_com_query_response_text_resultset_column_definition_320
+		 */
+
+		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_table, encoding);
+		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_name, encoding);
 	}
 
-	offset +=1; /* filler */
+	if (conn_data->clnt_caps & MYSQL_CAPS_CU) {
+		proto_tree_add_item(tree, hf_mysql_fld_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4; /* column length */
+	} else {
+		uint64_t field_length;
+		int lenfle = tvb_get_fle(tvb, tree, offset, &field_length, NULL);
+		offset += lenfle;
+		proto_tree_add_item(tree, hf_mysql_fld_length, tvb, offset, (int)field_length, ENC_LITTLE_ENDIAN);
+		offset += (int)field_length;
+	}
 
-	uint32_t charsetnr;
-	proto_tree_add_item_ret_uint(tree, hf_mysql_fld_charsetnr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &charsetnr);
-	fld_encoding = collation_to_encoding(charsetnr, conn_data->is_mariadb_server);
-	offset += 2; /* charset */
+	if (conn_data->clnt_caps & MYSQL_CAPS_CU) {
+		proto_tree_add_item(tree, hf_mysql_fld_type, tvb, offset, 1, ENC_NA);
+		fld_type = tvb_get_uint8(tvb, offset);
+		offset += 1; /* type */
+	} else {
+		uint64_t field_type;
+		int lenfle = tvb_get_fle(tvb, tree, offset, &field_type, NULL);
+		offset += lenfle;
+		proto_tree_add_item(tree, hf_mysql_fld_type, tvb, offset, (int)field_type, ENC_LITTLE_ENDIAN);
+		fld_type = (uint8_t)field_type;
+		offset += (int)field_type;
+	}
 
-	proto_tree_add_item(tree, hf_mysql_fld_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4; /* length */
-
-	proto_tree_add_item(tree, hf_mysql_fld_type, tvb, offset, 1, ENC_NA);
-	fld_type = tvb_get_uint8(tvb, offset);
-	offset += 1; /* type */
-
+	if (!(conn_data->clnt_caps & MYSQL_CAPS_CU)) {
+		offset += 1;
+	}
 	proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_mysql_fld_flags, ett_field_flags, mysql_fld_flags, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
 	fld_flag = tvb_get_letohs(tvb, offset);
-	offset += 2; /* flags */
+
+	if (conn_data->clnt_caps & MYSQL_CAPS_LF) {
+		offset += 2; /* flags */
+	} else {
+		offset += 1; /* flags */
+	}
 
 	proto_tree_add_item(tree, hf_mysql_fld_decimals, tvb, offset, 1, ENC_NA);
 	offset += 1; /* decimals */
 
-	offset += 2; /* filler */
+	if (conn_data->clnt_caps & MYSQL_CAPS_CU) {
+		offset += 2; /* filler */
+	}
 
 	if (current_state == FIELD_PACKET || current_state == PREPARED_FIELDS) {
 		if (my_frame_data->field_metas.count) {
@@ -3895,7 +3937,9 @@ mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi _U_, int offset, proto_
 			}
 			my_frame_data->field_metas.types[fieldpos] = fld_type;
 			my_frame_data->field_metas.flags[fieldpos] = fld_flag;
-			my_frame_data->field_metas.encodings[fieldpos] = fld_encoding;
+			if (conn_data->clnt_caps & MYSQL_CAPS_CU) {
+				my_frame_data->field_metas.encodings[fieldpos] = fld_encoding;
+			}
 		}
 	}
 
