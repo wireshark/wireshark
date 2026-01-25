@@ -438,10 +438,7 @@ void PreferencesDialog::apply()
         mainApp->emitAppSignal(MainApplication::AggregationChanged);
     }
 
-    mainApp->setMonospaceFont(prefs.gui_font_name);
-
     if (redissect_flags & (PREF_EFFECT_GUI_COLOR)) {
-        ColorUtils::setScheme(prefs.gui_color_scheme);
         mainApp->emitAppSignal(MainApplication::ColorsChanged);
     }
 

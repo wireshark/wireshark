@@ -930,7 +930,6 @@ int main(int argc, char *qt_argv[])
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling prefs_apply_all, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
 #endif
     prefs_apply_all();
-    ColorUtils::setScheme(prefs.gui_color_scheme);
     ssApp->emitAppSignal(StratosharkApplication::ColorsChanged);
     ssApp->emitAppSignal(StratosharkApplication::PreferencesChanged);
 
@@ -962,8 +961,6 @@ int main(int argc, char *qt_argv[])
     build_column_format_array(&CaptureFile::globalCapFile()->cinfo, prefs_p->num_cols, true);
     ssApp->emitAppSignal(StratosharkApplication::ColumnsChanged); // We read "recent" widths above.
     ssApp->emitAppSignal(StratosharkApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
-
-    ssApp->setMonospaceFont(prefs.gui_font_name);
 
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setMainWindowTitle();

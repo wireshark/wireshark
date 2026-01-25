@@ -411,16 +411,12 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
     timestamp_set_type(recent.gui_time_format);
     timestamp_set_precision(recent.gui_time_precision);
     timestamp_set_seconds_type (recent.gui_seconds_format);
-    tap_update_timer_.setInterval(prefs.tap_update_interval);
 
     prefs_to_capture_opts(&global_capture_opts);
     prefs_apply_all();
 #ifdef HAVE_LIBPCAP
     update_local_interfaces(&global_capture_opts);
 #endif
-
-    setMonospaceFont(prefs.gui_font_name);
-    ColorUtils::setScheme(prefs.gui_color_scheme);
 
     emit columnsChanged();
     emit colorsChanged();
@@ -601,10 +597,11 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     packet_data_timer_.start(1000);
 
     tap_update_timer_.setParent(this);
-    tap_update_timer_.setInterval(TAP_UPDATE_DEFAULT_INTERVAL);
+    // tap_update_timer interval is set when preferences are set before init
     connect(this, &MainApplication::appInitialized, &tap_update_timer_, [&]() { tap_update_timer_.start(); });
     connect(this, &MainApplication::appInitialized, [this] { emit aggregationVisiblity(); });
     connect(&tap_update_timer_, &QTimer::timeout, this, &MainApplication::updateTaps);
+
 
     // Application-wide style sheet
     QString app_style_sheet = qApp->styleSheet();
@@ -666,6 +663,8 @@ void MainApplication::emitAppSignal(AppSignal signal)
         emit addressResolutionChanged();
         break;
     case PreferencesChanged:
+        tap_update_timer_.setInterval(prefs.tap_update_interval);
+        setMonospaceFont(prefs.gui_font_name);
         emit preferencesChanged();
         break;
     case PacketDissectionChanged:
@@ -681,6 +680,7 @@ void MainApplication::emitAppSignal(AppSignal signal)
         emit fieldsChanged();
         break;
     case ColorsChanged:
+        ColorUtils::setScheme(prefs.gui_color_scheme);
         emit colorsChanged();
         break;
     case FreezePacketList:

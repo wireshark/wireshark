@@ -1035,7 +1035,6 @@ int main(int argc, char *qt_argv[])
 #endif
     splash_update(RA_PREFERENCES_APPLY, NULL, NULL);
     prefs_apply_all();
-    ColorUtils::setScheme(prefs.gui_color_scheme);
     wsApp->emitAppSignal(WiresharkApplication::ColorsChanged);
     wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
 
@@ -1067,8 +1066,6 @@ int main(int argc, char *qt_argv[])
     build_column_format_array(&CaptureFile::globalCapFile()->cinfo, prefs_p->num_cols, true);
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged); // We read "recent" widths above.
     wsApp->emitAppSignal(WiresharkApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
-
-    wsApp->setMonospaceFont(prefs.gui_font_name);
 
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setMainWindowTitle();
