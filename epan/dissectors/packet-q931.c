@@ -3060,7 +3060,6 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 static bool
 dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int lv_tpkt_len;
 
     /*
      * Check whether this looks like a TPKT-encapsulated
@@ -3071,8 +3070,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
      * 1 for the call_reference length,
      * and one for the message type.
      */
-    lv_tpkt_len = is_tpkt(tvb, 3);
-    if (lv_tpkt_len == -1) {
+    if (is_tpkt(tvb, 3, NULL)) {
         /*
          * It's not a TPKT packet; reject it.
          */
@@ -3090,8 +3088,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
          * It is - call the "dissect TPKT over a TCP stream"
          * routine.
          */
-        dissect_tpkt_encap(tvb, pinfo, tree, q931_desegment,
-            q931_tpkt_pdu_handle);
+        dissect_tpkt_encap(tvb, pinfo, tree, q931_desegment, q931_tpkt_pdu_handle);
         return true;
     }
 
@@ -3121,8 +3118,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
      * OK, it looks like Q.931-over-TPKT.
      * Call the "dissect TPKT over a TCP stream" routine.
      */
-    dissect_tpkt_encap(tvb, pinfo, tree, q931_desegment,
-        q931_tpkt_pdu_handle);
+    dissect_tpkt_encap(tvb, pinfo, tree, q931_desegment, q931_tpkt_pdu_handle);
 
     return true;
 }

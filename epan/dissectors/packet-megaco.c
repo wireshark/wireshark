@@ -478,7 +478,6 @@ static bool keep_persistent_data;
  */
 static int dissect_megaco_text_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int lv_tpkt_len;
 
     /* This code is copied from the Q.931 dissector, some parts skipped.
      * Check whether this looks like a TPKT-encapsulated
@@ -487,20 +486,19 @@ static int dissect_megaco_text_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
      * The minimum length of a MEGACO message is 6?:
      * Re-assembly ?
      */
-    lv_tpkt_len = is_tpkt(tvb, 6);
-    if (lv_tpkt_len == -1) {
+    if (is_tpkt(tvb, 6, NULL)) {
         /*
          * It's not a TPKT packet;
          * Is in MEGACO ?
          */
         dissect_megaco_text(tvb, pinfo, tree, data);
     }
-    dissect_tpkt_encap(tvb, pinfo, tree, true,
-        megaco_text_handle);
+    dissect_tpkt_encap(tvb, pinfo, tree, true, megaco_text_handle);
 
     return tvb_captured_length(tvb);
 }
 
+#define NO_MATCH            0
 #define ERRORTOKEN          1
 #define TRANSTOKEN          2
 #define REPLYTOKEN          3
@@ -522,7 +520,7 @@ static const megaco_tokens_t megaco_messageBody_names[] = {
 };
 
 /* Returns index of megaco_tokens_t */
-static int find_megaco_messageBody_names(tvbuff_t *tvb, int offset, unsigned header_len)
+static unsigned find_megaco_messageBody_names(tvbuff_t *tvb, unsigned offset, unsigned header_len)
 {
     unsigned i;
 
@@ -536,12 +534,11 @@ static int find_megaco_messageBody_names(tvbuff_t *tvb, int offset, unsigned hea
             return i;
     }
 
-    return -1;
+    return NO_MATCH;
 }
 
 static proto_item *
-megaco_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-             int start, int length, const char *value)
+megaco_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start, unsigned length, const char *value)
 {
     proto_item *pi;
 
@@ -555,7 +552,7 @@ megaco_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 static proto_item *
 my_proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-             int start, int length, uint32_t value)
+             unsigned start, unsigned length, uint32_t value)
 {
     proto_item *pi;
 
@@ -577,18 +574,19 @@ my_proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static int
 dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int         tvb_len, len;
-    int         tvb_offset,tvb_current_offset,tvb_previous_offset,tvb_next_offset,tokenlen;
-    int         context_offset, context_length, save_offset, save_length;
-    int         tvb_command_start_offset, tvb_command_end_offset;
-    int         tvb_transaction_end_offset;
+    unsigned    tvb_len, len;
+    unsigned    tvb_previous_offset, tvb_current_offset, tvb_offset, tvb_next_offset;
+    unsigned    tokenlen, toffset;
+    unsigned    context_offset, context_length, save_offset, save_length;
+    unsigned    tvb_command_start_offset, tvb_command_end_offset;
+    unsigned    tvb_transaction_end_offset;
     proto_tree  *megaco_tree, *message_body_tree, *megaco_tree_command_line;
     proto_item  *ti, *sub_ti;
 
     uint8_t     word[15];
     uint8_t     TermID[30];
     uint8_t     tempchar;
-    int         tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
+    unsigned    tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
     unsigned    token_index=0;
     uint32_t    dword;
     unsigned char      needle;
@@ -643,7 +641,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
      */
     if ((tvb_strncaseeql(tvb, tvb_offset, "Authentication", 14) == 0) ||
         (tvb_strncaseeql(tvb, tvb_offset, "AU", 2) == 0)) {
-        int counter;
+        unsigned counter;
         uint8_t next;
 
         /* move offset to end of auth header (EOL or WSP) */
@@ -699,9 +697,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     /*  According to H248.1-200205 Annex B Text encoding ( protocol version 2 )     */
 
     /* Find version */
-    tvb_previous_offset = tvb_find_uint8(tvb, 0,
-        tvb_len, '/');
-    if (tvb_previous_offset == -1) {
+    if (!tvb_find_uint8_remaining(tvb, 0, '/', &tvb_previous_offset)) {
         expert_add_info_format(pinfo, ti, &ei_megaco_parse_error,
             "Sorry, no \"/\" in the MEGACO header, I can't parse this packet");
         return tvb_captured_length(tvb);
@@ -745,8 +741,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
      * pathNAME = ["*"] NAME *("/" / "*"/ ALPHA / DIGIT /"_" / "$" )["@" pathDomainName ]
      */
 
-    tvb_current_offset = tvb_ws_mempbrk_pattern_uint8(tvb, tvb_current_offset, -1, &pbrk_whitespace, &needle);
-    if (tvb_current_offset == -1) {
+    if (!tvb_ws_mempbrk_uint8_length(tvb, tvb_current_offset, tvb_len, &pbrk_whitespace, &tvb_current_offset, &needle)) {
         expert_add_info_format(pinfo, ti, &ei_megaco_parse_error,
             "[ Parse error: no body in MEGACO message (missing SEP after mId) ]");
         return tvb_captured_length(tvb);
@@ -877,14 +872,14 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         /* transactionReply */
         case REPLYTOKEN:
             trx_type = GCP_TRX_REPLY;
-            tvb_LBRKT  = tvb_find_uint8(tvb, tvb_offset, tvb_transaction_end_offset, '{');
+            tvb_find_uint8_length(tvb, tvb_offset, tvb_transaction_end_offset, '{', &tvb_LBRKT);
             save_offset = tvb_previous_offset;
             save_length = tvb_LBRKT-tvb_previous_offset;
 
             megaco_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
                     save_offset, save_length, "Reply" );
 
-            tvb_offset  = tvb_find_uint8(tvb, tvb_previous_offset, tvb_transaction_end_offset, '=')+1;
+            tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_transaction_end_offset, '=', &tvb_offset);
             tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset);
             tvb_current_offset  = megaco_tvb_skip_wsp_return(tvb, tvb_LBRKT-1);
             len = tvb_current_offset - tvb_offset;
@@ -912,7 +907,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             megaco_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
                     save_offset, save_length, "Request" );
 
-            tvb_offset  = tvb_find_uint8(tvb, tvb_offset, tvb_transaction_end_offset, '=')+1;
+            tvb_find_uint8_length(tvb, tvb_offset, tvb_transaction_end_offset, '=', &tvb_offset);
+            tvb_offset += 1;
             tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset);
             tvb_current_offset  = megaco_tvb_skip_wsp_return(tvb, tvb_current_offset-1);
             len = tvb_current_offset - tvb_offset;
@@ -925,7 +921,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             tvb_previous_offset = megaco_tvb_skip_wsp(tvb, tvb_LBRKT+1);
 
             break;
-        default :
+        default : /* NO_MATCH */
             proto_tree_add_expert_format_remaining(tree, pinfo, &ei_megaco_error_descriptor_transaction_list, tvb, 0,
                     "Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",
                         tvb_format_text(pinfo->pool, tvb,tvb_previous_offset,2),tvb_previous_offset);
@@ -951,12 +947,13 @@ nextcontext:
 
 
 
-
-        tvb_next_offset = tvb_find_uint8(tvb, tvb_previous_offset, tvb_transaction_end_offset, '{');
+        /* Check result???*/
+        tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_transaction_end_offset, '{', &tvb_next_offset);
         context_offset = tvb_previous_offset;
         context_length = tvb_next_offset-tvb_previous_offset+1;
 
-        tvb_previous_offset = tvb_find_uint8(tvb, tvb_current_offset, tvb_transaction_end_offset, '=')+1;
+        tvb_find_uint8_length(tvb, tvb_current_offset, tvb_transaction_end_offset, '=', &tvb_previous_offset);
+        tvb_previous_offset += 1;
         tvb_previous_offset = megaco_tvb_skip_wsp(tvb, tvb_previous_offset);
 
         if (tvb_current_offset >= tvb_next_offset) {
@@ -1007,33 +1004,25 @@ nextcontext:
         /* The following loop find the individual contexts, commands and call the for every Descriptor a subroutine */
 
         do {
-            tvb_command_end_offset = tvb_find_uint8(tvb, tvb_command_end_offset +1,
-                tvb_transaction_end_offset, ',');
-
-            if ( tvb_command_end_offset == -1 || tvb_command_end_offset > tvb_transaction_end_offset){
+            if ( !tvb_find_uint8_length(tvb, tvb_command_end_offset + 1, tvb_transaction_end_offset, ',', &tvb_command_end_offset) || tvb_command_end_offset > tvb_transaction_end_offset){
                 tvb_command_end_offset = tvb_transaction_end_offset ;
-
             }
 
             /* checking how many left brackets are before the next comma */
+            while (tvb_find_uint8_length(tvb, tvb_LBRKT + 1 + 1, tvb_transaction_end_offset, '{', &toffset)
+                && toffset < tvb_command_end_offset){
 
-            while ( tvb_find_uint8(tvb, tvb_LBRKT+1,tvb_transaction_end_offset, '{') != -1
-                && (tvb_find_uint8(tvb, tvb_LBRKT+1,tvb_transaction_end_offset, '{') < tvb_command_end_offset)){
-
-                tvb_LBRKT = tvb_find_uint8(tvb, tvb_LBRKT+1,
-                    tvb_transaction_end_offset, '{');
-
+                tvb_LBRKT = toffset;
                 LBRKT_counter++;
             }
 
             /* checking how many right brackets are before the next comma */
 
-            while ( (tvb_find_uint8(tvb, tvb_RBRKT+1,tvb_transaction_end_offset, '}') != -1 )
-                    && (tvb_find_uint8(tvb, tvb_RBRKT+1,tvb_transaction_end_offset, '}') <= tvb_command_end_offset)
+            while ( (tvb_find_uint8_length(tvb, tvb_RBRKT+1,tvb_transaction_end_offset, '}', &toffset))
+                    && toffset <= tvb_command_end_offset
                 && LBRKT_counter != 0){
 
-                tvb_RBRKT = tvb_find_uint8(tvb, tvb_RBRKT+1,
-                    tvb_transaction_end_offset, '}');
+                tvb_RBRKT = tvb_find_uint8(tvb, tvb_RBRKT+1, tvb_transaction_end_offset, '}');
                 RBRKT_counter++;
 
 
@@ -1043,8 +1032,7 @@ nextcontext:
 
             if ( LBRKT_counter <= RBRKT_counter ){
 
-                tvb_current_offset  = tvb_find_uint8(tvb, tvb_command_start_offset,
-                    tvb_transaction_end_offset, '{');
+                tvb_find_uint8_length(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '{', &tvb_current_offset);
 
 
                 /* includes no descriptors */
@@ -1054,12 +1042,10 @@ nextcontext:
                     tvb_current_offset = tvb_command_end_offset;
 
                     /* the last command in a context */
+                    if (tvb_find_uint8_length(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '}', &toffset)
+                        && toffset < tvb_current_offset){
 
-                    if ( tvb_find_uint8(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '}') < tvb_current_offset
-                        && tvb_find_uint8(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '}') != -1){
-
-                        tvb_previous_offset  = tvb_find_uint8(tvb, tvb_command_start_offset,
-                            tvb_transaction_end_offset, '}');
+                        tvb_previous_offset = toffset;
 
                         len = tvb_previous_offset - tvb_command_start_offset;
 
@@ -1123,24 +1109,21 @@ nextcontext:
                         tempchar = tempchar - 0x20;
 
                     if ( tempchar == 'P' || tempchar == 'O'){
-                        int tvb_topology_end_offset = tvb_find_uint8(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '}');
-                        if ( tvb_topology_end_offset == -1 ){
+                        unsigned tvb_topology_end_offset;
+                        if ( !tvb_find_uint8_length(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '}', &tvb_topology_end_offset) ){
                             expert_add_info_format(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Missing \"}\"");
                             return tvb_captured_length(tvb);
                         }
 
-                        tvb_command_start_offset = tvb_find_uint8(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '{');
-                        if ( tvb_command_start_offset == -1 ){
+                        if ( !tvb_find_uint8_length(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '}', &tvb_command_start_offset)){
                             expert_add_info_format(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Missing \"{\"");
                             return tvb_captured_length(tvb);
                         }
+
                         dissect_megaco_topologydescriptor(tvb, megaco_tree_command_line, tvb_topology_end_offset-1, tvb_command_start_offset+1);
 
                         /* Command after Topology Descriptor */
-                        tvb_command_start_offset = tvb_find_uint8(tvb, tvb_topology_end_offset + 1,
-                            tvb_transaction_end_offset, ',');
-
-                        if ( tvb_command_start_offset == -1 ){
+                        if ( !tvb_find_uint8_length(tvb, tvb_topology_end_offset + 1, tvb_transaction_end_offset, ',', &tvb_command_start_offset)){
                             /* No Command present after Topology Descriptor */
                             break;
 
@@ -1173,9 +1156,7 @@ nextcontext:
                     tvb_command_start_offset = tvb_command_start_offset+2;
                 }
 
-                tvb_offset  = tvb_find_uint8(tvb, tvb_command_start_offset,
-                    tvb_transaction_end_offset, '=');
-                if (tvb_offset == -1 ) {
+                if (!tvb_find_uint8_length(tvb, tvb_command_start_offset + 1, tvb_transaction_end_offset, '=', &tvb_offset)) {
                     proto_tree_add_expert_format(megaco_tree, pinfo, &ei_megaco_parse_error, tvb, tvb_command_start_offset, len+1, "Parse error: Missing \"=\"");
                     return tvb_captured_length(tvb);
                 }
@@ -1453,15 +1434,14 @@ nextcontext:
                         tap_queue_packet(megaco_tap, pinfo, cmd);
                     }
 
-                    tvb_offset  = tvb_find_uint8(tvb, tvb_command_start_offset,
-                        tvb_transaction_end_offset, '=');
-                    if (tvb_offset == -1 ) {
+                    if (!tvb_find_uint8_length(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '=', &tvb_offset)) {
                         expert_add_info_format(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Missing \"=\"");
                         return tvb_captured_length(tvb);
                     }
+
                     tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset+1);
                     tokenlen = tvb_next_offset - tvb_offset;
-                    if (tokenlen+1 <= 0) {
+                    if (tokenlen == 0) {
                         expert_add_info_format(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Invalid token length (%d)", tokenlen+1);
                         return tvb_captured_length(tvb);
                     }
@@ -1557,9 +1537,8 @@ nextcontext:
 
             if ( LBRKT_counter != 0 && tvb_current_offset != tvb_command_end_offset){
 
-                int tvb_descriptors_start_offset, tvb_descriptors_end_offset;
-                tvb_descriptors_start_offset  = tvb_find_uint8(tvb, tvb_command_start_offset,
-                    tvb_transaction_end_offset, '{');
+                unsigned tvb_descriptors_start_offset, tvb_descriptors_end_offset;
+                tvb_descriptors_start_offset  = tvb_find_uint8(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '{');
 
                 tvb_descriptors_end_offset = tvb_descriptors_start_offset;
                 if ( tvb_descriptors_end_offset > tvb_transaction_end_offset )
@@ -1567,8 +1546,7 @@ nextcontext:
 
                 while ( LBRKT_counter > 0 ){
 
-                    tvb_descriptors_end_offset = tvb_find_uint8(tvb, tvb_descriptors_end_offset+1,
-                        tvb_transaction_end_offset, '}');
+                    tvb_descriptors_end_offset = tvb_find_uint8(tvb, tvb_descriptors_end_offset+1, tvb_transaction_end_offset, '}');
 
                     LBRKT_counter--;
 

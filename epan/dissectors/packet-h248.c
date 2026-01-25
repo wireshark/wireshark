@@ -6003,7 +6003,8 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        encodings are MEGACO (RFC 3015) and both are H.248.)
      */
     if(tvb_captured_length(tvb)>=6){
-        if(!tvb_strneql(tvb, 0, "MEGACO", 6)){
+        unsigned toffset = tvb_skip_wsp(tvb, 0, tvb_captured_length(tvb));
+        if(!tvb_strneql(tvb, toffset, "MEGACO", 6) || !tvb_strneql(tvb, toffset, "!/2", 3)){
             static dissector_handle_t megaco_handle=NULL;
             if(!megaco_handle){
                 megaco_handle = find_dissector("megaco");

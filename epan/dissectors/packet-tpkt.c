@@ -65,21 +65,21 @@ static dissector_handle_t tpkt_handle;
  * TPKT header must be at least "4+min_len" in order for this to be a
  * valid TPKT PDU for the protocol in question.
  */
-int
-is_tpkt(tvbuff_t *tvb, int min_len)
+bool
+is_tpkt(tvbuff_t *tvb, unsigned min_len, unsigned *pkt_len)
 {
-    uint16_t pkt_len;
+    unsigned t_pkt_len;
 
     /*
      * If TPKT is disabled, don't dissect it, just return -1, meaning
      * "this isn't TPKT".
      */
     if (!proto_is_protocol_enabled(proto_tpkt_ptr))
-        return -1;
+        return false;
 
     /* There should at least be 4 bytes left in the frame */
     if (tvb_captured_length(tvb) < 4)
-        return -1;  /* there aren't */
+        return false;  /* there aren't */
 
     /*
      * The first octet should be 3 and the second one should be 0
@@ -87,20 +87,23 @@ is_tpkt(tvbuff_t *tvb, int min_len)
      * always be the case....
      */
     if (!(tvb_get_uint8(tvb, 0) == 3 && tvb_get_uint8(tvb, 1) == 0))
-        return -1;  /* they're not */
+        return false;  /* they're not */
 
     /*
      * Get the length from the TPKT header.  Make sure it's large
      * enough.
      */
-    pkt_len = tvb_get_ntohs(tvb, 2);
-    if (pkt_len < 4 + min_len)
-        return -1;  /* it's not */
+    t_pkt_len = tvb_get_ntohs(tvb, 2);
+    if (t_pkt_len < 4 + min_len)
+        return false;  /* it's not */
 
     /*
      * Return the length from the header.
      */
-    return pkt_len;
+    if (pkt_len) {
+        *pkt_len = t_pkt_len;
+    }
+    return true;
 }
 uint16_t
 is_asciitpkt(tvbuff_t *tvb)
@@ -211,7 +214,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti = NULL;
     proto_tree *tpkt_tree = NULL;
-    volatile int offset = 0;
+    volatile unsigned offset = 0;
     int data_len;
     volatile int mgcp_packet_len = 0;
     int mgcp_version = 0;
@@ -354,10 +357,10 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti = NULL;
     proto_tree *tpkt_tree = NULL;
-    volatile int offset = 0;
-    int length_remaining;
-    volatile int data_len;
-    volatile int length;
+    volatile unsigned offset = 0;
+    unsigned length_remaining;
+    volatile unsigned data_len;
+    volatile unsigned length;
     tvbuff_t *volatile next_tvb;
     const char *saved_proto;
     bool save_fragmented;
@@ -607,7 +610,8 @@ dissect_ascii_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 static int
 dissect_tpkt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    if (is_tpkt(tvb, 0) == -1) {
+    unsigned pkt_len;
+    if (!is_tpkt(tvb, 0, &pkt_len)) {
         /* Doesn't look like TPKT directly. Might be over TLS, so reject
          * and let the TLS heuristic dissector take a look
          */

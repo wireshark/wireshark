@@ -23,7 +23,7 @@
  * TPKT header must be at least "4+min_len" in order for this to be a
  * valid TPKT PDU for the protocol in question.
  */
-WS_DLL_PUBLIC int is_tpkt(tvbuff_t *tvb, int min_len);
+WS_DLL_PUBLIC bool is_tpkt(tvbuff_t *tvb, unsigned min_len, unsigned *pkt_len);
 
 /*
  * Dissect TPKT-encapsulated data in a TCP stream.
