@@ -10,7 +10,6 @@
 Make-iana-constants creates a file containing Address family numbers.
 '''
 
-import io
 import os
 import sys
 import ipaddress
@@ -266,15 +265,15 @@ const value_string afn_vals[] = {
 
 def get_ipproto_data():
     print('Loading IP Protocol Numbers data from {}'.format(ipproto_url))
-        
+
     try:
             req = urllib.request.Request(ipproto_url)
             response = urllib.request.urlopen(req)
             body = response.read().decode('UTF-8', 'replace')
     except Exception:
             exit_msg('Error opening ' + ipproto_url)
-        
-        
+
+
     tree = ET.fromstring(body)
     registry = tree.find(f"{{{iana_ns}}}registry")
 
@@ -295,7 +294,7 @@ def get_ipproto_data():
             else:
                 if raw_description is not None and raw_description.text == "Unassigned":
                     records.append(IPProtocolNumber(value, raw_description.text, raw_description.text))
-        
+
     return records
 
 def generate_ipproto_header_data(file, ipproto_data):
@@ -463,7 +462,7 @@ value_string_ext enterprise_val_ext = VALUE_STRING_EXT_INIT(enterprise_val);
 def get_service_data():
 
     print('Loading service port/name data from {}'.format(service_names_port_numbers_url))
-        
+
     try:
             req = urllib.request.Request(service_names_port_numbers_url)
             response = urllib.request.urlopen(req)
@@ -471,7 +470,7 @@ def get_service_data():
     except Exception:
             exit_msg('Error opening ' + service_names_port_numbers_url)
 
-    ns = {'iana': iana_ns}        
+    ns = {'iana': iana_ns}
 
     tree = ET.fromstring(body)
 
@@ -628,7 +627,7 @@ def main():
         #Pull out the existing header file parts
         start, block, end = parse_source(iana_h_path)
         try:
-            with io.open(iana_h_path, 'w', encoding='UTF-8') as iana_f:
+            with open(iana_h_path, 'w', encoding='UTF-8') as iana_f:
                 iana_f.write(start)
                 generate_afnum_header_data(iana_f, afnum_data)
                 generate_ipproto_header_data(iana_f, ipproto_data)
@@ -641,7 +640,7 @@ def main():
         #Pull out the existing source file parts
         start, block, end = parse_source(iana_c_path)
         try:
-            with io.open(iana_c_path, 'w', encoding='UTF-8') as iana_f:
+            with open(iana_c_path, 'w', encoding='UTF-8') as iana_f:
                 iana_f.write(start)
                 generate_afnum_source_data(iana_f, afnum_data)
                 generate_ipproto_source_data(iana_f, ipproto_data)

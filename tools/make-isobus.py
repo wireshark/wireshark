@@ -139,7 +139,7 @@ def main():
 
     # prepare output header file
     try:
-        output_header_fd = io.open(isobus_data_header_path, 'w', encoding='UTF-8')
+        output_header_fd = open(isobus_data_header_path, 'w', encoding='UTF-8')
     except Exception:
         exit_msg("Couldn't open ({}) ".format(isobus_data_header_path))
 
@@ -168,7 +168,7 @@ extern value_string_ext isobus_pgn_names_ext;
 
     # prepare output source file
     try:
-        output_fd = io.open(isobus_data_output_path, 'w', encoding='UTF-8')
+        output_fd = open(isobus_data_output_path, 'w', encoding='UTF-8')
     except Exception:
         exit_msg("Couldn't open ({}) ".format(isobus_data_output_path))
 

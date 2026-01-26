@@ -16,7 +16,6 @@ that command and flag. Update the file if the output differs.
 import argparse
 import difflib
 import glob
-import io
 import os
 import re
 import subprocess
@@ -53,7 +52,7 @@ def main():
             print('{} not found. Skipping.'.format(thf_command))
             continue
 
-        with io.open(thf, 'r', encoding='UTF-8') as fd:
+        with open(thf, 'r', encoding='UTF-8') as fd:
             cur_help = fd.read()
 
         try:
@@ -73,7 +72,7 @@ def main():
 
         if (len(diff) > 0):
             print('Updating {} {}'.format(thf_command, thf_flag))
-            with io.open(thf, 'w', encoding='UTF-8') as fd:
+            with open(thf, 'w', encoding='UTF-8') as fd:
                 fd.write(new_help)
         else:
             print('{} {} output unchanged.'.format(thf_command, thf_flag))

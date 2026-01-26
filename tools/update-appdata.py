@@ -28,7 +28,6 @@ today's date for it.
 '''
 
 from datetime import date
-import io
 import os.path
 import re
 import subprocess
@@ -83,7 +82,7 @@ def main():
             raise
 
     ax_lines = []
-    with io.open(appdata_xml, 'r', encoding='UTF-8') as ax_fd:
+    with open(appdata_xml, 'r', encoding='UTF-8') as ax_fd:
         in_releases = False
         for line in ax_fd:
             if '</releases>' in line:
@@ -95,7 +94,7 @@ def main():
                 in_releases = True
                 ax_lines.extend(release_tag_l)
 
-    with io.open(appdata_xml, 'w', encoding='UTF-8') as ax_fd:
+    with open(appdata_xml, 'w', encoding='UTF-8') as ax_fd:
         ax_fd.write(''.join(ax_lines))
 
 if __name__ == '__main__':
