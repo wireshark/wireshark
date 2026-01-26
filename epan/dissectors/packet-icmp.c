@@ -963,7 +963,7 @@ dissect_interface_identification_object(tvbuff_t * tvb, packet_info* pinfo, int 
 static int
 dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-	int offset = 0;
+	int offset = 0, checksum_offset, checksum_object_offset = 0;
 	uint8_t version;
 	uint8_t class_num;
 	uint8_t c_type;
@@ -974,10 +974,12 @@ dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 	unsigned reported_length;
 	bool unknown_object;
 	uint8_t int_info_obj_count;
+	bool first_iio_object_found = false;
+	unsigned checksum_object_length;
 
 	int_info_obj_count = 0;
 
-	reported_length = tvb_reported_length_remaining(tvb, offset);
+	checksum_object_length = reported_length = tvb_reported_length_remaining(tvb, offset);
 
 	/* Add a tree for multi-part extensions RFC 4884 */
 	ti = proto_tree_add_none_format(tree, hf_icmp_ext, tvb,
@@ -999,16 +1001,7 @@ dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 	proto_tree_add_item(ext_tree, hf_icmp_ext_reserved,
 				   tvb, offset, 2, ENC_BIG_ENDIAN);
 
-	/* Checksum */
-	checksum = tvb_get_ntohs(tvb, offset + 2);
-	if (checksum == 0) {
-		proto_tree_add_checksum(ext_tree, tvb, offset + 2, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, &ei_icmp_ext_checksum,
-							pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
-
-	} else {
-		proto_tree_add_checksum(ext_tree, tvb, offset + 2, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, &ei_icmp_ext_checksum,
-							pinfo, ip_checksum_tvb(tvb, offset, reported_length), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
-	}
+	checksum_offset = offset + 2;
 
 	if (version != 1 && version != 2) {
 		/* Unsupported version */
@@ -1082,6 +1075,13 @@ dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 								 tf_object);
 			break;
 		case INTERFACE_IDENTIFICATION_OBJECT_CLASS:
+
+			if (!first_iio_object_found) {
+				checksum_object_offset = offset;
+				checksum_object_length = obj_trunc_length;
+				first_iio_object_found = true;
+			}
+
 			unknown_object =
 			    dissect_interface_identification_object(tvb, pinfo,
 								 offset,
@@ -1120,6 +1120,19 @@ dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 		offset = obj_end_offset;
 
 	}
+
+	/* Checksum */
+	checksum = tvb_get_ntohs(tvb, checksum_offset);
+	if (checksum == 0) {
+		proto_tree_add_checksum(ext_tree, tvb, checksum_offset, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, &ei_icmp_ext_checksum,
+			pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+
+	}
+	else {
+		proto_tree_add_checksum(ext_tree, tvb, checksum_offset, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, &ei_icmp_ext_checksum,
+			pinfo, ip_checksum_tvb(tvb, 0, checksum_object_offset + checksum_object_length), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY | PROTO_CHECKSUM_IN_CKSUM);
+	}
+
 	return offset;
 }
 
