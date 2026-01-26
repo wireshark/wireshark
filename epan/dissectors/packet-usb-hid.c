@@ -3729,6 +3729,7 @@ hid_unpack_signed(uint8_t *data, unsigned int idx, unsigned int size, int32_t *v
     return false;
 }
 
+#define MAX_REPORT_DESCRIPTOR_COUNT 100000 // Arbitrary
 static bool
 parse_report_descriptor(report_descriptor_t *rdesc)
 {
@@ -3910,11 +3911,15 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                         }
 
                         /* Usage min and max must be on the same page */
-                        if (USAGE_PAGE(usage_min) != USAGE_PAGE(usage_max)) {
+                        if (USAGE_PAGE(usage_min) != USAGE_PAGE(usage_max))  {
                             goto err;
                         }
 
                         if (usage_min > usage_max) {
+                            goto err;
+                        }
+
+                        if (wmem_array_get_count(field.usages) + usage_max - usage_min >= MAX_REPORT_DESCRIPTOR_COUNT) {
                             goto err;
                         }
 
@@ -4243,7 +4248,7 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
                 default: global->usage_page = 0; break;
             }
             str = get_usage_page_string(global->usage_page);
-            proto_tree_add_uint_format(tree, hf_usb_hid_globalitem_usage, tvb, offset, bSize, global->usage_page, "Usage Page: %s (0x%02x)", str, global->usage_page);
+            proto_tree_add_uint_format_value(tree, hf_usb_hid_globalitem_usage, tvb, offset, bSize, global->usage_page, "%s (0x%02x)", str, global->usage_page);
             proto_item_append_text(ti, " (%s)", str);
             break;
         case USBHID_GLOBALITEM_TAG_LOG_MIN:
@@ -4335,7 +4340,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo, proto_tree *tree, tvbu
                 else if (bSize == 2)
                     id = tvb_get_ntohs(tvb, offset);
                 str = get_usage_page_item_string(pinfo->pool, global->usage_page, id);
-                proto_tree_add_uint_format(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, id, "Usage: %s (0x%02x)", str, id);
+                proto_tree_add_uint_format_value(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, id, "%s (0x%02x)", str, id);
                 proto_item_append_text(ti, " (%s)", str);
             }
             break;
