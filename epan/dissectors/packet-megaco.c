@@ -445,7 +445,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 static void
 dissect_megaco_digitmapdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int tvb_RBRKT, int tvb_previous_offset);
 static void
-dissect_megaco_topologydescriptor(tvbuff_t *tvb, proto_tree *tree, int tvb_RBRKT, int tvb_previous_offset);
+dissect_megaco_topologydescriptor(tvbuff_t *tvb, proto_tree *tree, unsigned tvb_RBRKT, unsigned tvb_previous_offset);
 static void
 dissect_megaco_errordescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned tvb_RBRKT, unsigned tvb_previous_offset);
 static void
@@ -2460,20 +2460,21 @@ static const value_string MEGACO_ServiceChangeReasons_vals[] = {
 };
 
 static void
-dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_tree *megaco_tree,  int tvb_RBRKT,
-    int tvb_previous_offset)
+dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_tree *megaco_tree, unsigned tvb_RBRKT,
+    unsigned tvb_previous_offset)
 {
 
-    int         tokenlen, tvb_LBRKT, tvb_offset;
-    int         token_index;
-    int         tvb_current_offset;
+    unsigned    tokenlen, tvb_LBRKT, tvb_offset;
+    unsigned    token_index;
+    unsigned    tvb_current_offset;
+    bool        found;
     bool        more_params = true;
     proto_item* item;
-    int                 reason;
-    bool                reason_valid;
-    uint8_t             ServiceChangeReason_str[4];
+    int         reason;
+    bool        reason_valid;
+    uint8_t     ServiceChangeReason_str[4];
 
-    tvb_LBRKT  = tvb_find_uint8(tvb, tvb_previous_offset, tvb_RBRKT, '{');
+    tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_RBRKT, '{', &tvb_LBRKT);
     /*
     if (tvb_LBRKT == -1)
         return;
@@ -2494,8 +2495,8 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_
         tokenlen = tvb_offset - tvb_previous_offset;
         token_index = find_megaco_megaco_serviceChangeParm_names(tvb, tvb_previous_offset, tokenlen);
 
-        tvb_offset  = tvb_find_uint8(tvb, tvb_offset, tvb_RBRKT, ',');
-        if ((tvb_offset == -1)||(tvb_offset >=tvb_RBRKT)){
+        found = tvb_find_uint8_length(tvb, tvb_offset, tvb_RBRKT, ',', &tvb_offset);
+        if ((found == false)||(tvb_offset >=tvb_RBRKT)){
             more_params = false;
             tvb_offset = megaco_tvb_skip_wsp_return(tvb, tvb_RBRKT-1);
         }
@@ -2513,8 +2514,8 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_
             /* As the reason code ( if a digit ) can be in quoted string or 'just' digit
              * look for a nine and hope for the best.
              */
-            tvb_current_offset = tvb_find_uint8(tvb, tvb_previous_offset, tvb_RBRKT, '9');
-            if ( tvb_current_offset == -1)
+            found = tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_RBRKT, '9', &tvb_current_offset);
+            if ( found == false)
                 break;
 
             tvb_get_raw_bytes_as_stringz(tvb,tvb_current_offset,4,ServiceChangeReason_str);
@@ -2737,10 +2738,10 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
     }
 }
 static void
-dissect_megaco_topologydescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_line,  int tvb_RBRKT, int tvb_previous_offset)
+dissect_megaco_topologydescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_line,  unsigned tvb_RBRKT, unsigned tvb_previous_offset)
 {
 
-    int     tokenlen;
+    unsigned tokenlen;
 
     tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
     proto_tree_add_item(megaco_tree_command_line, hf_megaco_topology_descriptor, tvb,
@@ -3368,15 +3369,16 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 static void
 dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packet_info *pinfo, proto_tree *top_tree, uint32_t context)
 {
-    int         tvb_len, token_index, tvb_offset, temp_offset;
-    int         tvb_current_offset,tvb_previous_offset,save_offset,tokenlen;
-    int         tvb_RBRKT, tvb_LBRKT;
+    unsigned    tvb_len, token_index, tvb_offset, temp_offset;
+    unsigned    tvb_current_offset,tvb_previous_offset,save_offset,tokenlen;
+    unsigned    tvb_RBRKT, tvb_LBRKT;
+    bool found, found_LBRKT, found_RBRKT;
     tvbuff_t*   descriptor_tvb;
     proto_tree* descriptor_tree;
     proto_item* descriptor_item;
 
     tvb_len     = tvb_reported_length(tvb);
-    int tvb_descriptors_end_offset = tvb_len - 1;
+    unsigned tvb_descriptors_end_offset = tvb_len - 1;
 
     descriptor_tree = proto_tree_add_subtree(megaco_command_tree, tvb, 0, tvb_len,
                                              ett_megaco_descriptors, &descriptor_item, "Descriptors");
@@ -3388,9 +3390,9 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packe
 
     do {
         /* Find the end of this descriptor / start of next. */
-        tvb_current_offset  = tvb_find_uint8(tvb, tvb_previous_offset, tvb_len, ',');
+        found  = tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_len, ',', &tvb_current_offset);
 
-        if (tvb_current_offset == -1) {
+        if (found == false) {
             tvb_current_offset = tvb_descriptors_end_offset;
         }
         if (tvb_current_offset <= tvb_previous_offset) {
@@ -3399,13 +3401,12 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packe
         }
 
         /* Look for parameters in the next description */
-        tvb_LBRKT = tvb_find_uint8(tvb, tvb_previous_offset,
-            tvb_current_offset - tvb_previous_offset, '{');
-        tvb_RBRKT = tvb_find_uint8(tvb, tvb_RBRKT+1, tvb_len, '}');
-        if (tvb_RBRKT == -1)
+        found_LBRKT = tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset, '{', &tvb_LBRKT);
+        found_RBRKT = tvb_find_uint8_length(tvb, tvb_RBRKT+1, tvb_len, '}', &tvb_RBRKT);
+        if (found_RBRKT == false)
             tvb_RBRKT = tvb_descriptors_end_offset;
 
-        if (tvb_LBRKT == -1) {
+        if (found_LBRKT == false) {
             /* Descriptor includes no parameters */
             if (tvb_current_offset > tvb_RBRKT){
                 tvb_current_offset = tvb_RBRKT;
@@ -3413,14 +3414,14 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packe
             tvb_RBRKT = megaco_tvb_skip_wsp_return(tvb, tvb_current_offset-1)-1;
         } else {
             /* Descriptor includes Parameters */
-            while ( tvb_LBRKT != -1 && tvb_RBRKT > tvb_LBRKT ){
+            while (found_LBRKT == true && tvb_RBRKT > tvb_LBRKT ){
 
-                tvb_LBRKT = tvb_find_uint8(tvb, tvb_LBRKT+1, tvb_len, '{');
-                if ( tvb_LBRKT < tvb_RBRKT && tvb_LBRKT != -1)
-                    tvb_RBRKT = tvb_find_uint8(tvb, tvb_RBRKT+1, tvb_len, '}');
+                found_LBRKT = tvb_find_uint8_length(tvb, tvb_LBRKT+1, tvb_len, '{', &tvb_LBRKT);
+                if ( tvb_LBRKT < tvb_RBRKT && found_LBRKT == true)
+                    found_RBRKT = tvb_find_uint8_length(tvb, tvb_RBRKT+1, tvb_len, '}', &tvb_RBRKT);
             }
         }
-        if (tvb_RBRKT == -1)
+        if (found_RBRKT == false)
             tvb_RBRKT = tvb_descriptors_end_offset;
 
         /* Find token length */
@@ -3441,7 +3442,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packe
             break;
         case MEGACO_MEDIA_TOKEN:
             /*TODO: Move this to the top when all branches fixed !!!*/
-            temp_offset = tvb_find_uint8(tvb, tvb_previous_offset,tvb_descriptors_end_offset, '{');
+            tvb_find_uint8_length(tvb, tvb_previous_offset,tvb_descriptors_end_offset, '{', &temp_offset);
             save_offset = tvb_previous_offset;
 
             tvb_previous_offset = megaco_tvb_skip_wsp(tvb, temp_offset +1);
@@ -3484,8 +3485,8 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packe
             break;
         }
 
-        tvb_current_offset      = tvb_find_uint8(tvb, tvb_RBRKT, tvb_len, ',');
-        if (tvb_current_offset == -1) {
+        found = tvb_find_uint8_length(tvb, tvb_RBRKT, tvb_len, ',', &tvb_current_offset);
+        if (found == false) {
             tvb_current_offset = tvb_descriptors_end_offset;
         }
         tvb_previous_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset+1);
