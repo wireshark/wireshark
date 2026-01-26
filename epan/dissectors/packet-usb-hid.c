@@ -3729,6 +3729,7 @@ hid_unpack_signed(uint8_t *data, unsigned int idx, unsigned int size, int32_t *v
     return false;
 }
 
+#define MAX_REPORT_DESCRIPTOR_COUNT 100000 // Arbitrary
 static bool
 parse_report_descriptor(report_descriptor_t *rdesc)
 {
@@ -3910,11 +3911,15 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                         }
 
                         /* Usage min and max must be on the same page */
-                        if (USAGE_PAGE(usage_min) != USAGE_PAGE(usage_max)) {
+                        if (USAGE_PAGE(usage_min) != USAGE_PAGE(usage_max))  {
                             goto err;
                         }
 
                         if (usage_min > usage_max) {
+                            goto err;
+                        }
+
+                        if (wmem_array_get_count(field.usages) + usage_max - usage_min >= MAX_REPORT_DESCRIPTOR_COUNT) {
                             goto err;
                         }
 
