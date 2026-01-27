@@ -33,13 +33,13 @@ echo ""
 
 echo "[1/3] Configuring commit message template..."
 echo "      Template: .gitmessage"
-git config commit.template "$repo_root/.gitmessage"
+git config commit.template ".gitmessage"
 echo "      Done."
 echo ""
 
 echo "[2/3] Configuring Git hooks for code quality checks..."
 echo "      Hooks path: tools/git_hooks"
-git config core.hooksPath "$repo_root/tools/git_hooks"
+git config core.hooksPath "tools/git_hooks"
 echo "      Done."
 echo ""
 
