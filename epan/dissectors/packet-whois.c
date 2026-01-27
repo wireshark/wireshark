@@ -67,15 +67,14 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     conversation = find_or_create_conversation(pinfo);
     whois_trans = (whois_transaction_t *)conversation_get_proto_data(conversation, proto_whois);
     if (whois_trans == NULL) {
-        int linelen;
+        unsigned linelen;
         whois_trans = wmem_new0(wmem_file_scope(), whois_transaction_t);
 
         /*
          * Find the end of the first line.
          */
-        linelen = tvb_find_line_end(tvb, 0, -1, NULL, false);
-        if (linelen != -1)
-            whois_trans->query = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_ASCII|ENC_NA);
+        tvb_find_line_end_remaining(tvb, 0, &linelen, NULL);
+        whois_trans->query = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_ASCII|ENC_NA);
         conversation_add_proto_data(conversation, proto_whois, whois_trans);
     }
 
@@ -172,12 +171,12 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*
          * Show the response as text, a line at a time.
          */
-	int offset = 0, next_offset;
+        unsigned offset = 0, next_offset;
         while (tvb_offset_exists(tvb, offset)) {
             /*
              * Find the end of the line.
              */
-            tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+            tvb_find_line_end_remaining(tvb, offset, NULL, &next_offset);
 
             /*
              * Put this line.

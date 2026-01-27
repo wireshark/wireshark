@@ -905,7 +905,7 @@ static int  // add support of server PQ hybrid key (f)
 ssh_read_f_pq(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data);
 static int ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_flow_data *global_data,
-        int offset, proto_tree *tree, int is_response, unsigned *version,
+        unsigned offset, proto_tree *tree, int is_response, unsigned *version,
         bool *need_desegmentation);
 static int ssh_try_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_tree *tree);
@@ -2228,11 +2228,10 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 static int
 ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_flow_data *global_data,
-        int offset, proto_tree *tree, int is_response, unsigned * version,
+        unsigned offset, proto_tree *tree, int is_response, unsigned * version,
         bool *need_desegmentation)
 {
-    unsigned   remain_length;
-    int     linelen, protolen;
+    unsigned   protolen, next_offset;
 
     /*
      *  If the first packet do not contain the banner,
@@ -2254,37 +2253,15 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 
-    /*
-     * We use "tvb_ensure_captured_length_remaining()" to make sure there
-     * actually *is* data remaining.
-     *
-     * This means we're guaranteed that "remain_length" is positive.
-     */
-    remain_length = tvb_ensure_captured_length_remaining(tvb, offset);
-    /*linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-     */
-    linelen = tvb_find_uint8(tvb, offset, -1, '\n');
-
-    if (ssh_desegment && pinfo->can_desegment) {
-        if (linelen == -1 || remain_length < (unsigned)linelen-offset) {
+    if (!tvb_find_line_end_remaining(tvb, offset, &protolen, &next_offset)) {
+        if (ssh_desegment && pinfo->can_desegment) {
             pinfo->desegment_offset = offset;
-            pinfo->desegment_len = linelen-remain_length;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             *need_desegmentation = true;
             return offset;
         }
     }
-    if (linelen == -1) {
-        /* XXX - reassemble across segment boundaries? */
-        linelen = remain_length;
-        protolen = linelen;
-    } else {
-        linelen = linelen - offset + 1;
-
-        if (linelen > 1 && tvb_get_uint8(tvb, offset + linelen - 2) == '\r')
-            protolen = linelen - 2;
-        else
-            protolen = linelen - 1;
-    }
+    /* Either we found it, or we're not reassembling and take everything. */
 
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Protocol (%s)",
             tvb_format_text(pinfo->pool, tvb, offset, protolen));
@@ -2302,7 +2279,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 
     proto_tree_add_item(tree, hf_ssh_protocol,
                     tvb, offset, protolen, ENC_ASCII);
-    offset += linelen;
+    offset += next_offset;
     return offset;
 }
 

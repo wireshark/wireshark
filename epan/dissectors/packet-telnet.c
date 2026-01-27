@@ -2163,10 +2163,10 @@ telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int s
 }
 
 static void
-telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
+telnet_add_text(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigned len)
 {
-  int      next_offset;
-  int      linelen;
+  unsigned next_offset;
+  unsigned linelen;
   uint8_t  c;
   bool last_char_was_cr;
 
@@ -2174,7 +2174,7 @@ telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
     /*
      * Find the end of the line.
      */
-    linelen = tvb_find_line_end(tvb, offset, len, &next_offset, false);
+    tvb_find_line_end_length(tvb, offset, len, &linelen, &next_offset);
     len -= next_offset - offset;        /* subtract out the line's characters */
 
     /*
