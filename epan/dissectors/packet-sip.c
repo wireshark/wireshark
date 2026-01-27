@@ -3216,9 +3216,9 @@ the feature-capability indicator name is mandatory.
 
 */
 static void
-dissect_sip_p_feature_caps(tvbuff_t *tvb, proto_tree *tree, int start_offset, int line_end_offset)
+dissect_sip_p_feature_caps(tvbuff_t *tvb, proto_tree *tree, unsigned start_offset, unsigned line_end_offset)
 {
-    int current_offset, next_offset, length;
+    unsigned current_offset, next_offset, length;
     uint16_t semi_plus = 0x3b2b;
 
     /* skip Spaces and Tabs */
@@ -3232,12 +3232,8 @@ dissect_sip_p_feature_caps(tvbuff_t *tvb, proto_tree *tree, int start_offset, in
     while (next_offset < line_end_offset) {
         /* Find the end of feature cap or start of feature cap parameter, ";+" should indicate the start of a new feature-cap */
         current_offset = next_offset;
-        next_offset = tvb_find_uint16(tvb, current_offset, line_end_offset - current_offset, semi_plus);
-        if (next_offset == -1) {
-            length = line_end_offset - current_offset;
-            next_offset = line_end_offset;
-        }
-        else {
+        length = line_end_offset - current_offset;
+        if (tvb_find_uint16_length(tvb, current_offset, length, semi_plus, &next_offset)) {
             length = next_offset - current_offset;
             next_offset += 2;
         }

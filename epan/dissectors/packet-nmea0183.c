@@ -2263,8 +2263,8 @@ dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
 {
     proto_item* ti;
     proto_tree* nmea0183_tree = NULL;
-    int offset = 0;
-    int end_offset;
+    unsigned offset = 0;
+    unsigned end_offset;
     bool first_msg = true;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMEA 0183");
@@ -2272,13 +2272,12 @@ dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* Find end of nmea message */
-    end_offset = tvb_find_uint16(tvb, 0, -1, NMEA0183_CRLF);
-    if (end_offset == -1) {
+    if (tvb_find_uint16_remaining(tvb, 0, NMEA0183_CRLF, &end_offset)) {
+        /* Add CRLF */
+        end_offset += 2;
+    } else {
         end_offset = tvb_reported_length(tvb);
     }
-    /* Add CRLF */
-    end_offset += 2;
-
 
     /* UdPbC\<tag block 1>,<tagblock2>, … <tagblock n>*<tagblocks CS>\<NMEA message>*/
     if (tvb_strneql(tvb, 0, UDPBC, strlen(UDPBC)) == 0) {
@@ -2288,14 +2287,14 @@ dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
         }
         proto_tree_add_item(nmea0183_tree, hf_nmea0183_sentence_prefix, tvb, offset, 6, ENC_ASCII);
         offset += 6;
-        while (offset < (int)tvb_reported_length(tvb)) {
+        while (tvb_reported_length_remaining(tvb, offset)) {
             if (first_msg != true) {
-                end_offset = tvb_find_uint16(tvb, offset, -1, NMEA0183_CRLF);
-                if (end_offset == -1) {
+                if (tvb_find_uint16_remaining(tvb, offset, NMEA0183_CRLF, &end_offset)) {
+                    /* Add CRLF */
+                    end_offset += 2;
+                } else {
                     end_offset = tvb_reported_length(tvb);
                 }
-                /* Add CRLF */
-                end_offset += 2;
 
                 ti = proto_tree_add_item(tree, proto_nmea0183, tvb, offset, end_offset, ENC_NA);
                 nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);

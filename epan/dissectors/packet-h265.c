@@ -3011,7 +3011,7 @@ dissect_h265_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
 	tvbuff_t *next_tvb; //, *rbsp_tvb;
         unsigned offset = 0;
-        int end_offset;
+        unsigned end_offset;
 	uint32_t dword;
 
 	/* Look for the first start word. Assume byte aligned. */
@@ -3039,20 +3039,20 @@ dissect_h265_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		}
 		/* start_code_prefix_one_3bytes */
 		offset += 3;
-		int nal_length = tvb_reported_length_remaining(tvb, offset);
+		unsigned nal_length = tvb_reported_length_remaining(tvb, offset);
 		/* Search for \0\0\1 or \0\0\0\1 */
-		end_offset = tvb_find_uint16(tvb, offset, -1, 0);
-		while (end_offset != -1) {
-			if (tvb_find_uint16(tvb, end_offset + 1, 3, 1) != -1) {
+		end_offset = offset;
+		while (tvb_find_uint16_remaining(tvb, end_offset, 0, &end_offset)) {
+			if (tvb_find_uint16_length(tvb, end_offset + 1, 3, 1, NULL)) {
 				nal_length = end_offset - offset;
 				break;
 			}
-			end_offset = tvb_find_uint16(tvb, end_offset + 1, -1, 0);
+			end_offset++;
 		}
 
-		/* If end_offset is -1, we got to the end; assume this is the
-		 * end of the NAL. Handling NALs split across lower level
-		 * packets requires something like epan/stream.h
+		/* If we got to the end, assume this is the end of the NAL.
+                 * Handling NALs split across lower level packets requires
+                 * something like epan/stream.h
 		 */
 
 		next_tvb = tvb_new_subset_length(tvb, offset, nal_length);
@@ -3077,7 +3077,7 @@ proto_register_h265(void)
 		NULL, HFILL }
 		},
 		{ &hf_h265_type,
-        { "Type", "h265.type",
+		{ "Type", "h265.type",
 		FT_UINT16, BASE_DEC|BASE_EXT_STRING, &h265_type_values_ext, 0x7E00,
 		NULL, HFILL }
 		},

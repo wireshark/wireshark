@@ -2426,7 +2426,7 @@ dissect_h264_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     tvbuff_t *next_tvb, *rbsp_tvb;
     unsigned offset = 0;
-    int end_offset;
+    unsigned end_offset;
     uint32_t dword;
 
     /* Look for the first start word. Assume byte aligned. */
@@ -2455,23 +2455,23 @@ dissect_h264_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         }
         /* start_code_prefix_one_3bytes */
         offset += 3;
-        int nal_length = tvb_reported_length_remaining(tvb, offset);
+        unsigned nal_length = tvb_reported_length_remaining(tvb, offset);
         /* Search for either \0\0\1 or \0\0\0\1:
          * Find \0\0 and then check if \0\1 is in the next offset or
          * the one after that. (Note none of this throws exceptions.)
          */
-        end_offset = tvb_find_uint16(tvb, offset, -1, 0);
-        while (end_offset != -1) {
-            if (tvb_find_uint16(tvb, end_offset + 1, 3, 1) != -1) {
+        end_offset = offset;
+        while (tvb_find_uint16_remaining(tvb, end_offset, 0, &end_offset)) {
+            if (tvb_find_uint16_length(tvb, end_offset + 1, 3, 1, NULL)) {
                 nal_length = end_offset - offset;
                 break;
             }
-            end_offset = tvb_find_uint16(tvb, end_offset + 1, -1, 0);
+            end_offset++;
         }
 
-        /* If end_offset is -1, we got to the end; assume this is the end
-         * of the NAL. To handle a bytestream that fragments NALs across
-         * lower level packets (does any implementation do this?), we would
+        /* If we got to the end, assume this is the end of the NAL.
+         * To handle a bytestream that fragments NALs across lower
+         * level packets (does any implementation do this?), we would
          * need to use epan/stream.h
          */
 

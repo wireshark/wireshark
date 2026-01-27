@@ -937,19 +937,17 @@ dissect_hl7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     unsigned offset = 0;
 
     while (offset < tvb_reported_length(tvb)) {
-        int available = tvb_reported_length_remaining(tvb, offset);
-        int llp_eob_offset = tvb_find_uint16(tvb, offset, offset + available, LLP_EOB);
-
-        if (llp_eob_offset == -1) {
+        unsigned llp_eob_offset;
+        if (!tvb_find_uint16_remaining(tvb, offset, LLP_EOB, &llp_eob_offset)) {
             /* we ran out of data: ask for more */
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-            return (offset + available);
+            return tvb_reported_length(tvb);
         }
 
         /* tvb_find_ utilities return the *start* of the signature, here we
          * take care of the LLP_EOB bytes */
-        int llp_block_len = llp_eob_offset - offset + 2;
+        unsigned llp_block_len = llp_eob_offset - offset + 2;
 
         /* FF: nasty case, check whether the capture started after the SOB
          * transmission. If this is the case we display these trailing bytes
@@ -958,13 +956,13 @@ dissect_hl7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         if (tvb_get_uint8(tvb, 0) != LLP_SOB) {
             tvbuff_t *new_tvb = tvb_new_subset_remaining(tvb, offset);
             call_data_dissector(new_tvb, pinfo, tree);
-            return (offset + available);
+            return tvb_reported_length(tvb);
         }
 
         /* FF: ok we got a complete LLP block '0x0B HL7-message 0x1C 0x0D',
          * do the dissection */
         dissect_hl7_message(tvb, offset, llp_block_len, pinfo, tree, data);
-        offset += (unsigned)llp_block_len;
+        offset += llp_block_len;
     }
 
     /* if we get here, then the end of the tvb matched with the end of a
