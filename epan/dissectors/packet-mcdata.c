@@ -209,15 +209,15 @@ static const value_string notification_type_vals[] = {
 
 
 static unsigned dissect_payload(unsigned offset, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    unsigned len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_mcdata_payload_len,  tvb, offset, 2, ENC_BIG_ENDIAN);
-    if (tvb_reported_length_remaining(tvb, offset) < (unsigned) len) {
+    uint16_t len;
+    proto_tree_add_item_ret_uint16(tree, hf_mcdata_payload_len,  tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+    offset += 2;
+    if ((tvb_reported_length_remaining(tvb, offset) < len) || len < 1) {
         expert_add_info(pinfo, tree, &ei_malformed_length);
         return len;
     }
-    offset += 2;
-    proto_tree_add_item(tree, hf_mcdata_payload_cont_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    uint8_t payload_cont_type = tvb_get_uint8(tvb, offset);
+    uint8_t payload_cont_type;
+    proto_tree_add_item_ret_uint8(tree, hf_mcdata_payload_cont_type, tvb, offset, 1, ENC_BIG_ENDIAN, &payload_cont_type);
     offset += 1;
     switch (payload_cont_type) {
         case 1:  // TEXT
