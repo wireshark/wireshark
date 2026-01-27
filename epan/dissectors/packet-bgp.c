@@ -10529,9 +10529,9 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                 /* snarf each cluster identifier */
                 while (q < end) {
                     proto_tree_add_item(cluster_list_tree, hf_bgp_update_path_attribute_cluster_id,
-                                        tvb, q - 3 + aoff, 4, ENC_BIG_ENDIAN);
-                    proto_item_append_text(ti, " %s", tvb_ip_to_str(pinfo->pool, tvb, q-3+aoff));
-                    proto_item_append_text(ti_pa, " %s", tvb_ip_to_str(pinfo->pool, tvb, q-3+aoff));
+                                        tvb, q, 4, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti, " %s", tvb_ip_to_str(pinfo->pool, tvb, q));
+                    proto_item_append_text(ti_pa, " %s", tvb_ip_to_str(pinfo->pool, tvb, q));
                     q += 4;
                 }
 
