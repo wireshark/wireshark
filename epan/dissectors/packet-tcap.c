@@ -26,7 +26,10 @@
 #include <epan/address_types.h>
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
+#include <epan/conversation_filter.h>
+#include <epan/proto_data.h>
 #include <wsutil/array.h>
+#include <wsutil/pint.h>
 
 #include "packet-ber.h"
 #include "packet-tcap.h"
@@ -2993,6 +2996,12 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
   gp_tcap_context=NULL;
   dissect_tcap_TCMessage(false, tvb, 0, &asn1_ctx, tree, -1);
 
+  /* Copy (for now) the tcapsrt_info_t structure into the packet
+   * to be able to create conversation filters
+   * (The data should just live in the packet and not be "global")
+   */
+  p_add_proto_data(pinfo->pool, pinfo, proto_tcap, pinfo->curr_layer_num, wmem_memdup(pinfo->pool, gp_tcapsrt_info, sizeof(struct tcapsrt_info_t)));
+
   if (!tcap_subdissector_used ) {
     p_tcap_context=tcapsrt_call_matching(tvb, pinfo, tcap_stat_tree, gp_tcapsrt_info);
     p_tcap_private->context=p_tcap_context;
@@ -3015,6 +3024,47 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     }
   }
   return tvb_captured_length(tvb);
+}
+
+static bool
+tcap_conv_valid(packet_info* pinfo, void* user_data _U_)
+{
+  return proto_is_frame_protocol(pinfo->layers, "tcap");
+}
+
+static char*
+tcap_conv_filter(packet_info* pinfo, void* user_data _U_)
+{
+  char* buf = NULL;
+
+  struct tcapsrt_info_t* tcapsrt = p_get_proto_data(pinfo->pool, pinfo, proto_tcap, pinfo->curr_layer_num);
+  if (tcapsrt != NULL)
+  {
+    uint8_t src_bytes[4], dst_bytes[4];
+
+    //Fields are expressed as bytes, so use that syntax
+    phtonu32(src_bytes, tcapsrt->src_tid);
+    phtonu32(dst_bytes, tcapsrt->dst_tid);
+
+    if ((tcapsrt->src_tid != 0) && (tcapsrt->dst_tid != 0))
+    {
+      buf = ws_strdup_printf("(tcap.tid == %02x:%02x:%02x:%02x || tcap.tid == %02x:%02x:%02x:%02x)",
+                             src_bytes[0], src_bytes[1], src_bytes[2], src_bytes[3],
+                             dst_bytes[0], dst_bytes[1], dst_bytes[2], dst_bytes[3]);
+    }
+    else if (tcapsrt->src_tid != 0)
+    {
+      buf = ws_strdup_printf("(tcap.tid == %02x:%02x:%02x:%02x)",
+                             src_bytes[0], src_bytes[1], src_bytes[2], src_bytes[3]);
+    }
+    else if (tcapsrt->dst_tid != 0)
+    {
+      buf = ws_strdup_printf("(tcap.tid == %02x:%02x:%02x:%02x)",
+                             dst_bytes[0], dst_bytes[1], dst_bytes[2], dst_bytes[3]);
+    }
+  }
+
+  return buf;
 }
 
 void
@@ -3410,12 +3460,6 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
   };
 
-  /*static enum_val_t tcap_options[] = {
-    { "itu", "ITU",  ITU_TCAP_STANDARD },
-    { "ansi", "ANSI", ANSI_TCAP_STANDARD },
-    { NULL, NULL, 0 }
-  };*/
-
   module_t *tcap_module;
 
 /* Register the protocol name and description */
@@ -3430,21 +3474,8 @@ proto_register_tcap(void)
 
   tcap_module = prefs_register_protocol(proto_tcap, NULL);
 
-#if 0
-  prefs_register_enum_preference(tcap_module, "standard", "ITU TCAP standard",
-                                 "The SS7 standard used in ITU TCAP packets",
-                                 &tcap_standard, tcap_options, false);
-#else
   prefs_register_obsolete_preference(tcap_module, "standard");
-#endif
-
-#if 0
-  prefs_register_bool_preference(tcap_module, "lock_info_col", "Lock Info column",
-                                 "Always show TCAP in Info column",
-                                 &lock_info_col);
-#else
   prefs_register_obsolete_preference(tcap_module, "lock_info_col");
-#endif
 
   /* Set default SSNs */
   range_convert_str(wmem_epan_scope(), &global_ssn_range, "", MAX_SSN);
@@ -3469,6 +3500,8 @@ proto_register_tcap(void)
 
   /* 'globally' register dissector */
   tcap_handle = register_dissector("tcap", dissect_tcap, proto_tcap);
+
+  register_conversation_filter("tcap", "TCAP", tcap_conv_valid, tcap_conv_filter, NULL);
 
   /* hash-tables for SRT */
   tcaphash_context = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), tcaphash_context_calchash, tcaphash_context_equal);
