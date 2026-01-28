@@ -91,6 +91,7 @@
 #include <QLocale>
 #include <QMainWindow>
 #include <QMutableListIterator>
+#include <QProxyStyle>
 #include <QSocketNotifier>
 #include <QThreadPool>
 #include <QUrl>
@@ -191,12 +192,32 @@ void MainApplication::refreshPacketData()
     }
 }
 
+// The Fusion style, and the Mac style, allow QMessageBox text to be
+// selectable by the mouse. The various Windows styles do not. On
+// Windows we switch between the Fusion style and Windows style depending
+// on dark mode, so to make things consistent on Windows (and between
+// Windows and other platforms) alllow it on all styles.
+class MsgBoxTextStyle : public QProxyStyle
+{
+public:
+    MsgBoxTextStyle(QStyle *style = nullptr) : QProxyStyle(style) {}
+    MsgBoxTextStyle(const QString &key) : QProxyStyle(key) {}
+    int styleHint(StyleHint hint, const QStyleOption *option = nullptr,
+        const QWidget *widget = nullptr, QStyleHintReturn *returnData = nullptr) const override
+    {
+        if (hint == QStyle::SH_MessageBox_TextInteractionFlags)
+            return QProxyStyle::styleHint(hint, option, widget, returnData) | Qt::TextSelectableByMouse;
+        return QProxyStyle::styleHint(hint, option, widget, returnData);
+    }
+};
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
 void MainApplication::colorSchemeChanged() {
+    // TODO - Supposedly the windows11 style handles dark mode better.
     if (ColorUtils::themeIsDark()) {
         setStyle(QStyleFactory::create("fusion"));
     } else {
-        setStyle(QStyleFactory::create("windowsvista"));
+        setStyle(new MsgBoxTextStyle("windowsvista"));
     }
 }
 #endif
@@ -603,15 +624,6 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     connect(&tap_update_timer_, &QTimer::timeout, this, &MainApplication::updateTaps);
 
 
-    // Application-wide style sheet
-    QString app_style_sheet = qApp->styleSheet();
-    app_style_sheet += QStringLiteral(
-        "QMessageBox { "
-        "  messagebox-text-interaction-flags: %1;"
-        "}"
-        ).arg(Qt::TextSelectableByMouse);
-    qApp->setStyleSheet(app_style_sheet);
-
     // If our window text is lighter than the window background, assume the theme is dark.
     prefs_set_gui_theme_is_dark(ColorUtils::themeIsDark());
 
@@ -622,6 +634,8 @@ MainApplication::MainApplication(int &argc,  char **argv) :
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
     colorSchemeChanged();
     connect(styleHints(), &QStyleHints::colorSchemeChanged, this, &MainApplication::colorSchemeChanged);
+#else
+    setStyle(new MsgBoxTextStyle);
 #endif
 
     connect(qApp, &QApplication::aboutToQuit, this, &MainApplication::cleanup);
