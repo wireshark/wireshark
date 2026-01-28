@@ -5569,6 +5569,26 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
     }
 
+    /* Look up connection_info for CRC validation */
+    if (access_address != ACCESS_ADDRESS_ADVERTISING) {
+        wmem_tree_key_t key[4];
+        wmem_tree_t *wmem_tree;
+
+        key[0].length = 1;
+        key[0].key = &interface_id;
+        key[1].length = 1;
+        key[1].key = &adapter_id;
+        key[2].length = 1;
+        key[2].key = &access_address;
+        key[3].length = 0;
+        key[3].key = NULL;
+
+        wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
+        if (wmem_tree) {
+            connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
+        }
+    }
+
     offset += dissect_crc(tvb,
                           btle_tree,
                           offset,
