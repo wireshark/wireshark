@@ -87,6 +87,7 @@ Real-Time Tracking Protocol (RTTrP)
 TrueConf
 Ultra Ethernet Transport (UET)
 ZigBee ZCL Generic Tunnel
+Qualcomm Diagnostic (QCDIAG)
 --
 
 === Updated Protocol Support
