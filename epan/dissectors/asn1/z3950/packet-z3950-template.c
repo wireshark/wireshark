@@ -1575,16 +1575,14 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
                     tvb, offset, 1, ENC_ASCII);
             offset += 1;
             do {
-                int next_subfield;
+                unsigned next_subfield;
                 proto_tree_add_item(field_tree, hf_marc_field_subfield_indicator,
                         tvb, offset, 1, ENC_ASCII);
                 offset += 1;
                 proto_tree_add_item(field_tree, hf_marc_field_subfield_tag,
                         tvb, offset, 1, ENC_ASCII);
                 offset += 1;
-                next_subfield = tvb_find_uint8(tvb, offset, next_offset - offset,
-                                                MARC_SUBFIELD_INDICATOR);
-                if (next_subfield >= 0) {
+                if (tvb_find_uint8_length(tvb, offset, next_offset - offset, MARC_SUBFIELD_INDICATOR, &next_subfield)) {
                     proto_tree_add_item(field_tree, hf_marc_field_subfield,
                             tvb, offset, next_subfield - offset, ENC_ASCII);
                     offset += (next_subfield - offset);

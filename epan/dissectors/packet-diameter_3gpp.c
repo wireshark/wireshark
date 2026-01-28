@@ -717,7 +717,7 @@ static const value_string diameter_3gpp_rat_type_vals[] = {
 static int
 dissect_diameter_3gpp_rat_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int length = tvb_reported_length(tvb);
 
     proto_tree_add_item(tree, hf_diameter_3gpp_rat_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -739,7 +739,7 @@ static const value_string daylight_saving_time_vals[] = {
 static int
 dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t     oct, hours, minutes;
     char        sign;
     diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
@@ -793,15 +793,14 @@ dissect_diameter_3gpp_twan_identifier(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static int
 dissect_diameter_3gpp_codec_data(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0, linelen, next_offset;
-    int length = tvb_reported_length(tvb);
+    unsigned offset = 0, linelen, next_offset;
+    unsigned length = tvb_reported_length(tvb);
     const char* str;
 
     /* The first line of the value of the Codec-Data AVP shall consist of either the word "uplink"
      * or the word "downlink" (in ASCII, without quotes) followed by a new-line character
      */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-    if (linelen < 1) {
+    if (!tvb_find_line_end_remaining(tvb, offset, &next_offset, &linelen)) {
         return tvb_reported_length(tvb);
     }
     str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII | ENC_NA);
@@ -814,8 +813,7 @@ dissect_diameter_3gpp_codec_data(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
      * or the word "answer", or the word "description" (in ASCII, without quotes)
      * followed by a new-line character
      */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-    if (linelen < 1) {
+    if (!tvb_find_line_end_remaining(tvb, offset, &next_offset, &linelen)) {
         return tvb_reported_length(tvb);
     }
     str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII | ENC_NA);
@@ -956,7 +954,7 @@ static int * const diameter_3gpp_sd_feature_list_fields[] = {
 static int
 dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t application_id = 0, feature_list_id = 0;
     diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
 
@@ -1270,14 +1268,13 @@ static int
 dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree *sub_tree;
-    int offset = 0, comma_offset;
-    int end_offset = tvb_reported_length(tvb) - 1;
+    unsigned offset = 0, comma_offset;
+    unsigned end_offset = tvb_reported_length(tvb) - 1;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_diameter_3gpp_path, NULL, "Paths");
 
     while (offset < end_offset) {
-        comma_offset = tvb_find_uint8(tvb, offset, -1, ',');
-        if(comma_offset == -1) {
+        if(!tvb_find_uint8_remaining(tvb, offset, ',', &comma_offset)) {
             proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, comma_offset, ENC_ASCII);
             return end_offset;
         }
@@ -1300,7 +1297,7 @@ static int
 dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_item *item;
-    int offset = 0;
+    unsigned offset = 0;
 
     item = proto_tree_add_item(tree, hf_diameter_3gpp_contact, tvb, offset, -1, ENC_ASCII);
     proto_item_set_generated(item);
@@ -1312,7 +1309,7 @@ dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static int
 dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int length = tvb_reported_length(tvb);
 
     dissect_e164_msisdn(tvb, pinfo, tree, offset, length, E164_ENC_BCD);
@@ -1407,7 +1404,7 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
     proto_item *item;
     proto_tree *sub_tree;
-    int offset = 0;
+    unsigned offset = 0;
 
     item = proto_tree_add_item(tree, hf_diameter_3gpp_tmgi, tvb, offset, 6, ENC_NA);
     sub_tree = proto_item_add_subtree(item,ett_diameter_3gpp_tmgi);
@@ -1431,7 +1428,7 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_diameter_3gpp_ipv6addr, tvb, offset, 16, ENC_NA);
 
@@ -1445,7 +1442,7 @@ dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static int
 dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_diameter_3gpp_ipaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -1503,7 +1500,7 @@ dissect_diameter_3gpp_rai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static int
 dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     unsigned length;
 
     /* Octet
@@ -1529,7 +1526,7 @@ dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto
 static int
 dissect_diameter_3gpp_udp_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_diameter_3gpp_udp_port, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1543,7 +1540,7 @@ dissect_diameter_3gpp_udp_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static int
 dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
     offset+=8;
@@ -1592,7 +1589,7 @@ dissect_diameter_3gpp_location_estimate(tvbuff_t *tvb, packet_info *pinfo, proto
 static int
 dissect_diameter_3gpp_access_network_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int length = tvb_reported_length(tvb);
 
     dissect_sip_p_access_network_info_header(tvb, pinfo, tree, offset, length);
@@ -1611,7 +1608,7 @@ static const value_string diameter_3gpp_secondary_rat_type_vals[] = {
 static int
 dissect_diameter_3gpp_secondary_rat_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int length = tvb_reported_length(tvb);
 
     proto_tree_add_item(tree, hf_diameter_3gpp_secondary_rat_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2159,7 +2156,7 @@ dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static int
 dissect_diameter_3gpp_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int length = tvb_reported_length(tvb);
 
     dissect_e164_isdn(tvb, pinfo, tree, offset, length, E164_ENC_BCD);
@@ -2435,7 +2432,7 @@ dissect_diameter_3gpp_uva_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static int
 dissect_diameter_3gpp_mme_number_for_mt_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int length = tvb_reported_length(tvb);
 
     dissect_e164_isdn(tvb, pinfo, tree, offset, length, E164_ENC_BCD);
@@ -2775,7 +2772,7 @@ static const value_string ran_nas_prot_type_vals[] = {
 static int
 dissect_diameter_3gpp_ran_nas_release_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int length = tvb_reported_length(tvb);
     uint8_t octet = tvb_get_uint8(tvb, offset);
     uint8_t proto_type = (octet >> 4);

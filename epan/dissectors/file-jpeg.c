@@ -1079,9 +1079,9 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     proto_tree *subtree;
     proto_item *ti;
-    int tvb_len = tvb_reported_length(tvb);
-    int32_t start_entropy = 0;
-    int32_t start_fill, start_marker;
+    unsigned tvb_len = tvb_reported_length(tvb);
+    uint32_t start_entropy = 0;
+    uint32_t start_fill, start_marker;
     bool show_first_identifier_not_jfif = false;
 
     /* check if we have a full JFIF in tvb */
@@ -1109,20 +1109,23 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     for (; ; ) {
         const char *str;
         uint16_t marker;
+        bool start_fill_found;
 
         start_fill = start_entropy;
 
         for (; ; ) {
-            start_fill = tvb_find_uint8(tvb, start_fill, -1, 0xFF);
+            start_fill_found = tvb_find_uint8_remaining(tvb, start_fill, 0xFF, &start_fill);
 
-            if (start_fill == -1 || tvb_len - start_fill == 1
+            if (start_fill_found == false || tvb_len - start_fill == 1
               || tvb_get_uint8(tvb, start_fill + 1) != 0) /* FF 00 is FF escaped */
                 break;
 
             start_fill += 2;
         }
 
-        if (start_fill == -1) start_fill = tvb_len;
+        if (start_fill_found == false) {
+            start_fill = tvb_len;
+        }
 
         if (start_fill != start_entropy)
             proto_tree_add_item(subtree, hf_entropy_coded_segment, tvb, start_entropy, start_fill - start_entropy, ENC_NA);

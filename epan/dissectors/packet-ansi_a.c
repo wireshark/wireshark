@@ -10462,14 +10462,17 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static int
 dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int         linelen, offset, next_offset, begin;
+    unsigned    linelen, next_offset;
+    unsigned    offset, begin;
+    int         dec_idx;
+
     uint8_t     *msg_type;
     tvbuff_t    *ansi_a_tvb;
     bool        is_dtap = true;
 
     offset = 0;
 
-    if ((linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, true)) > 0)
+    if ((tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)))
     {
         if (linelen >= 2)
         {
@@ -10477,7 +10480,7 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             msg_type = (uint8_t *) wmem_alloc(pinfo->pool, 1);
             msg_type[0] = (uint8_t) strtoul((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 2, ENC_ASCII|ENC_NA), NULL, 16);
 
-            if ((begin = tvb_find_uint8(tvb, offset, linelen, '"')) > 0)
+            if ((tvb_find_uint8_length(tvb, offset, linelen, '"', &begin)) && begin > 0)
             {
                 if (tvb_get_uint8(tvb, begin + 1) == '1')
                 {
@@ -10486,7 +10489,7 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             }
             else
             {
-                if (my_try_val_to_str_idx((uint32_t) msg_type[0], ansi_a_dtap_strings, &linelen) == NULL)
+                if (my_try_val_to_str_idx((uint32_t) msg_type[0], ansi_a_dtap_strings, &dec_idx) == NULL)
                 {
                     is_dtap = false;
                 }
@@ -10496,9 +10499,9 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
             offset = next_offset;
 
-            while ((linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, true)) > 0)
+            while ((tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)))
             {
-                if ((begin = tvb_find_uint8(tvb, offset, linelen, '=')) > 0)
+                if ((tvb_find_uint8_length(tvb, offset, linelen, '=', &begin)) && begin > 0)
                 {
                     begin++;
                     tvb_composite_append(ansi_a_tvb, base64_to_tvb(tvb, (char*)tvb_get_string_enc(pinfo->pool, tvb, begin, offset + linelen - begin, ENC_ASCII|ENC_NA)));
