@@ -279,7 +279,11 @@ void HexDataSourceView::paintEvent(QPaintEvent *)
     if (show_offset_) {
         QRect offset_rect = QRect(viewport()->rect());
         offset_rect.setWidth(offsetPixels());
-        painter.fillRect(offset_rect, palette().window());
+        if (palette().window() == palette().base()) {
+            painter.fillRect(offset_rect, palette().alternateBase());
+        } else {
+            painter.fillRect(offset_rect, palette().window());
+        }
     }
 
     if (data_.isEmpty()) {
@@ -634,8 +638,14 @@ bool HexDataSourceView::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list
         format_range.format.setForeground(palette().highlightedText());
         break;
     case ModeProtocol:
-        format_range.format.setBackground(palette().window());
-        format_range.format.setForeground(palette().windowText());
+        // On the GTK3 platform theme, and possibly others, window() and
+        // base() are the same color. Use alternateBase for contrast.
+        if (palette().window() == palette().base()) {
+            format_range.format.setBackground(palette().alternateBase());
+        } else {
+            format_range.format.setBackground(palette().window());
+            format_range.format.setForeground(palette().windowText());
+        }
         break;
     case ModeOffsetNormal:
         format_range.format.setForeground(offset_normal_fg_);
