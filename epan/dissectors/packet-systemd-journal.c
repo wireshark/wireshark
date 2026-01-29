@@ -278,13 +278,13 @@ static void init_jf_to_hf_map(void) {
         { hf_sj_audit_field_name, "_AUDIT_FIELD_NAME=" },
         { hf_sj_seat_id, "SEAT_ID=" },
         { hf_sj_kernel_usec, "KERNEL_USEC=" },
-        { hf_sj_userspace_usec, "USERSPACE_USEC" },
-        { hf_sj_session_id, "SESSION_ID" },
-        { hf_sj_user_id, "USER_ID" },
-        { hf_sj_leader, "LEADER" },
-        { hf_sj_job_type, "JOB_TYPE" },
-        { hf_sj_job_result, "JOB_RESULT" },
-        { hf_sj_user_invocation_id, "USER_INVOCATION_ID" },
+        { hf_sj_userspace_usec, "USERSPACE_USEC=" },
+        { hf_sj_session_id, "SESSION_ID=" },
+        { hf_sj_user_id, "USER_ID=" },
+        { hf_sj_leader, "LEADER=" },
+        { hf_sj_job_type, "JOB_TYPE=" },
+        { hf_sj_job_result, "JOB_RESULT=" },
+        { hf_sj_user_invocation_id, "USER_INVOCATION_ID=" },
         { hf_sj_systemd_user_slice, "_SYSTEMD_USER_SLICE=" },
         { 0, NULL }
     };
@@ -411,9 +411,9 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
                     } else {
                         proto_item *unk_ti = proto_tree_add_none_format(sje_tree, hf_sj_unknown_field, tvb, offset, line_len,
-                                                                        "Unknown data field: %s", tvb_format_text(pinfo->pool, tvb, offset, eq_off - offset - 1));
+                                                                        "Unknown data field: %s", tvb_format_text(pinfo->pool, tvb, offset, noeql_len));
                         proto_tree *unk_tree = proto_item_add_subtree(unk_ti, ett_systemd_unknown_field);
-                        proto_item *expert_ti = proto_tree_add_item(unk_tree, hf_sj_unknown_field_name, tvb, offset, offset + noeql_len, ENC_UTF_8);
+                        proto_item *expert_ti = proto_tree_add_item(unk_tree, hf_sj_unknown_field_name, tvb, offset, noeql_len, ENC_UTF_8);
                         proto_tree_add_item(unk_tree, hf_sj_unknown_field_data, tvb, data_off, (int) data_len, ENC_UTF_8);
                         expert_add_info(pinfo, expert_ti, &ei_nonbinary_field);
                     }
