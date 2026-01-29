@@ -679,6 +679,7 @@ static expert_field ei_oran_user_group_id_reserved_value;
 static expert_field ei_oran_port_list_index_zero;
 static expert_field ei_oran_ul_uplane_symbol_too_long;
 static expert_field ei_oran_reserved_not_zero;
+static expert_field ei_oran_too_many_symbols;
 
 
 /* These are the message types handled by this dissector.  Others have handling in packet-ecpri.c */
@@ -2547,7 +2548,7 @@ static unsigned dissect_csf(proto_item *tree, tvbuff_t *tvb, unsigned bit_offset
 static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                                   flow_state_t* state,
                                   uint32_t sectionType, oran_tap_info *tap_info, proto_item *protocol_item,
-                                  uint32_t subframeId, uint32_t slotId,
+                                  uint32_t subframeId, uint32_t slotId, uint32_t startSymbolId,
                                   uint8_t ci_iq_width, uint8_t ci_comp_meth, unsigned ci_comp_opt,
                                   unsigned num_sinr_per_prb)
 {
@@ -2660,7 +2661,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             }
         }
 
-        if (sectionType != SEC_C_SINR_REPORTING) {  /* Section Type 9 */
+        if (sectionType != SEC_C_SINR_REPORTING) {  /* *NOT* Section Type 9 */
             static int * const  remask_flags[] = {
                 &hf_oran_reMask_re1,
                 &hf_oran_reMask_re2,
@@ -2683,13 +2684,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                               hf_oran_reMask, ett_oran_remask, remask_flags, ENC_BIG_ENDIAN, &remask);
             offset++;
             /* numSymbol */
-            /* TODO: should warn if startSymbol + numSymbol would be > 14? */
             uint32_t numSymbol;
             numsymbol_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
-            if ((sectionType == SEC_C_RRM_MEAS_REPORTS) && (numSymbol != 14)) {     /* Section type 10 */
+            if ((sectionType == SEC_C_RRM_MEAS_REPORTS) && (numSymbol != 14)) {     /* Section type 10 must have 14 symbols */
                 proto_item_append_text(numsymbol_ti, " (for ST10, should be 14!)");
                 expert_add_info_format(pinfo, numsymbol_ti, &ei_oran_st10_numsymbol_not_14,
                                        "numSymbol should be 14 for ST10 - found %u", numSymbol);
+            }
+            if ((startSymbolId + numSymbol) > 14) {
+                /* Warn if startSymbol + numSymbol would be > 14 */
+                expert_add_info_format(pinfo, numsymbol_ti, &ei_oran_too_many_symbols,
+                                       "startSymbolId (%u) + numSymbol (%u) exceeds max of 14",
+                                       startSymbolId, numSymbol);
             }
             offset++;
 
@@ -6404,7 +6410,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         tvbuff_t *section_tvb = tvb_new_subset_remaining(tvb, offset);
         offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, state, sectionType, tap_info,
                                          protocol_item,
-                                         subframeId, slotId,
+                                         subframeId, slotId, startSymbolId,
                                          bit_width, ci_comp_method, ci_comp_opt,
                                          num_sinr_per_prb);
     }
@@ -10020,7 +10026,8 @@ proto_register_oran(void)
         { &ei_oran_user_group_id_reserved_value, { "oran_fh_cus.user_group_id.reserved_value", PI_MALFORMED, PI_WARN, "userGroupId value 255 is reserved", EXPFILL }},
         { &ei_oran_port_list_index_zero, { "oran_fh_cus.port_list_index.zero", PI_MALFORMED, PI_WARN, "portListIndex should not be zero", EXPFILL }},
         { &ei_oran_ul_uplane_symbol_too_long, { "oran_fh_cus.ul_uplane_symbol_tx_too_slow", PI_RECEIVE, PI_WARN, "UL U-Plane Tx took too long for symbol (limit set in preference)", EXPFILL }},
-        { &ei_oran_reserved_not_zero, { "oran_fh_cus.reserved_not_zero", PI_MALFORMED, PI_WARN, "Reserved field is not zero", EXPFILL }}
+        { &ei_oran_reserved_not_zero, { "oran_fh_cus.reserved_not_zero", PI_MALFORMED, PI_WARN, "Reserved field is not zero", EXPFILL }},
+        { &ei_oran_too_many_symbols, { "oran_fh_cus.too_many_symbols", PI_MALFORMED, PI_ERROR, "Range of symbols in slot exceeds 14", EXPFILL }}
     };
 
     /* Register the protocol name and description */
