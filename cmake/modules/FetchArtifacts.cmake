@@ -2,10 +2,21 @@
 # have a package manager. Track artifacts and versions we install, and
 # re-extract them if we have an updates.
 
-# It would be nice to be able to make this self-contained, e.g. by
-# extracting artifacts somewhere under CMAKE_BINARY_DIR, but CMake
-# doesn't allow source or build paths in INTERFACE_INCLUDE_DIRECTORIES.
-#
+# This is effectively a custom package management system, which is a
+# terrible idea. Unfortunately there isn't a package management system
+# for Windows and macOS that provides pre-built development libraries
+# that we need for the OS versions and architectures that we support.
+
+# To do:
+# - Ship pkgconf[1] on Windows so that we can use the .pc files that
+#   vcpkg provides.
+#   [1]https://github.com/pkgconf/pkgconf
+# - Related to the previous item, install our Windows libraries into
+#   the same directory hierarchy, similar to what we do on macOS.
+# - It would be nice to be able to make this self-contained, e.g. by
+#   extracting artifacts somewhere under CMAKE_BINARY_DIR, but CMake
+#   doesn't allow source or build paths in
+#   INTERFACE_INCLUDE_DIRECTORIES.
 
 if (APPLE)
   if( DEFINED ENV{WIRESHARK_BASE_DIR} AND NOT WIRESHARK_BASE_DIR)
