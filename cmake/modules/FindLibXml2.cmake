@@ -48,7 +48,7 @@ The following cache variables may also be set:
 #]=======================================================================]
 
 include(FindWSWinLibs)
-FindWSWinLibs("vcpkg-export-.*" LIBXML2_HINTS)
+FindWSWinLibs("glib-bundle-.*" LIBXML2_HINTS)
 
 if (NOT USE_REPOSITORY) # else we'll find Strawberry Perl's pkgconfig
     # use pkg-config to get the directories and then use these values

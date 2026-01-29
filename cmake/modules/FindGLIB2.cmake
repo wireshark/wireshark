@@ -22,7 +22,7 @@ if( GLIB2_MAIN_INCLUDE_DIR AND GLIB2_LIBRARIES )
 endif()
 
 include( FindWSWinLibs )
-FindWSWinLibs( "vcpkg-export-*" "GLIB2_HINTS" )
+FindWSWinLibs( "glib-bundle-*" "GLIB2_HINTS" )
 
 if (NOT USE_REPOSITORY)
 	find_package(PkgConfig)
