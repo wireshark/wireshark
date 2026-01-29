@@ -608,6 +608,10 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #endif
 
+    // We use a lot of style sheets that base their colors on the main
+    // application palette, so this works better.
+    setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles, true);
+
     // Throw various settings at the wall with the hope that one of them will
     // enable context menu shortcuts QTBUG-69452, QTBUG-109590
     setAttribute(Qt::AA_DontShowShortcutsInContextMenus, false);
