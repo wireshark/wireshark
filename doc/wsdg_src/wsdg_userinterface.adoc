@@ -222,7 +222,7 @@ For more information about Qt Linguist see
 https://doc.qt.io/qt-5/qtlinguist-index.html[its manual].
 
 You can also manage translations online with
-https://www.transifex.com/wireshark/wireshark/[Transifex].
+https://explore.transifex.com/wireshark/wireshark/[Transifex].
 Translation resources are organized by type of translation and development branch:
 
 master::
@@ -239,7 +239,7 @@ po-_XY_, debian-_XY_::
 GNU gettext (.po) resources in the _debian_ directory in the _X.Y_ release branch.
 For example, po-34 matches the Wireshark 3.4 release branch.
 
-Each week translations are automatically synchronized with the source code through the following steps:
+Each week translations are link:{wireshark-code-file-url}/tools/update-tx[automatically synchronized] with the source code through the following steps:
 
 - Pull changes from Transifex by running `tx pull -f`.
 - Run `lupdate` on the ts files.

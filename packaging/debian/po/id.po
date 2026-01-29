@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the wireshark package.
-# 
+#
 # Translators:
 # Andika Triwidada <andika@gmail.com>, 2024-2025
 msgid ""
@@ -11,7 +11,7 @@ msgstr ""
 "POT-Creation-Date: 2024-05-20 18:25+0000\n"
 "PO-Revision-Date: 2015-05-06 21:00+0000\n"
 "Last-Translator: Andika Triwidada <andika@gmail.com>, 2024-2025\n"
-"Language-Team: Indonesian (http://app.transifex.com/wireshark/wireshark/language/id/)\n"
+"Language-Team: Indonesian (https://explore.transifex.com/wireshark/wireshark/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
