@@ -23,8 +23,8 @@ variables:
   GIT_FETCH_EXTRA_FLAGS: "--depth=5000"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
   # The Qt versions that we ship in the development installers.
-  WINDOWS_QT_VERSION: "6.9.3"
-  MACOS_QT_VERSION: "6.9.3"
+  WINDOWS_QT_VERSION: "6.10.2"
+  MACOS_QT_VERSION: "6.10.2"
   # Enable color output in various tools.
   # CMake, Ninja, and others: https://bixense.com/clicolors/
   CLICOLOR_FORCE: "1"

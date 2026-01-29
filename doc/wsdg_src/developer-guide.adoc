@@ -19,8 +19,8 @@ endif::[]
 // The Qt versions that we ship in our official installers. Must match
 // WINDOWS_QT6_LTS_VERSION and MACOS_QT6_LTS_VERSION in .gitlab-ci.yml
 // in the stable release branch.
-:windows-qt6-lts-version: 6.9.3
-:macos-qt6-lts-version: 6.9.3
+:windows-qt6-lts-version: 6.10.2
+:macos-qt6-lts-version: 6.10.2
 :source-highlighter: coderay
 
 include::wsdg_preface.adoc[]
