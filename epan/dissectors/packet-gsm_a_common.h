@@ -736,6 +736,7 @@ uint16_t de_cn_common_gsm_map_nas_sys_info(tvbuff_t *tvb, proto_tree *tree, pack
 uint16_t de_cs_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len);
 uint16_t de_ps_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len);
 uint16_t de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len);
+uint16_t de_emerg_num_list(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, uint32_t offset, unsigned len, char* add_string, int string_len);
 WS_DLL_PUBLIC
 uint16_t de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len);
 WS_DLL_PUBLIC
