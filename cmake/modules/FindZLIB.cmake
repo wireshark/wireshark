@@ -37,7 +37,7 @@
 
 include( FindWSWinLibs )
 # Zlib is included with GLib2
-FindWSWinLibs( "vcpkg-export-*" "ZLIB_HINTS" )
+FindWSWinLibs( "glib-bundle-*" "ZLIB_HINTS" )
 
 if(MSVC)
     # else we'll find Strawberry Perl's version

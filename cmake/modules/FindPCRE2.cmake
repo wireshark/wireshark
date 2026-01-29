@@ -14,7 +14,7 @@
 
 include( FindWSWinLibs )
 # PCRE2 is included with GLib2
-FindWSWinLibs( "vcpkg-export-.*" "PCRE2_HINTS" )
+FindWSWinLibs( "glib-bundle-.*" "PCRE2_HINTS" )
 
 if( NOT USE_REPOSITORY)
 	find_package(PkgConfig QUIET)

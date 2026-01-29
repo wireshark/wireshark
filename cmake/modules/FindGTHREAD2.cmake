@@ -8,7 +8,7 @@
 #
 
 include(FindWSWinLibs)
-FindWSWinLibs("vcpkg-export-*" "GTHREAD2_HINTS")
+FindWSWinLibs("glib-bundle-*" "GTHREAD2_HINTS")
 
 if(NOT USE_REPOSITORY)
 	find_package(PkgConfig QUIET)
