@@ -191,7 +191,7 @@ workflow:
   before_script:
     - if (-Not (Test-Path C:\Qt)) { New-Item -Path C:\Qt -ItemType "directory" }
     - if (-Not (Test-Path "C:\Qt\$($env:WINDOWS_QT_VERSION)\$($env:AQT_ARCH)\include\QtCore")) {
-        py.exe -m venv "$($env:TEMP)\aqt.venv" ;
+        py.exe -m venv --clear "$($env:TEMP)\aqt.venv" ;
         & $env:TEMP\aqt.venv\Scripts\pip3.exe install aqtinstall ;
         & $env:TEMP\aqt.venv\Scripts\aqt.exe install-qt --outputdir C:\Qt $env:AQT_HOST desktop $env:WINDOWS_QT_VERSION "win64_$($env:AQT_ARCH)" --modules qt5compat qtmultimedia ;
       }
@@ -645,7 +645,7 @@ macOS Universal Package:
   retry: 1
   before_script:
     - export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH:$HOME/bin"
-    - python3 -m venv $CI_PROJECT_DIR/.venv
+    - python3 -m venv --clear $CI_PROJECT_DIR/.venv
     - source $CI_PROJECT_DIR/.venv/bin/activate
     - pip3 install pytest pytest-xdist
   script:
