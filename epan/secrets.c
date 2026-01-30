@@ -630,7 +630,7 @@ register_rsa_uats(void)
 int
 secrets_rsa_decrypt(const cert_key_id_t *key_id, const uint8_t *encr, int encr_len, uint8_t **out, int *out_len)
 {
-    bool ret;
+    int ret;
     gnutls_datum_t ciphertext = { (unsigned char *)encr, encr_len };
     gnutls_datum_t plain = { 0 };
 
