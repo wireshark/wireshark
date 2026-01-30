@@ -403,7 +403,7 @@ void PreferencesDialog::apply()
     pd_ui_->filterExpressonsFrame->acceptChanges();
     pd_ui_->expertFrame->acceptChanges();
 #ifdef HAVE_LIBGNUTLS
-    pd_ui_->rsaKeysFrame->acceptChanges();
+    redissect_flags |= pd_ui_->rsaKeysFrame->acceptChanges();
 #endif
 
     //Filter expressions don't affect dissection, so there is no need to

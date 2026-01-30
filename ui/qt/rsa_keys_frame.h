@@ -31,7 +31,7 @@ public:
 #ifdef HAVE_LIBGNUTLS
     ~RsaKeysFrame();
 
-    void acceptChanges();
+    int acceptChanges();
     void rejectChanges();
 
 private:

@@ -197,13 +197,17 @@ void RsaKeysFrame::on_deleteItemButton_clicked()
     }
 }
 
-void RsaKeysFrame::acceptChanges()
+int RsaKeysFrame::acceptChanges()
 {
     // Save keys list mutations. The PKCS #11 provider list was already saved.
     QString error;
-    if (rsa_keys_model_->applyChanges(error) && !error.isEmpty()) {
-        report_failure("%s", qPrintable(error));
+    if (rsa_keys_model_->applyChanges(error)) {
+        if (!error.isEmpty()) {
+            report_failure("%s", qPrintable(error));
+        }
+        return PREF_EFFECT_DISSECTION;
     }
+    return 0;
 }
 
 void RsaKeysFrame::rejectChanges()
@@ -261,6 +265,8 @@ void RsaKeysFrame::on_deleteLibraryButton_clicked()
     pkcs11_libs_model_->removeRows(current.row(), 1);
     // Due to technical limitations of GnuTLS, libraries cannot be unloaded or
     // disabled once loaded. Inform the user of this caveat.
+    // XXX - Is this still true? Calling gnutls_pkcs11_deinit()
+    // followed by gnutls_pkcs11_init() should work.
     QMessageBox::information(this, tr("Changes will apply after a restart"),
             tr("PKCS #11 provider %1 will be removed after the next restart.").arg(file),
             QMessageBox::Ok);
