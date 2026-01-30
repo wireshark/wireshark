@@ -1050,12 +1050,12 @@ dissect_qcdiag_custom(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_
 
     /* LOG_CODE */
     logcode = (uint32_t)tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
-    // offset remains unchanged: qcdiag_add_cmd_hdr adds "Log Code" tree item
+
+    /* Determine if Log Code needs offset */
+    logcode_offset = logcode ? 2 : 0;
 
     if (logcode == 0)
         logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
-
-    logcode_offset = logcode ? 2 : 0;
 
     cmd = (uint32_t)tvb_get_uint8(tvb, offset+2);
 
