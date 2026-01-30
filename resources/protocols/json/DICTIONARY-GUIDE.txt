@@ -1,0 +1,694 @@
+# JSON+ Protocol Dictionary File Guide
+# ====================================
+
+## Overview
+
+Dictionary files define how JSON fields are dissected and displayed in Wireshark.
+Each dictionary file is an XML document that maps JSON paths to Wireshark fields.
+
+## File Format
+
+Dictionary files must be valid XML with a root <json-dictionary> element.
+
+Basic structure:
+<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+    <base name="Your Protocol Name" version="1.0">
+        <!-- Type definitions -->
+        <!-- Protocol info -->
+        <!-- Field definitions -->
+    </base>
+</json-dictionary>
+
+##### Type Definitions #######
+
+Every dictionary must define the base types it uses.
+
+Required type definitions:
+<typedefn type-name="String" base-type="string"/>
+<typedefn type-name="Integer" base-type="int64"/>
+<typedefn type-name="Float" base-type="double"/>
+<typedefn type-name="Boolean" base-type="boolean"/>
+<typedefn type-name="Object" base-type="object"/>
+<typedefn type-name="Array" base-type="array"/>
+
+Available base-type values:
+- string   → FT_STRING (text values)
+- int64    → FT_INT64 (64-bit integers)
+- uint64   → FT_UINT64 (unsigned 64-bit integers)
+- int32    → FT_INT32 (32-bit integers)
+- uint32   → FT_UINT32 (unsigned 32-bit integers)
+- double   → FT_DOUBLE (floating point numbers)
+- boolean  → FT_BOOLEAN (true/false values)
+- object   → FT_NONE (JSON objects - container only)
+- array    → FT_NONE (JSON arrays - container only)
+
+### Special Display Types
+
+The optional `display` attribute allows specialized formatting and validation for specific data types.
+This is useful for IP addresses, MAC addresses, timestamps, etc.
+
+**Syntax:**
+<typedefn type-name="CustomType" base-type="base" display="format"/>
+
+**Available display formats:**
+
+| Display Value | Base Type | Description | Example |
+|--------------|-----------|-------------|---------|
+| `ipv4` | string or int32 | IPv4 address (dotted decimal) | "192.168.1.1" |
+| `ipv6` | string | IPv6 address | "2001:db8::1" |
+| `ether` | string | MAC/Ethernet address | "00:11:22:33:44:55" |
+| `absolute_time` | int64 or uint64 | Unix timestamp (seconds) | Shows as date/time |
+| `relative_time` | int64 or uint64 | Relative time (seconds) | Shows as duration |
+| `hex2dec` | string | Hex string as decimal with compact hex | "2328" → 9000 (0x2328) |
+
+**Examples:**
+<!-- IP Addresses -->
+<typedefn type-name="IPAddress" base-type="string" display="ipv4"/>
+<typedefn type-name="IPv6Address" base-type="string" display="ipv6"/>
+
+<!-- MAC Address -->
+<typedefn type-name="MacAddress" base-type="string" display="ether"/>
+
+<!-- Timestamps -->
+<typedefn type-name="Timestamp" base-type="int64" display="absolute_time"/>
+<typedefn type-name="Duration" base-type="int64" display="relative_time"/>
+
+<!-- Hex Values -->
+<typedefn type-name="Hex2Dec" base-type="string" display="hex2dec"/>
+
+**Usage in fields:**
+<field name="ClientIP" path="client.ip" type="IPAddress"/>
+<field name="ServerMAC" path="server.mac" type="MacAddress"/>
+<field name="CellId" path="cell.id" type="Hex2Dec"/>
+<field name="EventTime" path="event.timestamp" type="Timestamp"/>
+
+**Benefits:**
+- Wireshark validates and formats values correctly
+- IP addresses shown in standard notation
+- MAC addresses properly formatted
+- Better filtering capabilities (e.g., IP subnet matching)
+
+###### Protocol Information (Optional) #########
+
+Define protocol metadata and port-based protocol identification:
+<protocol name="My API Protocol" port="8080" transport="tcp" displayName="MyAPI"/>
+<!-- Or with multiple ports -->
+<protocol name="My API Protocol" port="8080,9000,9001" transport="tcp" displayName="MyAPI"/>
+
+Attributes:
+- name: Descriptive protocol name (internal use)
+- port: Port number(s) for protocol matching (optional)
+  - Single port: port="8000"
+  - Multiple ports (comma-separated): port="8000,8080,9000"
+  - When a packet's source or destination port matches any specified value,
+    the protocol will be identified and the displayName will be used
+- transport: "tcp" or "udp" (optional, default: "tcp")
+- displayName: Custom name shown in Protocol column (optional)
+  - If specified, this name appears in the Protocol column for matching packets
+  - If not specified, "JSON+" is used as default
+  - Protocol matching occurs by checking destination port first, then source port
+
+Example: Port-based protocol identification:
+<!-- 5G AMF API on port 8000 -->
+<protocol name="5G Access Management" port="8000" transport="tcp" displayName="5G-JSON"/>
+
+<!-- Test API on port 9999 -->
+<protocol name="Test JSON API" port="9999" transport="tcp" displayName="TestAPI"/>
+
+<!-- CHF API on multiple ports -->
+<protocol name="CHF Charging API" port="8080,1090,3000" transport="tcp" displayName="AMF-JSON"/>
+
+Protocol Column Behavior:
+- Packet on port 8000 → Shows "5G-JSON" in Protocol column
+- Packet on port 9999 → Shows "TestAPI" in Protocol column
+- Packet on port 8080, 1090, or 3000 → Shows "AMF-JSON" in Protocol column
+- Packet on other ports → Shows "JSON+" in Protocol column
+
+############## Field Definitions ##################
+
+### Simple Fields
+
+Define top-level JSON fields:
+<field name="request_id" path="request_id" type="String"/>
+<field name="timestamp" path="timestamp" type="Integer"/>
+<field name="price" path="price" type="Float"/>
+<field name="active" path="active" type="Boolean"/>
+
+Attributes:
+- name: Display name in Wireshark packet tree 
+- path: JSON path to the field
+- type: One of your defined type-name values
+- description: (Optional) Tooltip text shown on hover
+- info: (Optional) Label for Info column display
+  - When specified, the field value appears in the Info column
+  - Format: "label: value" (e.g., "User Name: John Doe")
+  - Useful for highlighting important fields in packet list
+- df: (Optional) Custom display filter name
+  - When specified, this short name is used for filtering instead of the full path
+  - Very useful for long, nested paths to improve filter usability
+  - Example: df="nfci.ipv4" instead of nfConsumerIdentification.nFIPv4Address
+
+Generated filter field:
+- Default: json.<path> (Example: json.request_id)
+- With df: json.<df> (Example: json.nfci.ipv4)
+
+Custom Display Filter Example:
+<!-- Without df: filter would be json.nfConsumerIdentification.nFIPv4Address -->
+<field name="Nfipv4Address" path="nfConsumerIdentification.nFIPv4Address" type="String" df="nfci.ipv4"/>
+
+<!-- Now you can use the shorter filter: -->
+<!-- json.nfci.ipv4 == "10.0.1.1" -->
+
+### Case-Sensitive vs Case-Insensitive Field Matching
+
+By default, JSON field paths are matched case-sensitively against the dictionary definitions.
+For protocols with inconsistent casing, you can enable case-insensitive matching per field using
+the optional `case` attribute.
+
+Syntax:
+<field name="..." path="..." type="..." case="insensitive"/>
+
+Attribute values:
+- `case="sensitive"` - Exact case match required (default behavior)
+- `case="insensitive"` - Match field names regardless of case
+- If case attribute is not specified, field matching is case-sensitive
+
+Important Notes:
+- Case sensitivity is set **per field** - there is no inheritance
+- Each field's case attribute is independent of its parent
+- Default is case-sensitive - no need to specify case="sensitive" 
+- Only use case="insensitive" when necessary for protocols with inconsistent casing
+
+How It Works:
+When case="insensitive" is set, the dissector will match the JSON field name regardless
+of case. For example, a field defined as "userName" will match:
+- "userName" (exact match)
+- "UserName" (different case)
+- "USERNAME" (all caps)
+- "username" (all lowercase)
+- Any other case variation
+
+- Use case-insensitive matching sparingly for best performance
+
+Examples:
+
+Basic case-insensitive field:
+<field name="User Name" path="userName" type="String" case="insensitive"
+       description="User name (case-insensitive matching)"/>
+
+This matches JSON: {"userName": "alice"}
+Also matches:     {"USERNAME": "alice"}
+Also matches:     {"username": "alice"}
+
+Case-sensitive field (default):
+<field name="User ID" path="userId" type="Integer"
+       description="User ID (case-sensitive by default)"/>
+
+This matches JSON: {"userId": 123}
+Does NOT match:    {"UserID": 123}
+Does NOT match:    {"USERID": 123}
+
+Mixed case sensitivity in nested objects:
+<field name="User Profile" path="user.profile" type="Object" case="insensitive">
+    <!-- Parent is case-insensitive, but children are independent -->
+    <field name="Email" path="user.profile.email" type="String" case="sensitive"/> <-- case="sensitive" is not necessary (default), but can be used for readability.
+    <field name="Phone" path="user.profile.phone" type="String"/> <-- Case sensitive as well ( sensitive by default )
+    <field name="Display Name" path="user.profile.displayName" type="String" case="insensitive"/>
+</field>
+
+This matches:
+{"user": {"profile": {"email": "alice@example.com", "displayName": "Alice"}}}
+{"USER": {"PROFILE": {"email": "alice@example.com", "DISPLAYNAME": "Alice"}}}
+
+But this does NOT fully match (email is case-sensitive):
+{"user": {"profile": {"EMAIL": "alice@example.com", "displayName": "Alice"}}}
+^-- user.profile matches (insensitive), EMAIL does NOT match email (sensitive)
+
+Case-insensitive arrays:
+<field name="Tags" path="tags" type="Array" case="insensitive">
+    <array-element type="String"/>
+</field>
+
+Matches: {"tags": ["admin", "user"]}
+Matches: {"TAGS": ["admin", "user"]}
+Matches: {"Tags": ["admin", "user"]}
+
+Info Column Example:
+<field name="user_id" path="user.id" type="Integer" info="User ID"/>
+<field name="status" path="status" type="String" info="Status"/>
+This will show in the Info column: "User ID: 42 Status: active"
+
+### Nested Objects
+
+Use nested <field> elements for objects:
+<field name="user" path="user" type="Object">
+    <field name="id" path="user.id" type="Integer"/>
+    <field name="name" path="user.name" type="String"/>
+    <field name="email" path="user.email" type="String"/>
+</field>
+
+Path notation uses dots: user.id, user.name, etc.
+Filter fields: json.user.id, json.user.name
+
+Deeply nested objects:
+<field name="response" path="response" type="Object">
+    <field name="data" path="response.data" type="Object">
+        <field name="items" path="response.data.items" type="Array">
+            <!-- array definition here -->
+        </field>
+    </field>
+</field>
+
+### Arrays
+
+Define array element types using <array-element>:
+
+Array of Objects:
+<field name="items" path="items" type="Array">
+    <array-element type="Object">
+        <field name="id" path="items[].id" type="Integer"/>
+        <field name="name" path="items[].name" type="String"/>
+        <field name="price" path="items[].price" type="Float"/>
+    </array-element>
+</field>
+
+IMPORTANT: Use brackets [] in the path: items[].id
+Filter field removes brackets: json.items.id
+
+Array of Strings:
+<field name="tags" path="tags" type="Array">
+    <array-element type="String"/>
+</field>
+
+Array of Numbers:
+<field name="scores" path="scores" type="Array">
+    <array-element type="Integer"/>
+</field>
+
+Nested Arrays:
+<field name="matrix" path="matrix" type="Array">
+    <array-element type="Array">
+        <array-element type="Integer"/>
+    </array-element>
+</field>
+
+## Integer Enum Mapping
+
+For integer fields, you can define human-readable enum names that map to numeric codes.
+This makes both the display and filtering more intuitive.
+
+### Basic Enum Definition
+
+<field name="Status" path="response.status" type="Integer" info="Status">
+    <enum name="Success" code="0"/>
+    <enum name="Failed" code="1"/>
+    <enum name="Pending" code="2"/>
+</field>
+
+Enum attributes:
+- name: Human-readable enum name (used in display and filtering)
+- code: Numeric value that maps to this enum name
+
+### How Enums Work
+
+**Display in Packet Tree:**
+Shows both the enum name and numeric value in parentheses.
+
+Status: Success (0)
+
+**Display in Info Column:**
+If the field has an `info` attribute, the enum name is used:
+
+Status: Success
+
+**Filtering by Enum Name:**
+You can filter using the human-readable enum name.
+
+json.response.status == Success
+
+**Filtering by Numeric Code:**
+You can also filter using the numeric code directly.
+
+json.response.status == 0
+
+### Enum Examples
+
+**Network Slice Type (5G):**
+<field name="Sst" path="amData.nssai.defaultSingleNssais[].sst" type="Integer" info="nssai sst">
+    <enum name="priSlice" code="1"/>
+    <enum name="backSlice" code="2"/>
+    <enum name="iotSlice" code="3"/>
+</field>
+
+Usage:
+- Filter: `json.amData.nssai.defaultSingleNssais.sst == priSlice`
+- Filter: `json.amData.nssai.defaultSingleNssais.sst == 1`
+- Display: "nssai sst: priSlice" (in Info column)
+- Display: "Sst: priSlice (1)" (in packet tree)
+
+**HTTP Status Codes:**
+<field name="StatusCode" path="http.status" type="Integer" info="HTTP Status">
+    <enum name="OK" code="200"/>
+    <enum name="Created" code="201"/>
+    <enum name="BadRequest" code="400"/>
+    <enum name="Unauthorized" code="401"/>
+    <enum name="NotFound" code="404"/>
+    <enum name="ServerError" code="500"/>
+</field>
+
+**Priority Levels:**
+<field name="Priority" path="message.priority" type="Integer" info="Priority">
+    <enum name="Low" code="0"/>
+    <enum name="Normal" code="1"/>
+    <enum name="High" code="2"/>
+    <enum name="Critical" code="3"/>
+</field>
+
+### Technical Notes
+
+- Enums only work with Integer and UnsignedInteger types (not Float, String, etc.)
+- When enums are defined, the field type is automatically converted to 32-bit internally
+  (this is a Wireshark limitation - value_string only supports 32-bit integers)
+- Enum codes must be unique within a field
+- Enum names are case-sensitive in filters
+- If a numeric value doesn't match any enum code, the raw number is displayed
+
+## Path Notation Rules
+
+1. Top-level fields: Use field name directly
+   JSON: {"status": "ok"}
+   Path: status
+
+2. Nested objects: Use dot notation
+   JSON: {"user": {"id": 42}}
+   Path: user.id
+
+3. Array elements: Use brackets []
+   JSON: {"items": [{"id": 1}, {"id": 2}]}
+   Path: items[].id
+   Filter: json.items.id (brackets removed)
+
+4. Nested array elements:
+   JSON: {"data": {"users": [{"name": "John"}]}}
+   Path: data.users[].name
+   Filter: json.data.users.name
+
+## Using Custom Display Filters (df) for Better Usability
+
+For complex protocols with long field names (like 5G/telco APIs), use the df attribute
+to create shorter, more memorable filter names.
+
+### Example: 5G NF Consumer Identification
+
+**Without df attribute (hard to use):**
+<field name="Nfconsumeridentification" path="nfConsumerIdentification" type="Object">
+    <field name="Nfipv4Address" path="nfConsumerIdentification.nFIPv4Address" type="String"/>
+    <field name="Nfname" path="nfConsumerIdentification.nFName" type="String"/>
+    <field name="Nodefunctionality" path="nfConsumerIdentification.nodeFunctionality" type="String"/>
+</field>
+
+<!-- Filtering requires very long names: -->
+<!-- json.nfConsumerIdentification.nFIPv4Address == "10.0.1.1" -->
+
+**With df attribute (easy to use):**
+<field name="Nfconsumeridentification" path="nfConsumerIdentification" type="Object" df="nfci">
+    <field name="Nfipv4Address" path="nfConsumerIdentification.nFIPv4Address" type="String" df="nfci.ipv4"/>
+    <field name="Nfname" path="nfConsumerIdentification.nFName" type="String" df="nfci.name"/>
+    <field name="Nodefunctionality" path="nfConsumerIdentification.nodeFunctionality" type="String" df="nfci.func"/>
+</field>
+
+<!-- Now filtering is much easier: -->
+<!-- json.nfci.ipv4 == "10.0.1.1" -->
+<!-- json.nfci.name contains "amf" -->
+<!-- json.nfci.func == "SMF" -->
+
+## Complete Example
+
+<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+    <base name="E-Commerce API" version="1.0">
+        <!-- Type definitions -->
+        <typedefn type-name="String" base-type="string"/>
+        <typedefn type-name="Integer" base-type="int64"/>
+        <typedefn type-name="Float" base-type="double"/>
+        <typedefn type-name="Boolean" base-type="boolean"/>
+        <typedefn type-name="Object" base-type="object"/>
+        <typedefn type-name="Array" base-type="array"/>
+        
+        <!-- Protocol info -->
+        <protocol name="E-Commerce API" port="9999" transport="tcp"/>
+        
+        <!-- Top-level fields -->
+        <field name="request_id" path="request_id" type="String" 
+               description="Unique request identifier"/>
+        <field name="timestamp" path="timestamp" type="Integer"
+               description="Unix timestamp"/>
+        <field name="success" path="success" type="Boolean"/>
+        
+        <!-- Nested object: Customer -->
+        <field name="customer" path="customer" type="Object">
+            <field name="id" path="customer.id" type="Integer"/>
+            <field name="name" path="customer.name" type="String"/>
+            <field name="email" path="customer.email" type="String"/>
+            <field name="premium" path="customer.premium" type="Boolean"/>
+        </field>
+        
+        <!-- Array of objects: Products -->
+        <field name="products" path="products" type="Array">
+            <array-element type="Object">
+                <field name="id" path="products[].id" type="Integer"/>
+                <field name="name" path="products[].name" type="String"/>
+                <field name="price" path="products[].price" type="Float"/>
+                <field name="quantity" path="products[].quantity" type="Integer"/>
+                <field name="in_stock" path="products[].in_stock" type="Boolean"/>
+            </array-element>
+        </field>
+        
+        <!-- Array of strings: Tags -->
+        <field name="tags" path="tags" type="Array">
+            <array-element type="String"/>
+        </field>
+        
+        <!-- Nested object with nested array -->
+        <field name="order" path="order" type="Object">
+            <field name="order_id" path="order.order_id" type="String"/>
+            <field name="total" path="order.total" type="Float"/>
+            <field name="items" path="order.items" type="Array">
+                <array-element type="Object">
+                    <field name="sku" path="order.items[].sku" type="String"/>
+                    <field name="quantity" path="order.items[].quantity" type="Integer"/>
+                </array-element>
+            </field>
+        </field>
+    </base>
+</json-dictionary>
+
+This would dissect JSON like:
+{
+  "request_id": "req-12345",
+  "timestamp": 1735410000,
+  "success": true,
+  "customer": {
+    "id": 42,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "premium": true
+  },
+  "products": [
+    {"id": 1, "name": "Widget", "price": 19.99, "quantity": 2, "in_stock": true},
+    {"id": 2, "name": "Gadget", "price": 29.99, "quantity": 1, "in_stock": false}
+  ],
+  "tags": ["sale", "featured", "new"],
+  "order": {
+    "order_id": "ORD-9999",
+    "total": 69.97,
+    "items": [
+      {"sku": "WID-001", "quantity": 2},
+      {"sku": "GAD-002", "quantity": 1}
+    ]
+  }
+}
+
+With filter fields like:
+- json.request_id
+- json.customer.id
+- json.customer.name
+- json.products.id
+- json.products.price
+- json.order.total
+- json.order.items.sku
+
+###### Usage in Wireshark #######
+
+### Filtering Examples:
+json.customer.id == 42
+json.products.price > 20.0
+json.customer.premium == 1
+json.request_id == "req-12345"
+json.order.items.quantity > 1
+
+### Filtering with Enums:
+json.response.status == Success        (by enum name)
+json.response.status == 0              (by numeric code)
+json.message.priority == High          (by enum name)
+json.amData.nssai.defaultSingleNssais.sst == priSlice
+
+### Display Hierarchy:
+The packet details pane will show:
+JSON Protocol
+  request_id: req-12345
+  timestamp: 1735410000
+  success: true
+  customer
+    id: 42
+    name: John Doe
+    email: john@example.com
+    premium: true
+  products [2 elements]
+    products 0
+      id: 1
+      name: Widget
+      price: 19.99
+      quantity: 2
+      in_stock: true
+    products 1
+      id: 2
+      name: Gadget
+      price: 29.99
+      quantity: 1
+      in_stock: false
+  tags [3 elements]
+    tags 0: sale
+    tags 1: featured
+    tags 2: new
+  order
+    order_id: ORD-9999
+    total: 69.97
+    items [2 elements]
+      items 0
+        sku: WID-001
+        quantity: 2
+      items 1
+        sku: GAD-002
+        quantity: 1
+
+## Info Column Behavior
+
+The Info column in Wireshark's packet list shows a summary of each packet.
+
+**Default Behavior (No Dictionary Match):**
+JSON Data (1105 bytes)
+When no dictionary fields have `info` attributes, or when the JSON doesn't match
+any loaded dictionary, the default message shows the data size.
+
+**Custom Info Labels:**
+When fields have the `info` attribute, their values appear in the Info column:
+
+<field name="request_id" path="request_id" type="String" info="Request"/>
+<field name="user_name" path="user.name" type="String" info="User Name"/>
+<field name="status" path="status" type="Integer" info="Status">
+    <enum name="Success" code="0"/>
+    <enum name="Failed" code="1"/>
+</field>
+
+Example Info column output:
+Request: req-12345 User Name: John Doe Status: Success
+
+**Info Column Rules:**
+- Only fields with `info` attribute appear in the Info column
+- The first info label replaces the default "JSON Data" message
+- Subsequent labels are appended with space separators
+- Enum fields show the enum name instead of numeric code
+- Format is always "label: value"
+- Empty or null values are skipped
+
+## Loading Your Dictionary
+
+1. Save your dictionary as an XML file (e.g., my-api.xml)
+2. Edit config.txt to include it:
+   jsonmain.xml
+   my-api.xml
+3. Restart Wireshark/tshark
+4. Fields will be registered at startup
+
+## Dictionary Loading Order and Collisions
+
+When multiple dictionary files are loaded, they are processed in the order listed in config.txt.
+
+### Loading Order
+The order in config.txt determines which dictionary takes precedence:
+5g.xml          # Loaded first
+amf.xml         # Loaded second
+my-api.xml      # Loaded third
+
+### Port Collisions
+When multiple dictionaries define the same port, **the last dictionary loaded wins** for that port's displayName:
+
+**Example:**
+config.txt:
+  5g.xml
+  amf.xml
+
+5g.xml:   <protocol port="1090" displayName="5G-JSON"/>
+amf.xml:  <protocol port="1090" displayName="AMF-JSON"/>
+
+Result: Port 1090 → Shows "AMF-JSON" (amf.xml loaded last)
+
+**Current Behavior Table:**
+| Port | Dictionary Files | DisplayName Shown | Winner |
+|------|-----------------|-------------------|--------|
+| 8000 | 5g.xml only | "5G-JSON" | 5g.xml |
+| 1090 | 5g.xml + amf.xml | "AMF-JSON" | amf.xml (last) |
+| 9999 | jsonmain.xml only | "TestAPI" | jsonmain.xml |
+| Other | None | "JSON+" | Default |
+
+### Field Collisions
+When multiple dictionaries define the same field path:
+- **Different paths**: All fields from all dictionaries are available (merged)
+- **Same path**: Last dictionary loaded wins (overwrites the field definition)
+
+**Example:**
+5g.xml:   <field name="userId" path="user.id" type="Integer"/>
+amf.xml:  <field name="userId" path="user.id" type="String"/>
+
+Result: user.id will be treated as String (amf.xml loaded last)
+
+
+## Troubleshooting
+
+**Fields not appearing:**
+- Check config.txt includes your dictionary file
+- Verify XML syntax is valid
+- Check JSON+ is enabled: `-o "json.plus_form:TRUE"`
+- Check tshark output for error messages:
+  ./tshark -r capture.pcap -o "json.plus_form:TRUE" 2>&1 | grep Dictionary
+
+**Fields not filtering:**
+- Use: json.<path> (with dots, no brackets)
+- List all fields: ./tshark -o "json.plus_form:TRUE" -G fields | grep json
+
+**Type mismatches:**
+- Check JSON data type matches dictionary type
+- Use String for mixed-type fields
+- Watch for numbers stored as strings in JSON
+
+## Getting Help
+
+List all registered fields:
+./tshark -o "json.plus_form:TRUE" -G fields 2>/dev/null | grep json
+
+Check dictionary loading:
+./tshark -r capture.pcap -o "json.plus_form:TRUE" 2>&1 | grep Dictionary
+
+Test dissection:
+./tshark -r capture.pcap -o "json.plus_form:TRUE" -V
+
+Filter by field:
+./tshark -r capture.pcap -o "json.plus_form:TRUE" -Y "json.field.name == value"
+
+## Authors
+
+See AUTHORS file
+
+Mark Stout <mark.stout@markstout.com>

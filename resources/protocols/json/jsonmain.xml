@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+    <base name="GitHub API" version="1.0">
+        <!-- Type definitions -->
+        <!-- Basic types -->
+        <typedefn type-name="String" base-type="string"/>
+        <typedefn type-name="Integer" base-type="int64"/>
+        <typedefn type-name="Float" base-type="double"/>
+        <typedefn type-name="Boolean" base-type="boolean"/>
+        <typedefn type-name="Object" base-type="object"/>
+        <typedefn type-name="Array" base-type="array"/>
+
+        <!-- Special display types -->
+        <typedefn type-name="IPAddress" base-type="string" display="ipv4"/>
+        <typedefn type-name="IPv6Address" base-type="string" display="ipv6"/>
+        <typedefn type-name="MacAddress" base-type="string" display="ether"/>
+        <typedefn type-name="Timestamp" base-type="int64" display="absolute_time"/>
+        <typedefn type-name="Duration" base-type="int64" display="relative_time"/>
+        <typedefn type-name="Hex2Dec" base-type="string" display="hex2dec"/>
+
+        <protocol name="GitHub API" port="8080" transport="tcp"/>
+
+        <!-- Example fields demonstrating all type definitions -->
+
+        <!-- Basic type examples -->
+        <field name="Username" path="user.name" type="String" description="User name string"/>
+        <field name="User ID" path="user.id" type="Integer" description="Unique user identifier"/>
+        <field name="Score" path="user.score" type="Float" description="User score (floating point)"/>
+        <field name="Active" path="user.active" type="Boolean" description="User active status"/>
+
+        <!-- Object example -->
+        <field name="Profile" path="user.profile" type="Object" description="User profile object">
+            <field name="Email" path="user.profile.email" type="String"/>
+            <field name="Age" path="user.profile.age" type="Integer"/>
+        </field>
+
+        <!-- Array example -->
+        <field name="Tags" path="repository.tags" type="Array" description="Repository tags">
+            <array-element type="String"/>
+        </field>
+
+        <!-- Special display type examples -->
+        <field name="Server IP" path="server.ip" type="IPAddress" description="Server IPv4 address"/>
+        <field name="Server IPv6" path="server.ipv6" type="IPv6Address" description="Server IPv6 address"/>
+        <field name="MAC Address" path="server.mac" type="MacAddress" description="Server MAC address"/>
+        <field name="Created At" path="created_at" type="Timestamp" description="Unix timestamp of creation"/>
+        <field name="Duration" path="duration" type="Duration" description="Duration in seconds"/>
+        <field name="Cell ID" path="cell.id" type="Hex2Dec" description="Cell identifier (hex string)">
+            <enum name="Primary Cell" code="100"/>
+            <enum name="Secondary Cell" code="200"/>
+        </field>
+
+        <!-- Original GitHub API field definitions -->
+        <field name="Access Level" path="access_level" type="String"/>
+        <field name="Allowed Actions" path="allowed_actions" type="String"/>
+        <field name="Can Approve Pull Request Reviews" path="can_approve_pull_request_reviews" type="Boolean"/>
+        <field name="Comment" path="comment" type="String"/>
+        <field name="Default Workflow Permissions" path="default_workflow_permissions" type="String"/>
+        <field name="Enabled" path="enabled" type="Boolean"/>
+        <field name="Enabled Repositories" path="enabled_repositories" type="String"/>
+        <field name="Encrypted Value" path="encrypted_value" type="String"/>
+        <field name="Environment Ids" path="environment_ids" type="Array">
+            <array-element type="Integer"/>
+        </field>
+        <field name="Environment Name" path="environment_name" type="String"/>
+        <field name="Github Owned Allowed" path="github_owned_allowed" type="Boolean"/>
+        <field name="Include Claim Keys" path="include_claim_keys" type="Array">
+            <array-element type="String"/>
+        </field>
+        <field name="Inputs" path="inputs" type="Object">
+            <field name="Home" path="inputs.home" type="String"/>
+            <field name="Name" path="inputs.name" type="String"/>
+        </field>
+        <field name="Key Id" path="key_id" type="String"/>
+        <field name="Labels" path="labels" type="Array">
+            <array-element type="String"/>
+        </field>
+        <field name="Name" path="name" type="String"/>
+        <field name="Patterns Allowed" path="patterns_allowed" type="Array">
+            <array-element type="String"/>
+        </field>
+        <field name="Ref" path="ref" type="String"/>
+        <field name="Runner Group Id" path="runner_group_id" type="Integer"/>
+        <field name="Selected Repository Ids" path="selected_repository_ids" type="Array">
+            <array-element type="Integer"/>
+        </field>
+        <field name="State" path="state" type="String"/>
+        <field name="Use Default" path="use_default" type="Boolean"/>
+        <field name="Value" path="value" type="String"/>
+        <field name="Verified Allowed" path="verified_allowed" type="Boolean"/>
+        <field name="Visibility" path="visibility" type="String"/>
+        <field name="Work Folder" path="work_folder" type="String"/>
+    </base>
+</json-dictionary>

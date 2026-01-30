@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+    <base name="Simple JSON Protocol" version="1.0">
+        <!-- Type definitions -->
+        <typedefn type-name="String" base-type="string"/>
+        <typedefn type-name="Integer" base-type="int64"/>
+        <typedefn type-name="UnsignedInteger" base-type="uint64"/>
+        <typedefn type-name="Float" base-type="double"/>
+        <typedefn type-name="Boolean" base-type="boolean"/>
+        <typedefn type-name="Object" base-type="object"/>
+        <typedefn type-name="Array" base-type="array"/>
+
+        <!-- Protocol definition -->
+        <protocol name="Test JSON API" port="9999" transport="tcp" displayName="TestAPI">
+            <content-type>application/json</content-type>
+        </protocol>
+
+        <!-- Field definitions -->
+        <field name="request_id" path="request_id" type="String" description="Request ID" info="Request"/>
+        <field name="status" path="status" type="String" description="Status" info="Status"/>
+        
+        <field name="user" path="user" type="Object" description="User info">
+            <field name="id" path="user.id" type="Integer" description="User ID"/>
+            <field name="name" path="user.name" type="String" description="User name" info="User Name"/>
+            <field name="active" path="user.active" type="Boolean" description="Active status" info="Active"/>
+        </field>
+
+        <field name="items" path="items" type="Array" description="Items list">
+            <array-element type="Object" description="Item">
+                <field name="id" path="items[].id" type="Integer" description="Item ID"/>
+                <field name="price" path="items[].price" type="Float" description="Price"/>
+            </array-element>
+    </field>
+    <field name="newItems" path="newItems" type="Object" description="this is a new item">
+	    <field name="items" path="newItems.items" type="string" description="something here"/>
+	</field>
+    </base>
+</json-dictionary>

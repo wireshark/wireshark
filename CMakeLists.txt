@@ -2248,6 +2248,7 @@ set(INSTALL_DIRS
 	resources/share/wireshark/profiles
 	resources/protocols/diameter
 	resources/protocols/dtds
+	resources/protocols/json
 	resources/protocols/radius
 	resources/protocols/tpncp
 	resources/protocols/wimaxasncp
@@ -2731,6 +2732,29 @@ add_custom_command(
 	WORKING_DIRECTORY ${_protocol_data_dir}
 )
 
+file(GLOB _json_dict_src_files RELATIVE ${_protocol_data_dir}
+	${_protocol_data_dir}/json/*.xml
+	${_protocol_data_dir}/json/*.txt
+)
+
+set (_json_dict_data_files)
+set (_json_dict_dep_files)
+foreach(_data_file ${_json_dict_src_files})
+	list(APPEND _json_dict_data_files ${DATAFILE_DIR}/${_data_file})
+	list(APPEND _json_dict_dep_files ${_protocol_data_dir}/${_data_file})
+endforeach()
+
+add_custom_command(
+	OUTPUT ${_json_dict_data_files}
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/json
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		${_json_dict_src_files}
+		${DATAFILE_DIR}/json
+	VERBATIM
+	DEPENDS ${_json_dict_dep_files}
+	WORKING_DIRECTORY ${_protocol_data_dir}
+)
+
 file(GLOB _protobuf_src_files RELATIVE ${_protocol_data_dir}
 	${_protocol_data_dir}/protobuf/*.proto
 )
@@ -2787,6 +2811,7 @@ list(APPEND copy_data_files_depends
 	${_dtds_data_files}
 	${_diameter_data_files}
 	${_radius_data_files}
+	${_json_dict_data_files}
 	${_protobuf_data_files}
 	${_profiles_data_files}
 	${_stratoshark_profiles_data_files}

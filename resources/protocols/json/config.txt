@@ -1,0 +1,55 @@
+# JSON Protocol Dissector - Dictionary Configuration
+# ==================================================
+## Authors
+#
+#Mark Stout <mark.stout@markstout.com>
+# This file controls which XML dictionary files are loaded by the JSON+
+# dissector. Dictionary files define the fields and structure for
+# dissecting JSON protocol data.
+#
+# LOAD ORDER MATTERS!
+# -------------------
+# Dictionaries are loaded in the order they appear in this file (top to bottom).
+# When multiple dictionaries define the same port or field paths:
+#
+#   LAST LOADED DICTIONARY WINS
+#
+# Port Collision Example:
+#   5g.xml:  <protocol name="5G" port="1090" displayName="5G-JSON"/>
+#   amf.xml: <protocol name="AMF" port="1090" displayName="AMF-JSON"/>
+#
+#   If amf.xml is listed after 5g.xml, port 1090 will show "AMF-JSON"
+#
+# Field Collision Example:
+#   dict1.xml: <field name="user_id" path="user.id" type="Integer"/>
+#   dict2.xml: <field name="user_id" path="user.id" type="String"/>
+#
+#   If dict2.xml is listed after dict1.xml, user.id will be treated as String
+#
+# COMMENTING OUT DICTIONARIES
+# ---------------------------
+# Add '#' at the beginning of a line to disable a dictionary:
+#   # example-api.xml    <- This will NOT be loaded
+#   active-api.xml      <- This WILL be loaded
+#
+# BEST PRACTICES
+# --------------
+# 1. List most general dictionaries first, specific ones last
+# 2. If dictionaries share ports, list the primary one last
+# 3. Use comments to document which ports each dictionary handles
+# 4. Keep dictionaries focused on specific protocols/APIs
+# 5. Test load order if you see unexpected field types or display names
+#
+# ACTIVE DICTIONARIES
+# -------------------
+# Listed in load order (first to last):
+
+# Default/example protocol definitions (port: 9999)
+jsonmain.xml
+
+# Additional dictionary files can be added here:
+# ---------------------
+# Uncomment to enable:
+
+# Another example protocol definitions (port: 8888)
+# example-api.xml
