@@ -1153,7 +1153,7 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
 /*
  * 10.5.3.13 Emergency Number List
  */
-static uint16_t
+uint16_t
 de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
 {
     uint32_t    curr_offset;
