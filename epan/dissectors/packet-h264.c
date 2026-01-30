@@ -1195,8 +1195,7 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
      *    shall be set equal to 0.
      */
 
-    level_idc = tvb_get_uint8(tvb, offset);
-    level_item = proto_tree_add_item(h264_profile_tree, hf_h264_level_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    level_item = proto_tree_add_item_ret_uint(h264_profile_tree, hf_h264_level_idc, tvb, offset, 1, ENC_BIG_ENDIAN, &level_idc);
     if ((level_idc == 11) && (constraint_set3_flag == 1)) {
         proto_item_append_text(level_item," [Level 1b (128kb/s)]");
     } else {
@@ -1664,8 +1663,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
     int         ScalingList4x4[6][16], ScalingList8x8[2][64];
 
     /* profile_idc 0 u(8) */
-    profile_idc = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_h264_profile_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_h264_profile_idc, tvb, offset, 1, ENC_BIG_ENDIAN, &profile_idc);
     offset++;
 
     constraint_set3_flag = (tvb_get_uint8(tvb, offset)&0x10)>>4;
@@ -1692,8 +1690,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
     offset++;
 
     /* level_idc 0 u(8) */
-    level_idc = tvb_get_uint8(tvb, offset);
-    level_item = proto_tree_add_item(tree, hf_h264_level_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    level_item = proto_tree_add_item_ret_uint(tree, hf_h264_level_idc, tvb, offset, 1, ENC_BIG_ENDIAN, &level_idc);
     if ((level_idc == 11) && (constraint_set3_flag == 1)) {
         proto_item_append_text(level_item,"[Level 1b]");
     } else {

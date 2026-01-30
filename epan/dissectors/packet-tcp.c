@@ -5944,8 +5944,7 @@ dissect_tcpopt_tarr_data(tvbuff_t *tvb, int data_offset, unsigned data_len,
         col_append_str(pinfo->cinfo, COL_INFO, " TARR");
         break;
     case 1:
-        rate = (tvb_get_uint8(tvb, data_offset) & TCPOPT_TARR_RATE_MASK) >> TCPOPT_TARR_RATE_SHIFT;
-        proto_tree_add_item(tree, hf_tcp_option_tarr_rate, tvb, data_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(tree, hf_tcp_option_tarr_rate, tvb, data_offset, 1, ENC_BIG_ENDIAN, &rate);
         proto_tree_add_item(tree, hf_tcp_option_tarr_reserved, tvb, data_offset, 1, ENC_BIG_ENDIAN);
         tcp_info_append_uint(pinfo, "TARR", rate);
         proto_item_append_text(item, " %u", rate);

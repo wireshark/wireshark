@@ -1367,9 +1367,8 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
     /* msg_code */
     if ((peer_data->frame_key_start == 0) ||
         ((peer_data->frame_key_start >= pinfo->num) && (pinfo->num <= peer_data->frame_key_end))) {
-        msg_code = tvb_get_uint8(tvb, offset);
 
-        proto_tree_add_item(ssh1_tree, hf_ssh_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(ssh1_tree, hf_ssh_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN, &msg_code);
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
             val_to_str(pinfo->pool, msg_code, ssh1_msg_vals, "Unknown (%u)"));
         offset += 1;

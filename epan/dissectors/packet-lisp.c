@@ -649,8 +649,7 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* AFI (2 bytes) */
-    proto_tree_add_item(hop_tree, hf_lisp_lcaf_elp_hop_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
-    hop_afi = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint16(hop_tree, hf_lisp_lcaf_elp_hop_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &hop_afi);
     offset += 2;
 
     /* Reencap hop */
@@ -715,13 +714,11 @@ dissect_lcaf_rle_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 3;
 
     /* Level Value (1 byte) */
-    proto_tree_add_item(entry_tree, hf_lisp_lcaf_rle_entry_level, tvb, offset, 1, ENC_BIG_ENDIAN);
-    level = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(entry_tree, hf_lisp_lcaf_rle_entry_level, tvb, offset, 1, ENC_BIG_ENDIAN, &level);
     offset += 1;
 
     /* AFI (2 bytes) */
-    proto_tree_add_item(entry_tree, hf_lisp_lcaf_rle_entry_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
-    entry_afi = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint16(entry_tree, hf_lisp_lcaf_rle_entry_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &entry_afi);
     offset += 2;
 
     /* RTR/ETR entry */
@@ -871,8 +868,7 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     offset += 4;
 
     /* AFI (2 bytes) */
-    afi = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_lisp_lcaf_iid_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_lisp_lcaf_iid_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);
     offset += 2;
 
     /* Address */
@@ -946,8 +942,7 @@ dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     offset += 4;
 
     /* AFI (2 bytes) */
-    afi = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_lisp_lcaf_asn_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_lisp_lcaf_asn_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);
     offset += 2;
 
     /* Address */
@@ -1044,16 +1039,14 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     offset += 2;
 
     /* Minutes (1 byte) */
-    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_min, tvb, offset, 1, ENC_BIG_ENDIAN);
-    min = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(lat_tree, hf_lisp_lcaf_geo_lat_min, tvb, offset, 1, ENC_BIG_ENDIAN, &min);
     if (min > 60)
         expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
                 "Invalid latitude minutes value (%d)", min);
     offset += 1;
 
     /* Seconds (1 byte) */
-    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_sec, tvb, offset, 1, ENC_BIG_ENDIAN);
-    sec = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(lat_tree, hf_lisp_lcaf_geo_lat_sec, tvb, offset, 1, ENC_BIG_ENDIAN, &sec);
     if (sec > 60)
         expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
                 "Invalid latitude seconds value (%d)", min);
@@ -1081,16 +1074,14 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     offset += 2;
 
     /* Minutes (1 byte) */
-    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_min, tvb, offset, 1, ENC_BIG_ENDIAN);
-    min = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(lon_tree, hf_lisp_lcaf_geo_lon_min, tvb, offset, 1, ENC_BIG_ENDIAN, &min);
     if (min > 60)
         expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
                 "Invalid longitude minutes value (%d)", min);
     offset += 1;
 
     /* Seconds (1 byte) */
-    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_sec, tvb, offset, 1, ENC_BIG_ENDIAN);
-    sec = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(lon_tree, hf_lisp_lcaf_geo_lon_sec, tvb, offset, 1, ENC_BIG_ENDIAN, &sec);
     if (sec > 60)
         expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
                 "Invalid longitude seconds value (%d)", min);
@@ -1116,8 +1107,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     /* PROCESS ADDRESS */
 
     /* AFI (2 bytes) */
-    afi = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_lisp_lcaf_geo_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_lisp_lcaf_geo_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);
     offset += 2;
 
     ip_address = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
@@ -1266,8 +1256,7 @@ dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     offset += 3;
 
     /* AFI (2 bytes) */
-    afi = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_lisp_lcaf_nonce_loc_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);
     offset += 2;
 
     /* Address */
@@ -1352,13 +1341,11 @@ dissect_lcaf_mcast_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Source Mask Length (1 byte) */
-    proto_tree_add_item(tree, hf_lisp_lcaf_mcinfo_src_masklen, tvb, offset, 1, ENC_BIG_ENDIAN);
-    src_masklen = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_lisp_lcaf_mcinfo_src_masklen, tvb, offset, 1, ENC_BIG_ENDIAN, &src_masklen);
     offset += 1;
 
     /* Group Mask Length (1 byte) */
-    proto_tree_add_item(tree, hf_lisp_lcaf_mcinfo_grp_masklen, tvb, offset, 1, ENC_BIG_ENDIAN);
-    grp_masklen = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_lisp_lcaf_mcinfo_grp_masklen, tvb, offset, 1, ENC_BIG_ENDIAN, &grp_masklen);
     offset += 1;
 
     ti_src   = proto_tree_add_item(tree, hf_lisp_lcaf_mcinfo_src, tvb, offset, 2, ENC_NA);
@@ -1509,13 +1496,11 @@ dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Source Prefix Mask Length (1 byte) */
-    proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_src_masklen, tvb, offset, 1, ENC_BIG_ENDIAN);
-    src_masklen = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_lisp_lcaf_srcdst_src_masklen, tvb, offset, 1, ENC_BIG_ENDIAN, &src_masklen);
     offset += 1;
 
     /* Destination Prefix Mask Length (1 byte) */
-    proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_dst_masklen, tvb, offset, 1, ENC_BIG_ENDIAN);
-    dst_masklen = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_lisp_lcaf_srcdst_dst_masklen, tvb, offset, 1, ENC_BIG_ENDIAN, &dst_masklen);
     offset += 1;
 
     ti_src   = proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_src, tvb, offset, 2, ENC_NA);
@@ -1865,8 +1850,7 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, pr
     offset += 1;
 
     /* Type (8 bits) */
-    proto_tree_add_item(lcaf_header_tree, hf_lisp_lcaf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    lcaf_type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(lcaf_header_tree, hf_lisp_lcaf_type, tvb, offset, 1, ENC_BIG_ENDIAN, &lcaf_type);
     proto_item_append_text(tir, ": %s", val_to_str(pinfo->pool, lcaf_type, lcaf_typevals, "Unknown (%d)"));
     offset += 1;
 
@@ -1981,8 +1965,7 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
     prio = tvb_get_uint8(tvb, offset);
     offset += 1;
 
-    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
-    weight = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(lisp_loc_tree, hf_lisp_loc_weight, tvb, offset, 1, ENC_BIG_ENDIAN, &weight);
     offset += 1;
 
     proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_mpriority, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2002,8 +1985,7 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
     flags = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
-    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
-    loc_afi  = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint16(lisp_loc_tree, hf_lisp_loc_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &loc_afi);
     offset += 2;
 
     locator = get_addr_str(tvb, pinfo, offset, loc_afi, &addr_len);
@@ -2603,8 +2585,7 @@ dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
     offset += 2;
 
     /* Authentication Data Length (16 bits) */
-    authlen = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(lisp_tree, hf_lisp_authlen, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(lisp_tree, hf_lisp_authlen, tvb, offset, 2, ENC_BIG_ENDIAN, &authlen);
     offset += 2;
 
     /* Authentication Data */
@@ -2708,8 +2689,7 @@ dissect_lisp_map_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree
     offset += 2;
 
     /* Authentication Data Length (16 bits) */
-    authlen = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(lisp_tree, hf_lisp_authlen, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(lisp_tree, hf_lisp_authlen, tvb, offset, 2, ENC_BIG_ENDIAN, &authlen);
     offset += 2;
 
     /* Authentication Data */
@@ -2897,8 +2877,8 @@ dissect_lisp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
     proto_tree_add_item(prefix_tree, hf_lisp_info_prefix_masklen, tvb, offset, 1, ENC_BIG_ENDIAN);
     prefix_mask = tvb_get_uint8(tvb, offset); offset += 1;
 
-    proto_tree_add_item(prefix_tree, hf_lisp_info_prefix_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
-    prefix_afi = tvb_get_ntohs(tvb, offset);  offset += 2;
+    proto_tree_add_item_ret_uint16(prefix_tree, hf_lisp_info_prefix_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &prefix_afi);
+    offset += 2;
 
     prefix = get_addr_str(tvb, pinfo, offset, prefix_afi, &addr_len);
 
@@ -2926,8 +2906,8 @@ dissect_lisp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
     /* Update the INFO column */
     col_append_fstr(pinfo->cinfo, COL_INFO, " for %s/%d", prefix, prefix_mask);
 
-    tir = proto_tree_add_item(lisp_tree, hf_lisp_info_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
-    afi  = tvb_get_ntohs(tvb, offset); offset += 2;
+    tir = proto_tree_add_item_ret_uint16(lisp_tree, hf_lisp_info_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);
+    offset += 2;
 
     if (!reply) {
         if (afi != 0) {

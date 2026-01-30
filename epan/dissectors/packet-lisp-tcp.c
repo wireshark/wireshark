@@ -233,8 +233,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
         data_len -= 3;
 
         /* Offending message type (2 bytes) */
-        offending_msg_type = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(message_tree, hf_lisp_tcp_message_err_offending_msg_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint16(message_tree, hf_lisp_tcp_message_err_offending_msg_type, tvb, offset, 2, ENC_BIG_ENDIAN, &offending_msg_type);
         offset += 2;
         data_len -= 2;
         proto_item_append_text(tim, ", Offending message type: %s",
@@ -276,8 +275,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
     /* Registration Reject */
     case TRANSPORT_BASE + 3:
         /* Reason (1 byte) */
-        reject_reason = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(message_tree, hf_lisp_tcp_message_registration_reject_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(message_tree, hf_lisp_tcp_message_registration_reject_reason, tvb, offset, 1, ENC_BIG_ENDIAN, &reject_reason);
         offset += 1;
         proto_item_append_text(tim, ", Reason: %s",
                 val_to_str(pinfo->pool, reject_reason, lisp_tcp_registration_reject_reason, "Unknown reason code (%u)"));
@@ -294,8 +292,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
     /* Registration Refresh */
     case TRANSPORT_BASE + 4:
         /* Reason (1 byte) */
-        scope = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(message_tree, hf_lisp_tcp_message_registration_refresh_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(message_tree, hf_lisp_tcp_message_registration_refresh_scope, tvb, offset, 1, ENC_BIG_ENDIAN, &scope);
         offset += 1;
         proto_item_append_text(tim, ", Scope: %s",
                 val_to_str(pinfo->pool, scope, lisp_tcp_registration_refresh_scope, "Unknown scope code (%u)"));
@@ -385,8 +382,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
         if (type == MEMBERSHIP_BASE + 2) {
             /* Error code (1 byte) */
-            err = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(message_tree, hf_lisp_tcp_message_err, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(message_tree, hf_lisp_tcp_message_err, tvb, offset, 1, ENC_BIG_ENDIAN, &err);
             offset += 1;
             data_len -= 1;
             proto_item_append_text(tim, ", Error code: %s",
@@ -405,8 +401,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         proto_item_append_text(tim, ", Site-ID: %"PRIu64, siteid);
 
         /* RLOC AFI (2 bytes) */
-        afi = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(message_tree, hf_lisp_tcp_message_rloc_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint16(message_tree, hf_lisp_tcp_message_rloc_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);
         offset += 2;
         data_len -= 2;
 

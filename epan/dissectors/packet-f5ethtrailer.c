@@ -3322,7 +3322,7 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     int len;
     int ver;
     int o;
-    int secret_len;
+    unsigned secret_len;
     f5tls_conversation_data_t *conv_data = NULL;
     f5tls_packet_data_t *pdata           = NULL;
 
@@ -3340,9 +3340,8 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         o = F5_DPT_V1_TLV_HDR_LEN;
 
-        secret_len = tvb_get_uint8(tvb, o);
         /* Add our fields */
-        pi = proto_tree_add_item(tree, hf_f5tls_secret_len, tvb, o, 1, ENC_NA);
+        pi = proto_tree_add_item_ret_uint(tree, hf_f5tls_secret_len, tvb, o, 1, ENC_NA, &secret_len);
         o += 1;
         if (secret_len == 0) {
             /* nothing to render */

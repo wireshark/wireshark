@@ -5700,6 +5700,7 @@ dissect_rsvp_admin_status(proto_tree *ti, proto_tree *rsvp_object_tree,
     switch(type) {
     case 1:
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_admin_status, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        /* TODO: this fetch doesn't match field above.. */
         status = tvb_get_ntohl(tvb, offset2);
 
         proto_tree_add_bitmask(rsvp_object_tree, tvb, offset2, hf_rsvp_admin_status_bits, TREE(TT_ADMIN_STATUS_FLAGS), status_flags, ENC_BIG_ENDIAN);
@@ -6604,6 +6605,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
                 /* P */
                 proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_p, tvb, offset, 4, ENC_BIG_ENDIAN);
                 /* TFT Operation Code */
+                /* TODO: this retrieval doesn't look right.. */
                 tft_opcode = tvb_get_uint8(tvb, offset+2);
                 proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_opcode, tvb, offset, 4, ENC_BIG_ENDIAN);
                 /* Number of Packet filters */
@@ -6629,8 +6631,8 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
                     /* Packet Filter List */
                     for (i = 0; i < tft_n_pkt_flt; i++) {
                         proto_tree   *flow_tree, *t2_tree;
-                        uint16_t pkt_flt_len, item_len, pf_cont_len;
-                        uint8_t pf_comp_type_id;
+                        uint16_t pkt_flt_len, item_len;
+                        uint8_t  pf_cont_len, pf_comp_type_id;
 
                         flow_tree = proto_tree_add_subtree_format(rsvp_object_tree, tvb, offset, -1, ett_treelist[TT_3GPP_OBJ_FLOW], &ti, "Flow Identifier Num %u",i+1);
                         proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_flow_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6658,8 +6660,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
                         proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_cont_len, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         /* Packet filter component type identifier */
-                        pf_comp_type_id = tvb_get_uint8(tvb, offset);
-                        proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_comp_type_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item_ret_uint8(flow_tree, hf_rsvp_3gpp_obj_pf_comp_type_id, tvb, offset, 1, ENC_BIG_ENDIAN, &pf_comp_type_id);
                         offset++;
                         /* Packet filter component */
                         switch(pf_comp_type_id){
@@ -6785,14 +6786,13 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
                 */
                 if((tft_opcode ==  0x01)||(tft_opcode ==  0x06)||(tft_opcode == 0x80)||(tft_opcode == 0x81)||(tft_opcode == 0x83)){
                     /* QoS List Length */
-                    int32_t tft_qos_list_len;
+                    unsigned tft_qos_list_len;
                     uint8_t blob_len, item_len, padding_len;
                     bool verbose;
                     proto_tree   *qos_tree, *qos_sub_blob_tree, *qos_att_tree;
                     int num = 0, j, num_qos_att_set;
 
-                    tft_qos_list_len = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_qos_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_qos_list_len, tvb, offset, 2, ENC_BIG_ENDIAN, &tft_qos_list_len);
                     offset+=2;
                     tft_qos_list_len-=2;
                     if(tft_qos_list_len > 0){
@@ -6811,8 +6811,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
                             tft_qos_list_len--;
 
                             /* R_QOS_SUB_BLOB_LEN 1 */
-                            blob_len = tvb_get_uint8(tvb, offset);
-                            proto_tree_add_item(qos_tree, hf_rsvp_3gpp_r_qos_blob_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item_ret_uint8(qos_tree, hf_rsvp_3gpp_r_qos_blob_len, tvb, offset, 1, ENC_BIG_ENDIAN, &blob_len);
                             offset++;
                             tft_qos_list_len--;
 
@@ -7731,8 +7730,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     }
 
-    cksum = tvb_get_ntohs(tvb, offset+2);
-    cksum_item = proto_tree_add_item(rsvp_header_tree, hf_rsvp_message_checksum, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    cksum_item = proto_tree_add_item_ret_uint16(rsvp_header_tree, hf_rsvp_message_checksum, tvb, offset+2, 2, ENC_BIG_ENDIAN, &cksum);
 
     proto_tree_add_item(rsvp_header_tree, hf_rsvp_sending_ttl, tvb, offset+4, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(rsvp_header_tree, hf_rsvp_message_length, tvb, offset+6, 2, ENC_BIG_ENDIAN);
