@@ -1138,6 +1138,7 @@ tvb_memdup_remaining(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offs
 const uint8_t*
 tvb_get_ptr(tvbuff_t *tvb, const unsigned offset, const unsigned length)
 {
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 	return ensure_contiguous_unsigned(tvb, offset, length);
 }
 
