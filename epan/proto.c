@@ -4869,7 +4869,7 @@ proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, int start,
 
 	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_BYTES);
 
-	if (start_ptr == NULL)
+	if (start_ptr == NULL && tvb != NULL)
 		start_ptr = tvb_get_ptr(tvb, start, length);
 
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
