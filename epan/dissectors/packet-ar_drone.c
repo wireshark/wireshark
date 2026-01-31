@@ -103,8 +103,9 @@ static const string_string CTRL_mode_vs[] = {
 static int
 dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int         offset, length;
-    int         master_offset = 0;
+    unsigned    offset, length;
+    unsigned    master_offset = 0;
+    bool found;
     proto_item *ti, *sub_item;
     proto_tree *ar_tree, *sub_tree;
     char       *command;
@@ -131,8 +132,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     while (tvb_reported_length_remaining(tvb, master_offset) > 3)
     {
         /* Get a string to compare our command strings (aka "AT*PCMD", etc.) to */
-        offset = tvb_find_uint8(tvb, master_offset, -1, '=');
-        if (offset < master_offset)
+        if (!tvb_find_uint8_remaining(tvb, master_offset, '=', &offset))
             return master_offset;
 
         command = (char*)tvb_get_string_enc(pinfo->pool, tvb, master_offset, offset-master_offset, ENC_ASCII|ENC_NA);
@@ -150,8 +150,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 8;
 
             /* Add PCMD ID */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -159,8 +160,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add PCMD Flag */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -168,8 +170,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add PCMD Roll */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -200,8 +203,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add PCMD Pitch */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -232,8 +236,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add PCMD Gaz */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -264,8 +269,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add PCMD Yaw */
-            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_CR);
                 return offset;
             }
@@ -303,8 +309,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 7;
 
             /* Add REF ID */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -312,8 +319,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add REF ctrl */
-            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_CR);
                 return offset;
             }
@@ -328,8 +336,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 14;
 
             /* Add Sequence Number */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -337,8 +346,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Session ID */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -346,8 +356,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add User ID */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -355,8 +366,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Application ID */
-            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_CR);
                 return offset;
             }
@@ -371,8 +383,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 8;
 
             /* Add sequence */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -380,8 +393,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Animation */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -389,8 +403,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add animation time(sec) */
-            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_CR);
                 return offset;
             }
@@ -405,8 +420,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 9;
 
             /* Add sequence number */
-            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_CR);
                 return offset;
             }
@@ -421,8 +437,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 10;
 
             /* Add sequence */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -430,8 +447,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Name */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -439,8 +457,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Value */
-            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_CR);
                 return offset;
             }
@@ -455,8 +474,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 7;
 
             /* Add sequence */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -464,8 +484,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add animation to play */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -473,8 +494,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add frequency */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -482,8 +504,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Time to play in sec  */
-            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_CR);
                 return offset;
             }
@@ -498,8 +521,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 10;
 
             /* Add sequence number */
-            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_CR);
                 return offset;
             }
@@ -516,8 +540,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 8;
 
             /* Add sequence */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -525,8 +550,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Mode */
-            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
@@ -535,8 +561,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add File Size */
-            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
-            if (length < 0) {
+            found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
+            length = length - offset;
+            if (found == false) {
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_CR);
                 return offset;
             }
