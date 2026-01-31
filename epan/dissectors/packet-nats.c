@@ -196,7 +196,7 @@ static void dissect_nats_header_version(tvbuff_t* tvb, int offset, int end_offse
                                         packet_info* pinfo, proto_tree* header_tree)
 {
     proto_item *header_version = proto_tree_add_item(header_tree, hf_nats_header_version, tvb,
-                                                     offset, end_offset, ENC_ASCII);
+                                                     offset, end_offset - offset, ENC_ASCII);
     proto_tree *header_version_tree = proto_item_add_subtree(header_version, ett_nats_headers);
 
     /* The header version has the format NATS/X.x where
