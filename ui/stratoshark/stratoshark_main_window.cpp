@@ -826,8 +826,8 @@ void StratosharkMainWindow::updateStyleSheet()
     main_ui_->preferenceEditorFrame->updateStyleSheet();
     main_ui_->searchFrame->updateStyleSheet();
 
-    welcome_page_->updateStyleSheets();
 #endif
+    welcome_page_->updateStyleSheets();
     df_combo_box_->updateStyleSheet();
 }
 
