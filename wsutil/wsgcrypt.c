@@ -82,9 +82,10 @@ crypt_des_ecb(uint8_t *output, const uint8_t *buffer, const uint8_t *key56)
 size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t pk, bool pkcs1_padding, char **err)
 {
 	gcry_error_t rc = 0;
-	size_t       decr_len = 0, i = 0, pad_len;
+	size_t       decr_len = 0;
 	gcry_sexp_t  s_data = NULL, s_plain = NULL;
-	gcry_mpi_t   encr_mpi = NULL, text = NULL;
+	gcry_mpi_t   encr_mpi = NULL;
+	const char  *text;
 
 	*err = NULL;
 
@@ -96,7 +97,7 @@ size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t 
 	}
 
 	/* put the data into a simple list */
-	rc = gcry_sexp_build(&s_data, NULL, "(enc-val(rsa(a%m)))", encr_mpi);
+	rc = gcry_sexp_build(&s_data, NULL, "(enc-val(flags %s)(rsa(a%m)))", pkcs1_padding ? "pkcs1" : "raw", encr_mpi);
 	if (rc != 0) {
 		*err = ws_strdup_printf("can't build encr_sexp:%s", gcry_strerror(rc));
 		decr_len = 0;
@@ -112,18 +113,10 @@ size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t 
 		goto out;
 	}
 
-	/* convert plain text sexp to mpi format */
-	text = gcry_sexp_nth_mpi(s_plain, 0, 0);
-	if (! text) {
-		*err = g_strdup("can't convert sexp to mpi");
-		decr_len = 0;
-		goto out;
-	}
-
-	/* compute size requested for plaintext buffer */
-	rc = gcry_mpi_print(GCRYMPI_FMT_USG, NULL, 0, &decr_len, text);
-	if (rc != 0) {
-		*err = ws_strdup_printf("can't compute decr size:%s", gcry_strerror(rc));
+	/* get pointer to plaintext buffer and its length */
+        text = gcry_sexp_nth_data(s_plain, 1, &decr_len);
+	if (!text) {
+		*err = g_strdup("can't retrieve plaintext from sexp");
 		decr_len = 0;
 		goto out;
 	}
@@ -136,32 +129,12 @@ size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t 
 	}
 
 	/* write plain text to newly allocated buffer */
-	rc = gcry_mpi_print(GCRYMPI_FMT_USG, data, len, &decr_len, text);
-	if (rc != 0) {
-		*err = ws_strdup_printf("can't print decr data to mpi (size %zu):%s", decr_len, gcry_strerror(rc));
-		decr_len = 0;
-		goto out;
-	}
-
-	if (pkcs1_padding) {
-		/* strip the padding*/
-		pad_len = 0;
-		for (i = 1; i < decr_len; i++) {
-			if (data[i] == 0) {
-				pad_len = i+1;
-				break;
-			}
-		}
-
-		decr_len -= pad_len;
-		memmove(data, data+pad_len, decr_len);
-	}
+        memcpy(data, text, decr_len);
 
 out:
 	gcry_sexp_release(s_data);
 	gcry_sexp_release(s_plain);
 	gcry_mpi_release(encr_mpi);
-	gcry_mpi_release(text);
 	return decr_len;
 }
 
