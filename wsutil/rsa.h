@@ -48,6 +48,9 @@ WS_DLL_PUBLIC gnutls_x509_privkey_t rsa_load_pem_key(FILE* fp, char **err);
  * @param cert_passwd password to decrypt the PKCS#12 file
  * @param [out] err   error message upon failure; NULL upon success
  * @return a pointer to the loaded key on success; NULL upon failure
+ *
+ * @note This returns the first private key found. A PKCS#12 file can in
+ * theory contain many keys, but this is rare in practice.
  */
 WS_DLL_PUBLIC gnutls_x509_privkey_t rsa_load_pkcs12(FILE* fp, const char *cert_passwd, char** err);
 #endif
