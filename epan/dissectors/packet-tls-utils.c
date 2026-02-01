@@ -5293,34 +5293,40 @@ ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
     gnutls_datum_t pms = { 0 };
     if (pk) {
         // Try to decrypt using the RSA keys table from (D)TLS preferences.
-        ret = gnutls_privkey_decrypt_data(pk, 0, &epms, &pms);
+        char *err = NULL;
+        gcry_sexp_t private_key = rsa_abstract_privkey_to_sexp(pk, &err);
+        if (!private_key) {
+            ssl_debug_printf("%s: decryption failed: Can't export private key: %s", G_STRFUNC, err);
+            g_free(err);
+            return false;
+        }
+
+        pms.size = (int)rsa_decrypt(encrypted_pre_master->data_len, encrypted_pre_master->data, &pms.data, private_key, "pkcs1", &err);
+        rsa_private_key_free(private_key);
+        if (pms.size == 0) {
+            ssl_debug_printf("%s: decryption failed: %s\n", G_STRFUNC, err);
+            g_free(err);
+            return false;
+        }
     } else {
         // Try to decrypt using a hardware token.
         ret = secrets_rsa_decrypt(ssl_session->cert_key_id, epms.data, epms.size, &pms.data, &pms.size);
-    }
-    if (ret < 0) {
-        ssl_debug_printf("%s: decryption failed: %d (%s)\n", G_STRFUNC, ret, gnutls_strerror(ret));
-        return false;
+        if (ret < 0) {
+            ssl_debug_printf("%s: decryption failed: %d (%s)\n", G_STRFUNC, ret, gnutls_strerror(ret));
+            return false;
+        }
     }
 
     if (pms.size != 48) {
         ssl_debug_printf("%s wrong pre_master_secret length (%d, expected %d)\n",
                          G_STRFUNC, pms.size, 48);
-        if (pk) {
-            gnutls_free(pms.data);
-        } else {
-            g_free(pms.data);
-        }
+        g_free(pms.data);
         return false;
     }
 
     ssl_session->pre_master_secret.data = (uint8_t *)wmem_memdup(wmem_file_scope(), pms.data, 48);
     ssl_session->pre_master_secret.data_len = 48;
-    if (pk) {
-        gnutls_free(pms.data);
-    } else {
-        g_free(pms.data);
-    }
+    g_free(pms.data);
     ssl_print_string("pre master secret", &ssl_session->pre_master_secret);
 
     /* Remove the master secret if it was there.

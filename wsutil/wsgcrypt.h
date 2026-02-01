@@ -120,6 +120,27 @@ WS_DLL_PUBLIC gcry_error_t crypt_des_ecb(uint8_t *output, const uint8_t *buffer,
 WS_DLL_PUBLIC size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data,
                                          gcry_sexp_t pk, bool pkcs1_padding, char **err);
 
+/**
+ * @brief Perform RSA decryption and allocate a buffer for the resulta.
+ *
+ * Decrypts the data in `data` using the RSA private key `pk`. On success, the
+ * function allocates a buffer for the decrypted data and returns its length;
+ * on failure, no buffer is allocated and 0 is return. The string in `flags`
+ * is passed to gcry_pk_decrypt to tell it what padding method, if any to
+ * remove - it can be "raw" (do not remove padding), "pkcs1", or "oaep".
+ * If an error occurs, a descriptive message may be returned in `err`.
+ *
+ * @param len             Length of the encrypted input data.
+ * @param data            Buffer containing encrypted data; overwritten with plaintext.
+ * @param plain           Decrypted contents on success, free with g_free.
+ * @param pk              RSA private key (gcry_sexp_t).
+ * @param flags           Libgcrypt flags containing the padding-method to remove.
+ * @param err             Optional pointer to receive error message (may be NULL).
+ * @return                Length of decrypted data on success, 0 on failure.
+ */
+WS_DLL_PUBLIC size_t rsa_decrypt(const unsigned len, const unsigned char* data,
+                                 uint8_t** plain,
+                                         gcry_sexp_t pk, const char* flags, char **err);
 
 /**
  * @brief Perform HKDF-Expand as defined in RFC 5869.

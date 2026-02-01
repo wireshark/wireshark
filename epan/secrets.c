@@ -24,6 +24,7 @@
 # include <gnutls/abstract.h>
 # include <gcrypt.h>
 # include <wsutil/rsa.h>
+# include <wsutil/wsgcrypt.h>
 # include <epan/uat.h>
 # include <wsutil/report_message.h>
 # include <wsutil/file_util.h>
@@ -726,6 +727,26 @@ secrets_rsa_decrypt(const cert_key_id_t *key_id, const uint8_t *encr, unsigned e
         *out = (uint8_t *)g_memdup2(plain.data, plain.size);
         *out_len = plain.size;
         gnutls_free(plain.data);
+#if GNUTLS_VERSION_NUMBER >= 0x030805
+    } else if (ret == GNUTLS_E_UNSUPPORTED_ENCRYPTION_ALGORITHM) {
+        // This failure means that RSA PKCS#1 v1.5 padding is
+        // disabled globally in GnuTLS. See if we can export the
+        // key and use libgcrypt.
+        char* err;
+        gcry_sexp_t private_key = rsa_abstract_privkey_to_sexp(pkey, &err);
+        if (!private_key) {
+            // Can't export either. Presumably a token, no need to warn.
+            g_free(err);
+        } else {
+            *out_len = (int)rsa_decrypt(encr_len, encr, out, private_key, "pkcs1", &err);
+            rsa_private_key_free(private_key);
+            if (*out_len) {
+                ret = 0;
+            } else {
+                g_free(err);
+            }
+        }
+#endif
     }
 
     return ret;
