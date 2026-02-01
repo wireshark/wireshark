@@ -1801,8 +1801,8 @@ dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
              */
             proto_tree_add_item_ret_uint(subtree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
             offset += 2;
-            int end_offset;
-            while ((end_offset = tvb_find_uint8(tvb, offset, length, 0xFF)) != -1) {
+            unsigned end_offset;
+            while ((tvb_find_uint8_length(tvb, offset, length, 0xFF, &end_offset))) {
                 proto_tree_add_item(subtree, hf_drda_sqlerrmsg, tvb, offset, end_offset - offset, pdu_info->mbc);
                 length -= (end_offset + 1 - offset);
                 offset = end_offset + 1;
@@ -1815,7 +1815,7 @@ dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
              */
             proto_tree_add_item_ret_uint(subtree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
             offset += 2;
-            while ((end_offset = tvb_find_uint8(tvb, offset, length, 0xFF)) != -1) {
+            while ((tvb_find_uint8_length(tvb, offset, length, 0xFF, &end_offset))) {
                 proto_tree_add_item(subtree, hf_drda_sqlerrmsg, tvb, offset, end_offset - offset, pdu_info->sbc);
                 length -= (end_offset + 1 - offset);
                 offset = end_offset + 1;

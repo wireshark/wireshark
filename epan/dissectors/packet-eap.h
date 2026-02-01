@@ -86,6 +86,6 @@ typedef struct _eap_vendor_context {
   uint8_t   eap_identifier;
 } eap_vendor_context;
 
-extern bool dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, int offset, int size);
+extern bool dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, unsigned offset, unsigned size);
 
 #endif /* __PACKET_EAP_H__ */

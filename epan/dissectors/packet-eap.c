@@ -764,8 +764,8 @@ static const value_string eap_ext_vendor_type_vals[] = {
 };
 
 static void
-dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
-               int size _U_, packet_info* pinfo, uint8_t eap_code, uint8_t eap_identifier)
+dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, unsigned offset,
+               unsigned size _U_, packet_info* pinfo, uint8_t eap_code, uint8_t eap_identifier)
 {
   tvbuff_t   *next_tvb;
   uint32_t   vendor_id;
@@ -796,12 +796,12 @@ dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 ********************************************************************* */
 
 static void
-dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
-                     int size)
+dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
+                     unsigned size)
 {
   proto_item *item;
-  int         left = size;
-  int         ms_len;
+  unsigned    left = size;
+  unsigned    ms_len;
   uint8_t     value_size;
   uint8_t     opcode;
 
@@ -910,7 +910,7 @@ realm_is_3gpp(char** realm_tokens, unsigned *nrealm_tokensp)
 
 /* Dissect the 3GPP identity */
 bool
-dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, int offset, int size)
+dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, unsigned offset, unsigned size)
 {
   unsigned    mnc = 0;
   unsigned    mcc = 0;
@@ -1116,23 +1116,23 @@ dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
     hf_eap_identity_mcc_mnc = hf_eap_identity_mcc_mnc_2digits;
   }
 
-  offset = tvb_find_uint8(tvb, offset, size, '@');
-  if (offset != -1) {
+  offset = tvb_find_uint8_length(tvb, offset, size, '@', &offset);
+  if (tvb_find_uint8_length(tvb, offset, size, '@', &offset)) {
     /* Should always be true. */
     offset += 1;
     for (int i = 0; realm_tokens[i] != mnc_token; ++i) {
-      offset += (int)(strlen(realm_tokens[i])) + 1;
+      offset += (unsigned)(strlen(realm_tokens[i])) + 1;
     }
     /* XXX - This presentation order is the opposite of the "usual" one.
      * Post MCC first to maintain typical code order
      */
     /* Add MCC to tree */
     proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc, tvb,
-      offset + (int)strlen(mnc_token) + 1 + (int)strlen("mcc"),
-      (int)strlen(mcc_token) - (int)strlen("mcc"), mcc);
+      offset + (unsigned)strlen(mnc_token) + 1 + (unsigned)strlen("mcc"),
+      (unsigned)strlen(mcc_token) - (unsigned)strlen("mcc"), mcc);
     /* Add MNC to tree */
     proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc_mnc, tvb,
-      offset + (int)strlen("mnc"), (int)strlen(mnc_token) - (int)strlen("mnc"), mcc_mnc);
+      offset + (unsigned)strlen("mnc"), (unsigned)strlen(mnc_token) - (unsigned)strlen("mnc"), mcc_mnc);
   }
 
 end:
@@ -1143,7 +1143,7 @@ end:
 }
 
 static void
-dissect_eap_identity(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, int offset, int size)
+dissect_eap_identity(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, unsigned offset, unsigned size)
 {
   proto_item *item;
   /*
@@ -1162,9 +1162,9 @@ dissect_eap_identity(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, int of
 }
 
 static void
-dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int offset, int size)
+dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned size)
 {
-  int left = size;
+  unsigned left = size;
 
   proto_tree_add_item(eap_tree, hf_eap_sim_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1183,8 +1183,8 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
     int         padding;
     proto_item *pi;
     proto_tree *attr_tree;
-    int         aoffset;
-    int         aleft;
+    unsigned    aoffset;
+    unsigned    aleft;
 
     aoffset = offset;
     type    = tvb_get_uint8(tvb, aoffset);
@@ -1238,9 +1238,9 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
 }
 
 static void
-dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int offset, int size)
+dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned size)
 {
-  int left = size;
+  unsigned left = size;
 
   proto_tree_add_item(eap_tree, hf_eap_aka_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1260,8 +1260,8 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
     int          padding;
     proto_item  *pi;
     proto_tree  *attr_tree;
-    int          aoffset;
-    int          aleft;
+    unsigned     aoffset;
+    unsigned     aleft;
 
     aoffset = offset;
     type    = tvb_get_uint8(tvb, aoffset);
@@ -1335,7 +1335,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
 }
 
 static int
-dissect_eap_pax(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int size)
+dissect_eap_pax(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned size)
 {
   static int * const pax_flags[] = {
     &hf_eap_pax_flags_mf,
@@ -1439,8 +1439,8 @@ dissect_eap_pax(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
   return offset;
 }
 
-static int
-dissect_eap_psk_pchannel(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int size)
+static unsigned
+dissect_eap_psk_pchannel(proto_tree *eap_tree, tvbuff_t *tvb, unsigned offset, unsigned size)
 {
   /* The protected channel (PCHANNEL) content is encrypted so for now just present
    * it as a binary blob */
@@ -1449,8 +1449,8 @@ dissect_eap_psk_pchannel(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int si
   return offset;
 }
 
-static int
-dissect_eap_psk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int size)
+static unsigned
+dissect_eap_psk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned size)
 {
   static int * const psk_flags[] = {
     &hf_eap_psk_flags_t,
@@ -1503,8 +1503,8 @@ dissect_eap_psk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
   return offset;
 }
 
-static int
-dissect_eap_gpsk_csuite_sel(proto_tree *eap_tree, tvbuff_t *tvb, int offset)
+static unsigned
+dissect_eap_gpsk_csuite_sel(proto_tree *eap_tree, tvbuff_t *tvb, unsigned offset)
 {
   proto_tree *csuite_tree;
   csuite_tree = proto_tree_add_subtree(eap_tree, tvb, offset, 6, ett_eap_gpsk_csuite_sel,
@@ -1516,10 +1516,10 @@ dissect_eap_gpsk_csuite_sel(proto_tree *eap_tree, tvbuff_t *tvb, int offset)
   return offset;
 }
 
-static int
-dissect_eap_gpsk_csuite_list(proto_tree *eap_tree, tvbuff_t *tvb, int offset)
+static unsigned
+dissect_eap_gpsk_csuite_list(proto_tree *eap_tree, tvbuff_t *tvb, unsigned offset)
 {
-  int start_offset = offset;
+  unsigned start_offset = offset;
   uint16_t len;
   proto_tree *list_tree, *csuite_tree;
 
@@ -1540,8 +1540,8 @@ dissect_eap_gpsk_csuite_list(proto_tree *eap_tree, tvbuff_t *tvb, int offset)
   return offset;
 }
 
-static int
-dissect_eap_sake_attribute(proto_tree *eap_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int size)
+static unsigned
+dissect_eap_sake_attribute(proto_tree *eap_tree, packet_info* pinfo, tvbuff_t *tvb, unsigned offset, unsigned size)
 {
   int start_offset = offset;
   uint8_t type;
@@ -1597,7 +1597,7 @@ dissect_eap_sake_attribute(proto_tree *eap_tree, packet_info* pinfo, tvbuff_t *t
 }
 
 static void
-dissect_eap_sake_attributes(proto_tree *eap_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int size)
+dissect_eap_sake_attributes(proto_tree *eap_tree, packet_info* pinfo, tvbuff_t *tvb, unsigned offset, unsigned size)
 {
   int attr_size;
   while (offset < size) {
@@ -1610,7 +1610,7 @@ dissect_eap_sake_attributes(proto_tree *eap_tree, packet_info* pinfo, tvbuff_t *
 }
 
 static void
-dissect_eap_sake(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int size)
+dissect_eap_sake(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo _U_, unsigned offset, unsigned size)
 {
   uint32_t version;
   uint32_t subtype;
@@ -1638,8 +1638,8 @@ dissect_eap_sake(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
   }
 }
 
-static int
-dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int size)
+static unsigned
+dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned size)
 {
   uint32_t opcode;
   uint32_t len;
@@ -1733,8 +1733,8 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
   return offset;
 }
 
-static int
-dissect_eap_msauth_tlv(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int size)
+static unsigned
+dissect_eap_msauth_tlv(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned size)
 {
   unsigned tlv_type, tlv_len;
   proto_tree *tlv_tree, *tree, *ti_len;
@@ -1803,7 +1803,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   uint8_t         eap_identifier;
   uint16_t        eap_len;
   uint8_t         eap_type;
-  int             len;
+  unsigned        len;
   conversation_t *conversation       = NULL;
   conv_state_t   *conversation_state = NULL;
   frame_state_t  *packet_state;
@@ -1975,8 +1975,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     eap_type_item = proto_tree_add_item(eap_tree, hf_eap_type, tvb, 4, 1, ENC_BIG_ENDIAN);
 
     if ((len > 5) || ((len == 5) && (eap_type == EAP_TYPE_ID))) {
-      int     offset = 5;
-      int     size   = len - offset;
+      unsigned offset = 5;
+      unsigned size   = len - offset;
 
       switch (eap_type) {
         /*********************************************************************
@@ -2009,7 +2009,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       case EAP_TYPE_MD5:
       {
         uint8_t     value_size = tvb_get_uint8(tvb, offset);
-        int         extra_len  = size - 1 - value_size;
+        unsigned    extra_len  = size - 1 - value_size;
         proto_item *item;
 
         /* Warn that this is an insecure EAP type. */

@@ -120,7 +120,7 @@ const value_string epmd_version_vals[] = {
 };
 
 static void
-dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree) {
+dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
     uint8_t       type;
     uint16_t      name_length = 0;
     const uint8_t *name        = NULL;
@@ -181,14 +181,15 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *
 }
 
 static void
-dissect_epmd_response_names(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_epmd_response_names(packet_info *pinfo _U_, tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    int reported_len = tvb_reported_length(tvb);
-    int off = offset;
+    unsigned reported_len = tvb_reported_length(tvb);
+    unsigned off = offset;
 
-    int next_off;
+    unsigned next_off;
     while (off < reported_len) {
-        int linelen = tvb_find_line_end(tvb, off, -1, &next_off, FALSE);
+        unsigned linelen;
+        tvb_find_line_end_remaining(tvb, off, &next_off, &linelen);
         proto_item *node_ti = proto_tree_add_item(tree,hf_epmd_node_container, tvb, off, linelen, ENC_NA);
         proto_tree *node_tree = proto_item_add_subtree(node_ti, ett_epmd_node);
 
@@ -197,10 +198,10 @@ dissect_epmd_response_names(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, p
             expert_add_info_format(pinfo, node_tree, &ei_epmd_malformed_names_line, "Malformed line: expected 'name ' at start");
             continue;
         }
-        int name_start = off + 5;
+        unsigned name_start = off + 5;
 
-        int name_end = tvb_find_uint8(tvb, name_start, linelen - (name_start - off), ' ');
-        if (name_end == -1){
+        unsigned name_end;
+        if (!tvb_find_uint8_length(tvb, name_start, linelen - (name_start - off), ' ', &name_end)){
             off = next_off;
             expert_add_info_format(pinfo, node_tree, &ei_epmd_malformed_names_line, "Malformed line: missing space after node name");
             continue;
@@ -231,7 +232,7 @@ dissect_epmd_response_names(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, p
 }
 
 static int
-dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree) {
+dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
     uint8_t         type, result;
     uint32_t        port;
     uint16_t        name_length = 0;
