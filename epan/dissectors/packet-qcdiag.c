@@ -36,6 +36,7 @@
 
 #include <epan/packet.h>
 #include <epan/tfs.h>
+#include <epan/to_str.h>
 #include <epan/unit_strings.h>
 
 #include "packet-gsmtap.h"
@@ -61,7 +62,24 @@ static int hf_qcdiag_logcode;
 static int hf_qcdiag_len;
 static int hf_qcdiag_ver;
 static int hf_qcdiag_cmd;
+static int hf_qcdiag_verno_comp_date;
+static int hf_qcdiag_verno_comp_time;
+static int hf_qcdiag_verno_rel_date;
+static int hf_qcdiag_verno_rel_time;
+static int hf_qcdiag_verno_ver_dir;
+static int hf_qcdiag_verno_scm;
+static int hf_qcdiag_verno_mob_cai_rev;
+static int hf_qcdiag_verno_mob_model;
+static int hf_qcdiag_verno_mob_firm_rev;
+static int hf_qcdiag_verno_sci;
+static int hf_qcdiag_verno_msm_ver;
+static int hf_qcdiag_esn;
+static int hf_qcdiag_bad_cmd;
+static int hf_qcdiag_bad_parm;
+static int hf_qcdiag_bad_len;
+static int hf_qcdiag_bad_mode;
 static int hf_qcdiag_diag_ver;
+static int hf_qcdiag_ts;
 
 static int hf_qcdiag_subsys_id;
 static int hf_qcdiag_subsys_cmd_code;
@@ -71,13 +89,22 @@ static int hf_qcdiag_logcfg_operation;
 static int hf_qcdiag_logcfg_status;
 static int hf_qcdiag_logcfg_equip_id;
 static int hf_qcdiag_logcfg_last_item;
+static int hf_qcdiag_log_on_demand_logcode;
+static int hf_qcdiag_log_on_demand_status;
+static int hf_qcdiag_protocol_loopback;
+static int hf_qcdiag_ext_build_id_ver;
+static int hf_qcdiag_ext_build_id_res;
+static int hf_qcdiag_ext_build_id_msm;
+static int hf_qcdiag_ext_build_id_mob_model;
+static int hf_qcdiag_ext_build_id_sw_rev;
+static int hf_qcdiag_ext_build_id_mob_model_str;
 
 static int ett_qcdiag;
-static int ett_qcdiag_diag_ver;
+static int ett_qcdiag_cmd_subtree;
 static int ett_qcdiag_log_codes_enabled;
 
 static const value_string qcdiag_cmds[] = {
-    { DIAG_VERNO_F,                "Version Number" },
+    { DIAG_VERNO_F,                "Version Information" },
     { DIAG_ESN_F,                  "Mobile Station Electronic Serial Number (ESN)" },
     { DIAG_PEEKB_F,                "Memory Peek Byte" },
     { DIAG_PEEKW_F,                "Memory Peek Word" },
@@ -96,15 +123,15 @@ static const value_string qcdiag_cmds[] = {
     { DIAG_LOG_F,                  "Get Log" },
     { DIAG_NV_PEEK_F,              "Peek NV Memory" },
     { DIAG_NV_POKE_F,              "Poke NV Memory" },
-    { DIAG_BAD_CMD_F,              "Invalid Command Error Response" },
-    { DIAG_BAD_PARM_F,             "Invalid Parameter Error Response" },
-    { DIAG_BAD_LEN_F,              "Invalid Packet Length Error Response" },
-    { DIAG_BAD_DEVICE_F,           "Device Originated Error Response" },
-    { DIAG_BAD_VOC_F,              "Vocoder Originated Error Response" },
+    { DIAG_BAD_CMD_F,              "Invalid Command Error" },
+    { DIAG_BAD_PARM_F,             "Invalid Parameters Error" },
+    { DIAG_BAD_LEN_F,              "Invalid Packet Length Error" },
+    { DIAG_BAD_DEVICE_F,           "Device Originated Error" },
+    { DIAG_BAD_VOC_F,              "Vocoder Originated Error" },
     { DIAG_BAD_MODE_F,             "Invalid Mode Error" },
     { DIAG_TAGRAPH_F,              "Temporal Analyzer Power/Voice Information" },
     { DIAG_MARKOV_F,               "Markov Statistics" },
-    { DIAG_MARKOV_RESET_F,         "Markov Statistics Reset" },
+    { DIAG_MARKOV_RESET_F,         "Reset Markov Statistics" },
     { DIAG_DIAG_VER_F,             "Diagnostic Protocol Version" },
     { DIAG_TS_F,                   "Timestamp" },
     { DIAG_TA_PARM_F,              "Set Temporal Analyzer Parameters" },
@@ -405,9 +432,15 @@ static const value_string qcdiag_logcfg_equipid[] = {
  */
 
 /* XQDM timestamp encoded with upper (48 bits) and lower (16 bits) parts.
- * The GPS epoch is 00:00:00 (midnight) UTC on 1980-01-06.
  * Upper 48 bits: GPS epoch, incremented by 1 for 1/800s tick
  * Lower 16 bits: time since last tick in 1/32 chip units
+ *
+ * The GPS epoch is 00:00:00 (midnight) UTC on 1980-01-06.
+ *
+ *  <--                       48 bits                        --> <--   16 bits    -->
+ * +------------------------------------------------------------+--------------------+
+ * | 1.25 ms counter                                            | 1/32 chip counter  |
+ * +------------------------------------------------------------+--------------------+
  */
 
 nstime_t
@@ -504,9 +537,323 @@ qcdiag_add_cmd_subtree(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto
         return NULL;
 
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, length, /* -1 fails */
-                             ett_qcdiag_diag_ver, NULL, "%s %s", text, msgtype);
+                             ett_qcdiag_cmd_subtree, NULL, "%s %s", text, msgtype);
 
     return subtree;
+}
+
+
+/* Version Information Request
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE (  0 / 0x00) |       1        | Message ID: The CMD_CODE is set to 0    |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ *
+ * Version Information Response
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE (  0 / 0x00) |       1        | Message ID: The CMD_CODE is set to 0    |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | COMP_DATE             |       11       | Compilation date: ASCII characters      |
+ * |                       |                | indicating the date of compilation      |
+ * |                       |                | for the executable                      |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | COMP_TIME             |       8        | Compilation time: ASCII characters      |
+ * |                       |                | indicating the time of compilation      |
+ * |                       |                | for the executable;                     |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | REL_DATE              |       11       | Release date: ASCII characters          |
+ * |                       |                | indicating the date of formal release   |
+ * |                       |                | for the executable                      |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | REL_TIME              |       8        | Release date: ASCII characters          |
+ * |                       |                | indicating the time of formal release   |
+ * |                       |                | for the executable                      |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | VER_DIR               |       8        | Version directory: ASCII characters     |
+ * |                       |                | giving the name of the directory in     |
+ * |                       |                | which the executable was prepared;      |
+ * |                       |                | this string is the phone sw version;    |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | SCM                   |       1        | Station class mark                      |
+ * |                       |                |                                         |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | MOB_CAI_REV           |       1        | Mobile common air interface revision    |
+ * |                       |                |                                         |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | MOB_MODEL             |       1        | Manufacturer’s mobile model             |
+ * |                       |                |                                         |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | MOB_FIRM_REV          |       2        | Manufacturer’s mobile firmware revision |
+ * |                       |                | (software version)                      |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | SLOT_CYCLE_INDEX      |       1        | Slot cycle index                        |
+ * |                       |                |                                         |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | MSM_VER               |       2        | Mobile station modem revision           |
+ * |                       |                |                                         |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static void
+dissect_qcdiag_verno(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    uint32_t logcode, length;
+    uint32_t major, minor;
+    bool request;
+    char *msm;
+
+    length = tvb_reported_length(tvb);
+
+    request = (length == 1) ? true : false;
+
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
+
+    if (request) return;
+
+    /* COMP_DATE (there is no null-termination) */
+    proto_tree_add_item(subtree, hf_qcdiag_verno_comp_date, tvb, offset, 11, ENC_ASCII);
+    offset += 11;
+
+    /* COMP_TIME (there is no null-termination) */
+    proto_tree_add_item(subtree, hf_qcdiag_verno_comp_time, tvb, offset, 8, ENC_ASCII);
+    offset += 8;
+
+    /* REL_DATE (there is no null-termination) */
+    proto_tree_add_item(subtree, hf_qcdiag_verno_rel_date, tvb, offset, 11, ENC_ASCII);
+    offset += 11;
+
+    /* REL_TIME (there is no null-termination) */
+    proto_tree_add_item(subtree, hf_qcdiag_verno_rel_time, tvb, offset, 8, ENC_ASCII);
+    offset += 8;
+
+    /* VER_DIR (there is no null-termination) */
+    proto_tree_add_item(subtree, hf_qcdiag_verno_ver_dir, tvb, offset, 8, ENC_ASCII);
+    offset += 8;
+
+    /* SCM */
+    proto_tree_add_item(subtree, hf_qcdiag_verno_scm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* MOB_CAI_REV */
+    proto_tree_add_item(subtree, hf_qcdiag_verno_mob_cai_rev, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* MOB_MODEL */
+    proto_tree_add_item(subtree, hf_qcdiag_verno_mob_model, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* MOB_FIRM_REV */
+    proto_tree_add_item(subtree, hf_qcdiag_verno_mob_firm_rev, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* SLOT_CYCLE_INDEX */
+    proto_tree_add_item(subtree, hf_qcdiag_verno_sci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    major = tvb_get_uint8(tvb, offset);
+    minor = tvb_get_uint8(tvb, offset+1);
+    msm = wmem_strdup_printf(pinfo->pool, "%d.%02x", major, minor);
+
+    /* MSM_VER */
+    proto_tree_add_string(subtree, hf_qcdiag_verno_msm_ver, tvb, offset, 2, msm);
+}
+
+
+/* Mobile Station Electronic Serial Number (ESN) Request
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE (  1 / 0x01) |       1        | Message ID: The CMD_CODE is set to 1    |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ *
+ * Mobile Station Electronic Serial Number (ESN) Response
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE (  1 / 0x01) |       1        | Message ID: The CMD_CODE is set to 1    |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | ESN                   |       4        | Electronic serial number                |
+ * |                       |                |                                         |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static void
+dissect_qcdiag_esn(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    uint32_t logcode, length;
+    bool request;
+
+    length = tvb_reported_length(tvb);
+
+    request = (length == 1) ? true : false;
+
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
+
+    if (request) return;
+
+    /* ESN */
+    proto_tree_add_item(subtree, hf_qcdiag_esn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+}
+
+
+/* Bad Command
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE ( 19 / 0x13) |       1        | Message ID: The CMD_CODE is set to 19   |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | DATA                  |    Variable    | Unrecognized message                    |
+ * |                       |                |                                         |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static void
+dissect_qcdiag_bad_cmd(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    int bytes;
+
+    bytes = tvb_captured_length(tvb);
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
+
+    /* DATA */
+    proto_tree_add_item(subtree, hf_qcdiag_bad_cmd, tvb, offset, bytes-offset, ENC_NA);
+}
+
+
+/* Bad Parameters
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE ( 20 / 0x14) |       1        | Message ID: The CMD_CODE is set to 20   |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | DATA                  |    Variable    | Malformed message                       |
+ * |                       |                |                                         |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static void
+dissect_qcdiag_bad_parm(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    int bytes;
+
+    bytes = tvb_captured_length(tvb);
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
+
+    /* DATA */
+    proto_tree_add_item(subtree, hf_qcdiag_bad_parm, tvb, offset, bytes-offset, ENC_NA);
+}
+
+
+/* Bad Length
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE ( 21 / 0x15) |       1        | Message ID: The CMD_CODE is set to 21   |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | DATA                  |    Variable    | Original message                        |
+ * |                       |                |                                         |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static void
+dissect_qcdiag_bad_len(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    int bytes;
+
+    bytes = tvb_captured_length(tvb);
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
+
+    /* DATA */
+    proto_tree_add_item(subtree, hf_qcdiag_bad_len, tvb, offset, bytes-offset, ENC_NA);
+}
+
+
+/* Bad Mode
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE ( 24 / 0x18) |       1        | Message ID: The CMD_CODE is set to 24   |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | DATA                  |    Variable    | Original message                        |
+ * |                       |                |                                         |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static void
+dissect_qcdiag_bad_mode(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    int bytes;
+
+    bytes = tvb_captured_length(tvb);
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
+
+    /* DATA */
+    proto_tree_add_item(subtree, hf_qcdiag_bad_mode, tvb, offset, bytes-offset, ENC_NA);
+}
+
+
+/* Reset Markov Statistics Request/Response
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE ( 27 / 0x1B) |       1        | Message ID: The CMD_CODE is set to 27   |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static void
+dissect_qcdiag_markov_reset(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    uint32_t logcode, length;
+    bool request;
+
+    length = tvb_reported_length(tvb);
+
+    /* It is not possible to distinguish between Request and Response */
+    request = (length == 0) ? true : false;
+
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+
+    qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 }
 
 
@@ -559,6 +906,57 @@ dissect_qcdiag_diag_ver(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, prot
 
     /* DIAG_VERSION */
     proto_tree_add_item(subtree, hf_qcdiag_diag_ver, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+}
+
+
+/* Timestamp Request
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE ( 29 / 0x1D) |       1        | Message ID: The CMD_CODE is set to 29   |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ *
+ * Timestamp Response
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE ( 29 / 0x1D) |       1        | Message ID: The CMD_CODE is set to 29   |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | TIME_STAMP            |       8        | Current time read from the system       |
+ * |                       |                | time clock                              |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static void
+dissect_qcdiag_ts(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    uint32_t logcode, length;
+    bool request;
+    nstime_t abs_time;
+    char *timestamp;
+
+    length = tvb_reported_length(tvb);
+
+    request = (length == 1) ? true : false;
+
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
+
+    if (request) return;
+
+    abs_time = qcdiag_parse_timestamp(tvb, offset);
+
+    /* local time in our time zone, with month and day */
+    timestamp = abs_time_to_str(pinfo->pool, &abs_time, ABSOLUTE_TIME_LOCAL, true);
+
+    /* TIME_STAMP */
+    proto_tree_add_string(subtree, hf_qcdiag_ts, tvb, offset, 8, timestamp);
 }
 
 
@@ -622,7 +1020,7 @@ dissect_qcdiag_subsys_cmd(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, pr
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", text);
 
     /* Log Code value */
-    logcode = request ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
     /* This message type does not include log code so the offset will be increased by 1. */
     offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
@@ -761,7 +1159,7 @@ dissect_qcdiag_log_config_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
     text = val_to_str_ext(pinfo->pool, cmd, &qcdiag_cmds_ext, "Unknown Command (0x%02x)");
 
     /* Log Code value */
-    logcode = request ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
     offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
 
@@ -990,6 +1388,224 @@ dissect_qcdiag_log_config(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, pr
 }
 
 
+/* Log On Demand Request
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE (120 / 0x78) |       1        | Message ID: The CMD_CODE is set to 120  |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | LOG_CODE              |       2        | Log code requested                      |
+ * +-----------------------+----------------+-----------------------------------------+
+ *
+ * Log On Demand Response
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE (120 / 0x78) |       1        | Message ID: The CMD_CODE is set to 120  |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | LOG_CODE              |       2        | Log code received                       |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | STATUS                |       1        | Specifies the status returned by DMSS;  |
+ * |                       |                | values are in 0-4                       |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static const value_string qcdiag_log_on_demand_status_vals[] = {
+    { 0, "Logging request and operation successful" },  /* LOG_ON_DEMAND_SENT_S */
+    { 1, "Logging request acknowledged, success of logging unknown" },       /* LOG_ON_DEMAND_ACKNOWLEDGE_S */
+    { 2, "Logging attempted, but log packet was dropped or disabled" },      /* LOG_ON_DEMAND_DROPPED_S */
+    { 3, "Request unsuccessful, log code not supported for this service" },  /* LOG_ON_DEMAND_NOT_SUPPORTED_S) */
+    { 4, "Unable to log this packet in the present context" },               /* LOG_ON_DEMAND_FAILED_ATTEMPT_S */
+    { 0, NULL }
+};
+
+static void
+dissect_qcdiag_log_on_demand(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    uint32_t logcode, length;
+    bool request;
+
+    length = tvb_reported_length(tvb);
+
+    request = (length == 3) ? true : false;
+
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
+
+    /* LOG_CODE */
+    proto_tree_add_item(subtree, hf_qcdiag_log_on_demand_logcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    if (request) return;
+
+    /* STATUS */
+    proto_tree_add_item(subtree, hf_qcdiag_log_on_demand_status, tvb, offset, 1, ENC_NA);
+}
+
+
+/* Diagnostic Protocol Loopback Request/Response
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE (123 / 0x7B) |       1        | Message ID: The CMD_CODE is set to 123  |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | PAYLOAD               |       N        | Payload of Loopback message; any size   |
+ * |                       |                | is allowed, as long as the service will |
+ * |                       |                | accept a packet of that size            |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static void
+dissect_qcdiag_protocol_loopback(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    uint32_t logcode, length;
+    bool request;
+
+    length = tvb_reported_length(tvb);
+
+    /* It is not possible to distinguish between Request and Response */
+    request = (length == 0) ? true : false;
+
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
+
+    /* PAYLOAD */
+    proto_tree_add_item(subtree, hf_qcdiag_protocol_loopback, tvb, offset, -1, ENC_NA);
+}
+
+
+/* Extended Build ID Request
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE (124 / 0x7C) |       1        | Message ID: The CMD_CODE is set to 124  |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ *
+ * Extended Build ID Response
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE (124 / 0x7C) |       1        | Message ID: The CMD_CODE is set to 124  |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Version               |       1        | Version of the response; defines the    |
+ * |                       |                | value of the MSM Revision field         |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Reserved              |       2        | Reserved                                |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | MSM Revision          |  16, 20 or 32  | An extension of the MSM_VER field from  |
+ * |                       |     (bits)     | the version number response packet;     |
+ * |                       |                | lenght and format is dependent on the   |
+ * |                       |                | Version field; values are:              |
+ * |                       |                | 0 - Length is 16 bits                   |
+ * |                       |                | 1 - Length is 20 bits                   |
+ * |                       |                | 2 - Length is 32 bits                   |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Reserved              |  16, 12 or 0   | Padding to align the MSM Revision field |
+ * |                       |     (bits)     | to 4 bytes; length is dependent on the  |
+ * |                       |                | Version field; values are:              |
+ * |                       |                | 0 - Length is 16 bits                   |
+ * |                       |                | 1 - Length is 12 bits                   |
+ * |                       |                | 2 - Length is 0 bits                    |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Mobile Model Number   |       4        | Manufacturer's mobile model number;     |
+ * |                       |                | An extension of MOB_MODEL field from    |
+ * |                       |                | the version number response packet      |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Mobile Software       |    Variable    | Mobile software revision string;        |
+ * | Revision              |                | A NULL-terminated ASCII string;         |
+ * |                       |                | if string is nonexistent, a NULL char   |
+ * |                       |                | indicates an empty string;              |
+ * |                       |                | an extension of the VER_DIR field from  |
+ * |                       |                | the version number response packet      |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Mobile Model String   |    Variable    | Mobile model string;                    |
+ * |                       |                | A NULL-terminated ASCII string;         |
+ * |                       |                | if string is nonexistent, a NULL char   |
+ * |                       |                | indicates an empty string               |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static const value_string qcdiag_ext_build_id_ver[] = {
+    { 0, "Older targets with a 16-bit hardware version register" },
+    { 1, "Older targets with a 32-bit hardware version register" },
+    { 2, "Current AMSS targets with a 32-bit hardware version register" },
+    { 0, NULL }
+};
+
+static void
+dissect_qcdiag_ext_build_id(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    uint32_t logcode, length;
+    int end_offset;
+    bool request;
+
+    length = tvb_reported_length(tvb);
+
+    request = (length == 1) ? true : false;
+
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
+
+    if (request) return;
+
+    /* Version */
+    proto_tree_add_item(subtree, hf_qcdiag_ext_build_id_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* Reserved */
+    proto_tree_add_item(subtree, hf_qcdiag_ext_build_id_res, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* MSM Revision */
+    proto_tree_add_item(subtree, hf_qcdiag_ext_build_id_msm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* Mobile Model Number */
+    proto_tree_add_item(subtree, hf_qcdiag_ext_build_id_mob_model, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* Returns the offset of the found needle, or -1 if not found */
+    end_offset = tvb_find_uint8(tvb, offset, -1, '\0');
+
+	if (end_offset == -1) return;
+
+    /* Mobile Software Revision */
+    if (offset == (uint32_t)end_offset)
+        proto_tree_add_string(subtree, hf_qcdiag_ext_build_id_sw_rev, tvb, offset, 0, "(empty)");
+    else
+        proto_tree_add_item(subtree, hf_qcdiag_ext_build_id_sw_rev, tvb, offset, end_offset-offset, ENC_ASCII);
+    offset = (uint32_t)end_offset + 1;
+
+    /* Returns the offset of the found needle, or -1 if not found */
+    end_offset = tvb_find_uint8(tvb, offset, -1, '\0');
+
+	if (end_offset == -1) return;
+
+    /* Mobile Model String */
+    if (offset == (uint32_t)end_offset)
+        proto_tree_add_string(subtree, hf_qcdiag_ext_build_id_mob_model_str, tvb, offset, 0, "(empty)");
+    else
+        proto_tree_add_item(subtree, hf_qcdiag_ext_build_id_mob_model_str, tvb, offset, end_offset-offset, ENC_ASCII);
+}
+
+
 /* Custom Message Request
  * +-----------------------+----------------+-----------------------------------------+
  * | Field                 | Length (bytes) | Description                             |
@@ -1039,10 +1655,10 @@ dissect_qcdiag_custom(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_
     uint32_t length, cmd, request, logcode, logcode_offset;
     const char *text;
 
+    length = tvb_reported_length(tvb);
+
     /* DIAG_MAX_F */
     offset += 1;
-
-    length = tvb_reported_length(tvb);
 
     /* MSG_TYPE */
     request = (uint32_t)tvb_get_uint8(tvb, offset);
@@ -1052,7 +1668,7 @@ dissect_qcdiag_custom(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_
     logcode = (uint32_t)tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 
     /* Determine if Log Code needs offset */
-    logcode_offset = logcode ? 2 : 0;
+    logcode_offset = (logcode) ? 2 : 0;
 
     if (logcode == 0)
         logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
@@ -1111,14 +1727,47 @@ dissect_qcdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     col_set_str(pinfo->cinfo, COL_INFO, text);
 
     switch (cmd) {
+    case DIAG_VERNO_F:
+        dissect_qcdiag_verno(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_ESN_F:
+        dissect_qcdiag_esn(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_BAD_CMD_F:
+        dissect_qcdiag_bad_cmd(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_BAD_PARM_F:
+        dissect_qcdiag_bad_parm(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_BAD_LEN_F:
+        dissect_qcdiag_bad_len(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_BAD_MODE_F:
+        dissect_qcdiag_bad_mode(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_MARKOV_RESET_F:
+        dissect_qcdiag_markov_reset(tvb, offset, pinfo, subtree, cmd);
+        break;
     case DIAG_DIAG_VER_F:
         dissect_qcdiag_diag_ver(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_TS_F:
+        dissect_qcdiag_ts(tvb, offset, pinfo, subtree, cmd);
         break;
     case DIAG_SUBSYS_CMD_F:
         dissect_qcdiag_subsys_cmd(tvb, offset, pinfo, subtree, cmd);
         break;
     case DIAG_LOG_CONFIG_F:
         dissect_qcdiag_log_config(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_LOG_ON_DEMAND_F:
+        dissect_qcdiag_log_on_demand(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_PROTOCOL_LOOPBACK_F:
+        dissect_qcdiag_protocol_loopback(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_EXT_BUILD_ID_F:
+        dissect_qcdiag_ext_build_id(tvb, offset, pinfo, subtree, cmd);
         break;
     case DIAG_MAX_F:
         dissect_qcdiag_custom(tvb, offset, pinfo, subtree);
@@ -1146,9 +1795,60 @@ proto_register_qcdiag(void)
         { &hf_qcdiag_cmd,
           { "Command Code", "qcdiag.cmd",
             FT_UINT8, BASE_HEX|BASE_EXT_STRING, &qcdiag_cmds_ext, 0, NULL, HFILL }},
+        { &hf_qcdiag_verno_comp_date,
+          { "Compilation Date", "qcdiag.verno.comp_date",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_verno_comp_time,
+          { "Compilation Time", "qcdiag.verno.comp_time",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_verno_rel_date,
+          { "Release Date", "qcdiag.verno.rel_date",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_verno_rel_time,
+          { "Release Time", "qcdiag.verno.rel_time",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_verno_ver_dir,
+          { "Version Directory", "qcdiag.verno.ver_dir",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_verno_scm,
+          { "Station Class Mark", "qcdiag.verno.scm",
+            FT_UINT8, BASE_DEC, NULL, 0, "SCM", HFILL }},
+        { &hf_qcdiag_verno_mob_cai_rev,
+          { "Mobile CAI Revision", "qcdiag.verno.mob_cai_rev",
+            FT_UINT8, BASE_DEC, NULL, 0, "Mobile common air interface revision", HFILL }},
+        { &hf_qcdiag_verno_mob_model,
+          { "Mobile Model", "qcdiag.verno.mob_model",
+            FT_UINT8, BASE_DEC, NULL, 0, "Manufacturer’s mobile model", HFILL }},
+        { &hf_qcdiag_verno_mob_firm_rev,
+          { "Mobile Firmware Revision", "qcdiag.verno.mob_firm_rev",
+            FT_UINT16, BASE_DEC, NULL, 0, "Manufacturer’s mobile firmware revision", HFILL }},
+        { &hf_qcdiag_verno_sci,
+          { "Slot Cycle Index", "qcdiag.verno.sci",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_verno_msm_ver,
+          { "MSM Revision", "qcdiag.verno.msm_ver",
+            FT_STRING, BASE_NONE, NULL, 0, "Mobile station modem revision (Major.Minor)", HFILL }},
+        { &hf_qcdiag_esn,
+          { "ESN", "qcdiag.esn",
+            FT_UINT32, BASE_HEX, NULL, 0, "Electronic Serial Number", HFILL }},
+        { &hf_qcdiag_bad_cmd,
+          { "Unrecognized Message", "qcdiag.bad_cmd",
+            FT_BYTES, BASE_NONE, NULL, 0, "Bad Command", HFILL }},
+        { &hf_qcdiag_bad_parm,
+          { "Malformed Message", "qcdiag.bad_parm",
+            FT_BYTES, BASE_NONE, NULL, 0, "Bad Parameters", HFILL }},
+        { &hf_qcdiag_bad_len,
+          { "Original Message", "qcdiag.bad_len",
+            FT_BYTES, BASE_NONE, NULL, 0, "Bad Length", HFILL }},
+        { &hf_qcdiag_bad_mode,
+          { "Original Message", "qcdiag.bad_mode",
+            FT_BYTES, BASE_NONE, NULL, 0, "Bad Mode", HFILL }},
         { &hf_qcdiag_diag_ver,
           { "Version", "qcdiag.diag_ver",
             FT_UINT16, BASE_DEC, VALS(qcdiag_diag_ver_vals), 0, NULL, HFILL }},
+        { &hf_qcdiag_ts,
+          { "Timestamp", "qcdiag.ts",
+            FT_STRING, BASE_NONE, NULL, 0, "System Time Clock", HFILL }},
         { &hf_qcdiag_subsys_id,
           { "Subsystem ID", "qcdiag.subsys_id",
             FT_UINT8, BASE_DEC|BASE_EXT_STRING, &qcdiag_subsys_ext, 0, NULL, HFILL }},
@@ -1170,11 +1870,38 @@ proto_register_qcdiag(void)
         { &hf_qcdiag_logcfg_last_item,
           { "Last Item", "qcdiag.logcfg.last_item",
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_log_on_demand_logcode,
+          { "Log Code", "qcdiag.log_on_demand.logcode",
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &qcdiag_logcodes_ext, 0, NULL, HFILL }},
+        { &hf_qcdiag_log_on_demand_status,
+          { "Log Code", "qcdiag.log_on_demand.status",
+            FT_UINT8, BASE_DEC, VALS(qcdiag_log_on_demand_status_vals), 0, NULL, HFILL }},
+        { &hf_qcdiag_protocol_loopback,
+          { "Payload", "qcdiag.protloopb.payload",
+            FT_BYTES, BASE_NONE, NULL, 0, "Protocol Loopback Test Payload", HFILL }},
+        { &hf_qcdiag_ext_build_id_ver,
+          { "Version", "qcdiag.ext_build_id.ver",
+            FT_UINT16, BASE_DEC, VALS(qcdiag_ext_build_id_ver), 0, NULL, HFILL }},
+		{ &hf_qcdiag_ext_build_id_res,
+          { "Reserved", "qcdiag.ext_build_id.res",
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_qcdiag_ext_build_id_msm,
+          { "MSM Revision Extension", "qcdiag.ext_build_id.msm",
+		    FT_UINT32, BASE_HEX, NULL, 0, "Extension of mobile station modem revision", HFILL }},
+		{ &hf_qcdiag_ext_build_id_mob_model,
+          { "Manufacturer’s Mobile Model Extension", "qcdiag.ext_build_id.mob_model",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Extension of manufacturer’s mobile model", HFILL }},
+		{ &hf_qcdiag_ext_build_id_sw_rev,
+          { "Mobile Software Revision", "qcdiag.ext_build_id.sw_rev",
+		    FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_qcdiag_ext_build_id_mob_model_str,
+          { "Mobile Model String", "qcdiag.ext_build_id.mob_model_str",
+		    FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
     };
 
     static int *ett[] = {
         &ett_qcdiag,
-        &ett_qcdiag_diag_ver,
+        &ett_qcdiag_cmd_subtree,
         &ett_qcdiag_log_codes_enabled,
     };
 
