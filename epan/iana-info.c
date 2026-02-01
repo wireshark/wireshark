@@ -404,7 +404,7 @@ static const struct ws_iana_ip_special_block __ipv6_special_block[] = {
 };
 
 
-/* (last updated 2026-01-22) */
+/* (last updated 2026-01-30) */
 
 
 static const value_string enterprise_val[] = {
@@ -36229,7 +36229,7 @@ static const value_string enterprise_val[] = {
 	{ 35875,    "JX2 Technology Pty Ltd" },
 	{ 35876,    "WHITECODE,.LTD" },
 	{ 35877,    "High Technology Industries B.V." },
-	{ 35878,    "Conseil général de l'Aube" },
+	{ 35878,    "Département de l'Aube" },
 	{ 35879,    "WellDoc, Inc." },
 	{ 35880,    "JSC Mediafon" },
 	{ 35881,    "Ionis group" },
@@ -65287,6 +65287,54 @@ static const value_string enterprise_val[] = {
 	{ 64987,    "Telconic" },
 	{ 64988,    "Kyrene School District" },
 	{ 64989,    "Flexmail" },
+	{ 64990,    "NextMeta co.,ltd" },
+	{ 64991,    "Temco Controls" },
+	{ 64992,    "Arendt Digital Services" },
+	{ 64993,    "Quantum Encryption" },
+	{ 64994,    "SSE Gridtech Sistemas e Soluções Ltda" },
+	{ 64995,    "ProNova Solutions, LLC" },
+	{ 64996,    "Meridian Digital Systems Inc." },
+	{ 64997,    "Cattyatty Inc" },
+	{ 64998,    "JP VY Limited" },
+	{ 64999,    "Digito Financial Technology Group, LLC" },
+	{ 65000,    "Cooler Master Co., Ltd" },
+	{ 65001,    "Tactile Metrology B.V." },
+	{ 65002,    "ICT Rijk van Nijmegen" },
+	{ 65003,    "Blahaj Studio" },
+	{ 65004,    "CaveFox LLC" },
+	{ 65005,    "evroc" },
+	{ 65006,    "Wuxi Hongsheng heat exchanger" },
+	{ 65007,    "Abhishek Kasaudhan" },
+	{ 65008,    "Vermont Public Co." },
+	{ 65009,    "LUNEXTLABS GmbH" },
+	{ 65010,    "Caesar Chen" },
+	{ 65011,    "Acenes Immobilien GmbH" },
+	{ 65012,    "Silver Bay Seafoods" },
+	{ 65013,    "QDynamics Pty Ltd" },
+	{ 65014,    "Arslooper" },
+	{ 65015,    "Ash network" },
+	{ 65016,    "Ishtiaque Ahmed Rafin" },
+	{ 65017,    "Intuitive Machines, LLC" },
+	{ 65018,    "Evergreen Labs" },
+	{ 65019,    "Authentic, Inc." },
+	{ 65020,    "SUNSYNK AUSTRALIA PTY LTD" },
+	{ 65021,    "thice" },
+	{ 65022,    "Bravilor Bonamat BV" },
+	{ 65023,    "iJack" },
+	{ 65024,    "CloudSecure Ltd" },
+	{ 65025,    "miela" },
+	{ 65026,    "Bürgerspital Wertheim gGmbH" },
+	{ 65027,    "Truora INC" },
+	{ 65028,    "Stromnetz Berlin GmbH" },
+	{ 65029,    "TRIPLE-STONE TECHNOLOGY CO.,LTD." },
+	{ 65030,    "visuaFUSION Systems Solutions" },
+	{ 65031,    "The Skupper Project" },
+	{ 65032,    "Speco Technologies" },
+	{ 65033,    "CrossBar, Inc." },
+	{ 65034,    "CyGO Entrepreneurs" },
+	{ 65035,    "Yuldi.io" },
+	{ 65036,    "ZERO TO N" },
+	{ 65037,    "Schweizerische Südostbahn AG" },
 	{ 0, NULL }
 };
 

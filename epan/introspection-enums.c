@@ -532,5 +532,11 @@ static ws_enum_t const all_enums[] = {
     ENUM(ST_FORMAT_PLAIN),
     ENUM(ST_FORMAT_XML),
     ENUM(ST_FORMAT_YAML),
+    ENUM(WS_IANA_IPv4),
+    ENUM(WS_IANA_IPv6),
+    ENUM(ws_dccp),
+    ENUM(ws_sctp),
+    ENUM(ws_tcp),
+    ENUM(ws_udp),
     { NULL, 0 },
 };

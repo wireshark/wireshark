@@ -112,6 +112,7 @@ pvfs.desegment: FALSE
 q931.desegment_h323_messages: FALSE
 q931.reassembly: FALSE
 quic.reassemble_crypto_out_of_order: FALSE
+quic.reassemble_stream_out_of_order: FALSE
 resp.desegment_data: FALSE
 rlc.perform_reassembly: FALSE
 rlc-lte.reassembly: FALSE
