@@ -53,7 +53,7 @@ rsa_privkey_to_sexp(gnutls_x509_privkey_t priv_key, char **err)
     for(i=0; i<RSA_PARS; i++) {
         gret = gcry_mpi_scan(&rsa_params[i], GCRYMPI_FMT_USG, rsa_datum[i].data, rsa_datum[i].size,&tmp_size);
         /* these buffers were allocated by gnutls_x509_privkey_export_rsa_raw() */
-        g_free(rsa_datum[i].data);
+        gnutls_free(rsa_datum[i].data);
         if (gret != 0) {
             *err = ws_strdup_printf("can't convert m rsa param to int (size %d)", rsa_datum[i].size);
             return NULL;
