@@ -129,7 +129,7 @@ struct smtp_proto_data {
   uint16_t pdu_type;
   uint16_t conversation_id;
   bool more_frags;
-  int end_offset;
+  unsigned end_offset;
   struct smtp_proto_data *next;
 };
 
@@ -293,16 +293,16 @@ line_is_smtp_command(const char *command, int commandlen)
 }
 
 static void
-dissect_smtp_data(tvbuff_t *tvb, int offset, proto_tree *smtp_tree)
+dissect_smtp_data(tvbuff_t *tvb, unsigned offset, proto_tree *smtp_tree)
 {
-  int next_offset;
+  unsigned next_offset;
 
   if (smtp_tree) {
     while (tvb_offset_exists(tvb, offset)) {
       /*
        * Find the end of the line.
        */
-      tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+      tvb_find_line_end_remaining(tvb, offset, NULL, &next_offset);
 
       /*
        * Put this line.
@@ -392,9 +392,9 @@ dissect_smtp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 {
   proto_item                *ti, *hidden_item;
   proto_tree                *cmdresp_tree = NULL;
-  int                        offset = 0;
-  int                        next_offset;
-  int                        linelen   = 0;
+  unsigned                   offset = 0;
+  unsigned                   next_offset;
+  unsigned                   linelen   = 0;
   int                        length_remaining;
   int                        cmdlen;
   fragment_head             *frag_msg  = NULL;
@@ -461,7 +461,7 @@ dissect_smtp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
       /*
        * Find the end of the line.
        */
-      linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+      tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset);
 
       /* Column Info */
       if (first_pdu && offset == 0)
@@ -707,9 +707,9 @@ dissect_smtp_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *smtp_tree, 
 {
   proto_item                *ti, *hidden_item;
   proto_tree                *cmdresp_tree = NULL;
-  int                        offset = 0;
-  int                        next_offset;
-  int                        linelen   = 0;
+  unsigned                   offset = 0;
+  unsigned                   next_offset;
+  unsigned                   linelen   = 0;
   uint32_t                   code;
   uint8_t                    line_code[3];
   char                      *decrypt   = NULL;
@@ -732,7 +732,7 @@ dissect_smtp_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *smtp_tree, 
     /*
      * Find the end of the line.
      */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+    tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset);
 
     if (offset == 0)
         col_append_str(pinfo->cinfo, COL_INFO, "S: ");
@@ -894,15 +894,15 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   struct smtp_proto_data    *spd_frame_data;
   proto_tree                *smtp_tree = NULL;
   proto_item                *ti;
-  int                        offset    = 0;
+  unsigned                   offset    = 0;
   int                        request   = 0;
   conversation_t            *conversation;
   struct smtp_session_state *session_state;
   const char                *line;
-  int                        linelen   = 0;
+  unsigned                   linelen   = 0;
   bool                       eom_seen  = false;
-  int                        next_offset;
-  int                        loffset   = 0;
+  unsigned                   next_offset;
+  unsigned                   loffset   = 0;
   int                        cmdlen;
   char                      *decrypt   = NULL;
   size_t                     decrypt_len  = 0;
@@ -978,29 +978,23 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /*
      * Get the first line from the buffer.
      *
-     * Note that "tvb_find_line_end()" will, if it doesn't return
-     * -1, return a value that is not longer than what's in the buffer,
-     * and "tvb_find_line_end()" will always return a value that is not
-     * longer than what's in the buffer, so the "tvb_get_string_enc()"
-     * call won't throw an exception.
+     * Note that "tvb_find_line_end_remaining()" will, if it doesn't find a
+     * line ending, set linelen to a value that is no longer than what's in
+     * the buffer, so the "tvb_get_string_enc()" call won't throw an exception.
      */
     loffset = offset;
     while (tvb_offset_exists(tvb, loffset)) {
-      linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset,
-                                  smtp_desegment && pinfo->can_desegment);
-      if (linelen == -1) {
-        if (offset == loffset) {
+      if (!tvb_find_line_end_remaining(tvb, loffset, &linelen, &next_offset)) {
+        /* We didn't find a line ending. */
+        if (smtp_desegment && pinfo->can_desegment) {
           /*
            * We didn't find a line ending, and we're doing desegmentation;
            * tell the TCP dissector where the data for this message starts
-           * in the data it handed us, and tell it we need more bytes
+           * in the data it handed us, and tell it we need more bytes.
            */
           pinfo->desegment_offset = loffset;
           pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
           return tvb_captured_length(tvb);
-        } else {
-          linelen = tvb_reported_length_remaining(tvb, loffset);
-          next_offset = loffset + linelen;
         }
       }
 

@@ -1068,7 +1068,7 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 				length = tvb_strsize(tvb, offset);
 				/* Add each string in a different item */
 				while (length>1) {
-					string_length = tvb_find_line_end(tvb, offset, -1, NULL, false);
+					tvb_find_line_end_remaining(tvb, offset, &string_length, NULL);
 					if (string_length>0) {
 						proto_tree_add_none_format(tree, hf_sapms_opcode_value, tvb, offset, string_length, "%s", tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_ASCII));
 						offset+=string_length; length-=string_length;
