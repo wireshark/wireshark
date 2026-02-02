@@ -116,8 +116,9 @@ def verify_body(body):
         cut_index = len(body) - 1
     body = body[0:cut_index + 1]
 
-    bodynocomments = re.sub('^#.*$', '', body, flags=re.MULTILINE)
-    old_lines = bodynocomments.splitlines(True)
+    # XXX Should depend on core.commentChar. Might use 'git stripspace -s' instead?
+    body = re.sub('^#.*\n?', '', body, flags=re.MULTILINE)
+    old_lines = body.splitlines(True)
     is_good = True
     if len(old_lines) >= 2 and old_lines[1].strip():
         print('ERROR: missing blank line after the first subject line.')
@@ -159,6 +160,10 @@ for details.
     # different message, with hyphen-minus, which we'll also allow.
     cp_line = '\n(cherry-picked from commit'
     body = body.replace('\n' + cp_line, cp_line)
+
+    # Some editors (e.g. gitk) add a trailing newline, regardless if it exists.
+    # Reduce any number of newlines at the end of the body to a single newline.
+    body = body.rstrip('\n') + '\n'
 
     try:
         cmd = ['git', 'stripspace']
