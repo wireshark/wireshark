@@ -6576,7 +6576,7 @@ proto_register_artnet(void) {
     { &hf_artnet_poll_reply_good_output_rdm,
       { "RDM",
         "artnet.poll_reply.good_output_rdm",
-        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x80,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_swin,
