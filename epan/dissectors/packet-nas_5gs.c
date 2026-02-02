@@ -8277,8 +8277,8 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TLV(0x5C, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_FEAT_AUTH_IND, NULL);
     /* 61    On-demand NSSAI    On-demand NSSAI 9.11.3.108    O    TLV    5-210 */
     ELEM_OPT_TLV(0x61, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_ON_DEMAND_NSSAI, NULL);
-    /* 63    RAT utilization control    RAT utilization control  9.11.3.110 O TLV 4 */
-    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_RAT_UTIL_CNTRL, NULL);
+    /* 63    Access technology utilization control    Access technology utilization control  9.11.3.110 O TLV 4-5 */
+    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -8347,8 +8347,8 @@ nas_5gs_mm_registration_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     ELEM_OPT_TLV(0x4D, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_TNAN_INFO, NULL);
     /* 62    Extended 5GMM cause    Extended 5GMM cause 9.11.3.109    O    TLV    3 */
     ELEM_OPT_TLV(0x62, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_EXT_5GMM_CAUSE, NULL);
-    /* 63    RAT utilization control    RAT utilization control  9.11.3.110 O TLV 4 */
-    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_RAT_UTIL_CNTRL, NULL);
+    /* 63    Access technology utilization control    Access technology utilization control  9.11.3.110 O TLV 4-5 */
+    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -8514,8 +8514,8 @@ nas_5gs_mm_de_registration_req_ue_term(tvbuff_t *tvb, proto_tree *tree, packet_i
     ELEM_OPT_TLV(0x1D, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_TA_ID_LIST, " - Forbidden TAI(s) for the list of \"5GS forbidden tracking areas for roaming\"");
     /* 1E    Forbidden TAI(s) for the list of "5GS forbidden tracking areas for regional provision of service"    5GS tracking area identity list 9.11.3.9    O    TLV    9-114 */
     ELEM_OPT_TLV(0x1E, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_TA_ID_LIST, " - Forbidden TAI(s) for the list of \"5GS forbidden tracking areas for regional provision of service\"");
-    /* 63    RAT utilization control    RAT utilization control  9.11.3.110 O TLV 4 */
-    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_RAT_UTIL_CNTRL, NULL);
+    /* 63    Access technology utilization control    Access technology utilization control  9.11.3.110 O TLV 4-5 */
+    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -8737,8 +8737,8 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     ELEM_OPT_TLV(0x5C, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_FEAT_AUTH_IND, NULL);
     /* 61    On-demand NSSAI    On-demand NSSAI 9.11.3.108    O    TLV    5-210 */
     ELEM_OPT_TLV(0x61, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_ON_DEMAND_NSSAI, NULL);
-    /* 63 RAT utilization control RAT utilization control 9.11.3.110 O TLV 2-n */
-    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_RAT_UTIL_CNTRL, NULL);
+    /* 63 Access technology utilization control Access technology utilization control 9.11.3.110 O TLV 4-5 */
+    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 

@@ -1593,7 +1593,7 @@ typedef enum
     DE_EMM_AUTH_FAIL_PAR,       /* 9.9.3.1  Authentication failure parameter (dissected in packet-gsm_a_dtap.c)*/
     DE_EMM_AUTN,                /* 9.9.3.2  Authentication parameter AUTN */
     DE_EMM_AUTH_PAR_RAND,       /* 9.9.3.3  Authentication parameter RAND */
-    DE_EMM_RAT_UTIL_CNTRL,      /* 9.9.3.3A RAT utilization control */
+    DE_EMM_ACCESS_TECH_UTIL_CTRL, /* 9.9.3.3A Access technology utilization control */
     DE_EMM_AUTH_RESP_PAR,       /* 9.9.3.4  Authentication response parameter */
     DE_EMM_SMS_SERVICES_STATUS, /* 9.9.3.4B SMS services status */
     DE_EMM_CSFB_RESP,           /* 9.9.3.5  CSFB response */
@@ -1670,6 +1670,11 @@ typedef enum
     DE_EMM_UNAVAIL_CONFIG,      /* 9.9.3.70 Unavailability configuration */
     DE_EMM_UE_INFO_REQ,         /* 9.9.3.71 UE information request */
     DE_EMM_UE_COARSE_LOC_INFO,  /* 9.9.3.72 UE coarse location information */
+    DE_EMM_SF_SAT_OP_PARAMS,    /* 9.9.3.73 S&F satellite operation parameters */
+    DE_EMM_DATA_CONT,           /* 9.9.3.74 Data container */
+    DE_EMM_REG_WAIT_RANGE,      /* 9.9.3.75 Registration wait range */
+    DE_EMM_PLMNS_LIST_DISASTER_COND, /* 9.9.3.76 List of PLMNs to be used in disaster condition */
+    DE_EMM_PLMN_ID,             /* 9.9.3.77 PLMN identity */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;

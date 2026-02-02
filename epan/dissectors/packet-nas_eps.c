@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V18.7.0 (2024-06)
+ * References: 3GPP TS 24.301 V19.5.0 (2025-12)
  */
 
 #include "config.h"
@@ -60,6 +60,7 @@ static dissector_handle_t ethernet_handle;
 /* Forward declaration */
 static void dissect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static void dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, bool second_header);
+static uint16_t de_esm_user_data_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_);
 
 static int hf_nas_eps_msg_emm_type;
 int hf_nas_eps_common_elem_id;
@@ -95,6 +96,7 @@ static int hf_nas_eps_emm_dl_nas_cnt;
 static int hf_nas_eps_emm_nonce_mme;
 static int hf_nas_eps_emm_nonce;
 static int hf_nas_eps_emm_paging_id;
+static int hf_nas_eps_emm_sat_eutran_allowed_value;
 static int hf_nas_eps_emm_nbiot_allowed_value;
 static int hf_nas_eps_emm_eps_optim_info;
 static int hf_nas_eps_emm_eutran_allowed_value;
@@ -114,6 +116,7 @@ static int hf_nas_eps_emm_epco;
 static int hf_nas_eps_emm_hc_cp_ciot;
 static int hf_nas_eps_emm_s1_u_data;
 static int hf_nas_eps_emm_up_ciot;
+static int hf_nas_eps_emm_ohr_cp_ciot;
 static int hf_nas_eps_emm_edc;
 static int hf_nas_eps_emm_ptcc;
 static int hf_nas_eps_emm_pr;
@@ -223,6 +226,10 @@ static int hf_nas_eps_up_mt_edt_cap;
 static int hf_nas_eps_cp_mt_edt_cap;
 static int hf_nas_eps_wsua_cap;
 static int hf_nas_eps_racs_cap;
+static int hf_nas_eps_mint_eps_cap;
+static int hf_nas_eps_ohr_cp_ciot_cap;
+static int hf_nas_eps_sfso_cap;
+static int hf_nas_eps_atuc_cap;
 static int hf_nas_eps_rclin_cap;
 static int hf_nas_eps_edc_cap;
 static int hf_nas_eps_ptcc_cap;
@@ -357,7 +364,20 @@ static int hf_nas_eps_emm_unavail_config_eupr;
 static int hf_nas_eps_emm_unavail_config_unavail_period_duration;
 static int hf_nas_eps_emm_unavail_config_start_unavail_period;
 static int hf_nas_eps_emm_ue_info_req_uclir;
-static int hf_nas_eps_type_rat_util_cntrl;
+static int hf_nas_eps_emm_sf_sat_op_params_sfmli;
+static int hf_nas_eps_emm_sf_sat_op_params_esfudtpi;
+static int hf_nas_eps_emm_sf_sat_op_params_sfwtpi;
+static int hf_nas_eps_emm_sf_sat_op_params_sf_wait_duration;
+static int hf_nas_eps_emm_sf_sat_op_params_est_sf_ul_deliv_time_duration;
+static int hf_nas_eps_emm_sf_sat_op_params_sf_mon_list_nb_sat_id;
+static int hf_nas_eps_emm_sf_sat_op_params_sf_mon_list_sat_id;
+static int hf_nas_eps_emm_data_cont_type;
+static int hf_nas_eps_emm_data_cont_ddx;
+static int hf_nas_eps_emm_data_cont_bearer_id;
+static int hf_nas_eps_emm_data_cont_data_payload;
+static int hf_nas_eps_emm_data_cont_add_info_len;
+static int hf_nas_eps_emm_data_cont_add_info;
+static int hf_nas_eps_access_type_util_ctrl_type;
 static int hf_nas_eps_sat_ng_ran_b5;
 static int hf_nas_eps_sat_e_utran_b4;
 static int hf_nas_eps_ng_ran_b3;
@@ -598,7 +618,7 @@ static const value_string security_header_type_vals[] = {
     { 8,    "Reserved"},
     { 9,    "Reserved"},
     { 10,   "Reserved"},
-    { 11,   "Reserved"},
+    { 11,   "Security header for the EMM TRANSPORT message"},
     { 12,   "Security header for the SERVICE REQUEST message"},
     { 13,   "These values are not used in this version of the protocol."
              " If received they shall be interpreted as security header for the SERVICE REQUEST message"},
@@ -968,7 +988,7 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_AUTH_FAIL_PAR, "Authentication failure parameter" },              /* 9.9.3.1  Authentication failure parameter */
     { DE_EMM_AUTN, "Authentication parameter AUTN" },                          /* 9.9.3.2  Authentication parameter AUTN */
     { DE_EMM_AUTH_PAR_RAND, "Authentication parameter RAND" },                 /* 9.9.3.3  Authentication parameter RAND */
-    { DE_EMM_RAT_UTIL_CNTRL, "RAT utilization control" },                      /* 9.9.3.3A RAT utilization control */
+    { DE_EMM_ACCESS_TECH_UTIL_CTRL, "Access technology utilization control" }, /* 9.9.3.3A Access technology utilization control */
     { DE_EMM_AUTH_RESP_PAR, "Authentication response parameter" },             /* 9.9.3.4  Authentication response parameter */
     { DE_EMM_SMS_SERVICES_STATUS, "SMS services status" },                     /* 9.9.3.4B SMS services status */
     { DE_EMM_CSFB_RESP, "CSFB response" },                                     /* 9.9.3.5  CSFB response */
@@ -1045,6 +1065,11 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_UNAVAIL_CONFIG, "Unavailability configuration" },                 /* 9.9.3.70 Unavailability configuration */
     { DE_EMM_UE_INFO_REQ, "UE information request" },                          /* 9.9.3.71 UE information request */
     { DE_EMM_UE_COARSE_LOC_INFO, "UE coarse location information" },           /* 9.9.3.72 UE coarse location information */
+    { DE_EMM_SF_SAT_OP_PARAMS, "S&F satellite operation parameters" },         /* 9.9.3.73 S&F satellite operation parameters */
+    { DE_EMM_DATA_CONT, "Data container" },                                    /* 9.9.3.74 Data container */
+    { DE_EMM_REG_WAIT_RANGE, "Registration wait range" },                      /* 9.9.3.75 Registration wait range */
+    { DE_EMM_PLMNS_LIST_DISASTER_COND, "List of PLMNs to be used in disaster condition" }, /* 9.9.3.76 List of PLMNs to be used in disaster condition */
+    { DE_EMM_PLMN_ID, "PLMN identity" },                                       /* 9.9.3.77 PLMN identity */
 
     { 0, NULL }
 };
@@ -1070,7 +1095,7 @@ typedef enum
     DE_EMM_AUTH_FAIL_PAR,       /* 9.9.3.1  Authentication failure parameter (dissected in packet-gsm_a_dtap.c)*/
     DE_EMM_AUTN,                /* 9.9.3.2  Authentication parameter AUTN */
     DE_EMM_AUTH_PAR_RAND,       /* 9.9.3.3  Authentication parameter RAND */
-    DE_EMM_RAT_UTIL_CNTRL,      /* 9.9.3.3A RAT utilization control */
+    DE_EMM_ACCESS_TECH_UTIL_CTRL, /* 9.9.3.3A Access technology utilization control */
     DE_EMM_AUTH_RESP_PAR,       /* 9.9.3.4  Authentication response parameter */
     DE_EMM_SMS_SERVICES_STATUS, /* 9.9.3.4B SMS services status */
     DE_EMM_CSFB_RESP,           /* 9.9.3.5  CSFB response */
@@ -1147,6 +1172,11 @@ typedef enum
     DE_EMM_UNAVAIL_CONFIG,      /* 9.9.3.70 Unavailability configuration */
     DE_EMM_UE_INFO_REQ,         /* 9.9.3.71 UE information request */
     DE_EMM_UE_COARSE_LOC_INFO,  /* 9.9.3.72 UE coarse location information */
+    DE_EMM_SF_SAT_OP_PARAMS,    /* 9.9.3.73 S&F satellite operation parameters */
+    DE_EMM_DATA_CONT,           /* 9.9.3.74 Data container */
+    DE_EMM_REG_WAIT_RANGE,      /* 9.9.3.75 Registration wait range */
+    DE_EMM_PLMNS_LIST_DISASTER_COND, /* 9.9.3.76 List of PLMNs to be used in disaster condition */
+    DE_EMM_PLMN_ID,             /* 9.9.3.77 PLMN identity */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
@@ -1237,9 +1267,9 @@ de_emm_add_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  */
 
  /*
-  * 9.9.3.3A RAT utilization control
+  * 9.9.3.3A Access technology utilization control
   */
-static const value_string nas_eps_emm_utype_rat_util_cntrl_vals[] = {
+static const value_string nas_eps_emm_access_tech_util_ctrl_type_vals[] = {
     { 0x0, "Current PLMN"},
     { 0x1, "Current PLMN and its equivalent PLMN(s)"},
     { 0x2, "Unused, shall be interpreted as \"current PLMN\" if received by the UE"},
@@ -1248,13 +1278,13 @@ static const value_string nas_eps_emm_utype_rat_util_cntrl_vals[] = {
 };
 
 static uint16_t
-de_emm_rat_util_cntrl(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+de_emm_access_tech_util_ctrl(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     uint32_t offset, unsigned len _U_,
     char* add_string _U_, int string_len _U_)
 {
 
     static int* const oct3_flags[] = {
-    &hf_nas_eps_type_rat_util_cntrl,
+    &hf_nas_eps_access_type_util_ctrl_type,
     NULL
     };
 
@@ -1281,11 +1311,12 @@ de_emm_rat_util_cntrl(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
 
     /* 0 spare 0 spare Sat-NG-RAN Sat-E-UTRAN NG-RAN E-UTRAN UTRAN GERAN */
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct4_flags, ENC_NA);
-    //curr_offset++;
+    curr_offset++;
 
-    ///* Following octets are optional */
-    //if ((curr_offset - offset) >= len)
-    //    return (len);
+    while ((curr_offset - offset) < len) {
+        proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 8, ENC_BIG_ENDIAN);
+        curr_offset++;
+    }
 
     return (len);
 }
@@ -1461,6 +1492,8 @@ const value_string nas_eps_emm_cause_values[] = {
     { 0x28, "No EPS bearer context activated"},
     { 0x2a, "Severe network failure"},
     { 0x4e, "PLMN not allowed to operate at the present UE location"},
+    { 0x50, "Disaster roaming for the determined PLMN with disaster condition not allowed"},
+    { 0x53, "Procedure cannot be completed due to unavailable feeder link while MME is operating in S&F mode"},
     { 0x5f, "Semantically incorrect message"},
     { 0x60, "Invalid mandatory information"},
     { 0x61, "Message type non-existent or not implemented"},
@@ -1522,7 +1555,7 @@ static const value_string nas_eps_emm_eps_att_type_vals[] = {
     { 4,    "EPS attach(unused)"},
     { 5,    "EPS attach(unused)"},
     { 6,    "EPS emergency attach"},
-    { 7,    "Reserved"},
+    { 7,    "Disaster roaming attach"},
     { 0, NULL }
 };
 /* Coded inline */
@@ -1636,6 +1669,7 @@ de_emm_eps_net_feature_sup(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _
     };
 
     static int* const oct5_flags[] = {
+        &hf_nas_eps_emm_ohr_cp_ciot,
         &hf_nas_eps_emm_edc,
         &hf_nas_eps_emm_ptcc,
         &hf_nas_eps_emm_pr,
@@ -1661,7 +1695,7 @@ de_emm_eps_net_feature_sup(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _
     if ((curr_offset - offset) >= len)
         return (len);
 
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 1, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct5_flags, ENC_NA);
     curr_offset++;
 
@@ -1697,7 +1731,7 @@ static const value_string nas_eps_emm_eps_update_type_vals[] = {
     { 3,    "Periodic updating"},
     { 4,    "Unused; shall be interpreted as 'TA updating', if received by the network"},
     { 5,    "Unused; shall be interpreted as 'TA updating', if received by the network"},
-    { 6,    "Reserved"},
+    { 6,    "Disaster roaming update"},
     { 7,    "Reserved"},
     { 0, NULL }
 };
@@ -2076,7 +2110,7 @@ de_emm_ext_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     curr_offset = offset;
     bit_offset  = (curr_offset<<3)+4;
 
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_emm_sat_eutran_allowed_value, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_nbiot_allowed_value, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
@@ -2370,6 +2404,10 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     };
 
     static int * const oct11_flags[] = {
+        &hf_nas_eps_mint_eps_cap,
+        &hf_nas_eps_ohr_cp_ciot_cap,
+        &hf_nas_eps_sfso_cap,
+        &hf_nas_eps_atuc_cap,
         &hf_nas_eps_rclin_cap,
         &hf_nas_eps_edc_cap,
         &hf_nas_eps_ptcc_cap,
@@ -2448,9 +2486,8 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return (len);
 
     /* Octet 11
-     * 0    0    0    0    RCLIN    EDC    PTCC    PR
+     * MINT-EPS    OHR-CP CIoT    SFSO    ATUC    RCLIN    EDC    PTCC    PR
      */
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct11_flags, ENC_NA);
     curr_offset++;
 
@@ -3427,6 +3464,146 @@ de_emm_ue_coarse_loc_info(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U
 
     return len;
 }
+
+/*
+ * 9.9.3.73    S&F satellite operation parameters
+ */
+static const value_string hf_nas_eps_emm_sf_sat_op_params_sfmli_vals[] = {
+    { 0x0, "S&F monitoring list not present" },
+    { 0x1, "S&F monitoring list not present and delete any previously received S&F monitoring list" },
+    { 0x2, "S&F monitoring list present" },
+    { 0, NULL }
+};
+
+static uint16_t
+de_emm_sf_sat_op_params(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    uint32_t offset, unsigned len, char* add_string _U_, int string_len _U_)
+{
+    uint8_t sfmli, sat_count, i;
+    bool esfudtpi, sfwtpi;
+
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, offset<<3, 4, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_nas_eps_emm_sf_sat_op_params_sfmli,
+                                  tvb, offset, 1, ENC_BIG_ENDIAN, &sfmli);
+    proto_tree_add_item_ret_boolean(tree, hf_nas_eps_emm_sf_sat_op_params_esfudtpi,
+                                    tvb, offset, 1, ENC_BIG_ENDIAN, &esfudtpi);
+    proto_tree_add_item_ret_boolean(tree, hf_nas_eps_emm_sf_sat_op_params_sfwtpi,
+                                    tvb, offset, 1, ENC_BIG_ENDIAN, &sfwtpi);
+    offset++;
+    if (sfwtpi) {
+        proto_tree_add_item(tree, hf_nas_eps_emm_sf_sat_op_params_sf_wait_duration,
+                            tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+    if (sfwtpi) {
+        proto_tree_add_item(tree, hf_nas_eps_emm_sf_sat_op_params_est_sf_ul_deliv_time_duration,
+                            tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+    }
+    if (sfmli == 2) {
+        proto_tree_add_item_ret_uint8(tree, hf_nas_eps_emm_sf_sat_op_params_sf_mon_list_nb_sat_id,
+                                      tvb, offset, 1, ENC_BIG_ENDIAN, &sat_count);
+        offset ++;
+        for (i = 0; i < sat_count; i++) {
+            proto_tree_add_item(tree, hf_nas_eps_emm_sf_sat_op_params_sf_mon_list_sat_id,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        }
+    }
+    return len;
+}
+
+/*
+ * 9.9.3.74    Data container
+ */
+static const value_string hf_nas_eps_emm_data_cont_type_vals[] = {
+    { 0x0, "Control plane user data" },
+    { 0x1, "SMS" },
+    { 0x2, "Location services message container" },
+    { 0, NULL }
+};
+
+static const value_string hf_nas_eps_emm_data_cont_ddx_vals[] = {
+    { 0x0, "No information available" },
+    { 0x1, "No further uplink and no further downlink data transmission subsequent to the uplink data transmission is expected" },
+    { 0x2, "Only a single downlink data transmission and no further uplink data transmission subsequent to the uplink data transmission is expected" },
+    { 0x3, "Reserved" },
+    { 0, NULL }
+};
+
+static const value_string hf_nas_eps_emm_data_cont_ebi_vals[] = {
+    { 0x0, "Reserved" },
+    { 0x1, "EPS bearer identity value 5" },
+    { 0x2, "EPS bearer identity value 6" },
+    { 0x3, "EPS bearer identity value 7" },
+    { 0x4, "EPS bearer identity value 8" },
+    { 0x5, "EPS bearer identity value 9" },
+    { 0x6, "EPS bearer identity value 10" },
+    { 0x7, "EPS bearer identity value 11" },
+    { 0, NULL }
+};
+
+static uint16_t
+de_emm_data_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    uint32_t offset, unsigned len, char* add_string _U_, int string_len _U_)
+{
+    uint8_t type, add_info_len;
+    proto_item *item;
+    proto_tree *sub_tree;
+    uint32_t curr_offset = offset;
+
+    proto_tree_add_item_ret_uint8(tree, hf_nas_eps_emm_data_cont_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &type);
+    switch (type) {
+        case 0:
+            proto_tree_add_item(tree, hf_nas_eps_emm_data_cont_ddx, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_nas_eps_emm_data_cont_bearer_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
+            de_esm_user_data_cont(tvb, tree, pinfo, curr_offset, len - 1, NULL, 0);
+            break;
+        case 1:
+            proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3) + 3, 5, ENC_BIG_ENDIAN);
+            curr_offset++;
+            item = proto_tree_add_item(tree, hf_nas_eps_emm_data_cont_data_payload, tvb, curr_offset, len-1, ENC_NA);
+            sub_tree = proto_item_add_subtree(item, ett_nas_eps_nas_msg_cont);
+            if (gsm_a_dtap_handle) {
+                tvbuff_t *new_tvb = tvb_new_subset_length(tvb, curr_offset, len - 1);
+
+                call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, sub_tree);
+            }
+            break;
+        case 2:
+            proto_tree_add_item(tree, hf_nas_eps_emm_data_cont_ddx, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3) + 5, 3, ENC_BIG_ENDIAN);
+            curr_offset++;
+            proto_tree_add_item_ret_uint8(tree, hf_nas_eps_emm_data_cont_add_info_len,
+                                          tvb, curr_offset, 1, ENC_BIG_ENDIAN, &add_info_len);
+            curr_offset++;
+            if (add_info_len > 0) {
+                proto_tree_add_item(tree, hf_nas_eps_emm_data_cont_add_info, tvb, curr_offset, add_info_len, ENC_NA);
+                curr_offset += add_info_len;
+            }
+            proto_tree_add_item(tree, hf_nas_eps_emm_data_cont_data_payload, tvb, curr_offset, len - (curr_offset - offset), ENC_NA);
+            break;
+        default:
+            proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3) + 3, 5, ENC_BIG_ENDIAN);
+            EXTRANEOUS_DATA_CHECK(len, 1, pinfo, &ei_nas_eps_extraneous_data);
+            break;
+    }
+
+    return len;
+}
+
+/* 9.9.3.75    Registration wait range
+ * See clause 9.11.3.84 in 3GPP TS 24.501
+ */
+
+/* 9.9.3.76    List of PLMNs to be used in disaster condition
+ * See clause 9.11.3.83 in 3GPP TS 24.501
+ */
+
+/* 9.9.3.77    PLMN identity
+ * See clause 9.11.3.85 in 3GPP TS 24.501
+ */
 
 /*
  * 9.9.4    EPS Session Management (ESM) information elements
@@ -4609,7 +4786,7 @@ uint16_t (* const emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *
     NULL,                       /* 9.9.3.1  Authentication failure parameter(dissected in packet-gsm_a_dtap.c) */
     NULL,                       /* 9.9.3.2  Authentication parameter AUTN(packet-gsm_a_dtap.c) */
     NULL,                       /* 9.9.3.3  Authentication parameter RAND */
-    de_emm_rat_util_cntrl,      /* 9.9.3.3  9.9.3.3A RAT utilization control */
+    de_emm_access_tech_util_ctrl, /* 9.9.3.3A Access technology utilization control */
     de_emm_auth_resp_par,       /* 9.9.3.4  Authentication response parameter */
     de_emm_sms_services_status, /* 9.9.3.4B SMS services status */
     de_emm_csfb_resp,           /* 9.9.3.5  CSFB response */
@@ -4686,6 +4863,11 @@ uint16_t (* const emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *
     de_emm_unavail_config,      /* 9.9.3.70 Unavailability configuration */
     de_emm_ue_info_req,         /* 9.9.3.71 UE information request */
     de_emm_ue_coarse_loc_info,  /* 9.9.3.72 UE coarse location information */
+    de_emm_sf_sat_op_params,    /* 9.9.3.73 S&F satellite operation parameters */
+    de_emm_data_cont,           /* 9.9.3.74 Data container */
+    NULL,                       /* 9.9.3.75 Registration wait range */
+    NULL,                       /* 9.9.3.76 List of PLMNs to be used in disaster condition */
+    NULL,                       /* 9.9.3.77 PLMN identity */
 
     NULL,   /* NONE */
 };
@@ -4905,8 +5087,16 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
     /* 1F   Unavailability configuration Unavailability configuration 9.9.3.70 O TLV 3-9 */
     ELEM_OPT_TLV(0x1F, NAS_PDU_TYPE_EMM, DE_EMM_UNAVAIL_CONFIG, NULL);
-    /* 20 RAT utilization control RAT utilization control 9.9.3.3A O TLV 4-n  */
-    ELEM_OPT_TLV(0x20, NAS_PDU_TYPE_EMM, DE_EMM_RAT_UTIL_CNTRL, NULL);
+    /* 20 Access technology utilization control Access technology utilization control 9.9.3.3A O TLV 4-5 */
+    ELEM_OPT_TLV(0x20, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
+    /* 21 S&F satellite operation parameters S&F satellite operation parameters 9.9.3.73 O TLV 3-257 */
+    ELEM_OPT_TLV(0x21, NAS_PDU_TYPE_EMM, DE_EMM_SF_SAT_OP_PARAMS, NULL);
+    /* 22 Disaster roaming wait range Registration wait range 9.9.3.75 O TLV 4 */
+    ELEM_OPT_TLV(0x22, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REG_WAIT_RANGE, " - Disaster roaming wait range");
+    /* 24 Disaster return wait range Registration wait range 9.9.3.75 O TLV 4 */
+    ELEM_OPT_TLV(0x24, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REG_WAIT_RANGE, " - Disaster return wait range");
+    /* 25 List of PLMNs to be used in disaster condition List of PLMNs to be used in disaster condition 9.9.3.76 O TLV 2-n */
+    ELEM_OPT_TLV(0x25, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PLMNS_LIST_DISASTER_COND, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4963,6 +5153,10 @@ nas_emm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
     ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
     /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
+    /* 20 Access technology utilization control Access technology utilization control 9.9.3.3A O TLV 4-5 */
+    ELEM_OPT_TLV(0x20, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
+    /* 21 S&F satellite operation parameters S&F satellite operation parameters 9.9.3.73 O TLV 3-257 */
+    ELEM_OPT_TLV(0x21, NAS_PDU_TYPE_EMM, DE_EMM_SF_SAT_OP_PARAMS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 
@@ -5059,6 +5253,8 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
     ELEM_OPT_TLV(0x36, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, NULL);
     /* 38   Requested IMSI offset IMSI offset 9.9.3.64 O TLV 4 */
     ELEM_OPT_TLV(0x38, NAS_PDU_TYPE_EMM, DE_EMM_IMSI_OFFSET, " - Requested");
+    /* 26   UE determined PLMN with disaster condition PLMN identity 9.9.3.77 O TLV 5 */
+    ELEM_OPT_TLV(0x26, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PLMN_ID, " - UE determined PLMN with disaster condition");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5272,6 +5468,12 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint3
     ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
     /* Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
+    /* 20 Access technology utilization control Access technology utilization control 9.9.3.3A O TLV 4-5 */
+    ELEM_OPT_TLV(0x20, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
+    /* 21 S&F satellite operation parameters S&F satellite operation parameters 9.9.3.73 O TLV 3-257 */
+    ELEM_OPT_TLV(0x21, NAS_PDU_TYPE_EMM, DE_EMM_SF_SAT_OP_PARAMS, NULL);
+    /* 24 Disaster return wait range Registration wait range 9.9.3.75 O TLV 4 */
+    ELEM_OPT_TLV(0x24, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REG_WAIT_RANGE, " - Disaster return wait range");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5435,6 +5637,8 @@ nas_emm_guti_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, ui
     ELEM_OPT_TLV(0x66, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID, NULL);
     /* B-   UE radio capability ID deletion indication UE radio capability ID deletion indication O   TV  1 */
     ELEM_OPT_TV_SHORT(0xB0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID_DEL_IND, NULL);
+    /* 20 Access technology utilization control Access technology utilization control 9.9.3.3A O TLV 4-5 */
+    ELEM_OPT_TLV(0x20, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5622,6 +5826,12 @@ nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
     ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
     /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
+    /* 20 Access technology utilization control Access technology utilization control 9.9.3.3A O TLV 4-5 */
+    ELEM_OPT_TLV(0x20, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
+    /* 21 S&F satellite operation parameters S&F satellite operation parameters 9.9.3.73 O TLV 3-257 */
+    ELEM_OPT_TLV(0x21, NAS_PDU_TYPE_EMM, DE_EMM_SF_SAT_OP_PARAMS, NULL);
+    /* 24 Disaster return wait range Registration wait range 9.9.3.75 O TLV 4 */
+    ELEM_OPT_TLV(0x24, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REG_WAIT_RANGE, " - Disaster return wait range");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5756,6 +5966,16 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, u
     ELEM_OPT_TLV(0x39, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Maximum time offset");
     /* 1F   Unavailability configuration Unavailability configuration 9.9.3.70 O TLV 3-9 */
     ELEM_OPT_TLV(0x1F, NAS_PDU_TYPE_EMM, DE_EMM_UNAVAIL_CONFIG, NULL);
+    /* 20 Access technology utilization control Access technology utilization control 9.9.3.3A O TLV 4-5 */
+    ELEM_OPT_TLV(0x20, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
+    /* 21 S&F satellite operation parameters S&F satellite operation parameters 9.9.3.73 O TLV 3-257 */
+    ELEM_OPT_TLV(0x21, NAS_PDU_TYPE_EMM, DE_EMM_SF_SAT_OP_PARAMS, NULL);
+    /* 22 Disaster roaming wait range Registration wait range 9.9.3.75 O TLV 4 */
+    ELEM_OPT_TLV(0x22, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REG_WAIT_RANGE, " - Disaster roaming wait range");
+    /* 24 Disaster return wait range Registration wait range 9.9.3.75 O TLV 4 */
+    ELEM_OPT_TLV(0x24, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REG_WAIT_RANGE, " - Disaster return wait range");
+    /* 25 List of PLMNs to be used in disaster condition List of PLMNs to be used in disaster condition 9.9.3.76 O TLV 2-n */
+    ELEM_OPT_TLV(0x25, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PLMNS_LIST_DISASTER_COND, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5790,6 +6010,12 @@ nas_emm_trac_area_upd_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, u
     ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
     /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
+    /* 20 Access technology utilization control Access technology utilization control 9.9.3.3A O TLV 4-5 */
+    ELEM_OPT_TLV(0x20, NAS_PDU_TYPE_EMM, DE_EMM_ACCESS_TECH_UTIL_CTRL, NULL);
+    /* 21 S&F satellite operation parameters S&F satellite operation parameters 9.9.3.73 O TLV 3-257 */
+    ELEM_OPT_TLV(0x21, NAS_PDU_TYPE_EMM, DE_EMM_SF_SAT_OP_PARAMS, NULL);
+    /* 24 Disaster return wait range Registration wait range 9.9.3.75 O TLV 4 */
+    ELEM_OPT_TLV(0x24, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REG_WAIT_RANGE, " - Disaster return wait range");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5894,6 +6120,8 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, u
     ELEM_OPT_TLV(0x36, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, NULL);
     /* 30   Unavailability information Unavailability information 9.9.3.69 O TLV 3-9 */
     ELEM_OPT_TLV(0x30, NAS_PDU_TYPE_EMM, DE_EMM_UNAVAIL_INFO, NULL);
+    /* 26   UE determined PLMN with disaster condition PLMN identity 9.9.3.77 O TLV 5 */
+    ELEM_OPT_TLV(0x26, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PLMN_ID, " - UE determined PLMN with disaster condition");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -6040,8 +6268,26 @@ nas_emm_serv_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
     ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
     /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
+    /* 21 S&F satellite operation parameters S&F satellite operation parameters 9.9.3.73 O TLV 3-257 */
+    ELEM_OPT_TLV(0x21, NAS_PDU_TYPE_EMM, DE_EMM_SF_SAT_OP_PARAMS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
+}
+
+/*
+ * 8.2.35   EMM transport
+ */
+static void
+nas_emm_transport(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len)
+{
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
+
+    curr_offset = offset;
+    curr_len    = len;
+
+    ELEM_OPT_TV(0x79, NAS_PDU_TYPE_EMM, DE_EMM_DATA_CONT, NULL);
 }
 
 /*
@@ -7152,17 +7398,36 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, ENC_NA);
     nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
 
-    /* SERVICE REQUEST (security header type equal to 12 or greater) is not a plain NAS message */
+    /* EMM TRANSPORT (security header type equal 11) or SERVICE REQUEST
+      (security header type equal to 12 or greater) are not plain NAS messages */
     pd = tvb_get_uint8(tvb,offset);
-    if (((pd&0x0f) == 0x07) && ((pd&0xf0) >= 0xc0)) {
-        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service request");
-        /* Security header type Security header type 9.3.1 M V 1/2 */
-        proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN);
-        /* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
-        proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
-        offset++;
-        nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, tvb_reported_length(tvb)-offset);
-        return tvb_captured_length(tvb);
+    if ((pd&0x0f) == 0x07) {
+        if ((pd&0xf0) == 0xb0) {
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "EMM transport");
+            /* Security header type Security header type 9.3.1 M V 1/2 */
+            proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN);
+            /* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
+            proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
+            offset++;
+            /* Message authentication code */
+            proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset+=4;
+            /* Sequence number */
+            proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            nas_emm_transport(tvb, nas_eps_tree, pinfo, offset, tvb_reported_length(tvb)-offset);
+            return tvb_captured_length(tvb);
+        }
+        if ((pd&0xf0) >= 0xc0) {
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service request");
+            /* Security header type Security header type 9.3.1 M V 1/2 */
+            proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN);
+            /* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
+            proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
+            offset++;
+            nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, tvb_reported_length(tvb)-offset);
+            return tvb_captured_length(tvb);
+        }
     }
 
     pd &= 0x0f;
@@ -7555,6 +7820,11 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_paging_id_vals), 0x0,
         NULL, HFILL }
     },
+    { &hf_nas_eps_emm_sat_eutran_allowed_value,
+        { "Satellite E-UTRAN allowed value","nas-eps.emm.sat_eutran_allowed_value",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_not_allowed_allowed), 0x0,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_emm_nbiot_allowed_value,
         { "NB-IoT allowed value","nas-eps.emm.nbiot_allowed_value",
         FT_BOOLEAN, BASE_NONE, TFS(&tfs_not_allowed_allowed), 0x0,
@@ -7648,6 +7918,11 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_up_ciot,
         { "User plane CIoT EPS optimization","nas-eps.emm.up_ciot",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_ohr_cp_ciot,
+        { "Control plane CIoT EPS optimization with overhead reduction","nas-eps.emm.ohr_cp_ciot",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_edc,
@@ -8195,6 +8470,26 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_racs_cap,
         { "Radio capability signalling optimisation","nas-eps.emm.racs_cap",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_mint_eps_cap,
+        { "Minimization of service interruption support in EPS","nas-eps.emm.mint_eps_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_ohr_cp_ciot_cap,
+        { "Data transport over control plane CIoT EPS optimization with overhead reduction","nas-eps.emm.ohr_cp_ciot_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_sfso_cap,
+        { "S&F satellite operation","nas-eps.emm.sfso_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_atuc_cap,
+        { "Access technology utilization control","nas-eps.emm.atuc_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
         NULL, HFILL }
     },
     { &hf_nas_eps_rclin_cap,
@@ -9338,38 +9633,103 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
         NULL, HFILL }
     },
-    { &hf_nas_eps_type_rat_util_cntrl,
-        { "Type of RAT utilization control", "nas-eps.emm.type_rat_util_cntrl",
-        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_utype_rat_util_cntrl_vals), 0x03,
+    { &hf_nas_eps_emm_sf_sat_op_params_sfmli,
+        { "S&F monitoring list indication", "nas-eps.emm.sf_sat_op_params.sfmli",
+        FT_UINT8, BASE_DEC, VALS(hf_nas_eps_emm_sf_sat_op_params_sfmli_vals), 0x0c,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_sf_sat_op_params_esfudtpi,
+        { "Estimated S&F uplink delivery time duration presence indication", "nas-eps.emm.sf_sat_op_params.esfudtpi",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_sf_sat_op_params_sfwtpi,
+        { "S&F wait time duration presence indication", "nas-eps.emm.sf_sat_op_params.sfwtpi",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_sf_sat_op_params_sf_wait_duration,
+        { "S&F wait time duration", "nas-eps.emm.sf_sat_op_params.sf_wait_duration",
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_sf_sat_op_params_est_sf_ul_deliv_time_duration,
+        { "Estimated S&F uplink delivery time duration", "nas-eps.emm.sf_sat_op_params.est_sf_ul_deliv_time_duration",
+        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_sf_sat_op_params_sf_mon_list_nb_sat_id,
+        { "Number of satellite IDs", "nas-eps.emm.sf_sat_op_params.sf_mon_list.nb_sat_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_sf_sat_op_params_sf_mon_list_sat_id,
+        { "Satellite ID", "nas-eps.emm.sf_sat_op_params.sf_mon_list.sat_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_data_cont_type,
+        { "Data type", "nas-eps.emm.data_cont.type",
+        FT_UINT8, BASE_DEC, VALS(hf_nas_eps_emm_data_cont_type_vals), 0xe0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_data_cont_ddx,
+        { "Downlink data expected", "nas-eps.emm.data_cont.ddx",
+        FT_UINT8, BASE_DEC, VALS(hf_nas_eps_emm_data_cont_ddx_vals), 0x18,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_data_cont_bearer_id,
+        { "EPS bearer identity", "nas-eps.emm.data_cont.bearer_id",
+        FT_UINT8, BASE_DEC, VALS(hf_nas_eps_emm_data_cont_ebi_vals), 0x07,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_data_cont_data_payload,
+        { "Data payload", "nas-eps.emm.data_cont.data_payload",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_data_cont_add_info_len,
+        { "Length of additional information", "nas-eps.emm.data_cont.add_info_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_data_cont_add_info,
+        { "Additional information", "nas-eps.emm.data_cont.add_info",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_access_type_util_ctrl_type,
+        { "Type of RAT utilization control", "nas-eps.emm.access_tech_util_ctrl.type",
+        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_access_tech_util_ctrl_type_vals), 0x03,
         NULL, HFILL }
     },
     { &hf_nas_eps_sat_ng_ran_b5,
-        { "Sat-NG-RAN", "nas-eps.emm.rat_util_cntrl.sat_ng_ran",
+        { "Sat-NG-RAN", "nas-eps.emm.access_tech_util_ctrl.sat_ng_ran",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
         NULL, HFILL }
     },
     { &hf_nas_eps_sat_e_utran_b4,
-        { "Sat-E-UTRAN", "nas-eps.emm.rat_util_cntrl.sat_e_utran",
+        { "Sat-E-UTRAN", "nas-eps.emm.access_tech_util_ctrl.sat_e_utran",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
         NULL, HFILL }
     },
     { &hf_nas_eps_ng_ran_b3,
-        { "NG-RAN", "nas-eps.emm.rat_util_cntrl.ng_ran",
+        { "NG-RAN", "nas-eps.emm.access_tech_util_ctrl.ng_ran",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x08,
         NULL, HFILL }
     },
     { &hf_nas_eps_e_utran_b2,
-        { "E-UTRAN", "nas-eps.emm.rat_util_cntrl.e_utran",
+        { "E-UTRAN", "nas-eps.emm.access_tech_util_ctrl.e_utran",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x04,
         NULL, HFILL }
     },
     { &hf_nas_eps_utran_b1,
-        { "UTRAN", "nas-eps.emm.rat_util_cntrl.utran",
+        { "UTRAN", "nas-eps.emm.access_tech_util_ctrl.utran",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
         NULL, HFILL }
     },
     { &hf_nas_eps_geran_b0,
-        { "GERAN", "nas-eps.emm.rat_util_cntrl.geran",
+        { "GERAN", "nas-eps.emm.access_tech_util_ctrl.geran",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
         NULL, HFILL }
     },
