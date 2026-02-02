@@ -4314,6 +4314,9 @@ static bool blf_dump_ethernet(wtap_dumper *wdh, const wtap_rec *rec, int *err, c
 
     //blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
     const blf_channel_to_iface_entry_t *iface_entry = blf_dump_get_interface_mapping(wdh, rec, err, err_info);
+    if (iface_entry == NULL) {
+        return false;
+    }
 
     const uint8_t *pd = ws_buffer_start_ptr(&rec->data);
     size_t length = ws_buffer_length(&rec->data);
@@ -4391,6 +4394,9 @@ static bool blf_dump_socketcanxl(wtap_dumper *wdh, const wtap_rec *rec, int *err
 
     //blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
     blf_channel_to_iface_entry_t *iface_entry = blf_dump_get_interface_mapping(wdh, rec, err, err_info);
+    if (iface_entry == NULL) {
+        return false;
+    }
 
     uint8_t  socketcan_vcid = pd[1];
     uint16_t socketcan_id = pntohu16(pd + 2) & CAN_SFF_MASK;
@@ -4482,6 +4488,9 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
 
     //blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
     blf_channel_to_iface_entry_t *iface_entry = blf_dump_get_interface_mapping(wdh, rec, err, err_info);
+    if (iface_entry == NULL) {
+        return false;
+    }
 
     uint8_t payload_length = pd[4];
 
@@ -4676,6 +4685,9 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
 
     //blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
     blf_channel_to_iface_entry_t *iface_entry = blf_dump_get_interface_mapping(wdh, rec, err, err_info);
+    if (iface_entry == NULL) {
+        return false;
+    }
 
     const uint8_t *pd = ws_buffer_start_ptr(&rec->data);
     size_t length = ws_buffer_length(&rec->data);
@@ -4833,6 +4845,9 @@ static bool blf_dump_lin(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
 
     //blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
     blf_channel_to_iface_entry_t *iface_entry = blf_dump_get_interface_mapping(wdh, rec, err, err_info);
+    if (iface_entry == NULL) {
+        return false;
+    }
 
     const uint8_t *pd = ws_buffer_start_ptr(&rec->data);
     size_t length = ws_buffer_length(&rec->data);
