@@ -2868,8 +2868,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		break;
 
 	case MYSQL_STMT_SEND_LONG_DATA:
-		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		stmt_id = tvb_get_letohl(tvb, offset);
+		proto_tree_add_item_ret_uint(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &stmt_id);
 		offset += 4;
 
 		stmt_data = (my_stmt_data_t *)wmem_tree_lookup32(conn_data->stmts, stmt_id);
@@ -2896,8 +2895,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		break;
 
 	case MARIADB_STMT_BULK_EXECUTE:
-		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		stmt_id = tvb_get_letohl(tvb, offset);
+		proto_tree_add_item_ret_uint(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &stmt_id);
 		offset += 4;
 
 		// use last prepared statement
@@ -2964,8 +2962,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 
 	case MYSQL_STMT_EXECUTE:
 		// https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_stmt_execute.html
-		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		stmt_id = tvb_get_letohl(tvb, offset);
+		proto_tree_add_item_ret_uint(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &stmt_id);
 		offset += 4;
 
 		if (conn_data->major_version >= 5) {
@@ -3377,7 +3374,7 @@ mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo,
 		&& conn_data->mariadb_server_ext_caps & MARIADB_CAPS_PR
 		&& errcode == 65535) {
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Progress Reporting");
+		col_append_str(pinfo->cinfo, COL_INFO, "Progress Reporting");
 		col_set_fence(pinfo->cinfo, COL_INFO);
 		offset += 2;
 
@@ -3734,8 +3731,7 @@ mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (conn_data->mariadb_client_ext_caps & MARIADB_CAPS_ME
 		&& conn_data->mariadb_server_ext_caps & MARIADB_CAPS_ME
 		&& tvb_reported_length_remaining(tvb, offset)) {
-		send_meta = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(tree, hf_mariadb_send_meta, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item_ret_uint8(tree, hf_mariadb_send_meta, tvb, offset, 1, ENC_NA, &send_meta);
 		offset += 1;
 	}
 
@@ -3897,8 +3893,7 @@ mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi _U_, int offset, proto_
 	}
 
 	if (conn_data->clnt_caps & MYSQL_CAPS_CU) {
-		proto_tree_add_item(tree, hf_mysql_fld_type, tvb, offset, 1, ENC_NA);
-		fld_type = tvb_get_uint8(tvb, offset);
+		proto_tree_add_item_ret_uint8(tree, hf_mysql_fld_type, tvb, offset, 1, ENC_NA, &fld_type);
 		offset += 1; /* type */
 	} else {
 		uint64_t field_type;
@@ -4810,8 +4805,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		is_response= true;
 	}
 
-	packet_number = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(mysql_tree, hf_mysql_packet_number, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint(mysql_tree, hf_mysql_packet_number, tvb, offset, 1, ENC_NA, &packet_number);
 	offset += 1;
 
 #ifdef CTDEBUG

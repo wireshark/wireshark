@@ -440,18 +440,15 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		);
 
 	/* record type */
-	record_type = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_record_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_record_type, tvb, offset, 1, ENC_BIG_ENDIAN, &record_type);
 	offset += 1;
 
 	/* aux data len */
-	adl = tvb_get_uint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_aux_data_len, tvb, offset, 1, adl);
+	proto_tree_add_item_ret_uint8(tree, hf_aux_data_len, tvb, offset, 1, ENC_BIG_ENDIAN, &adl);
 	offset += 1;
 
 	/*number of sources*/
-	num = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_num_src, tvb, offset, 2, num);
+	proto_tree_add_item_ret_uint16(tree, hf_num_src, tvb, offset, 2, ENC_BIG_ENDIAN, &num);
 	offset += 2;
 
 	/* multicast address */

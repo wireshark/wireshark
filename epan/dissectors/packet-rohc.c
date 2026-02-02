@@ -1465,8 +1465,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
             rohc_cid_context->mode = (enum rohc_mode)((tvb_get_uint8(tvb,offset) & 0x30)>>4);
             proto_tree_add_item(rohc_feedback_tree, hf_rohc_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* SN */
-            sn = tvb_get_ntohs(tvb, offset) & 0x0fff;
-            proto_tree_add_item(rohc_feedback_tree, hf_rohc_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(rohc_feedback_tree, hf_rohc_sn, tvb, offset, 2, ENC_BIG_ENDIAN, &sn);
             offset+=2;
             feedback_data_len-=2;
 
@@ -1941,16 +1940,13 @@ dissect_rohc_ir_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 dynamic_ipv4_tree = proto_item_add_subtree(root_ti, ett_rohc_dynamic_ipv4);
 
                 /* Type of Service */
-                tos = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_tos, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8(dynamic_ipv4_tree, hf_rohc_rtp_tos, tvb, offset, 1, ENC_BIG_ENDIAN, &tos);
                 offset++;
                 /* Time to Live */
-                ttl = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8(dynamic_ipv4_tree, hf_rohc_rtp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN, &ttl);
                 offset++;
                 /* Identification */
-                id = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint16(dynamic_ipv4_tree, hf_rohc_rtp_id, tvb, offset, 2, ENC_BIG_ENDIAN, &id);
                 offset+=2;
                 /*    +---+---+---+---+---+---+---+---+
                  *    | DF|RND|NBO|         0         |
@@ -2091,8 +2087,7 @@ dissect_rohc_ir_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset+=2;
         /* RTP Timestamp (absolute) */
-        timestamp = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(dynamic_rtp_tree, hf_rohc_rtp_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN, &timestamp);
         offset+=4;
         /* RFC 4815
          * This field is always at least one octet in size, even if the
@@ -2224,8 +2219,7 @@ dissect_rohc_ir_rtp_udp_ip_profile_static(tvbuff_t *tvb, proto_tree *tree, packe
                 ipv4_item = proto_tree_add_item(sub_tree, hf_rohc_static_ipv4, tvb, offset, -1, ENC_NA);
                 static_ipv4_tree = proto_item_add_subtree(ipv4_item, ett_rohc_static_ipv4);
                 /* Protocol */
-                protocol = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(static_ipv4_tree, hf_rohc_ip_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8(static_ipv4_tree, hf_rohc_ip_protocol, tvb, offset, 1, ENC_BIG_ENDIAN, &protocol);
                 offset++;
                 /* Source Address */
                 source = tvb_get_ipv4(tvb, offset);
@@ -2561,8 +2555,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     }
 
     /* Profile */
-    profile = tvb_get_uint8(tvb,offset);
-    proto_tree_add_item(ir_tree, hf_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(ir_tree, hf_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN, &profile);
     offset++;
 
     /* See if we have an entry for this CID
@@ -2808,8 +2801,7 @@ start_over:
             offset++;
             if (code==0) {
                 /* Separate size field */
-                size = tvb_get_uint8(tvb,offset);
-                proto_tree_add_item(sub_tree, hf_rohc_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8(sub_tree, hf_rohc_size, tvb, offset, 1, ENC_BIG_ENDIAN, &size);
                 offset++;
             } else {
                 /* Size is in code field itself. */

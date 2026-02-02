@@ -1632,13 +1632,10 @@ dissect_wccp2r1_alt_assignment_map_info(tvbuff_t *tvb, int offset,
   if (length < ALT_ASSIGNMENT_MAP_MIN_LEN )
     return length - ALT_ASSIGNMENT_MAP_MIN_LEN ;
 
-
-  assignment_type = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(info_tree, hf_alt_assignment_map_assignment_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16(info_tree, hf_alt_assignment_map_assignment_type, tvb, offset, 2, ENC_BIG_ENDIAN, &assignment_type);
   EAT_AND_CHECK(2,2);
 
-  assignment_length = tvb_get_ntohs(tvb, offset);
-  tf=proto_tree_add_item(info_tree, hf_alt_assignment_map_assignment_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+  tf=proto_tree_add_item_ret_uint16(info_tree, hf_alt_assignment_map_assignment_length, tvb, offset, 2, ENC_BIG_ENDIAN, &assignment_length);
   EAT(2);
 
   if (length < assignment_length)
@@ -2331,13 +2328,10 @@ dissect_wccp2_alternate_assignment_info(tvbuff_t *tvb, int offset, int length,
   if (length < ALT_ASSIGNMENT_INFO_MIN_LEN)
     return length - ALT_ASSIGNMENT_INFO_MIN_LEN;
 
-
-  assignment_type = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(info_tree, hf_alt_assignment_info_assignment_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16(info_tree, hf_alt_assignment_info_assignment_type, tvb, offset, 2, ENC_BIG_ENDIAN, &assignment_type);
   EAT_AND_CHECK(2,2);
 
-  assignment_length = tvb_get_ntohs(tvb, offset);
-  tf=proto_tree_add_item(info_tree, hf_alt_assignment_info_assignment_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+  tf=proto_tree_add_item_ret_uint16(info_tree, hf_alt_assignment_info_assignment_length, tvb, offset, 2, ENC_BIG_ENDIAN, &assignment_length);
   EAT(2);
 
   if (length < assignment_length)

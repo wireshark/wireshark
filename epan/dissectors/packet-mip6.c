@@ -3197,12 +3197,10 @@ dissect_pmip6_opt_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset += 2;
 
     while (offset-2 < option_len) {
-        req_type = tvb_get_uint8(tvb,offset);
-        proto_tree_add_item(opt_tree, hf_mip6_cr_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(opt_tree, hf_mip6_cr_req_type, tvb, offset, 1, ENC_BIG_ENDIAN, &req_type);
         offset++;
 
-        req_length = tvb_get_uint8(tvb,offset);
-        proto_tree_add_item(opt_tree, hf_mip6_cr_req_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(opt_tree, hf_mip6_cr_req_length, tvb, offset, 1, ENC_BIG_ENDIAN, &req_length);
         offset++;
 
         if (req_length == 0)
@@ -3248,8 +3246,7 @@ dissect_pmip6_opt_lmaa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_lmaa, ett_mip6_opt_lmaa, &ti, option_len, MIP6_LMAA_MIN_LEN);
 
-    opt_code = tvb_get_uint8(tvb,offset);
-    proto_tree_add_item(opt_tree, hf_mip6_lmaa_opt_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(opt_tree, hf_mip6_lmaa_opt_code, tvb, offset, 1, ENC_BIG_ENDIAN, &opt_code);
     offset += 1;
 
     proto_tree_add_item(opt_tree, hf_mip6_lmaa_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3529,7 +3526,7 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree* opt_tree;
     proto_item *ti;
     proto_tree *subopt_tree;
-    int16_t sub_opt_len;
+    uint16_t sub_opt_len;
     uint8_t sub_opt, e_bit, net_name_len, ap_name_len;
     const uint8_t *ap_name;
     unsigned option_len = tvb_reported_length(tvb)-2;
@@ -3542,12 +3539,10 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         ti = proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub, tvb, offset, 2, ENC_NA);
         subopt_tree = proto_item_add_subtree(ti, ett_mip6_sub_opt_acc_net_id);
 
-        proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
-        sub_opt = tvb_get_uint8(tvb,offset);
+        proto_tree_add_item_ret_uint8(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_opt);
         offset++;
 
-        proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-        sub_opt_len = tvb_get_uint8(tvb,offset);
+        proto_tree_add_item_ret_uint16(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_opt_len);
         offset++;
 
         proto_item_append_text(ti, ": %s (t=%d,l=%d)", val_to_str(pinfo->pool, sub_opt, mmip6_opt_acc_net_id_sub_opt_vals, "Unknown ANI Type (%02d)"), sub_opt, sub_opt_len);
@@ -3570,8 +3565,7 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_e_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
-            net_name_len = tvb_get_uint8(tvb,offset);
-            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_len, tvb, offset, 1, ENC_BIG_ENDIAN, &net_name_len);
             offset++;
 
             if(e_bit == 0x80){
@@ -3583,8 +3577,7 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             };
             offset = offset+net_name_len;
 
-            ap_name_len = tvb_get_uint8(tvb,offset);
-            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ap_name_len);
             offset++;
 
             proto_tree_add_item_ret_string(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name, tvb, offset, ap_name_len, ENC_BIG_ENDIAN|ENC_UTF_8, pinfo->pool, &ap_name);

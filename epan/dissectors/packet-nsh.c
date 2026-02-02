@@ -166,9 +166,9 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
 	int offset = 0;
-	int md_type = -1;
+	unsigned md_type = -1;
 	uint32_t nsh_bytes_len;
-	int nsh_next_proto = -1;
+	unsigned nsh_next_proto = -1;
 	proto_item *length_pi;
 	tvbuff_t *next_tvb;
 
@@ -194,12 +194,9 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	nsh_bytes_len *= 4;
 	proto_item_set_len(ti, nsh_bytes_len);
 
+	proto_tree_add_item_ret_uint(nsh_tree, hf_nsh_md_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN, &md_type);
 
-	md_type = tvb_get_uint8(tvb, offset + 2);
-	proto_tree_add_item(nsh_tree, hf_nsh_md_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-
-	nsh_next_proto = tvb_get_uint8(tvb, offset + 3);
-	proto_tree_add_item(nsh_tree, hf_nsh_next_proto, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(nsh_tree, hf_nsh_next_proto, tvb, offset + 3, 1, ENC_BIG_ENDIAN, &nsh_next_proto);
 
 	/*NSH Service Path Header */
 	offset = offset + 4;
