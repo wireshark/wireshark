@@ -77,8 +77,8 @@ is_client(packet_info *pinfo) {
 #define MAX_DIR_LINE_LEN (70 + 1 + 255 + 1 + 255 + 1 + 5)
 #define MIN_DIR_LINE_LEN (0 + 1 + 0 + 1 + 1 + 1 + 1)
 static bool
-find_dir_tokens(tvbuff_t *tvb, int name_start, int *sel_start, int *host_start, int *port_start, int *line_len, int *next_offset) {
-    int remain;
+find_dir_tokens(tvbuff_t *tvb, unsigned name_start, unsigned *sel_start, unsigned *host_start, unsigned *port_start, unsigned *line_len, unsigned *next_offset) {
+    unsigned remain;
 
     if (tvb_captured_length_remaining(tvb, name_start) < MIN_DIR_LINE_LEN)
         return false;
@@ -86,22 +86,25 @@ find_dir_tokens(tvbuff_t *tvb, int name_start, int *sel_start, int *host_start, 
     if (! (sel_start && host_start && port_start && line_len && next_offset) )
         return false;
 
-    *line_len = tvb_find_line_end(tvb, name_start, MAX_DIR_LINE_LEN, next_offset, false);
+    tvb_find_line_end_length(tvb, name_start, MAX_DIR_LINE_LEN, line_len, next_offset);
     if (*line_len < MIN_DIR_LINE_LEN)
         return false;
 
     remain = *line_len;
-    *sel_start = tvb_find_uint8(tvb, name_start, remain, '\t') + 1;
+    tvb_find_uint8_length(tvb, name_start, remain, '\t', sel_start);
+    *sel_start = *sel_start + 1;
     if (*sel_start < name_start + 1)
         return false;
 
     remain -= *sel_start - name_start;
-    *host_start = tvb_find_uint8(tvb, *sel_start, remain, '\t') + 1;
+    tvb_find_uint8_length(tvb, *sel_start, remain, '\t', host_start);
+    *host_start = *host_start + 1;
     if (*host_start < *sel_start + 1)
         return false;
 
     remain -= *host_start - *sel_start;
-    *port_start = tvb_find_uint8(tvb, *host_start, remain, '\t') + 1;
+    tvb_find_uint8_length(tvb, *host_start, remain, '\t', port_start);
+    *port_start = *port_start + 1;
     if (*port_start < *host_start + 1)
         return false;
 
@@ -115,11 +118,11 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item *ti;
     proto_tree *gopher_tree, *dir_tree = NULL;
     bool client = is_client(pinfo);
-    int line_len;
+    unsigned line_len;
     const char *request = "[Invalid request]";
     bool is_dir = false;
-    int offset = 0, next_offset;
-    int sel_start, host_start, port_start;
+    unsigned offset = 0, next_offset;
+    unsigned sel_start, host_start, port_start;
     char *name;
 
     /* Fill in our protocol and info columns */

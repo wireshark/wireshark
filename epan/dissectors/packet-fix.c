@@ -30,11 +30,11 @@ void proto_register_fix(void);
 void proto_reg_handoff_fix(void);
 
 typedef struct _fix_parameter {
-    int field_len;
-    int tag_len;
-    int value_offset;
-    int value_len;
-    int ctrla_offset;
+    unsigned field_len;
+    unsigned tag_len;
+    unsigned value_offset;
+    unsigned value_len;
+    unsigned ctrla_offset;
 } fix_parameter;
 
 /* Initialize the protocol and registered fields */
@@ -66,7 +66,7 @@ static dissector_handle_t fix_handle;
 #define MARKER_TAG "8=FIX"
 #define MARKER_LEN 5
 
-static int fix_marker(tvbuff_t *tvb, int offset)
+static int fix_marker(tvbuff_t *tvb, unsigned offset)
 {
     return tvb_strneql(tvb, offset, MARKER_TAG, MARKER_LEN);
 }
@@ -91,7 +91,7 @@ fix_field_tag_compar(const void *v_needle, const void *v_entry)
 }
 
 /* Code to actually dissect the packets */
-static int fix_next_header(tvbuff_t *tvb, packet_info* pinfo, int offset)
+static int fix_next_header(tvbuff_t *tvb, packet_info* pinfo, unsigned offset)
 {
     /* try to resync to the next start */
     unsigned      min_len = tvb_captured_length_remaining(tvb, offset);
@@ -115,19 +115,17 @@ static int fix_next_header(tvbuff_t *tvb, packet_info* pinfo, int offset)
 /* ----------------------------------------------
   Format: name=value\001
 */
-static fix_parameter *fix_param(tvbuff_t *tvb, int offset)
+static fix_parameter *fix_param(tvbuff_t *tvb, unsigned offset)
 {
-    static fix_parameter ret;
-    int                  equals;
+    static   fix_parameter ret;
+    unsigned equals;
 
-    ret.ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
-    if (ret.ctrla_offset == -1) {
+    if (!tvb_find_uint8_remaining(tvb, offset, 0x01, &ret.ctrla_offset)) {
         return NULL;
     }
 
     ret.field_len = ret.ctrla_offset - offset + 1;
-    equals = tvb_find_uint8(tvb, offset, ret.field_len, '=');
-    if (equals == -1) {
+    if (!tvb_find_uint8_length(tvb, offset, ret.field_len, '=', &equals)) {
         return NULL;
     }
 
@@ -138,9 +136,10 @@ static fix_parameter *fix_param(tvbuff_t *tvb, int offset)
 }
 
 /* ---------------------------------------------- */
-static int fix_header_len(tvbuff_t *tvb, packet_info* pinfo, int offset)
+static unsigned
+fix_header_len(tvbuff_t *tvb, packet_info* pinfo, unsigned offset)
 {
-    int            base_offset, ctrla_offset;
+    unsigned       base_offset, ctrla_offset;
     int32_t        value;
     unsigned       size;
     fix_parameter *tag;
@@ -153,8 +152,7 @@ static int fix_header_len(tvbuff_t *tvb, packet_info* pinfo, int offset)
     }
 
     /* begin string */
-    ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
-    if (ctrla_offset == -1) {
+    if (!tvb_find_uint8_length(tvb, offset, -1, 0x01, &ctrla_offset)) {
         /* it should be there, (minimum size is big enough)
          * if not maybe it's not really
          * a FIX packet but it's too late to bail out.
@@ -183,8 +181,7 @@ static int fix_header_len(tvbuff_t *tvb, packet_info* pinfo, int offset)
             /* No? bogus packet, try to find the next header */
             return fix_next_header(tvb, pinfo, base_offset +MARKER_LEN)  +MARKER_LEN;
         }
-        ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
-        if (ctrla_offset == -1) {
+        if (!tvb_find_uint8_remaining(tvb, offset, 0x01, &ctrla_offset)) {
             /* assume checksum is 7 bytes 10=xxx\01 */
             return size+7;
         }
@@ -203,9 +200,9 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *ti;
     proto_tree    *fix_tree;
-    int            pdu_len;
-    int            offset = 0;
-    int            field_offset, ctrla_offset;
+    unsigned       pdu_len;
+    unsigned       offset = 0;
+    unsigned       field_offset, ctrla_offset;
     uint32_t       tag_value;
     char          *value;
     int32_t        ivalue;
@@ -233,16 +230,14 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     fix_tree = proto_item_add_subtree(ti, ett_fix);
 
     /* begin string */
-    ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
-    if (ctrla_offset == -1) {
+    if (!tvb_find_uint8_remaining(tvb, offset, 0x01, &ctrla_offset)) {
         expert_add_info_format(pinfo, ti, &ei_fix_missing_field, "Missing BeginString field");
         return tvb_captured_length(tvb);
     }
     offset = ctrla_offset + 1;
 
     /* msg length */
-    ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
-    if (ctrla_offset == -1) {
+    if (!!tvb_find_uint8_remaining(tvb, offset, 0x01, &ctrla_offset)) {
         expert_add_info_format(pinfo, ti, &ei_fix_missing_field, "Missing BodyLength field");
         return tvb_captured_length(tvb);
     }
@@ -335,7 +330,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                     uint8_t sum = 0;
                     const uint8_t *sum_data = tvb_get_ptr(tvb, 0, field_offset);
                     bool sum_ok;
-                    int j;
+                    unsigned j;
 
                     for (j = 0; j < field_offset; j++, sum_data++) {
                          sum += *sum_data;
@@ -382,7 +377,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 static unsigned
 get_fix_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    int fix_len;
+    unsigned fix_len;
 
     fix_len = fix_header_len(tvb, pinfo, offset);
     return fix_len;

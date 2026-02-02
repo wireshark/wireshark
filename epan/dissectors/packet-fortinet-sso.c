@@ -49,8 +49,8 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     uint32_t payload_length, client_ip;
     int string_length = -1;
     const char *string;
-    int32_t len;
-    int offset = 0;
+    uint32_t len;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FSSO");
     col_set_str(pinfo->cinfo, COL_INFO, "Fortinet Single Sign-On");
@@ -76,12 +76,14 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     if(client_ip == 0xFFFFFFFF) { //if client_ip equal 255.255.255.255 (0xFFFFFFFF) is KeepAlive packet
         /* Domain / KeepAlive (User) / Version */
-        len = tvb_find_uint8(tvb, offset, string_length, '/') - offset;
+        tvb_find_uint8_length(tvb, offset, string_length, '/', &len);
+        len = len -offset;
         proto_tree_add_item(fsso_tree, hf_fsso_domain, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
 
-        len = tvb_find_uint8(tvb, offset, string_length, '/') - offset;
+        tvb_find_uint8_length(tvb, offset, string_length, '/', &len);
+        len = len - offset;
         proto_tree_add_item(fsso_tree, hf_fsso_user, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
@@ -91,12 +93,14 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     } else {
         /* Host / Domain / User */
-        len = tvb_find_uint8(tvb, offset, string_length, '/') - offset;
+        tvb_find_uint8_length(tvb, offset, string_length, '/', &len);
+        len = len - offset;
         proto_tree_add_item(fsso_tree, hf_fsso_host, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
 
-        len = tvb_find_uint8(tvb, offset, string_length, '/') - offset;
+        tvb_find_uint8_length(tvb, offset, string_length, '/', &len);
+        len = len - offset;
         proto_tree_add_item(fsso_tree, hf_fsso_domain, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
