@@ -1651,12 +1651,14 @@ if (QT_FOUND)
 		find_program(DMGBUILD_EXECUTABLE dmgbuild
 			DOC "Path to the dmgbuild utility"
 		)
-		# https://doc.qt.io/qt-5/supported-platforms.html
 		# https://doc.qt.io/archives/qt-6.0/supported-platforms.html
 		# https://doc.qt.io/qt-6.5/supported-platforms.html
 		# https://doc.qt.io/qt-6.8/supported-platforms.html
+		# https://doc-snapshots.qt.io/qt6-6.10/supported-platforms.html
 		# https://doc-snapshots.qt.io/qt6-dev/supported-platforms.html
-		if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.8.0" AND MIN_MACOS_VERSION VERSION_LESS "12.0")
+		if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.10.0" AND MIN_MACOS_VERSION VERSION_LESS "13.0")
+			set(MIN_MACOS_VERSION 13.0)
+		elseif(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.8.0" AND MIN_MACOS_VERSION VERSION_LESS "12.0")
 			set(MIN_MACOS_VERSION 12.0)
 		elseif(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.5.0" AND MIN_MACOS_VERSION VERSION_LESS "11.0")
 			set(MIN_MACOS_VERSION 11.0)
