@@ -140,6 +140,8 @@ Please rewrite your commit message to our standards, matching this format:
 
     Use paragraphs to improve readability. Limit each line to 80 characters.
 
+    Finish with a trailer about possible AI involvement, in the form of
+    AI-Assisted: no|yes [tool(s)]
 ''')
     if any(line.startswith('Bug:') or line.startswith('Ping-Bug:') for line in old_lines):
         sys.stderr.write('''

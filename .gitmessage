@@ -9,7 +9,7 @@
 # "Fixes" or "Closes" keywords.
 # Fixes #10000
 
-AI-Assisted: yes|no [tool(s)]
+AI-Assisted: no|yes [tool(s)]
 # Required: declare whether AI was used (e.g., "AI-Assisted: yes (Claude)").
 
 # Examples:
