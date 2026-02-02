@@ -460,7 +460,7 @@ pcapng_get_cb_section_info_data(section_info_t *section_info, uint32_t pen,
          * No entry found - create a new one, and add it to the
          * hash table.
          */
-        data = funcs->new();
+        data = funcs->provision();
         g_hash_table_insert(section_info->custom_block_data,
                             GUINT_TO_POINTER(pen), data);
     }
@@ -514,7 +514,7 @@ pcapng_get_lb_section_info_data(section_info_t *section_info,
          * No entry found - create a new one, and add it to the
          * hash table.
          */
-        data = funcs->new();
+        data = funcs->provision();
         g_hash_table_insert(section_info->local_block_data,
                             GUINT_TO_POINTER(block_type), data);
     }

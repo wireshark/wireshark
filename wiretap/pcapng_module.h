@@ -318,7 +318,7 @@ bool pcapng_write_block_footer(wtap_dumper *wdh, uint32_t block_content_length,
  * for section_info_t-associated custom or local block information.
  */
 typedef struct {
-    void *(*new)(void);
+    void *(*provision)(void);
     GDestroyNotify free;
 } section_info_funcs_t;
 
