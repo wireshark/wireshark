@@ -213,7 +213,7 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
     uint8_t num;
     uint8_t oct;
     uint8_t source_id;
-    uint8_t zero_offset;
+    unsigned zero_offset;
     proto_tree *ext_tree;
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
@@ -270,7 +270,7 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
                 offset++;
                 source_id = (oct & 0xf0) >> 4;
                 if (source_id > 5) {
-                    zero_offset = tvb_find_uint8(tvb, offset, FECC_MAX_LENGTH_ASCII_STR, 0);
+                    tvb_find_uint8_length(tvb, offset, FECC_MAX_LENGTH_ASCII_STR, 0, &zero_offset);
                     if (zero_offset > offset) {
                         proto_tree_add_item(ext_tree, hf_h224_encoded_characters, tvb, offset, zero_offset - offset, ENC_ASCII);
                         offset = zero_offset;

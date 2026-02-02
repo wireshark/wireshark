@@ -23,17 +23,17 @@ WS_DLL_PUBLIC
 void http_tcp_port_add(uint32_t port);
 
 WS_DLL_PUBLIC
-void http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_item* item, int offset, int length);
+void http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_item* item, unsigned offset, unsigned length);
 
 WS_DLL_PUBLIC
 dissector_handle_t http_upgrade_dissector(const char *protocol);
 
 /* Used for HTTP statistics */
 typedef struct _http_info_value_t {
-	uint32_t framenum;
-	unsigned	 response_code;
-	char	*request_method;
-	char    *http_host;
+	uint32_t       framenum;
+	unsigned       response_code;
+	char	      *request_method;
+	char	      *http_host;
 	const char    *request_uri;
 	const char    *referer_uri;
 	const char    *full_uri;
@@ -86,7 +86,7 @@ typedef struct _http_conv_t {
 
 	/* Fields related to proxied/tunneled/Upgraded connections. */
 	uint32_t	 startframe;	/* First frame of proxied connection */
-	int    	 startoffset;	/* Offset within the frame where the new protocol begins. */
+	unsigned	 startoffset;	/* Offset within the frame where the new protocol begins. */
 	dissector_handle_t next_handle;	/* New protocol */
 	http_upgrade_info_t *upgrade_info; /* Data for new protocol */
 

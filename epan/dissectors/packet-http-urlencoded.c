@@ -34,19 +34,18 @@ static int ett_form_keyvalue;
 static ws_mempbrk_pattern pbrk_key;
 static ws_mempbrk_pattern pbrk_value;
 
-static int
-get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset, const ws_mempbrk_pattern *pbrk)
+static bool
+get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, unsigned offset, unsigned *next_offset, const ws_mempbrk_pattern *pbrk)
 {
-	const int orig_offset = offset;
-	int found_offset;
+	const unsigned orig_offset = offset;
+	unsigned found_offset;
 	uint8_t ch;
 	char *tmp;
-	int len;
+	unsigned len;
 
 	len = 0;
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		found_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, -1, pbrk, &ch);
-		if (found_offset == -1) {
+		if (!tvb_ws_mempbrk_uint8_remaining(tvb, offset, pbrk, &found_offset, &ch)) {
 			len += tvb_reported_length_remaining(tvb, offset);
 			break;
 		}
@@ -54,17 +53,17 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 		offset = found_offset;
 		if (ch == '%') {
 			if (tvb_reported_length_remaining(tvb, offset) < 2) {
-				return -1;
+				return false;
 			}
 			offset++;
 			ch = tvb_get_uint8(tvb, offset);
 			if (ws_xton(ch) == -1)
-				return -1;
+				return false;
 
 			offset++;
 			ch = tvb_get_uint8(tvb, offset);
 			if (ws_xton(ch) == -1)
-				return -1;
+				return false;
 		} else if (ch != '+') {
 			/* Key, matched '=', stop. */
 			break;
@@ -80,8 +79,7 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 	len = 0;
 	offset = orig_offset;
 	while (tvb_reported_length_remaining(tvb, offset)) {
-		found_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, -1, pbrk, &ch);
-		if (found_offset == -1) {
+		if (!tvb_ws_mempbrk_uint8_remaining(tvb, offset, pbrk, &found_offset, &ch)) {
 			tvb_memcpy(tvb, &tmp[len], offset, tvb_reported_length_remaining(tvb, offset));
 			offset = tvb_reported_length(tvb);
 			break;
@@ -111,7 +109,8 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 		offset++;
 	}
 
-	return offset;
+	*next_offset = offset;
+	return true;
 }
 
 
@@ -121,7 +120,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	proto_tree	*url_tree;
 	proto_tree	*sub;
 	proto_item	*ti;
-	int		offset = 0, next_offset, end_offset;
+	unsigned	offset = 0, next_offset, end_offset;
 	const char	*data_name;
 	media_content_info_t *content_info;
 	tvbuff_t	*sequence_tvb;
@@ -160,15 +159,13 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		char *key, *value;
 		char *key_decoded, *value_decoded;
 
-		end_offset = tvb_find_uint8(tvb, offset, -1, '&');
-		if (end_offset == -1) {
-			end_offset = (int)tvb_reported_length(tvb);
+		if (!tvb_find_uint8_remaining(tvb, offset, '&', &end_offset)) {
+			end_offset = tvb_reported_length(tvb);
 		}
 		sub = proto_tree_add_subtree(url_tree, tvb, offset, end_offset - offset, ett_form_keyvalue, NULL, "Form item");
 
 		sequence_tvb = tvb_new_subset_length(tvb, 0, end_offset);
-		next_offset = get_form_key_value(pinfo->pool, sequence_tvb, &key, offset, &pbrk_key);
-		if (next_offset == -1)
+		if (!get_form_key_value(pinfo->pool, sequence_tvb, &key, offset, &next_offset, &pbrk_key))
 			break;
 		/* XXX: Only UTF-8 is conforming according to WHATWG, though we
 		 * ought to look for a "charset" parameter in media_str
@@ -183,8 +180,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 		offset = next_offset+1;
 
-		next_offset = get_form_key_value(pinfo->pool, sequence_tvb, &value, offset, &pbrk_value);
-		if (next_offset == -1)
+		if (!get_form_key_value(pinfo->pool, sequence_tvb, &value, offset, &next_offset, &pbrk_value))
 			break;
 		value_decoded = (char*)get_utf_8_string(pinfo->pool, (uint8_t*)value, strlen(value));
 		proto_tree_add_string(sub, hf_form_value, tvb, offset, next_offset - offset, value_decoded);

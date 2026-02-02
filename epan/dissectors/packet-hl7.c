@@ -681,13 +681,13 @@ event_present(const struct msh *msh) {
 }
 
 static int
-parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
+parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
           struct msh *msh)
 {
-    int segment_len = -1;
-    int end_of_segment_offset = -1;
-    int field_separator_offset = -1;
-    int field_number = 0;
+    unsigned segment_len;
+    unsigned end_of_segment_offset;
+    unsigned field_separator_offset;
+    unsigned field_number = 0;
 
     /* initialize msh */
     msh->trigger_event[0] ='\0';
@@ -711,8 +711,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
     /* FF: even if HL7 2.3.1 says each segment must be terminated with CR
      * we look either for a CR or an LF or both (I did find a system out
      * there that uses both) */
-    segment_len = tvb_find_line_end(tvb, offset, -1, NULL, true);
-    if (segment_len == -1) {
+    if (!tvb_find_line_end_remaining(tvb, offset, &segment_len, NULL)) {
         expert_add_info_format(pinfo, NULL, &ei_hl7_malformed,
                                "Segments must be terminated with CR");
         return -1;
@@ -720,10 +719,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
     end_of_segment_offset = offset + segment_len;
 
     while (offset < end_of_segment_offset) {
-        field_separator_offset =
-            tvb_find_uint8(tvb, offset, end_of_segment_offset - offset,
-                            msh->field_separator);
-        if (field_separator_offset == -1) {
+        if (!tvb_find_uint8_length(tvb, offset, end_of_segment_offset - offset, msh->field_separator, &field_separator_offset)) {
             if (field_number < 9) {
                 expert_add_info_format(pinfo, NULL, &ei_hl7_malformed,
                                        "MSH must have at least 9 fields");
@@ -763,18 +759,18 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
 
 static void
 dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
-                    int offset, int segment_len, int segment_len_crlf _U_,
+                    unsigned offset, unsigned segment_len, unsigned segment_len_crlf _U_,
                     const struct msh *msh _U_)
 {
     /* segment layout xyz|a|b||||c|d\rxyz|a|b|c||||d... */
     proto_tree *segment_tree = NULL;
     proto_item *ti = NULL;
     char *field_str = NULL;
-    int end_of_segment_offset = 0;
-    int field_separator_offset = 0;
-    int field_num = 0;
-    int field_len = 0;
-    int segment_consumed = 0;
+    unsigned end_of_segment_offset = 0;
+    unsigned field_separator_offset = 0;
+    unsigned field_num = 0;
+    unsigned field_len = 0;
+    unsigned segment_consumed = 0;
     bool last_field = false;
 
     /* calculate where the segment ends */
@@ -786,12 +782,7 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
         field_num++;
 
         /* get next '|' offset */
-        field_separator_offset =
-            tvb_find_uint8(tvb, offset,
-                            segment_len - segment_consumed,
-                            msh->field_separator);
-
-        if (field_separator_offset == -1) {
+        if (!tvb_find_uint8_length(tvb, offset, segment_len - segment_consumed, msh->field_separator, &field_separator_offset)) {
             /* we do not have a field separator */
             if (segment_consumed != segment_len) {
                 /* this is the last field */
@@ -850,7 +841,7 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
 }
 
 static void
-dissect_hl7_message(tvbuff_t *tvb, unsigned tvb_offset, int len,
+dissect_hl7_message(tvbuff_t *tvb, unsigned tvb_offset, unsigned len,
                     packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     unsigned offset = tvb_offset;

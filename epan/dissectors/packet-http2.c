@@ -2427,11 +2427,11 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, p
     uint32_t header_value_length;
     const char *header_name;
     const char *header_value;
-    int hoffset = 0;
+    unsigned hoffset = 0;
     nghttp2_hd_inflater *hd_inflater;
     tvbuff_t *header_tvb = NULL;
     int rv;
-    int header_len = 0;
+    unsigned header_len = 0;
     int final;
     uint32_t flow_index;
     http2_header_data_t *header_data;
