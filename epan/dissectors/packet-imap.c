@@ -67,8 +67,8 @@ static ws_mempbrk_pattern pbrk_whitespace;
 struct simple_token_info
 {
   uint8_t* token;
-  int token_start_offset;
-  int token_end_offset;
+  unsigned token_start_offset;
+  unsigned token_end_offset;
 };
 
 typedef struct imap_state {
@@ -199,36 +199,36 @@ imap_match_request(packet_info *pinfo, proto_tree *tree, imap_request_key_t *req
 static bool
 dissect_imap_fetch(tvbuff_t *tvb, packet_info *pinfo,
                             proto_tree* main_tree, proto_tree* imap_tree, proto_tree** reqresp_tree,
-                            int fetch_offset, int offset, int* next_offset, bool* first_line)
+                            unsigned fetch_offset, unsigned offset, unsigned* next_offset, bool* first_line)
 {
   tvbuff_t       *next_tvb;
   bool need_more = true;
 
   //All information in encapsulated in () so make sure there are existing and matching parenthesis
-  int first_parenthesis = tvb_find_uint8(tvb, fetch_offset, -1, '(');
-  if (first_parenthesis >= 0)
+  unsigned first_parenthesis;
+  if (tvb_find_uint8_remaining(tvb, fetch_offset, '(', &first_parenthesis))
   {
-    int remaining_size = tvb_reported_length_remaining(tvb, first_parenthesis + 1);
+    unsigned remaining_size = tvb_reported_length_remaining(tvb, first_parenthesis + 1);
     if (remaining_size > 0)
     {
       //look for the size field
-      int size_start = tvb_find_uint8(tvb, first_parenthesis, remaining_size, '{');
-      if (size_start >= 0)
+      unsigned size_start;
+      if (tvb_find_uint8_length(tvb, first_parenthesis, remaining_size, '{', &size_start))
       {
-        int size_end = tvb_find_uint8(tvb, size_start + 1, remaining_size - (size_start - first_parenthesis), '}');
-        if (size_end > 0)
+        unsigned size_end;
+        if (tvb_find_uint8_length(tvb, size_start + 1, remaining_size - (size_start - first_parenthesis), '}', &size_end))
         {
           //Have a size field, convert it to an integer to see how long the contents are
           uint32_t size = 0;
           const char* size_str = (const char *)tvb_get_string_enc(pinfo->pool, tvb, size_start + 1, size_end - size_start - 1, ENC_ASCII);
           if (ws_strtou32(size_str, NULL, &size))
           {
-            int remaining = tvb_reported_length_remaining(tvb, size_end + size);
+            unsigned remaining = tvb_reported_length_remaining(tvb, size_end + size);
             if (remaining > 0)
             {
               //Look for the ) after the size field
-              int parenthesis_end = tvb_find_uint8(tvb, size_end + size, remaining, ')');
-              if (parenthesis_end >= 0)
+              unsigned parenthesis_end;
+              if (tvb_find_uint8_length(tvb, size_end + size, remaining, ')', &parenthesis_end))
               {
                 need_more = false;
 
@@ -241,7 +241,7 @@ dissect_imap_fetch(tvbuff_t *tvb, packet_info *pinfo,
 
                 next_tvb = tvb_new_subset_length(tvb, *next_offset, size);
                 call_dissector(imf_handle, next_tvb, pinfo, main_tree);
-                if ((int)(*next_offset + size) > *next_offset)
+                if ((*next_offset + size) > *next_offset)
                   (*next_offset) += size;
               }
             }
@@ -251,8 +251,8 @@ dissect_imap_fetch(tvbuff_t *tvb, packet_info *pinfo,
       else
       {
         //See if there is no size field, just and end of line
-        int linelen = tvb_find_line_end(tvb, first_parenthesis, -1, next_offset, true);
-        if (linelen >= 0)
+        unsigned linelen;
+        if (tvb_find_line_end_remaining(tvb, first_parenthesis, &linelen, next_offset))
         {
           need_more = false;
 
@@ -287,15 +287,15 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   bool            is_request;
   proto_tree      *imap_tree, *reqresp_tree;
   proto_item      *ti, *hidden_item;
-  int             offset = 0;
-  int             uid_offset = 0;
-  int             folder_offset = 0;
-  int             next_offset;
-  int             linelen, tokenlen, uidlen, uid_tokenlen, folderlen, folder_tokenlen;
-  int             next_token, uid_next_token, folder_next_token;
+  unsigned        offset = 0;
+  unsigned        uid_offset = 0;
+  unsigned        folder_offset = 0;
+  unsigned        next_offset;
+  unsigned        linelen, tokenlen, uidlen, uid_tokenlen, folderlen, folder_tokenlen;
+  unsigned        next_token, uid_next_token, folder_next_token;
   const char     *tokenbuf = NULL;
-  const char     *command_token;
-  int             commandlen;
+  const char     *command_token = NULL;
+  unsigned        commandlen;
   bool            first_line = true;
   imap_request_key_t request_key;
 
@@ -355,8 +355,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    * Put the first line from the buffer into the summary
    * (but leave out the line terminator).
    */
-  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, true);
-  if (linelen == -1)
+  if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset))
   {
     pinfo->desegment_offset = 0;
     pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
@@ -382,8 +381,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * not longer than what's in the buffer, so the "tvb_get_ptr()"
      * call won't throw an exception.
      */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, true);
-    if (linelen == -1)
+    if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset))
     {
       pinfo->desegment_offset = offset;
       pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
@@ -398,13 +396,14 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       bool show_line = true;
 
       //find up to NUM_LOOKAHEAD_TOKENS tokens
-      int start_offset;
-      int next_pattern = offset, token_count = 0;
+      unsigned start_offset;
+      unsigned next_pattern = offset, token_count = 0;
       struct simple_token_info tokens[NUM_LOOKAHEAD_TOKENS];
+      bool found;
       do
       {
         start_offset = next_pattern+1;
-        next_pattern = tvb_ws_mempbrk_pattern_uint8(tvb, start_offset, next_offset - start_offset, &pbrk_whitespace, NULL);
+        found = tvb_ws_mempbrk_uint8_length(tvb, start_offset, next_offset - start_offset, &pbrk_whitespace, &next_pattern, NULL);
         if (next_pattern > start_offset)
         {
           tokens[token_count].token = tvb_get_string_enc(pinfo->pool, tvb, start_offset, next_pattern-start_offset, ENC_ASCII);
@@ -412,12 +411,12 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           tokens[token_count].token_end_offset = next_pattern;
           token_count++;
         }
-      } while ((next_pattern != -1) && (token_count < NUM_LOOKAHEAD_TOKENS));
+      } while ((found != false) && (token_count < NUM_LOOKAHEAD_TOKENS));
 
       if (token_count >= 2)
       {
         bool need_more = false;
-        for (int token = 0; token < token_count; token++)
+        for (unsigned token = 0; token < token_count; token++)
         {
           if (!tvb_strncaseeql(tvb, tokens[token].token_start_offset, "FETCH", tokens[token].token_end_offset - tokens[token].token_start_offset))
           {
@@ -469,8 +468,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        * Extract the first token, and, if there is a first
        * token, add it as the request or reply tag.
        */
-      tokenlen = tvb_get_token_len(tvb, offset, linelen, &next_token, false);
-      if (tokenlen != 0) {
+      if (tvb_get_token_len_length(tvb, offset, linelen, &tokenlen, &next_token)) {
         const char* tag = (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
         request_key.tag = wmem_ascii_strdown(pinfo->pool, tag, strlen(tag));
 
@@ -486,8 +484,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        * Extract second token, and, if there is a second
        * token, and it's not uid, add it as the request or reply command.
        */
-      tokenlen = tvb_get_token_len(tvb, offset, linelen, &next_token, false);
-      if (tokenlen != 0) {
+      if (tvb_get_token_len_length(tvb, offset, linelen, &tokenlen, &next_token)) {
 
         tokenbuf = (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
         tokenbuf = wmem_ascii_strdown(pinfo->pool, tokenbuf, tokenlen);
@@ -500,8 +497,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
            */
           uidlen = linelen - (next_token - offset);
           uid_offset = next_token;
-          uid_tokenlen = tvb_get_token_len(tvb, next_token, uidlen, &uid_next_token, false);
-          if (uid_tokenlen != 0) {
+          if (tvb_get_token_len_length(tvb, next_token, uidlen, &uid_tokenlen, &uid_next_token)) {
             proto_tree_add_item(reqresp_tree, hf_imap_request_command, tvb, uid_offset, uid_tokenlen, ENC_ASCII);
             hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII);
             proto_item_set_hidden(hidden_item);
@@ -515,7 +511,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
             folderlen = linelen - (uid_next_token - offset);
             folder_offset = uid_next_token;
-            folder_tokenlen = tvb_get_token_len(tvb, uid_next_token, folderlen, &folder_next_token, false);
+            tvb_get_token_len_length(tvb, uid_next_token, folderlen, &folder_tokenlen, &folder_next_token);
           }
         } else {
           /*
@@ -535,7 +531,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
             folderlen = linelen - (next_token - offset);
             folder_offset = next_token;
-            folder_tokenlen = tvb_get_token_len(tvb, next_token, folderlen, &folder_next_token, false);
+            tvb_get_token_len_length(tvb, next_token, folderlen, &folder_tokenlen, &folder_next_token);
           }
         }
 
@@ -565,7 +561,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              */
             folderlen = linelen - (folder_next_token - offset);
             folder_offset = folder_next_token;
-            folder_tokenlen = tvb_get_token_len(tvb, folder_offset, folderlen, &folder_next_token, false);
+            folder_tokenlen = tvb_get_token_len_length(tvb, folder_offset, folderlen, &folder_tokenlen , &folder_next_token);
 
             if (folder_tokenlen != 0)
               proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII);
@@ -575,16 +571,18 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             session_state->ssl_requested = true;
           }
           else if (strncmp(command_token, "login", commandlen) == 0) {
-            int usernamelen = linelen - (next_token - offset);
-            int username_offset = next_token;
-            int username_next_token;
-            int username_tokenlen = tvb_get_token_len(tvb, next_token, usernamelen, &username_next_token, false);
+            unsigned usernamelen = linelen - (next_token - offset);
+            unsigned username_offset = next_token;
+            unsigned username_next_token;
+            unsigned username_tokenlen;
+            tvb_get_token_len_length(tvb, next_token, usernamelen, &username_tokenlen, &username_next_token);
             char *username = (char*)tvb_get_string_enc(pinfo->pool, tvb, username_offset, username_tokenlen, ENC_ASCII | ENC_NA);
             proto_tree_add_string(reqresp_tree, hf_imap_request_username, tvb, username_offset, username_tokenlen, username);
 
-            int passwordlen = linelen - (username_next_token - offset);
-            int password_offset = username_next_token;
-            int password_tokenlen = tvb_get_token_len(tvb, username_next_token, passwordlen, NULL, false);
+            unsigned passwordlen = linelen - (username_next_token - offset);
+            unsigned password_offset = username_next_token;
+            unsigned password_tokenlen;
+            tvb_get_token_len_length(tvb, username_next_token, passwordlen, NULL, &password_tokenlen);
             const char* password = (char*)tvb_get_string_enc(pinfo->pool, tvb, password_offset + 1, password_tokenlen - 2, ENC_ASCII | ENC_NA);
             proto_tree_add_string(reqresp_tree, hf_imap_request_password, tvb, password_offset, password_tokenlen, password);
 
@@ -599,10 +597,10 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         if (!is_request) {
           //See if there is the response command
-          int command_next_token;
-          int command_offset = next_token;
+          unsigned command_next_token;
+          unsigned command_offset = next_token;
           commandlen = linelen - (next_token-offset);
-          commandlen = tvb_get_token_len(tvb, next_token, commandlen, &command_next_token, false);
+          tvb_get_token_len_length(tvb, next_token, commandlen, &commandlen , &command_next_token);
           if (commandlen > 0) {
             proto_tree_add_item(reqresp_tree, hf_imap_response_command, tvb, command_offset, commandlen, ENC_ASCII);
             hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, command_offset, commandlen, ENC_ASCII);

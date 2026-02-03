@@ -123,7 +123,7 @@ static expert_field ei_icq_unknown_command;
 #define ICQ5_CLIENT 1
 
 static void
-dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_icqv5Server(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                     proto_tree *tree, int pktsize);
 
 /* Offsets of fields in the ICQ headers */
@@ -477,15 +477,15 @@ decrypt_v5(unsigned char *bfr, uint32_t size,uint32_t key)
 }
 
 static void
-icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
-             packet_info *pinfo)
+icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigned size, packet_info *pinfo)
 {
     proto_item *msg_item;
     proto_tree *subtree;
-    int left = size;
+    unsigned left = size;
     uint16_t msgType;
-    int sep_offset;
-    int sz;            /* Size of the current element */
+    unsigned sep_offset;
+    bool found;
+    unsigned sz;            /* Size of the current element */
     unsigned int n;
     static int * const url_field_descr[] = {
          &hf_icq_description,
@@ -548,7 +548,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
     case MSG_URL:
         for (n = 0; n < N_URL_FIELDS; n++) {
             if (n != N_URL_FIELDS - 1) {
-                sep_offset = tvb_find_uint8(tvb, offset, left, 0xfe);
+                tvb_find_uint8_length(tvb, offset, left, 0xfe, &sep_offset);
                 sz = sep_offset - offset + 1;
             } else {
                 sz = left;
@@ -566,7 +566,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
     case MSG_EMAIL:
     for (n = 0; n < N_EMAIL_FIELDS; n++) {
         if (n != N_EMAIL_FIELDS - 1) {
-            sep_offset = tvb_find_uint8(tvb, offset, left, 0xfe);
+            tvb_find_uint8_length(tvb, offset, left, 0xfe, &sep_offset);
             sz = sep_offset - offset + 1;
         } else {
             sz = left;
@@ -598,7 +598,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
     case MSG_AUTH_REQ:
         for (n = 0; n < N_AUTH_REQ_FIELDS; n++) {
             if (n != N_AUTH_REQ_FIELDS - 1) {
-                sep_offset = tvb_find_uint8(tvb, offset, left, 0xfe);
+                tvb_find_uint8_length(tvb, offset, left, 0xfe, &sep_offset);
                 sz = sep_offset - offset + 1;
             } else {
                 sz = left;
@@ -616,7 +616,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
     case MSG_USER_ADDED:
     for (n = 0; n < N_USER_ADDED_FIELDS; n++) {
         if (n != N_USER_ADDED_FIELDS - 1) {
-            sep_offset = tvb_find_uint8(tvb, offset, left, 0xfe);
+            tvb_find_uint8_length(tvb, offset, left, 0xfe, &sep_offset);
             sz = sep_offset - offset + 1;
         } else {
             sz = left;
@@ -639,8 +639,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
         bool last = false;
 
         while (!last) {
-            sep_offset = tvb_find_uint8(tvb, offset, left, 0xfe);
-            if (sep_offset != -1) {
+            if (!tvb_find_uint8_length(tvb, offset, left, 0xfe, &sep_offset)) {
                 sz_local = sep_offset - offset + 1;
             }
             else {
@@ -658,8 +657,8 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
 
                 left -= sz_local;
                 sep_offset_prev = sep_offset;
-                sep_offset = tvb_find_uint8(tvb, sep_offset_prev, left, 0xfe);
-                if (sep_offset != -1)
+                found = tvb_find_uint8_length(tvb, offset, left, 0xfe, &sep_offset);
+                if (found == false)
                     sz_local = sep_offset - offset + 1;
                 else {
                     sz_local = left;
@@ -689,7 +688,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
 static void
 icqv5_cmd_send_text_code(proto_tree *tree, /* Tree to put the data in */
              tvbuff_t *tvb,    /* Decrypted packet content */
-             int offset)       /* Offset from the start of the packet to the content */
+             unsigned offset)       /* Offset from the start of the packet to the content */
 {
     proto_tree *subtree = tree;
     uint16_t len;
@@ -705,7 +704,7 @@ icqv5_cmd_send_text_code(proto_tree *tree, /* Tree to put the data in */
 }
 
 static void
-icqv5_cmd_send_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
+icqv5_cmd_send_msg(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigned size,
            packet_info *pinfo)
 {
     proto_tree_add_item(tree, hf_icq_receiver_uin, tvb, offset + CMD_SEND_MSG_RECV_UIN, 4, ENC_LITTLE_ENDIAN);
@@ -716,7 +715,7 @@ icqv5_cmd_send_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
 }
 
 static void
-icqv5_cmd_login(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
+icqv5_cmd_login(proto_tree *tree, tvbuff_t *tvb, unsigned offset, packet_info *pinfo)
 {
     proto_tree *subtree = tree;
     time_t theTime;
@@ -737,7 +736,7 @@ icqv5_cmd_login(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 }
 
 static void
-icqv5_cmd_contact_list(proto_tree *tree, tvbuff_t *tvb, int offset)
+icqv5_cmd_contact_list(proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
     unsigned char num;
     int i;
@@ -768,7 +767,7 @@ icqv5_cmd_contact_list(proto_tree *tree, tvbuff_t *tvb, int offset)
 static void
 icqv5_srv_user_online(proto_tree *tree,/* Tree to put the data in */
                 tvbuff_t *tvb,   /* Tvbuff with packet */
-                int offset)      /* Offset from the start of the packet to the content */
+                unsigned offset)      /* Offset from the start of the packet to the content */
 {
     proto_tree *subtree = tree;
 
@@ -791,7 +790,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 icqv5_srv_multi(proto_tree *tree, /* Tree to put the data in */
         tvbuff_t *tvb,    /* Packet content */
-        int offset,       /* Offset from the start of the packet to the content */
+        unsigned offset,       /* Offset from the start of the packet to the content */
         packet_info *pinfo)
 {
     uint8_t num;
@@ -816,8 +815,8 @@ icqv5_srv_multi(proto_tree *tree, /* Tree to put the data in */
 static void
 icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
             tvbuff_t *tvb,    /* Tvbuff with packet */
-            int offset,       /* Offset from the start of the packet to the content */
-            int size _U_,         /* Number of chars left to do */
+            unsigned offset,       /* Offset from the start of the packet to the content */
+            unsigned size _U_,         /* Number of chars left to do */
             packet_info *pinfo)
 {
     proto_tree *sstree;
@@ -956,8 +955,8 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
 static void
 icqv5_srv_recv_message(proto_tree *tree, /* Tree to put the data in */
                         tvbuff_t *tvb,    /* Packet content */
-                        int offset,       /* Offset from the start of the packet to the content */
-                        int size,         /* Number of chars left to do */
+                        unsigned offset,       /* Offset from the start of the packet to the content */
+                        unsigned size,         /* Number of chars left to do */
                         packet_info *pinfo)
 {
     uint16_t year;
@@ -984,7 +983,7 @@ icqv5_srv_recv_message(proto_tree *tree, /* Tree to put the data in */
 static void
 icqv5_srv_rand_user(proto_tree *tree,      /* Tree to put the data in */
             tvbuff_t *tvb,         /* Tvbuff with packet */
-            int offset)            /* Offset from the start of the packet to the content */
+            unsigned offset)            /* Offset from the start of the packet to the content */
 {
     proto_tree *subtree = tree;
     uint8_t commClass;
@@ -1127,7 +1126,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_icqv5Server(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
             proto_tree *tree, int pktsize)
 {
     /* Server traffic is easy, not encrypted */
