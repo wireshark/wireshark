@@ -3552,6 +3552,7 @@ de_emm_data_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
     proto_tree *sub_tree;
     uint32_t curr_offset = offset;
 
+    len = tvb_reported_length_remaining(tvb, curr_offset);
     proto_tree_add_item_ret_uint8(tree, hf_nas_eps_emm_data_cont_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &type);
     switch (type) {
         case 0:
@@ -3566,7 +3567,7 @@ de_emm_data_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
             item = proto_tree_add_item(tree, hf_nas_eps_emm_data_cont_data_payload, tvb, curr_offset, len-1, ENC_NA);
             sub_tree = proto_item_add_subtree(item, ett_nas_eps_nas_msg_cont);
             if (gsm_a_dtap_handle) {
-                tvbuff_t *new_tvb = tvb_new_subset_length(tvb, curr_offset, len - 1);
+                tvbuff_t *new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
 
                 call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, sub_tree);
             }
@@ -7543,7 +7544,20 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             proto_tree_add_expert(nas_eps_tree, pinfo, &ei_nas_eps_sec_hdr_wrong_pd, tvb, offset, len-4);
             return tvb_captured_length(tvb);
         }
-        /* SERVICE REQUEST (12 or greater) is not a plain NAS message treat separately */
+        /* EMM TRANSPORT (security header type equal 11) or SERVICE REQUEST
+           (security header type equal to 12 or greater) are not plain NAS messages,
+           treat separately */
+        if (security_header_type == 11) {
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service request");
+            /* Message authentication code */
+            proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset+=4;
+            /* Sequence number */
+            proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            nas_emm_transport(tvb, nas_eps_tree, pinfo, offset, tvb_reported_length(tvb)-offset);
+            return tvb_captured_length(tvb);
+        }
         if (security_header_type >= 12) {
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service request");
             nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, len-offset);
