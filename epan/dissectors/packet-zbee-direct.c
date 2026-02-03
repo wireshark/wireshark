@@ -725,7 +725,7 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
         bool success = false;
         uint16_t size = tvb_reported_length_remaining(*tvb, offset);
         uint8_t *decrypted = (uint8_t *)wmem_alloc(pinfo->pool, 512);
-        GList   *pan_keyring;
+        GSList **pan_keyring;
         GSList  *i = zbee_pc_keyring;
         uint16_t init_size = size;
 
@@ -762,14 +762,13 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
         /* Retrieve all pan-specific nwk keyrings from the hash table */
         if (!success && zbee_table_nwk_keyring)
         {
-            pan_keyring = (GList*)g_hash_table_get_values(zbee_table_nwk_keyring);
+            GHashTableIter keyring_iter;
+            g_hash_table_iter_init(&keyring_iter, zbee_table_nwk_keyring);
 
-            while (!success && pan_keyring)
+            while (!success && g_hash_table_iter_next(&keyring_iter, NULL, (void*)&pan_keyring))
             {
-                i = *((GSList**)pan_keyring->data);
-
                 /* Iterate over keys in the keyring */
-                while (!success && i)
+                for (i = *pan_keyring; !success && i; i = g_slist_next(i))
                 {
                     if (!ignore_late_keys || ((key_record_t*)i->data)->frame_num > pinfo->num)
                     {
@@ -778,14 +777,12 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
                                                decrypted, &size,
                                                ieee, NULL, ((key_record_t*)i->data)->key);
 
-                        i = g_slist_next(i);
                         if (!success)
                         {
                             size = init_size;
                         }
                     }
                 }
-                pan_keyring = g_list_next(i);
             }
         }
 
