@@ -37,16 +37,16 @@
  * fiddly to get the preferences into a good state to decode a given capture..
  * TODO:
  * - for U-Plane, track back to last C-Plane frame for that eAxC
- *     N.B. this matching is tricky see 7.8.1 Coupling of C-Plane and U-Plane
+ *      doing, but this matching can be tricky see 7.8.1 Coupling of C-Plane and U-Plane
  * - Detect/indicate signs of application layer fragmentation?
+ *      same eAxC in same symbol (same/different section ID?)
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
- * - for section extensions, check more constraints (which other extension types appear with them, order)
+ * - for section extensions, check more constraints (which other extension types appear with them, order, repeated)
  * - re-order items (decl and hf definitions) to match spec order?
  * - track energy-saving status, and identify TRX or ASM commands as 'Sleep extension'
  */
 
 /* Prototypes */
-void proto_reg_handoff_oran(void);
 void proto_register_oran(void);
 
 /* Initialize the protocol and registered fields */
@@ -1705,7 +1705,6 @@ typedef struct {
     bool udcomphdrUplink_heuristic_result;
 
     /* Modulation compression params */
-    /* This probably needs to be per section!? */
     mod_compr_params_t mod_comp_params;
 } flow_state_t;
 
@@ -2292,7 +2291,7 @@ static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_wi
             float mcScaler = (float)(1 << 11);
 
             /* Find csf + mcScaler to use. Non-default configs gleaned from SE 4,5,23 */
-            /* TODO: should ideally be filtering by symbol and PRB too (at least from SE23) */
+            /* TODO: should ideally be filtering by symbol and PRB too (as configured from SE23) */
             if (re > 0 && m_c_p && m_c_p->num_configs > 0) {
                 for (unsigned c=0; c<m_c_p->num_configs; c++) {
                     if (m_c_p->configs[c].mod_compr_re_mask & (1 << (12-re))) {
@@ -4421,6 +4420,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         offset += 2;
 
                         /* Record this config.  */
+                        /* TODO: at some point, will also want to store/use PRB + symbol filters */
                         section_mod_compr_config_t* sect_config = get_mod_compr_section_to_write(state, sectionId);
 
                         if (sect_config && sect_config->num_configs < MAX_MOD_COMPR_CONFIGS) {
@@ -10152,13 +10152,6 @@ proto_register_oran(void)
     /* Register reassembly table. */
     reassembly_table_register(&oran_reassembly_table,
                               &oran_reassembly_table_functions);
-}
-
-/* Simpler form of proto_reg_handoff_oran which can be used if there are
- * no prefs-dependent registration function calls. */
-void
-proto_reg_handoff_oran(void)
-{
 }
 
 /*
