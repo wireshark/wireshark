@@ -183,13 +183,12 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, proto_t
 static void
 dissect_epmd_response_names(packet_info *pinfo _U_, tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    unsigned reported_len = tvb_reported_length(tvb);
     unsigned off = offset;
 
     unsigned next_off;
-    while (off < reported_len) {
+    while (tvb_captured_length_remaining(tvb, off)) {
         unsigned linelen;
-        tvb_find_line_end_remaining(tvb, off, &next_off, &linelen);
+        tvb_find_line_end_remaining(tvb, off, &linelen, &next_off);
         proto_item *node_ti = proto_tree_add_item(tree,hf_epmd_node_container, tvb, off, linelen, ENC_NA);
         proto_tree *node_tree = proto_item_add_subtree(node_ti, ett_epmd_node);
 
