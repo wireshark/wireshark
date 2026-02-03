@@ -200,7 +200,7 @@ pcapng_write_darwin_legacy_uint16_option(wtap_dumper *wdh, unsigned option_id, w
     if (!wtap_dump_file_write(wdh, &option_val, 2, err))
         return false;
 
-    return true;
+    return pcapng_write_padding(wdh, 2, err);
 }
 
 static bool
@@ -263,8 +263,12 @@ pcapng_compute_epb_legacy_darwin_size(unsigned option_id, wtap_optval_t *optval)
             break;
         /* String options */
         case OPT_PKT_DARWIN_DROP_FUNC:
-            return WS_PADDING_TO_4(strlen(optval->stringval));
+        {
+            /* 65535 is too large to be written */
+            uint32_t size = (uint32_t)strlen(optval->stringval);
+            return size <= 65535 ? size : 0;
             break;
+        }
         default:
             break;
     }
