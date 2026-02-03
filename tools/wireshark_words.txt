@@ -1228,6 +1228,7 @@ groupb
 groupcast
 groupmod
 gryphon
+gsmtap
 gssapi
 gtalk
 guang
@@ -2387,6 +2388,7 @@ pxeclient
 pytest
 qam16
 qam64
+qcdiag
 qcustomplot
 qmake
 qmgmt
@@ -3061,6 +3063,7 @@ sysframe
 sysinfo
 syslog
 sysmac
+sysmocom
 systemd
 t7entry
 tablemod
@@ -3487,6 +3490,7 @@ verifications
 verifier
 veritas
 verizon
+verno
 versa
 versatel
 version2
@@ -3540,6 +3544,7 @@ wakeup
 wapforum
 wblock
 wbxml
+wcdma
 wchar
 webcam
 webkit
