@@ -4398,7 +4398,7 @@ de_nas_5gs_mm_extended_rejected_nssai(tvbuff_t* tvb, proto_tree* tree, packet_in
                 continue;
             }
             /* Mapped HPLMN SD */
-            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_mapped_hplmn_ssd, tvb, offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_mapped_hplmn_ssd, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
             curr_offset += 3;
         }
         num_partial_items++;
