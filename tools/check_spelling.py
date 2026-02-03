@@ -44,6 +44,10 @@ spell = SpellChecker()
 spell.word_frequency.load_text_file('./tools/wireshark_words.txt')
 
 
+# Initialize wiki_db globally so it's accessible to worker processes
+wiki_db = {}
+
+
 # Track words that were not found.
 missing_words = []
 
@@ -438,7 +442,6 @@ if __name__ == '__main__':
 
 
     # Fetch some common mispellings from wikipedia so we will definitely flag them.
-    wiki_db = dict()
     if not args.no_wikipedia:
         print('Fetching Wikipedia\'s list of common misspellings.')
         req_headers = {'User-Agent': 'Wireshark check-wikipedia-typos'}
