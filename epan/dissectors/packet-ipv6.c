@@ -801,6 +801,7 @@ static const value_string nat64_prefix_wildcard_length_vals[] =
     {  8, "8" },
     { 16, "16" },
     { 32, "32" },
+    { 48, "48" },
     { 64, "64" },
     {  0, NULL }
 };
