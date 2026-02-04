@@ -115,7 +115,7 @@ endif
 override_dh_makeshlibs:
 	for package in $$(grep 'Package: lib.*[0-9]$$' debian/control  | cut -d' ' -f2); do \
 		lib=$${package%%[0-9]*};\
-		lib=$${lib//-/_};\
+		lib=$$(echo "$$lib" | sed 's/-/_/');\
 		major=$${package##*[a-z]}; \
 		echo "$$lib $$major $$package (= $(DEB_VERSION))"  > debian/$$package.shlibs; \
 	done
