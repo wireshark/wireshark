@@ -5207,7 +5207,8 @@ static bool blf_dump_interface_setup(wtap_dumper *wdh, int *err) {
         const wtapng_if_descr_mandatory_t *mand_data = (wtapng_if_descr_mandatory_t *) idb->mandatory_data;
 
         if (mand_data->wtap_encap == WTAP_ENCAP_ETHERNET || mand_data->wtap_encap == WTAP_ENCAP_SLL ||
-            mand_data->wtap_encap == WTAP_ENCAP_LIN || mand_data->wtap_encap == WTAP_ENCAP_SOCKETCAN) {
+            mand_data->wtap_encap == WTAP_ENCAP_LIN || mand_data->wtap_encap == WTAP_ENCAP_SOCKETCAN ||
+            mand_data->wtap_encap == WTAP_ENCAP_FLEXRAY) {
 
             char *iface_name = NULL;
             bool iface_name_found = wtap_block_get_string_option_value(idb, OPT_IDB_NAME, &iface_name) == WTAP_OPTTYPE_SUCCESS;
