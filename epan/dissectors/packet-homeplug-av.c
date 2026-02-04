@@ -19,6 +19,8 @@
 #include <epan/ptvcursor.h>
 #include <epan/tfs.h>
 
+#include "packet-homeplug-av-vendor-vertexcom.h"  // VertexCom
+
 void proto_register_homeplug_av(void);
 void proto_reg_handoff_homeplug_av(void);
 
@@ -1090,6 +1092,7 @@ static const value_string homeplug_av_vendors_oui_vals[] = {
     { HOMEPLUG_AV_OUI_QCA,              "Qualcomm Atheros" },
     { HOMEPLUG_AV_OUI_ST_IOTECHA,       "ST/IoTecha" },
     { HOMEPLUG_AV_OUI_DSPACE,           "dSPACE GmbH" },
+    { HOMEPLUG_AV_OUI_VERTEXCOM,        "VertexCom" },
     { 0, NULL }
 };
 
@@ -2490,6 +2493,9 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, uint8_t *homeplug_av_mmver, uint1
             break;
         case HOMEPLUG_AV_OUI_ST_IOTECHA:
             ti_mmtype = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_mmtype_st,       2, ENC_LITTLE_ENDIAN);
+            break;
+        case HOMEPLUG_AV_OUI_VERTEXCOM:
+            ti_mmtype = dissect_homeplug_av_mmhdr_mmtype_vertexcom(cursor);
             break;
         default:
             ti_mmtype = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_mmtype_general,  2, ENC_LITTLE_ENDIAN);
@@ -5894,6 +5900,9 @@ dissect_homeplug_av_mme(ptvcursor_t *cursor,
         case HOMEPLUG_AV_OUI_ST_IOTECHA:
             dissect_homeplug_av_mme_st_iotecha(cursor, homeplug_av_mmver, homeplug_av_mmtype, pinfo);
             break;
+        case HOMEPLUG_AV_OUI_VERTEXCOM:
+            dissect_homeplug_av_mme_vertexcom(cursor, homeplug_av_mmver, homeplug_av_mmtype, pinfo, ti_vendor);
+            break;
         }
     }
 }
@@ -5926,7 +5935,9 @@ info_column_filler_initial(uint8_t homeplug_av_mmver,
                                           &homeplug_av_mmtype_qualcomm_vals_ext,
                                           "Unknown 0x%x"));
         break;
-
+    case HOMEPLUG_AV_OUI_VERTEXCOM:
+        homeplug_av_mmtype_column_vertexcom(pinfo, homeplug_av_mmtype);
+        break;
     case HOMEPLUG_AV_OUI_NONE:
         /* if oui is unknown, trying to describe as general MME */
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",

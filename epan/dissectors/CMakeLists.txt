@@ -980,6 +980,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hiqnet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hislip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hl7.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-homeplug-av-vendor-vertexcom.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-homeplug-av.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-homeplug.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-homepna.c
