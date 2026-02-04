@@ -42,10 +42,6 @@
 #include "packet-gsmtap.h"
 #include "packet-qcdiag.h"
 
-#define PNAME  "Qualcomm Diagnostic"
-#define PSNAME "QCDIAG"
-#define PFNAME "qcdiag"
-
 void proto_register_qcdiag(void);
 void proto_reg_handoff_qcdiag(void);
 
@@ -80,6 +76,10 @@ static int hf_qcdiag_bad_len;
 static int hf_qcdiag_bad_mode;
 static int hf_qcdiag_diag_ver;
 static int hf_qcdiag_ts;
+static int hf_qcdiag_parm_set_id;
+static int hf_qcdiag_parm_set_value;
+static int hf_qcdiag_parm_set_time;
+static int hf_qcdiag_mode_change;
 
 static int hf_qcdiag_subsys_id;
 static int hf_qcdiag_subsys_cmd_code;
@@ -212,7 +212,7 @@ static const value_string qcdiag_cmds[] = {
     { DIAG_GPS_STATISTICS_F,       "Get GPS Statistics" },
     { DIAG_ROUTE_F,                "DIAG Packet Routing" },
     { DIAG_IS2000_STATUS_F,        "Get IS-2000 Status" },
-    { DIAG_RLP_STAT_RESET_F,       "Reset RLP Statistics" },
+    { DIAG_RLP_STAT_RESET_F,       "Reset Radio Link Protocol (RLP) Statistics" },
     { DIAG_TDSO_STAT_RESET_F,      "Reset (S)TDSO Statistics" },
     { DIAG_LOG_CONFIG_F,           "Logging Configuration" },
     { DIAG_TRACE_EVENT_REPORT_F,   "Trace Event Report Control" },
@@ -221,7 +221,7 @@ static const value_string qcdiag_cmds[] = {
     { DIAG_SSD_VERIFY_F,           "Verify SSD" },
     { DIAG_LOG_ON_DEMAND_F,        "Log on Demand" },
     { DIAG_EXT_MSG_F,              "Extended Message Report" },
-    { DIAG_ONCRPC_F,               "ONCRPC" },
+    { DIAG_ONCRPC_F,               "Open Network Computing Remote Procedure Call (ONC-RPC)" },
     { DIAG_PROTOCOL_LOOPBACK_F,    "DIAG Loopback Test" },
     { DIAG_EXT_BUILD_ID_F,         "Get Extended Build ID" },
     { DIAG_EXT_MSG_CONFIG_F,       "Extended Message Report Config" },
@@ -268,7 +268,7 @@ static const value_string qcdiag_subsys[] = {
     { DIAG_SUBSYS_ZREX,                 "ZREX" },
     { DIAG_SUBSYS_SD,                   "System Determination" },
     { DIAG_SUBSYS_BT,                   "Bluetooth" },
-    { DIAG_SUBSYS_WCDMA,                "WCMDA" },
+    { DIAG_SUBSYS_WCDMA,                "WCDMA" },
     { DIAG_SUBSYS_HDR,                  "1xEvDO" },
     { DIAG_SUBSYS_DIABLO,               "DIABLO" },
     { DIAG_SUBSYS_TREX,                 "TREX - Off-target testing" },
@@ -326,9 +326,9 @@ static const value_string qcdiag_subsys[] = {
     { DIAG_SUBSYS_FS_ALTERNATE,         "Alternate Filesystem" },
     { DIAG_SUBSYS_REGRESSION,           "Regression Test Commands" },
     { DIAG_SUBSYS_SENSORS,              "Sensors" },
-    { DIAG_SUBSYS_FLUTE,                "FLUTE" },
+    { DIAG_SUBSYS_FLUTE,                "File Delivery over Unidirectional Transport (FLUTE)" },
     { DIAG_SUBSYS_ANALOG,               "Analog" },
-    { DIAG_SUBSYS_APIONE_PROGRAM_MODEM, "apine Program on Modem Processor" },
+    { DIAG_SUBSYS_APIONE_PROGRAM_MODEM, "apiOne Program on Modem Processor" },
     { DIAG_SUBSYS_LTE,                  "LTE" },
     { DIAG_SUBSYS_BREW,                 "BREW" },
     { DIAG_SUBSYS_PWRDB,                "Power Debug" },
@@ -344,24 +344,24 @@ static const value_string qcdiag_subsys[] = {
     { DIAG_SUBSYS_STRIDE,               "STRIDE" },
     { DIAG_SUBSYS_OEMDPP,               "DPP Partition" },
     { DIAG_SUBSYS_Q5_CORE,              "Q5 Core" },
-    { DIAG_SUBSYS_USCRIPT,              "USCRIPT" },
+    { DIAG_SUBSYS_USCRIPT,              "Uscript" },
     { DIAG_SUBSYS_NAS,                  "Non Access Stratum" },
-    { DIAG_SUBSYS_CMAPI,                "CMAPI" },
+    { DIAG_SUBSYS_CMAPI,                "Common Map API (CMAPI)" },
     { DIAG_SUBSYS_SSM,                  "SSM" },
     { DIAG_SUBSYS_TDSCDMA,              "TD-SCDMA" },
     { DIAG_SUBSYS_SSM_TEST,             "SSM Test" },
-    { DIAG_SUBSYS_MPOWER,               "MPOWER" },
-    { DIAG_SUBSYS_QDSS,                 "QDSS" },
+    { DIAG_SUBSYS_MPOWER,               "mPower" },
+    { DIAG_SUBSYS_QDSS,                 "Qualcomm Debug Subsystem (QDSS)" },
     { DIAG_SUBSYS_CXM,                  "CXM" },
     { DIAG_SUBSYS_GNSS_SOC,             "Secondary GNSS" },
-    { DIAG_SUBSYS_TTLITE,               "TTLITE" },
+    { DIAG_SUBSYS_TTLITE,               "Time Test Lite" },
     { DIAG_SUBSYS_FTM_ANT,              "FTM ANT" },
-    { DIAG_SUBSYS_MLOG,                 "MLOG" },
-    { DIAG_SUBSYS_LIMITSMGR,            "LIMITS MGR" },
+    { DIAG_SUBSYS_MLOG,                 "MLog" },
+    { DIAG_SUBSYS_LIMITSMGR,            "Limits Manager" },
     { DIAG_SUBSYS_EFSMONITOR,           "EFS Monitor" },
     { DIAG_SUBSYS_DISPLAY_CALIBRATION,  "Display Calibration" },
     { DIAG_SUBSYS_VERSION_REPORT,       "Version Report" },
-    { DIAG_SUBSYS_DS_IPA,               "Internet Packet Accelerator" },
+    { DIAG_SUBSYS_DS_IPA,               "Internet Packet Accelerator (IPA)" },
     { DIAG_SUBSYS_SYSTEM_OPERATIONS,    "System Operations" },
     { DIAG_SUBSYS_CNSS_POWER,           "CNSS Power" },
     { DIAG_SUBSYS_LWIP,                 "LwIP" },
@@ -960,6 +960,120 @@ dissect_qcdiag_ts(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree
 }
 
 
+/* Parameter Set Request
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE ( 36 / 0x24) |       1        | Message ID: The CMD_CODE is set to 36   |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | PARM_ID               |       2        | Parameter ID; the additional special ID |
+ * |                       |                | of -1 (0xFFFF) to indicate that all     |
+ * |                       |                | settleable parameters are to be reset   |
+ * |                       |                | to zero (0)                             |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | PARM_VALUE            |       4        | Parameter value;                        |
+ * |                       |                | the desired new value for the parameter |
+ * +-----------------------+----------------+-----------------------------------------+
+ *
+ * Parameter Set Response
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE ( 36 / 0x24) |       1        | Message ID: The CMD_CODE is set to 36   |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | SET_TIME              |       8        | Time the operation was processed;       |
+ * |                       |                | the format is the same as 29/0x1D       |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static void
+dissect_qcdiag_parm_set(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    uint32_t logcode, length;
+    bool request;
+    nstime_t abs_time;
+    char *timestamp;
+
+    length = tvb_reported_length(tvb);
+
+    request = (length == 1) ? true : false;
+
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
+
+    if (request) {
+        /* PARM_ID */
+        proto_tree_add_item(subtree, hf_qcdiag_parm_set_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        /* PARM_VALUE */
+        proto_tree_add_item(subtree, hf_qcdiag_parm_set_value, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+        return;
+    }
+
+    abs_time = qcdiag_parse_timestamp(tvb, offset);
+
+    /* local time in our time zone, with month and day */
+    timestamp = abs_time_to_str(pinfo->pool, &abs_time, ABSOLUTE_TIME_LOCAL, true);
+
+    /* SET_TIME */
+    proto_tree_add_string(subtree, hf_qcdiag_parm_set_time, tvb, offset, 8, timestamp);
+}
+
+
+/* Mode Change Request/Response
+ * +-----------------------+----------------+-----------------------------------------+
+ * | Field                 | Length (bytes) | Description                             |
+ * +=======================+================+=========================================+
+ * | CMD_CODE ( 41 / 0x29) |       1        | Message ID: The CMD_CODE is set to 41   |
+ * |                       |                | for this message                        |
+ * +-----------------------+----------------+-----------------------------------------+
+ * | MODE                  |       2        | Selected operating mode;                |
+ * |                       |                | values are in 0-6                       |
+ * +-----------------------+----------------+-----------------------------------------+
+ */
+
+static const value_string qcdiag_mode_change_mode_vals[] = {
+    { 0, "Offline Analog mode" },
+    { 1, "Offline Digital mode" },
+    { 2, "Reset" },
+    { 3, "Offline Factory Test mode" },
+    { 4, "Online mode" },
+    { 5, "Low Power mode" },
+    { 6, "Power Off mode" },
+    { 0, NULL }
+};
+
+static void
+dissect_qcdiag_mode_change(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    proto_tree *subtree;
+    uint32_t logcode, length;
+    bool request;
+
+    length = tvb_reported_length(tvb);
+
+    /* It is not possible to distinguish between Request and Response */
+    request = (length == 0) ? true : false;
+
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
+
+    /* MODE */
+    proto_tree_add_item(subtree, hf_qcdiag_mode_change, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+}
+
+
 /* Subsystem Dispatcher Request
  * +-----------------------+----------------+-----------------------------------------+
  * | Field                 | Length (bytes) | Description                             |
@@ -1413,7 +1527,7 @@ dissect_qcdiag_log_config(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, pr
  */
 
 static const value_string qcdiag_log_on_demand_status_vals[] = {
-    { 0, "Logging request and operation successful" },  /* LOG_ON_DEMAND_SENT_S */
+    { 0, "Logging request and operation successful" },                       /* LOG_ON_DEMAND_SENT_S */
     { 1, "Logging request acknowledged, success of logging unknown" },       /* LOG_ON_DEMAND_ACKNOWLEDGE_S */
     { 2, "Logging attempted, but log packet was dropped or disabled" },      /* LOG_ON_DEMAND_DROPPED_S */
     { 3, "Request unsuccessful, log code not supported for this service" },  /* LOG_ON_DEMAND_NOT_SUPPORTED_S) */
@@ -1507,7 +1621,7 @@ dissect_qcdiag_protocol_loopback(tvbuff_t *tvb, uint32_t offset, packet_info *pi
  * +-----------------------+----------------+-----------------------------------------+
  * | MSM Revision          |  16, 20 or 32  | An extension of the MSM_VER field from  |
  * |                       |     (bits)     | the version number response packet;     |
- * |                       |                | lenght and format is dependent on the   |
+ * |                       |                | length and format is dependent on the   |
  * |                       |                | Version field; values are:              |
  * |                       |                | 0 - Length is 16 bits                   |
  * |                       |                | 1 - Length is 20 bits                   |
@@ -1644,7 +1758,7 @@ dissect_qcdiag_ext_build_id(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
  * +-----------------------+----------------+-----------------------------------------+
  */
 
-/* Custom Message, for command codess which are not implemented yet.
+/* Custom Message, for command codes which are not implemented yet.
  * Instead, the packets contain a custom header plus line-based text data.
  */
 static void
@@ -1754,6 +1868,12 @@ dissect_qcdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     case DIAG_TS_F:
         dissect_qcdiag_ts(tvb, offset, pinfo, subtree, cmd);
         break;
+    case DIAG_PARM_SET_F:
+        dissect_qcdiag_parm_set(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_MODE_CHANGE_F:
+        dissect_qcdiag_mode_change(tvb, offset, pinfo, subtree, cmd);
+        break;
     case DIAG_SUBSYS_CMD_F:
         dissect_qcdiag_subsys_cmd(tvb, offset, pinfo, subtree, cmd);
         break;
@@ -1849,6 +1969,18 @@ proto_register_qcdiag(void)
         { &hf_qcdiag_ts,
           { "Timestamp", "qcdiag.ts",
             FT_STRING, BASE_NONE, NULL, 0, "System Time Clock", HFILL }},
+        { &hf_qcdiag_parm_set_id,
+          { "Parameter ID", "qcdiag.parm_set.parm_id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_parm_set_value,
+          { "Parameter Value", "qcdiag.parm_set.parm_value",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_parm_set_time,
+          { "Processing Time", "qcdiag.parm_set.set_time",
+            FT_STRING, BASE_NONE, NULL, 0, "Time the operation was processed", HFILL }},
+        { &hf_qcdiag_mode_change,
+          { "Selected Operating Mode", "qcdiag.mode_change.mode",
+            FT_UINT16, BASE_DEC, VALS(qcdiag_mode_change_mode_vals), 0, NULL, HFILL }},
         { &hf_qcdiag_subsys_id,
           { "Subsystem ID", "qcdiag.subsys_id",
             FT_UINT8, BASE_DEC|BASE_EXT_STRING, &qcdiag_subsys_ext, 0, NULL, HFILL }},
@@ -1905,7 +2037,7 @@ proto_register_qcdiag(void)
         &ett_qcdiag_log_codes_enabled,
     };
 
-    proto_qcdiag = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_qcdiag = proto_register_protocol("Qualcomm Diagnostic", "QCDIAG", "qcdiag");
     proto_register_field_array(proto_qcdiag, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -1915,7 +2047,7 @@ proto_register_qcdiag(void)
     qcdiag_subsys_dissector_table = register_dissector_table("qcdiag.subsys_id",
                     "QCDIAG Subsystem", proto_qcdiag, FT_UINT8, BASE_DEC);
 
-    qcdiag_handle = register_dissector(PFNAME, dissect_qcdiag, proto_qcdiag);
+    qcdiag_handle = register_dissector("qcdiag", dissect_qcdiag, proto_qcdiag);
 }
 
 void
