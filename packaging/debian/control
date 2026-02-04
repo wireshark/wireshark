@@ -135,7 +135,7 @@ Architecture: any
 Section: devel
 Depends: ${misc:Depends}, omniidl (>= 4.0.1-2), libpcap0.8-dev,
  libglib2.0-dev, python3:any, python3-ply, esnacc,
- libwireshark-dev, libwiretap-dev
+ libwireshark-dev, libwiretap-dev, libuiqt-plugin-dev
 Description: network traffic analyzer - development tools
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
@@ -288,3 +288,14 @@ Depends: ${misc:Depends}
 Description: Qt-based UI plugin library -- shared library
  QtUIPlugin, part of the Wireshark project, is a library that allows one to
  create UI extensions through menu options
+
+Package: libuiqt-plugin-dev
+Section: libdevel
+Depends: ${misc:Depends}, libwsutil-dev, libwireshark-dev,
+ libuiqt-plugin0 (= ${binary:Version})
+Architecture: any
+Description: Qt-based UI plugin library -- development files
+ QtUIPlugin, part of the Wireshark project, is a library that allows one to
+ create UI extensions through menu options
+ .
+ This package contains the static library and the C header files.
