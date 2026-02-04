@@ -25,8 +25,6 @@
 #ifndef PACKET_QCDIAG_H
 #define PACKET_QCDIAG_H
 
-value_string_ext qcdiag_logcodes_ext;
-value_string_ext qcdiag_cmds_ext;
 nstime_t qcdiag_parse_timestamp(tvbuff_t *tvb, uint32_t offset);
 
 #define DIAG_VERNO_F                  0
