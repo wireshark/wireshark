@@ -4020,6 +4020,15 @@ blf_dump_set_interface_mapping(wtap_dumper *wdh, uint32_t interface_id, int pkt_
 
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
+    /*
+     * XXX - will this ever happen add new mappings?
+     *
+     * We expand the interface mapping to include all known interfaces
+     * at the time we open the dump file for writing and every time
+     * we get notified of a new IDB.
+     *
+     * Does that miss any cases?
+     */
     blf_dump_expand_interface_mapping(wdh, interface_id + 1);
 
     blf_channel_to_iface_entry_t *tmp = &g_array_index(writer_data->iface_to_channel_array, blf_channel_to_iface_entry_t, interface_id);
@@ -5312,9 +5321,13 @@ static int blf_dump_can_write_encap(int wtap_encap) {
     return WTAP_ERR_UNWRITABLE_ENCAP;
 }
 
-static bool blf_add_idb(wtap_dumper *wdh _U_, wtap_block_t idb _U_, int *err _U_, char **err_info _U_) {
+static bool blf_add_idb(wtap_dumper *wdh, wtap_block_t idb _U_, int *err _U_, char **err_info _U_) {
     ws_debug("entering function");
-    /* TODO: is there any reason to keep this? */
+    /*
+     * A new IDB was added to the list of itnerfaces for the file to
+     * which we're writing; update hte interface mapping.
+     */
+    blf_dump_expand_interface_mapping(wdh, wdh->interface_data->len);
 
     return true;
 }
