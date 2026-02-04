@@ -88,6 +88,7 @@ HEADER_CHECK_FLAGS = $(shell pkg-config --cflags glib-2.0) \
 	-Idebian/libwireshark-dev/usr/include/libwireshark-dev/epan/dissectors \
 	-Idebian/libwiretap-dev/usr/include/wireshark \
 	-Idebian/libwsutil-dev/usr/include/wireshark \
+	-Idebian/libuiqt-plugin-dev/usr/include/wireshark \
 
 override_dh_install:
 	dh_install
