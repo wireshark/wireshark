@@ -315,8 +315,7 @@ blf_prepare_interface_name(blf_params_t* params, int pkt_encap, uint16_t channel
         if (!g_hash_table_insert(params->blf_data->channel_to_name_ht, new_key, new_name)) {
             return false;
         }
-    }
-    else {
+    } else {
         new_name = old_name;
     }
 
@@ -352,8 +351,7 @@ blf_lookup_interface(blf_params_t *params, int pkt_encap, uint16_t channel, uint
 
     if (item != NULL) {
         return item->interface_id;
-    }
-    else {
+    } else {
         saved_name = (char*)g_hash_table_lookup(params->blf_data->channel_to_name_ht, &key);
 
         if (saved_name != NULL) {
@@ -361,8 +359,7 @@ blf_lookup_interface(blf_params_t *params, int pkt_encap, uint16_t channel, uint
             g_hash_table_remove(params->blf_data->channel_to_name_ht, &key);
 
             return ret;
-        }
-        else {
+        } else {
             return blf_add_interface(params, pkt_encap, channel, hwchannel, name);
         }
     }
@@ -726,11 +723,9 @@ blf_logcontainers_cmp(const void *a, const void *b) {
 
     if (container_a->real_start_pos < container_b->real_start_pos) {
         return -1;
-    }
-    else if (container_a->real_start_pos > container_b->real_start_pos) {
+    } else if (container_a->real_start_pos > container_b->real_start_pos) {
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -742,11 +737,9 @@ blf_logcontainers_search(const void *a, const void *b) {
 
     if (container_a->real_start_pos > pos) {
         return 1;
-    }
-    else if (pos >= container_a->real_start_pos + container_a->real_length) {
+    } else if (pos >= container_a->real_start_pos + container_a->real_length) {
         return -1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -867,8 +860,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
         container->real_data = buf;
         return true;
 
-    }
-    else if (container->compression_method == BLF_COMPRESSION_ZLIB) {
+    } else if (container->compression_method == BLF_COMPRESSION_ZLIB) {
 #ifdef USE_ZLIB_OR_ZLIBNG
         unsigned char *compressed_data = g_try_malloc((size_t)data_length);
         if (compressed_data == NULL) {
@@ -1039,8 +1031,7 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
     uint64_t current_real_start;
     if (params->blf_data->log_containers->len == 0) {
         current_real_start = 0;
-    }
-    else {
+    } else {
         const blf_log_container_t* container = &g_array_index(params->blf_data->log_containers, blf_log_container_t, params->blf_data->log_containers->len - 1);
         current_real_start = container->real_start_pos + container->real_length;
     }
@@ -1060,8 +1051,7 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
         if (header_ptr[i] != blf_obj_magic[i]) {
             if (params->pipe) {
                 ws_debug("container object magic is not LOBJ");
-            }
-            else {
+            } else {
                 ws_debug("container object magic is not LOBJ (pos: 0x%" PRIx64 ")", file_tell(params->fh) - 1);
             }
             if (i > 0) {
@@ -1075,8 +1065,7 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
                 /* The last j bytes match, and the first j bytes are already in the buffer, since j<=i */
                 i = j;
             }
-        }
-        else {
+        } else {
             /* Character matches */
             i++;
         }
@@ -1130,8 +1119,7 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
         if (params->pipe) {
             tmp.infile_start_pos = 0;
             tmp.infile_data_start = sizeof(blf_logcontainerheader_t) + header.header_length;
-        }
-        else {
+        } else {
             tmp.infile_data_start = file_tell(params->fh);
             tmp.infile_start_pos = tmp.infile_data_start - sizeof(blf_logcontainerheader_t) - header.header_length;
         }
@@ -1142,8 +1130,7 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
         tmp.compression_method = logcontainer_header.compression_method;
 
         ws_debug("found log container with real_pos=0x%" PRIx64 ", real_length=0x%" PRIx64, tmp.real_start_pos, tmp.real_length);
-    }
-    else {
+    } else {
         ws_debug("found BLF object without log container");
 
         /* Create a fake log container for the lone object.
@@ -1263,8 +1250,7 @@ blf_read_bytes_or_eof(blf_params_t *params, uint64_t real_pos, void *target_buff
             return false;
         }
         container = &g_array_index(params->blf_data->log_containers, blf_log_container_t, container_index);
-    }
-    else {
+    } else {
         if (params->blf_data->log_containers->len == 0) {
             /*
              * This is the first (linear) pass, and we haven't yet
@@ -1329,8 +1315,7 @@ blf_read_bytes_or_eof(blf_params_t *params, uint64_t real_pos, void *target_buff
             memcpy(buf + copied, container->real_data + start_in_buf, data_left);
             copied += data_left;
             real_pos += data_left;
-        }
-        else {
+        } else {
             memcpy(buf + copied, container->real_data + start_in_buf, count - copied);
             return true;
         }
@@ -1581,8 +1566,7 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int6
     if (ethheader.flags & BLF_ETHERNET_EX_HARDWARECHANNEL) {
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
         wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
-    }
-    else {
+    } else {
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, ethheader.frame_length, ethheader.frame_length);
     }
 
@@ -1626,8 +1610,7 @@ blf_read_ethernet_rxerror(blf_params_t* params, int* err, char** err_info, int64
     if (ethheader.hw_channel != 0) {    /* In this object type, a value of 0 is considered invalid. */
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
         wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
-    }
-    else {
+    } else {
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, ethheader.frame_length, ethheader.frame_length);
     }
     blf_add_direction_option(params, ethheader.direction);
@@ -2672,8 +2655,7 @@ blf_read_linrcverror2(blf_params_t* params, int* err, char** err_info, int64_t b
 
     if (linmessage.hasDataBytes) {
         payload_length = MIN(linmessage.linDataByteTimestampEvent.linMessageDescriptor.dlc, 8);
-    }
-    else {
+    } else {
         payload_length = 0;
     }
 
@@ -2865,8 +2847,7 @@ blf_read_linsleepmodeevent(blf_params_t* params, int* err, char** err_info, int6
             tmpbuf[9] = 0xB0;
             tmpbuf[10] = 0x00;
             tmpbuf[11] = 0x04;
-        }
-        else {
+        } else {
             /* Go-to-Sleep event by Inactivity for more than 4s */
             tmpbuf[8] = 0xB0;
             tmpbuf[9] = 0xB0;
@@ -2909,13 +2890,11 @@ blf_parse_xml_port(const xmlChar* str, char** name, uint16_t* hwchannel, bool* s
             if (*name == NULL) {    /* Avoid memory leak in case of repeated names */
                 *name = ws_strdup(token + strlen(name_magic));
             }
-        }
-        else if (hwchannel && strncmp(token, hwchannel_magic, strlen(hwchannel_magic)) == 0) {
+        } else if (hwchannel && strncmp(token, hwchannel_magic, strlen(hwchannel_magic)) == 0) {
             if (!ws_strtou16(token + strlen(hwchannel_magic), NULL, hwchannel)) {
                 *hwchannel = UINT16_MAX;
             }
-        }
-        else if (simulated && strncmp(token, simulated_magic, strlen(simulated_magic)) == 0) {
+        } else if (simulated && strncmp(token, simulated_magic, strlen(simulated_magic)) == 0) {
             if (strlen(token) > strlen(simulated_magic) && token[strlen(simulated_magic)] != '0') {
                 *simulated = true;  /* TODO: Find a way to use this information */
             }
@@ -3035,15 +3014,13 @@ blf_set_xml_channels(blf_params_t* params, const char* text, size_t len) {
                         ws_strtou16(str_channel, NULL, &channel);
                         xmlFree(str_channel);
                     }
-                }
-                else if (xmlStrcmp(attr->name, (const xmlChar*)"type") == 0) {
+                } else if (xmlStrcmp(attr->name, (const xmlChar*)"type") == 0) {
                     xmlChar* str_type = xmlNodeListGetString(current_channel_node->doc, attr->children, 1);
                     if (str_type != NULL) {
                         pkt_encap = blf_get_xml_pkt_encap(str_type);
                         xmlFree(str_type);
                     }
-                }
-                else if (xmlStrcmp(attr->name, (const xmlChar*)"network") == 0) {
+                } else if (xmlStrcmp(attr->name, (const xmlChar*)"network") == 0) {
                     xmlChar* str_network = xmlNodeListGetString(current_channel_node->doc, attr->children, 1);
                     if (str_network != NULL) {
                         channel_name = ws_strdup((const char*)str_network);
@@ -3080,8 +3057,7 @@ blf_set_xml_channels(blf_params_t* params, const char* text, size_t len) {
                                                     ws_debug("Found channel in XML: PKT_ENCAP: %d, ID: %u, HW ID: %u, name: %s", pkt_encap, channel, hwchannel, iface_name);
                                                     blf_prepare_interface_name(params, pkt_encap, channel, hwchannel, iface_name, true);
                                                     g_free(iface_name);
-                                                }
-                                                else {
+                                                } else {
                                                     ws_debug("port with missing or malformed info found in xml");
                                                 }
                                                 g_free(port_name);
@@ -3201,8 +3177,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
         if (metadata_info->valid) {
             /* Set the buffer pointer to the end of the previous object */
             params->rec->data.first_free = metadata_info->metadata_cont;
-        }
-        else {
+        } else {
             /* First object of a sequence of one or more */
             wtap_buffer_append_epdu_string(&params->rec->data, EXP_PDU_TAG_DISSECTOR_NAME, BLF_APPTEXT_TAG_DISS_DEFAULT);
             wtap_buffer_append_epdu_string(&params->rec->data, EXP_PDU_TAG_COL_PROT_TEXT, BLF_APPTEXT_COL_PROT_TEXT);
@@ -3440,8 +3415,7 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
 
             if (memcmp(header.magic, blf_obj_magic, sizeof(blf_obj_magic))) {
                 ws_debug("object magic is not LOBJ (pos: 0x%" PRIx64 ")", start_pos);
-            }
-            else {
+            } else {
                 break;
             }
 
@@ -3605,8 +3579,7 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
                 }
                 /* Save a pointer to the end of the buffer */
                 metadata_info.metadata_cont = params->rec->data.first_free;
-            }
-            else {
+            } else {
                 if (result == BLF_APPTEXT_METADATA && metadata_info.valid) {
                     /* Last object of a sequence, restore the start position of the first object */
                     params->blf_data->start_of_last_obj = last_metadata_start;
@@ -4778,15 +4751,15 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
                 /* BLF_APPTEXT_METADATA: BLF_APPTEXT_XML_IDENTITY */
                 apptext_header.reservedAppText1 = (BLF_APPTEXT_XML_IDENTITY << 24) | (0xffffff & payload_len);
 
-            // else if
+            //} else if
                 /* BLF_APPTEXT_COMMENT */
                 /* tags: BLF_APPTEXT_TAG_DISS_DEFAULT, BLF_APPTEXT_COL_PROT_TEXT, "Comment: %s" */
-                // TODO            } else {
-            // else if
+                // TODO
+            //} else if
                 /* BLF_APPTEXT_ATTACHMENT */
                 /* tags: BLF_APPTEXT_TAG_DISS_DEFAULT, BLF_APPTEXT_COL_PROT_TEXT, "Attachment: %s" */
-                // TODO            } else {
-            // else if
+                // TODO
+            //} else if
                 /* BLF_APPTEXT_TRACELINE */
                 /* tags: BLF_APPTEXT_TAG_DISS_DEFAULT, BLF_APPTEXT_COL_PROT_TEXT, "Trace line%s: %s" */
                 // TODO
