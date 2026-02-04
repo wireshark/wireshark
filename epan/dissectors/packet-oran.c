@@ -733,7 +733,7 @@ static unsigned us_allowed_for_ul_in_symbol = 0;
 /* Reassemble U-Plane (at Radio Transport layer) */
 static bool do_radio_transport_layer_reassembly = true;
 
-const enum_val_t dl_compression_options[] = {
+static const enum_val_t dl_compression_options[] = {
     { "COMP_NONE",                             "No Compression",                                                             COMP_NONE },
     { "COMP_BLOCK_FP",                         "Block Floating Point Compression",                                           COMP_BLOCK_FP },
     { "COMP_BLOCK_SCALE",                      "Block Scaling Compression",                                                  COMP_BLOCK_SCALE },

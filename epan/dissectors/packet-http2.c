@@ -4521,8 +4521,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     length = tvb_get_ntoh24(tvb, offset);
     offset += 3;
 
-    proto_tree_add_item(http2_tree, hf_http2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(http2_tree, hf_http2_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
 
     int type_idx;
     const char *type_str = try_val_to_str_idx(type, http2_type_vals, &type_idx);

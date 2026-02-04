@@ -1332,8 +1332,7 @@ static int
 dissect_sflow_5_extended_mpls_tunnel(tvbuff_t *tvb, proto_tree *tree, int offset) {
     uint32_t name_length;
 
-    name_length = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_5_extended_mpls_tunnel_name_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_5_extended_mpls_tunnel_name_length, tvb, offset, 4, ENC_BIG_ENDIAN, &name_length);
     offset += 4;
 
     /* extract tunnel name char by char */
@@ -1356,8 +1355,7 @@ static int
 dissect_sflow_5_extended_mpls_vc(tvbuff_t *tvb, proto_tree *tree, int offset) {
     uint32_t name_length;
 
-    name_length = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_5_extended_mpls_vc_instance_name_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_5_extended_mpls_vc_instance_name_length, tvb, offset, 4, ENC_BIG_ENDIAN, &name_length);
     offset += 4;
 
     /* extract source user info char by char */
@@ -1582,8 +1580,7 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *ti;
     uint32_t    packet_type, extended_data, ext_type, i;
 
-    sequence_number = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_flow_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_flow_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN, &sequence_number);
     proto_item_append_text(parent, ", seq %u", sequence_number);
     proto_tree_add_item(tree, hf_sflow_flow_sample_source_id_class, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_sflow_flow_sample_index, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
@@ -2165,8 +2162,7 @@ dissect_sflow_5_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *ti;
     proto_tree *output_interface_tree;
 
-    sequence_number = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_flow_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_flow_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN, &sequence_number);
     offset += 4;
     proto_item_append_text(parent, ", seq %u", sequence_number);
 
@@ -2223,8 +2219,7 @@ dissect_sflow_5_expanded_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *ti;
     uint32_t sequence_number, sampling_rate, records, i, output_format, output_value;
 
-    sequence_number = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_flow_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_flow_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN, &sequence_number);
     offset += 4;
     proto_item_append_text(parent, ", seq %u", sequence_number);
     proto_tree_add_item(tree, hf_sflow_flow_sample_source_id_type, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2279,15 +2274,13 @@ dissect_sflow_24_counters_sample(tvbuff_t *tvb, proto_tree *tree, int offset, pr
 
     uint32_t sequence_number, counters_type;
 
-    sequence_number = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_counters_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_counters_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN, &sequence_number);
     proto_item_append_text(parent, ", seq %u", sequence_number);
 
     proto_tree_add_item(tree, hf_sflow_counters_sample_source_id_class, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_sflow_counters_sample_index, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_sflow_counters_sample_sampling_interval, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
-    counters_type = tvb_get_ntohl(tvb, offset + 12);
-    proto_tree_add_item(tree, hf_sflow_counters_sample_counters_type, tvb, offset + 12, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_counters_sample_counters_type, tvb, offset + 12, 4, ENC_BIG_ENDIAN, &counters_type);
 
     offset += 16;
 
@@ -2390,16 +2383,14 @@ static void
 dissect_sflow_5_expanded_counters_sample(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *parent) {
     uint32_t sequence_number, records, i;
 
-    sequence_number = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_counters_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_counters_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN, &sequence_number);
     proto_item_append_text(parent, ", seq %u", sequence_number);
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_counters_sample_expanded_source_id_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_counters_sample_expanded_source_id_index, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    records = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_counters_sample_counters_records, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_counters_sample_counters_records, tvb, offset, 4, ENC_BIG_ENDIAN, &records);
     offset += 4;
 
     /* start loop processing counters records

@@ -3484,8 +3484,7 @@ dissect_rsvp_error(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
                                (error_flags & (1U<<2))  ? "Path-State-Removed" : "",
                                (error_flags & (1U<<1))  ? "NotGuilty" : "",
                                (error_flags & (1U<<0))  ? "InPlace" : "");
-        error_code = tvb_get_uint8(tvb, offset3+1);
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_error_error_code, tvb, offset3+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(rsvp_object_tree, hf_rsvp_error_error_code, tvb, offset3+1, 1, ENC_BIG_ENDIAN, &error_code);
         error_val = dissect_rsvp_error_value(rsvp_object_tree, pinfo, tvb, offset3+2, error_code);
 
 

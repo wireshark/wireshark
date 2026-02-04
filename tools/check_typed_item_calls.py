@@ -2195,7 +2195,7 @@ def find_item_extern_declarations(filename, lines):
             items.add(m.group(1))
     return items
 
-fetch_functions = [ 'tvb_get_ntohl', 'tvb_get_letohl', 'tvb_get_uint32',
+fetch_functions = [ 'tvb_get_ntohl', 'tvb_get_letohl', 'tvb_get_uint32', 'tvb_get_ipv4',
                     'tvb_get_ntoh24', 'tvb_get_letoh24',
                     'tvb_get_uint8', 'tvb_get_uint16', 'tvb_get_ntohs', 'tvb_get_letohs',
                     'tvb_get_ntoh64', 'tvb_get_letoh64' ]

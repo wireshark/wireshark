@@ -943,8 +943,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				break;
 			}
 
-			message_digest_type = tvb_get_uint8(tvb, offset);
-			ti = proto_tree_add_item(option_tree, hf_dhcpfo_message_digest_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+			ti = proto_tree_add_item_ret_uint8(option_tree, hf_dhcpfo_message_digest_type, tvb, offset, 1, ENC_BIG_ENDIAN, &message_digest_type);
 
 			if (message_digest_type >= 1 && message_digest_type <= 2) {
 				proto_item_append_text(oi, ", %s", val_to_str_const(message_digest_type, message_digest_type_vals, "Unknown value"));

@@ -424,8 +424,7 @@ dissect_stt_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree,
     offset += 2;
 
     /* Context ID */
-    context_id = tvb_get_ntoh64(tvb, offset);
-    proto_tree_add_item(stt_tree, hf_stt_context_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint64(stt_tree, hf_stt_context_id, tvb, offset, 8, ENC_BIG_ENDIAN, &context_id);
     proto_item_append_text(stt_item, ", Context ID: 0x%" PRIx64,
                            context_id);
     offset += 8;

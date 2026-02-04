@@ -1516,8 +1516,7 @@ de_emm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     curr_offset = offset;
 
-    cause = tvb_get_uint8(tvb, curr_offset);
-    proto_tree_add_item(tree, hf_nas_eps_emm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_nas_eps_emm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &cause);
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                     val_to_str_ext_const(cause, &nas_eps_emm_cause_values_ext, "Unknown"));
 
@@ -4000,8 +3999,7 @@ de_esm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     curr_offset = offset;
 
-    cause = tvb_get_uint8(tvb, curr_offset);
-    proto_tree_add_item(tree, hf_nas_eps_esm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_nas_eps_esm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &cause);
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                     val_to_str_ext_const(cause, &nas_eps_esm_cause_vals_ext, "Unknown"));
 
@@ -7564,8 +7562,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             return tvb_captured_length(tvb);
         }
         /* Message authentication code */
-        proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
-        msg_auth_code = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_item_ret_uint(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN, &msg_auth_code);
         offset+=4;
         if ((security_header_type == 2)||(security_header_type == 4)) {
             /* Possible ciphered message */

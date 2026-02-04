@@ -1081,8 +1081,7 @@ dissect_openflow_oxm_header_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     uint16_t oxm_class;
 
     /* oxm_class */
-    oxm_class = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_openflow_v5_oxm_class, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_openflow_v5_oxm_class, tvb, offset, 2, ENC_BIG_ENDIAN, &oxm_class);
     offset+=2;
 
     /* oxm_field */
@@ -1272,8 +1271,7 @@ dissect_openflow_match_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     match_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_match, &ti, "Match");
 
     /* uint16_t type; */
-    match_type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(match_tree, hf_openflow_v5_match_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(match_tree, hf_openflow_v5_match_type, tvb, offset, 2, ENC_BIG_ENDIAN, &match_type);
     offset+=2;
 
     /* uint16_t length; (excluding padding) */
@@ -1363,8 +1361,7 @@ dissect_openflow_meter_band_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     band_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_meter_band, &ti, "Meter band");
 
     /* uint16_t type; */
-    band_type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(band_tree, hf_openflow_v5_meter_band_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(band_tree, hf_openflow_v5_meter_band_type, tvb, offset, 2, ENC_BIG_ENDIAN, &band_type);
     offset+=2;
 
     /* uint16_t len; */
@@ -1761,8 +1758,7 @@ dissect_openflow_error_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     uint16_t error_type;
 
     /* uint16_t type; */
-    error_type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_openflow_v5_error_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_openflow_v5_error_type, tvb, offset, 2, ENC_BIG_ENDIAN, &error_type);
     offset +=2;
 
     /* uint16_t code; */
@@ -2777,8 +2773,7 @@ dissect_openflow_packet_out_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=4;
 
     /* uint16_t actions_len; */
-    acts_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_openflow_v5_packet_out_acts_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_openflow_v5_packet_out_acts_len, tvb, offset, 2, ENC_BIG_ENDIAN, &acts_len);
     offset+=2;
 
     /* uint8_t pad[6]; */
@@ -3587,8 +3582,7 @@ dissect_openflow_table_feature_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     prop_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_table_feature_prop, &ti, "Table feature property");
 
     /* uint16_t type; */
-    prop_type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(prop_tree, hf_openflow_v5_table_feature_prop_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(prop_tree, hf_openflow_v5_table_feature_prop_type, tvb, offset, 2, ENC_BIG_ENDIAN, &prop_type);
     offset+=2;
 
     /* uint16_t length; */
@@ -3946,8 +3940,7 @@ dissect_openflow_multipart_request_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     uint16_t type;
 
     /* uint16_t type; */
-    type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_openflow_v5_multipart_request_type , tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_openflow_v5_multipart_request_type , tvb, offset, 2, ENC_BIG_ENDIAN, &type);
     offset+=2;
 
     /* uint16_t flags; */
@@ -5299,8 +5292,7 @@ dissect_openflow_multipart_reply_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     uint16_t type;
 
     /* uint16_t type; */
-    type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_openflow_v5_multipart_reply_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_openflow_v5_multipart_reply_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
     offset+=2;
 
     /* uint16_t flags; */
