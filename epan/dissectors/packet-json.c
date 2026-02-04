@@ -2742,7 +2742,7 @@ register_static_headers(void) {
 static void
 read_cli_parser_preference(void)
 {
-	const char *pref_file = get_persconffile_path("preferences", TRUE, NULL);
+	char *pref_file = get_persconffile_path("preferences", TRUE, NULL);
 	FILE *fp;
 	char line[512];
 	bool is_tshark = false;
@@ -2768,13 +2768,20 @@ read_cli_parser_preference(void)
 
 	/* If not tshark, don't read CLI preference */
 	if (!is_tshark) {
+		g_free(pref_file);
 		return;
 	}
 
-	if (!pref_file) return;
+	if (!pref_file) {
+		g_free(pref_file);
+		return;
+	}
 
 	fp = ws_fopen(pref_file, "r");
-	if (!fp) return;
+	if (!fp) {
+		g_free(pref_file);
+		return;
+	}
 
 	/* Search for json.plus_run_external_parsers_cli line */
 	while (fgets(line, sizeof(line), fp)) {
@@ -2789,6 +2796,7 @@ read_cli_parser_preference(void)
 	}
 
 	fclose(fp);
+	g_free(pref_file);
 }
 
 static void
