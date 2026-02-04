@@ -3001,7 +3001,8 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 proto_tree *metric_constraint_tree;
                 proto_item *ti_metric_constraint;
                 uint8_t metric_constraint_type;
-                unsigned metric_len;
+                /* N.B. keeping this as a signed value to detect potential underflow. */
+                int metric_len;
 
                 while (opt_offset < offset + opt_len) {
                     static int * const rpl_metric_flags[] = {
@@ -3028,7 +3029,8 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                     opt_offset += 2;
 
                     /* Metric length */
-                    proto_tree_add_item_ret_uint(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_len, tvb, opt_offset, 1, ENC_BIG_ENDIAN, &metric_len);
+                    metric_len = tvb_get_uint8(tvb, opt_offset);
+                    proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_len, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
                     proto_item_set_len(ti_metric_constraint, metric_len + 4);
                     opt_offset += 1;
 
