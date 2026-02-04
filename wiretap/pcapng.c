@@ -3966,9 +3966,11 @@ static uint32_t pcapng_compute_custom_string_option_size(wtap_optval_t *optval)
 {
     uint32_t size = 0;
 
-    size = (uint32_t)strlen(optval->custom_stringval.string) & 0xffff;
+    /* PEN */
+    size = sizeof(uint32_t) + (uint32_t)strlen(optval->custom_stringval.string);
 
-    return size;
+    /* pcapng_write_custom_string_option writes nothing if size > 65535 */
+    return size <= 65535 ? size : 0;
 }
 
 static uint32_t pcapng_compute_custom_binary_option_size(wtap_optval_t *optval)
