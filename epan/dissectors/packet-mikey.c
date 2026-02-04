@@ -457,12 +457,25 @@ static value_string_ext err_vals_ext = VALUE_STRING_EXT_INIT(err_vals);
 
 enum genext_t {
 	GEN_EXT_VENDOR_ID = 0,
-	GEN_EXT_SDP_ID
+	GEN_EXT_SDP_ID,
+	GEN_EXT_TESLA_I_KEY,
+	GEN_EXT_KEY_ID,
+	GEN_EXT_CSB_ID,
+	GEN_EXT_OMA_BCAST,
+	GEN_EXT_SAKKE_TO_SELF,
+	GEN_EXT_3GPP_ID
 };
 
+// https://www.iana.org/assignments/mikey-payloads/mikey-payloads.xhtml
 static const value_string genext_type_vals[] = {
-	{ GEN_EXT_VENDOR_ID, "Vendor-ID" },
-	{ GEN_EXT_SDP_ID,    "SDP-IDs" },
+	{ GEN_EXT_VENDOR_ID,     "Vendor-ID" },
+	{ GEN_EXT_SDP_ID,        "SDP-IDs" },
+	{ GEN_EXT_TESLA_I_KEY,   "TESLA I-Key" },
+	{ GEN_EXT_KEY_ID,        "Key ID" },
+	{ GEN_EXT_CSB_ID,        "CSB_ID" },
+	{ GEN_EXT_OMA_BCAST,     "OMA BCAST" },
+	{ GEN_EXT_SAKKE_TO_SELF, "SAKKE-to-self" },
+	{ GEN_EXT_3GPP_ID,       "3GPP key parameters" },
 	{ 0, NULL }
 };
 
