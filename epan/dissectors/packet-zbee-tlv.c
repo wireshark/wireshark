@@ -1670,7 +1670,13 @@ dissect_zbee_tlv_tunneling_npdu_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
         ieee802154_packet packet;
         memset(&packet, 0, sizeof(packet));
+        /* XXX - Every packet having a pointer to a global table seems odd. */
+        packet.short_table = ieee802154_map.short_table;
+        /* XXX - Ideally src_pan, etc. should be set with information from
+         * ZBD commissioning messages. */
 
+        col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+        col_set_fence(pinfo->cinfo, COL_PROTOCOL);
         call_dissector_with_data(zbee_nwk_handle,
                                  tvb_new_subset_length(tvb, offset + 2, npdu_len),
                                  pinfo,
@@ -1852,7 +1858,6 @@ dissect_zbd_msg_tunneling_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     {
         case ZBEE_TLV_TYPE_TUNNELING_NPDU_MESSAGE:
         {
-            col_set_fence(pinfo->cinfo, COL_PROTOCOL);
             offset = dissect_zbee_tlv_tunneling_npdu_msg(tvb, pinfo, tree, offset, length);
             break;
         }
