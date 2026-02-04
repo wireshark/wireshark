@@ -11,12 +11,11 @@ import subprocess
 import argparse
 import signal
 import concurrent.futures
+import platform
 from check_common import findDissectorFilesInFolder, getFilesFromOpen, getFilesFromCommits, isGeneratedFile, Result
 
 # Look for dissector symbols that could/should be static.
-# This will not run on Windows, unless/until we check the platform
-# and use (I think) dumpbin.exe
-#
+
 # N.B. Will report false positives if symbols are extern'd rather than
 # declared in a header file.
 
@@ -40,45 +39,77 @@ class CalledSymbols:
     def __init__(self):
         self.referred = set()
 
-    def getCalls(self, file):
+    def getCalls(self, file, current_build_folder):
         referred = set()
         if should_exit:
             exit(1)
 
         # Make sure that file is built.
         last_dir = os.path.split(os.path.dirname(file))[-1]
-        if 'ui/cli' in file:
+        if os.path.join('ui', 'cli') in file:
             # A tshark target-only file
-            object_file = os.path.join(build_folder, 'CMakeFiles', ('tshark' + '.dir'), file + '.o')
-        elif 'ui/qt' in file:
-            object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', ('qtui' + '.dir'), os.path.basename(file) + '.o')
+            if platform.system() == 'Windows':
+                object_file = os.path.join(current_build_folder, os.path.dirname(file), ('tshark' + '.dir'), 'Release', os.path.splitext(os.path.basename(file))[0] + '.o')
+            else:
+                object_file = os.path.join(current_build_folder, 'CMakeFiles', ('tshark' + '.dir'), file + '.o')
+        elif os.path.join('ui', 'qt') in file:
+            if platform.system() == 'Windows':
+                object_file = os.path.join(current_build_folder, os.path.dirname(file), ('qtui' + '.dir'), 'Release', os.path.splitext(os.path.basename(file))[0] + '.o')
+            else:
+                object_file = os.path.join(current_build_folder, os.path.dirname(file), 'CMakeFiles', ('qtui' + '.dir'), os.path.basename(file) + '.o')
         else:
             if file.endswith('dissectors.c'):
-                object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', 'dissector-registration' + '.dir', os.path.basename(file) + '.o')
+                if platform.system() == 'Windows':
+                    object_file = os.path.join(current_build_folder, os.path.dirname(file), 'dissector-registration' + '.dir', 'Release', os.path.splitext(os.path.basename(file))[0] + '.o')
+                else:
+                    object_file = os.path.join(current_build_folder, os.path.dirname(file), 'CMakeFiles', 'dissector-registration' + '.dir', os.path.basename(file) + '.o')
             else:
-                object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', last_dir + '.dir', os.path.basename(file) + '.o')
+                if platform.system() == 'Windows':
+                    object_file = os.path.join(current_build_folder, os.path.dirname(file), last_dir + '.dir', 'Release', os.path.splitext(os.path.basename(file))[0] + '.o')
+                else:
+                    object_file = os.path.join(current_build_folder, os.path.dirname(file), 'CMakeFiles', last_dir + '.dir', os.path.basename(file) + '.o')
+        
+        # Windows support: check for .obj if .o is missing
+        if platform.system() == 'Windows' and not os.path.exists(object_file):
+            object_file = object_file.replace('.o', '.obj')
+
+        #print(file, object_file)
+
         if not os.path.exists(object_file):
             # Not built for whatever reason..
             return referred
 
         # Run command to check symbols.
-        command = ['nm', object_file]
-        for f in subprocess.check_output(command).splitlines():
-            line = str(f)[2:-1]
-            # Lines might, or might not, have an address before letter and symbol.
-            p1 = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
-            p2 = re.compile(r'[ ]* ([a-zA-Z]) (.*)')
+        if platform.system() == 'Windows':
+            command = ['dumpbin.exe', '/SYMBOLS', object_file]
+            try:
+                for f in subprocess.check_output(command).splitlines():
+                    line = str(f)[2:-1]
+                    if 'UNDEF' in line and 'External' in line:
+                        m = re.search(r'\|\s+([^\s]+)$', line)
+                        if m:
+                            referred.add(m.group(1))
+            except Exception as e:
+                print(object_file, e)
+                pass
+        else:
+            command = ['nm', object_file]
+            for f in subprocess.check_output(command).splitlines():
+                line = str(f)[2:-1]
+                # Lines might, or might not, have an address before letter and symbol.
+                p1 = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
+                p2 = re.compile(r'[ ]* ([a-zA-Z]) (.*)')
 
-            m = p1.match(line)
-            if not m:
-                m = p2.match(line)
-            if m:
-                letter = m.group(1)
-                function_name = m.group(2)
+                m = p1.match(line)
+                if not m:
+                    m = p2.match(line)
+                if m:
+                    letter = m.group(1)
+                    function_name = m.group(2)
 
-                # Only interested in undefined/external references to symbols.
-                if letter == 'U':
-                    referred.add(function_name)
+                    # Only interested in undefined/external references to symbols.
+                    if letter == 'U':
+                        referred.add(function_name)
         return referred
 
     def addCalls(self, calls):
@@ -86,7 +117,7 @@ class CalledSymbols:
 
 # Record which symbols are defined in a single dissector file.
 class DefinedSymbols:
-    def __init__(self, file, result):
+    def __init__(self, file, result, current_build_folder):
         self.filename = file
         self.result = result
         self.global_symbols = {}       # map from defined symbol -> whole output-line
@@ -95,13 +126,18 @@ class DefinedSymbols:
 
         # Make sure that file is built by looking for object file
         if self.filename.startswith('epan'):
-            object_file = os.path.join(build_folder, 'epan', 'dissectors', 'CMakeFiles', 'dissectors.dir', os.path.basename(file) + '.o')
+            object_file = os.path.join(current_build_folder, 'epan', 'dissectors', 'CMakeFiles', 'dissectors.dir', os.path.basename(file) + '.o')
         elif self.filename.startswith('plugins'):
             plugin_base_dir = os.path.dirname(file)
             plugin_base_name = os.path.basename(plugin_base_dir)
-            object_file = os.path.join(build_folder, plugin_base_dir, 'CMakeFiles', plugin_base_name + '.dir', os.path.basename(file) + '.o')
+            object_file = os.path.join(current_build_folder, plugin_base_dir, 'CMakeFiles', plugin_base_name + '.dir', os.path.basename(file) + '.o')
         else:
             return
+
+        # Windows support: check for .obj if .o is missing
+        if platform.system() == 'Windows' and not os.path.exists(object_file):
+            object_file = object_file.replace('.o', '.obj')
+
         if not os.path.exists(object_file):
             return
 
@@ -114,18 +150,30 @@ class DefinedSymbols:
             pass
 
         # Run command to see which symbols are defined
-        command = ['nm', object_file]
-        for f in subprocess.check_output(command).splitlines():
-            # Line consists of whitespace, [address], letter, symbolName
-            line = str(f)[2:-1]
-            p = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
-            m = p.match(line)
-            if m:
-                letter = m.group(1)
-                function_name = m.group(2)
-                # Globally-defined symbols. Would be 't' or 'd' if already static..
-                if letter in 'TD':
-                    self.addDefinedSymbol(function_name, line)
+        if platform.system() == 'Windows':
+            command = ['dumpbin.exe', '/SYMBOLS', object_file]
+            try:
+                for f in subprocess.check_output(command).splitlines():
+                    line = str(f)[2:-1]
+                    if 'External' in line and 'UNDEF' not in line:
+                        m = re.search(r'\|\s+([^\s]+)$', line)
+                        if m:
+                            self.addDefinedSymbol(m.group(1), line)
+            except Exception:
+                pass
+        else:
+            command = ['nm', object_file]
+            for f in subprocess.check_output(command).splitlines():
+                # Line consists of whitespace, [address], letter, symbolName
+                line = str(f)[2:-1]
+                p = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
+                m = p.match(line)
+                if m:
+                    letter = m.group(1)
+                    function_name = m.group(2)
+                    # Globally-defined symbols. Would be 't' or 'd' if already static..
+                    if letter in 'TD':
+                        self.addDefinedSymbol(function_name, line)
 
     def addDefinedSymbol(self, symbol, line):
         self.global_symbols[symbol] = line
@@ -167,13 +215,23 @@ class DefinedSymbols:
 
 # Helper functions.
 
+def getCalls(file, called_obj, current_build_folder):
+    return called_obj.getCalls(file, current_build_folder)
+
+def checkIfSymbolsAreCalled(file, referred_set, current_build_folder):
+    result = Result()
+    DefinedSymbols(file, result, current_build_folder).checkIfSymbolsAreCalled(referred_set)
+    return result
+
 def findFilesInFolder(folder):
     # Look at files in sorted order, to give some idea of how far through is.
     tmp_files = []
 
+    if not os.path.isdir(folder):
+        return tmp_files
     for f in sorted(os.listdir(folder)):
         if should_exit:
-            return
+            return tmp_files
         if f.endswith('.c') or f.endswith('.cpp'):
             filename = os.path.join(folder, f)
             tmp_files.append(filename)
@@ -269,26 +327,17 @@ if __name__ == '__main__':
     call_files += findFilesInFolder(os.path.join('ui', 'cli'))
 
 
-    def getCalls(file):
-        return called.getCalls(file)
-
-
     # Gather a list of undefined/external references.
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        future_to_file_referred = {executor.submit(getCalls, file): file for file in call_files}
+        future_to_file_referred = {executor.submit(getCalls, file, called, build_folder): file for file in call_files}
         for future in concurrent.futures.as_completed(future_to_file_referred):
             referred = future.result()
             called.addCalls(referred)
 
 
     # Now check identified dissector files.
-    def checkIfSymbolsAreCalled(file):
-        result = Result()
-        DefinedSymbols(file, result).checkIfSymbolsAreCalled(called.referred)
-        return result
-
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        future_to_file_output = {executor.submit(checkIfSymbolsAreCalled, file): file for file in files}
+        future_to_file_output = {executor.submit(checkIfSymbolsAreCalled, file, called.referred, build_folder): file for file in files}
         for future in concurrent.futures.as_completed(future_to_file_output):
             if should_exit:
                 exit(1)
