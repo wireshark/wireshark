@@ -4190,11 +4190,8 @@ check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, char
 	for (header = &ntlm_headers[0]; *header != NULL; header++) {
 		hdrlen = strlen(*header);
 		if (strncmp(value, *header, hdrlen) == 0) {
-			if (hdr_item != NULL) {
-				hdr_tree = proto_item_add_subtree(hdr_item,
-				    ett_http_ntlmssp);
-			} else
-				hdr_tree = NULL;
+			hdr_tree = proto_item_add_subtree(hdr_item,
+			    ett_http_ntlmssp);
 			value += hdrlen;
 			dissect_http_ntlmssp(tvb, pinfo, hdr_tree, value);
 			return true;
@@ -4242,11 +4239,8 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, char *
 	for (header = &basic_headers[0]; *header != NULL; header++) {
 		hdrlen = strlen(*header);
 		if (strncmp(value, *header, hdrlen) == 0) {
-			if (hdr_item != NULL) {
-				hdr_tree = proto_item_add_subtree(hdr_item,
-				    ett_http_ntlmssp);
-			} else
-				hdr_tree = NULL;
+			hdr_tree = proto_item_add_subtree(hdr_item,
+			    ett_http_ntlmssp);
 			value += hdrlen;
 
 			auth_tvb = base64_to_tvb(tvb, value);
@@ -4282,23 +4276,14 @@ check_auth_digest(proto_item* hdr_item, tvbuff_t* tvb, packet_info* pinfo _U_, c
 	unsigned queried_offset;
 
 	if (strncmp(value, "Digest", 6) == 0) {
-		if (hdr_item != NULL) {
-			hdr_tree = proto_item_add_subtree(hdr_item, ett_http_ntlmssp);
-		} else {
-			hdr_tree = NULL;
-		}
-		offset += 21;
-		len -= 21;
-		while (len > 0) {
+		hdr_tree = proto_item_add_subtree(hdr_item, ett_http_ntlmssp);
+		tvbuff_t *digest_tvb = tvb_new_subset_length(tvb, offset, len);
+		offset = 21; // strlen("Authorization: Digest");
+		while (tvb_captured_length_remaining(digest_tvb, offset)) {
 			/* Find comma/end of line */
-			queried_offset = tvb_find_uint8(tvb, offset, len, ',');
-			if (queried_offset > 0) {
-				proto_tree_add_format_text(hdr_tree, tvb, offset, queried_offset - offset);
-				len -= (queried_offset - offset);
-				offset = queried_offset + 1;
-			} else {
-				len = 0;
-			}
+			tvb_find_uint8_remaining(digest_tvb, offset, ',', &queried_offset);
+			proto_tree_add_format_text(hdr_tree, digest_tvb, offset, queried_offset - offset);
+			offset = queried_offset + 1;
 		}
 		return true;
 	} else {
@@ -4328,13 +4313,10 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, 
 	for (header = &basic_headers[0]; *header != NULL; header++) {
 		hdrlen = strlen(*header);
 		if (strncmp(value, *header, hdrlen) == 0) {
-			if (hdr_item != NULL) {
-				hdr_tree = proto_item_add_subtree(hdr_item,
-				    ett_http_ntlmssp);
-			} else
-				hdr_tree = NULL;
+			hdr_tree = proto_item_add_subtree(hdr_item,
+			    ett_http_ntlmssp);
 			value += hdrlen;
-			offset += (int)hdrlen + 15;
+			offset += (unsigned)hdrlen + 15;
 			hidden_item = proto_tree_add_boolean(hdr_tree,
 					    hf_http_citrix, tvb, 0, 0, 1);
 			proto_item_set_hidden(hidden_item);
@@ -4344,7 +4326,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, 
 				offset += 10;
 				ch_ptr = strchr(value, '"');
 				if ( ch_ptr != NULL ) {
-					data_len = (int)(ch_ptr - value);
+					data_len = (unsigned)(ch_ptr - value);
 					if (data_len) {
 						data_tvb = base64_tvb_to_new_tvb(tvb, offset, data_len);
 						add_new_data_source(pinfo, data_tvb, "Username");
@@ -4363,7 +4345,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, 
 				offset += 10;
 				ch_ptr = strchr(value, '"');
 				if ( ch_ptr != NULL ) {
-					data_len = (int)(ch_ptr - value);
+					data_len = (unsigned)(ch_ptr - value);
 					if (data_len) {
 						data_tvb = base64_tvb_to_new_tvb(tvb, offset, data_len);
 						add_new_data_source(pinfo, data_tvb, "Domain");
@@ -4381,7 +4363,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, 
 				offset += 12;
 				ch_ptr = strchr(value, '"');
 				if ( ch_ptr != NULL ) {
-					data_len = (int)(ch_ptr - value);
+					data_len = (unsigned)(ch_ptr - value);
 					if (data_len) {
 						data_tvb = base64_tvb_to_new_tvb(tvb, offset, data_len);
 						add_new_data_source(pinfo, data_tvb, "Password");
@@ -4399,7 +4381,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, 
 				offset += 16;
 				ch_ptr = strchr(value, '"');
 				if ( ch_ptr != NULL ) {
-					data_len = (int)(ch_ptr - value);
+					data_len = (unsigned)(ch_ptr - value);
 					if (data_len) {
 						data_tvb = base64_tvb_to_new_tvb(tvb, offset, data_len);
 						add_new_data_source(pinfo, data_tvb, "Session ID");
@@ -4433,11 +4415,7 @@ check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, con
 	proto_tree *hdr_tree;
 
 	if (strncmp(value, "Kerberos ", 9) == 0) {
-		if (hdr_item != NULL) {
-			hdr_tree = proto_item_add_subtree(hdr_item, ett_http_kerberos);
-		} else
-			hdr_tree = NULL;
-
+		hdr_tree = proto_item_add_subtree(hdr_item, ett_http_kerberos);
 		dissect_http_kerberos(tvb, pinfo, hdr_tree, value);
 		return true;
 	}
