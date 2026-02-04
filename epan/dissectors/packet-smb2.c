@@ -630,13 +630,18 @@ static int hf_smb2_nfs_chr_major;
 static int hf_smb2_nfs_chr_minor;
 static int hf_smb2_nfs_blk_major;
 static int hf_smb2_nfs_blk_minor;
+static int hf_smb2_wsl_symlink_version;
+static int hf_smb2_wsl_symlink_target;
 static int hf_smb2_symlink_error_response;
 static int hf_smb2_symlink_length;
 static int hf_smb2_symlink_error_tag;
 static int hf_smb2_unparsed_path_length;
 static int hf_smb2_symlink_substitute_name;
 static int hf_smb2_symlink_print_name;
+static int hf_smb2_symlink_flag_relative;
 static int hf_smb2_symlink_flags;
+static int hf_smb2_mountpoint_substitute_name;
+static int hf_smb2_mountpoint_print_name;
 static int hf_smb2_bad_signature;
 static int hf_smb2_good_signature;
 static int hf_smb2_fscc_file_attr;
@@ -796,6 +801,7 @@ static int ett_smb2_pipe_fragments;
 static int ett_smb2_cchunk_entry;
 static int ett_smb2_fsctl_odx_token;
 static int ett_smb2_symlink_error_response;
+static int ett_smb2_symlink_flags;
 static int ett_smb2_reparse_data_buffer;
 static int ett_smb2_error_data;
 static int ett_smb2_error_context;
@@ -1207,6 +1213,16 @@ static const value_string reparse_tag_vals[] = {
 	{ REPARSE_TAG_LX_CHR,          "REPARSE_TAG_LX_CHR"},
 	{ REPARSE_TAG_LX_BLK,          "REPARSE_TAG_LX_BLK"},
 	{ 0, NULL }
+};
+
+#define SYMLINK_FLAG_RELATIVE 0x00000001
+static const true_false_string tfs_smb2_symlink_flag_relative = {
+	"The substitute name is a path name to the directory containing the symbolic link",
+	"The substitute name is a full path name"
+};
+static int * const smb2_symlink_flags[] = {
+	&hf_smb2_symlink_flag_relative,
+	NULL
 };
 
 #define NFS_SPECFILE_LNK 0x00000000014B4E4C
@@ -4208,7 +4224,7 @@ dissect_smb2_STATUS_STOPPED_ON_SYMLINK(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &p_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_print_name);
 
 	/* flags */
-	proto_tree_add_item(tree, hf_smb2_symlink_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_symlink_flags, ett_smb2_symlink_flags, smb2_symlink_flags, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* substitute name string */
@@ -9010,6 +9026,7 @@ dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 	uint32_t tag;
 	uint32_t length;
+	uint32_t wsl_version;
 	offset_length_buffer_t  s_olb, p_olb;
 
 	/* REPARSE_DATA_BUFFER */
@@ -9040,6 +9057,20 @@ dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	}
 
 	switch (tag) {
+	case REPARSE_TAG_MOUNT_POINT:
+		/* substitute name offset/length */
+		offset = dissect_smb2_olb_length_offset(tvb, offset, &s_olb, OLB_O_UINT16_S_UINT16, hf_smb2_mountpoint_substitute_name);
+
+		/* print name offset/length */
+		offset = dissect_smb2_olb_length_offset(tvb, offset, &p_olb, OLB_O_UINT16_S_UINT16, hf_smb2_mountpoint_print_name);
+
+		/* substitute name string */
+		dissect_smb2_olb_off_string(pinfo, tree, tvb, &s_olb, offset, OLB_TYPE_UNICODE_STRING);
+
+		/* print name string */
+		dissect_smb2_olb_off_string(pinfo, tree, tvb, &p_olb, offset, OLB_TYPE_UNICODE_STRING);
+		break;
+
 	case REPARSE_TAG_SYMLINK:
 		/* substitute name  offset/length */
 		offset = dissect_smb2_olb_length_offset(tvb, offset, &s_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_substitute_name);
@@ -9048,7 +9079,7 @@ dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		offset = dissect_smb2_olb_length_offset(tvb, offset, &p_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_print_name);
 
 		/* flags */
-		proto_tree_add_item(tree, hf_smb2_symlink_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_symlink_flags, ett_smb2_symlink_flags, smb2_symlink_flags, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* substitute name string */
@@ -9057,9 +9088,51 @@ dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		/* print name string */
 		dissect_smb2_olb_off_string(pinfo, tree, tvb, &p_olb, offset, OLB_TYPE_UNICODE_STRING);
 		break;
+
+	case REPARSE_TAG_LX_SYMLINK:
+		/* WSL symlink layout version */
+		wsl_version = tvb_get_letohl(tvb, offset);
+		proto_tree_add_item(tree, hf_smb2_wsl_symlink_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		length -= 4;
+
+		switch (wsl_version) {
+		case 1:
+			/* WSL symlink layout version 1 stores the symlink target in the data
+			 * section of the file encoded in UTF-8 without trailing null-term byte.
+			 * After the WSL symlink layout version, there is nothing in the buffer.
+			 * See: https://github.com/microsoft/WSL/blob/2.5.8/test/windows/DrvFsTests.cpp#L775-L815
+			 */
+			if (length != 0) /* There should be nothing and length has to be zero */
+				proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, length, ENC_NA);
+			break;
+		case 2:
+			/* WSL symlink layout version 2 stores the symlink target in the reparse
+			 * buffer field Target encoded in UTF-8 without trailing null-term byte.
+			 * See: [MS-FSCC] 2.1.2.7 LX SYMLINK REPARSE_DATA_BUFFER
+			 */
+			proto_tree_add_item(tree, hf_smb2_wsl_symlink_target, tvb, offset, length, ENC_UTF_8);
+			break;
+		default:
+			/* Other WSL symlink layout versions are not defined. */
+			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, length, ENC_NA);
+			break;
+		}
+
+		break;
+
 	case REPARSE_TAG_NFS:
 		dissect_smb2_reparse_nfs(tvb, pinfo, tree, offset, length);
 		break;
+
+	/* These reparse point tags have empty reparse point buffer */
+	case REPARSE_TAG_AF_UNIX:
+	case REPARSE_TAG_LX_FIFO:
+	case REPARSE_TAG_LX_CHR:
+	case REPARSE_TAG_LX_BLK:
+		if (length == 0)
+			break;
+		/* fallthrough */
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, length, ENC_NA);
 	}
@@ -15948,6 +16021,14 @@ proto_register_smb2(void)
 			{ "Minor", "smb2.nfs.block.minor", FT_UINT32,
 			BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_smb2_wsl_symlink_version,
+			{ "WSL Symlink Layout Version", "smb2.wsl.symlink.version", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_wsl_symlink_target,
+			{ "Symlink Target", "smb2.wsl.symlink.target", FT_STRING,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
 		{ &hf_smb2_symlink_error_response,
 			{ "Symbolic Link Error Response", "smb2.symlink_error_response", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
@@ -15972,8 +16053,20 @@ proto_register_smb2(void)
 			{ "Print Name", "smb2.symlink.print_name", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_smb2_symlink_flag_relative,
+			{ "SYMLINK_FLAG_RELATIVE", "smb2.symlink.flag.relative", FT_BOOLEAN, 8,
+			TFS(&tfs_smb2_symlink_flag_relative), SYMLINK_FLAG_RELATIVE, "Is path name relative to the directory?", HFILL }
+		},
 		{ &hf_smb2_symlink_flags,
-			{ "Flags", "smb2.symlink.flags", FT_UINT32, BASE_DEC,
+			{ "Flags", "smb2.symlink.flags", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_mountpoint_substitute_name,
+			{ "Substitute Name", "smb2.mountpoint.substitute_name", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_mountpoint_print_name,
+			{ "Print Name", "smb2.mountpoint.print_name", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_fscc_file_attr,
@@ -16280,6 +16373,7 @@ proto_register_smb2(void)
 		&ett_smb2_cchunk_entry,
 		&ett_smb2_fsctl_odx_token,
 		&ett_smb2_symlink_error_response,
+		&ett_smb2_symlink_flags,
 		&ett_smb2_reparse_data_buffer,
 		&ett_smb2_error_data,
 		&ett_smb2_error_context,

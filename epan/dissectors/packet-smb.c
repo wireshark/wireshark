@@ -9027,10 +9027,14 @@ static const true_false_string tfs_nt_access_mask_maximum_allowed = {
 	"Maximum allowed is NOT set"
 };
 static const true_false_string tfs_nt_access_mask_system_security = {
-	"SYSTEM SECURITY is set",
-	"System security is NOT set"
+	"READ/WRITE SACL access",
+	"No read/write SACL access"
 };
 
+static const true_false_string tfs_nt_access_mask_synchronize = {
+	"Can wait on handle to SYNCHRONIZE on completion of I/O",
+	"Can NOT wait on handle to synchronize on completion of I/O"
+};
 
 static const true_false_string tfs_nt_access_mask_write_owner = {
 	"WRITE OWNER access (can take ownership)",
@@ -20964,7 +20968,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_nt_access_mask_synchronize,
 		{ "Synchronize", "smb.access.synchronize", FT_BOOLEAN, 32,
-		NULL , 0x00100000, "Windows NT: synchronize access", HFILL }},
+		TFS(&tfs_nt_access_mask_synchronize), 0x00100000, "Windows NT: synchronize access", HFILL }},
 
 	{ &hf_smb_nt_access_mask_write_owner,
 		{ "Write Owner", "smb.access.write_owner", FT_BOOLEAN, 32,
