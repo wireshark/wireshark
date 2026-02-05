@@ -4586,32 +4586,14 @@ de_nas_5gs_mm_extended_rejected_nssai(tvbuff_t* tvb, proto_tree* tree, packet_in
             sub_rejected_tree = proto_tree_add_subtree_format(sub_partial_tree, tvb, curr_offset, -1, ett_nas_5gs_mm_ext_rej_nssai,
                 &item, "Rejected S-NSSAI %u", i+1);
 
-            /* Octet 3 and octet 4 shall always be included*/
+
             proto_tree_add_item_ret_uint(sub_rejected_tree, hf_nas_5gs_mm_len_of_rejected_s_nssai, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &nssai_len);
             proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_rejected_s_nssai_cause_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             proto_item_set_len(item, nssai_len);
             curr_offset++;
-            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_sst, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-            curr_offset++;
-            if (nssai_len < 3) {
-                continue;
-            }
-            /* If the octet 5 is included, then octet 6 and octet 7 shall be included.*/
-            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_sd, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
-            curr_offset += 3;
-            if (nssai_len < 6) {
-                continue;
-            }
-            /* If the octet 8 is included, then octets 9, 10, and 11 may be included*/
-            /* Mapped HPLMN SST */
-            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_mapped_hplmn_sst, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-            curr_offset += 1;
-            if (nssai_len < 7) {
-                continue;
-            }
-            /* Mapped HPLMN SD */
-            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_mapped_hplmn_ssd, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
-            curr_offset += 3;
+
+            /* S-NSSAI */
+            curr_offset += de_nas_5gs_cmn_s_nssai(tvb, sub_rejected_tree, pinfo, curr_offset, nssai_len, NULL, 0);
         }
         num_partial_items++;
     }
