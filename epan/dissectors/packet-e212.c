@@ -1455,7 +1455,7 @@ static const value_string mcc_mnc_2digits_codes[] = {
     { 26207, "Telefónica Germany GmbH & Co. OHG" },
     { 26208, "Telefónica Germany GmbH & Co. OHG" },
     { 26209, "Vodafone GmbH" },
-    { 26210, "DB Netz AG" },
+    { 26210, "DB InfraGO AG" },
     { 26211, "Telefónica Germany GmbH & Co. OHG" },
     { 26212, "E-Plus Mobilfunk GmbH & Co. KG" },
     { 26215, "AirData AG" },
