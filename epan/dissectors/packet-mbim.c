@@ -7234,18 +7234,26 @@ mbim_dissect_ms_apdu_info(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, u
     if (response_offset && response_length) {
         proto_item *item;
         proto_tree *sub_tree;
+        tvbuff_t *response_tvb;
+
+        /* Combine the response APDU and status */
+        response_tvb = tvb_new_composite();
+        tvb_composite_append(response_tvb, tvb_new_subset_length(tvb, base_offset + response_offset, response_length));
+        tvb_composite_append(response_tvb, tvb_new_subset_length(tvb, base_offset, 2));
+        tvb_composite_finalize(response_tvb);
+        add_new_data_source(pinfo, response_tvb, "UICC response");
 
         item = proto_tree_add_item(tree, hf_mbim_ms_uicc_response, tvb, base_offset + response_offset, response_length, ENC_NA);
         if (mbim_uicc_apdu_dissector == UICC_APDU_GSM_SIM) {
             if (gsm_sim_rsp_handle) {
                 sub_tree = proto_item_add_subtree(item, ett_mbim_buffer);
-                call_dissector(gsm_sim_rsp_handle, tvb_new_subset_length(tvb, base_offset + response_offset, response_length), pinfo, sub_tree);
+                call_dissector(gsm_sim_rsp_handle, response_tvb, pinfo, sub_tree);
             }
         } else {
             if (iso7816_handle) {
                 sub_tree = proto_item_add_subtree(item, ett_mbim_buffer);
                 pinfo->p2p_dir = P2P_DIR_RECV;
-                call_dissector(iso7816_handle, tvb_new_subset_length(tvb, base_offset + response_offset, response_length), pinfo, sub_tree);
+                call_dissector(iso7816_handle, response_tvb, pinfo, sub_tree);
             }
         }
     }
