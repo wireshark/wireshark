@@ -1179,7 +1179,7 @@ parse_arg(tvbuff_t      *tvb,
             increment_dissection_depth(pinfo);
 
             /* The signature of the variant has now been taken care of.  So now take care of the variant data. */
-            while(((sig_pointer - sig_saved) < (length - 1)) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
+            while(((unsigned)(sig_pointer - sig_saved) < (length - 1)) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
                 proto_item_append_text(item, "%c", g_ascii_isprint(*sig_pointer) ? *sig_pointer : '?');
 
                 offset = parse_arg(tvb, pinfo, header_item, encoding, offset, tree, is_reply_to,
