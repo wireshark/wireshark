@@ -1931,7 +1931,6 @@ dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             final_tvb = tvb_new_child_real_data(tvb, final_arr, bytes_count, bytes_count);
             add_new_data_source(pinfo, final_tvb, "GSM SIM payload");
             /* Call GSM SIM dissector*/
-            col_append_str(pinfo->cinfo, COL_INFO, " | ");
             call_dissector_with_data(gsm_sim_handle, final_tvb, pinfo, tree, data);
             break;
     }
