@@ -62,6 +62,11 @@
 #define BACKUP_SECURITY_INFORMATION 0x00010000
 #endif
 
+#ifndef SYMLINK_FLAG_RELATIVE
+/* Defined in ntifs.h on Windows normally but in winnt.h on MSYS2. */
+#define SYMLINK_FLAG_RELATIVE 0x00000001
+#endif
+
 #define NT_STATUS_PENDING		0x00000103
 #define NT_STATUS_BUFFER_TOO_SMALL	0xC0000023
 #define NT_STATUS_STOPPED_ON_SYMLINK	0x8000002D
@@ -1215,7 +1220,6 @@ static const value_string reparse_tag_vals[] = {
 	{ 0, NULL }
 };
 
-#define SYMLINK_FLAG_RELATIVE 0x00000001
 static const true_false_string tfs_smb2_symlink_flag_relative = {
 	"The substitute name is a path name to the directory containing the symbolic link",
 	"The substitute name is a full path name"
