@@ -461,6 +461,7 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     nts_cookie_t *cookie;
     struct tcp_analysis *tcp_conv;
     nts_used_frames_lookup_t lookup_data = {.tvb = tvb, .hfindex = hf_nts_ke_cookie_used_frame};
+    const char *alpn;
 
     offset = 0;
 
@@ -471,7 +472,8 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     nts_ke_tree = proto_item_add_subtree(ti, ett_nts_ke);
 
     /* Error on ALPN mismatch */
-    if(strcmp(tls_get_alpn(pinfo), NTS_KE_ALPN) != 0)
+    alpn = tls_get_alpn(pinfo);
+    if(!alpn || strcmp(alpn, NTS_KE_ALPN) != 0)
         expert_add_info(pinfo, nts_ke_tree, &ei_nts_ke_alpn_mismatch);
 
     /* Conversation init */
