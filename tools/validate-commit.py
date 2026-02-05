@@ -126,7 +126,7 @@ def verify_body(body):
     cleaned_subject = extract_subject(old_lines[0])
     if len(cleaned_subject) > 80:
         # Note that this check is also invoked by the commit-msg hook.
-        print('Warning: keep lines in the commit message under 80 characters.')
+        print("Warning: the subject line '%s' is longer than 80 characters." % (cleaned_subject,))
         is_good = False
     if not is_good:
         print('''
