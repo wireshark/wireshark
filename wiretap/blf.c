@@ -3807,6 +3807,15 @@ typedef struct _blf_writer_data {
 } blf_writer_data_t;
 
 static void
+blf_dump_free(wtap_dumper *wdh)
+{
+    blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
+
+    g_array_unref(writer_data->iface_to_channel_array);
+    g_free(writer_data->fileheader);
+}
+
+static void
 blf_dump_init_channel_to_iface_entry(blf_channel_to_iface_entry_t* tmp, unsigned int if_id) {
     tmp->channel = 0;
     tmp->hwchannel = UINT16_MAX;
@@ -3815,17 +3824,14 @@ blf_dump_init_channel_to_iface_entry(blf_channel_to_iface_entry_t* tmp, unsigned
 }
 
 static void
-blf_dump_expand_interface_mapping(wtap_dumper *wdh, int new_size) {
+blf_dump_expand_interface_mapping(wtap_dumper *wdh, unsigned new_size) {
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
-    int old_size = writer_data->iface_to_channel_array->len;
+    unsigned old_size = writer_data->iface_to_channel_array->len;
 
     if (old_size < new_size) {
         /* we need to expand array */
-        unsigned int number_of_new_elements = new_size - old_size;
-
-        blf_channel_to_iface_entry_t *newdata = g_new0(blf_channel_to_iface_entry_t, number_of_new_elements);
-        g_array_append_vals(writer_data->iface_to_channel_array, newdata, number_of_new_elements);
+        g_array_set_size(writer_data->iface_to_channel_array, new_size);
 
         for (unsigned int i = old_size; i < writer_data->iface_to_channel_array->len; i++) {
             blf_channel_to_iface_entry_t *tmp = &g_array_index(writer_data->iface_to_channel_array, blf_channel_to_iface_entry_t, i);
@@ -5055,13 +5061,16 @@ static bool blf_add_idb(wtap_dumper *wdh _U_, wtap_block_t idb _U_, int *err _U_
    Returns true on success, false on failure. */
 static bool blf_dump_finish(wtap_dumper *wdh, int *err, char **err_info) {
     if (!blf_dump_close_logcontainer(wdh, err, err_info)) {
+        blf_dump_free(wdh);
         return false;
     }
 
     if (!blf_finalize_file_header(wdh, err)) {
+        blf_dump_free(wdh);
         return false;
     }
 
+    blf_dump_free(wdh);
     /* File is finished, do not touch anymore ! */
 
     ws_debug("leaving function");
@@ -5103,11 +5112,13 @@ blf_dump_open(wtap_dumper *wdh, int *err, char **err_info) {
 
     /* create the blf header structure and attach to wdh */
     if (!blf_init_file_header(wdh, err)) {
+        blf_dump_free(wdh);
         return false;
     }
 
     /* write space in output file for header */
     if (!blf_write_file_header_zeros(wdh, err)) {
+        blf_dump_free(wdh);
         return false;
     }
 
@@ -5115,10 +5126,12 @@ blf_dump_open(wtap_dumper *wdh, int *err, char **err_info) {
 
     /* Create first log_container */
     if (!blf_dump_start_logcontainer(wdh, err, err_info)) {
+        blf_dump_free(wdh);
         return false;
     }
 
     if (!blf_dump_interface_setup(wdh, err)) {
+        blf_dump_free(wdh);
         return false;
     }
 
