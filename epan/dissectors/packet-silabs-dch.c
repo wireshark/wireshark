@@ -700,8 +700,8 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  */
 static int dissect_silabs_wisun_phr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len, int *crc_len)
 {
-  // First byte after HW Start can be garbage 0x0b byte
-  bool can_be_garbage = (tvb_get_uint8(tvb, offset) == 0x0b);
+  // First byte after HW Start can be a garbage 0x0b or 0x00 byte
+  bool can_be_garbage = (tvb_get_uint8(tvb, offset) == 0x0b) || (tvb_get_uint8(tvb, offset) == 0x00);
 
   // Get PHR Type
   uint8_t garbage_byte_len = 0;
