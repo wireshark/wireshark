@@ -20,6 +20,6 @@
  *
  * If we have found the last field (terminated by \r\n\r\n) we indicate this in last_field .
  */
-int imf_find_field_end(tvbuff_t *tvb, int offset, int max_length, bool *last_field);
+int imf_find_field_end(tvbuff_t *tvb, unsigned offset, unsigned max_length, bool *last_field);
 
 #endif /* __PACKET_IMF_H__ */

@@ -526,7 +526,8 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 {
     proto_tree *subtree;
     proto_item *ti;
-    int offset = start, next_offset = 0;
+    unsigned offset = start;
+    int next_offset = 0;
     media_content_info_t content_info = { input_content_info->type, NULL, NULL, NULL };
     int body_start, boundary_start, boundary_line_len;
 
