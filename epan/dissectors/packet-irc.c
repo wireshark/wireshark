@@ -83,10 +83,10 @@ static dissector_table_t irc_ctcp_table;
 static int
 dissect_irc_ctcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree   *ctcp_tree;
-    proto_item   *ti;
+    proto_tree    *ctcp_tree;
+    proto_item    *ti;
     const uint8_t *str_command, *str_params;
-    int          space_offset = -1;
+    unsigned       space_offset = -1;
     dissector_handle_t ctcp_handle;
 
     ctcp_handle = dissector_get_uint_handle(irc_ctcp_table, IRCCTCP_DEF);
@@ -102,8 +102,7 @@ dissect_irc_ctcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
      */
     proto_tree_add_item(ctcp_tree, hf_irc_ctcp_delimiter_odd, tvb, 0, 1, ENC_ASCII);
 
-    space_offset = tvb_find_uint8(tvb, 1, -1, ' ');
-    if (space_offset == -1) {
+    if (!tvb_find_uint8_remaining(tvb, 1, ' ', &space_offset)) {
         proto_tree_add_item_ret_string(ctcp_tree, hf_irc_ctcp_command, tvb, 1, tvb_reported_length(tvb)-2, ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
     }
     else {
@@ -117,22 +116,20 @@ dissect_irc_ctcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 static void
-dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int datalen, packet_info *pinfo, const char* command)
+dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, unsigned offset, unsigned datalen, packet_info *pinfo, const char* command)
 {
     unsigned char found_start_needle = 0,
-           found_end_needle   = 0;
-    int    tag_start_offset, tag_end_offset;
+             found_end_needle   = 0;
+    unsigned tag_start_offset, tag_end_offset;
     tvbuff_t *next_tvb;
 
-    tag_start_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, datalen, &pbrk_tag_delimiter, &found_start_needle);
-    if (tag_start_offset == -1)
+    if (!tvb_ws_mempbrk_uint8_length(tvb, offset, datalen, &pbrk_tag_delimiter, &tag_start_offset, &found_start_needle))
     {
         /* no tag data */
         return;
     }
 
-    tag_end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, tag_start_offset+1, datalen, &pbrk_tag_delimiter, &found_end_needle);
-    if (tag_end_offset == -1)
+    if (!tvb_ws_mempbrk_uint8_length(tvb, tag_start_offset + 1, datalen, &pbrk_tag_delimiter, &tag_end_offset, &found_end_needle))
     {
         expert_add_info(pinfo, item, &ei_irc_missing_end_delimiter);
         return;
@@ -152,13 +149,13 @@ dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offs
 }
 
 static void
-dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int linelen)
+dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned linelen)
 {
     proto_tree   *request_tree, *command_tree = NULL;
     proto_item   *request_item;
-    int           start_offset                = offset;
-    int           end_offset                  = start_offset+linelen;
-    int           eop_offset                  = -1,
+    unsigned      start_offset                = offset;
+    unsigned      end_offset                  = start_offset+linelen;
+    unsigned      eop_offset                  = -1,
                   eoc_offset                  = -1,
                   eocp_offset,
                   tag_start_offset, tag_end_offset;
@@ -176,8 +173,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
     if (tvb_get_uint8(tvb, offset) == ':')
     {
         /* find the end of the prefix */
-        eop_offset = tvb_find_uint8(tvb, offset+1, linelen-1, ' ');
-        if (eop_offset == -1)
+        if (!tvb_find_uint8_length(tvb, offset + 1, linelen - 1, ' ', &eop_offset))
         {
             expert_add_info(pinfo, request_item, &ei_irc_prefix_missing_ending_space);
             return;
@@ -198,8 +194,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
         return;
     }
 
-    eoc_offset = tvb_find_uint8(tvb, offset, end_offset-offset, ' ');
-    if (eoc_offset == -1)
+    if (!tvb_find_uint8_length(tvb, offset, end_offset - offset, ' ', &eoc_offset))
     {
         const uint8_t* col_str;
         proto_tree_add_item_ret_string(request_tree, hf_irc_request_command, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA, pinfo->pool, &col_str);
@@ -251,8 +246,9 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 
     while(offset < end_offset)
     {
-        eocp_offset = tvb_find_uint8(tvb, offset, end_offset-offset, ' ');
-        tag_start_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, end_offset-offset, &pbrk_tag_delimiter, &found_tag_needle);
+        bool eocp_found, tag_start_found, tag_end_found;
+        eocp_found = tvb_find_uint8_length(tvb, offset, end_offset-offset, ' ', &eocp_offset);
+        tag_start_found = tvb_ws_mempbrk_uint8_length(tvb, offset, end_offset-offset, &pbrk_tag_delimiter, &tag_start_offset , &found_tag_needle);
 
         /* Create subtree when the first parameter is found */
         if (first_command_param)
@@ -262,13 +258,13 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
             first_command_param = false;
         }
 
-        if (((eocp_offset == -1) && (tag_start_offset == -1)) ||
-            ((eocp_offset != -1) && (tag_start_offset == -1)) ||
+        if (((eocp_found == false) && (tag_start_found == false)) ||
+            ((eocp_found == true) && (tag_start_found == false)) ||
             (eocp_offset < tag_start_offset))
         {
             /* regular message should be dissected */
 
-            if (eocp_offset == -1)
+            if (eocp_found == false)
             {
                 proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, end_offset-offset, ENC_ASCII);
                 return;
@@ -295,14 +291,14 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
                 return;
             }
         }
-        else if (((eocp_offset == -1) && (tag_start_offset != -1)) ||
+        else if (((eocp_found == false) && (tag_start_found == false)) ||
                (eocp_offset > tag_start_offset))
         {
             /* tag data dissected */
 
             found_tag_needle = 0;
-            tag_end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, &pbrk_tag_delimiter, &found_tag_needle);
-            if (tag_end_offset == -1)
+            tag_end_found = tvb_ws_mempbrk_uint8_length(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, &pbrk_tag_delimiter, &tag_end_offset , &found_tag_needle);
+            if (tag_end_found == false)
             {
                 expert_add_info(pinfo, request_item, &ei_irc_missing_end_delimiter);
                 return;
@@ -315,13 +311,13 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 }
 
 static void
-dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int linelen)
+dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned linelen)
 {
     proto_tree   *response_tree, *command_tree = NULL;
     proto_item   *response_item, *hidden_item;
-    int           start_offset                 = offset;
-    int           end_offset                   = start_offset+linelen;
-    int           eop_offset                   = -1,
+    unsigned      start_offset                 = offset;
+    unsigned      end_offset                   = start_offset+linelen;
+    unsigned      eop_offset                   = -1,
                   eoc_offset                   = -1,
                   eocp_offset,
                   tag_start_offset, tag_end_offset;
@@ -340,8 +336,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     if (tvb_get_uint8(tvb, offset) == ':')
     {
         /* find the end of the prefix */
-        eop_offset = tvb_find_uint8(tvb, offset+1, linelen-1, ' ');
-        if (eop_offset == -1)
+        if (!tvb_find_uint8_length(tvb, offset + 1, linelen - 1, ' ', &eop_offset))
         {
             expert_add_info(pinfo, response_item, &ei_irc_prefix_missing_ending_space);
             return;
@@ -362,8 +357,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
         return;
     }
 
-    eoc_offset = tvb_find_uint8(tvb, offset, end_offset-offset, ' ');
-    if (eoc_offset == -1)
+    if (!tvb_find_uint8_length(tvb, offset, end_offset - offset, ' ', &eoc_offset))
     {
         const uint8_t* col_str;
         proto_tree_add_item_ret_string(response_tree, hf_irc_response_command, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA, pinfo->pool, &col_str);
@@ -419,8 +413,8 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
     while(offset < end_offset)
     {
-        eocp_offset = tvb_find_uint8(tvb, offset, end_offset-offset, ' ');
-        tag_start_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, end_offset-offset, &pbrk_tag_delimiter, &found_tag_needle);
+        bool eocp_found = tvb_find_uint8_length(tvb, offset, end_offset-offset, ' ', &eocp_offset);
+        bool tag_start_found = tvb_ws_mempbrk_uint8_length(tvb, offset, end_offset-offset, &pbrk_tag_delimiter, &tag_start_offset , &found_tag_needle);
 
         /* Create subtree when the first parameter is found */
         if (first_command_param)
@@ -430,11 +424,11 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
             first_command_param = false;
         }
 
-        if ((tag_start_offset == -1) || (eocp_offset < tag_start_offset))
+        if ((tag_start_found == false) || (eocp_offset < tag_start_offset))
         {
             /* regular message should be dissected */
 
-            if (eocp_offset == -1)
+            if (eocp_found == false)
             {
                 proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, end_offset-offset, ENC_ASCII);
                 return;
@@ -461,13 +455,12 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
                 return;
             }
         }
-        else if ((eocp_offset == -1) || (eocp_offset > tag_start_offset))
+        else if ((eocp_found == false) || (eocp_offset > tag_start_offset))
         {
             /* tag data dissected */
 
             found_tag_needle = 0;
-            tag_end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, &pbrk_tag_delimiter, &found_tag_needle);
-            if (tag_end_offset == -1)
+            if (!tvb_ws_mempbrk_uint8_length(tvb, tag_start_offset + 1, end_offset - tag_start_offset - 1, &pbrk_tag_delimiter, &tag_end_offset, &found_tag_needle))
             {
                 expert_add_info(pinfo, response_item, &ei_irc_missing_end_delimiter);
                 return;
@@ -483,9 +476,9 @@ static int
 dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *irc_tree, *ti;
-    int         offset = 0;
-    int         next_offset;
-    int         linelen;
+    unsigned    offset = 0;
+    unsigned    next_offset;
+    unsigned    linelen;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IRC");
 
@@ -503,7 +496,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /*
          * Find the end of the line.
          */
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+        bool linelen_found = tvb_find_line_end_remaining(tvb, offset, &linelen , &next_offset);
         if (next_offset == offset) {
             /*
              * XXX - we really want the "show data a
@@ -516,7 +509,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             break;
         }
 
-        if (linelen != 0)
+        if (linelen_found == false)
         {
             if (pinfo->match_uint == pinfo->destport)
             {

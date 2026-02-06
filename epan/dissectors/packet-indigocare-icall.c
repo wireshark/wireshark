@@ -79,7 +79,7 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 	proto_item *header_item;
 	proto_tree *icall_tree;
 	proto_tree *icall_header_tree;
-	int32_t current_offset = 0, header_offset, identifier_start, identifier_offset, data_start, data_offset, ett;
+	uint32_t current_offset = 0, header_offset, identifier_start, identifier_offset, data_start, data_offset, ett;
 	int32_t header;
 	int32_t record_identifier;
 	const uint8_t * record_data;
@@ -94,7 +94,7 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 	current_offset++;
 
 	/* Read header */
-	header_offset = tvb_find_uint8(tvb, current_offset, -1, INDIGOCARE_ICALL_STX);
+	tvb_find_uint8_remaining(tvb, current_offset, INDIGOCARE_ICALL_STX, &header_offset);
 	ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset, header_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &header);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str(pinfo->pool, header, icall_headertypenames, "Unknown (%d)"));
 	switch(header) {
@@ -113,12 +113,12 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 	/* Read records */
 	while (tvb_get_uint8(tvb, current_offset) != INDIGOCARE_ICALL_ETX) {
 		identifier_start = current_offset;
-		identifier_offset = tvb_find_uint8(tvb, current_offset, -1, INDIGOCARE_ICALL_US);
+		tvb_find_uint8_remaining(tvb, current_offset, INDIGOCARE_ICALL_US, &identifier_offset);
 		ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset, identifier_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &record_identifier);
 		current_offset = identifier_offset + 1;
 
 		data_start = current_offset;
-		data_offset = tvb_find_uint8(tvb, data_start, -1, INDIGOCARE_ICALL_RS);
+		tvb_find_uint8_remaining(tvb, data_start, INDIGOCARE_ICALL_RS, &data_offset);
 		record_data = tvb_get_string_enc(pinfo->pool, tvb, current_offset, data_offset - data_start, ENC_ASCII|ENC_NA);
 
 		current_offset = data_offset + 1;
