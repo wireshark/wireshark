@@ -3390,13 +3390,11 @@ dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		offset += 1;
 
 		/* EA Name Length */
-		ea_name_len = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(ea_tree, hf_smb2_ea_name_len, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint8(ea_tree, hf_smb2_ea_name_len, tvb, offset, 1, ENC_LITTLE_ENDIAN, &ea_name_len);
 		offset += 1;
 
 		/* EA Data Length */
-		ea_data_len = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(ea_tree, hf_smb2_ea_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint16(ea_tree, hf_smb2_ea_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &ea_data_len);
 		offset += 2;
 
 		/* ea name */
@@ -4348,8 +4346,7 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			*continue_dissection = false;
 
 		/* ErrorContextCount (1 bytes) */
-		error_context_count = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(tree, hf_smb2_error_context_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint8(tree, hf_smb2_error_context_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_context_count);
 		offset += 1;
 
 		/* Reserved (1 bytes) */
@@ -4574,8 +4571,7 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	}
 
 	/* share type */
-	share_type = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_share_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_smb2_share_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &share_type);
 	offset += 1;
 
 	/* byte is reserved and must be set to zero */
@@ -7216,8 +7212,7 @@ dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* lock count */
-	lock_count = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_lock_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_smb2_lock_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &lock_count);
 	offset += 2;
 
 	/* Lock Sequence Number/Index */
@@ -7770,8 +7765,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	/* channel */
-	channel = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN, &channel);
 	offset += 4;
 
 	/* remaining bytes */
@@ -8987,8 +8981,7 @@ dissect_smb2_reparse_nfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	uint64_t type;
 	int symlink_length;
 
-	type = tvb_get_letoh64(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_nfs_type, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint64(tree, hf_smb2_nfs_type, tvb, offset, 8, ENC_LITTLE_ENDIAN, &type);
 	offset += 8;
 
 	switch (type) {
@@ -9040,13 +9033,11 @@ dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	}
 
 	/* reparse tag */
-	tag = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN, &tag);
 	offset += 4;
 
 	/* reparse data length */
-	length = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_reparse_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_reparse_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
 	offset += 2;
 
 	/* reserved */
@@ -9703,8 +9694,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 4;
 
 	/* channel */
-	channel = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN, &channel);
 	offset += 4;
 
 	/* remaining bytes */
@@ -11158,13 +11148,11 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset = dissect_smb2_class_infolevel(pinfo, tvb, offset, tree, si);
 
 	/* size */
-	setinfo_size = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_setinfo_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_setinfo_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &setinfo_size);
 	offset += 4;
 
 	/* offset */
-	setinfo_offset = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_setinfo_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_smb2_setinfo_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &setinfo_offset);
 	offset += 2;
 
 	/* reserved */

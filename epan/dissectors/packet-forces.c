@@ -532,8 +532,7 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t off
     {
         forces_tlv_tree = proto_tree_add_subtree(forces_tree, tvb, offset, TLV_TL_LENGTH, ett_forces_tlv, &ti, "TLV");
 
-        tlv_type = tvb_get_ntohs(tvb, offset);
-        tlv_item = proto_tree_add_item(forces_tlv_tree, hf_forces_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        tlv_item = proto_tree_add_item_ret_uint16(forces_tlv_tree, hf_forces_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN, &tlv_type);
         length_count = tvb_get_ntohs(tvb, offset+2) * 4;
         proto_item_set_len(ti, length_count);
         ti = proto_tree_add_uint(forces_tlv_tree, hf_forces_tlv_length,

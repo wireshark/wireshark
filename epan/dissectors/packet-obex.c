@@ -1843,8 +1843,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 authentication_challenge_tag_vals, "Unknown"));
                         parameter_tree = proto_item_add_subtree(parameter_item, ett_obex_authentication_parameters);
 
-                        proto_tree_add_item(parameter_tree, hf_authentication_challenge_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        tag = tvb_get_uint8(tvb, offset);
+                        proto_tree_add_item_ret_uint8(parameter_tree, hf_authentication_challenge_tag, tvb, offset, 1, ENC_BIG_ENDIAN, &tag);
                         offset += 1;
 
                         proto_tree_add_item(parameter_tree, hf_authentication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1890,8 +1889,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 authentication_response_tag_vals, "Unknown"));
                         parameter_tree = proto_item_add_subtree(parameter_item, ett_obex_authentication_parameters);
 
-                        proto_tree_add_item(parameter_tree, hf_authentication_response_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        tag = tvb_get_uint8(tvb, offset);
+                        proto_tree_add_item_ret_uint8(parameter_tree, hf_authentication_response_tag, tvb, offset, 1, ENC_BIG_ENDIAN, &tag);
                         offset += 1;
 
                         proto_tree_add_item(parameter_tree, hf_authentication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2061,12 +2059,10 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 session_tag_vals, "Unknown"));
                         parameter_tree = proto_item_add_subtree(parameter_item, ett_obex_session_parameters);
 
-                        proto_tree_add_item(parameter_tree, hf_session_parameter_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        tag = tvb_get_uint8(tvb, offset);
+                        proto_tree_add_item_ret_uint8(parameter_tree, hf_session_parameter_tag, tvb, offset, 1, ENC_BIG_ENDIAN, &tag);
                         offset += 1;
 
-                        proto_tree_add_item(parameter_tree, hf_session_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        sub_parameter_length = tvb_get_uint8(tvb, offset);
+                        proto_tree_add_item_ret_uint8(parameter_tree, hf_session_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_parameter_length);
                         offset += 1;
 
                         switch (tag) {

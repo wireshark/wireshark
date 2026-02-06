@@ -285,13 +285,11 @@ dissect_epl_v1_asnd(proto_tree *epl_v1_tree, tvbuff_t *tvb, int offset)
 	uint16_t len;
 
 	/* get ASnd channel */
-	proto_tree_add_item(epl_v1_tree, hf_epl_v1_asnd_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	epl_v1_asnd_channel = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(epl_v1_tree, hf_epl_v1_asnd_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN, &epl_v1_asnd_channel);
 	offset += 1;
 
 	/* get length of data */
-	proto_tree_add_item(epl_v1_tree, hf_epl_v1_asnd_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item_ret_uint16(epl_v1_tree, hf_epl_v1_asnd_size, tvb, offset, 2, ENC_LITTLE_ENDIAN, &len);
 	offset += 2;
 
 	/* "Ident" or "Generic" channel? */

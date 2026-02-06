@@ -287,8 +287,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		expert_add_info(pinfo, msg_error, &ei_eiss_invalid_section_length);
 	}
 
-	reserved2 = tvb_get_uint8(tvb, offset);
-	pi = proto_tree_add_item(eiss_tree, hf_eiss_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item_ret_uint8(eiss_tree, hf_eiss_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN, &reserved2);
 	if (0 != reserved2) {
 		expert_add_info_format(pinfo, pi, &ei_eiss_invalid_reserved_bits, "Invalid reserved2 bits (should all be 0)");
 	}
@@ -308,8 +307,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_tree_add_item(eiss_tree, hf_eiss_protocol_version_minor,  tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	eiss_application_type = tvb_get_ntohs(tvb, offset);
-	pi = proto_tree_add_item(eiss_tree, hf_eiss_application_type,   tvb, offset, 2, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item_ret_uint16(eiss_tree, hf_eiss_application_type,   tvb, offset, 2, ENC_BIG_ENDIAN, &eiss_application_type);
 	if (8 != eiss_application_type) {
 		expert_add_info(pinfo, pi, &ei_eiss_application_type);
 	}
@@ -319,8 +317,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_tree_add_item(eiss_tree, hf_eiss_application_id,          tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	platform_id_length = tvb_get_uint8(tvb, offset);
-	pi = proto_tree_add_item(eiss_tree, hf_eiss_platform_id_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item_ret_uint8(eiss_tree, hf_eiss_platform_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &platform_id_length);
 	if (0 != platform_id_length % 15) {
 		expert_add_info(pinfo, pi, &ei_eiss_platform_id_length);
 	}

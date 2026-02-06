@@ -211,14 +211,12 @@ static int elasticsearch_partial_dissect_address(tvbuff_t *tvb, packet_info *pin
     }
 
     /* Address format */
-    es_address_format = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(address_tree, hf_elasticsearch_address_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(address_tree, hf_elasticsearch_address_format, tvb, offset, 1, ENC_BIG_ENDIAN, &es_address_format);
     offset += 1;
 
     switch(es_address_format) {
         case ADDRESS_FORMAT_NUEMRIC:
-            address_length = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(address_tree, hf_elasticsearch_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(address_tree, hf_elasticsearch_address_length, tvb, offset, 1, ENC_BIG_ENDIAN, &address_length);
             offset += 1;
             /* Its either IPv4 or IPv6 depending on the length */
             if (address_length == IPv4_ADDRESS_LENGTH) {
@@ -456,8 +454,7 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
     offset += 4;
 
     /* Request ID */
-    proto_tree_add_item(tree, hf_elasticsearch_header_request_id, tvb, offset, 8, ENC_BIG_ENDIAN);
-    request_id = tvb_get_ntoh64(tvb, offset);
+    proto_tree_add_item_ret_uint64(tree, hf_elasticsearch_header_request_id, tvb, offset, 8, ENC_BIG_ENDIAN, &request_id);
     offset += 8;
 
     /* Transport status: org.elasticsearch.transport.support.TransportStatus */

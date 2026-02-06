@@ -231,8 +231,7 @@ dissect_vdp_tlv_assoc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 	offset += 16;
 
 	/* Filter Format */
-	proto_tree_add_item(vdp_tlv_assoc_tree, hf_vdp_filter_format, tvb, offset, 1, ENC_BIG_ENDIAN);
-	filter_format = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(vdp_tlv_assoc_tree, hf_vdp_filter_format, tvb, offset, 1, ENC_BIG_ENDIAN, &filter_format);
 	offset++;
 
 	switch (filter_format) {
@@ -285,8 +284,7 @@ dissect_vdp_tlv_org(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 	if (oui != OUI_ORACLE)
 		return;
 
-	proto_tree_add_item(tree, hf_vdp_tlv_oracle_subtype, tvb, offset, 1, ENC_NA);
-	subtype = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(tree, hf_vdp_tlv_oracle_subtype, tvb, offset, 1, ENC_NA, &subtype);
 	offset++;
 
 	switch (subtype) {

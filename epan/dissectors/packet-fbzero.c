@@ -409,8 +409,7 @@ dissect_fb_zero_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero
             col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_tag, message_tag_vals, "Unknown"));
             offset += 4;
 
-            proto_tree_add_item(fb_zero_tree, hf_fb_zero_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            tag_number = tvb_get_letohs(tvb, offset);
+            proto_tree_add_item_ret_uint(fb_zero_tree, hf_fb_zero_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN, &tag_number);
             offset += 2;
 
             proto_tree_add_item(fb_zero_tree, hf_fb_zero_padding, tvb, offset, 2, ENC_NA);

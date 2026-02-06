@@ -1421,8 +1421,7 @@ static void get_parameter_definitions(packet_info* pinfo, unsigned offset, uint8
 				offset = get_address_scheme(pinfo, offset, scheme, tvb, ecmp_parameter_tree);
 				offset++;
 				if (command_value == ECMP_COMMAND_WRITE) {
-					data_type = tvb_get_uint8(tvb, offset);
-					proto_tree_add_item(ecmp_parameter_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item_ret_uint8(ecmp_parameter_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN, &data_type);
 					offset++;
 					dec = tvb_get_int8(tvb, offset);
 					if (dec != -1) {
@@ -1532,16 +1531,14 @@ static void get_object_info_response(packet_info* pinfo, unsigned offset, tvbuff
 				case 4:
 					/*display minimum allowed value*/
 					offset++;
-					data_type = tvb_get_uint8(tvb,offset);
-					ecmp_response_item = proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+					ecmp_response_item = proto_tree_add_item_ret_uint8(ecmp_parameter_response_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN, &data_type);
 					offset++;
 					offset = get_data_type(pinfo, offset, data_type, tvb, ecmp_parameter_response_tree);
 					break;
 				case 5:
 					/*display maximum allowed value*/
 					offset++;
-					data_type = tvb_get_uint8(tvb,offset);
-					ecmp_response_item = proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+					ecmp_response_item = proto_tree_add_item_ret_uint8(ecmp_parameter_response_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN, &data_type);
 					offset++;
 					offset = get_data_type(pinfo, offset, data_type, tvb, ecmp_parameter_response_tree);
 					break;
@@ -1665,8 +1662,7 @@ static int get_parameter_responses(packet_info* pinfo, unsigned offset, uint8_t 
 						}
 						offset++;
 						/*display unit ID*/
-						unit_id = tvb_get_uint8(tvb, offset);
-						proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_display_unit_id, tvb, offset, 1, ENC_NA);
+						proto_tree_add_item_ret_uint8(ecmp_parameter_response_tree, hf_ecmp_display_unit_id, tvb, offset, 1, ENC_NA, &unit_id);
 						if (unit_id == 255) {
 							offset++;
 							proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_unit_id_string, tvb, offset, 2, ENC_BIG_ENDIAN|ENC_ASCII);
@@ -2072,8 +2068,7 @@ static int add_cyclic_setup_attributes(packet_info* pinfo, unsigned offset, uint
 	cyclic_setup_attributes = proto_item_add_subtree(cyclic_setup_attributes_root, ett_cyclic_setup_attribs);
 
 	while (offset < length) {
-		attrib = tvb_get_uint8(tvb, offset);
-		cyclic_setup_attrib_item_root = proto_tree_add_item(cyclic_setup_attributes, hf_ecmp_cyclic_setup_attrib, tvb, offset++, 1, ENC_BIG_ENDIAN);
+		cyclic_setup_attrib_item_root = proto_tree_add_item_ret_uint8(cyclic_setup_attributes, hf_ecmp_cyclic_setup_attrib, tvb, offset++, 1, ENC_BIG_ENDIAN, &attrib);
 
 		cyclic_setup_attrib_item = proto_item_add_subtree(cyclic_setup_attrib_item_root, ett_cyclic_setup_attrib_item);
 
@@ -2503,8 +2498,7 @@ static void modbus_pdu(unsigned offset, bool request, tvbuff_t *tvb, packet_info
 	/* differentiate between ECMP query and response  */
 	if (request) {
 		/* read and display the Size  */
-		size = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(ecmp_tree, hf_ecmp_modbus_pdu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(ecmp_tree, hf_ecmp_modbus_pdu_size, tvb, offset, 2, ENC_BIG_ENDIAN, &size);
 		offset += 2;
 
 		/* keep packet context */
@@ -2516,8 +2510,7 @@ static void modbus_pdu(unsigned offset, bool request, tvbuff_t *tvb, packet_info
 
 	} else {
 		/* read and display the Size  */
-		size = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(ecmp_tree, hf_ecmp_modbus_pdu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(ecmp_tree, hf_ecmp_modbus_pdu_size, tvb, offset, 2, ENC_BIG_ENDIAN, &size);
 		offset += 2;
 
 		modbus_data.packet_type = RESPONSE_PACKET;
@@ -2602,13 +2595,11 @@ static void interrogate(packet_info* pinfo, unsigned offset, bool request, tvbuf
 		ecmp_interrogate_tree = proto_tree_add_subtree(ecmp_tree, tvb, offset, 2, ett_ecmp_interrogate_message, NULL, "Interrogate: (Query)");
 
 		/* read the item_type (command/option setting)  */
-		item_type = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(ecmp_interrogate_tree, hf_ecmp_interrogate_item_type, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item_ret_uint8(ecmp_interrogate_tree, hf_ecmp_interrogate_item_type, tvb, offset, 1, ENC_NA, &item_type);
 		offset += 1;
 
 		/* read the count  */
-		count = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(ecmp_interrogate_tree, hf_ecmp_interrogate_count, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item_ret_uint(ecmp_interrogate_tree, hf_ecmp_interrogate_count, tvb, offset, 1, ENC_NA, &count);
 		offset += 1;
 
 		/*create the interrogate details sub-tree  */

@@ -1378,8 +1378,7 @@ dissect_zbee_nwk_ed_timeout_response(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static unsigned
 dissect_zbee_nwk_link_pwr_delta(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
-    int     i;
-    int     count;
+    uint8_t	i, count;
     int     delta;
     uint8_t type;
     uint16_t addr;
@@ -1388,16 +1387,14 @@ dissect_zbee_nwk_link_pwr_delta(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_item_ret_uint8(tree, hf_zbee_nwk_cmd_link_pwr_type, tvb, offset, 1, ENC_NA, &type);
     offset++;
 
-    count = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_nwk_cmd_link_pwr_list_count, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_nwk_cmd_link_pwr_list_count, tvb, offset, 1, ENC_NA, &count);
     offset++;
 
-    proto_item_append_text(tree, ": %s, Count %d", val_to_str_const(type, zbee_nwk_link_power_delta_types, "Unknown"), count);
+    proto_item_append_text(tree, ": %s, Count %u", val_to_str_const(type, zbee_nwk_link_power_delta_types, "Unknown"), count);
 
     for (i=0; i<count; i++) {
         subtree = proto_tree_add_subtree(tree, tvb, count, 3, ett_zbee_nwk_cmd_link_pwr_struct, NULL, "Power Delta Structure");
-        addr = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(subtree, hf_zbee_nwk_cmd_link_pwr_device_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint16(subtree, hf_zbee_nwk_cmd_link_pwr_device_address, tvb, offset, 2, ENC_LITTLE_ENDIAN, &addr);
         offset += 2;
         delta = (char)tvb_get_uint8(tvb, offset);
         proto_tree_add_item(subtree, hf_zbee_nwk_cmd_link_pwr_power_delta, tvb, offset, 1, ENC_NA);

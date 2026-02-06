@@ -6676,8 +6676,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 1;
 
 	/* oplock level */
-	ol = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_locking_ol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_smb_locking_ol, tvb, offset, 1, ENC_LITTLE_ENDIAN, &ol);
 	offset += 1;
 
 	/* timeout */
@@ -11196,8 +11195,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset = dissect_nt_share_access_bits(tvb, tree, offset, 4, share_access);
 
 	/* create disposition */
-	create_disposition = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb_nt_create_disposition, tvb, offset, 4, ENC_LITTLE_ENDIAN, &create_disposition);
 	offset += 4;
 
 	/* create options */
@@ -13940,8 +13938,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* num file acls */
 	CHECK_BYTE_COUNT_SUBR(2);
-	num_file_aces = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_posix_num_file_aces, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_smb_posix_num_file_aces, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num_file_aces);
 	COUNT_BYTES_SUBR(2);
 
 	/* num default acls */
@@ -13959,8 +13956,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		/* ace type */
 		CHECK_BYTE_COUNT_SUBR(1);
-		ace_type = tvb_get_uint8(tvb, offset);
-		type_item = proto_tree_add_item(tr, hf_smb_posix_ace_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		type_item = proto_tree_add_item_ret_uint8(tr, hf_smb_posix_ace_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &ace_type);
 		COUNT_BYTES_SUBR(1);
 
 		CHECK_BYTE_COUNT_SUBR(1);

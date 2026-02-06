@@ -525,8 +525,7 @@ static void dissect_extrememesh_ps_breq(tvbuff_t *tvb, packet_info *pinfo, proto
 		proto_tree_add_item_ret_uint(tree, hf_extrememesh_ps_breq_option, tvb, offset, 1, ENC_BIG_ENDIAN, &option);
 		offset++;
 		if (option == 0) continue;
-		proto_tree_add_item(tree, hf_extrememesh_ps_breq_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-		option_len = tvb_get_uint8(tvb, offset);
+		proto_tree_add_item_ret_uint8(tree, hf_extrememesh_ps_breq_option_len, tvb, offset, 1, ENC_BIG_ENDIAN, &option_len);
 		offset++;
 		switch(option)
 		{
