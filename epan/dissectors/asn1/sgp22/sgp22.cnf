@@ -146,7 +146,7 @@ EuiccMemoryResetResponse           N sgp22.response  0xBF34
 LoadCRLRequest                     N sgp22.request   0xBF35
 LoadCRLResponse                    N sgp22.response  0xBF35
 BoundProfilePackage                N sgp22.request   0xBF36
-ProfileInstallationResult          N sgp22.request   0xBF37
+ProfileInstallationResult          N sgp22.response  0xBF37
 AuthenticateServerRequest          N sgp22.request   0xBF38
 AuthenticateServerResponse         N sgp22.response  0xBF38
 InitiateAuthenticationRequest      N sgp22.request   0xBF39
