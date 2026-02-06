@@ -460,7 +460,7 @@ and produces UTF-8 in the buffer. See below for a list of input encoding values.
 The buffer is allocated in the given wmem scope (see README.wmem for more
 information).
 
-uint8_t *tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int *lengthp, const unsigned encoding);
+uint8_t *tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, unsigned int *lengthp, const unsigned encoding);
 
 Returns a null-terminated buffer allocated from the specified scope,
 containing data from the specified tvbuff, starting at the specified
