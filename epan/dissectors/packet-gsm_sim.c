@@ -2152,7 +2152,8 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		}
 		proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset+data_offs, p3, ENC_NA);
 		offset += data_offs + p3;
-		if (tvb_reported_length_remaining(tvb, offset)) {
+		if (p1 & 0x80) {
+			/* Le is mandatory for "Last block" and not present for "More blocks" */
 			dissect_apdu_le(sim_tree, tvb, offset, extended_len, false);
 			offset += (extended_len ? 2 : 1);
 		}
