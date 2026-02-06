@@ -815,13 +815,17 @@ Commit Check:
     - TEST_SUITE=commit_checks
     - EXIT_CODE=0
     - ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case num_commits --command "[ $NUM_COMMITS -lt 2 ] || (echo 'ℹ️ This merge request has more than one commit. Please squash any trivial ones:\n'; git log --oneline --no-decorate --max-count=$NUM_COMMITS ; false)" || true
+    # If this is a merged results pipeline, then HEAD is a temporary merged commit
+    # with a message like "Merge branch 'X' into 'Y'" and the variable
+    # CI_MERGE_REQUEST_SOURCE_BRANCH_SHA has the real commit to check.
+    # If not, then CI_MERGE_REQUEST_SOURCE_BRANCH_SHA is empty.
     # pre-commit compares the current tree with the passed in commit(s), and thus
     # the parameter is the Nth ancestor of our commit.
     # If we pass in multiple commits, pre-commit will compare each of them with
     # the current tree, which duplicates work and is O(N^2).
     #- ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case tools/pre-commit ./tools/pre-commit $( git log --max-count=$NUM_COMMITS --pretty=format:%h~ ) || EXIT_CODE=1
     - ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case tools/pre-commit ./tools/pre-commit "${CI_COMMIT_SHA}~${NUM_COMMITS}" || EXIT_CODE=1
-    - ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case tools/validate-commit ./tools/validate-commit.py $( git log --max-count=$NUM_COMMITS --pretty=format:%h ) || EXIT_CODE=1
+    - ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case tools/validate-commit ./tools/validate-commit.py $( git log --max-count=$NUM_COMMITS --pretty=format:%h $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA ) || EXIT_CODE=1
     - ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case tools/checklicenses ./tools/checklicenses.py || EXIT_CODE=1
     - ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case tools/check_help_urls ./tools/check_help_urls.py || EXIT_CODE=1
     - exit $EXIT_CODE
