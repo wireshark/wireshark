@@ -349,7 +349,7 @@ def read_git_repo(src_dir, tagged_version_extra, untagged_version_extra):
     # Reads metadata from the git repo for generating the version string
     # Returns the data in a dict
 
-    IS_GIT_INSTALLED = shutil.which('git') != ''
+    IS_GIT_INSTALLED = shutil.which('git') is not None
     if not IS_GIT_INSTALLED:
         print("Git unavailable. Git revision will be missing from version string.", file=sys.stderr)
         return {}
