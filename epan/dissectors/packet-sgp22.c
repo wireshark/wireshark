@@ -6258,7 +6258,7 @@ void proto_reg_handoff_sgp22(void)
   dissector_add_uint("sgp22.request", 0xBF35, create_dissector_handle(dissect_LoadCRLRequest_PDU, proto_sgp22));
   dissector_add_uint("sgp22.response", 0xBF35, create_dissector_handle(dissect_LoadCRLResponse_PDU, proto_sgp22));
   dissector_add_uint("sgp22.request", 0xBF36, create_dissector_handle(dissect_BoundProfilePackage_PDU, proto_sgp22));
-  dissector_add_uint("sgp22.request", 0xBF37, create_dissector_handle(dissect_ProfileInstallationResult_PDU, proto_sgp22));
+  dissector_add_uint("sgp22.response", 0xBF37, create_dissector_handle(dissect_ProfileInstallationResult_PDU, proto_sgp22));
   dissector_add_uint("sgp22.request", 0xBF38, create_dissector_handle(dissect_AuthenticateServerRequest_PDU, proto_sgp22));
   dissector_add_uint("sgp22.response", 0xBF38, create_dissector_handle(dissect_AuthenticateServerResponse_PDU, proto_sgp22));
   dissector_add_uint("sgp22.request", 0xBF39, create_dissector_handle(dissect_InitiateAuthenticationRequest_PDU, proto_sgp22));
