@@ -2283,10 +2283,10 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	if (ti) {
 		/* Always show status in info column when response only */
 		if (response_only && ins) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Response, %s, %s",
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "Response, %s, %s",
 				     val_to_str(pinfo->pool, ins, apdu_ins_vals, "%02x"), get_sw_string(pinfo->pool, sw));
 		} else if (response_only) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Response, %s ", get_sw_string(pinfo->pool, sw));
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "Response, %s ", get_sw_string(pinfo->pool, sw));
 		}
 	} else {
 		switch (sw >> 8) {
@@ -2422,10 +2422,10 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	offset += 2;
 
 	if ((cla & 0x50) == 0x40) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s ",
 				val_to_str(pinfo->pool, cla>>6, apdu_cla_coding_ext_vals, "%01x"));
 	} else {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s ",
 				val_to_str(pinfo->pool, cla>>4, apdu_cla_coding_vals, "%01x"));
 	}
 
