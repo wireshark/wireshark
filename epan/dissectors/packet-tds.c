@@ -2124,6 +2124,9 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
     proto_tree *sub_tree = NULL;
     proto_item *item = NULL, *length_item = NULL;
     int32_t data_value;
+    int64_t data64_value;
+    double double_value;
+    float float_value;
 
     item = proto_tree_add_item(tree, hf, tvb, *offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_tds_type_varbyte);
@@ -2365,8 +2368,8 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
                     proto_item_append_text(item, " (%d)", data_value);
                     break;
                 case 8:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
-                    proto_item_append_text(item, " (%"PRId64")", tvb_get_letoh64(tvb, *offset));
+                    proto_tree_add_item_ret_int64(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN, &data64_value);
+                    proto_item_append_text(item, " (%"PRId64")", data64_value);
                     break;
                 default:
                     expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
@@ -2382,12 +2385,12 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
                     proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
                     break;
                 case 4:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset + 1, 4, ENC_LITTLE_ENDIAN);
-                    proto_item_append_text(item, " (%f)", tvb_get_letohieee_float(tvb, *offset));
+                    proto_tree_add_item_ret_float(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset + 1, 4, ENC_LITTLE_ENDIAN, &float_value);
+                    proto_item_append_text(item, " (%f)", float_value);
                     break;
                 case 8:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
-                    proto_item_append_text(item, " (%f)", tvb_get_letohieee_double(tvb, *offset));
+                    proto_tree_add_item_ret_double(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN, &double_value);
+                    proto_item_append_text(item, " (%f)", double_value);
                     break;
                 default:
                     expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
@@ -6368,7 +6371,7 @@ dissect_tds_procid_token(tvbuff_t *tvb, unsigned offset, proto_tree *tree, tds_c
 }
 
 static uint8_t
-dissect_tds_type_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, bool *plp, bool variantprop)
+dissect_tds_type_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, uint8_t *scale, bool *plp, bool variantprop)
 {
     proto_item *item = NULL, *item1 = NULL, *data_type_item = NULL;
     proto_tree *sub_tree = NULL, *collation_tree;
@@ -6376,6 +6379,7 @@ dissect_tds_type_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree
     uint8_t data_type;
 
     *plp = false; /* most types are not Partially Length-Prefixed */
+    *scale = 0;
     item = proto_tree_add_item(tree, hf_tds_type_info, tvb, *offset, 0, ENC_NA);
     data_type = tvb_get_uint8(tvb, *offset);
     proto_item_append_text(item, " (%s)", val_to_str(pinfo->pool, data_type, tds_data_type_names, "Invalid data type: %02X"));
@@ -6404,6 +6408,8 @@ dissect_tds_type_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree
         case TDS_DATA_TYPE_FLT8:            /* Float (8 byte data representation) */
         case TDS_DATA_TYPE_MONEY:           /* Money (8 byte data representation) */
         case TDS_DATA_TYPE_DATETIME:        /* DateTime (8 byte data representation) */
+        /* BYTELEN_TYPE with fixed length if non-null */
+        case TDS_DATA_TYPE_DATEN:           /* (introduced in TDS 7.3) */
         /* BYTELEN_TYPE with length determined by SCALE */
         case TDS_DATA_TYPE_TIMEN:           /* (introduced in TDS 7.3) */
         case TDS_DATA_TYPE_DATETIME2N:      /* (introduced in TDS 7.3) */
@@ -6421,7 +6427,6 @@ dissect_tds_type_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree
         case TDS_DATA_TYPE_FLTN:
         case TDS_DATA_TYPE_MONEYN:
         case TDS_DATA_TYPE_DATETIMN:
-        case TDS_DATA_TYPE_DATEN:           /* (introduced in TDS 7.3) */
         case TDS_DATA_TYPE_CHAR:            /* Char (TDS 4/5) */
         case TDS_DATA_TYPE_VARCHAR:         /* VarChar (TDS 4/5) */
         case TDS_DATA_TYPE_BINARY:          /* Binary (TDS 4/5) */
@@ -6486,6 +6491,7 @@ dissect_tds_type_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree
         case TDS_DATA_TYPE_DATETIME2N:      /* (introduced in TDS 7.3) */
         case TDS_DATA_TYPE_DATETIMEOFFSETN: /* (introduced in TDS 7.3) */
             proto_tree_add_item(sub_tree, hf_tds_type_info_scale, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *scale = tvb_get_uint8(tvb, *offset);
             *offset += 1;
             break;
         /* COLLATION */
@@ -6568,6 +6574,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_in
 
         /* dissect parameters */
         while(tvb_reported_length_remaining(tvb, offset) > 0) {
+            uint8_t scale;
             bool plp;
 
             len = tvb_get_uint8(tvb, offset);
@@ -6591,11 +6598,11 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_in
             proto_tree_add_item(status_sub_tree, hf_tds_rpc_parameter_status_by_ref, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(status_sub_tree, hf_tds_rpc_parameter_status_default, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
-            data_type = dissect_tds_type_info(tvb, &offset, pinfo, sub_tree, &plp, false);
+            data_type = dissect_tds_type_info(tvb, &offset, pinfo, sub_tree, &scale, &plp, false);
             if (data_type == TDS_DATA_TYPE_INVALID)
                 break;
             dissect_tds_type_varbyte(tvb, (unsigned*)&offset, pinfo, sub_tree, hf_tds_rpc_parameter_value, tds_info,
-                                     data_type, 0, plp, true, -1, NULL); /* TODO: Precision needs setting? */
+                                     data_type, scale, plp, true, -1, NULL); /* TODO: Precision needs setting? */
             proto_item_set_end(param_item, tvb, offset);
         }
     }
