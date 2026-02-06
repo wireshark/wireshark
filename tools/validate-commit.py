@@ -110,26 +110,20 @@ def extract_subject(subject):
 
 
 def verify_body(body):
-    print("Here's the body: %s" % (body,))
     git_cut_marker = '\n# ------------------------ >8 ------------------------\n'
     cut_index = body.find(git_cut_marker)
     if cut_index == -1:
         cut_index = len(body) - 1
     body = body[0:cut_index + 1]
-    print("Here's the body after cutting: %s" % (body,))
 
     # XXX Should depend on core.commentChar. Might use 'git stripspace -s' instead?
     body = re.sub('^#.*\n?', '', body, flags=re.MULTILINE)
-    print("Here's the body after munging: %s" % (body,))
     old_lines = body.splitlines(True)
-    for index, value in enumerate(old_lines):
-        print(f"old_lines[{index}] = {value}")
     is_good = True
     if len(old_lines) >= 2 and old_lines[1].strip():
         print('ERROR: missing blank line after the first subject line.')
         is_good = False
     cleaned_subject = extract_subject(old_lines[0])
-    print("Here's the cleaned subject: %s" % (cleaned_subject,))
     if len(cleaned_subject) > 80:
         # Note that this check is also invoked by the commit-msg hook.
         print("Warning: the subject line '%s' is longer than 80 characters." % (cleaned_subject,))
