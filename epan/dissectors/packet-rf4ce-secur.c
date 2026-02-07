@@ -614,6 +614,10 @@ bool decrypt_data(
         return false;
     }
 
+    if (*len < payload_offset + RF4CE_CCM_M) {
+        return false;
+    }
+
     while (idx < RF4CE_NWK_KEY_STORAGE_SIZE)
     {
         if (nwk_key_storage[idx].is_used)
