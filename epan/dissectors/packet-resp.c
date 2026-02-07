@@ -46,6 +46,10 @@ static int ett_resp_array;
 static int ett_resp_verbatim_string;
 static int ett_resp_set;
 static int ett_resp_push;
+static int ett_resp_map;
+static int ett_resp_map_entry;
+static int ett_resp_attribute;
+static int ett_resp_attribute_entry;
 
 static expert_field ei_resp_partial;
 static expert_field ei_resp_malformed_length;
@@ -80,8 +84,13 @@ static int hf_resp_set;
 static int hf_resp_set_length;
 static int hf_resp_push;
 static int hf_resp_push_length;
+static int hf_resp_map;
+static int hf_resp_map_length;
+static int hf_resp_attribute;
+static int hf_resp_attribute_length;
 
 static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_elements);
+static int dissect_resp_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_entries, int ett_entry_type);
 static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const char *bulk_string_as_str, const char data_type);
 void proto_reg_handoff_resp(void);
 void proto_register_resp(void);
@@ -527,6 +536,90 @@ static int dissect_resp_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
+static int dissect_resp_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth, char data_type) {
+    int hf_resp_x;
+    int hf_resp_x_length;
+    int ett_resp_x;
+    int ett_resp_x_entry;
+    char *data_type_format;
+
+    switch (data_type) {
+        case '%':
+            hf_resp_x = hf_resp_map;
+            hf_resp_x_length = hf_resp_map_length;
+            ett_resp_x = ett_resp_map;
+            ett_resp_x_entry = ett_resp_map_entry;
+            data_type_format = " Map(%" PRId64 ")";
+            break;
+        case '|':
+            hf_resp_x = hf_resp_attribute;
+            hf_resp_x_length = hf_resp_attribute_length;
+            ett_resp_x = ett_resp_attribute;
+            ett_resp_x_entry = ett_resp_attribute_entry;
+            data_type_format = " Attribute(%" PRId64 ")";
+            break;
+        default:
+            DISSECTOR_ASSERT_NOT_REACHED();
+    }
+
+    const char *nb_entries_as_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
+                                                        string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
+    int64_t nb_entries = g_ascii_strtoll(nb_entries_as_string, NULL, 10);
+
+    /* We'll fix up the length later when we know how long it actually was */
+    proto_item *map_item = proto_tree_add_item(tree, hf_resp_x, tvb, offset, string_length + CRLF_LENGTH, ENC_NA);
+
+    proto_tree *map_tree = proto_item_add_subtree(map_item, ett_resp_x);
+    proto_tree_add_int64(map_tree, hf_resp_x_length, tvb, offset, string_length + CRLF_LENGTH, nb_entries);
+
+
+    if (nb_entries == 0) {
+        proto_item_append_text(map_item, ": Empty");
+        return string_length + CRLF_LENGTH;
+    } else if (nb_entries < 0) {
+        expert_add_info(pinfo, map_item, &ei_resp_malformed_length);
+        return string_length + CRLF_LENGTH;
+    }
+
+    proto_item_append_text(map_item, ": Length %" PRId64, nb_entries);
+
+    /* Bail out if we're recursing too much */
+    if (array_depth > MAX_ARRAY_DEPTH_TO_RECURSE) {
+        expert_add_info(pinfo, map_item, &ei_resp_array_recursion_too_deep);
+        return string_length + CRLF_LENGTH;
+    }
+
+    /* Non-empty map, but we've ran out of bytes in the tvb */
+    if (!tvb_offset_exists(tvb, offset + string_length + CRLF_LENGTH) && nb_entries > 0) {
+        if (DESEGMENT_ENABLED(pinfo)) {
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+            return -1;
+        }
+        expert_add_info(pinfo, map_item, &ei_resp_partial);
+    }
+
+    /* Add to the info column for responses. Don't do this for requests which are typically commands.
+     * These are extracted in the bulk string dissector  */
+    if (RESP_RESPONSE(pinfo) && array_depth == 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, data_type_format, nb_entries);
+    }
+
+    int dissected_offset = dissect_resp_entries(tvb, pinfo, map_tree, offset + string_length + CRLF_LENGTH,array_depth + 1, nb_entries, ett_resp_x_entry);
+    if (dissected_offset == -1) {
+        /* Override any desegment lengths previously set as we want to start from the beginning of the array */
+        pinfo->desegment_offset = offset;
+        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+        /* We've partially decoded some of the array, but we've asked for all. It will still show in the proto tree so give an
+         * indication as to why it's only partially there*/
+        expert_add_info(pinfo, map_item, &ei_resp_reassembled_in_next_frame);
+        return -1;
+    }
+    proto_item_set_len(map_item, dissected_offset - offset);
+    return dissected_offset - offset;
+}
+
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_resp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
     const char data_type = tvb_get_uint8(tvb, offset);
     switch (data_type) {
@@ -553,7 +646,9 @@ static int dissect_resp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             return dissect_resp_null(tvb, pinfo, tree, offset, string_length, array_depth);
         case '#':
             return dissect_resp_boolean(tvb, pinfo, tree, offset, string_length, array_depth);
-
+        case '%':
+        case '|':
+            return dissect_resp_map(tvb, pinfo, tree, offset, string_length, array_depth, data_type);
         default:
             /* We have an erroneous \r\n if the string length is 0. */
             if (string_length == 0) {
@@ -596,6 +691,58 @@ static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             return -1;
         }
         done_elements++;
+        offset += error_or_offset;
+    }
+
+    return offset;
+}
+
+// NOLINTNEXTLINE(misc-no-recursion)
+static int dissect_resp_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_entries, int ett_entry_type) {
+    int error_or_offset;
+    int crlf_string_line_length;
+    int done_entries = 0;
+    proto_tree *entry_tree;
+    proto_item *ti;
+
+    while (tvb_offset_exists(tvb, offset)) {
+        /* If we ended up in here from a recursive call when traversing a map, don't drain the tvb to empty.
+         * Only do the amount of elements that are expected in the array */
+        if (expected_entries >= 0 && done_entries == expected_entries) {
+            return offset;
+        }
+        crlf_string_line_length = tvb_find_line_end(tvb, offset, -1, NULL, DESEGMENT_ENABLED(pinfo));
+        /* If desegment is disabled, tvb_find_line_end() will return a positive length, regardless if it finds a CRLF */
+        if (crlf_string_line_length == -1) {
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+            return -1;
+        }
+
+        entry_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_entry_type, &ti, "Entry[%d]", done_entries);
+
+        increment_dissection_depth(pinfo);
+        error_or_offset = dissect_resp_message(tvb, pinfo, entry_tree, offset, crlf_string_line_length, array_depth);
+        decrement_dissection_depth(pinfo);
+        if (error_or_offset == -1) {
+            return -1;
+        }
+        offset += error_or_offset;
+
+        crlf_string_line_length = tvb_find_line_end(tvb, offset, -1, NULL, DESEGMENT_ENABLED(pinfo));
+        /* If desegment is disabled, tvb_find_line_end() will return a positive length, regardless if it finds a CRLF */
+        if (crlf_string_line_length == -1) {
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+            return -1;
+        }
+        increment_dissection_depth(pinfo);
+        error_or_offset = dissect_resp_message(tvb, pinfo, entry_tree, offset, crlf_string_line_length, array_depth);
+        decrement_dissection_depth(pinfo);
+        if (error_or_offset == -1) {
+            return -1;
+        }
+        done_entries++;
         offset += error_or_offset;
     }
 
@@ -793,7 +940,36 @@ void proto_register_resp(void) {
                             NULL, HFILL
                     }
             },
+            { &hf_resp_map,
+                    { "Map", "resp.map",
+                            FT_NONE, BASE_NONE,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            },
+            { &hf_resp_map_length,
+                    { "Length", "resp.map.length",
+                            FT_INT64, BASE_DEC,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            },
+            { &hf_resp_attribute,
+                    { "Attribute", "resp.attribute",
+                            FT_NONE, BASE_NONE,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            },
+            { &hf_resp_attribute_length,
+                    { "Length", "resp.attribute.length",
+                            FT_INT64, BASE_DEC,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            }
     };
+
 
     static int *ett[] = {
             &ett_resp,
@@ -802,6 +978,10 @@ void proto_register_resp(void) {
             &ett_resp_array,
             &ett_resp_set,
             &ett_resp_push,
+            &ett_resp_map,
+            &ett_resp_map_entry,
+            &ett_resp_attribute,
+            &ett_resp_attribute_entry,
     };
 
     static ei_register_info ei[] = {
