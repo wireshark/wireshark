@@ -261,7 +261,7 @@ static const value_string qcdiag_cmds[] = {
     { 0, NULL }
 };
 
-value_string_ext qcdiag_cmds_ext = VALUE_STRING_EXT_INIT(qcdiag_cmds);
+static value_string_ext qcdiag_cmds_ext = VALUE_STRING_EXT_INIT(qcdiag_cmds);
 
 static const value_string qcdiag_subsys[] = {
     { DIAG_SUBSYS_OEM,                  "OEM" },
@@ -379,7 +379,7 @@ static const value_string qcdiag_logcodes[] = {
     { 0, NULL }
 };
 
-value_string_ext qcdiag_logcodes_ext = VALUE_STRING_EXT_INIT(qcdiag_logcodes);
+static value_string_ext qcdiag_logcodes_ext = VALUE_STRING_EXT_INIT(qcdiag_logcodes);
 
 enum log_config_op {
     LOG_CONFIG_DISABLE_OP             = 0,
@@ -398,7 +398,7 @@ static const value_string qcdiag_logcfg_ops[] = {
     { 0, NULL }
 };
 
-value_string_ext qcdiag_logcfg_ops_ext = VALUE_STRING_EXT_INIT(qcdiag_logcfg_ops);
+static value_string_ext qcdiag_logcfg_ops_ext = VALUE_STRING_EXT_INIT(qcdiag_logcfg_ops);
 
 static const value_string qcdiag_logcfg_status[] = {
     { 0, "Success" },

@@ -116,7 +116,7 @@ if __name__ == '__main__':
         ('tools/check_tfs.py --check-value-strings',          False,  True),
         ('tools/check_typed_item_calls.py --all-checks ' +
          '--extra-value-string-checks --check-expert-items',  False,  True),
-        ('tools/check_static.py',                             True,   False),
+        ('tools/check_static.py',                             True,   True),
         ('tools/check_dissector_urls.py',                     False,  True),
         ('tools/check_val_to_str.py',                         False,  True),
         ('tools/check_col_apis.py',                           False,  True),
