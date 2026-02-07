@@ -153,6 +153,7 @@ typedef struct {
 } sock_state_t;
 
 typedef struct {
+    conversation_t *proxy_conv;
     enum ClientState clientState;
     enum ServerState serverState;
     int     version;
@@ -988,8 +989,12 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         *ptr = hash_info->port;
 
-        tcpd = get_tcp_conversation_data(NULL, pinfo);
-/* 2003-09-18 JCFoster Fixed problem with socks tunnel in socks tunnel */
+        if (hash_info->proxy_conv == NULL) {
+            hash_info->proxy_conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
+                CONVERSATION_TCP /* CONVERSATION_SOCKS? */, pinfo->srcport, pinfo->destport, 0);
+        }
+
+        tcpd = get_tcp_conversation_data(hash_info->proxy_conv, pinfo);
 
         state_info->in_socks_dissector_flag = 1; /* avoid recursive overflow */
         CLEANUP_PUSH(clear_in_socks_dissector_flag, state_info);
