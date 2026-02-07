@@ -1116,7 +1116,6 @@ dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, u
     hf_eap_identity_mcc_mnc = hf_eap_identity_mcc_mnc_2digits;
   }
 
-  offset = tvb_find_uint8_length(tvb, offset, size, '@', &offset);
   if (tvb_find_uint8_length(tvb, offset, size, '@', &offset)) {
     /* Should always be true. */
     offset += 1;
@@ -1279,9 +1278,11 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, unsigne
     aoffset += 1;
     aleft   -= 1;
 
-    if (aleft <= 0)
+    pi = proto_tree_add_item(attr_tree, hf_eap_aka_subtype_length, tvb, aoffset, 1, ENC_BIG_ENDIAN);
+    if (length == 0) {
+      expert_add_info(pinfo, pi, &ei_eap_bad_length);
       break;
-    proto_tree_add_item(attr_tree, hf_eap_aka_subtype_length, tvb, aoffset, 1, ENC_BIG_ENDIAN);
+    }
     aoffset += 1;
     aleft   -= 1;
 
