@@ -67,6 +67,7 @@ ippusb.attempt_reassembly: FALSE
 iscsi.desegment_iscsi_messages: FALSE
 isns.desegment: FALSE
 iwarp_ddp_rdmap.reassemble_iwarp_rdma_send: FALSE
+json.plus_desegment: FALSE
 jxta.desegment: FALSE
 kip.desegment: FALSE
 kpasswd.desegment: FALSE

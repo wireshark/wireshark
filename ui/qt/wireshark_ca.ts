@@ -4534,7 +4534,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>%1 I/O Graphs: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics d&apos;E/S de %1: %2</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -7042,7 +7042,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Clear Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Neteja el menú</translation>
     </message>
 </context>
 <context>
@@ -8322,7 +8322,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>%1 Plots: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Gràfics: %2</translation>
     </message>
     <message>
         <source>Packet</source>
@@ -9693,11 +9693,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>User Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfície d&apos;usuari</translation>
     </message>
     <message>
         <source>not found</source>
-        <translation type="unfinished"></translation>
+        <translation>no trobat</translation>
     </message>
 </context>
 <context>
@@ -10221,9 +10221,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message numerus="yes">
         <source> %Ln stream(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln flux, </numerusform>
+            <numerusform> %Ln fluxos, </numerusform>
         </translation>
     </message>
     <message>
@@ -10868,9 +10868,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message numerus="yes">
         <source>%Ln stream(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln flux</numerusform>
+            <numerusform>%Ln fluxos</numerusform>
         </translation>
     </message>
     <message>
@@ -11228,16 +11228,16 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message numerus="yes">
         <source>%Ln stream(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln flux</numerusform>
+            <numerusform>%Ln fluxos</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %1 selected, %Ln total packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>, %1 de seleccionats, %Ln paquets en total</numerusform>
+            <numerusform>, %1 de seleccionats, %Ln paquets en total</numerusform>
         </translation>
     </message>
     <message>
@@ -12361,7 +12361,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>ShowPacketBytesTextEdit</name>
     <message>
         <source>&lt;html&gt;Mouse byte selection is enabled when&lt;p&gt;&quot;Decode as&quot; = None&lt;p&gt;AND&lt;p&gt;&quot;Show as&quot; = ASCII, ASCII &amp; Control, EBCDIC or Raw&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;La selecció de bytes amb el ratolí està activat quan&lt;p&gt;«Descodifica com a» = Cap&lt;p&gt; i &lt;p&gt;«Mostra com a» = ASCII, ASCII i Control, EBCDIC o dades en brut&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show Selected</source>
@@ -13870,7 +13870,49 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head&gt;
+&lt;style&gt;
+a:link {
+  color: palette(text);
+  text-decoration: none;
+}
+a:hover {
+  color: palette(text);
+  text-decoration: underline;
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table&gt;&lt;tr&gt;
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;Guia d&apos;usuari&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://gitlab.com/wireshark/wireshark/-/wikis/&quot;&gt;Viqui&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Preguntes i respostes&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Llistes de correu&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://sharkfest.wireshark.org/&quot;&gt;SharkFest&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://discord.gg/fT2jvkawGj&quot;&gt;Discord del Wireshark&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://wiresharkfoundation.org/donate/&quot;&gt;Donatius&lt;/a&gt;&lt;/th&gt;
+
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -13901,7 +13943,7 @@ a:hover {
     </message>
     <message>
         <source>You are running Wireshark </source>
-        <translation>S&apos;executa el Wireshark</translation>
+        <translation>S&apos;executa el Wireshark </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -16222,11 +16264,11 @@ a:hover {
     </message>
     <message>
         <source> before exporting PDUs</source>
-        <translation type="unfinished"></translation>
+        <translation>abans d&apos;exportar els PDU</translation>
     </message>
     <message>
         <source> before stripping headers</source>
-        <translation type="unfinished"></translation>
+        <translation>abans de traure les capçaleres</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
