@@ -213,17 +213,17 @@
         </Component>
         <Component Id="cmpProtobuf_mysqlx" Guid="*">
           <File Id="filProtobuf_mysqlx" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx.proto" />
-          <File Id="filProtobuf_mysqlx_connection" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_connection.proto" />
-          <File Id="filProtobuf_mysqlx_crud" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_crud.proto" />
-          <File Id="filProtobuf_mysqlx_cursor" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_cursor.proto" />
-          <File Id="filProtobuf_mysqlx_datatypes" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_datatypes.proto" />
-          <File Id="filProtobuf_mysqlx_expect" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_expect.proto" />
-          <File Id="filProtobuf_mysqlx_expr" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_expr.proto" />
-          <File Id="filProtobuf_mysqlx_notice" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_notice.proto" />
-          <File Id="filProtobuf_mysqlx_prepare" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_prepare.proto" />
-          <File Id="filProtobuf_mysqlx_resultset" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_resultset.proto" />
-          <File Id="filProtobuf_mysqlx_session" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_session.proto" />
-          <File Id="filProtobuf_mysqlx_sql" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_sql.proto" />
+          <File Id="filProtobuf_mysqlx_connection" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_connection.proto" />
+          <File Id="filProtobuf_mysqlx_crud" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_crud.proto" />
+          <File Id="filProtobuf_mysqlx_cursor" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_cursor.proto" />
+          <File Id="filProtobuf_mysqlx_datatypes" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_datatypes.proto" />
+          <File Id="filProtobuf_mysqlx_expect" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_expect.proto" />
+          <File Id="filProtobuf_mysqlx_expr" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_expr.proto" />
+          <File Id="filProtobuf_mysqlx_notice" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_notice.proto" />
+          <File Id="filProtobuf_mysqlx_prepare" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_prepare.proto" />
+          <File Id="filProtobuf_mysqlx_resultset" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_resultset.proto" />
+          <File Id="filProtobuf_mysqlx_session" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_session.proto" />
+          <File Id="filProtobuf_mysqlx_sql" KeyPath="no" Source="$(var.Protobuf.Dir)\mysqlx_sql.proto" />
         </Component>
       </DirectoryRef>
     </Fragment>
