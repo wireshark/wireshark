@@ -563,12 +563,11 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
 {
     address addr = ADDRESS_INIT_NONE;
     uint16_t port;
-    int colon_offset;
-    int end_offset;
+    unsigned colon_offset;
+    unsigned end_offset;
     char *ip_str, *port_str;
 
-    colon_offset = tvb_find_uint8(tvb, offset, -1, ':');
-    if (colon_offset == -1) {
+    if (!tvb_find_uint8_remaining(tvb, offset, ':', &colon_offset)) {
         /* RFC 7143 13.8 TargetAddress "If the TCP port is not specified,
          * it is assumed to be the IANA-assigned default port for iSCSI",
          * so nothing to do here.
@@ -580,14 +579,12 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
     if (tvb_get_uint8(tvb, offset) == '[') {
         offset++;
         /* could be an ipv6 address */
-        end_offset = tvb_find_uint8(tvb, offset, -1, ']');
-        if (end_offset == -1) {
+        if (!tvb_find_uint8_remaining(tvb, offset, ']', &end_offset)) {
             return;
         }
 
         /* look for the colon before the port, if any */
-        colon_offset = tvb_find_uint8(tvb, end_offset, -1, ':');
-        if (colon_offset == -1) {
+        if (!tvb_find_uint8_remaining(tvb, end_offset, ':', &colon_offset)) {
             return;
         }
 
@@ -612,9 +609,8 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
     }
 
     /* Extract the port */
-    end_offset = tvb_find_uint8(tvb, colon_offset, -1, ',');
-    int port_len;
-    if (end_offset == -1) {
+    unsigned port_len;
+    if (!tvb_find_uint8_remaining(tvb, colon_offset, ',', &end_offset)) {
         port_len = tvb_reported_length_remaining(tvb, colon_offset + 1);
     } else {
         port_len = end_offset - (colon_offset + 1);
@@ -639,11 +635,11 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
 
 }
 
-static int
-addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, int offset, uint32_t text_len) {
-    const int limit = offset + text_len;
+static unsigned
+addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, unsigned offset, uint32_t text_len) {
+    const unsigned limit = offset + text_len;
     tvbuff_t *keyvalue_tvb;
-    int len, value_offset;
+    unsigned len, value_offset;
     const char *value;
 
     while(offset < limit) {
@@ -653,9 +649,8 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, int offset, uint3
          */
         len = tvb_strnlen(tvb, offset, -1) + 1; /* +1 to include the '\0' */
         keyvalue_tvb = tvb_new_subset_length(tvb, offset, len);
-        value_offset = tvb_find_uint8(keyvalue_tvb, 0, len, '=');
 
-        if (value_offset == -1) {
+        if (!tvb_find_uint8_length(keyvalue_tvb, 0, len, '=', &value_offset)) {
             break;
         }
         value_offset++;
@@ -740,9 +735,9 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, int offset, uint3
     return offset;
 }
 
-static int
-handleHeaderDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb, unsigned offset, int headerLen) {
-    int available_bytes = tvb_captured_length_remaining(tvb, offset);
+static unsigned
+handleHeaderDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb, unsigned offset, unsigned headerLen) {
+    unsigned available_bytes = tvb_captured_length_remaining(tvb, offset);
 
     switch(iscsi_session->header_digest){
     case ISCSI_DIGEST_CRC32:
@@ -762,9 +757,9 @@ handleHeaderDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb
     return offset + headerLen;
 }
 
-static int
-handleDataDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb, unsigned offset, int dataLen) {
-    int available_bytes = tvb_captured_length_remaining(tvb, offset);
+static unsigned
+handleDataDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb, unsigned offset, unsigned dataLen) {
+    unsigned available_bytes = tvb_captured_length_remaining(tvb, offset);
 
     if (dataLen > 0) {
         switch (iscsi_session->data_digest){
@@ -787,17 +782,17 @@ handleDataDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb, 
     return offset + dataLen;
 }
 
-static int
+static unsigned
 handleDataSegment(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb, unsigned offset, unsigned dataSegmentLen, unsigned endOffset, int hf_id) {
     if(endOffset > offset) {
-        int dataOffset = offset;
-        int dataLen = MIN(dataSegmentLen, endOffset - offset);
+        unsigned dataOffset = offset;
+        unsigned dataLen = MIN(dataSegmentLen, endOffset - offset);
         if(dataLen > 0) {
             proto_tree_add_item(ti, hf_id, tvb, offset, dataLen, ENC_NA);
             offset += dataLen;
         }
         if(offset < endOffset && (offset & 3) != 0) {
-            int padding = 4 - (offset & 3);
+            unsigned padding = 4 - (offset & 3);
             proto_tree_add_item(ti, hf_iscsi_Padding, tvb, offset, padding, ENC_NA);
             offset += padding;
         }
@@ -808,11 +803,11 @@ handleDataSegment(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb,
     return offset;
 }
 
-static int
+static unsigned
 handleDataSegmentAsTextKeys(iscsi_session_t *iscsi_session, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, unsigned offset, unsigned dataSegmentLen, unsigned endOffset, int digestsActive) {
     if(endOffset > offset) {
-        int dataOffset = offset;
-        int textLen = MIN(dataSegmentLen, endOffset - offset);
+        unsigned dataOffset = offset;
+        unsigned textLen = MIN(dataSegmentLen, endOffset - offset);
         if(textLen > 0) {
             proto_tree *tt = proto_tree_add_subtree(ti, tvb, offset, textLen,
                                           ett_iscsi_KeyValues, NULL, "Key/Value Pairs");
