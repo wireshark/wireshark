@@ -2473,37 +2473,37 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const uint8_t *buf, unsigned 
   return encr_tvb;
 }
 
-static proto_tree *dissect_payload_header(tvbuff_t *, packet_info *, int, int, int, uint8_t,
+static proto_tree *dissect_payload_header(tvbuff_t *, packet_info *, unsigned offset, unsigned length, int, uint8_t,
     uint8_t *, uint16_t *, proto_tree *);
 
-static void dissect_sa(tvbuff_t *, int, int, proto_tree *, int, packet_info *, bool, void*);
-static void dissect_proposal(tvbuff_t *, packet_info *, int, int, proto_tree *, int, void*);
-static void dissect_transform(tvbuff_t *, packet_info *, int, int, proto_tree *, int, int, void*);
-static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *, int, packet_info *, void*);
-static void dissect_id_type(tvbuff_t *, int, int, uint8_t, proto_tree *, proto_item *, packet_info *);
-static void dissect_id(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
-static void dissect_cert(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
-static void dissect_certreq(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
-static void dissect_auth(tvbuff_t *, packet_info *, int, int, proto_tree *);
-static void dissect_hash(tvbuff_t *, int, int, proto_tree *);
-static void dissect_sig(tvbuff_t *, int, int, proto_tree *);
-static void dissect_nonce(tvbuff_t *, int, int, proto_tree *);
-static void dissect_notif(tvbuff_t *, packet_info *, int, int, proto_tree *, int);
-static void dissect_delete(tvbuff_t *, int, int, proto_tree *, int);
-static int dissect_vid(tvbuff_t *, packet_info*, int, int, proto_tree *);
-static void dissect_config(tvbuff_t *, packet_info *, int, int, proto_tree *, int, bool);
-static void dissect_sa_kek(tvbuff_t *, packet_info *, int, int, proto_tree *);
-static void dissect_sa_tek(tvbuff_t *, packet_info *, int, int, proto_tree *);
-static void dissect_key_download(tvbuff_t *, packet_info *, int, int, proto_tree *, int);
-static void dissect_sequence(tvbuff_t *, packet_info *, int, int, proto_tree *);
-static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree * );
-static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *, int );
-static void dissect_ts_payload(tvbuff_t *, packet_info*, int, int, proto_tree *);
-static tvbuff_t * dissect_enc(tvbuff_t *, int, int, proto_tree *, packet_info *, uint8_t, bool, void*, bool);
-static void dissect_eap(tvbuff_t *, int, int, proto_tree *, packet_info *);
-static void dissect_gspm(tvbuff_t *, int, int, proto_tree *);
-static void dissect_symmetric_key(tvbuff_t *, int, int, proto_tree *);
-static void dissect_cisco_fragmentation(tvbuff_t *, int, int, proto_tree *, packet_info *);
+static void dissect_sa(tvbuff_t *, unsigned offset, unsigned length, proto_tree *, int, packet_info *, bool, void*);
+static void dissect_proposal(tvbuff_t *, packet_info *, unsigned offset, unsigned length, proto_tree *, int, void*);
+static void dissect_transform(tvbuff_t *, packet_info *, unsigned offset, unsigned length, proto_tree *, int, int, void*);
+static void dissect_key_exch(tvbuff_t *, unsigned offset, unsigned length, proto_tree *, int, packet_info *, void*);
+static void dissect_id_type(tvbuff_t *, unsigned offset, unsigned length, uint8_t, proto_tree *, proto_item *, packet_info *);
+static void dissect_id(tvbuff_t *, unsigned offset, unsigned length, proto_tree *, int, packet_info *);
+static void dissect_cert(tvbuff_t *, unsigned offset, unsigned length, proto_tree *, int, packet_info *);
+static void dissect_certreq(tvbuff_t *, unsigned offset, unsigned length, proto_tree *, int, packet_info *);
+static void dissect_auth(tvbuff_t *, packet_info *, unsigned offset, unsigned length, proto_tree *);
+static void dissect_hash(tvbuff_t *, unsigned offset, unsigned length, proto_tree *);
+static void dissect_sig(tvbuff_t *, unsigned offset, unsigned length, proto_tree *);
+static void dissect_nonce(tvbuff_t *, unsigned offset, unsigned length, proto_tree *);
+static void dissect_notif(tvbuff_t *, packet_info *, unsigned offset, unsigned length, proto_tree *, int);
+static void dissect_delete(tvbuff_t *, unsigned offset, unsigned length, proto_tree *, int);
+static int dissect_vid(tvbuff_t *, packet_info*, unsigned offset, unsigned length, proto_tree *);
+static void dissect_config(tvbuff_t *, packet_info *, unsigned offset, unsigned length, proto_tree *, int, bool);
+static void dissect_sa_kek(tvbuff_t *, packet_info *, unsigned offset, unsigned length, proto_tree *);
+static void dissect_sa_tek(tvbuff_t *, packet_info *, unsigned offset, unsigned length, proto_tree *);
+static void dissect_key_download(tvbuff_t *, packet_info *, unsigned offset, unsigned length, proto_tree *, int);
+static void dissect_sequence(tvbuff_t *, packet_info *, unsigned offset, unsigned length, proto_tree *);
+static void dissect_nat_discovery(tvbuff_t *, unsigned offset, unsigned length, proto_tree * );
+static void dissect_nat_original_address(tvbuff_t *, unsigned offset, unsigned length, proto_tree *, int );
+static void dissect_ts_payload(tvbuff_t *, packet_info*, unsigned offset, unsigned length, proto_tree *);
+static tvbuff_t * dissect_enc(tvbuff_t *, unsigned offset, unsigned length, proto_tree *, packet_info *, uint8_t, bool, void*, bool);
+static void dissect_eap(tvbuff_t *, unsigned offset, unsigned length, proto_tree *, packet_info *);
+static void dissect_gspm(tvbuff_t *, unsigned offset, unsigned length, proto_tree *);
+static void dissect_symmetric_key(tvbuff_t *, unsigned offset, unsigned length, proto_tree *);
+static void dissect_cisco_fragmentation(tvbuff_t *, unsigned offset, unsigned length, proto_tree *, packet_info *);
 
 /* State of current fragmentation within a conversation */
 typedef struct ikev2_fragmentation_state_t {
@@ -2514,7 +2514,7 @@ typedef struct ikev2_fragmentation_state_t {
 /* frame_number -> next_payload.  The key will be the frame that completes the original message */
 static GHashTable *defrag_next_payload_hash;
 
-static void dissect_ikev2_fragmentation(tvbuff_t *, int, proto_tree *, packet_info *, uint32_t message_id, uint8_t next_payload,
+static void dissect_ikev2_fragmentation(tvbuff_t *, unsigned offset, proto_tree *, packet_info *, uint32_t message_id, uint8_t next_payload,
                                         bool is_request, void* decr_info);
 
 static const uint8_t VID_SSH_IPSEC_EXPRESS_1_1_0[] = { /* Ssh Communications Security IPSEC Express version 1.1.0 */
@@ -3237,7 +3237,7 @@ static const bytes_string vendor_id[] = {
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
-                int isakmp_version, uint8_t initial_payload, int offset, int length,
+                int isakmp_version, uint8_t initial_payload, unsigned offset, unsigned length,
                 packet_info *pinfo, uint32_t message_id, bool is_request, void* decr_data)
 {
   uint8_t        payload, next_payload;
@@ -3378,13 +3378,17 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
     }
 
     offset += payload_length;
-    length -= payload_length;
+    if (length > payload_length) {
+      length -= payload_length;
+    } else {
+      length = 0;
+    }
   }
 }
 
 void
 isakmp_dissect_payloads(tvbuff_t *tvb, proto_tree *tree, int isakmp_version,
-                        uint8_t initial_payload, int offset, int length,
+                        uint8_t initial_payload, unsigned offset, unsigned length,
                         packet_info *pinfo)
 {
   dissect_payloads(tvb, tree, isakmp_version, initial_payload, offset, length,
@@ -3604,7 +3608,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 
 static proto_tree *
-dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
+dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length,
     int isakmp_version, uint8_t payload, uint8_t *next_payload_p,
     uint16_t *payload_length_p, proto_tree *tree)
 {
@@ -3645,7 +3649,7 @@ dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, int offset, int length
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo, bool is_request, void* decr_data)
+dissect_sa(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version, packet_info *pinfo, bool is_request, void* decr_data)
 {
   uint32_t      doi;
   uint16_t      saattr;
@@ -3724,7 +3728,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
 }
 
 static void
-dissect_proposal(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version, void* decr_data)
+dissect_proposal(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version, void* decr_data)
 {
   uint8_t               protocol_id;
   uint8_t               spi_size;
@@ -3806,7 +3810,7 @@ dissect_proposal(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
  * @param [out] subtree         The subtree created for this attribute.
  */
 static void
-dissect_attribute_header(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
+dissect_attribute_header(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned offset,
                          attribute_common_fields hf_attr, const range_string *attr_typenames,
                          unsigned *headerlen, unsigned *value_len, unsigned *attr_type,
                          proto_item **attr_item, proto_tree **subtree)
@@ -3846,7 +3850,7 @@ dissect_attribute_header(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, in
 
 /* Returns the number of bytes consumed by this attribute. */
 static int
-dissect_rohc_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_rohc_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
   unsigned headerlen, value_len, attr_type;
   proto_item *attr_item;
@@ -3896,7 +3900,7 @@ dissect_rohc_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  * life duration according to the attribute classes table in Appendix A of
  * RFC2409: https://tools.ietf.org/html/rfc2409#page-33 */
 static void
-dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_uint32, int hf_uint64, int hf_bytes, int offset, unsigned len)
+dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_uint32, int hf_uint64, int hf_bytes, unsigned offset, unsigned len)
 {
   switch (len) {
     case 0:
@@ -3974,7 +3978,7 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_ui
 
 /* Returns the number of bytes consumed by this attribute. */
 static int
-dissect_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
   unsigned headerlen, value_len, attr_type;
   proto_item *attr_item;
@@ -4061,7 +4065,7 @@ dissect_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 /* Returns the number of bytes consumed by this attribute. */
 static int
-dissect_resp_lifetime_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_resp_lifetime_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
   unsigned headerlen, value_len, attr_type;
   proto_item *attr_item;
@@ -4098,7 +4102,7 @@ dissect_resp_lifetime_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 /* Returns the number of bytes consumed by this attribute. */
 static int
-dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, decrypt_data_t *decr)
+dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, decrypt_data_t *decr)
 {
   unsigned headerlen, value_len, attr_type;
   proto_item *attr_item;
@@ -4205,7 +4209,7 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
 /* Returns the number of bytes consumed by this attribute. */
 static int
-dissect_resp_lifetime_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_resp_lifetime_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
   unsigned headerlen, value_len, attr_type;
   proto_item *attr_item;
@@ -4242,7 +4246,7 @@ dissect_resp_lifetime_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 /* Returns the number of bytes consumed by this attribute. */
 static int
-dissect_ike2_transform_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_ike2_transform_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
   unsigned headerlen, value_len, attr_type;
   proto_item *attr_item;
@@ -4275,14 +4279,14 @@ dissect_ike2_transform_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static void
-dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version, int protocol_id, void* decr_data)
+dissect_transform(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version, int protocol_id, void* decr_data)
 {
   if (isakmp_version == 1)
   {
     uint8_t             transform_id;
     uint8_t             transform_num;
     decrypt_data_t *decr = (decrypt_data_t *)decr_data;
-    int offset_end = 0;
+    unsigned offset_end = 0;
     offset_end = offset + length;
 
     transform_num = tvb_get_uint8(tvb, offset);
@@ -4344,7 +4348,7 @@ dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pro
   else if(isakmp_version == 2)
   {
     uint8_t transform_type;
-    int offset_end = 0;
+    unsigned offset_end = 0;
     offset_end = offset + length;
 
     transform_type = tvb_get_uint8(tvb, offset);
@@ -4383,7 +4387,7 @@ dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pro
 }
 
 static void
-dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version,
+dissect_key_exch(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version,
                  packet_info* pinfo, void* decr_data)
 {
   if (isakmp_version == 2) {
@@ -4414,7 +4418,7 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
 }
 
 static void
-dissect_id_type(tvbuff_t *tvb, int offset, int length, uint8_t id_type, proto_tree *idtree, proto_item *idit, packet_info *pinfo )
+dissect_id_type(tvbuff_t *tvb, unsigned offset, unsigned length, uint8_t id_type, proto_tree *idtree, proto_item *idit, packet_info *pinfo )
 {
   const uint8_t         *str;
   asn1_ctx_t            asn1_ctx;
@@ -4470,7 +4474,7 @@ dissect_id_type(tvbuff_t *tvb, int offset, int length, uint8_t id_type, proto_tr
 }
 
 static void
-dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
+dissect_id(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
 {
   uint8_t               id_type;
   uint8_t               protocol_id;
@@ -4526,7 +4530,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
 }
 
 static void
-dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
+dissect_cert(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
 {
   uint8_t               cert_type;
   asn1_ctx_t asn1_ctx;
@@ -4570,7 +4574,7 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp
 }
 
 static void
-dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
+dissect_certreq(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
 {
   uint8_t               cert_type;
   asn1_ctx_t asn1_ctx;
@@ -4604,7 +4608,7 @@ dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isa
   }else if (isakmp_version == 2)
   {
     /* this is a list of 20 byte SHA-1 hashes */
-    while (length > 0) {
+    while (length >= 20) {
       proto_tree_add_item(tree, hf_isakmp_certreq_authority_v2, tvb, offset, 20, ENC_NA);
       offset+=20;
       length-=20;
@@ -4613,7 +4617,7 @@ dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isa
 }
 
 static void
-dissect_auth(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+dissect_auth(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length, proto_tree *tree)
 {
   uint32_t                      auth_meth;
   uint32_t                      asn1_len;
@@ -4639,7 +4643,7 @@ dissect_auth(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tr
     length -= 1;
 
     /* cast ok, since length was parsed out of one unsigned byte into uint32_t */
-    if ( (asn1_len > 0) && ((int)asn1_len < length) ) {
+    if ( (asn1_len > 0) && (asn1_len < length) ) {
 
       ti = proto_tree_add_item(subtree, hf_isakmp_auth_digital_sig_asn1_data, tvb, offset, asn1_len, ENC_NA);
       asn1tree = proto_item_add_subtree(ti, ett_isakmp_payload_digital_signature_asn1_data);
@@ -4654,31 +4658,31 @@ dissect_auth(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tr
 }
 
 static void
-dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
+dissect_hash(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *ntree)
 {
   proto_tree_add_item(ntree, hf_isakmp_hash, tvb, offset, length, ENC_NA);
 }
 
 static void
-dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
+dissect_sig(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *ntree)
 {
   proto_tree_add_item(ntree, hf_isakmp_sig, tvb, offset, length, ENC_NA);
 }
 
 static void
-dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
+dissect_nonce(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *ntree)
 {
   proto_tree_add_item(ntree, hf_isakmp_nonce, tvb, offset, length, ENC_NA);
 }
 
-static void dissect_symmetric_key(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
+static void dissect_symmetric_key(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *ntree)
 {
   proto_tree_add_item(ntree, hf_isakmp_symmetric_key, tvb, offset, length, ENC_NA);
 }
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info *pinfo)
+dissect_cisco_fragmentation(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree, packet_info *pinfo)
 {
   uint8_t seq; /* Packet sequence number, starting from 1 */
   uint8_t last;
@@ -4732,7 +4736,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 /* This is RFC7383 reassembly. */
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
+dissect_ikev2_fragmentation(tvbuff_t *tvb, unsigned offset, proto_tree *tree,
                             packet_info *pinfo, unsigned message_id, uint8_t next_payload, bool is_request, void* decr_info)
 {
   uint16_t fragment_number, total_fragments;
@@ -4891,7 +4895,7 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
 }
 
 static void
-dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version)
+dissect_notif(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version)
 {
   uint32_t              doi = 0;
   uint8_t               protocol_id;
@@ -4899,7 +4903,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
   uint16_t              msgtype;
   proto_item            *data_item;
   proto_tree            *data_tree;
-  int                   offset_end = 0;
+  unsigned              offset_end = 0;
   offset_end = offset + length;
 
   if (isakmp_version == 1) {
@@ -5206,8 +5210,8 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
         proto_tree_add_item(tree, hf_isakmp_notify_data_fortinet_forticlient_connect, tvb, offset, length, ENC_ASCII);
         while (offset < offset_end) {
 
-          int line_len = tvb_find_uint8(tvb, offset, offset_end-offset, '\n');
-          if (line_len == -1) {
+          unsigned line_len;
+          if (!tvb_find_uint8_length(tvb, offset, offset_end - offset, '\n', &line_len)) {
               break;
           } else {
               line_len = line_len - offset;
@@ -5307,7 +5311,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
 }
 
 static void
-dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version)
+dissect_delete(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version)
 {
   uint8_t               spi_size;
 
@@ -5349,7 +5353,7 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
 
 
 static int
-dissect_vid(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, proto_tree *tree)
+dissect_vid(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length, proto_tree *tree)
 {
   const uint8_t * pVID;
   const char * vendorstring;
@@ -5419,7 +5423,7 @@ dissect_vid(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, proto_tre
 
 /* Returns the number of bytes consumed by this attribute. */
 static int
-dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int isakmp_version, bool is_request)
+dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int isakmp_version, bool is_request)
 {
   const range_string *vs_cfgattr;
   unsigned headerlen, value_len, attr_type;
@@ -5702,9 +5706,9 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 }
 
 static void
-dissect_config(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version, bool is_request)
+dissect_config(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version, bool is_request)
 {
-  int offset_end = 0;
+  unsigned offset_end = 0;
   offset_end = offset + length;
   if (isakmp_version == 1) {
 
@@ -5736,9 +5740,9 @@ dissect_config(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_
 }
 
 static void
-dissect_sa_kek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
+dissect_sa_kek(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned offset, unsigned length, proto_tree *tree)
 {
-  int payload_end = 0;
+  unsigned payload_end = 0;
   uint32_t src_id_length, dst_id_length;
 
   uint8_t next_payload;
@@ -5791,9 +5795,9 @@ dissect_sa_kek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, pr
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_sa_tek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
+dissect_sa_tek(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned offset, unsigned length, proto_tree *tree)
 {
-  int offset_end = 0, payload_end=0;
+  unsigned offset_end = 0, payload_end=0;
   uint32_t protocol_id, src_id_length, dst_id_length;
   offset_end = offset + length;
   uint8_t next_payload, id_type;
@@ -5867,7 +5871,7 @@ dissect_sa_tek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, pr
 
 /* Returns the number of bytes consumed by this attribute. */
 static int
-dissect_tek_key_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_tek_key_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
   unsigned headerlen, value_len, attr_type;
   proto_item *attr_item;
@@ -5888,9 +5892,9 @@ dissect_tek_key_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 }
 
 static void
-dissect_key_download(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree, int isakmp_version)
+dissect_key_download(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version)
 {
-  int offset_end = 0, payload_end=0;
+  unsigned offset_end = 0, payload_end=0;
   uint32_t num_key_pkt, kdp_length, kdp_spi_size;
   proto_item    *kd_item;
   proto_tree    *payload_tree;
@@ -5932,7 +5936,7 @@ dissect_key_download(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int leng
 }
 
 static void
-dissect_sequence(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+dissect_sequence(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length, proto_tree *tree)
 {
   if (length != 4) {
     proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_payload_bad_length, tvb, 0, 0,
@@ -5943,13 +5947,13 @@ dissect_sequence(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 }
 
 static void
-dissect_nat_discovery(tvbuff_t *tvb, int offset, int length, proto_tree *tree )
+dissect_nat_discovery(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree )
 {
   proto_tree_add_item(tree, hf_isakmp_nat_hash, tvb, offset, length, ENC_NA);
 }
 
 static void
-dissect_nat_original_address(tvbuff_t *tvb, int offset, int length _U_, proto_tree *tree, int isakmp_version)
+dissect_nat_original_address(tvbuff_t *tvb, unsigned offset, unsigned length _U_, proto_tree *tree, int isakmp_version)
 {
   uint8_t id_type;
 
@@ -5981,7 +5985,7 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length _U_, proto_tr
 }
 
 static int
-dissect_ts(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *payload_tree)
+dissect_ts(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_tree *payload_tree)
 {
   uint8_t       tstype, protocol_id;
   uint16_t      len;
@@ -6088,10 +6092,10 @@ dissect_ts(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *payload_tr
 }
 
 static void
-dissect_ts_payload(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, proto_tree *tree)
+dissect_ts_payload(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length, proto_tree *tree)
 {
   uint8_t       num;
-  int           offset_end = offset + length;
+  unsigned      offset_end = offset + length;
 
   num = tvb_get_uint8(tvb, offset);
   proto_item_append_text(tree," # %d", num);
@@ -6112,8 +6116,8 @@ dissect_ts_payload(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, pr
 static tvbuff_t*
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_enc(tvbuff_t *tvb,
-            int offset,
-            int length,
+            unsigned offset,
+            unsigned length,
             proto_tree *tree,
             packet_info *pinfo,
             uint8_t inner_payload,
@@ -6122,7 +6126,7 @@ dissect_enc(tvbuff_t *tvb,
             bool dissect_payload_now)
 {
   ikev2_decrypt_data_t *key_info = NULL;
-  int iv_len, encr_data_len, icd_len, decr_data_len, md_len, icv_len, encr_key_len, encr_iv_len;
+  unsigned iv_len, encr_data_len, icd_len, decr_data_len, md_len, icv_len, encr_key_len, encr_iv_len;
   uint8_t pad_len;
   unsigned char *iv = NULL, *encr_data = NULL, *decr_data = NULL, *entire_message = NULL, *md = NULL, *encr_iv = NULL;
   gcry_cipher_hd_t cipher_hd;
@@ -6133,7 +6137,7 @@ dissect_enc(tvbuff_t *tvb,
   int payloads_len;
   proto_tree *decr_tree = NULL, *decr_payloads_tree = NULL;
   unsigned char *aa_data = NULL, *icv_data = NULL;
-  int aad_len = 0;
+  unsigned aad_len = 0;
 
   if (decr_info) {
     /* Need decryption details to know field lengths. */
@@ -6147,7 +6151,7 @@ dissect_enc(tvbuff_t *tvb,
 
     iv_len = key_info->encr_spec->iv_len;
     icv_len = key_info->encr_spec->icv_len;
-    icd_len = icv_len ? icv_len : (int)key_info->auth_spec->trunc_len;
+    icd_len = icv_len ? icv_len : key_info->auth_spec->trunc_len;
     encr_data_len = length - iv_len - icd_len;
     encr_key_len = key_info->encr_spec->key_len;
     encr_iv_len = iv_len;
@@ -6273,16 +6277,16 @@ dissect_enc(tvbuff_t *tvb,
 
       /* Handling CTR mode and AEAD ciphers */
       if( key_info->encr_spec->salt_len ) {
-        int encr_iv_offset  = 0;
+        unsigned encr_iv_offset  = 0;
         encr_key_len = key_info->encr_spec->key_len - key_info->encr_spec->salt_len;
         encr_iv_len = key_info->encr_spec->salt_len + iv_len;
         if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_CTR) {
-          encr_iv_len = (int)gcry_cipher_get_algo_blklen(key_info->encr_spec->gcry_alg);
+          encr_iv_len = (unsigned)gcry_cipher_get_algo_blklen(key_info->encr_spec->gcry_alg);
           if ((key_info->encr_spec->number >= IKEV2_ENCR_AES_CCM_128_16 && key_info->encr_spec->number <= IKEV2_ENCR_AES_CCM_256_12))
             encr_iv_offset = 1;
         }
 
-        if (encr_key_len < 0 || encr_iv_len < encr_iv_offset + (int)key_info->encr_spec->salt_len + iv_len) {
+        if (key_info->encr_spec->salt_len > key_info->encr_spec->key_len || encr_iv_len < encr_iv_offset + key_info->encr_spec->salt_len + iv_len) {
           gcry_cipher_close(cipher_hd);
           REPORT_DISSECTOR_BUG("IKEv2 decryption error: algorithm %d, key length %d, salt length %d, input iv length %d, cipher iv length: %d: invalid length(s) of cipher parameters",
             key_info->encr_spec->gcry_alg, encr_key_len, key_info->encr_spec->salt_len, iv_len, encr_iv_len);
@@ -6367,9 +6371,9 @@ dissect_enc(tvbuff_t *tvb,
          * be updated?
          */
         unsigned char *tag;
-        int tag_len = icv_len;
+        unsigned tag_len = icv_len;
         if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_GCM)
-          tag_len = (int)gcry_cipher_get_algo_blklen(key_info->encr_spec->gcry_alg);
+          tag_len = (unsigned)gcry_cipher_get_algo_blklen(key_info->encr_spec->gcry_alg);
 
         if (tag_len < icv_len) {
           gcry_cipher_close(cipher_hd);
@@ -6442,7 +6446,7 @@ dissect_enc(tvbuff_t *tvb,
 }
 
 static void
-dissect_eap(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info *pinfo)
+dissect_eap(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree, packet_info *pinfo)
 {
   tvbuff_t *eap_tvb;
 
@@ -6455,7 +6459,7 @@ dissect_eap(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info
 }
 
 static void
-dissect_gspm(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_gspm(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_isakmp_gspm_data, tvb, offset, length, ENC_NA);
 
@@ -6482,7 +6486,7 @@ Each stream of bytes used for IKE and IPsec encapsulation MUST begin with a fixe
 static int
 dissect_iketcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  int offset = 0;
+  unsigned offset = 0;
   uint32_t length;
   tvbuff_t *payload_tvb;
 
