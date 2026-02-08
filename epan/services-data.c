@@ -5822,6 +5822,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
     { 11175, "oemcacao-websvc",  "OEM cacao web service access point" },
     { 11202, "dcsl-backup",     "DCSL Network Backup Services" },
     { 11235, "xcompute",        "numerical systems messaging" },
+    { 11434, "ollama",          "Ollama" },
     { 11489, "asgcypresstcps",  "ASG Cypress Secure Only" },
     { 11623, "emc-xsw-dconfig",  "EMC XtremSW distributed config" },
     { 11796, "lanschool",       "LanSchool" },
