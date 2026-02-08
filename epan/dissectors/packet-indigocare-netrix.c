@@ -148,7 +148,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 	proto_item *header_item;
 	proto_tree *netrix_tree;
 	proto_tree *netrix_header_tree;
-	int32_t current_offset = 0, header_offset, identifier_start, identifier_offset, data_start, data_offset, ett;
+	uint32_t current_offset = 0, header_offset, identifier_start, identifier_offset, data_start, data_offset, ett;
 	int32_t header;
 	int32_t record_identifier;
 	int32_t group_number;
@@ -181,7 +181,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 	current_offset++;
 
 	/* Read header */
-	header_offset = tvb_find_uint8(tvb, current_offset, -1, INDIGOCARE_NETRIX_STX);
+	tvb_find_uint8_remaining(tvb, current_offset, INDIGOCARE_NETRIX_STX, &header_offset);
 	if(!ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset, header_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &header)) {
 		/* Warn about invalid header? */
 		return 0;
@@ -250,12 +250,12 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 	/* Read records */
 	while (tvb_get_uint8(tvb, current_offset) != INDIGOCARE_NETRIX_ETX) {
 		identifier_start = current_offset;
-		identifier_offset = tvb_find_uint8(tvb, current_offset, -1, INDIGOCARE_NETRIX_US);
+		tvb_find_uint8_remaining(tvb, current_offset, INDIGOCARE_NETRIX_US, &identifier_offset);
 		ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset, identifier_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &record_identifier);
 		current_offset = identifier_offset + 1;
 
 		data_start = current_offset;
-		data_offset = tvb_find_uint8(tvb, current_offset, -1, INDIGOCARE_NETRIX_RS);
+		tvb_find_uint8_remaining(tvb, current_offset, INDIGOCARE_NETRIX_RS, &data_offset);
 		record_data = (char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset, data_offset - current_offset, ENC_ASCII|ENC_NA);
 
 		current_offset = data_offset + 1;
