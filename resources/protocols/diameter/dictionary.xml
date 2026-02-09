@@ -4045,7 +4045,7 @@
 			<enum name="HSPA_EVOLUTION"				code="1003"/>
 			<enum name="EUTRAN"						code="1004"/>
 			<enum name="EUTRAN-NB-IoT"				code="1005"/>
-			<enum name="NG-RAN"						code="1006"/>
+			<enum name="NR"							code="1006"/>
 			<enum name="LTE-M"						code="1007"/>
 			<enum name="NR-U"						code="1008"/>
 			<enum name="EUTRAN(LEO)"				code="1011"/>
@@ -4060,6 +4060,11 @@
 			<enum name="LTE-M(MEO)"					code="1032"/>
 			<enum name="LTE-M(GEO)"					code="1033"/>
 			<enum name="LTE-M(OTHERSAT)"			code="1034"/>
+			<enum name="NR(LEO)"					code="1035"/>
+			<enum name="NR(MEO)"					code="1036"/>
+			<enum name="NR(GEO)"					code="1037"/>
+			<enum name="NR-REDCAP"					code="1039"/>
+			<enum name="NR-EREDCAP"					code="1040"/>
 			<enum name="CDMA2000_1X"				code="2000"/>
 			<enum name="HRPD"						code="2001"/>
 			<enum name="UMB"						code="2002"/>
