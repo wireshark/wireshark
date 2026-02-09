@@ -2401,6 +2401,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         items_defined[hf].check_string_display()
         items_defined[hf].check_ipv4_display()
 
+    result.should_exit = should_exit
     return result
 
 
@@ -2515,13 +2516,14 @@ if __name__ == '__main__':
                                                  check_expert_items=args.check_expert_items, check_subtrees=args.check_subtrees,
                                                  check_double_fetch=args.check_double_fetch): file for file in files}
         for future in concurrent.futures.as_completed(future_to_file_output):
-            if should_exit:
-                exit(1)
             # File is done - show any output and update warning, error counts
             result = future.result()
             output = result.out.getvalue()
             if len(output):
                 print(output)
+
+            if result.should_exit:
+                exit(1)
 
             warnings_found += result.warnings
             errors_found += result.errors

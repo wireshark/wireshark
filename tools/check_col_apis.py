@@ -157,6 +157,7 @@ def checkFile(filename, generated, verbose=False):
         for call in col_calls:
             call.check(result)
 
+    result.should_exit = should_exit
     return result
 
 
@@ -219,8 +220,6 @@ if __name__ == '__main__':
     with concurrent.futures.ProcessPoolExecutor() as executor:
         future_to_file_output = {executor.submit(checkFile, file, isGeneratedFile(file), args.verbose): file for file in files}
         for future in concurrent.futures.as_completed(future_to_file_output):
-            if should_exit:
-                exit(1)
             # File is done - show any output and update warning, error counts
             result = future.result()
             output = result.out.getvalue()
@@ -229,6 +228,10 @@ if __name__ == '__main__':
 
             warnings_found += result.warnings
             errors_found += result.errors
+
+            if result.should_exit:
+                exit(1)
+
 
     # Show summary.
     print(warnings_found, 'warnings found')

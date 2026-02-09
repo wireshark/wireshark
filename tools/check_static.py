@@ -42,8 +42,6 @@ class CalledSymbols:
 
     def getCalls(self, file, current_build_folder, build_type):
         referred = set()
-        if should_exit:
-            exit(1)
 
         # Make sure that file is built.
         last_dir = os.path.split(os.path.dirname(file))[-1]
@@ -94,22 +92,25 @@ class CalledSymbols:
                 pass
         else:
             command = ['nm', object_file]
-            for f in subprocess.check_output(command).splitlines():
-                line = str(f)[2:-1]
-                # Lines might, or might not, have an address before letter and symbol.
-                p1 = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
-                p2 = re.compile(r'[ ]* ([a-zA-Z]) (.*)')
+            try:
+                for f in subprocess.check_output(command).splitlines():
+                    line = str(f)[2:-1]
+                    # Lines might, or might not, have an address before letter and symbol.
+                    p1 = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
+                    p2 = re.compile(r'[ ]* ([a-zA-Z]) (.*)')
 
-                m = p1.match(line)
-                if not m:
-                    m = p2.match(line)
-                if m:
-                    letter = m.group(1)
-                    function_name = m.group(2)
+                    m = p1.match(line)
+                    if not m:
+                        m = p2.match(line)
+                    if m:
+                        letter = m.group(1)
+                        function_name = m.group(2)
 
-                    # Only interested in undefined/external references to symbols.
-                    if letter == 'U':
-                        referred.add(function_name)
+                        # Only interested in undefined/external references to symbols.
+                        if letter == 'U':
+                            referred.add(function_name)
+            except Exception:  # Wanted to capture SIGINT ideally..
+                pass
         return referred
 
     def addCalls(self, calls):
@@ -188,17 +189,20 @@ class DefinedSymbols:
                 pass
         else:
             command = ['nm', object_file]
-            for f in subprocess.check_output(command).splitlines():
-                # Line consists of whitespace, [address], letter, symbolName
-                line = str(f)[2:-1]
-                p = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
-                m = p.match(line)
-                if m:
-                    letter = m.group(1)
-                    function_name = m.group(2)
-                    # Globally-defined symbols. Would be 't' or 'd' if already static..
-                    if letter in 'TD':
-                        self.addDefinedSymbol(function_name, line)
+            try:
+                for f in subprocess.check_output(command).splitlines():
+                    # Line consists of whitespace, [address], letter, symbolName
+                    line = str(f)[2:-1]
+                    p = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
+                    m = p.match(line)
+                    if m:
+                        letter = m.group(1)
+                        function_name = m.group(2)
+                        # Globally-defined symbols. Would be 't' or 'd' if already static..
+                        if letter in 'TD':
+                            self.addDefinedSymbol(function_name, line)
+            except Exception:  # Wanted to capture SIGINT ideally..
+                pass
 
     def addDefinedSymbol(self, symbol, line):
         self.global_symbols[symbol] = line
@@ -246,6 +250,7 @@ def getCalls(file, called_obj, current_build_folder, build_type):
 def checkIfSymbolsAreCalled(file, referred_set, current_build_folder, build_type):
     result = Result()
     DefinedSymbols(file, result, current_build_folder, build_type).checkIfSymbolsAreCalled(referred_set)
+    result.should_exit = should_exit
     return result
 
 def findFilesInFolder(folder):
@@ -352,8 +357,6 @@ if __name__ == '__main__':
     with concurrent.futures.ProcessPoolExecutor() as executor:
         future_to_file_output = {executor.submit(checkIfSymbolsAreCalled, file, called.referred, build_folder, build_type): file for file in files}
         for future in concurrent.futures.as_completed(future_to_file_output):
-            if should_exit:
-                exit(1)
 
             result = future.result()
             output = result.out.getvalue()
@@ -361,6 +364,9 @@ if __name__ == '__main__':
                 print(output[:-1])
 
             issues_found += result.notes
+
+            if result.should_exit:
+                exit(1)
 
     # Show summary.
     print(issues_found, 'issues found')

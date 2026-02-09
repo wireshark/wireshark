@@ -162,6 +162,7 @@ class Result:
         self.common_usage = {}
         self.custom_entries = set()
         self.local_missing_words = []
+        self.should_exit = False
 
     def warn(self, *args):
         print('Warning: ' + " ".join(map(str, args)), file=self.out)

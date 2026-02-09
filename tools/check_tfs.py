@@ -415,6 +415,7 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                     else:
                         result.common_usage[c] += 1
 
+    result.should_exit = should_exit
     return result
 
 
@@ -491,13 +492,14 @@ if __name__ == '__main__':
                                                  args.check_value_strings,
                                                  args.common_usage): file for file in sorted(files) if not isGeneratedFile(file)}
         for future in concurrent.futures.as_completed(future_to_file_output):
-            if should_exit:
-                exit(1)
             # Unpack result
             result = future.result()
             output = result.out.getvalue()
             if len(output):
                 print(output[:-1])
+
+            if result.should_exit:
+                exit(1)
 
             # Add to issue counts
             warnings_found += result.warnings

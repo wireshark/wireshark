@@ -168,7 +168,7 @@ class File:
         num_values = len(self.values)
         for value_index, v in enumerate(self.values):
             if should_exit:
-                exit(1)
+                break
 
             v = str(v)
 
@@ -368,7 +368,7 @@ def findFilesInFolder(folder, recursive=True):
         for root, subfolders, files in os.walk(folder):
             for f in files:
                 if should_exit:
-                    return
+                    return files_to_check
                 f = os.path.join(root, f)
                 if isAppropriateFile(f) and not isGeneratedFile(f):
                     files_to_check.append(f)
@@ -392,6 +392,7 @@ def checkFile(filename, check_comments=False):
 
     file = findStrings(filename, check_comments)
     file.spellCheck(result)
+    result.should_exit = should_exit
     return result
 
 class TypoSourceDocumentParser(HTMLParser):
@@ -467,7 +468,7 @@ if __name__ == '__main__':
             for word in wiki_db:
                 try:
                     if should_exit:
-                        exit(1)
+                        break
                     spell.word_frequency.remove_words([word])
                     # print('Removed', word)
                     removed += 1
@@ -551,7 +552,7 @@ if __name__ == '__main__':
                 print(output)
                 missing_words += result.local_missing_words
 
-            if should_exit:
+            if result.should_exit:
                 exit(1)
 
 
