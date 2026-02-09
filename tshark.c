@@ -254,7 +254,12 @@ typedef enum {
 } process_file_status_t;
 static process_file_status_t process_cap_file(capture_file *, char *, int, bool, int, int64_t, int, wtap_compression_type);
 
-static bool process_packet_single_pass(capture_file *cf,
+typedef enum {
+    PROCESS_PACKET_PASSED,
+    PROCESS_PACKET_DIDNT_PASS,
+    PROCESS_PACKET_PRINT_ERROR
+} process_packet_status_t;
+static process_packet_status_t process_packet_single_pass(capture_file *cf,
         epan_dissect_t *edt, int64_t offset, wtap_rec *rec, unsigned tap_flags);
 static void show_print_file_io_error(void);
 static bool write_preamble(capture_file *cf);
@@ -3236,17 +3241,42 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
             ret = wtap_read(cf->provider.wth, &rec, &err, &err_info, &data_offset);
             reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
             if (ret == false) {
-                /* read from file failed, tell the capture child to stop */
+                /* Read from file failed; tell the capture child to stop.
+                   XXX - report this error? */
                 sync_pipe_stop(cap_session);
                 wtap_close(cf->provider.wth);
                 cf->provider.wth = NULL;
             } else {
-                ret = process_packet_single_pass(cf, edt, data_offset, &rec,
-                        tap_flags);
-            }
-            if (ret != false) {
-                /* packet successfully read and gone through the "Read Filter" */
-                packet_count++;
+                /*
+                 * The packet was successfully read; process it.
+                 */
+                switch (process_packet_single_pass(cf, edt, data_offset, &rec,
+                                                   tap_flags)) {
+
+                case PROCESS_PACKET_PASSED:
+                    /* Either there's no read filtering or this packet
+                       passed the filter, and, if we were supposed to
+                       print dissection information, we did so successfully. */
+                    packet_count++;
+                    ret = true;
+                    break;
+
+                case PROCESS_PACKET_DIDNT_PASS:
+                    /* There is read filtering and this packet didn't pass
+                       the filter. */
+                    ret = false;
+                    break;
+
+                case PROCESS_PACKET_PRINT_ERROR:
+                    /* Either here's no read filtering or this packet passed
+                       the read filter, and we tried to print dissection
+                       informaion, but that failed.  We've already reported
+                       the error, unless it was EPIPE, in which case we just
+                       silently quit; tell the capture child to stop. */
+                    sync_pipe_stop(cap_session);
+                    wtap_close(cf->provider.wth);
+                    cf->provider.wth = NULL;
+                }
             }
             wtap_rec_reset(&rec);
         }
@@ -3567,6 +3597,7 @@ typedef enum {
     PASS_SUCCEEDED,
     PASS_READ_ERROR,
     PASS_WRITE_ERROR,
+    PASS_PRINT_ERROR,
     PASS_INTERRUPTED
 } pass_status_t;
 
@@ -3655,7 +3686,7 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
     return status;
 }
 
-static bool
+static process_packet_status_t
 process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         frame_data *fdata, wtap_rec *rec, unsigned tap_flags _U_)
 {
@@ -3737,17 +3768,20 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         if (print_packet_info) {
             /* We're printing packet information; print the information for
                this packet. */
-            print_packet(cf, edt);
+            if (!print_packet(cf, edt)) {
+                show_print_file_io_error();
+                return PROCESS_PACKET_PRINT_ERROR;
+            }
 
             /* If we're doing "line-buffering", flush the standard output
                after every packet.  See the comment above, for the "-l"
                option, for an explanation of why we do that. */
-            if (line_buffered)
-                fflush(stdout);
-
-            if (ferror(stdout)) {
-                show_print_file_io_error();
-                return false;
+            if (line_buffered) {
+                if (fflush(stdout) == EOF) {
+                    /* Report a write error; see above */
+                    show_print_file_io_error();
+                    return PROCESS_PACKET_PRINT_ERROR;
+                }
             }
         }
         cf->provider.prev_dis = fdata;
@@ -3758,7 +3792,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         epan_dissect_reset(edt);
         rec->block = block;
     }
-    return passed || fdata->dependent_of_displayed;
+    return (passed || fdata->dependent_of_displayed) ? PROCESS_PACKET_PASSED : PROCESS_PACKET_DIDNT_PASS;
 }
 
 static bool
@@ -3791,7 +3825,8 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
         int max_write_packet_count)
 {
     wtap_rec        rec;
-    int             framenum = 0;
+    int             framenum;
+    bool            got_printing_error;
     int             write_framenum = 0;
     frame_data     *fdata;
     bool            filtering_tap_listeners;
@@ -3854,7 +3889,9 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
      */
     set_resolution_synchrony(true);
 
-    for (framenum = 1; framenum <= (int)cf->count; framenum++) {
+    for (framenum = 1, got_printing_error = false;
+         framenum <= (int)cf->count && !got_printing_error;
+         framenum++) {
         if (read_interrupted) {
             status = PASS_INTERRUPTED;
             break;
@@ -3867,7 +3904,9 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
             break;
         }
         ws_debug("tshark: invoking process_packet_second_pass() for frame #%d", framenum);
-        if (process_packet_second_pass(cf, edt, fdata, &rec, tap_flags)) {
+        switch (process_packet_second_pass(cf, edt, fdata, &rec, tap_flags)) {
+
+        case PROCESS_PACKET_PASSED:
             /* Either there's no read filtering or this packet passed the
                filter, so, if we're writing to a capture file, write
                this packet out. */
@@ -3888,6 +3927,21 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
                     break;
                 }
             }
+            break;
+
+        case PROCESS_PACKET_DIDNT_PASS:
+            /* There is read filtering and this packet didn't pass the filter. */
+            break;
+
+        case PROCESS_PACKET_PRINT_ERROR:
+            /* Either here's no read filtering or this packet passed
+               the read filter, and we tried to print dissection
+               informaion, but that failed.  We've already reported
+               the error, unless it was EPIPE, in which case we just
+               silently quit; stop processing packes. */
+            got_printing_error = true;
+            status = PASS_PRINT_ERROR;
+            break;
         }
         wtap_rec_reset(&rec);
     }
@@ -3912,6 +3966,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
     bool            filtering_tap_listeners;
     unsigned        tap_flags;
     int             framenum = 0;
+    bool            got_printing_error;
     int             write_framenum = 0;
     epan_dissect_t *edt = NULL;
     int64_t         data_offset;
@@ -3971,7 +4026,9 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
     set_resolution_synchrony(true);
 
     *err = 0;
-    while (wtap_read(cf->provider.wth, &rec, err, err_info, &data_offset)) {
+    got_printing_error = false;
+    while (wtap_read(cf->provider.wth, &rec, err, err_info, &data_offset) &&
+           !got_printing_error) {
         if (read_interrupted) {
             status = PASS_INTERRUPTED;
             break;
@@ -3991,7 +4048,9 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 
         reset_epan_mem(cf, edt, create_proto_tree, visible);
 
-        if (process_packet_single_pass(cf, edt, data_offset, &rec, tap_flags)) {
+        switch (process_packet_single_pass(cf, edt, data_offset, &rec,
+                                           tap_flags)) {
+        case PROCESS_PACKET_PASSED:
             /* Either there's no read filtering or this packet passed the
                filter, so, if we're writing to a capture file, write
                this packet out. */
@@ -4007,22 +4066,41 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
                     break;
                 }
             }
+            break;
+
+        case PROCESS_PACKET_DIDNT_PASS:
+            /* There is read filtering and this packet didn't pass the filter. */
+            break;
+
+        case PROCESS_PACKET_PRINT_ERROR:
+            /* Either here's no read filtering or this packet passed
+               the read filter, and we tried to print dissection
+               informaion, but that failed.  We've already reported
+               the error, unless it was EPIPE, in which case we just
+               silently quit; tell the capture child to stop. */
+            got_printing_error = true;
+            break;
         }
         /* Stop reading if we hit a stop condition */
         if (max_packet_count > 0 && framenum >= max_packet_count) {
             ws_debug("tshark: max_packet_count (%d) reached", max_packet_count);
-            *err = 0; /* This is not an error */
+            *err = 0; /* This is not a read error */
             break;
         }
         if (max_write_packet_count > 0 && write_framenum >= max_write_packet_count) {
             ws_debug("tshark: max_write_packet_count (%d) reached", max_write_packet_count);
-            *err = 0; /* This is not an error */
+            *err = 0; /* This is not a read error */
             break;
         }
         if (max_byte_count != 0 && data_offset >= max_byte_count) {
             ws_debug("tshark: max_byte_count (%" PRId64 "/%" PRId64 ") reached",
                     data_offset, max_byte_count);
-            *err = 0; /* This is not an error */
+            *err = 0; /* This is not a read error */
+            break;
+        }
+        /* Stop reading if we got an error processing the packet. */
+        if (got_printing_error) {
+            *err = 0; /* This is not a read error */
             break;
         }
         wtap_rec_reset(&rec);
@@ -4038,6 +4116,13 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
             if (!process_new_idbs(cf->provider.wth, pdh, err, err_info)) {
                 *err_framenum = framenum;
                 status = PASS_WRITE_ERROR;
+            }
+
+            /*
+             * Did we get a printing error?
+             */
+            if (got_printing_error) {
+                status = PASS_PRINT_ERROR;
             }
         }
     }
@@ -4242,6 +4327,10 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
                 /* Won't happen on the first pass. */
                 break;
 
+            case PASS_PRINT_ERROR:
+                /* Won't happen on the first pass. */
+                break;
+
             case PASS_INTERRUPTED:
                 /* Not an error, so nothing to report. */
                 status = PROCESS_FILE_INTERRUPTED;
@@ -4268,6 +4357,11 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
                    the input file if there was a read filter. */
                 cfile_write_failure_message(cf->filename, save_file, err, err_info,
                         err_framenum, out_file_type);
+                status = PROCESS_FILE_ERROR;
+                break;
+
+            case PASS_PRINT_ERROR:
+                /* The print error has already been reported. */
                 status = PROCESS_FILE_ERROR;
                 break;
 
@@ -4335,7 +4429,7 @@ out:
     return status;
 }
 
-static bool
+static process_packet_status_t
 process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, int64_t offset,
         wtap_rec *rec, unsigned tap_flags _U_)
 {
@@ -4424,17 +4518,20 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, int64_t offset
             /* We're printing packet information; print the information for
                this packet. */
             ws_assert(edt);
-            print_packet(cf, edt);
+            if (!print_packet(cf, edt)) {
+                show_print_file_io_error();
+                return PROCESS_PACKET_PRINT_ERROR;
+            }
 
             /* If we're doing "line-buffering", flush the standard output
                after every packet.  See the comment above, for the "-l"
                option, for an explanation of why we do that. */
-            if (line_buffered)
-                fflush(stdout);
-
-            if (ferror(stdout)) {
-                show_print_file_io_error();
-                return false;
+            if (line_buffered) {
+                if (fflush(stdout) == EOF) {
+                    /* Report a write error; see above */
+                    show_print_file_io_error();
+                    return PROCESS_PACKET_PRINT_ERROR;;
+                }
             }
         }
 
@@ -4451,7 +4548,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, int64_t offset
         frame_data_destroy(&fdata);
         rec->block = block;
     }
-    return passed;
+    return passed ? PROCESS_PACKET_PASSED : PROCESS_PACKET_DIDNT_PASS;
 }
 
 static bool
