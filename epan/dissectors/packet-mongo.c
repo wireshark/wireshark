@@ -297,7 +297,7 @@ static expert_field ei_mongo_msg_checksum;
 static int
 dissect_fullcollectionname(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-  int32_t fcn_length, dbn_length;
+  uint32_t fcn_length, dbn_length;
   proto_item *ti;
   proto_tree *fcn_tree;
 
@@ -305,7 +305,8 @@ dissect_fullcollectionname(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
   ti = proto_tree_add_item(tree, hf_mongo_fullcollectionname, tvb, offset, fcn_length, ENC_ASCII);
 
   /* If this doesn't find anything, we'll just throw an exception below */
-  dbn_length = tvb_find_uint8(tvb, offset, fcn_length, '.') - offset;
+  tvb_find_uint8_length(tvb, offset, fcn_length, '.', &dbn_length);
+  dbn_length = dbn_length -offset;
 
   fcn_tree = proto_item_add_subtree(ti, ett_mongo_fcn);
 
