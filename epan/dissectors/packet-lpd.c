@@ -31,7 +31,7 @@ static int ett_lpd;
 
 enum lpr_type { request, response, unknown };
 
-static int find_printer_string(tvbuff_t *tvb, int offset);
+static bool find_printer_string(tvbuff_t *tvb, unsigned offset, unsigned *length);
 
 /* This information comes from the LPRng HOWTO, which also describes
 	RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
@@ -62,7 +62,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_item	*ti, *hidden_item;
 	enum lpr_type	lpr_packet_type;
 	uint8_t		code;
-	int		printer_len;
+	unsigned	printer_len;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LPD");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -102,9 +102,9 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		proto_item_set_hidden(hidden_item);
 
 		if (lpr_packet_type == request) {
-			printer_len = find_printer_string(tvb, 1);
+			bool found = find_printer_string(tvb, 1, &printer_len);
 
-			if (code <= 9 && printer_len != -1) {
+			if (code <= 9 && found == true) {
 				proto_tree_add_uint_format(lpd_tree, hf_lpd_client_code, tvb, 0, 1, code,
 					"%s", val_to_str(pinfo->pool, code, lpd_client_code, "Unknown client code: %u"));
 				proto_tree_add_item(lpd_tree, hf_lpd_printer_option, tvb, 1, printer_len, ENC_ASCII);
@@ -129,16 +129,18 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 }
 
 
-static int
-find_printer_string(tvbuff_t *tvb, int offset)
+static bool
+find_printer_string(tvbuff_t *tvb, unsigned offset, unsigned *length)
 {
-	int	i;
+	unsigned	i;
+	bool found;
 
+	*length = 0;
 	/* try to find end of string, either '\n' or '\0' */
-	i = tvb_find_uint8(tvb, offset, -1, '\0');
-	if (i == -1)
-		i = tvb_find_uint8(tvb, offset, -1, '\n');
-	if (i == -1)
+	found = tvb_find_uint8_remaining(tvb, offset, '\0', &i);
+	if (found == false)
+		found = tvb_find_uint8_remaining(tvb, offset, '\n', &i);
+	if (found == false)
 		return -1;
 	return i - offset;	/* length of string */
 }
