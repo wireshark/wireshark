@@ -411,13 +411,12 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
  * Some functions which should be moved to a library
  * as I think that people may find them of general usefulness.
  */
-static int tvb_find_null_line(tvbuff_t* tvb, int offset, int len, int* next_offset);
-static int tvb_find_dot_line(tvbuff_t* tvb, int offset, int len, int* next_offset);
+static unsigned tvb_find_null_line_remaining(tvbuff_t* tvb, unsigned offset, unsigned* next_offset);
+static bool tvb_find_dot_line_remaining(tvbuff_t* tvb, unsigned offset, unsigned* sectionlen, unsigned* next_offset);
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t mgcp_handle;
-extern void
-dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+extern void dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  dissector_handle_t subdissector_handle);
 extern uint16_t is_asciitpkt(tvbuff_t *tvb);
 
@@ -457,9 +456,9 @@ static unsigned mgcp_call_hash(const void *k)
  ************************************************************************/
 static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	int sectionlen;
+	unsigned sectionlen;
 	uint32_t num_messages;
-	int tvb_sectionend, tvb_sectionbegin, tvb_len;
+	unsigned tvb_sectionend, tvb_sectionbegin, tvb_len;
 	proto_tree *mgcp_tree = NULL;
 	proto_item *ti = NULL, *tii;
 	const char *verb_name = "";
@@ -497,8 +496,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		ti = proto_tree_add_item(tree, proto_mgcp, tvb, 0, -1, ENC_NA);
 		mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
 
-		sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1, &tvb_sectionend);
-		if (sectionlen != -1)
+		if (tvb_find_dot_line_remaining(tvb, tvb_sectionbegin, &sectionlen , &tvb_sectionend))
 		{
 			dissect_mgcp_message(tvb_new_subset_length(tvb, tvb_sectionbegin, sectionlen),
 					pinfo, tree, mgcp_tree, ti);
@@ -532,8 +530,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		}
 	}
 
-	sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin, -1,
-			&tvb_sectionend, false);
+	tvb_find_line_end_remaining(tvb, tvb_sectionbegin, &sectionlen , &tvb_sectionend);
 	col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s",
 			tvb_format_text(pinfo->pool, tvb, tvb_sectionbegin, sectionlen));
 
@@ -578,8 +575,8 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				 proto_tree *mgcp_tree, proto_tree *ti)
 {
 	/* Declare variables */
-	int sectionlen;
-	int tvb_sectionend, tvb_sectionbegin, tvb_len;
+	unsigned sectionlen;
+	unsigned tvb_sectionend, tvb_sectionbegin, tvb_len;
 	tvbuff_t *next_tvb;
 	const char *verb_name = "";
 	mgcp_info_t* mi = wmem_new0(pinfo->pool, mgcp_info_t);
@@ -601,7 +598,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		/* dissect first line */
 		tvb_sectionbegin = 0;
 		tvb_sectionend = tvb_sectionbegin;
-		sectionlen = tvb_find_line_end(tvb, 0, -1, &tvb_sectionend, false);
+		sectionlen = tvb_find_line_end_remaining(tvb, 0, &sectionlen , &tvb_sectionend);
 		if (sectionlen > 0)
 		{
 			dissect_mgcp_firstline(tvb_new_subset_length(tvb, tvb_sectionbegin,
@@ -613,8 +610,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		/* Dissect params */
 		if (tvb_sectionbegin < tvb_len)
 		{
-			sectionlen = tvb_find_null_line(tvb, tvb_sectionbegin, -1,
-			                                &tvb_sectionend);
+			sectionlen = tvb_find_null_line_remaining(tvb, tvb_sectionbegin, &tvb_sectionend);
 			if (sectionlen > 0)
 			{
 				dissect_mgcp_params(tvb_new_subset_length(tvb, tvb_sectionbegin, sectionlen),
@@ -1132,8 +1128,8 @@ static int tvb_parse_param(tvbuff_t* tvb, packet_info* pinfo, int offset, int le
  */
 static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mgcp_info_t* mi)
 {
-	int tvb_current_offset, tvb_previous_offset, tvb_len, tvb_current_len;
-	int tokennum, tokenlen;
+	unsigned tvb_current_offset, tvb_previous_offset, tvb_len, tvb_current_len;
+	unsigned tokennum, tokenlen;
 	proto_item* hidden_item;
 	char *transid = NULL;
 	char *code = NULL;
@@ -1162,8 +1158,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		do
 		{
 			tvb_current_len = tvb_reported_length_remaining(tvb, tvb_previous_offset);
-			tvb_current_offset = tvb_find_uint8(tvb, tvb_previous_offset, tvb_current_len, ' ');
-			if (tvb_current_offset == -1)
+			if (!tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_current_len, ' ', &tvb_current_offset))
 			{
 				tvb_current_offset = tvb_len;
 				tokenlen = tvb_current_len;
@@ -1234,8 +1229,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				{
 					if (tvb_current_offset < tvb_len)
 					{
-						tokenlen = tvb_find_line_end(tvb, tvb_previous_offset,
-						                             -1, &tvb_current_offset, false);
+						tvb_find_line_end_remaining(tvb, tvb_previous_offset, &tokenlen , &tvb_current_offset);
 					}
 					else
 					{
@@ -1253,8 +1247,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			{
 				if (tvb_current_offset < tvb_len )
 				{
-					tokenlen = tvb_find_line_end(tvb, tvb_previous_offset,
-					                             -1, &tvb_current_offset, false);
+					tvb_find_line_end_remaining(tvb, tvb_previous_offset, &tokenlen, &tvb_current_offset);
 				}
 				else
 				{
@@ -2161,23 +2154,15 @@ dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvb
  * Returns: The length from offset to the first character BEFORE
  *          the null line..
  */
-static int tvb_find_null_line(tvbuff_t* tvb, int offset, int len, int* next_offset)
+static unsigned tvb_find_null_line_remaining(tvbuff_t* tvb, unsigned offset, unsigned* next_offset)
 {
-	int tvb_lineend, tvb_current_len, tvb_linebegin, maxoffset;
+	unsigned tvb_lineend, tvb_current_len, tvb_linebegin, maxoffset;
 	unsigned tempchar;
 
 	tvb_linebegin = offset;
 	tvb_lineend = tvb_linebegin;
 
-	/* Simple setup to allow for the traditional -1 search to the end of the tvbuff */
-	if (len != -1)
-	{
-		tvb_current_len = len;
-	}
-	else
-	{
-		tvb_current_len = tvb_reported_length_remaining(tvb, offset);
-	}
+	tvb_current_len = tvb_reported_length_remaining(tvb, offset);
 
 	maxoffset = (tvb_current_len - 1) + offset;
 
@@ -2187,7 +2172,7 @@ static int tvb_find_null_line(tvbuff_t* tvb, int offset, int len, int* next_offs
 	{
 		tvb_linebegin = tvb_lineend;
 		tvb_current_len = tvb_reported_length_remaining(tvb, tvb_linebegin);
-		tvb_find_line_end(tvb, tvb_linebegin, tvb_current_len, &tvb_lineend, false);
+		tvb_find_line_end_length(tvb, tvb_linebegin, tvb_current_len, NULL, &tvb_lineend);
 		tempchar = tvb_get_uint8(tvb, tvb_linebegin);
 	} while (tempchar != '\r' && tempchar != '\n' && tvb_lineend <= maxoffset && tvb_offset_exists(tvb, tvb_lineend));
 
@@ -2207,51 +2192,45 @@ static int tvb_find_null_line(tvbuff_t* tvb, int offset, int len, int* next_offs
 }
 
 /*
- * tvb_find_dot_line -  Returns the length from offset to the first line
- *                      containing only a dot (.) character.  A line
- *                      containing only a dot is used to indicate a
- *                      separation between multiple MGCP messages
- *                      piggybacked in the same UDP packet.
+ * tvb_find_dot_line_remaining -  Returns true if a line containing
+                                  only a dot (.) character is found. A line
+ *                                containing only a dot is used to indicate a
+ *                                separation between multiple MGCP messages
+ *                                piggybacked in the same UDP packet.
  *
  * Parameters:
  * tvb - The tvbuff in which we are looking for a dot line.
  * offset - The offset in tvb at which we will begin looking for
  *          a dot line.
- * len - The maximum distance from offset in tvb that we will look for
- *       a dot line.  If it is -1 we will look to the end of the buffer.
  *
+ *  sectionlen -  Returns the length from offset to the first line
+- *               containing only a dot (.) character. or to the end of
+                  the tvb if no dot found.
  * next_offset - The location to write the offset of first character
  *               FOLLOWING the dot line.
  *
- * Returns: The length from offset to the first character BEFORE
- *          the dot line or -1 if the character at offset is a .
+ * Returns: true if a dot is found or false if the character at offset is a .
  *          followed by a newline or a carriage return.
  */
-static int tvb_find_dot_line(tvbuff_t* tvb, int offset, int len, int* next_offset)
+static bool
+tvb_find_dot_line_remaining(tvbuff_t* tvb, unsigned offset, unsigned* sectionlen, unsigned* next_offset)
 {
-	int tvb_current_offset, tvb_current_len, maxoffset, tvb_len;
+	unsigned tvb_current_offset, tvb_current_len, maxoffset, tvb_len;
 	uint8_t tempchar;
-	tvb_current_len = len;
+	bool dot_found;
+	tvb_current_len = tvb_captured_length_remaining(tvb, offset);
 	tvb_len = tvb_reported_length(tvb);
 
-	if (len == -1)
-	{
-		maxoffset = tvb_len - 1;
-	}
-	else
-	{
-		maxoffset = (len - 1) + offset;
-	}
+	maxoffset = tvb_len - 1;
 	tvb_current_offset = offset -1;
 
 	do
 	{
-		tvb_current_offset = tvb_find_uint8(tvb, tvb_current_offset+1,
-		                                     tvb_current_len, '.');
+		dot_found = tvb_find_uint8_length(tvb, tvb_current_offset+1, tvb_current_len, '.', &tvb_current_offset);
 		tvb_current_len = maxoffset - tvb_current_offset + 1;
 
 		/* If we didn't find a . then break out of the loop */
-		if (tvb_current_offset == -1)
+		if (dot_found == false)
 		{
 			break;
 		}
@@ -2304,26 +2283,28 @@ static int tvb_find_dot_line(tvbuff_t* tvb, int offset, int len, int* next_offse
 	 * So now we either have the tvb_current_offset of a . in a dot line
 	 * or a tvb_current_offset of -1
 	 */
-	if (tvb_current_offset == -1)
+	if (dot_found == false)
 	{
 		tvb_current_offset = maxoffset +1;
 		*next_offset = maxoffset + 1;
 	}
 	else
 	{
-		tvb_find_line_end(tvb, tvb_current_offset, tvb_current_len, next_offset, false);
+		tvb_find_line_end_length(tvb, tvb_current_offset, tvb_current_len, NULL, next_offset);
 	}
+
 
 	if (tvb_current_offset == offset)
 	{
-		tvb_current_len = -1;
+		*sectionlen = *next_offset - offset;
+		return false;
 	}
 	else
 	{
-		tvb_current_len = tvb_current_offset - offset;
+		*sectionlen = tvb_current_offset - offset;
+		return true;
 	}
 
-	return tvb_current_len;
 }
 
 /* Register all the bits needed with the filtering engine */
