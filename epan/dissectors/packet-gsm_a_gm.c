@@ -5272,14 +5272,12 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t off
 {
 	uint32_t     curr_offset;
 	const char *str;
-	unsigned char       pdp_type_org, pdp_type_num;
+	unsigned char pdp_type_org, pdp_type_num;
 
 	curr_offset = offset;
 
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_sm_pdp_type_org, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-	pdp_type_org = tvb_get_uint8(tvb, curr_offset) & 0x0f;
+	proto_tree_add_item_ret_uint8(tree, hf_gsm_a_sm_pdp_type_org, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pdp_type_org);
 	curr_offset += 1;
 	pdp_type_num = tvb_get_uint8(tvb, curr_offset);
 

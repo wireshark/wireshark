@@ -3238,9 +3238,8 @@ static int dissect_iec60870_104(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 			proto_item_set_len(it104, Off + APCI_LEN);
 
 			proto_tree_add_uint_format(it104tree, hf_start, tvb, Off, 1, Start, "START");
-			ti = proto_tree_add_item(it104tree, hf_apdulen, tvb, Off + 1, 1, ENC_LITTLE_ENDIAN);
+			ti = proto_tree_add_item_ret_uint8(it104tree, hf_apdulen, tvb, Off + 1, 1, ENC_LITTLE_ENDIAN, &len);
 
-			len = tvb_get_uint8(tvb, Off + 1);
 			if (len < APDU_MIN_LEN) {
 				expert_add_info_format(pinfo, ti, &ei_iec104_apdu_min_len, "APDU less than %d bytes", APDU_MIN_LEN);
 				wmem_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", len);
@@ -4519,8 +4518,7 @@ dissect_iec60870_5_103(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	}
 	offset += 1;
 
-	proto_tree_add_item(iec103_tree, hf_iec60870_5_103_linkaddr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	linkaddr = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(iec103_tree, hf_iec60870_5_103_linkaddr, tvb, offset, 1, ENC_LITTLE_ENDIAN, &linkaddr);
 	col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Link Address: %d ", linkaddr);
 	offset += 1;
 

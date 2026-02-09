@@ -722,8 +722,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 
         /* Status */
-        status = tvb_get_uint16(tvb, offset, byte_order);
-        proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_status, tvb, offset, 2, byte_order);
+        proto_tree_add_item_ret_uint16(prism_did_tree, hf_ieee80211_prism_did_status, tvb, offset, 2, byte_order, &status);
         offset += 2;
 
         /* Length */

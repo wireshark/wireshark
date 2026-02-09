@@ -2160,10 +2160,9 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		uint32_t len;
 		tvbuff_t *subtvb;
 
-		proto_tree_add_item(tree, hf_cat_ber_tag, tvb, pos, 1, ENC_BIG_ENDIAN);
-
 		/* FIXME: properly follow BER coding rules */
-		tag = tvb_get_uint8(tvb, pos++);
+		proto_tree_add_item_ret_uint8(tree, hf_cat_ber_tag, tvb, pos, 1, ENC_BIG_ENDIAN, &tag);
+		pos++;
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 				val_to_str(pinfo->pool, tag, ber_tlv_cat_tag_vals, "%02x "));
 		len = tvb_get_uint8(tvb, pos++);
@@ -2456,9 +2455,9 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		proto_tree_add_item(sim_tree, hf_status_application_status, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sim_tree, hf_status_return_data, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
 		if (p1 == 0x01) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "(initialized) ");
+			col_append_str(pinfo->cinfo, COL_INFO, "(initialized) ");
 		} else if (p1 == 0x02) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "(terminate) ");
+			col_append_str(pinfo->cinfo, COL_INFO, "(terminate) ");
 		}
 		break;
 	case 0xB0: /* READ BINARY */

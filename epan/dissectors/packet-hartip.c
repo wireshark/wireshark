@@ -910,8 +910,7 @@ dissect_cmd77(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen, int
 
      offset += dissect_byte(body_tree, hf_hartip_pt_rsp_embedded_cmd,           tvb, offset);
 
-     byte_count = tvb_get_uint8(tvb, offset);
-     proto_tree_add_item(body_tree, hf_hartip_pt_rsp_command_byte_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+     proto_tree_add_item_ret_uint8(body_tree, hf_hartip_pt_rsp_command_byte_count, tvb, offset, 1, ENC_BIG_ENDIAN, &byte_count);
      offset += 1;
      length -= 6;
 

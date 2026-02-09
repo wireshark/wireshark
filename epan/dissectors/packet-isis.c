@@ -93,9 +93,8 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
     subdissector_data.ei_bad_header_length = &ei_isis_length_indicator_too_small;
 
-    isis_version = tvb_get_uint8(tvb, offset);
-    version_item = proto_tree_add_uint(isis_tree, hf_isis_version, tvb,
-            offset, 1, isis_version );
+    version_item = proto_tree_add_item_ret_uint8(isis_tree, hf_isis_version, tvb,
+            offset, 1, ENC_NA, &isis_version );
     if (isis_version != ISIS_REQUIRED_VERSION){
         expert_add_info(pinfo, version_item, &ei_isis_version);
     }
@@ -114,15 +113,13 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item(isis_tree, hf_isis_type, tvb, offset, 1, ENC_BIG_ENDIAN );
     offset += 1;
 
-    isis_version2 = tvb_get_uint8(tvb, offset);
-    version2_item = proto_tree_add_item(isis_tree, hf_isis_version2, tvb, offset, 1, ENC_BIG_ENDIAN );
+    version2_item = proto_tree_add_item_ret_uint8(isis_tree, hf_isis_version2, tvb, offset, 1, ENC_BIG_ENDIAN, &isis_version2 );
     if (isis_version2 != 1) {
         expert_add_info(pinfo, version2_item, &ei_isis_version2);
     }
     offset += 1;
 
-    isis_reserved = tvb_get_uint8(tvb, offset);
-    reserved_item = proto_tree_add_item(isis_tree, hf_isis_reserved, tvb, offset, 1, ENC_BIG_ENDIAN );
+    reserved_item = proto_tree_add_item_ret_uint8(isis_tree, hf_isis_reserved, tvb, offset, 1, ENC_BIG_ENDIAN, &isis_reserved );
     if (isis_reserved != 0) {
         expert_add_info(pinfo, reserved_item, &ei_isis_reserved);
     }

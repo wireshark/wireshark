@@ -282,8 +282,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree 
 		offset += 6;
 		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		device_type = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(edp_tree, hf_ismp_edp_device_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(edp_tree, hf_ismp_edp_device_type, tvb, offset, 2, ENC_BIG_ENDIAN, &device_type);
 		offset += 2;
 		proto_tree_add_uint_format_value(edp_tree, hf_ismp_edp_module_rev, tvb, offset, 4, tvb_get_ntohl(tvb, offset),
 			"%02x.%02x.%02x.%02x", tvb_get_uint8(tvb, offset),
@@ -380,8 +379,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree 
 		offset += 4;
 
 		/* determine the number of neighbors and create EDP neighbors subtree */
-		num_neighbors = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(edp_tree, hf_ismp_edp_num_neighbors, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(edp_tree, hf_ismp_edp_num_neighbors, tvb, offset, 2, ENC_BIG_ENDIAN, &num_neighbors);
 		offset += 2;
 		if (num_neighbors > 0)
 		{
@@ -410,8 +408,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree 
 		if (tvb_reported_length_remaining(tvb, offset) != 0 &&
 			tvb_reported_length_remaining(tvb, offset) >= 2)
 		{
-			num_tuples = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_item(edp_tree, hf_ismp_edp_num_tuples, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint16(edp_tree, hf_ismp_edp_num_tuples, tvb, offset, 2, ENC_BIG_ENDIAN, &num_tuples);
 			offset += 2;
 		}
 		else if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -436,8 +433,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree 
 				edp_tuples_leaf_tree = proto_tree_add_subtree_format(edp_tuples_tree, tvb, offset, 4,
 					ett_ismp_edp_tuples_leaf, NULL, "Tuple%d", tuples_count+1);
 
-				tuple_type = tvb_get_ntohs(tvb, offset);
-				proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_tuple_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint16(edp_tuples_leaf_tree, hf_ismp_tuple_type, tvb, offset, 2, ENC_BIG_ENDIAN, &tuple_type);
 				offset += 2;
 				proto_tree_add_item_ret_uint(edp_tuples_leaf_tree, hf_ismp_tuple_length, tvb, offset, 2, ENC_BIG_ENDIAN, &tuple_length);
 				if (tuple_length < 4) {
@@ -523,13 +519,11 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	/* add an items to the subtree */
 	proto_tree_add_item(ismp_tree, hf_ismp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	message_type = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(ismp_tree, hf_ismp_message_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint16(ismp_tree, hf_ismp_message_type, tvb, offset, 2, ENC_BIG_ENDIAN, &message_type);
 	offset += 2;
 	proto_tree_add_item(ismp_tree, hf_ismp_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	code_length = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(ismp_tree, hf_ismp_code_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(ismp_tree, hf_ismp_code_length, tvb, offset, 1, ENC_BIG_ENDIAN, &code_length);
 	offset += 1;
 	proto_tree_add_item(ismp_tree, hf_ismp_auth_data, tvb, offset, code_length, ENC_NA);
 	offset += code_length;

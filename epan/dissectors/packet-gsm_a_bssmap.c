@@ -3035,8 +3035,7 @@ be_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
     curr_offset = offset;
 
     /* Extract the location information and add to protocol tree */
-    location_information = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gsm_a_bssmap_location_type_location_information, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gsm_a_bssmap_location_type_location_information, tvb, offset, 1, ENC_BIG_ENDIAN, &location_information);
     curr_offset++;
 
     if (location_information == 1 || location_information == 2)
@@ -3155,8 +3154,7 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, un
      * equivalent octet in the APDU element of 3GPP TS 49.031 BSSAP-LE.
      */
 
-    apdu_protocol_id = tvb_get_uint8(tvb,curr_offset);
-    proto_tree_add_item(tree, hf_gsm_a_bssmap_apdu_protocol_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gsm_a_bssmap_apdu_protocol_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &apdu_protocol_id);
     curr_offset++;
     len--;
 

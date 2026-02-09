@@ -535,8 +535,7 @@ static void dissect_sm_rp_da_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offs
 	}
 
 	/* Parse ID type */
-	ti = proto_tree_add_item(tree, hf_gsup_sm_rp_da_id_type, tvb, offset, 1, ENC_NA);
-	id_type = tvb_get_uint8(tvb, offset);
+	ti = proto_tree_add_item_ret_uint8(tree, hf_gsup_sm_rp_da_id_type, tvb, offset, 1, ENC_NA, &id_type);
 
 	switch (id_type) {
 	case OSMO_GSUP_SMS_SM_RP_ODA_IMSI:
@@ -581,8 +580,7 @@ static void dissect_sm_rp_oa_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offs
 	}
 
 	/* Parse ID type */
-	ti = proto_tree_add_item(tree, hf_gsup_sm_rp_oa_id_type, tvb, offset, 1, ENC_NA);
-	id_type = tvb_get_uint8(tvb, offset);
+	ti = proto_tree_add_item_ret_uint8(tree, hf_gsup_sm_rp_oa_id_type, tvb, offset, 1, ENC_NA, &id_type);
 
 	switch (id_type) {
 	case OSMO_GSUP_SMS_SM_RP_ODA_MSISDN:

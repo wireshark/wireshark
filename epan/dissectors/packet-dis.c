@@ -19136,9 +19136,7 @@ static int dissect_DIS_PARSER_DESIGNATOR_PDU(tvbuff_t *tvb, packet_info *pinfo, 
 
     offset = parseField_Entity(tvb, tree, offset, "Designating Entity ID", NULL);
 
-
-    proto_tree_add_item(tree, hf_dis_designator_code_name, tvb, offset, 2, ENC_BIG_ENDIAN);
-    code_name = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint16(tree, hf_dis_designator_code_name, tvb, offset, 2, ENC_BIG_ENDIAN, &code_name);
     col_append_fstr( pinfo->cinfo, COL_INFO, ", CodeName=%u", code_name);
     offset += 2;
 
@@ -19681,16 +19679,13 @@ static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pi
     proto_tree_add_item(sub_tree, hf_dis_aggregate_velocity_z, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    number_of_aggregates = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_dis_aggregate_number_of_aggregates, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_dis_aggregate_number_of_aggregates, tvb, offset, 2, ENC_BIG_ENDIAN, &number_of_aggregates);
     offset += 2;
 
-    number_of_entities = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_dis_aggregate_number_of_entities, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_dis_aggregate_number_of_entities, tvb, offset, 2, ENC_BIG_ENDIAN, &number_of_entities);
     offset += 2;
 
-    number_of_silent_aggregates_types = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_dis_aggregate_number_of_silent_aggregates_types, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_dis_aggregate_number_of_silent_aggregates_types, tvb, offset, 2, ENC_BIG_ENDIAN, &number_of_silent_aggregates_types);
     offset += 2;
 
     proto_tree_add_item(tree, hf_dis_aggregate_number_of_silent_entity_types, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -19717,8 +19712,7 @@ static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pi
     /* ti = proto_tree_add_text(tree, tvb, offset, 0, "Silent Entity System List - NOT FINISHED !!!"); */
     offset += 0;
 
-    number_of_variable_datum_records = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_dis_aggregate_number_of_variable_datum_records, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_dis_aggregate_number_of_variable_datum_records, tvb, offset, 4, ENC_BIG_ENDIAN, &number_of_variable_datum_records);
     offset += 4;
 
     offset = parseField_DIS_FIELDS_VARIABLE_DATUM(tvb, tree, offset, "Variable datum", number_of_variable_datum_records);
