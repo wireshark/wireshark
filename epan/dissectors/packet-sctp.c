@@ -282,6 +282,8 @@ static int hf_hmac;
 static int hf_shared_key_id;
 static int hf_supported_chunk_type;
 
+static int hf_dtls_km_id;
+
 static int hf_cause_code;
 static int hf_cause_length;
 static int hf_cause_padding;
@@ -397,6 +399,8 @@ static expert_field ei_sctp_chunk_length_bad;
 static expert_field ei_sctp_tsn_retransmitted;
 static expert_field ei_sctp_sack_chunk_gap_block_malformed;
 static expert_field ei_sctp_sack_chunk_number_tsns_gap_acked_100;
+static expert_field ei_sctp_illegal_parameter_occurence;
+static expert_field ei_sctp_dtls_km_illegal_number_of_ids;
 
 static const value_string chunk_type_values[] = {
   { SCTP_DATA_CHUNK_ID,              "DATA" },
@@ -1036,9 +1040,9 @@ sctp_crc32c(tvbuff_t *tvb, unsigned int len)
 
 typedef struct _sctp_half_assoc_t sctp_half_assoc_t;
 
-static void dissect_parameter(tvbuff_t *, packet_info *, proto_tree *, proto_item *, bool, bool);
+static void dissect_parameter(tvbuff_t *, packet_info *, proto_tree *, proto_item *, bool, bool, bool);
 
-static void dissect_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_item *, bool);
+static void dissect_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_item *, bool, bool);
 
 static void dissect_error_cause(tvbuff_t *, packet_info *, proto_tree *);
 
@@ -1548,7 +1552,7 @@ static void
 dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   /* FIXME: Does it contain one or more parameters? */
-  dissect_parameter(tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET), pinfo, parameter_tree, NULL, false, false);
+  dissect_parameter(tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET), pinfo, parameter_tree, NULL, false, false, false);
 }
 
 #define COOKIE_PRESERVATIVE_PARAMETER_INCR_LENGTH 4
@@ -1831,6 +1835,38 @@ dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree,
   proto_item_append_text(parameter_item, ")");
 }
 
+static const value_string dtls_km_id_values[] = {
+  { 0x0000,         "Reserved"                  },
+  { 0x0001,         "Single DTLS connection"    },
+  { 0x0002,         "Multiple DTLS connections" },
+  { 0,              NULL                        } };
+
+#define DTLS_KMID_LENGTH 2
+
+static void
+dissect_dtls_key_management_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item, bool dissecting_init_chunk, bool dissecting_init_ack_chunk)
+{
+  uint16_t number_of_ids;
+  uint16_t id_number, offset;
+
+  if (!dissecting_init_chunk && !dissecting_init_ack_chunk)
+    expert_add_info(pinfo, parameter_item, &ei_sctp_illegal_parameter_occurence);
+
+  proto_item_append_text(parameter_item, " (Supported DTLS key management ids: ");
+  number_of_ids = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / DTLS_KMID_LENGTH;
+  for(id_number = 0, offset = PARAMETER_VALUE_OFFSET; id_number < number_of_ids; id_number++, offset +=  DTLS_KMID_LENGTH) {
+    proto_tree_add_item(parameter_tree, hf_dtls_km_id, parameter_tvb, offset, DTLS_KMID_LENGTH, ENC_BIG_ENDIAN);
+    proto_item_append_text(parameter_item, "%s", val_to_str_const(tvb_get_ntohs(parameter_tvb, offset), dtls_km_id_values, "Unknown"));
+    if (id_number < (number_of_ids - 1))
+      proto_item_append_text(parameter_item, ", ");
+  }
+  proto_item_append_text(parameter_item, ")");
+  if (number_of_ids == 0)
+    expert_add_info_format(pinfo, parameter_item, &ei_sctp_dtls_km_illegal_number_of_ids, "At least one identifier required.");
+  if (dissecting_init_ack_chunk && number_of_ids != 1)
+    expert_add_info_format(pinfo, parameter_item, &ei_sctp_dtls_km_illegal_number_of_ids, "Only a single identifier allowed.");
+}
+
 static void
 dissect_supported_extensions_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
@@ -1870,7 +1906,7 @@ dissect_add_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
   address_tvb =  tvb_new_subset_length(parameter_tvb, ADDRESS_PARAMETER_OFFSET,
                                 MIN(address_length, tvb_reported_length_remaining(parameter_tvb, ADDRESS_PARAMETER_OFFSET)));
   proto_item_append_text(parameter_item, " (Address: ");
-  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, false, false);
+  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, false, false, false);
   proto_item_append_text(parameter_item, ", correlation ID: %u)", tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET));
 }
 
@@ -1887,7 +1923,7 @@ dissect_del_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
   address_tvb =  tvb_new_subset_length(parameter_tvb, ADDRESS_PARAMETER_OFFSET,
                                 MIN(address_length, tvb_reported_length_remaining(parameter_tvb, ADDRESS_PARAMETER_OFFSET)));
   proto_item_append_text(parameter_item, " (Address: ");
-  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, false, false);
+  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, false, false, false);
   proto_item_append_text(parameter_item, ", correlation ID: %u)", tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET));
 }
 
@@ -1920,7 +1956,7 @@ dissect_set_primary_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
   address_tvb    =  tvb_new_subset_length(parameter_tvb, ADDRESS_PARAMETER_OFFSET,
                                    MIN(address_length, tvb_reported_length_remaining(parameter_tvb, ADDRESS_PARAMETER_OFFSET)));
   proto_item_append_text(parameter_item, " (Address: ");
-  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, false, false);
+  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, false, false, false);
   proto_item_append_text(parameter_item, ", correlation ID: %u)", tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET));
 }
 
@@ -1974,6 +2010,7 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 #define RANDOM_PARAMETER_ID                       0x8002
 #define CHUNKS_PARAMETER_ID                       0x8003
 #define HMAC_ALGO_PARAMETER_ID                    0x8004
+#define DTLS_KEY_MANAGEMENT_PARAMETER_ID          0x8006
 #define SUPPORTED_EXTENSIONS_PARAMETER_ID         0x8008
 #define FORWARD_TSN_SUPPORTED_PARAMETER_ID        0xC000
 #define ADD_IP_ADDRESS_PARAMETER_ID               0xC001
@@ -2003,6 +2040,7 @@ static const value_string parameter_identifier_values[] = {
   { RANDOM_PARAMETER_ID,                       "Random"                       },
   { CHUNKS_PARAMETER_ID,                       "Authenticated Chunk list"     },
   { HMAC_ALGO_PARAMETER_ID,                    "Requested HMAC Algorithm"     },
+  { DTLS_KEY_MANAGEMENT_PARAMETER_ID,          "DTLS key management"          },
   { SUPPORTED_EXTENSIONS_PARAMETER_ID,         "Supported Extensions"         },
   { FORWARD_TSN_SUPPORTED_PARAMETER_ID,        "Forward TSN supported"        },
   { ADD_IP_ADDRESS_PARAMETER_ID,               "Add IP address"               },
@@ -2030,12 +2068,16 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
                   proto_tree *chunk_tree, proto_item *additional_item,
-                  bool dissecting_init_init_ack_chunk,
+                  bool dissecting_init_chunk,
+                  bool dissecting_init_ack_chunk,
                   bool final_parameter)
 {
   uint16_t type, length, padding_length, reported_length;
   proto_item *parameter_item, *type_item;
   proto_tree *parameter_tree, *type_tree;
+  bool dissecting_init_init_ack_chunk;
+
+  dissecting_init_init_ack_chunk = dissecting_init_chunk || dissecting_init_ack_chunk;
 
   type            = tvb_get_ntohs(parameter_tvb, PARAMETER_TYPE_OFFSET);
   length          = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
@@ -2055,7 +2097,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
     }
   }
 
-  if (!(chunk_tree || (dissecting_init_init_ack_chunk && (type == IPV4ADDRESS_PARAMETER_ID || type == IPV6ADDRESS_PARAMETER_ID))))
+  if (!(chunk_tree || (dissecting_init_init_ack_chunk && (type == IPV4ADDRESS_PARAMETER_ID || type == IPV6ADDRESS_PARAMETER_ID || type == DTLS_KEY_MANAGEMENT_PARAMETER_ID))))
     return;
 
   if (chunk_tree) {
@@ -2129,6 +2171,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
   case HMAC_ALGO_PARAMETER_ID:
     dissect_hmac_algo_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
+  case DTLS_KEY_MANAGEMENT_PARAMETER_ID:
+    dissect_dtls_key_management_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item, dissecting_init_chunk, dissecting_init_ack_chunk);
+    break;
   case SUPPORTED_EXTENSIONS_PARAMETER_ID:
     dissect_supported_extensions_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
@@ -2166,7 +2211,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree, proto_item *additional_item, bool dissecting_init_init_ack_chunk)
+dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree, proto_item *additional_item, bool dissecting_init_chunk, bool dissecting_init_ack_chunk)
 {
   int offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
@@ -2196,7 +2241,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
     } else {
       final_parameter = true;
     }
-    dissect_parameter(parameter_tvb, pinfo, tree, additional_item, dissecting_init_init_ack_chunk, final_parameter);
+    dissect_parameter(parameter_tvb, pinfo, tree, additional_item, dissecting_init_chunk, dissecting_init_ack_chunk, final_parameter);
   }
 }
 
@@ -2276,7 +2321,7 @@ dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, prot
   parameter_length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET) - CAUSE_HEADER_LENGTH;
   parameter_tvb    = tvb_new_subset_length(cause_tvb, CAUSE_INFO_OFFSET,
                                     MIN(parameter_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, false, true);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, false, false, true);
 }
 
 static bool
@@ -2314,7 +2359,7 @@ dissect_unrecognized_parameters_cause(tvbuff_t *cause_tvb, packet_info *pinfo, p
 
   unrecognized_parameters_tvb = tvb_new_subset_length(cause_tvb, CAUSE_INFO_OFFSET,
                                                MIN(cause_info_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
-  dissect_parameters(unrecognized_parameters_tvb, pinfo, cause_tree, NULL, false);
+  dissect_parameters(unrecognized_parameters_tvb, pinfo, cause_tree, NULL, false, false);
 }
 
 #define CAUSE_TSN_LENGTH 4
@@ -2343,7 +2388,7 @@ dissect_restart_with_new_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, 
   parameter_tvb     = tvb_new_subset_length(cause_tvb, CAUSE_INFO_OFFSET,
                                      MIN(cause_info_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
   proto_item_append_text(cause_item, " (New addresses: ");
-  dissect_parameters(parameter_tvb, pinfo, cause_tree, cause_item, false);
+  dissect_parameters(parameter_tvb, pinfo, cause_tree, cause_item, false, false);
   proto_item_append_text(cause_item, ")");
 }
 
@@ -2378,7 +2423,7 @@ dissect_delete_last_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto
   parameter_tvb     = tvb_new_subset_length(cause_tvb, CAUSE_INFO_OFFSET,
                                      MIN(cause_info_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
   proto_item_append_text(cause_item, " (Last address: ");
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, false, false);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, false, false, false);
   proto_item_append_text(cause_item, ")");
 }
 
@@ -2392,7 +2437,7 @@ dissect_resource_outage_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tre
   cause_info_length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET) - CAUSE_HEADER_LENGTH;
   parameter_tvb     = tvb_new_subset_length(cause_tvb, CAUSE_INFO_OFFSET,
                                      MIN(cause_info_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, NULL, false, false);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, NULL, false, false, false);
 }
 
 static void
@@ -2406,7 +2451,7 @@ dissect_delete_source_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, pro
   parameter_tvb     = tvb_new_subset_length(cause_tvb, CAUSE_INFO_OFFSET,
                                      MIN(cause_info_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
   proto_item_append_text(cause_item, " (Deleted address: ");
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, false, false);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, false, false, false);
   proto_item_append_text(cause_item, ")");
 }
 
@@ -2420,7 +2465,7 @@ dissect_request_refused_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tre
   cause_info_length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET) - CAUSE_HEADER_LENGTH;
   parameter_tvb     = tvb_new_subset_length(cause_tvb, CAUSE_INFO_OFFSET,
                                      MIN(cause_info_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, NULL, false, false);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, NULL, false, false, false);
 }
 
 static void
@@ -3764,7 +3809,7 @@ dissect_init_chunk(tvbuff_t *chunk_tvb, uint16_t chunk_length, packet_info *pinf
   chunk_length -= INIT_CHUNK_FIXED_PARAMTERS_LENGTH;
   parameters_tvb = tvb_new_subset_length(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET,
                                   MIN(chunk_length, tvb_reported_length_remaining(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET)));
-  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, true);
+  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, true, false);
 }
 
 static void
@@ -3798,7 +3843,7 @@ dissect_init_ack_chunk(tvbuff_t *chunk_tvb, uint16_t chunk_length, packet_info *
   chunk_length -= INIT_CHUNK_FIXED_PARAMTERS_LENGTH;
   parameters_tvb = tvb_new_subset_length(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET,
                                   MIN(chunk_length, tvb_reported_length_remaining(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET)));
-  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, true);
+  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, false, true);
 }
 
 #define SCTP_SACK_CHUNK_NS_BIT                  0x01
@@ -4155,7 +4200,7 @@ dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, uint16_t chunk_length, packet_info 
     parameter_tvb  = tvb_new_subset_length(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET,
                                     MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET)));
     /* FIXME: Parameters or parameter? */
-    dissect_parameter(parameter_tvb, pinfo, chunk_tree, NULL, false, true);
+    dissect_parameter(parameter_tvb, pinfo, chunk_tree, NULL, false, false, true);
   }
 }
 
@@ -4172,7 +4217,7 @@ dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, uint16_t chunk_length, packet_i
     parameter_tvb  = tvb_new_subset_length(chunk_tvb, HEARTBEAT_ACK_CHUNK_INFO_OFFSET,
                                     MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, HEARTBEAT_ACK_CHUNK_INFO_OFFSET)));
     /* FIXME: Parameters or parameter? */
-    dissect_parameter(parameter_tvb, pinfo, chunk_tree, NULL, false, true);
+    dissect_parameter(parameter_tvb, pinfo, chunk_tree, NULL, false, false, true);
   }
 }
 
@@ -4385,7 +4430,7 @@ dissect_re_config_chunk(tvbuff_t *chunk_tvb, uint16_t chunk_length, packet_info 
 
   parameters_tvb = tvb_new_subset_length(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET,
                                   MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET)));
-  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, false);
+  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, false, false);
 }
 
 #define SHARED_KEY_ID_LENGTH 2
@@ -4428,7 +4473,7 @@ dissect_asconf_chunk(tvbuff_t *chunk_tvb, uint16_t chunk_length, packet_info *pi
   chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH;
   parameters_tvb = tvb_new_subset_length(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET,
                                   MIN(chunk_length, tvb_reported_length_remaining(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET)));
-  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, false);
+  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, false, false);
 }
 
 #define ASCONF_ACK_CHUNK_PARAMETERS_OFFSET (SEQUENCE_NUMBER_OFFSET + SCTP_SEQUENCE_NUMBER_LENGTH)
@@ -4451,7 +4496,7 @@ dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, uint16_t chunk_length, packet_info
   chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH;
   parameters_tvb = tvb_new_subset_length(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET,
                                   MIN(chunk_length, tvb_reported_length_remaining(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET)));
-  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, false);
+  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, false, false);
 }
 
 #define PKTDROP_CHUNK_BANDWIDTH_LENGTH      4
@@ -5181,6 +5226,7 @@ proto_register_sctp(void)
     { &hf_chunks_to_auth,                           { "Chunk type",                                     "sctp.chunk_type_to_auth",                              FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                NULL, HFILL } },
     { &hf_hmac_id,                                  { "HMAC identifier",                                "sctp.hmac_id",                                         FT_UINT16,  BASE_DEC,  VALS(hmac_id_values),                           0x0,                                NULL, HFILL } },
     { &hf_hmac,                                     { "HMAC",                                           "sctp.hmac",                                            FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_dtls_km_id,                               { "DTLS key management identifier",                 "sctp.dtls_km_id",                                      FT_UINT16,  BASE_DEC,  VALS(dtls_km_id_values),                        0x0,                                NULL, HFILL } },
     { &hf_shared_key_id,                            { "Shared key identifier",                          "sctp.shared_key_id",                                   FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_supported_chunk_type,                     { "Supported chunk type",                           "sctp.supported_chunk_type",                            FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                NULL, HFILL } },
     { &hf_cause_code,                               { "Cause code",                                     "sctp.cause_code",                                      FT_UINT16,  BASE_HEX,  VALS(cause_code_values),                        0x0,                                NULL, HFILL } },
@@ -5271,6 +5317,8 @@ proto_register_sctp(void)
       { &ei_sctp_nr_sack_chunk_number_tsns_nr_gap_acked_100, { "sctp.nr_sack_number_of_tsns_nr_gap_acked.100", PI_SEQUENCE, PI_WARN, "More than 100 TSNs were nr-gap-acknowledged in this NR-SACK.", EXPFILL }},
       { &ei_sctp_chunk_length_bad, { "sctp.chunk_length.bad", PI_MALFORMED, PI_ERROR, "Chunk length bad", EXPFILL }},
       { &ei_sctp_bad_sctp_checksum, { "sctp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum.", EXPFILL }},
+      { &ei_sctp_illegal_parameter_occurence, { "sctp.illegal_parameter_occurence.expert", PI_PROTOCOL, PI_ERROR, "Illegal parameter occurence.", EXPFILL }},
+      { &ei_sctp_dtls_km_illegal_number_of_ids, { "sctp.dtls_km_illegal_number_of_ids.expert", PI_PROTOCOL, PI_ERROR, "Illegal number of IDs.", EXPFILL }},
   };
 
   static const enum_val_t sctp_checksum_options[] = {
