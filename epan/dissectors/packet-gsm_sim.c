@@ -2455,6 +2455,11 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 	case 0xF2: /* STATUS */
 		proto_tree_add_item(sim_tree, hf_status_application_status, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sim_tree, hf_status_return_data, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
+		if (p1 == 0x01) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "(initialized) ");
+		} else if (p1 == 0x02) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "(terminate) ");
+		}
 		break;
 	case 0xB0: /* READ BINARY */
 	case 0xD6: /* UPDATE BINARY */
