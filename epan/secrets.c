@@ -14,6 +14,7 @@
 #define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include "secrets.h"
+#include "wmem_scopes.h"
 #include <wiretap/wtap.h>
 #include <wsutil/glib-compat.h>
 #include <wsutil/wslog.h>
@@ -134,7 +135,7 @@ secrets_get_count(const char* name)
 }
 
 secrets_export_values
-secrets_export_dsb(const char* name, capture_file* cf)
+secrets_export_dsb(const char* name, wtap* wth)
 {
     //lookup name
     secret_inject_data_t* injector = wmem_map_lookup(secrets_injection, name);
@@ -146,7 +147,7 @@ secrets_export_dsb(const char* name, capture_file* cf)
     if (count == 0)
         return SECRETS_NO_SECRETS;
 
-    if (!injector->inject(cf))
+    if (!injector->inject(wth))
         return SECRETS_EXPORT_FAILED;
 
     return SECRETS_EXPORT_SUCCESS;

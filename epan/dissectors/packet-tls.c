@@ -502,10 +502,10 @@ ssl_export_sessions(size_t* length)
 
 /** Add a DSB with the used TLS secrets to a capture file.
  *
- * @param cf The capture file
+ * @param wth Wiretap data
  */
 static bool
-tls_export_dsb(capture_file* cf)
+tls_export_dsb(wtap* wth)
 {
     wtap_block_t block;
     wtapng_dsb_mandatory_t* dsb;
@@ -521,9 +521,7 @@ tls_export_dsb(capture_file* cf)
     g_free(secrets);
 
     /* XXX - support replacing the DSB of the same type instead of adding? */
-    wtap_file_add_decryption_secrets(cf->provider.wth, block);
-    /* Mark the file as having unsaved changes */
-    cf->unsaved_changes = true;
+    wtap_file_add_decryption_secrets(wth, block);
 
     return true;
 }

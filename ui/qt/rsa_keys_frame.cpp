@@ -16,6 +16,7 @@
 
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include <wsutil/report_message.h>
+#include <epan/prefs.h>
 #include <QMessageBox>
 #include <ui/all_files_wildcard.h>
 

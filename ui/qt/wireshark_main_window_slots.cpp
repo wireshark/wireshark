@@ -2385,7 +2385,7 @@ void WiresharkMainWindow::injectSecrets(const char* proto_name, const char* wiki
     if (!capture_file_.isValid())
         return;
 
-    secrets_export_values ret = secrets_export_dsb(proto_name, capture_file_.capFile());
+    secrets_export_values ret = secrets_export_dsb(proto_name, capture_file_.capFile()->provider.wth);
     switch (ret)
     {
     case SECRETS_NO_SECRETS:
@@ -2405,6 +2405,7 @@ void WiresharkMainWindow::injectSecrets(const char* proto_name, const char* wiki
         break;
     }
     case SECRETS_EXPORT_SUCCESS:
+        capture_file_.capFile()->unsaved_changes = TRUE;
         updateForUnsavedChanges();
         break;
     default:

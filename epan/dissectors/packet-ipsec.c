@@ -2681,7 +2681,7 @@ esp_export_secret_count(void)
 }
 
 static bool
-esp_export_dsb(capture_file *cf)
+esp_export_dsb(wtap* wth)
 {
   wtap_block_t block;
   wtapng_dsb_mandatory_t *dsb;
@@ -2700,8 +2700,7 @@ esp_export_dsb(capture_file *cf)
   dsb->secrets_data = (uint8_t*)wmem_strbuf_finalize(secrets);
   dsb->secrets_len = (uint32_t)strlen((char*)dsb->secrets_data);
 
-  wtap_file_add_decryption_secrets(cf->provider.wth, block);
-  cf->unsaved_changes = TRUE;
+  wtap_file_add_decryption_secrets(wth, block);
   return true;
 }
 
