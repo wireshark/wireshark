@@ -5948,8 +5948,8 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 {
     proto_item *ti;
     proto_tree *bs_tree;
-    int         offset, end_offset, data_offset;
-    int         length, data_length;
+    unsigned    offset, end_offset, data_offset;
+    unsigned    length, data_length;
     tvbuff_t   *ppp_tvb;
     bool        first   = true;
 
@@ -5966,8 +5966,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     /*
      * Look for a frame delimiter.
      */
-    offset = tvb_find_uint8(tvb, 0, -1, 0x7e);
-    if (offset == -1) {
+    if (!tvb_find_uint8_remaining(tvb, 0, 0x7e, &offset)) {
         /*
          * None found - this is presumably continued from an earlier
          * packet and continued in a later packet.
@@ -6022,8 +6021,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
         /*
          * Look for the next frame delimiter.
          */
-        end_offset = tvb_find_uint8(tvb, offset + 1, -1, 0x7e);
-        if (end_offset == -1) {
+        if (!tvb_find_uint8_remaining(tvb, offset + 1, 0x7e, &end_offset)) {
             /*
              * We didn't find one.  This is probably continued in a later
              * packet.
