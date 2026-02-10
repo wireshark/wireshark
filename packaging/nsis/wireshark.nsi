@@ -1490,7 +1490,7 @@ RMDir "$INSTDIR"
 
 SectionEnd ; "Uinstall"
 
-Section "Un.Plugins" un.SecPlugins
+Section "Un.Global Plugins" un.SecPlugins
 ;-------------------------------------------
 SectionIn 1 2
 ;Delete "$INSTDIR\plugins\${VERSION}\*.*"
@@ -1584,7 +1584,7 @@ SectionEnd
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all ${PROGRAM_NAME} components."
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous ${PROGRAM_NAME} versions)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all global plugins (even from previous ${PROGRAM_NAME} versions)."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecProfiles} "Uninstall all global configuration profiles."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Delete personal configuration folder: $APPDATA\${PROGRAM_NAME}."
