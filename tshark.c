@@ -4530,7 +4530,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, int64_t offset
                 if (fflush(stdout) == EOF) {
                     /* Report a write error; see above */
                     show_print_file_io_error();
-                    return PROCESS_PACKET_PRINT_ERROR;;
+                    return PROCESS_PACKET_PRINT_ERROR;
                 }
             }
         }
