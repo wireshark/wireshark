@@ -328,15 +328,15 @@ if(BUILD_sdjournal AND SYSTEMD_FOUND)
 	set(sdjournal_FILES
 		$<TARGET_OBJECTS:extcap-base>
 		sdjournal.c
-		../app/wireshark_flavor.c
+		../app/stratoshark_flavor.c
 	)
 
 	set_executable_resources(sdjournal "sdjournal")
 	add_executable(sdjournal ${sdjournal_FILES})
-	set_extcap_executable_properties(sdjournal)
+	set_extlog_executable_properties(sdjournal)
 	target_link_libraries(sdjournal ${sdjournal_LIBS})
 	target_include_directories(sdjournal SYSTEM PRIVATE ${SYSTEMD_INCLUDE_DIRS})
-	install(TARGETS sdjournal RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
+	install(TARGETS sdjournal RUNTIME DESTINATION ${STRATOSHARK_EXTCAP_INSTALL_LIBDIR})
 	add_dependencies(extcaps sdjournal)
 endif()
 
@@ -418,7 +418,7 @@ if(BUILD_sshdig AND LIBSSH_FOUND)
 	set_extlog_executable_properties(sshdig)
 	target_link_libraries(sshdig ${sshdig_LIBS})
 	target_include_directories(sshdig SYSTEM PRIVATE ${LIBSSH_INCLUDE_DIRS})
-	install(TARGETS sshdig RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
+	install(TARGETS sshdig RUNTIME DESTINATION ${STRATOSHARK_EXTCAP_INSTALL_LIBDIR})
 	add_dependencies(extcaps sshdig)
 elseif (BUILD_sshdig)
 	#message( WARNING "Cannot find libssh, cannot build sshdig" )

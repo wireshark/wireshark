@@ -83,7 +83,7 @@ class TestExtcaps:
         ''' extcap interface tests for sdjournal '''
         if not sys.platform.startswith('linux'):
             pytest.skip('sdjournal is available on Linux only')
-        check_extcap_execution("sdjournal")
+        check_extcap_execution("sdjournal", stratoshark_extcap=True)
 
     def test_sshdig(self, check_extcap_execution):
         ''' extcap interface tests for sshdig '''
