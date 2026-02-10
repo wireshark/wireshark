@@ -240,13 +240,13 @@ static void dissect_nats_header_version(tvbuff_t* tvb, int offset, int end_offse
                         minor_offset, minor_length, minor_number);
 }
 
-static void dissect_nats_headers(tvbuff_t* tvb, int offset, int end_offset,
+static void dissect_nats_headers(tvbuff_t* tvb, unsigned offset, unsigned end_offset,
                                  packet_info* pinfo,
                                  proto_tree* tree, nats_data_t* nats_data)
 {
-    int len = end_offset - offset;
-    int next_offset = 0;
-    tvb_find_line_end(tvb, offset, len, &next_offset, false);
+    unsigned len = end_offset - offset;
+    unsigned next_offset = 0;
+    tvb_find_line_end_length(tvb, offset, len, NULL, &next_offset);
 
     proto_item* ti;
     proto_tree* header_tree;
@@ -262,10 +262,10 @@ static void dissect_nats_headers(tvbuff_t* tvb, int offset, int end_offset,
 
     nats_data->headers_map = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
 
-    while (tvb_find_line_end(tvb, offset, len, &next_offset, false) > 0)
+    while (tvb_find_line_end_length(tvb, offset, len, NULL, &next_offset))
     {
-        int colon_offset = tvb_find_uint8(tvb, offset, next_offset - offset, ':');
-        if (colon_offset != -1)
+        unsigned colon_offset;
+        if (tvb_find_uint8_length(tvb, offset, next_offset - offset, ':', &colon_offset))
         {
             const uint8_t* header_name = tvb_get_string_enc(pinfo->pool, tvb, offset, colon_offset - offset, ENC_UTF_8);
             int value_offset = tvb_skip_wsp(tvb, colon_offset + 1, next_offset - colon_offset - EOL_LEN - 1);
@@ -976,10 +976,10 @@ static int dissect_nats_err(tvbuff_t* tvb, int offset, int next_offset,
 static int dissect_nats(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
                         void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
-    int line_offset = 0;
-    int next_offset = 0;
+    unsigned line_offset = 0;
+    unsigned next_offset = 0;
 
     proto_item *nats_tree_item = proto_tree_add_item(tree, proto_nats, tvb,
                                                      0, -1, ENC_UTF_8);
@@ -988,7 +988,7 @@ static int dissect_nats(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NATS");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    while (tvb_find_line_end(tvb, line_offset, -1, &next_offset, true) != -1)
+    while (tvb_find_line_end_remaining(tvb, line_offset, NULL, &next_offset))
     {
         int result = 0;
 
@@ -1067,7 +1067,7 @@ static int dissect_nats(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
         }
 
         offset = line_offset;
-        // In case next call of tvb_find_line_end will not find next CRLF
+        // In case next call of tvb_find_line_end_length will not find next CRLF
         next_offset = line_offset;
     }
 

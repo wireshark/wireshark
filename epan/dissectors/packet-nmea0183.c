@@ -1242,16 +1242,16 @@ static uint8_t calculate_checksum(tvbuff_t *tvb, const int start, const int leng
  * If separator is not found, return the offset of end of tvbuff.
  * If offset is out of bounds, return the offset of end of tvbuff.
  **/
-static int
-tvb_find_end_of_nmea0183_field(tvbuff_t *tvb, const int offset)
+static unsigned
+tvb_find_end_of_nmea0183_field(tvbuff_t *tvb, const unsigned offset)
 {
     if (tvb_captured_length_remaining(tvb, offset) == 0)
     {
         return tvb_captured_length(tvb);
     }
 
-    int end_of_field_offset = tvb_find_uint8(tvb, offset, -1, ',');
-    if (end_of_field_offset == -1)
+    unsigned end_of_field_offset;
+    if (!tvb_find_uint8_remaining(tvb, offset, ',', &end_of_field_offset))
     {
         return tvb_captured_length(tvb);
     }
@@ -1993,33 +1993,30 @@ dissect_nmea0183_sentence_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 //static void
 //dissect_nmea0183_tag_block(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 //{
-//    int offset = 0, chk_sum_off, comma_off;
+//    unsigned offset = 0, chk_sum_off, comma_off;
 //
-//    chk_sum_off = tvb_find_uint8(tvb, offset, -1, '*');
-//    if (chk_sum_off == -1) {
+//    if (!tvb_find_uint8_remaining(tvb, offset, '*', &chk_sum_off)) {
 //        /* No checksum ??*/
 //        return;
 //    }
 //    while (offset < chk_sum_off) {
-//        comma_off = tvb_find_uint8(tvb, offset, -1, ',');
-//        if (comma_off == -1) {
+//        if (!tvb_find_uint8_remaining(tvb, offset, ',', &comma_off)) {
 //
 //        }
 //
 //    }
 //
 //}
-static int
-dissect_nmea0183_tag_blocks(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset) {
+static unsigned
+dissect_nmea0183_tag_blocks(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, unsigned offset) {
 
-    int start_offset;
-    int end_offset;
+    unsigned start_offset;
+    unsigned end_offset;
 
     while (tvb_get_uint8(tvb, offset) == '\\') {
         start_offset = offset;
         offset++;
-        end_offset = tvb_find_uint8(tvb, offset, -1, '\\');
-        if (end_offset == -1) {
+        if (!tvb_find_uint8_remaining(tvb, offset, '\\', &end_offset)) {
             // Add expert info
             return tvb_captured_length(tvb);
         }
@@ -2034,8 +2031,8 @@ static int
 dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
     proto_item* ti;
-    int offset = 0,start_offset;
-    int start_checksum_offset = 0;
+    unsigned offset = 0,start_offset;
+    unsigned start_checksum_offset = 0;
     const char* talker_id = NULL;
     const char* sentence_id = NULL;
     const char* checksum = NULL;
@@ -2073,8 +2070,7 @@ dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     offset += 3;
 
     /* Start of checksum */
-    start_checksum_offset = tvb_find_uint8(tvb, offset, -1, '*');
-    if (start_checksum_offset == -1)
+    if (!tvb_find_uint8_remaining(tvb, offset, '*', &start_checksum_offset))
     {
         expert_add_info(pinfo, tree, &ei_nmea0183_missing_checksum_character);
         return tvb_captured_length(tvb);
