@@ -2144,6 +2144,14 @@ static int dissect_active_beamspace_coefficient_mask(tvbuff_t *tvb, proto_tree *
     return offset;
 }
 
+static void add_beam_id_to_tap(oran_tap_info *tap_info, uint16_t beam_id)
+{
+    if (tap_info->num_beams < MAX_BEAMS_IN_FRAME) {
+        tap_info->beams[tap_info->num_beams++] = beam_id;
+    }
+}
+
+
 /* 7.7.1.3 bfwCompParam (beamforming weight compression parameter).
  * Depends upon passed-in bfwCompMeth (field may be empty) */
 static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset,
@@ -2342,7 +2350,8 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
                                   uint32_t num_weights_per_bundle,
                                   uint8_t iq_width,
                                   unsigned bundle_number,
-                                  unsigned first_prb, unsigned last_prb, bool is_orphan)
+                                  unsigned first_prb, unsigned last_prb, bool is_orphan,
+                                  oran_tap_info *tap_info)
 {
     /* Set bundle name */
     char bundle_name[32];
@@ -2398,6 +2407,7 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
     proto_tree_add_item_ret_uint(bundle_tree, hf_oran_beam_id, tvb, offset, 2, ENC_BIG_ENDIAN, &beam_id);
     proto_item_append_text(bundle_ti, " (beamId:%u) ", beam_id);
     bit_offset += 16;
+    add_beam_id_to_tap(tap_info, beam_id);
 
     /* Number of weights per bundle (from preference) */
     proto_item *wpb_ti = proto_tree_add_uint(bundle_tree, hf_oran_num_weights_per_bundle, tvb, 0, 0,
@@ -2566,9 +2576,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     uint32_t numPrbc=0, numPrbu=0;
     uint32_t ueId = 0;
     proto_item *ueId_ti = NULL;
-    uint32_t beamId = 0;
-    proto_item *beamId_ti = NULL;
-    bool beamId_ignored = false;
+    uint32_t section_beamId = 0;
+    proto_item *section_beamId_ti = NULL;
+    bool section_beamId_ignored = false;
 
     proto_item *numsymbol_ti = NULL;
     bool numsymbol_ignored = false;
@@ -2738,17 +2748,17 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case SEC_C_NORMAL:       /* Section Type 1 - Table 7.4.3-1 */
                 /* beamId */
-                beamId_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
+                section_beamId_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &section_beamId);
                 offset += 2;
 
                 /* beamId might get invalidated by e.g., ext-6, ext-11, so unused value will still be shown here.. */
-                proto_item_append_text(sectionHeading, ", BeamId: %d", beamId);
+                proto_item_append_text(sectionHeading, ", BeamId: %d", section_beamId);
                 break;
 
             case SEC_C_PRACH:       /* Section Type 3 - Table 7.4.5-1 */
             {
                 /* beamId */
-                beamId_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
+                section_beamId_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &section_beamId);
                 offset += 2;
 
                 /* freqOffset */
@@ -2763,7 +2773,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 1;
 
                 /* beamId might get invalidated by e.g., ext-6, ext-11, so unused value will still be shown here.. */
-                proto_item_append_text(sectionHeading, ", BeamId: %d, FreqOffset: %d \u0394f", beamId, freqOffset);
+                proto_item_append_text(sectionHeading, ", BeamId: %d, FreqOffset: %d \u0394f", section_beamId, freqOffset);
                 break;
             }
 
@@ -3697,9 +3707,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 PROTO_ITEM_SET_HIDDEN(bf_ti);
 
                 /* beamId in section header should be ignored. Guard against appending multiple times.. */
-                if (beamId_ti && !beamId_ignored) {
-                    proto_item_append_text(beamId_ti, " (ignored)");
-                    beamId_ignored = true;
+                if (section_beamId_ti && !section_beamId_ignored) {
+                    proto_item_append_text(section_beamId_ti, " (ignored)");
+                    section_beamId_ignored = true;
                 }
 
                 bool disableBFWs;
@@ -3766,7 +3776,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                     b,                                 /* bundle number */
                                                     ext11_settings.bundles[b].start,
                                                     ext11_settings.bundles[b].end,
-                                                    ext11_settings.bundles[b].is_orphan);
+                                                    ext11_settings.bundles[b].is_orphan,
+                                                    tap_info);
                         if (!offset) {
                             break;
                         }
@@ -3795,8 +3806,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         proto_tree_add_item(extension_tree, hf_oran_cont_ind,
                                             tvb, offset, 1, ENC_BIG_ENDIAN);
                         /* beamId */
-                        proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_beam_id,
-                                                             tvb, offset, 2, ENC_BIG_ENDIAN);
+                        /* N.B., only added to tap_info if not 0 or ignored (after SEs seen) */
+                        uint16_t beam_id;
+                        proto_item *ti = proto_tree_add_item_ret_uint16(extension_tree, hf_oran_beam_id,
+                                                                        tvb, offset, 2, ENC_BIG_ENDIAN, &beam_id);
                         if (!ext11_settings.bundles[n].is_orphan) {
                             proto_item_append_text(ti, "    (PRBs %3u-%3u)  (Bundle %2u)",
                                                    ext11_settings.bundles[n].start,
@@ -4034,9 +4047,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 19:  /* SE 19: Compact beamforming information for multiple port */
             {
                 /* beamId in section header should be ignored. Guard against appending multiple times.. */
-                if (beamId_ti && !beamId_ignored) {
-                    proto_item_append_text(beamId_ti, " (ignored)");
-                    beamId_ignored = true;
+                if (section_beamId_ti && !section_beamId_ignored) {
+                    proto_item_append_text(section_beamId_ti, " (ignored)");
+                    section_beamId_ignored = true;
                 }
 
                 /* numSymbol not used in this case */
@@ -4101,7 +4114,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         /* Reserved (1 bit) */
                         add_reserved_field(port_tree, hf_oran_reserved_1bit, tvb, offset, 1);
                         /* beamID (15 bits) */
-                        proto_tree_add_item_ret_uint(port_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
+                        uint16_t beamId;
+                        proto_tree_add_item_ret_uint16(port_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
                         proto_item_append_text(port_ti, " (beamId=%u)", beamId);
                         offset += 2;
 
@@ -4796,6 +4810,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     }
     /* End of section extension handling */
 
+    /* Tap section beamId if not overwritten by SEs */
+    if (!section_beamId_ignored && section_beamId != 0) {
+        add_beam_id_to_tap(tap_info, section_beamId);
+    }
 
 
     /* RRM measurement reports have measurement reports *after* extensions */
@@ -6764,7 +6782,6 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     }
 
                     tap_info->ul_delay_in_us = total_gap;
-                    tap_info->ul_delay_configured_max = us_allowed_for_ul_in_symbol;
                 }
             }
         }
@@ -7200,6 +7217,7 @@ dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     /* Allocate and zero tap struct */
     oran_tap_info *tap_info = wmem_new0(wmem_file_scope(), oran_tap_info);
     tap_info->pdu_size = pinfo->fd->pkt_len;
+    tap_info->ul_delay_configured_max = us_allowed_for_ul_in_symbol;
 
     switch (ecpri_message_type) {
         case ECPRI_MT_IQ_DATA:

@@ -30,6 +30,7 @@ enum {
     SECTIONS_COLUMN,
     SECTION_IDS_COLUMN,
     EXTENSIONS_COLUMN,
+    BEAMS_COLUMN,
     HIGHEST_SLOT_COLUMN,
     MISSING_SNS_COLUMN,
     NUM_PRBS_COLUMN,
@@ -47,6 +48,10 @@ uint32_t ul_configured_max = 0;
 uint32_t ul_within_configured_max = 0;
 uint32_t ul_above_configured_max = 0;
 
+#define MAX_BEAMS_IN_CAPTURE 64
+uint16_t num_beams;
+uint16_t beams[MAX_BEAMS_IN_CAPTURE];
+
 /* Assuming that it is unlikely we have > 255 radio frames.. */
 int      first_radio_frame = -1;
 int      last_radio_frame = -1;
@@ -58,7 +63,8 @@ static const char *flow_titles[] = { " Plane",
                                      "Largest PDU  ",
                                      "Section Types                ",
                                      "Section IDs        ",
-                                     "Extensions",
+                                     "Extensions                                            ",
+                                     "Beams",
                                      "Highest Slot",
                                      "Missing SNs   ",
                                      "PRBs",
@@ -217,6 +223,48 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     row->compression_width = si->compression_width;
     row->compression_methods |= si->compression_methods;
 
+    /* Count beams */
+
+    /* Copy these values from tap info.. */
+    /* ..into row */
+    for (uint16_t b = 0; b < si->num_beams; b++) {
+        bool need_to_add = true;
+        for (uint16_t n=0; n < row->base_info.num_beams; n++) {
+            if (si->beams[b] == row->base_info.beams[n]) {
+                /* Already have it, nothing to do */
+                need_to_add = false;
+                break;
+            }
+            if (row->base_info.num_beams == MAX_BEAMS_IN_FRAME) {
+                need_to_add = false;
+                break;
+            }
+        }
+        if (need_to_add) {
+            /* Have room and wasn't found, so add */
+            row->base_info.beams[row->base_info.num_beams++] = si->beams[b];
+        }
+    }
+    /* ..globally */
+    for (uint16_t b = 0; b < si->num_beams; b++) {
+        bool need_to_add = true;
+        for (uint16_t n=0; n < num_beams; n++) {
+            if (si->beams[b] == beams[n]) {
+                /* Already have it, nothing to do */
+                need_to_add = false;
+                break;
+            }
+            if (num_beams == MAX_BEAMS_IN_CAPTURE) {
+                need_to_add = false;
+                break;
+            }
+        }
+        if (need_to_add) {
+            /* Have room and wasn't found, so add */
+            beams[num_beams++] = si->beams[b];
+        }
+    }
+
     return TAP_PACKET_REDRAW;
 }
 
@@ -271,7 +319,7 @@ oran_stat_draw(void *phs)
         printf("%s  ", flow_titles[i]);
     }
     /* Divider before rows */
-    printf("\n=========================================================================================================================================================================================================================\n");
+    printf("\n============================================================================================================================================================================================================================================================================\n");
 
     /* Write a row for each flow */
     for (tmp = hs->flow_list; tmp; tmp=tmp->next) {
@@ -291,19 +339,25 @@ oran_stat_draw(void *phs)
         section_ids[0] = '-';
         section_ids[1] = '\0';
 
+        char beams_string[64];
+        int beams_offset = 0;
+        beams_string[0] = '-';
+        beams_string[1] = '\0';
+
+
         /* Some fields only apply to c-plane */
         if (!row->base_info.userplane) {
             /* Note which sections are used */
             for (unsigned int s=0; s < SEC_C_MAX_INDEX && (extensions_offset < 17-3); s++) {
                 if (row->base_info.section_types[s]) {
-                    sections_offset += snprintf(sections+sections_offset, 17-sections_offset-1, "%u ", s);
+                    sections_offset += snprintf(sections+sections_offset, 17-sections_offset-1, " %u", s);
                 }
             }
 
             /* Note which extensions are used */
             for (unsigned int e=1; e <= HIGHEST_EXTTYPE && (extensions_offset < 17-3); e++) {
                 if (row->base_info.extensions[e]) {
-                    extensions_offset += snprintf(extensions+extensions_offset, 17-extensions_offset-1, "%u ", e);
+                    extensions_offset += snprintf(extensions+extensions_offset, 17-extensions_offset-1, " %u", e);
                 }
             }
         }
@@ -311,12 +365,20 @@ oran_stat_draw(void *phs)
         /* Section IDs */
         for (unsigned id=0; (id < 4096) && (section_ids_offset < 28-1); id++) {
             if (row->section_ids_present[id]) {
-                section_ids_offset += snprintf(section_ids+section_ids_offset, 28-section_ids_offset-1, "%u ", id);
+                section_ids_offset += snprintf(section_ids+section_ids_offset, 28-section_ids_offset-1, " %u", id);
             }
         }
 
+        /* Beams. Only showing for DL CP..  */
+        if (!row->base_info.uplink && !row->base_info.userplane) {
+            for (unsigned b=0; b < row->base_info.num_beams && section_ids_offset < 64-1; b++) {
+                beams_offset += snprintf(beams_string+beams_offset, 64-beams_offset-1, " %u", row->base_info.beams[b]);
+            }
+        }
+
+
         /* Print this row */
-        printf("%6s  %1x:%1x:%1x:%1x %11s %9u %13u %17s %28s %18s %13u %12u",
+        printf("%6s  %1x:%1x:%1x:%1x %11s %9u %13u %17s %28s %18s %50s %13u %12u",
                (row->base_info.userplane) ? "U" : "C",
                (row->base_info.eaxc >> 12) & 0x0f, (row->base_info.eaxc >> 8) & 0x0f, (row->base_info.eaxc >> 4) & 0x0f, row->base_info.eaxc & 0x0f,
                (row->base_info.uplink) ? "UL" : "DL",
@@ -325,6 +387,7 @@ oran_stat_draw(void *phs)
                sections,
                section_ids,
                extensions,
+               beams_string,
                row->highest_slot,
                row->missing_sns
                );
@@ -368,6 +431,9 @@ oran_stat_draw(void *phs)
     printf("================================================================================================\n");
     printf("%24u %25u %24u %19u\n", ul_configured_max, ul_within_configured_max, ul_above_configured_max, largest_ul_delay_in_us);
 
+    printf("\n Unique beams seen\n");
+    printf("=======================\n");
+    printf("%18u\n", num_beams);
 }
 
 /* Create a new ORAN stats struct */
