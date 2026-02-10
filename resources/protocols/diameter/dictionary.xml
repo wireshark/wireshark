@@ -4063,6 +4063,7 @@
 			<enum name="NR(LEO)"					code="1035"/>
 			<enum name="NR(MEO)"					code="1036"/>
 			<enum name="NR(GEO)"					code="1037"/>
+			<enum name="NR(OTHERSAT)"				code="1038"/>
 			<enum name="NR-REDCAP"					code="1039"/>
 			<enum name="NR-EREDCAP"					code="1040"/>
 			<enum name="CDMA2000_1X"				code="2000"/>
