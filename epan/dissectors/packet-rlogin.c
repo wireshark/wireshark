@@ -173,12 +173,12 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 			   struct tcpinfo *tcpinfo)
 {
 	/* Display the proto tree */
-	int             offset = 0;
+	unsigned        offset = 0;
 	proto_tree      *rlogin_tree, *user_info_tree, *window_tree;
 	proto_item      *ti;
 	unsigned        length;
-	int             str_len;
-	int             ti_offset;
+	unsigned        str_len;
+	unsigned        ti_offset;
 	proto_item      *user_info_item, *window_info_item;
 
 	/* Create rlogin subtree */
@@ -202,7 +202,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	    length >= tcpinfo->urgent_pointer) /* and it's in this frame */
 	{
 		/* Get urgent byte into Temp */
-		int urgent_offset = tcpinfo->urgent_pointer - 1;
+		unsigned urgent_offset = tcpinfo->urgent_pointer - 1;
 		uint8_t control_byte;
 
 		/* Check for text data in front */
@@ -245,13 +245,13 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 	if (hash_info->info_framenum == pinfo->num)
 	{
-		int info_len;
-		int slash_offset;
+		unsigned info_len;
+		unsigned slash_offset;
 
 		/* First frame of conversation, assume user info... */
 
 		info_len = tvb_captured_length_remaining(tvb, offset);
-		if (info_len <= 0)
+		if (info_len == 0)
 			return;
 
 		/* User info tree */
@@ -275,8 +275,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		offset += str_len;
 
 		/* Terminal type/speed. */
-		slash_offset = tvb_find_uint8(tvb, offset, -1, '/');
-		if (slash_offset != -1)
+		if (!tvb_find_uint8_remaining(tvb, offset, '/', &slash_offset))
 		{
 			const char* str = NULL;
 			uint32_t term_len = 0;
@@ -310,11 +309,10 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	}
 
 	/* Test for terminal information, the data will have 2 0xff bytes */
-	/* look for first 0xff byte */
-	ti_offset = tvb_find_uint8(tvb, offset, -1, 0xff);
-
-	/* Next byte must also be 0xff */
-	if (ti_offset != -1 &&
+	/* look for first 0xff byte
+	 * Next byte must also be 0xff
+	 */
+	if (tvb_find_uint8_remaining(tvb, offset, 0xff, &ti_offset) &&
 	    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
 	    tvb_get_uint8(tvb, ti_offset + 1) == 0xff)
 	{
@@ -386,7 +384,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	conversation_t *conversation;
 	rlogin_hash_entry_t *hash_info;
 	unsigned length;
-	int ti_offset;
+	unsigned ti_offset;
 
 	/* Get or create conversation */
 	conversation = find_or_create_conversation(pinfo);
@@ -442,8 +440,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		{
 			/* Search for 2 consecutive ff bytes
 			  (signifies window change control message) */
-			ti_offset = tvb_find_uint8(tvb, 0, -1, 0xff);
-			if (ti_offset != -1 &&
+			if (tvb_find_uint8_remaining(tvb, 0, 0xff, &ti_offset) &&
 			    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
 			    tvb_get_uint8(tvb, ti_offset + 1) == 0xff)
 			{
@@ -452,7 +449,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			else
 			{
 				/* Show any text data in the frame */
-				int bytes_to_copy = tvb_captured_length(tvb);
+				unsigned bytes_to_copy = tvb_captured_length(tvb);
 				if (bytes_to_copy > 128)
 				{
 					/* Truncate to 128 bytes for display */

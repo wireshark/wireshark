@@ -160,7 +160,7 @@ typedef struct _proxy_conv_info_t {
 
 static int
 dissect_proxy_proxied(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
-    int offset, void* data, proxy_conv_info_t *proxy_info)
+    unsigned offset, void* data, proxy_conv_info_t *proxy_info)
 {
     conversation_t* conv = find_or_create_conversation(pinfo);
     /* A PROXY header was parsed here or in a previous frame, and
@@ -246,7 +246,7 @@ dissect_proxy_proxied(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, int offset, int next_offset)
+dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, unsigned offset, unsigned next_offset)
 {
     increment_dissection_depth(pinfo);
     while (offset < next_offset) {
@@ -308,8 +308,8 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
 static bool
 is_proxy_v2(tvbuff_t* tvb)
 {
-    int offset = 0;
-    int length = tvb_reported_length(tvb);
+    unsigned offset = 0;
+    unsigned length = tvb_reported_length(tvb);
 
     if (length < 16) {
         return false;
@@ -328,11 +328,11 @@ is_proxy_v2(tvbuff_t* tvb)
 #define PROXY_V1_MAX_LINE_LENGTH 107
 
 static bool
-is_proxy_v1(tvbuff_t *tvb, int *header_length)
+is_proxy_v1(tvbuff_t *tvb, unsigned*header_length)
 {
-    const int min_header_size = sizeof("PROXY \r\n") - 1;
-    int length = tvb_reported_length(tvb);
-    int next_offset;
+    const unsigned min_header_size = sizeof("PROXY \r\n") - 1;
+    unsigned length = tvb_reported_length(tvb);
+    unsigned next_offset;
 
     if (length < min_header_size) {
         return false;
@@ -343,7 +343,7 @@ is_proxy_v1(tvbuff_t *tvb, int *header_length)
     }
 
     length = MIN(length, PROXY_V1_MAX_LINE_LENGTH);
-    if (tvb_find_line_end(tvb, 6, length, &next_offset, false) == -1) {
+    if (!tvb_find_line_end_length(tvb, 6, length, NULL, &next_offset)) {
         return false;
     }
 
@@ -364,14 +364,15 @@ is_proxy_v1(tvbuff_t *tvb, int *header_length)
  * and the token length.
  */
 static bool
-proxy_v1_get_token_length(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int header_length, char *token, int *token_length)
+proxy_v1_get_token_length(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, unsigned header_length, char *token, unsigned *token_length)
 {
-    int space_pos = tvb_find_uint8(tvb, offset, header_length - offset, ' ');
-    if (space_pos == -1) {
+    unsigned space_pos;
+
+    if (!tvb_find_uint8_length(tvb, offset, header_length - offset, ' ', &space_pos)) {
         proto_tree_add_expert(tree, pinfo, &ei_proxy_bad_format, tvb, offset, header_length - offset);
         return false;
     }
-    int length = space_pos - offset;
+    unsigned length = space_pos - offset;
     if (token && length) {
         DISSECTOR_ASSERT(length + 1 < PROXY_V1_MAX_LINE_LENGTH);
         tvb_memcpy(tvb, token, offset, length);
@@ -381,15 +382,15 @@ proxy_v1_get_token_length(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     return length != 0;
 }
 
-static int
+static unsigned
 dissect_proxy_v1_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *proxy_tree;
     unsigned    offset = 0;
-    int         header_length = 0;
-    int         token_length = 0;
-    int         tcp_ip_version = 0;
+    unsigned    header_length = 0;
+    unsigned    token_length = 0;
+    unsigned    tcp_ip_version = 0;
     uint16_t    srcport, dstport;
     char        buffer[PROXY_V1_MAX_LINE_LENGTH];
     uint32_t    src_ipv4, dst_ipv4;
@@ -536,7 +537,7 @@ dissect_proxy_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 {
     conversation_t* conv = find_or_create_conversation(pinfo);
     proxy_conv_info_t* proxy_info;
-    int offset = dissect_proxy_v1_header(tvb, pinfo, tree);
+    unsigned offset = dissect_proxy_v1_header(tvb, pinfo, tree);
     proxy_info = conversation_get_proto_data(conv, proto_proxy);
     if (proxy_info && pinfo->num >= proxy_info->setup_frame &&
             tvb_reported_length_remaining(tvb, offset)) {
@@ -548,7 +549,7 @@ dissect_proxy_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return offset;
 }
 
-static int
+static unsigned
 dissect_proxy_v2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti , *ti_ver;
@@ -677,7 +678,7 @@ dissect_proxy_v2(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
 {
     conversation_t* conv = find_or_create_conversation(pinfo);
     proxy_conv_info_t *proxy_info;
-    int offset = dissect_proxy_v2_header(tvb, pinfo, tree);
+    unsigned offset = dissect_proxy_v2_header(tvb, pinfo, tree);
     proxy_info = conversation_get_proto_data(conv, proto_proxy);
     if (proxy_info && pinfo->num >= proxy_info->setup_frame &&
         tvb_reported_length_remaining(tvb, offset)) {
@@ -708,7 +709,7 @@ dissect_proxy_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 static bool
 dissect_proxy_heur_udp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
-    int offset;
+    unsigned offset;
     if (is_proxy_v2(tvb)) {
         offset = dissect_proxy_v2(tvb, pinfo, tree, data);
         if (offset && tvb_reported_length_remaining(tvb, offset)) {

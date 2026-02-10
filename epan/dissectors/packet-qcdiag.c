@@ -1664,7 +1664,7 @@ dissect_qcdiag_ext_build_id(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
 {
     proto_tree *subtree;
     uint32_t logcode, length;
-    int end_offset;
+    unsigned end_offset;
     bool request;
 
     length = tvb_reported_length(tvb);
@@ -1696,24 +1696,24 @@ dissect_qcdiag_ext_build_id(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
     offset += 4;
 
     /* Returns the offset of the found needle, or -1 if not found */
-    end_offset = tvb_find_uint8(tvb, offset, -1, '\0');
-
-	if (end_offset == -1) return;
+    if (!tvb_find_uint8_remaining(tvb, offset, '\0', &end_offset)) {
+        return;
+    }
 
     /* Mobile Software Revision */
-    if (offset == (uint32_t)end_offset)
+    if (offset == end_offset)
         proto_tree_add_string(subtree, hf_qcdiag_ext_build_id_sw_rev, tvb, offset, 0, "(empty)");
     else
         proto_tree_add_item(subtree, hf_qcdiag_ext_build_id_sw_rev, tvb, offset, end_offset-offset, ENC_ASCII);
-    offset = (uint32_t)end_offset + 1;
+    offset = end_offset + 1;
 
     /* Returns the offset of the found needle, or -1 if not found */
-    end_offset = tvb_find_uint8(tvb, offset, -1, '\0');
-
-	if (end_offset == -1) return;
+    if (!tvb_find_uint8_remaining(tvb, offset, '\0', &end_offset)) {
+        return;
+    }
 
     /* Mobile Model String */
-    if (offset == (uint32_t)end_offset)
+    if (offset == end_offset)
         proto_tree_add_string(subtree, hf_qcdiag_ext_build_id_mob_model_str, tvb, offset, 0, "(empty)");
     else
         proto_tree_add_item(subtree, hf_qcdiag_ext_build_id_mob_model_str, tvb, offset, end_offset-offset, ENC_ASCII);
