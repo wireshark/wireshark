@@ -2099,6 +2099,7 @@ static const true_false_string ieee80211_qos_mesh_ps = {
 #define AUTH_ALG_FILS_SK_WITH_PFS       5
 #define AUTH_ALG_FILS_PK                6
 #define AUTH_ALG_PASN                   7
+#define AUTH_ALG_EPPKE                  9
 #define AUTH_ALG_NETWORK_EAP         0x80
 
 static const value_string auth_alg[] = {
@@ -2110,6 +2111,7 @@ static const value_string auth_alg[] = {
   {AUTH_ALG_FILS_SK_WITH_PFS,    "FILS Shared Key authentication with PFS"},
   {AUTH_ALG_FILS_PK,             "FILS Public Key authentication"},
   {AUTH_ALG_PASN,                "Pre-Association Security Negotiation (PASN)"},
+  {AUTH_ALG_EPPKE,               "Enhanced Privacy Protection Key Exchange (EPPKE)"},
   {AUTH_ALG_NETWORK_EAP,         "Network EAP"},  /* Cisco proprietary? */
   {0, NULL}
 };
@@ -8244,6 +8246,11 @@ static int hf_ieee80211_tag_rsnx_pbac;
 static int hf_ieee80211_tag_rsnx_extended_s1g_action_protection;
 static int hf_ieee80211_tag_rsnx_spp_amsdu_capable;
 static int hf_ieee80211_tag_rsnx_urnm_mfpr;
+/* octet 3 */
+static int hf_ieee80211_tag_rsnx_kek_in_pasn; /* bit 18 */
+/* octet 4 */
+static int hf_ieee80211_tag_rsnx_assoc_encryption; /* bit 27 */
+static int hf_ieee80211_tag_rsnx_pmksa_privacy; /* bit 29 */
 static int hf_ieee80211_tag_rsnx_reserved;
 
 static int hf_ieee80211_wfa_rsn_selection;
@@ -8570,6 +8577,8 @@ static int ett_tag_rm_cap5;
 
 static int ett_tag_rsnx_octet1;
 static int ett_tag_rsnx_octet2;
+static int ett_tag_rsnx_octet3;
+static int ett_tag_rsnx_octet4;
 
 static int ett_tag_multiple_bssid_subelem_tree;
 static int ett_tag_20_40_bc;
@@ -14244,6 +14253,7 @@ dissect_auth_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     offset = add_ff_auth_fils(tree, tvb, pinfo, offset);
     break;
   case AUTH_ALG_PASN:
+  case AUTH_ALG_EPPKE:
     offset = add_ff_auth_pasn(tree, tvb, pinfo, offset);
     break;
   }
@@ -19086,6 +19096,7 @@ static const value_string ieee80211_rsn_cipher_vals[] = {
 #define AKMS_OWE                  0x000FAC12
 #define AKMS_SAE_GROUP_DEPEND     0x000FAC18
 #define AKMS_FT_SAE_GROUP_DEPEND  0x000FAC19
+#define AKMS_EPPKE                0x000FAC1D
 
 static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {0, "NONE"},
@@ -19112,6 +19123,7 @@ static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {21, "PASN"},
   {24, "SAE (GROUP-DEPEND)"},
   {25, "FT using SAE (GROUP-DEPEND)"},
+  {29, "EPPKE"},
   {0, NULL}
 };
 
@@ -35837,6 +35849,15 @@ dissect_rsnx_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int tag
     &hf_ieee80211_tag_rsnx_urnm_mfpr,
     NULL
   };
+  static int * const octet3[] = {
+    &hf_ieee80211_tag_rsnx_kek_in_pasn,
+    NULL
+  };
+  static int * const octet4[] = {
+    &hf_ieee80211_tag_rsnx_assoc_encryption,
+    &hf_ieee80211_tag_rsnx_pmksa_privacy,
+    NULL
+  };
 
   /* octet 1 */
   octet = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_rsnx, ett_tag_rsnx_octet1, octet1, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
@@ -35849,6 +35870,24 @@ dissect_rsnx_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int tag
 
   /* octet 2 */
   octet = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_rsnx, ett_tag_rsnx_octet2, octet2, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  proto_item_append_text(octet, " (octet %d)", offset + 1);
+
+  offset += 1;
+  if (offset >= tag_len) {
+      return offset;
+  }
+
+  /* octet 3 */
+  octet = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_rsnx, ett_tag_rsnx_octet3, octet3, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  proto_item_append_text(octet, " (octet %d)", offset + 1);
+
+  offset += 1;
+  if (offset >= tag_len) {
+      return offset;
+  }
+
+  /* octet 4 */
+  octet = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_rsnx, ett_tag_rsnx_octet4, octet4, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   proto_item_append_text(octet, " (octet %d)", offset + 1);
 
   offset += 1;
@@ -60127,6 +60166,18 @@ proto_register_ieee80211(void)
       {"URNM-MFPR", "wlan.rsnx.urnm_mfpr",
        FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_rsnx_kek_in_pasn,
+      {"KEK in PASN", "wlan.rsnx.kek_in_pasn",
+       FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_assoc_encryption,
+      {"(Re)Association Frame Encryption", "wlan.rsnx.assoc_encryption",
+       FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_pmksa_privacy,
+      {"PMKSA Caching Privacy", "wlan.rsnx.pmksa_caching_privacy",
+       FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+
     {&hf_ieee80211_tag_rsnx_reserved,
       {"Reserved", "wlan.rsnx.reserved",
        FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
@@ -62018,6 +62069,8 @@ proto_register_ieee80211(void)
 
     &ett_tag_rsnx_octet1,
     &ett_tag_rsnx_octet2,
+    &ett_tag_rsnx_octet3,
+    &ett_tag_rsnx_octet4,
 
     &ett_tag_multiple_bssid_subelem_tree,
 
