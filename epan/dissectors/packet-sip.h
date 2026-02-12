@@ -41,6 +41,6 @@ typedef struct _sip_reason_code_info_t
 extern void dfilter_store_sip_from_addr(tvbuff_t *tvb, proto_tree *tree,
     unsigned parameter_offset, unsigned parameter_len);
 
-extern void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset, int line_end_offset);
+extern void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned start_offset, unsigned line_end_offset);
 
 #endif

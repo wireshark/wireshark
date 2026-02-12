@@ -1072,17 +1072,17 @@ UAT_CSTRING_CB_DEF(sip_authorization_users, password, authorization_user_t)
 
 /* Forward declaration we need below */
 void proto_reg_handoff_sip(void);
-static int dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info *pinfo,
+static int dissect_sip_common(tvbuff_t *tvb, unsigned offset, unsigned remaining_length, packet_info *pinfo,
     proto_tree *tree, bool is_heur, bool use_reassembly);
-static line_type_t sip_parse_line(tvbuff_t *tvb, int offset, int linelen,
+static line_type_t sip_parse_line(tvbuff_t *tvb, unsigned offset, unsigned linelen,
     unsigned *token_1_len);
-static bool sip_is_known_request(tvbuff_t *tvb, packet_info* pinfo, int meth_offset,
+static bool sip_is_known_request(tvbuff_t *tvb, packet_info* pinfo, unsigned meth_offset,
     unsigned meth_len, unsigned *meth_idx);
 static int sip_is_known_sip_header(char *header_name, unsigned header_len);
-static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset,
+static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset,
     unsigned meth_len, int linelen);
-static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int line_end, int offset);
-static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, int body_offset, packet_info* pinfo, proto_tree *tree);
+static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned line_end, unsigned offset);
+static void tvb_raw_text_add(tvbuff_t *tvb, unsigned offset, unsigned length, unsigned body_offset, packet_info* pinfo, proto_tree *tree);
 static unsigned sip_is_packet_resend(packet_info *pinfo,
                 const char *cseq_method,
                 char* call_id,
@@ -1289,20 +1289,20 @@ typedef enum
 typedef struct _uri_offset_info
 {
     sip_uri_type_enum_t uri_type;
-    int display_name_start;
-    int display_name_end;
-    int uri_start;
-    int uri_end;
-    int uri_parameters_start;
-    int uri_parameters_end;
-    int name_addr_start;
-    int name_addr_end;
-    int uri_user_start;
-    int uri_user_end;
-    int uri_host_start;
-    int uri_host_end;
-    int uri_host_port_start;
-    int uri_host_port_end;
+    unsigned display_name_start;
+    unsigned display_name_end;
+    unsigned uri_start;
+    unsigned uri_end;
+    unsigned uri_parameters_start;
+    unsigned uri_parameters_end;
+    unsigned name_addr_start;
+    unsigned name_addr_end;
+    unsigned uri_user_start;
+    unsigned uri_user_end;
+    unsigned uri_host_start;
+    unsigned uri_host_end;
+    unsigned uri_host_port_start;
+    unsigned uri_host_port_end;
 } uri_offset_info;
 
 static void
@@ -1310,46 +1310,42 @@ sip_uri_offset_init(uri_offset_info *uri_offsets){
 
     /* Initialize the uri_offsets */
     uri_offsets->uri_type = SIP_URI_TYPE_ABSOLUTE_URI;
-    uri_offsets->display_name_start = -1;
-    uri_offsets->display_name_end = -1;
-    uri_offsets->uri_start = -1;
-    uri_offsets->uri_end = -1;
-    uri_offsets->uri_parameters_start = -1;
-    uri_offsets->uri_parameters_end = -1;
-    uri_offsets->name_addr_start = -1;
-    uri_offsets->name_addr_end = -1;
-    uri_offsets->uri_user_start = -1;
-    uri_offsets->uri_user_end = -1;
-    uri_offsets->uri_host_start = -1;
-    uri_offsets->uri_host_end = -1;
-    uri_offsets->uri_host_port_start = -1;
-    uri_offsets->uri_host_port_end = -1;
+    uri_offsets->display_name_start = 0;
+    uri_offsets->display_name_end = 0;
+    uri_offsets->uri_start = 0;
+    uri_offsets->uri_end = 0;
+    uri_offsets->uri_parameters_start = 0;
+    uri_offsets->uri_parameters_end = 0;
+    uri_offsets->name_addr_start = 0;
+    uri_offsets->name_addr_end = 0;
+    uri_offsets->uri_user_start = 0;
+    uri_offsets->uri_user_end = 0;
+    uri_offsets->uri_host_start = 0;
+    uri_offsets->uri_host_end = 0;
+    uri_offsets->uri_host_port_start = 0;
+    uri_offsets->uri_host_port_end = 0;
 
 }
 
-static int
-dissect_tel_uri(tvbuff_t *tvb, packet_info *pinfo _U_, int current_offset,
-                int line_end_offset, uri_offset_info *uri_offsets)
+static bool
+dissect_tel_uri(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned *offset,
+                unsigned line_end_offset, uri_offset_info *uri_offsets)
 {
+    unsigned current_offset = *offset;
     unsigned char c = '\0';
     uri_offsets->uri_type = SIP_URI_TYPE_TEL;
 
-    if (uri_offsets->uri_end == -1)
+    if (uri_offsets->uri_end == 0)
     {
         /* name-addr form was NOT used e.g no closing ">" */
         /* look for the first ',' or ';' which will mark the end of this URI
          * In this case a semicolon indicates a header field parameter, and not an uri parameter.
          */
-        int end_offset;
+        unsigned end_offset;
 
-        end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_comma_semi, NULL);
-
-        if (end_offset != -1)
-        {
+        if (tvb_ws_mempbrk_uint8_length(tvb, current_offset, line_end_offset - current_offset, &pbrk_comma_semi, &end_offset, NULL)) {
             uri_offsets->uri_end = end_offset - 1;
-        }
-        else
-        {
+        } else {
             /* We don't have a semicolon or a comma.
              * In that case, we assume that the end of the URI is at the line end
               */
@@ -1360,12 +1356,11 @@ dissect_tel_uri(tvbuff_t *tvb, packet_info *pinfo _U_, int current_offset,
 
     uri_offsets->uri_user_start = current_offset;
 
-    int parameter_end_offset = uri_offsets->uri_user_start;
+    unsigned parameter_end_offset = uri_offsets->uri_user_start;
     if (parameter_end_offset < line_end_offset)
     {
         parameter_end_offset++;
-        parameter_end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, &pbrk_param_end, &c);
-        if (parameter_end_offset == -1)
+        if (!tvb_ws_mempbrk_uint8_length(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, &pbrk_param_end, &parameter_end_offset, &c))
         {
             parameter_end_offset = line_end_offset;
         } else {
@@ -1389,22 +1384,26 @@ dissect_tel_uri(tvbuff_t *tvb, packet_info *pinfo _U_, int current_offset,
     }
 
     uri_offsets->uri_user_end = parameter_end_offset -1;
-
-    return uri_offsets->name_addr_end;
+    if (uri_offsets->name_addr_end == 0) {
+        return false;
+    }
+    *offset = uri_offsets->name_addr_end;
+    return true;
 }
 
 /* Code to parse a sip uri.
- * Returns Offset end off parsing or -1 for unsuccessful parsing
+ * Returns Offset end off parsing or false for unsuccessful parsing
  * - sip_uri_offset_init() must have been called first.
  */
-static int
-dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, int start_offset,
-                int line_end_offset, uri_offset_info *uri_offsets)
+static bool
+dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned *offset,
+    unsigned line_end_offset, uri_offset_info *uri_offsets)
 {
     unsigned char c = '\0';
-    int current_offset;
-    int queried_offset;
-    int parameter_end_offset;
+    unsigned start_offset = *offset;
+    unsigned current_offset;
+    unsigned queried_offset;
+    unsigned parameter_end_offset;
     bool in_ipv6 = false;
 
     /* skip Spaces and Tabs */
@@ -1412,35 +1411,35 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, int start_offset,
 
     if(current_offset >= line_end_offset) {
         /* Nothing to parse */
-        return -1;
+        return false;
     }
     /* Set uri start offset in case this was called directly */
     uri_offsets->uri_start = current_offset;
 
     /* Check if it's really a sip uri (it might be a tel uri) */
     if (tvb_strneql(tvb, current_offset, "tel:", 4) == 0) {
-        return dissect_tel_uri(tvb, pinfo, current_offset + 4, line_end_offset, uri_offsets);
+        *offset = current_offset + 4;
+        return dissect_tel_uri(tvb, pinfo, offset, line_end_offset, uri_offsets);
     } else if (tvb_strneql(tvb, current_offset, "sip", 3) != 0){
-        if (uri_offsets->uri_end != -1) {
+        if (uri_offsets->uri_end > 0) {
             /* We know where the URI ends, set the offsets*/
-            return uri_offsets->name_addr_end;
+            *offset = uri_offsets->name_addr_end;
+            return true;
         }
-        return -1;
+        return false;
     }
 
     uri_offsets->uri_type = SIP_URI_TYPE_SIP;
 
-    if(uri_offsets->uri_end == -1)
+    if(uri_offsets->uri_end == 0)
     {
         /* name-addr form was NOT used e.g no closing ">" */
         /* look for the first ',' or ';' which will mark the end of this URI
          * In this case a semicolon indicates a header field parameter, and not an uri parameter.
          */
-        int end_offset;
+        unsigned end_offset;
 
-        end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_comma_semi, NULL);
-
-        if (end_offset != -1)
+        if (tvb_ws_mempbrk_uint8_length(tvb, current_offset, line_end_offset - current_offset, &pbrk_comma_semi, &end_offset, NULL))
         {
             uri_offsets->uri_end = end_offset - 1;
         }
@@ -1457,17 +1456,19 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, int start_offset,
     /* Look for URI address parts (user, host, host-port) */
 
     /* Look for '@' within URI */
-    queried_offset = tvb_find_uint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, '@');
-    if(queried_offset == -1)
+    if(!tvb_find_uint8_length(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, '@', &queried_offset))
     {
         /* no '@' = no user part */
-        uri_offsets->uri_host_start = tvb_find_uint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, ':')+1;
+        tvb_find_uint8_length(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, ':', &uri_offsets->uri_host_start);
+        uri_offsets->uri_host_start += 1;
     }
     else
     {
         /* with '@' = with user part */
-        uri_offsets->uri_user_start = tvb_find_uint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, ':')+1;
-        uri_offsets->uri_user_end = tvb_find_uint8(tvb, uri_offsets->uri_user_start, uri_offsets->uri_end - uri_offsets->uri_start, '@')-1;
+        tvb_find_uint8_length(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, ':', &uri_offsets->uri_user_start);
+        uri_offsets->uri_user_start += 1;
+        tvb_find_uint8_length(tvb, uri_offsets->uri_user_start, uri_offsets->uri_end - uri_offsets->uri_start, '@', &uri_offsets->uri_user_end);
+        uri_offsets->uri_user_end = uri_offsets->uri_user_end -1;
         uri_offsets->uri_host_start = uri_offsets->uri_user_end + 2;
     }
 
@@ -1478,8 +1479,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, int start_offset,
     while (parameter_end_offset < line_end_offset)
     {
         parameter_end_offset++;
-        parameter_end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, &pbrk_param_end_colon_brackets, &c);
-        if (parameter_end_offset == -1)
+        if (!tvb_ws_mempbrk_uint8_length(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, &pbrk_param_end_colon_brackets, &parameter_end_offset, &c))
         {
             parameter_end_offset = line_end_offset;
             break;
@@ -1524,8 +1524,7 @@ uri_host_end_found:
         while (parameter_end_offset < line_end_offset)
         {
             parameter_end_offset++;
-            parameter_end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, &pbrk_param_end, &c);
-            if (parameter_end_offset == -1)
+            if (!tvb_ws_mempbrk_uint8_length(tvb, parameter_end_offset, line_end_offset - parameter_end_offset,  &pbrk_param_end, &parameter_end_offset, &c))
             {
                 parameter_end_offset = line_end_offset;
                 break;
@@ -1553,8 +1552,11 @@ uri_host_end_found:
 
         uri_offsets->uri_host_port_end = parameter_end_offset -1;
     }
-
-    return uri_offsets->name_addr_end;
+    if (uri_offsets->name_addr_end != 0) {
+        *offset = uri_offsets->name_addr_end;
+        return true;
+    }
+    return false;
 }
 
 void
@@ -1597,7 +1599,7 @@ sip_proto_tree_add_string(proto_tree *tree, wmem_allocator_t* allocator, int hfi
 }
 
 static void
-sip_proto_set_format_text(const proto_tree *tree, wmem_allocator_t* allocator, proto_item *item, tvbuff_t *tvb, int offset, int length)
+sip_proto_set_format_text(const proto_tree *tree, wmem_allocator_t* allocator, proto_item *item, tvbuff_t *tvb, unsigned offset, int length)
 {
     if (tree != item && item && PTREE_DATA(item)->visible)
         proto_item_set_text(item, "%s", tvb_format_text(allocator, tvb, offset, length));
@@ -1610,7 +1612,7 @@ sip_proto_set_format_text(const proto_tree *tree, wmem_allocator_t* allocator, p
 static void
 dissect_sip_generic_parameters(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo, int current_offset, int line_end_offset)
 {
-    int semi_colon_offset, par_name_end_offset, equals_offset, length;
+    unsigned semi_colon_offset, par_name_end_offset, equals_offset, length;
     /* Loop over the generic parameter(s)*/
     while (current_offset < line_end_offset) {
         char *param_name = NULL;
@@ -1618,17 +1620,14 @@ dissect_sip_generic_parameters(tvbuff_t *tvb, proto_tree* tree, packet_info *pin
         /* skip Spaces and Tabs */
         current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
 
-        semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ';');
-
-        if (semi_colon_offset == -1) {
+        if (!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset)) {
             semi_colon_offset = line_end_offset;
         }
 
         length = semi_colon_offset - current_offset;
 
         /* Parse parameter and value */
-        equals_offset = tvb_find_uint8(tvb, current_offset + 1, length, '=');
-        if (equals_offset != -1) {
+        if (tvb_find_uint8_length(tvb, current_offset + 1, length, '=', &equals_offset)) {
             /* Has value part */
             par_name_end_offset = equals_offset;
             /* Extract the parameter name */
@@ -1665,17 +1664,17 @@ dissect_sip_generic_parameters(tvbuff_t *tvb, proto_tree* tree, packet_info *pin
  *          hi-extension = generic-param
  */
 
-static int
-dissect_sip_history_info(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_, int current_offset,
-                int line_end_offset)
+static unsigned
+dissect_sip_history_info(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_, unsigned current_offset,
+                unsigned line_end_offset)
 {
-    int comma_offset;
+    unsigned comma_offset;
     bool first_time = true;
 
     /* split the line at the commas */
     while (line_end_offset > current_offset){
-        comma_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ',');
-        if(comma_offset == -1){
+        comma_offset = tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ',', &comma_offset);
+        if(!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ',', &comma_offset)){
             if(first_time == true){
                 /* It was only on parameter no need to split it up */
                 return line_end_offset;
@@ -1710,30 +1709,31 @@ dissect_sip_history_info(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_
  */
 
 static int
-dissect_sip_p_charging_func_addresses(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_, int current_offset,
-                int line_end_offset)
+dissect_sip_p_charging_func_addresses(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_, unsigned current_offset,
+    unsigned line_end_offset)
 {
-    int semi_offset, start_quote_offset, end_quote_offset;
+    unsigned semi_offset, start_quote_offset, end_quote_offset;
     bool first_time = true;
 
     while (line_end_offset > current_offset){
+        bool start_quote_found, semi_found = false, eq_found;
         /* Do we have a quoted string ? */
-        start_quote_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, '"');
-        if(start_quote_offset>0){
+        start_quote_found = tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, '"', & start_quote_offset);
+        if(start_quote_found && start_quote_offset>0){
             /* Find end of quoted string */
-            end_quote_offset = tvb_find_uint8(tvb, start_quote_offset+1, line_end_offset - (start_quote_offset+1), '"');
+            eq_found = tvb_find_uint8_length(tvb, start_quote_offset+1, line_end_offset - (start_quote_offset+1), '"', &end_quote_offset);
             /* Find parameter end */
-            if (end_quote_offset>0)
-                semi_offset = tvb_find_uint8(tvb, end_quote_offset+1, line_end_offset - (end_quote_offset+1), ';');
+            if (eq_found && end_quote_offset>0)
+                semi_found = tvb_find_uint8_length(tvb, end_quote_offset+1, line_end_offset - (end_quote_offset+1), ';', &semi_offset);
             else {
                 /* XXX expert info about unterminated string */
-                semi_offset = tvb_find_uint8(tvb, start_quote_offset+1, line_end_offset - (start_quote_offset+1), ';');
+                semi_found = tvb_find_uint8_length(tvb, start_quote_offset+1, line_end_offset - (start_quote_offset+1), ';', &semi_offset);
             }
         }else{
             /* Find parameter end */
-            semi_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ';');
+            semi_found = tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_offset);
         }
-        if(semi_offset == -1){
+        if(semi_found == false){
             if(first_time == true){
             /* It was only one parameter no need to split it up */
             return line_end_offset;
@@ -1761,15 +1761,17 @@ dissect_sip_p_charging_func_addresses(tvbuff_t *tvb, proto_tree* tree, packet_in
  *  absoluteURI    =  scheme ":" ( hier-part / opaque-part )
  */
 
-static int
-dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, int start_offset,
-                int line_end_offset, uri_offset_info *uri_offsets)
+static bool
+dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned *offset,
+                unsigned line_end_offset, uri_offset_info *uri_offsets)
 {
     char c;
     int i;
-    int current_offset;
-    int queried_offset;
-    int colon_offset;
+    unsigned start_offset = *offset;
+    unsigned current_offset;
+    unsigned queried_offset;
+    unsigned colon_offset;
+    bool qo_found, colon_o_found;
     bool uri_without_angle_quotes = false;
 
     /* skip Spaces and Tabs */
@@ -1777,7 +1779,7 @@ dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, int st
 
     if(current_offset >= line_end_offset) {
         /* Nothing to parse */
-        return -1;
+        return false;
     }
 
     uri_offsets->name_addr_start = current_offset;
@@ -1791,11 +1793,10 @@ dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, int st
             uri_offsets->display_name_start = current_offset;
             do
             {
-                queried_offset = tvb_find_uint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '"');
-                if(queried_offset == -1)
+                if(!tvb_find_uint8_length(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '"', &queried_offset))
                 {
                     /* malformed URI */
-                    return -1;
+                    return false;
                 }
                 current_offset = queried_offset;
 
@@ -1813,17 +1814,16 @@ dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, int st
             if(current_offset >= line_end_offset)
             {
                 /* malformed URI */
-                return -1;
+                return false;
             }
 
             uri_offsets->display_name_end = current_offset;
 
             /* find start of the URI */
-            queried_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, '<');
-            if(queried_offset == -1)
+            if(!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, '<', &queried_offset))
             {
                 /* malformed Uri */
-                return -1;
+                return false;
             }
             current_offset = queried_offset + 1;
             break;
@@ -1836,9 +1836,9 @@ dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, int st
         default:
             /* We have either an URI without angles or a display name with a limited character set */
             /* Look for the right angle quote or colon */
-            queried_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, '<');
-            colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ':');
-            if(queried_offset != -1 && colon_offset != -1)
+            qo_found =  tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, '<', &queried_offset);
+            colon_o_found = tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ':', &colon_offset);
+            if(qo_found == true && colon_o_found == true)
             {
                 if(queried_offset < colon_offset)
                 {
@@ -1855,7 +1855,7 @@ dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, int st
             }
             else
             {
-                if(queried_offset != -1)
+                if(qo_found == true)
                 {
                     /* we have an URI with angle quotes */
                     uri_offsets->display_name_start = current_offset;
@@ -1863,14 +1863,14 @@ dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, int st
                     current_offset = queried_offset + 1;
                     break;
                 }
-                if(colon_offset != -1)
+                if(colon_o_found == true)
                 {
                     /* we have an URI without angle quotes */
                     uri_without_angle_quotes = true;
                     break;
                 }
                 /* If this point is reached, we can't parse the URI */
-                return -1;
+                return false;
             }
             break;
     }
@@ -1879,16 +1879,16 @@ dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, int st
     if(uri_without_angle_quotes==false){
         /* name-addr form was used */
         /* look for closing angle quote */
-        queried_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, '>');
-        if(queried_offset == -1)
+        if(!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, '>', &queried_offset))
         {
             /* malformed Uri */
-            return -1;
+            return false;
         }
         uri_offsets->name_addr_end = queried_offset;
         uri_offsets->uri_end = queried_offset - 1;
     }
-    return dissect_sip_uri(tvb, pinfo, current_offset, line_end_offset, uri_offsets);
+    *offset = current_offset;
+    return dissect_sip_uri(tvb, pinfo, offset, line_end_offset, uri_offsets);
 }
 
 
@@ -1945,20 +1945,18 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
                             uri_offsets->uri_host_port_end - uri_offsets->uri_host_port_start + 1, ENC_UTF_8|ENC_NA);
     }
 
-    if (uri_offsets->uri_parameters_start != -1) {
+    if (uri_offsets->uri_parameters_start != 0) {
         /* Move current offset to the start of the first param */
-        int current_offset          = uri_offsets->uri_parameters_start;
-        int uri_params_start_offset = current_offset;
-        int queried_offset;
-        int uri_param_end_offset = -1;
+        unsigned current_offset          = uri_offsets->uri_parameters_start;
+        unsigned uri_params_start_offset = current_offset;
+        unsigned queried_offset;
+        unsigned uri_param_end_offset = 0;
         unsigned char c;
 
         /* Put the contact parameters in the tree */
 
         while (current_offset < uri_offsets->name_addr_end) {
-            queried_offset = tvb_ws_mempbrk_pattern_uint8(tvb, current_offset, uri_offsets->name_addr_end - current_offset, &pbrk_comma_semi, &c);
-
-            if (queried_offset == -1) {
+            if (!tvb_ws_mempbrk_uint8_length(tvb, current_offset, uri_offsets->name_addr_end - current_offset, &pbrk_comma_semi, &queried_offset, &c)) {
                 /* Reached line end */
                 /* Check if the line ends with a ">", if so decrement end offset. */
                 c = tvb_get_uint8(tvb, uri_offsets->name_addr_end);
@@ -1993,19 +1991,21 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
 
 
 /* Code to parse a contact header item
- * Returns Offset end off parsing or -1 for unsuccessful parsing
+ * Returns Offset end off parsing or false for unsuccessful parsing
  * * contact-param  =  (name-addr / addr-spec) *(SEMI contact-params)
  */
-static int
-dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset, int line_end_offset,
+static bool
+dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, unsigned line_end_offset,
             unsigned char* contacts_expires_0, unsigned char* contacts_expires_unknown)
 {
+    unsigned start_offset = *offset;
     unsigned char c;
-    int current_offset;
-    int queried_offset;
-    int contact_params_start_offset = -1;
+    unsigned current_offset;
+    unsigned queried_offset;
+    unsigned contact_params_start_offset = 0;
     /*int contact_param_end_offset = -1;*/
     uri_offset_info uri_offsets;
+    bool qo_found, cpo_found;
     bool end_of_hdr = false;
     bool has_expires_param = false;
 
@@ -2014,37 +2014,40 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
     if(start_offset >= line_end_offset) {
         /* Nothing to parse */
-        return -1;
+        return false;
     }
 
     /* Initialize the uri_offsets */
     sip_uri_offset_init(&uri_offsets);
     /* contact-param  =  (name-addr / addr-spec) *(SEMI contact-params) */
-    current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, line_end_offset, &uri_offsets);
-    if(current_offset == -1)
+    current_offset = start_offset;
+    if(!dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &current_offset, line_end_offset, &uri_offsets))
     {
         /* Parsing failed */
-        return -1;
+        return false;
     }
     display_sip_uri(tvb, tree, pinfo, &uri_offsets, &sip_contact_uri);
 
     /* check if there's a comma before a ';', in which case we stop parsing this item at the comma */
-    queried_offset = tvb_find_uint8(tvb, uri_offsets.uri_end, line_end_offset - uri_offsets.uri_end, ',');
+    qo_found =tvb_find_uint8_length(tvb, uri_offsets.uri_end, line_end_offset - uri_offsets.uri_end, ',', &queried_offset);
 
     /* Check if we have contact parameters, the uri should be followed by a ';' */
-    contact_params_start_offset = tvb_find_uint8(tvb, uri_offsets.uri_end, line_end_offset - uri_offsets.uri_end, ';');
+    cpo_found = tvb_find_uint8_length(tvb, uri_offsets.uri_end, line_end_offset - uri_offsets.uri_end, ';', &contact_params_start_offset);
 
-    if (queried_offset != -1 && (queried_offset < contact_params_start_offset || contact_params_start_offset == -1)) {
+    if (qo_found ==true && (queried_offset < contact_params_start_offset || cpo_found == false)) {
         /* no expires param */
         (*contacts_expires_unknown)++;
-        return queried_offset;
+        *offset = queried_offset;
+        return true;
     }
 
     /* check if contact-params is present */
-    if(contact_params_start_offset == -1) {
+    if(cpo_found == false
+        /* Allready checked above ???*/) {
         /* no expires param */
         (*contacts_expires_unknown)++;
-        return line_end_offset;
+        *offset = line_end_offset;
+        return true;
     }
 
     /* Move current offset to the start of the first param */
@@ -2058,8 +2061,12 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     while(current_offset< line_end_offset){
         c = '\0';
         queried_offset++;
-        queried_offset = (queried_offset < line_end_offset) ? tvb_ws_mempbrk_pattern_uint8(tvb, queried_offset, line_end_offset - queried_offset, &pbrk_header_end_dquote, &c) : -1;
-        if (queried_offset != -1)
+        if (queried_offset < line_end_offset) {
+            qo_found = tvb_ws_mempbrk_uint8_length(tvb, queried_offset, line_end_offset - queried_offset, &pbrk_header_end_dquote, &queried_offset , &c);
+        } else {
+            qo_found = false;
+        }
+        if (qo_found == true)
         {
             switch (c) {
                 /* prevent tree from displaying the '\r\n' as part of the param */
@@ -2077,18 +2084,16 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
             }
         }
 
-        if (queried_offset == -1) {
+        if (qo_found == false) {
             /* Last parameter, line end */
             current_offset = line_end_offset;
         }else if(c=='"'){
             /* Do we have a quoted string ? */
-            queried_offset = tvb_find_uint8(tvb, queried_offset+1, line_end_offset - queried_offset, '"');
-            if(queried_offset==-1){
+            if(!tvb_find_uint8_length(tvb, queried_offset + 1, line_end_offset - queried_offset, '"', &queried_offset)){
                 /* We have an opening quote but no closing quote. */
                 current_offset = line_end_offset;
             } else {
-                current_offset = tvb_ws_mempbrk_pattern_uint8(tvb, queried_offset+1, line_end_offset - queried_offset, &pbrk_comma_semi, &c);
-                if(current_offset==-1){
+                if(!tvb_ws_mempbrk_uint8_length(tvb, queried_offset + 1, line_end_offset - queried_offset, &pbrk_comma_semi, &current_offset, &c)){
                     /* Last parameter, line end */
                     current_offset = line_end_offset;
                 }
@@ -2113,9 +2118,11 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
              * contacts_expires_0/contacts_expires_unknown variables only get used then,
              * so that's ok
              */
-            if (!ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, contact_params_start_offset+8,
-                    current_offset - (contact_params_start_offset+8), ENC_UTF_8|ENC_NA), NULL, &expire))
-                return contact_params_start_offset+8;
+            if (!ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, contact_params_start_offset + 8,
+                current_offset - (contact_params_start_offset + 8), ENC_UTF_8 | ENC_NA), NULL, &expire)) {
+                *offset = contact_params_start_offset + 8;
+                return true;
+            }
             has_expires_param = true;
             if (expire == 0) {
                 (*contacts_expires_0)++;
@@ -2163,17 +2170,20 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         (*contacts_expires_unknown)++;
     }
 
-    return current_offset;
+    *offset = current_offset;
+
+    return true;
 }
 
 /* Code to parse an authorization header item
- * Returns offset at end of parsing, or -1 for unsuccessful parsing
+ * Returns offset at end of parsing, or 1false for unsuccessful parsing
  */
-static int
-dissect_sip_authorization_item(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int start_offset, int line_end_offset, sip_authorization_t *authorization_info)
+static bool
+dissect_sip_authorization_item(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned *offset, unsigned line_end_offset, sip_authorization_t *authorization_info)
 {
-    int current_offset, par_name_end_offset, queried_offset, value_offset, value_search_offset;
-    int equals_offset = 0;
+    unsigned current_offset, par_name_end_offset, queried_offset, value_offset, value_search_offset;
+    unsigned start_offset = *offset;
+    unsigned equals_offset = 0;
     char *name;
     header_parameter_t *auth_parameter;
     unsigned i = 0;
@@ -2184,14 +2194,13 @@ dissect_sip_authorization_item(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
     if (start_offset >= line_end_offset)
     {
         /* Nothing to parse */
-        return -1;
+        return false;
     }
 
     current_offset = start_offset;
-    equals_offset = tvb_find_uint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '=');
-    if(equals_offset == -1){
+    if(!tvb_find_uint8_length(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '=', &equals_offset)){
         /* malformed parameter */
-        return -1;
+        return false;
     }
     par_name_end_offset = equals_offset - 1;
     par_name_end_offset = tvb_skip_wsp_return(tvb,par_name_end_offset);
@@ -2202,12 +2211,13 @@ dissect_sip_authorization_item(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
     value_offset = tvb_skip_wsp(tvb, equals_offset + 1, line_end_offset - (equals_offset + 1));
     if (tvb_get_uint8(tvb, value_offset) == '\"') {
         /* quoted value */
+        bool qo_found;
         value_search_offset = value_offset;
         do {
             value_search_offset++;
-            queried_offset = tvb_find_uint8 (tvb, value_search_offset, line_end_offset - value_search_offset, '\"');
-        } while ((queried_offset != -1) && (tvb_get_uint8(tvb, queried_offset - 1) == '\\'));
-        if (queried_offset == -1) {
+        } while ((qo_found = tvb_find_uint8_length(tvb, value_search_offset, line_end_offset - value_search_offset, '\"', &queried_offset))
+            && (tvb_get_uint8(tvb, queried_offset - 1) == '\\'));
+        if (qo_found == false) {
             /* Closing quote not found, return line end */
             current_offset = line_end_offset;
         } else {
@@ -2216,8 +2226,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
         }
     } else {
         /* unquoted value */
-        queried_offset = tvb_find_uint8 (tvb, value_offset, line_end_offset - value_offset, ',');
-        if (queried_offset == -1) {
+        if (!tvb_find_uint8_length(tvb, value_offset, line_end_offset - value_offset, ',', &queried_offset)) {
             /* Last parameter, line end */
             current_offset = line_end_offset;
         } else {
@@ -2236,8 +2245,8 @@ dissect_sip_authorization_item(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
                                 value_offset, current_offset - value_offset,
                                 ENC_UTF_8|ENC_NA);
             if (global_sip_validate_authorization) {
-                int real_value_offset = value_offset;
-                int real_value_length = current_offset - value_offset;
+                unsigned real_value_offset = value_offset;
+                unsigned real_value_length = current_offset - value_offset;
                 if ((tvb_get_uint8(tvb, value_offset) == '\"') && (tvb_get_uint8(tvb, current_offset - 1) == '\"') && (real_value_length > 1)) {
                     real_value_offset++;
                     real_value_length -= 2;
@@ -2273,13 +2282,13 @@ dissect_sip_authorization_item(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
     }
 
     /* Find comma/end of line */
-    queried_offset = tvb_find_uint8 (tvb, current_offset, line_end_offset - current_offset, ',');
-    if (queried_offset == -1) {
+    if (!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ',', &queried_offset)) {
         current_offset = line_end_offset;
     } else {
         current_offset = queried_offset;
     }
-    return current_offset;
+    *offset = current_offset;
+    return true;
 }
 
 /* Dissect the details of a Reason header
@@ -2293,9 +2302,10 @@ dissect_sip_authorization_item(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
  * reason-extension  =  generic-param
  */
 static void
-dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int start_offset, int line_end_offset){
+dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned start_offset, unsigned line_end_offset){
 
-    int   current_offset, semi_colon_offset, length, end_quote_offset;
+    unsigned   current_offset, semi_colon_offset, length, end_quote_offset;
+    bool semi_colon_found = false;
     const char *param_name = NULL;
     unsigned cause_value;
     sip_reason_code_info_t sip_reason_code_info;
@@ -2310,21 +2320,22 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
     }
 
     current_offset = start_offset;
-    semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset-current_offset, ';');
 
-    if(semi_colon_offset == -1)
+    if(!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset))
         return;
 
     length = semi_colon_offset - current_offset;
     proto_tree_add_item_ret_string(tree, hf_sip_reason_protocols, tvb, start_offset, length, ENC_UTF_8|ENC_NA, pinfo->pool, (const uint8_t**)&param_name);
-    current_offset = tvb_find_uint8(tvb, semi_colon_offset, line_end_offset - semi_colon_offset, '=') + 1;
+    tvb_find_uint8_length(tvb, semi_colon_offset, line_end_offset - semi_colon_offset, '=', &current_offset);
+    current_offset += 1;
     /* Do we have a text parameter too? */
-    semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ';');
+    tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset);
 
-    if (semi_colon_offset == -1){
+    if (!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset)){
         length = line_end_offset - current_offset;
     } else {
         /* Text parameter exist, set length accordingly */
+        semi_colon_found = true;
         length = semi_colon_offset - current_offset;
     }
 
@@ -2344,17 +2355,16 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
         sip_reason_code_info.protocol_type_num = SIP_PROTO_OTHER;
     }
 
-    if (semi_colon_offset == -1)
+    if (semi_colon_found == false)
         /* Nothing to parse */
         return;
 
     /* reason-text       =  "text" EQUAL quoted-string */
-    current_offset = tvb_find_uint8(tvb, semi_colon_offset, line_end_offset - semi_colon_offset, '"') + 1;
-    if (current_offset == -1)
+    if (!tvb_find_uint8_length(tvb, semi_colon_offset, line_end_offset - semi_colon_offset, '"', &current_offset))
         /* Nothing to parse */
         return;
-    end_quote_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, '"');
-    if (end_quote_offset == -1)
+    current_offset++;
+    if (!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, '"', &end_quote_offset))
         /* Nothing to parse */
         return;
     length = end_quote_offset - current_offset;
@@ -2385,9 +2395,9 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
  *
  */
 static void
-dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int start_offset, int line_end_offset){
+dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned start_offset, unsigned line_end_offset){
 
-    int   current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
+    unsigned   current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
 
     /* skip Spaces and Tabs */
     start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -2399,8 +2409,7 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, i
     }
 
     current_offset = start_offset;
-    semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset-current_offset, ';');
-    if(semi_colon_offset == -1){
+    if(!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset)){
         semi_colon_offset = line_end_offset;
     }
 
@@ -2418,17 +2427,14 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, i
         /* skip Spaces and Tabs */
         current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
 
-        semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset-current_offset, ';');
-
-        if(semi_colon_offset == -1){
+        if(!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset)){
             semi_colon_offset = line_end_offset;
         }
 
         length = semi_colon_offset - current_offset;
 
         /* Parse parameter and value */
-        equals_offset = tvb_find_uint8(tvb, current_offset + 1, length, '=');
-        if(equals_offset != -1){
+        if(!tvb_find_uint8_length(tvb, current_offset + 1, length, '=', &equals_offset)){
             /* Has value part */
             par_name_end_offset = equals_offset;
             /* Extract the parameter name */
@@ -2478,9 +2484,10 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, i
 }
 
 /* Dissect the details of a Route (and Record-Route) header */
-static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, hf_sip_uri_t *sip_route_uri_p, int start_offset, int line_end_offset)
+static void
+dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, hf_sip_uri_t *sip_route_uri_p, unsigned start_offset, unsigned line_end_offset)
 {
-    int current_offset;
+    unsigned current_offset;
     uri_offset_info uri_offsets;
 
     current_offset = start_offset;
@@ -2493,24 +2500,20 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
     }
 
     while (current_offset < line_end_offset) {
-        current_offset = tvb_find_uint8(tvb, current_offset, (line_end_offset - 1) - current_offset, ',');
 
-        if (current_offset != -1) { /* found any ',' ? */
+        if (tvb_find_uint8_length(tvb, current_offset, (line_end_offset - 1) - current_offset, ',', &current_offset)) { /* found any ',' ? */
             sip_uri_offset_init(&uri_offsets);
-            current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, current_offset, &uri_offsets);
-            if(current_offset == -1)
+            if (!dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &current_offset, line_end_offset, &uri_offsets)) {
                 return;
+            }
             display_sip_uri(tvb, tree, pinfo, &uri_offsets, sip_route_uri_p);
 
-            current_offset++;
-            start_offset = current_offset + 1;
-
+            current_offset+=2;
         } else {
             /* current_offset = (line_end_offset - 1); */
 
             sip_uri_offset_init(&uri_offsets);
-            current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, line_end_offset, &uri_offsets);
-            if(current_offset == -1)
+            if(!dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &current_offset, line_end_offset, &uri_offsets))
                 return;
             display_sip_uri(tvb, tree, pinfo, &uri_offsets, sip_route_uri_p);
 
@@ -2545,11 +2548,11 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
  * ttl               =  1*3DIGIT ; 0 to 255
  *
  */
-static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_offset, int line_end_offset, packet_info *pinfo)
+static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, unsigned start_offset, unsigned line_end_offset, packet_info *pinfo)
 {
-    int   current_offset;
-    int   address_start_offset;
-    int   semicolon_offset;
+    unsigned   current_offset;
+    unsigned   address_start_offset;
+    unsigned   semicolon_offset;
     bool colon_seen;
     bool ipv6_reference;
     bool ipv6_address;
@@ -2565,6 +2568,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_of
         ipv6_reference = false;
         ipv6_address = false;
         colon_seen = false;
+        bool found;
 
         /* skip Spaces and Tabs */
         current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
@@ -2580,15 +2584,14 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_of
          *  sent-protocol     =  protocol-name SLASH protocol-version
          *                       SLASH transport
          */
-
-        current_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, '/');
-        if (current_offset != -1)
+        found = tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, '/', &current_offset);
+        if (found)
         {
             current_offset++;
-            current_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, '/');
+            found = tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, '/', &current_offset);
         }
 
-        if (current_offset != -1)
+        if (found)
         {
             current_offset++;
             /* skip Spaces and Tabs */
@@ -2605,10 +2608,9 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_of
          */
         while (current_offset < line_end_offset)
         {
-            int transport_start_offset = current_offset;
+            unsigned transport_start_offset = current_offset;
 
-            current_offset = tvb_ws_mempbrk_pattern_uint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_tab_sp_fslash, &c);
-            if (current_offset != -1){
+            if (tvb_ws_mempbrk_uint8_length(tvb, current_offset, line_end_offset - current_offset, &pbrk_tab_sp_fslash, &current_offset, &c)){
                 proto_tree_add_item(tree, hf_sip_via_transport, tvb, transport_start_offset,
                                     current_offset - transport_start_offset, ENC_UTF_8);
                 /* Check if we have more transport parameters */
@@ -2636,8 +2638,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_of
         address_start_offset = current_offset;
         while (current_offset < line_end_offset)
         {
-            current_offset = tvb_ws_mempbrk_pattern_uint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_addr_end, &c);
-            if (current_offset == -1)
+            if (!tvb_ws_mempbrk_uint8_length(tvb, current_offset, line_end_offset - current_offset, &pbrk_addr_end, &current_offset, &c))
             {
                 current_offset = line_end_offset;
                 break;
@@ -2675,7 +2676,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_of
         if (c == ':')
         {
             /* Port number will follow any space after : */
-            int port_offset;
+            unsigned port_offset;
             current_offset++;
 
             /* Skip optional space after colon */
@@ -2724,7 +2725,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_of
         {
             bool equals_found = false;
             bool found_end_of_parameters = false;
-            int parameter_name_end = 0;
+            unsigned parameter_name_end = 0;
             header_parameter_t *via_parameter;
             unsigned i = 0;
 
@@ -2776,8 +2777,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_of
             parameter_name_end = current_offset;
 
             /* Read until end of parameter value */
-            current_offset = tvb_ws_mempbrk_pattern_uint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_via_param_end, NULL);
-            if (current_offset == -1)
+            if (!tvb_ws_mempbrk_uint8_length(tvb, current_offset, line_end_offset - current_offset, &pbrk_via_param_end, &current_offset, NULL))
                 current_offset = line_end_offset;
 
             /* Note parameter name */
@@ -2817,10 +2817,12 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_of
                         else if (g_ascii_strcasecmp(param_name, "oc-seq") == 0) {
                             proto_item *ti;
                             nstime_t ts;
-                            int dec_p_off = tvb_find_uint8(tvb, parameter_name_end + 1, - 1, '.');
+                            unsigned dec_p_off;
+                            bool dec_p_off_found;
+                            dec_p_off_found  = tvb_find_uint8_remaining(tvb, parameter_name_end + 1, '.', &dec_p_off);
                             char *value;
 
-                            if(dec_p_off > 0){
+                            if(dec_p_off_found && dec_p_off > 0){
                                 value = (char*)tvb_get_string_enc(pinfo->pool, tvb,
                                     parameter_name_end + 1, dec_p_off - parameter_name_end, ENC_UTF_8 | ENC_NA);
                                 ts.secs = (time_t)strtoul(value, NULL, 10);
@@ -2877,15 +2879,14 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_of
  *                         *( SEMI generic-param )
  * sess-id              =  32(DIGIT / %x61-66)  ; 32 chars of [0-9a-f]
  */
-static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, int start_offset, int line_end_offset, packet_info *pinfo)
+static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, unsigned start_offset, unsigned line_end_offset, packet_info *pinfo)
 {
-    int current_offset, semi_colon_offset, equals_offset, length, logme_end_offset;
+    unsigned current_offset, semi_colon_offset, equals_offset, length, logme_end_offset;
     GByteArray *bytes;
     proto_item *pi;
 
     current_offset = start_offset;
-    semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset-current_offset, ';');
-    if(semi_colon_offset == -1){
+    if(!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset)){
         semi_colon_offset = line_end_offset;
     }
 
@@ -2911,8 +2912,7 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, int s
 
     if (current_offset < line_end_offset) {
         /* Parse parameter and value */
-        equals_offset = tvb_find_uint8(tvb, current_offset + 1, length, '=');
-        if (equals_offset != -1) {
+        if (!tvb_find_uint8_length(tvb, current_offset + 1, length, '=', &equals_offset)) {
             /* Extract the parameter name */
             GByteArray *uuid = g_byte_array_sized_new(16);
             char *param_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset,
@@ -2956,8 +2956,7 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, int s
                 * sess-id-param       =/ logme-param
                 * logme-param         = "logme"
                 */
-                semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ';');
-                while(semi_colon_offset != -1){
+                while(tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset)){
                     current_offset = semi_colon_offset + 1;
                     if(current_offset != line_end_offset){
                         logme_end_offset = current_offset + 5;
@@ -2970,7 +2969,7 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, int s
                              proto_tree_add_item(tree, hf_sip_session_id_param, tvb, current_offset,line_end_offset - current_offset, ENC_UTF_8);
                         }
                     }
-                    semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ';');
+                    tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset);
                 }
      	    } else {
                 /* Display generic parameter */
@@ -3017,10 +3016,11 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, int s
  *  gstn-location          = "gstn-location" EQUAL (token / quoted-string)
  *
  */
-void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset, int line_end_offset)
+void
+dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned start_offset, unsigned line_end_offset)
 {
 
-    int   current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
+    unsigned   current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
 
     /* skip Spaces and Tabs */
     start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -3033,9 +3033,7 @@ void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Get the Access Type / Access Class*/
     current_offset = start_offset;
-    semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ';');
-
-    if (semi_colon_offset == -1)
+    if (!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset))
         return;
 
     length = semi_colon_offset - current_offset;
@@ -3050,17 +3048,14 @@ void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo,
         /* skip Spaces and Tabs */
         current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
 
-        semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ';');
-
-        if (semi_colon_offset == -1){
+        if (!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset)){
             semi_colon_offset = line_end_offset;
         }
 
         length = semi_colon_offset - current_offset;
 
         /* Parse parameter and value */
-        equals_offset = tvb_find_uint8(tvb, current_offset + 1, length, '=');
-        if (equals_offset != -1){
+        if (!tvb_find_uint8_length(tvb, current_offset + 1, length, '=', &equals_offset)){
             /* Has value part */
             par_name_end_offset = equals_offset;
             /* Extract the parameter name */
@@ -3115,10 +3110,10 @@ follows:
     related-icid-gen-addr     = "related-icid-generated-at" EQUAL host
 */
 static void
-dissect_sip_p_charging_vector_header(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int start_offset, int line_end_offset)
+dissect_sip_p_charging_vector_header(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned start_offset, unsigned line_end_offset)
 {
 
-    int   current_offset, semi_colon_offset, length, equals_offset;
+    unsigned   current_offset, semi_colon_offset, length, equals_offset;
 
     /* skip Spaces and Tabs */
     start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -3131,9 +3126,7 @@ dissect_sip_p_charging_vector_header(tvbuff_t *tvb, packet_info* pinfo, proto_tr
 
     /* icid-value                = "icid-value" EQUAL gen-value */
     current_offset = start_offset;
-    semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ';');
-
-    if (semi_colon_offset == -1) {
+    if (!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset)) {
         /* No parameters, is that allowed?*/
         semi_colon_offset = line_end_offset;
     }
@@ -3141,8 +3134,8 @@ dissect_sip_p_charging_vector_header(tvbuff_t *tvb, packet_info* pinfo, proto_tr
     length = semi_colon_offset - current_offset;
 
     /* Parse parameter and value */
-    equals_offset = tvb_find_uint8(tvb, current_offset + 1, length, '=');
-    if (equals_offset == -1) {
+    equals_offset = tvb_find_uint8_length(tvb, current_offset + 1, length, '=', &equals_offset);
+    if (!tvb_find_uint8_length(tvb, current_offset + 1, length, '=', &equals_offset)) {
         /* Does not conform to ABNF */
         return;
     }
@@ -3156,21 +3149,18 @@ dissect_sip_p_charging_vector_header(tvbuff_t *tvb, packet_info* pinfo, proto_tr
     /* Add the rest of the parameters to the tree */
     while (current_offset < line_end_offset) {
         char *param_name = NULL;
-        int par_name_end_offset;
+        unsigned par_name_end_offset;
         /* skip Spaces and Tabs */
         current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
 
-        semi_colon_offset = tvb_find_uint8(tvb, current_offset, line_end_offset - current_offset, ';');
-
-        if (semi_colon_offset == -1) {
+        if (!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset)) {
             semi_colon_offset = line_end_offset;
         }
 
         length = semi_colon_offset - current_offset;
 
         /* Parse parameter and value */
-        equals_offset = tvb_find_uint8(tvb, current_offset + 1, length, '=');
-        if (equals_offset != -1) {
+        if (!tvb_find_uint8_length(tvb, current_offset + 1, length, '=', &equals_offset)) {
             /* Has value part */
             par_name_end_offset = equals_offset;
             /* Extract the parameter name */
@@ -3247,7 +3237,7 @@ dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     uint8_t octet;
     int len;
-    int remaining_length;
+    unsigned remaining_length;
 
     octet = tvb_get_uint8(tvb,0);
     if ((octet  & 0xf8) == 0xf8){
@@ -3267,9 +3257,9 @@ static int
 dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     uint8_t octet;
-    int offset = 0, linelen;
+    unsigned offset = 0, linelen;
     int len;
-    int remaining_length;
+    unsigned remaining_length;
 
     octet = tvb_get_uint8(tvb,0);
     if ((octet  & 0xf8) == 0xf8){
@@ -3288,8 +3278,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     }
     /* Check if we have enough data or if we need another segment, as a safety measure set a length limit*/
     if (remaining_length < 1500){
-        linelen = tvb_find_line_end(tvb, offset, remaining_length, NULL, true);
-        if (linelen == -1){
+        if (!tvb_find_line_end_length(tvb, offset, remaining_length, &linelen, NULL)){
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             return -1;
@@ -3308,10 +3297,11 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      *
      */
     while (remaining_length > 0) {
+        bool found;
         /* Check if we have enough data or if we need another segment, as a safety measure set a length limit*/
         if (remaining_length < 1500){
-            linelen = tvb_find_line_end(tvb, offset, remaining_length, NULL, true);
-            if (linelen == -1){
+            found = tvb_find_line_end_length(tvb, offset, remaining_length, &linelen, NULL);
+            if (found == false){
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                 return -1;
@@ -3329,7 +3319,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 static bool
 dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int len;
     bool first = true;
     int remaining_length;
@@ -3360,18 +3350,18 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static bool
 dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int remaining_length = tvb_captured_length(tvb);
+    unsigned remaining_length = tvb_captured_length(tvb);
 
     return dissect_sip_common(tvb, 0, remaining_length, pinfo, tree, false, false) > 0;
 }
 
 static int
-dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info *pinfo, proto_tree *tree,
+dissect_sip_common(tvbuff_t *tvb, unsigned offset, unsigned remaining_length, packet_info *pinfo, proto_tree *tree,
     bool dissect_other_as_continuation, bool use_reassembly)
 {
-    int orig_offset, body_offset;
-    int next_offset, linelen;
-    int datalen, reported_datalen;
+    unsigned orig_offset, body_offset;
+    unsigned next_offset, linelen;
+    unsigned datalen, reported_datalen;
     uint32_t content_length;
     bool content_length_valid;
     line_type_t line_type;
@@ -3398,7 +3388,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     unsigned   resend_for_packet = 0;
     unsigned   request_for_response = 0;
     uint32_t response_time = 0;
-    int     strlen_to_copy;
+    unsigned     strlen_to_copy;
     heur_dtbl_entry_t *hdtbl_entry;
 
     /*
@@ -3423,7 +3413,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
      * "sip_parse_line()" won't throw an exception.
      */
     orig_offset = offset;
-    linelen = tvb_find_line_end(tvb, offset, remaining_length, &next_offset, false);
+    tvb_find_line_end_length(tvb, offset, remaining_length, &linelen , &next_offset);
     if(linelen==0){
         return -2;
     }
@@ -3580,10 +3570,10 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
      * length.
      */
     while (remaining_length > 0) {
-        int line_end_offset;
+        unsigned line_end_offset;
         unsigned char c;
 
-        linelen = tvb_find_line_end(tvb, body_offset, -1, &next_offset, false);
+        tvb_find_line_end_remaining(tvb, body_offset, &linelen , &next_offset);
         if (linelen == 0) {
             /*
              * This is a blank line separating the
@@ -3603,7 +3593,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                  * Look for next line end:
                  */
                 linelen += (next_offset - line_end_offset);
-                linelen += tvb_find_line_end(tvb, next_offset, -1, &next_offset, false);
+                unsigned t_linlen;
+                tvb_find_line_end_remaining(tvb, next_offset, &t_linlen, &next_offset);
+                linelen = linelen + t_linlen;
                 line_end_offset = body_offset + linelen;
             }
         }
@@ -3627,27 +3619,27 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
      */
     content_length_valid = false;
     while (remaining_length > 0) {
-        int line_end_offset;
-        int colon_offset;
-        int semi_colon_offset;
-        int parameter_offset;
-        int parameter_end_offset;
-        int parameter_len;
-        int content_type_len, content_type_parameter_str_len;
-        int header_len;
+        unsigned line_end_offset;
+        unsigned colon_offset;
+        unsigned semi_colon_offset;
+        unsigned parameter_offset;
+        unsigned parameter_end_offset;
+        unsigned parameter_len;
+        unsigned content_type_len, content_type_parameter_str_len;
+        unsigned header_len;
         char *header_name;
         dissector_handle_t ext_hdr_handle;
         int hf_index;
-        int value_offset;
-        int sub_value_offset;
-        int comma_offset;
+        unsigned value_offset;
+        unsigned sub_value_offset;
+        unsigned comma_offset;
         unsigned char c;
-        int value_len;
+        unsigned value_len;
         bool is_no_header_termination = false;
         proto_tree *tc_uri_item_tree = NULL;
         uri_offset_info uri_offsets;
 
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+        tvb_find_line_end_remaining(tvb, offset, &linelen ,&next_offset);
         if (linelen == 0) {
             /*
              * This is a blank line separating the
@@ -3658,7 +3650,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         }
 
         line_end_offset = offset + linelen;
-        if(tvb_reported_length_remaining(tvb, next_offset) <= 0){
+        if(tvb_reported_length_remaining(tvb, next_offset) == 0){
             is_no_header_termination = true;
         }else{
             while (tvb_offset_exists(tvb, next_offset) && ((c = tvb_get_uint8(tvb, next_offset)) == ' ' || c == '\t'))
@@ -3669,12 +3661,13 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                  * Look for next line end:
                  */
                 linelen += (next_offset - line_end_offset);
-                linelen += tvb_find_line_end(tvb, next_offset, -1, &next_offset, false);
+                unsigned t_linelen;
+                tvb_find_line_end_remaining(tvb, next_offset, &t_linelen,  &next_offset);
+                linelen = linelen + t_linelen;
                 line_end_offset = offset + linelen;
             }
         }
-        colon_offset = tvb_find_uint8(tvb, offset, linelen, ':');
-        if (colon_offset == -1) {
+        if (!tvb_find_uint8_length(tvb, offset, linelen, ':', &colon_offset)) {
             /*
              * Malformed header - no colon after the name.
              */
@@ -3744,9 +3737,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              *               / addr-spec ) *( SEMI to-param )
                              */
                             sip_uri_offset_init(&uri_offsets);
-                            if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
+                            if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &value_offset, line_end_offset+2, &uri_offsets)) == true){
                                 display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_to_uri);
-                                if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
+                                if((uri_offsets.name_addr_start != 0) && (uri_offsets.name_addr_end != 0)){
                                     stat_info->tap_to_addr = (char*)tvb_get_string_enc(pinfo->pool, tvb, uri_offsets.name_addr_start,
                                         uri_offsets.name_addr_end - uri_offsets.name_addr_start + 1, ENC_UTF_8|ENC_NA);
                                 }
@@ -3765,9 +3758,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
                             if ( parameter_offset < line_end_offset ){ /* Tag found */
                                 parameter_offset = parameter_offset + 4;
-                                parameter_end_offset = tvb_find_uint8(tvb, parameter_offset,
-                                                                       (line_end_offset - parameter_offset), ';');
-                                if ( parameter_end_offset == -1)
+                                if ( !tvb_find_uint8_length(tvb, parameter_offset, (line_end_offset - parameter_offset), ';', &parameter_end_offset))
                                     parameter_end_offset = line_end_offset;
                                 parameter_len = parameter_end_offset - parameter_offset;
                                 proto_tree_add_item(sip_element_tree, hf_sip_to_tag, tvb, parameter_offset,
@@ -3807,9 +3798,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              */
 
                             sip_uri_offset_init(&uri_offsets);
-                            if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
+                            if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &value_offset, line_end_offset+2, &uri_offsets)) == true){
                                 display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_from_uri);
-                                if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
+                                if((uri_offsets.name_addr_start != 0) && (uri_offsets.name_addr_end != 0)){
                                     stat_info->tap_from_addr = (char*)tvb_get_string_enc(pinfo->pool, tvb, uri_offsets.name_addr_start,
                                         uri_offsets.name_addr_end - uri_offsets.name_addr_start + 1, ENC_UTF_8|ENC_NA);
                                 }
@@ -3827,10 +3818,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                 parameter_offset++;
                             if ( parameter_offset < line_end_offset ){ /* Tag found */
                                 parameter_offset = parameter_offset + 4;
-                                parameter_end_offset = tvb_find_uint8(tvb, parameter_offset,
-                                                                       (line_end_offset - parameter_offset), ';');
-                                if ( parameter_end_offset == -1)
+                                if (!tvb_find_uint8_length(tvb, parameter_offset, (line_end_offset - parameter_offset), ';', &parameter_end_offset)) {
                                     parameter_end_offset = line_end_offset;
+                                }
                                 parameter_len = parameter_end_offset - parameter_offset;
                                 proto_tree_add_item(sip_element_tree, hf_sip_from_tag, tvb, parameter_offset,
                                                     parameter_len, ENC_UTF_8);
@@ -3861,7 +3851,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              * Initialize the uri_offsets
                              */
                             sip_uri_offset_init(&uri_offsets);
-                            if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+                           if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &value_offset, line_end_offset+2, &uri_offsets)) == true)
                                  display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_pai_uri);
                         }
                         break;
@@ -3881,10 +3871,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              * ai-param               = generic-param
                              */
                             /* Skip to the end of the URI directly */
-                            semi_colon_offset = tvb_find_uint8(tvb, value_offset, line_end_offset - value_offset, '>');
-                            if (semi_colon_offset != -1) {
-                                semi_colon_offset = tvb_find_uint8(tvb, semi_colon_offset, line_end_offset - semi_colon_offset, ';');
-                                if (semi_colon_offset != -1) {
+                            if (tvb_find_uint8_length(tvb, value_offset, line_end_offset - value_offset, '>', &semi_colon_offset)) {
+                                if (tvb_find_uint8_length(tvb, semi_colon_offset, line_end_offset - semi_colon_offset, ';', &semi_colon_offset)) {
                                     sip_element_tree = proto_item_add_subtree(sip_element_item,
                                         ett_sip_element);
                                     /* We have generic parameters */
@@ -3943,7 +3931,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              * Initialize the uri_offsets
                              */
                             sip_uri_offset_init(&uri_offsets);
-                            if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+                            if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &value_offset, line_end_offset+2, &uri_offsets)) == true)
                                  display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_ppi_uri);
                         }
                         break;
@@ -3967,7 +3955,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              * Initialize the uri_offsets
                              */
                             sip_uri_offset_init(&uri_offsets);
-                            if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+                            if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &value_offset, line_end_offset+2, &uri_offsets)) == true)
                                  display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_pmiss_uri);
                         }
                         break;
@@ -3995,25 +3983,26 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              * Initialize the uri_offsets
                              */
                             sip_uri_offset_init(&uri_offsets);
-                            if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1) {
+                            if((dissect_sip_uri(tvb, pinfo, &value_offset, line_end_offset+2, &uri_offsets)) == true) {
 
                                 tc_uri_item_tree = display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_tc_uri);
-                                if (line_end_offset > uri_offsets.uri_end) {
-                                    int hparam_offset = uri_offsets.uri_end + 1;
+                                if (line_end_offset > (unsigned)uri_offsets.uri_end) {
+                                    unsigned hparam_offset = uri_offsets.uri_end + 1;
+                                    bool hparam_o_found = false;
                                     /* Is there a header parameter */
-                                    if (tvb_find_uint8(tvb, hparam_offset, 1,';')) {
-                                        while ((hparam_offset != -1 && hparam_offset < line_end_offset) )  {
+                                    if (tvb_find_uint8_length(tvb, hparam_offset, 1,';', NULL)) {
+                                        while ((hparam_o_found == true && hparam_offset < line_end_offset) )  {
                                             /* Is this a target-uri ? */
                                             hparam_offset = hparam_offset + 1;
                                             if (tvb_strncaseeql(tvb, hparam_offset, "target-uri=\"", 12) == 0) {
-                                                int turi_start_offset = hparam_offset + 12;
-                                                int turi_end_offset   = tvb_find_uint8(tvb, turi_start_offset, -1,'\"');
-                                                if (turi_end_offset != -1)
+                                                unsigned turi_start_offset = hparam_offset + 12;
+                                                unsigned turi_end_offset;
+                                                if (tvb_find_uint8_remaining(tvb, turi_start_offset, '\"', &turi_end_offset))
                                                     proto_tree_add_item(tc_uri_item_tree, hf_sip_tc_turi, tvb, turi_start_offset,(turi_end_offset - turi_start_offset),ENC_UTF_8);
                                                 else
                                                     break; /* malformed */
                                             }
-                                            hparam_offset = tvb_find_uint8(tvb, hparam_offset, -1,';');
+                                            hparam_o_found = tvb_find_uint8_remaining(tvb, hparam_offset,';', &hparam_offset);
                                         }
                                     }
                                 }
@@ -4239,14 +4228,13 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         sip_proto_set_format_text(hdr_tree, pinfo->pool, sip_element_item, tvb, offset, linelen);
 
                         content_type_len = value_len;
-                        semi_colon_offset = tvb_find_uint8(tvb, value_offset, value_len, ';');
                         /* Content-Type     =  ( "Content-Type" / "c" ) HCOLON media-type
                          * media-type       =  m-type SLASH m-subtype *(SEMI m-parameter)
                          * SEMI    =  SWS ";" SWS ; semicolon
                          * LWS  =  [*WSP CRLF] 1*WSP ; linear whitespace
                          * SWS  =  [LWS] ; sep whitespace
                          */
-                        if ( semi_colon_offset != -1) {
+                        if ( tvb_find_uint8_length(tvb, value_offset, value_len, ';', &semi_colon_offset)) {
                             int content_type_end;
                             /*
                              * Skip whitespace after the semicolon.
@@ -4316,8 +4304,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
                         /*if(hdr_tree)*/ {
                             comma_offset = value_offset;
-                            while((comma_offset = dissect_sip_contact_item(tvb, pinfo, sip_element_tree, comma_offset,
-                                    next_offset, &contacts_expires_0, &contacts_expires_unknown)) != -1)
+                            while(( dissect_sip_contact_item(tvb, pinfo, sip_element_tree, &comma_offset,
+                                    next_offset, &contacts_expires_0, &contacts_expires_unknown)) == true)
                             {
                                 contacts++;
                                 if(comma_offset == next_offset)
@@ -4392,7 +4380,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                 if (hf_index != POS_AUTHENTICATION_INFO)
                                 {
                                     /* The first time comma_offset is "start of parameters" */
-                                    comma_offset = tvb_ws_mempbrk_pattern_uint8(tvb, value_offset, line_end_offset - value_offset, &pbrk_whitespace, NULL);
+                                    tvb_ws_mempbrk_uint8_length(tvb, value_offset, line_end_offset - value_offset, &pbrk_whitespace, &comma_offset, NULL);
                                     proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
                                         tvb, value_offset, comma_offset - value_offset,
                                         ENC_UTF_8);
@@ -4402,7 +4390,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                 }
 
                                 /* Parse each individual parameter in the line */
-                                while ((comma_offset = dissect_sip_authorization_item(tvb, pinfo, sip_element_tree, comma_offset, line_end_offset, &authorization_info)) != -1)
+                                while ((dissect_sip_authorization_item(tvb, pinfo, sip_element_tree, &comma_offset, line_end_offset, &authorization_info)))
                                 {
                                     if (comma_offset == line_end_offset)
                                     {
@@ -4531,10 +4519,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                          value_offset, value_len);
                         sip_proto_set_format_text(hdr_tree, pinfo->pool, sip_element_item, tvb, offset, linelen);
 
-                        comma_offset = tvb_find_uint8(tvb, value_offset, line_end_offset - value_offset, ',');
+                        tvb_find_uint8_length(tvb, value_offset, line_end_offset - value_offset, ',', &comma_offset);
                         while(comma_offset<line_end_offset){
-                            comma_offset = tvb_find_uint8(tvb, value_offset, line_end_offset - value_offset, ',');
-                            if(comma_offset == -1){
+                            if(!tvb_find_uint8_length(tvb, value_offset, line_end_offset - value_offset, ',', &comma_offset)){
                                 comma_offset = line_end_offset;
                             }
                             security_client_tree = proto_item_add_subtree(sip_element_item, ett_sip_security_client);
@@ -4553,10 +4540,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                          value_offset, value_len);
                         sip_proto_set_format_text(hdr_tree, pinfo->pool, sip_element_item, tvb, offset, linelen);
 
-                        comma_offset = tvb_find_uint8(tvb, value_offset, line_end_offset - value_offset, ',');
+                        tvb_find_uint8_length(tvb, value_offset, line_end_offset - value_offset, ',', &comma_offset);
                         while(comma_offset<line_end_offset){
-                            comma_offset = tvb_find_uint8(tvb, value_offset, line_end_offset - value_offset, ',');
-                            if(comma_offset == -1){
+                            if(!tvb_find_uint8_length(tvb, value_offset, line_end_offset - value_offset, ',', &comma_offset)){
                                 comma_offset = line_end_offset;
                             }
                             security_client_tree = proto_item_add_subtree(sip_element_item, ett_sip_security_server);
@@ -4575,10 +4561,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                          value_offset, value_len);
                         sip_proto_set_format_text(hdr_tree, pinfo->pool, sip_element_item, tvb, offset, linelen);
 
-                        comma_offset = tvb_find_uint8(tvb, value_offset, line_end_offset - value_offset, ',');
+                        tvb_find_uint8_length(tvb, value_offset, line_end_offset - value_offset, ',', &comma_offset);
                         while(comma_offset<line_end_offset){
-                            comma_offset = tvb_find_uint8(tvb, value_offset, line_end_offset - value_offset, ',');
-                            if(comma_offset == -1){
+                            if(!tvb_find_uint8_length(tvb, value_offset, line_end_offset - value_offset, ',', &comma_offset)){
                                 comma_offset = line_end_offset;
                             }
                             security_client_tree = proto_item_add_subtree(sip_element_item, ett_sip_security_verify);
@@ -4649,8 +4634,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         }/* if colon_offset */
         if (is_no_header_termination == true){
             /* Header not terminated by empty line CRLF */
-            proto_tree_add_expert(hdr_tree, pinfo, &ei_sip_header_not_terminated,
-                                    tvb, line_end_offset, -1);
+            proto_tree_add_expert_remaining(hdr_tree, pinfo, &ei_sip_header_not_terminated,
+                                    tvb, line_end_offset);
         }
         remaining_length = remaining_length - (next_offset - offset);
         offset = next_offset;
@@ -4901,7 +4886,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                               next_tvb, pinfo, message_body_tree, &hdtbl_entry, NULL))) {
                 int tmp_offset = 0;
                 while (tvb_offset_exists(next_tvb, tmp_offset)) {
-                    tvb_find_line_end(next_tvb, tmp_offset, -1, &next_offset, false);
+                    tvb_find_line_end_remaining(next_tvb, tmp_offset, NULL, &next_offset);
                     linelen = next_offset - tmp_offset;
                     proto_tree_add_format_text(message_body_tree, next_tvb,
                                 tmp_offset, linelen);
@@ -4961,7 +4946,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
 /* Display filter for SIP Request-Line */
 static void
-dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, unsigned meth_len, int linelen)
+dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset, unsigned meth_len, int linelen)
 {
     const uint8_t   *value;
     unsigned   parameter_len = meth_len;
@@ -4988,15 +4973,16 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
         linelen -= parameter_len + 1;
         sip_uri_offset_init(&uri_offsets);
         /* calc R-URI len*/
-        uri_offsets.uri_end = tvb_find_uint8(tvb, offset, linelen, ' ')-1;
-        dissect_sip_uri(tvb, pinfo, offset, offset + linelen, &uri_offsets);
+        tvb_find_uint8_length(tvb, offset, linelen, ' ', &uri_offsets.uri_end);
+        uri_offsets.uri_end -= 1;
+        dissect_sip_uri(tvb, pinfo, &offset, offset + linelen, &uri_offsets);
         display_sip_uri(tvb, tree, pinfo, &uri_offsets, &sip_req_uri);
     }
 }
 
 /* Display filter for SIP Status-Line */
 static void
-dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int line_end, int offset)
+dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned line_end, unsigned offset)
 {
     int response_code = 0;
     bool response_code_valid;
@@ -5051,20 +5037,21 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
  * In practice, this should make no difference.
  */
 static line_type_t
-sip_parse_line(tvbuff_t *tvb, int offset, int linelen, unsigned *token_1_lenp)
+sip_parse_line(tvbuff_t *tvb, unsigned offset, unsigned linelen, unsigned *token_1_lenp)
 {
-    int space_offset;
-    int token_1_start;
+    unsigned space_offset;
+    bool spo_found;
+    unsigned token_1_start;
     unsigned token_1_len;
-    int token_2_start;
+    unsigned token_2_start;
     unsigned token_2_len;
-    int token_3_start;
+    unsigned token_3_start;
     unsigned token_3_len;
-    int colon_pos;
+    unsigned colon_pos;
 
     token_1_start = offset;
-    space_offset = tvb_find_uint8(tvb, token_1_start, -1, ' ');
-    if ((space_offset == -1) || (space_offset == token_1_start)) {
+    spo_found = tvb_find_uint8_remaining(tvb, token_1_start, ' ', &space_offset);
+    if ((spo_found == false) || (space_offset == token_1_start)) {
         /*
          * Either there's no space in the line (which means
          * the line is empty or doesn't have a token followed
@@ -5078,8 +5065,7 @@ sip_parse_line(tvbuff_t *tvb, int offset, int linelen, unsigned *token_1_lenp)
     }
     token_1_len = space_offset - token_1_start;
     token_2_start = space_offset + 1;
-    space_offset = tvb_find_uint8(tvb, token_2_start, -1, ' ');
-    if (space_offset == -1) {
+    if (!tvb_find_uint8_remaining(tvb, token_2_start,' ', &space_offset)) {
         /*
          * There's no space after the second token, so we don't
          * have a third token.
@@ -5135,8 +5121,7 @@ sip_parse_line(tvbuff_t *tvb, int offset, int linelen, unsigned *token_1_lenp)
              */
             return OTHER_LINE;
         }
-        colon_pos = tvb_find_uint8(tvb, token_2_start + 1, -1, ':');
-        if (colon_pos == -1) {
+        if (!tvb_find_uint8_remaining(tvb, token_2_start + 1, ':', &colon_pos)) {
             /*
              * There is no colon after the method, so the URI
              * doesn't have a colon in it, so it's not valid.
@@ -5166,7 +5151,7 @@ sip_parse_line(tvbuff_t *tvb, int offset, int linelen, unsigned *token_1_lenp)
     }
 }
 
-static bool sip_is_known_request(tvbuff_t *tvb, packet_info* pinfo, int meth_offset,
+static bool sip_is_known_request(tvbuff_t *tvb, packet_info* pinfo, unsigned meth_offset,
                      unsigned meth_len, unsigned *meth_idx)
 {
     unsigned i;
@@ -5216,11 +5201,11 @@ static int sip_is_known_sip_header(char *header_name, unsigned header_len)
  * Display the entire message as raw text.
  */
 static void
-tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, int body_offset, packet_info* pinfo, proto_tree *tree)
+tvb_raw_text_add(tvbuff_t *tvb, unsigned offset, unsigned length, unsigned body_offset, packet_info* pinfo, proto_tree *tree)
 {
     proto_tree *raw_tree;
     proto_item *ti;
-    int next_offset, linelen, end_offset;
+    unsigned next_offset, linelen, end_offset;
     char *str;
     tvbuff_t* body_tvb = NULL;
 
@@ -5252,7 +5237,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, int body_offset, packet_
 
     /* Display the headers of SIP message as raw text */
     while (offset < body_offset) {
-        tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+        tvb_find_line_end_remaining(tvb, offset, NULL, &next_offset);
         linelen = next_offset - offset;
         if (raw_tree) {
             if (global_sip_raw_text_without_crlf)
@@ -5279,7 +5264,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, int body_offset, packet_
         }
 
         while (offset < end_offset) {
-            tvb_find_line_end(body_tvb, offset, -1, &next_offset, false);
+            tvb_find_line_end_remaining(body_tvb, offset, NULL, &next_offset);
             linelen = next_offset - offset;
             if (raw_tree) {
                 if (global_sip_raw_text_without_crlf)
