@@ -1,4 +1,4 @@
--- 3GPP TS 36.443 V17.0.1 (2022-04)
+-- 3GPP TS 36.443 V19.1.0 (2025-12)
 -- **************************************************************
 --
 -- Constant definitions
@@ -114,5 +114,9 @@ id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea-Item 								ProtocolIE-ID ::= 51
 id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea									ProtocolIE-ID ::= 52
 id-SubframeAllocationFurtherExtension										ProtocolIE-ID ::= 53
 id-AdditionalConfigParameters												ProtocolIE-ID ::= 54
+id-CASMutingParameters														ProtocolIE-ID ::= 55
+id-FrequencyInterleavingIndicator											ProtocolIE-ID ::= 56
+id-TimeInterleavingParameters												ProtocolIE-ID ::= 57
+id-MCH-Scheduling-PeriodExtended3											ProtocolIE-ID ::= 58
 
 END

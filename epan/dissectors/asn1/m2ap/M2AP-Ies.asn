@@ -1,4 +1,4 @@
--- 3GPP TS 36.443 V17.0.1 (2022-04)
+-- 3GPP TS 36.443 V19.1.0 (2025-12)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -23,6 +23,9 @@ IMPORTS
 	id-SubframeAllocationExtended,
 	id-SubframeAllocationFurtherExtension,
 	id-AdditionalConfigParameters,
+	id-FrequencyInterleavingIndicator,
+	id-TimeInterleavingParameters,
+	id-MCH-Scheduling-PeriodExtended3,
 	maxnoofMBSFNareas,
 	maxnoofPMCHsperMBSFNarea,
 	maxnoofCells,
@@ -75,6 +78,17 @@ AllocationAndRetentionPriority-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
 BitRate ::= INTEGER (0..10000000000)
 
 -- C
+
+CASMutingParameters ::= SEQUENCE {
+	k-CAS						INTEGER (4..63,...),
+	n-CAS						ENUMERATED {n2, n4, n8, n16, ...},
+	iE-Extensions				ProtocolExtensionContainer { { CASMutingParameters-ExtIEs} } OPTIONAL,
+	...
+}
+
+CASMutingParameters-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 Cause ::= CHOICE {
 	radioNetwork		CauseRadioNetwork,
@@ -217,6 +231,9 @@ EUTRANCellIdentifier ::= BIT STRING (SIZE (28))
 
 
 -- F
+
+FrequencyInterleavingIndicator ::= ENUMERATED {enabled, ...}
+
 -- G
 
 GBR-QosInformation ::= SEQUENCE {
@@ -397,6 +414,7 @@ MCH-Scheduling-PeriodExtended ::= ENUMERATED {rf4, ...}
 
 MCH-Scheduling-PeriodExtended2 ::= ENUMERATED {rf1, rf2, ...}
 
+MCH-Scheduling-PeriodExtended3 ::= ENUMERATED {rf7, rf14, rf28, rf53, rf56, rf108, rf112, rf212, rf424, ...}
 
 Modulation-Coding-Scheme2 ::= INTEGER (0..27)
 
@@ -424,7 +442,10 @@ PMCH-Configuration-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
 -- Extension for Rel-12 to support shorter MCH scheduling period –
 	{ID id-MCH-Scheduling-PeriodExtended		CRITICALITY reject	EXTENSION MCH-Scheduling-PeriodExtended	PRESENCE optional}|
 -- Extension for Rel-14 to support shorter MCH scheduling period values –
-	{ID id-MCH-Scheduling-PeriodExtended2		CRITICALITY	reject	EXTENSION MCH-Scheduling-PeriodExtended2	PRESENCE optional},
+	{ID id-MCH-Scheduling-PeriodExtended2		CRITICALITY	reject	EXTENSION MCH-Scheduling-PeriodExtended2	PRESENCE optional}|
+	{ID id-MCH-Scheduling-PeriodExtended3		CRITICALITY	reject	EXTENSION MCH-Scheduling-PeriodExtended3	PRESENCE optional}|
+	{ID id-FrequencyInterleavingIndicator		CRITICALITY	reject	EXTENSION FrequencyInterleavingIndicator	PRESENCE optional}|
+	{ID id-TimeInterleavingParameters			CRITICALITY	reject	EXTENSION TimeInterleavingParameters		PRESENCE optional},
 	...
 }
 
@@ -493,6 +514,23 @@ SubframeAllocationFurtherExtension-ExtIEs M2AP-PROTOCOL-IES ::= {	...
 
 
 -- T
+
+TimeInterleavingParameters ::= SEQUENCE {
+	valueM					ENUMERATED {sf4, sf8, sf16, sf32, ...},
+	valueN					ENUMERATED {n2, n4, n8, n16, ...},
+	scalingfactorBeta		ENUMERATED {one32th, one5th, one3rd, three8th, five12th, onehalf, five8th, two3rd, five6th, one, ...},
+	referenceUECategory		INTEGER (4..26,...),
+	valueM-LastMTCH			ENUMERATED {sf4, sf8, sf16, sf32, ...}								OPTIONAL,
+	valueN-LastMTCH			ENUMERATED {n1, n2, n4, n8, n16, ...}								OPTIONAL,
+	cyclicShiftAlpha		ENUMERATED {alphaOne, alphaTwo, alphaThree, ...}						OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { { TimeInterleavingParameters-ExtIEs} } OPTIONAL,
+	...
+}
+
+TimeInterleavingParameters-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 TimeToWait ::= ENUMERATED {v1s, v2s, v5s, v10s, v20s, v60s, ...}
 

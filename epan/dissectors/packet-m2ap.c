@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-m2ap.c                                                              */
-/* asn2wrs.py -q -L -p m2ap -c ./m2ap.cnf -s ./packet-m2ap-template -D . -O ../.. M2AP-CommonDataTypes.asn M2AP-Constants.asn M2AP-Containers.asn M2AP-IEs.asn M2AP-PDU-Contents.asn M2AP-PDU-Descriptions.asn */
+/* asn2wrs.py -q -L -p m2ap -c ./m2ap.cnf -s ./packet-m2ap-template -D . -O ../.. M2AP-CommonDataTypes.asn M2AP-Constants.asn M2AP-Containers.asn M2AP-Ies.asn M2AP-PDU-Contents.asn M2AP-PDU-Descriptions.asn */
 
 /* packet-m2ap.c
  * Routines for M2 Application Protocol packet dissection
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Reference: 3GPP TS 36.443 v17.0.1
+ * Reference: 3GPP TS 36.443 v19.1.0
  */
 
 #include "config.h"
@@ -121,7 +121,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_MCCHrelatedBCCH_ExtConfigPerMBSFNArea_Item =  51,
   id_MCCHrelatedBCCH_ExtConfigPerMBSFNArea =  52,
   id_SubframeAllocationFurtherExtension =  53,
-  id_AdditionalConfigParameters =  54
+  id_AdditionalConfigParameters =  54,
+  id_CASMutingParameters =  55,
+  id_FrequencyInterleavingIndicator =  56,
+  id_TimeInterleavingParameters =  57,
+  id_MCH_Scheduling_PeriodExtended3 =  58
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
@@ -130,12 +134,14 @@ static int proto_m2ap;
 static int hf_m2ap_IPAddress_v4;
 static int hf_m2ap_IPAddress_v6;
 static int hf_m2ap_AdditionalConfigParameters_PDU;  /* AdditionalConfigParameters */
+static int hf_m2ap_CASMutingParameters_PDU;       /* CASMutingParameters */
 static int hf_m2ap_Cause_PDU;                     /* Cause */
 static int hf_m2ap_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
 static int hf_m2ap_ENB_MBMS_Configuration_data_Item_PDU;  /* ENB_MBMS_Configuration_data_Item */
 static int hf_m2ap_ENB_MBMS_Configuration_data_ConfigUpdate_Item_PDU;  /* ENB_MBMS_Configuration_data_ConfigUpdate_Item */
 static int hf_m2ap_ENB_MBMS_M2AP_ID_PDU;          /* ENB_MBMS_M2AP_ID */
 static int hf_m2ap_ENBname_PDU;                   /* ENBname */
+static int hf_m2ap_FrequencyInterleavingIndicator_PDU;  /* FrequencyInterleavingIndicator */
 static int hf_m2ap_GlobalENB_ID_PDU;              /* GlobalENB_ID */
 static int hf_m2ap_GlobalMCE_ID_PDU;              /* GlobalMCE_ID */
 static int hf_m2ap_MBMS_Service_associatedLogicalM2_ConnectionItem_PDU;  /* MBMS_Service_associatedLogicalM2_ConnectionItem */
@@ -150,6 +156,7 @@ static int hf_m2ap_MCE_MBMS_M2AP_ID_PDU;          /* MCE_MBMS_M2AP_ID */
 static int hf_m2ap_MCEname_PDU;                   /* MCEname */
 static int hf_m2ap_MCH_Scheduling_PeriodExtended_PDU;  /* MCH_Scheduling_PeriodExtended */
 static int hf_m2ap_MCH_Scheduling_PeriodExtended2_PDU;  /* MCH_Scheduling_PeriodExtended2 */
+static int hf_m2ap_MCH_Scheduling_PeriodExtended3_PDU;  /* MCH_Scheduling_PeriodExtended3 */
 static int hf_m2ap_Modulation_Coding_Scheme2_PDU;  /* Modulation_Coding_Scheme2 */
 static int hf_m2ap_Modification_PeriodExtended_PDU;  /* Modification_PeriodExtended */
 static int hf_m2ap_Common_Subframe_Allocation_Period_PDU;  /* Common_Subframe_Allocation_Period */
@@ -158,6 +165,7 @@ static int hf_m2ap_SC_PTM_Information_PDU;        /* SC_PTM_Information */
 static int hf_m2ap_Subcarrier_SpacingMBMS_PDU;    /* Subcarrier_SpacingMBMS */
 static int hf_m2ap_SubframeAllocationExtended_PDU;  /* SubframeAllocationExtended */
 static int hf_m2ap_SubframeAllocationFurtherExtension_PDU;  /* SubframeAllocationFurtherExtension */
+static int hf_m2ap_TimeInterleavingParameters_PDU;  /* TimeInterleavingParameters */
 static int hf_m2ap_TimeToWait_PDU;                /* TimeToWait */
 static int hf_m2ap_TMGI_PDU;                      /* TMGI */
 static int hf_m2ap_TNL_Information_PDU;           /* TNL_Information */
@@ -226,6 +234,8 @@ static int hf_m2ap_iE_Extensions;                 /* ProtocolExtensionContainer 
 static int hf_m2ap_priorityLevel;                 /* PriorityLevel */
 static int hf_m2ap_pre_emptionCapability;         /* Pre_emptionCapability */
 static int hf_m2ap_pre_emptionVulnerability;      /* Pre_emptionVulnerability */
+static int hf_m2ap_k_CAS;                         /* INTEGER_4_63_ */
+static int hf_m2ap_n_CAS;                         /* T_n_CAS */
 static int hf_m2ap_radioNetwork;                  /* CauseRadioNetwork */
 static int hf_m2ap_transport;                     /* CauseTransport */
 static int hf_m2ap_nAS;                           /* CauseNAS */
@@ -294,6 +304,13 @@ static int hf_m2ap_fourFrameExtension;            /* BIT_STRING_SIZE_8 */
 static int hf_m2ap_choice_extension;              /* ProtocolIE_Single_Container */
 static int hf_m2ap_oneFrameFurtherExtension;      /* BIT_STRING_SIZE_2 */
 static int hf_m2ap_fourFrameFurtherExtension;     /* BIT_STRING_SIZE_8 */
+static int hf_m2ap_valueM;                        /* T_valueM */
+static int hf_m2ap_valueN;                        /* T_valueN */
+static int hf_m2ap_scalingfactorBeta;             /* T_scalingfactorBeta */
+static int hf_m2ap_referenceUECategory;           /* INTEGER_4_26_ */
+static int hf_m2ap_valueM_LastMTCH;               /* T_valueM_LastMTCH */
+static int hf_m2ap_valueN_LastMTCH;               /* T_valueN_LastMTCH */
+static int hf_m2ap_cyclicShiftAlpha;              /* T_cyclicShiftAlpha */
 static int hf_m2ap_pLMNidentity;                  /* PLMN_Identity */
 static int hf_m2ap_serviceID;                     /* OCTET_STRING_SIZE_3 */
 static int hf_m2ap_iPMCAddress;                   /* IPAddress */
@@ -342,6 +359,7 @@ static int ett_m2ap_PrivateIE_Container;
 static int ett_m2ap_PrivateIE_Field;
 static int ett_m2ap_AdditionalConfigParameters;
 static int ett_m2ap_AllocationAndRetentionPriority;
+static int ett_m2ap_CASMutingParameters;
 static int ett_m2ap_Cause;
 static int ett_m2ap_Cell_Information;
 static int ett_m2ap_Cell_Information_List;
@@ -371,6 +389,7 @@ static int ett_m2ap_PMCH_Configuration;
 static int ett_m2ap_SC_PTM_Information;
 static int ett_m2ap_SubframeAllocationExtended;
 static int ett_m2ap_SubframeAllocationFurtherExtension;
+static int ett_m2ap_TimeInterleavingParameters;
 static int ett_m2ap_TMGI;
 static int ett_m2ap_TNL_Information;
 static int ett_m2ap_SessionStartRequest;
@@ -608,6 +627,10 @@ static const value_string m2ap_ProtocolIE_ID_vals[] = {
   { id_MCCHrelatedBCCH_ExtConfigPerMBSFNArea, "id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea" },
   { id_SubframeAllocationFurtherExtension, "id-SubframeAllocationFurtherExtension" },
   { id_AdditionalConfigParameters, "id-AdditionalConfigParameters" },
+  { id_CASMutingParameters, "id-CASMutingParameters" },
+  { id_FrequencyInterleavingIndicator, "id-FrequencyInterleavingIndicator" },
+  { id_TimeInterleavingParameters, "id-TimeInterleavingParameters" },
+  { id_MCH_Scheduling_PeriodExtended3, "id-MCH-Scheduling-PeriodExtended3" },
   { 0, NULL }
 };
 
@@ -883,6 +906,50 @@ static unsigned
 dissect_m2ap_BitRate(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
                                                             0U, UINT64_C(10000000000), NULL, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_m2ap_INTEGER_4_63_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            4U, 63U, NULL, true);
+
+  return offset;
+}
+
+
+static const value_string m2ap_T_n_CAS_vals[] = {
+  {   0, "n2" },
+  {   1, "n4" },
+  {   2, "n8" },
+  {   3, "n16" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_m2ap_T_n_CAS(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CASMutingParameters_sequence[] = {
+  { &hf_m2ap_k_CAS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_m2ap_INTEGER_4_63_ },
+  { &hf_m2ap_n_CAS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_m2ap_T_n_CAS },
+  { &hf_m2ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_m2ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_m2ap_CASMutingParameters(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_m2ap_CASMutingParameters, CASMutingParameters_sequence);
 
   return offset;
 }
@@ -1311,6 +1378,21 @@ dissect_m2ap_ENBname(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
                                           1, 150, true,
                                           NULL);
+
+  return offset;
+}
+
+
+static const value_string m2ap_FrequencyInterleavingIndicator_vals[] = {
+  {   0, "enabled" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_m2ap_FrequencyInterleavingIndicator(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
 
   return offset;
 }
@@ -1991,6 +2073,29 @@ dissect_m2ap_MCH_Scheduling_PeriodExtended2(tvbuff_t *tvb _U_, uint32_t offset _
 }
 
 
+static const value_string m2ap_MCH_Scheduling_PeriodExtended3_vals[] = {
+  {   0, "rf7" },
+  {   1, "rf14" },
+  {   2, "rf28" },
+  {   3, "rf53" },
+  {   4, "rf56" },
+  {   5, "rf108" },
+  {   6, "rf112" },
+  {   7, "rf212" },
+  {   8, "rf424" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_m2ap_MCH_Scheduling_PeriodExtended3(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     9, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 
 static unsigned
 dissect_m2ap_Modulation_Coding_Scheme2(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -2196,6 +2301,151 @@ dissect_m2ap_SubframeAllocationFurtherExtension(tvbuff_t *tvb _U_, uint32_t offs
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_m2ap_SubframeAllocationFurtherExtension, SubframeAllocationFurtherExtension_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string m2ap_T_valueM_vals[] = {
+  {   0, "sf4" },
+  {   1, "sf8" },
+  {   2, "sf16" },
+  {   3, "sf32" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_m2ap_T_valueM(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string m2ap_T_valueN_vals[] = {
+  {   0, "n2" },
+  {   1, "n4" },
+  {   2, "n8" },
+  {   3, "n16" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_m2ap_T_valueN(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string m2ap_T_scalingfactorBeta_vals[] = {
+  {   0, "one32th" },
+  {   1, "one5th" },
+  {   2, "one3rd" },
+  {   3, "three8th" },
+  {   4, "five12th" },
+  {   5, "onehalf" },
+  {   6, "five8th" },
+  {   7, "two3rd" },
+  {   8, "five6th" },
+  {   9, "one" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_m2ap_T_scalingfactorBeta(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     10, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_m2ap_INTEGER_4_26_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            4U, 26U, NULL, true);
+
+  return offset;
+}
+
+
+static const value_string m2ap_T_valueM_LastMTCH_vals[] = {
+  {   0, "sf4" },
+  {   1, "sf8" },
+  {   2, "sf16" },
+  {   3, "sf32" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_m2ap_T_valueM_LastMTCH(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string m2ap_T_valueN_LastMTCH_vals[] = {
+  {   0, "n1" },
+  {   1, "n2" },
+  {   2, "n4" },
+  {   3, "n8" },
+  {   4, "n16" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_m2ap_T_valueN_LastMTCH(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     5, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string m2ap_T_cyclicShiftAlpha_vals[] = {
+  {   0, "alphaOne" },
+  {   1, "alphaTwo" },
+  {   2, "alphaThree" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_m2ap_T_cyclicShiftAlpha(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t TimeInterleavingParameters_sequence[] = {
+  { &hf_m2ap_valueM         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_m2ap_T_valueM },
+  { &hf_m2ap_valueN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_m2ap_T_valueN },
+  { &hf_m2ap_scalingfactorBeta, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_m2ap_T_scalingfactorBeta },
+  { &hf_m2ap_referenceUECategory, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_m2ap_INTEGER_4_26_ },
+  { &hf_m2ap_valueM_LastMTCH, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_m2ap_T_valueM_LastMTCH },
+  { &hf_m2ap_valueN_LastMTCH, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_m2ap_T_valueN_LastMTCH },
+  { &hf_m2ap_cyclicShiftAlpha, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_m2ap_T_cyclicShiftAlpha },
+  { &hf_m2ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_m2ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_m2ap_TimeInterleavingParameters(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_m2ap_TimeInterleavingParameters, TimeInterleavingParameters_sequence);
 
   return offset;
 }
@@ -3095,6 +3345,14 @@ static int dissect_AdditionalConfigParameters_PDU(tvbuff_t *tvb _U_, packet_info
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CASMutingParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_m2ap_CASMutingParameters(tvb, offset, &asn1_ctx, tree, hf_m2ap_CASMutingParameters_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Cause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -3140,6 +3398,14 @@ static int dissect_ENBname_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_m2ap_ENBname(tvb, offset, &asn1_ctx, tree, hf_m2ap_ENBname_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_FrequencyInterleavingIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_m2ap_FrequencyInterleavingIndicator(tvb, offset, &asn1_ctx, tree, hf_m2ap_FrequencyInterleavingIndicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -3255,6 +3521,14 @@ static int dissect_MCH_Scheduling_PeriodExtended2_PDU(tvbuff_t *tvb _U_, packet_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_MCH_Scheduling_PeriodExtended3_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_m2ap_MCH_Scheduling_PeriodExtended3(tvb, offset, &asn1_ctx, tree, hf_m2ap_MCH_Scheduling_PeriodExtended3_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Modulation_Coding_Scheme2_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -3316,6 +3590,14 @@ static int dissect_SubframeAllocationFurtherExtension_PDU(tvbuff_t *tvb _U_, pac
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_m2ap_SubframeAllocationFurtherExtension(tvb, offset, &asn1_ctx, tree, hf_m2ap_SubframeAllocationFurtherExtension_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_TimeInterleavingParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_m2ap_TimeInterleavingParameters(tvb, offset, &asn1_ctx, tree, hf_m2ap_TimeInterleavingParameters_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -3798,6 +4080,10 @@ proto_register_m2ap(void) {
       { "AdditionalConfigParameters", "m2ap.AdditionalConfigParameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_m2ap_CASMutingParameters_PDU,
+      { "CASMutingParameters", "m2ap.CASMutingParameters_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_m2ap_Cause_PDU,
       { "Cause", "m2ap.Cause",
         FT_UINT32, BASE_DEC, VALS(m2ap_Cause_vals), 0,
@@ -3821,6 +4107,10 @@ proto_register_m2ap(void) {
     { &hf_m2ap_ENBname_PDU,
       { "ENBname", "m2ap.ENBname",
         FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_m2ap_FrequencyInterleavingIndicator_PDU,
+      { "FrequencyInterleavingIndicator", "m2ap.FrequencyInterleavingIndicator",
+        FT_UINT32, BASE_DEC, VALS(m2ap_FrequencyInterleavingIndicator_vals), 0,
         NULL, HFILL }},
     { &hf_m2ap_GlobalENB_ID_PDU,
       { "GlobalENB-ID", "m2ap.GlobalENB_ID_element",
@@ -3878,6 +4168,10 @@ proto_register_m2ap(void) {
       { "MCH-Scheduling-PeriodExtended2", "m2ap.MCH_Scheduling_PeriodExtended2",
         FT_UINT32, BASE_DEC, VALS(m2ap_MCH_Scheduling_PeriodExtended2_vals), 0,
         NULL, HFILL }},
+    { &hf_m2ap_MCH_Scheduling_PeriodExtended3_PDU,
+      { "MCH-Scheduling-PeriodExtended3", "m2ap.MCH_Scheduling_PeriodExtended3",
+        FT_UINT32, BASE_DEC, VALS(m2ap_MCH_Scheduling_PeriodExtended3_vals), 0,
+        NULL, HFILL }},
     { &hf_m2ap_Modulation_Coding_Scheme2_PDU,
       { "Modulation-Coding-Scheme2", "m2ap.Modulation_Coding_Scheme2",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3909,6 +4203,10 @@ proto_register_m2ap(void) {
     { &hf_m2ap_SubframeAllocationFurtherExtension_PDU,
       { "SubframeAllocationFurtherExtension", "m2ap.SubframeAllocationFurtherExtension",
         FT_UINT32, BASE_DEC, VALS(m2ap_SubframeAllocationFurtherExtension_vals), 0,
+        NULL, HFILL }},
+    { &hf_m2ap_TimeInterleavingParameters_PDU,
+      { "TimeInterleavingParameters", "m2ap.TimeInterleavingParameters_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_m2ap_TimeToWait_PDU,
       { "TimeToWait", "m2ap.TimeToWait",
@@ -4182,6 +4480,14 @@ proto_register_m2ap(void) {
       { "pre-emptionVulnerability", "m2ap.pre_emptionVulnerability",
         FT_UINT32, BASE_DEC, VALS(m2ap_Pre_emptionVulnerability_vals), 0,
         NULL, HFILL }},
+    { &hf_m2ap_k_CAS,
+      { "k-CAS", "m2ap.k_CAS",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_4_63_", HFILL }},
+    { &hf_m2ap_n_CAS,
+      { "n-CAS", "m2ap.n_CAS",
+        FT_UINT32, BASE_DEC, VALS(m2ap_T_n_CAS_vals), 0,
+        NULL, HFILL }},
     { &hf_m2ap_radioNetwork,
       { "radioNetwork", "m2ap.radioNetwork",
         FT_UINT32, BASE_DEC, VALS(m2ap_CauseRadioNetwork_vals), 0,
@@ -4454,6 +4760,34 @@ proto_register_m2ap(void) {
       { "fourFrameFurtherExtension", "m2ap.fourFrameFurtherExtension",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_8", HFILL }},
+    { &hf_m2ap_valueM,
+      { "valueM", "m2ap.valueM",
+        FT_UINT32, BASE_DEC, VALS(m2ap_T_valueM_vals), 0,
+        NULL, HFILL }},
+    { &hf_m2ap_valueN,
+      { "valueN", "m2ap.valueN",
+        FT_UINT32, BASE_DEC, VALS(m2ap_T_valueN_vals), 0,
+        NULL, HFILL }},
+    { &hf_m2ap_scalingfactorBeta,
+      { "scalingfactorBeta", "m2ap.scalingfactorBeta",
+        FT_UINT32, BASE_DEC, VALS(m2ap_T_scalingfactorBeta_vals), 0,
+        NULL, HFILL }},
+    { &hf_m2ap_referenceUECategory,
+      { "referenceUECategory", "m2ap.referenceUECategory",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_4_26_", HFILL }},
+    { &hf_m2ap_valueM_LastMTCH,
+      { "valueM-LastMTCH", "m2ap.valueM_LastMTCH",
+        FT_UINT32, BASE_DEC, VALS(m2ap_T_valueM_LastMTCH_vals), 0,
+        NULL, HFILL }},
+    { &hf_m2ap_valueN_LastMTCH,
+      { "valueN-LastMTCH", "m2ap.valueN_LastMTCH",
+        FT_UINT32, BASE_DEC, VALS(m2ap_T_valueN_LastMTCH_vals), 0,
+        NULL, HFILL }},
+    { &hf_m2ap_cyclicShiftAlpha,
+      { "cyclicShiftAlpha", "m2ap.cyclicShiftAlpha",
+        FT_UINT32, BASE_DEC, VALS(m2ap_T_cyclicShiftAlpha_vals), 0,
+        NULL, HFILL }},
     { &hf_m2ap_pLMNidentity,
       { "pLMNidentity", "m2ap.pLMNidentity",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -4606,6 +4940,7 @@ proto_register_m2ap(void) {
     &ett_m2ap_PrivateIE_Field,
     &ett_m2ap_AdditionalConfigParameters,
     &ett_m2ap_AllocationAndRetentionPriority,
+    &ett_m2ap_CASMutingParameters,
     &ett_m2ap_Cause,
     &ett_m2ap_Cell_Information,
     &ett_m2ap_Cell_Information_List,
@@ -4635,6 +4970,7 @@ proto_register_m2ap(void) {
     &ett_m2ap_SC_PTM_Information,
     &ett_m2ap_SubframeAllocationExtended,
     &ett_m2ap_SubframeAllocationFurtherExtension,
+    &ett_m2ap_TimeInterleavingParameters,
     &ett_m2ap_TMGI,
     &ett_m2ap_TNL_Information,
     &ett_m2ap_SessionStartRequest,
@@ -4762,6 +5098,7 @@ proto_reg_handoff_m2ap(void)
   dissector_add_uint("m2ap.ies", id_SC_PTM_Information, create_dissector_handle(dissect_SC_PTM_Information_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_MCCHrelatedBCCH_ExtConfigPerMBSFNArea_Item, create_dissector_handle(dissect_MCCHrelatedBCCH_ExtConfigPerMBSFNArea_Item_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_MCCHrelatedBCCH_ExtConfigPerMBSFNArea, create_dissector_handle(dissect_MCCHrelatedBCCH_ExtConfigPerMBSFNArea_PDU, proto_m2ap));
+  dissector_add_uint("m2ap.ies", id_CASMutingParameters, create_dissector_handle(dissect_CASMutingParameters_PDU, proto_m2ap));
   dissector_add_uint("m2ap.extension", id_Modulation_Coding_Scheme2, create_dissector_handle(dissect_Modulation_Coding_Scheme2_PDU, proto_m2ap));
   dissector_add_uint("m2ap.extension", id_MCH_Scheduling_PeriodExtended, create_dissector_handle(dissect_MCH_Scheduling_PeriodExtended_PDU, proto_m2ap));
   dissector_add_uint("m2ap.extension", id_Repetition_PeriodExtended, create_dissector_handle(dissect_Repetition_PeriodExtended_PDU, proto_m2ap));
@@ -4771,6 +5108,9 @@ proto_reg_handoff_m2ap(void)
   dissector_add_uint("m2ap.extension", id_Subcarrier_SpacingMBMS, create_dissector_handle(dissect_Subcarrier_SpacingMBMS_PDU, proto_m2ap));
   dissector_add_uint("m2ap.extension", id_SubframeAllocationFurtherExtension, create_dissector_handle(dissect_SubframeAllocationFurtherExtension_PDU, proto_m2ap));
   dissector_add_uint("m2ap.extension", id_AdditionalConfigParameters, create_dissector_handle(dissect_AdditionalConfigParameters_PDU, proto_m2ap));
+  dissector_add_uint("m2ap.extension", id_FrequencyInterleavingIndicator, create_dissector_handle(dissect_FrequencyInterleavingIndicator_PDU, proto_m2ap));
+  dissector_add_uint("m2ap.extension", id_TimeInterleavingParameters, create_dissector_handle(dissect_TimeInterleavingParameters_PDU, proto_m2ap));
+  dissector_add_uint("m2ap.extension", id_MCH_Scheduling_PeriodExtended3, create_dissector_handle(dissect_MCH_Scheduling_PeriodExtended3_PDU, proto_m2ap));
   dissector_add_uint("m2ap.proc.imsg", id_sessionStart, create_dissector_handle(dissect_SessionStartRequest_PDU, proto_m2ap));
   dissector_add_uint("m2ap.proc.sout", id_sessionStart, create_dissector_handle(dissect_SessionStartResponse_PDU, proto_m2ap));
   dissector_add_uint("m2ap.proc.uout", id_sessionStart, create_dissector_handle(dissect_SessionStartFailure_PDU, proto_m2ap));

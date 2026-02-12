@@ -233,6 +233,11 @@ id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea-Item            ProtocolIE-ID
 id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea                 ProtocolIE-ID
 id-SubframeAllocationFurtherExtension                    ProtocolIE-ID
 id-AdditionalConfigParameters                            ProtocolIE-ID
+id-CASMutingParameters                                   ProtocolIE-ID
+id-FrequencyInterleavingIndicator                        ProtocolIE-ID
+id-TimeInterleavingParameters                            ProtocolIE-ID
+id-MCH-Scheduling-PeriodExtended3                        ProtocolIE-ID
+
 
 #.REGISTER
 
@@ -280,6 +285,7 @@ MBMS-Suspension-Notification-Item                     N m2ap.ies id-MBMS-Suspens
 SC-PTM-Information                                    N m2ap.ies id-SC-PTM-Information
 MCCHrelatedBCCH-ExtConfigPerMBSFNArea-Item            N m2ap.ies id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea-Item
 MCCHrelatedBCCH-ExtConfigPerMBSFNArea                 N m2ap.ies id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea
+CASMutingParameters                                   N m2ap.ies id-CASMutingParameters
 
 #M2AP-PROTOCOL-EXTENSION
 Modulation-Coding-Scheme2                             N m2ap.extension id-Modulation-Coding-Scheme2
@@ -291,6 +297,9 @@ SubframeAllocationExtended                            N m2ap.extension id-Subfra
 Subcarrier-SpacingMBMS                                N m2ap.extension id-Subcarrier-SpacingMBMS
 SubframeAllocationFurtherExtension                    N m2ap.extension id-SubframeAllocationFurtherExtension
 AdditionalConfigParameters                            N m2ap.extension id-AdditionalConfigParameters
+FrequencyInterleavingIndicator                        N m2ap.extension id-FrequencyInterleavingIndicator
+TimeInterleavingParameters                            N m2ap.extension id-TimeInterleavingParameters
+MCH-Scheduling-PeriodExtended3                        N m2ap.extension id-MCH-Scheduling-PeriodExtended3
 
 #M2AP-ELEMENTARY-PROCEDURE
 SessionStartRequest               N m2ap.proc.imsg id-sessionStart

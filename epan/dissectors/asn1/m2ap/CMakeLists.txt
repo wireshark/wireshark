@@ -18,7 +18,7 @@ set( ASN_FILE_LIST
 	M2AP-CommonDataTypes.asn
 	M2AP-Constants.asn
 	M2AP-Containers.asn
-	M2AP-IEs.asn
+	M2AP-Ies.asn
 	M2AP-PDU-Contents.asn
 	M2AP-PDU-Descriptions.asn
 )
