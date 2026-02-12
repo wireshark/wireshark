@@ -399,7 +399,7 @@ static const char* decimal_point = NULL;
 static void truncate_numeric_strbuf(wmem_strbuf_t *strbuf, int n) {
 
     const char *s = wmem_strbuf_get_str(strbuf);
-    char *p;
+    const char *p;
     int count;
 
     if (decimal_point == NULL) {
