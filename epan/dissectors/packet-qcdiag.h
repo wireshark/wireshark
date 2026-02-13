@@ -25,7 +25,8 @@
 #ifndef PACKET_QCDIAG_H
 #define PACKET_QCDIAG_H
 
-nstime_t qcdiag_parse_timestamp(tvbuff_t *tvb, uint32_t offset);
+extern value_string_ext qcdiag_logcodes_ext;
+extern nstime_t qcdiag_parse_timestamp(tvbuff_t *tvb, uint32_t offset);
 
 #define DIAG_VERNO_F                  0
 #define DIAG_ESN_F                    1
@@ -188,39 +189,6 @@ nstime_t qcdiag_parse_timestamp(tvbuff_t *tvb, uint32_t offset);
 #define DIAG_SECURE_LOG_F           158
 
 #define DIAG_MAX_F                  255
-
-/* Log Codes
- * These codes identify the kind of information
- * contained in a log entry.
- *
- * The upper 4 bits of the 16 bit log code specify
- * which type of equipment created the log entry.
- */
-
-#define LOG_CODE_1X_RUIM_DEBUG         0x1098
-#define LOG_CODE_1X_INT_CORED_DUMP     0x1158
-#define LOG_CODE_1X_DATA_PROT_LOG      0x11eb
-#define LOG_CODE_1X_CM_PHONE_EVENT     0x1273
-#define LOG_CODE_1X_CM_CALL_EVENT      0x12c1
-#define LOG_CODE_1X_GPS_DECODE_ALMNC   0x12e7
-#define LOG_CODE_1X_TRM                0x12e8
-/* Reserved 0x12e9 – 0x132a */
-#define LOG_CODE_1X_DIAG_REQUEST       0x1fea
-#define LOG_CODE_1X_EXT_DEBUG_MSG      0x1feb
-#define LOG_CODE_1X_DEBUG_MESSAGE      0x1fec
-#define LOG_CODE_1X_PC_POLLING_TIME    0x1fed
-#define LOG_CODE_1X_THREE_D_GPS_INFO   0x1fee
-#define LOG_CODE_1X_DIAG_RES_STATUS    0x1ff0
-#define LOG_CODE_1X_GPS_INFORMATION    0x1ff1
-#define LOG_CODE_1X_LOG_FILE_SUMMARY   0x1ff2
-#define LOG_CODE_1X_STATUS_SNAPSHOT    0x1ff7
-#define LOG_CODE_1X_EXTENDED_LOGMASK   0x1ff9
-#define LOG_CODE_1X_EVENT              0x1ffb
-#define LOG_CODE_1X_ANNOTATION         0x1ffc
-#define LOG_CODE_1X_DIAGNOSTIC_VER     0x1ffd
-#define LOG_CODE_1X_STATUS_2           0x1ffe
-
-#define LOG_CODE_WCDMA_SIGNALING_MSG   0x412f
 
 typedef enum {
     DIAG_SUBSYS_OEM                  = 0,

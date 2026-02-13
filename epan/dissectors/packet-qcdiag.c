@@ -42,6 +42,15 @@
 #include "packet-gsmtap.h"
 #include "packet-qcdiag.h"
 
+#define LOG_CODE_1X_DIAG_REQUEST       0x1fea
+#define LOG_CODE_1X_DIAG_RES_STATUS    0x1ff0
+#define LOG_CODE_1X_EVENT              0x1ffb
+#define LOG_CODE_WCDMA_SIGNALING_MSG   0x412f
+#define LOG_CODE_RR_SIGNALING          0x512f
+#define LOG_CODE_GPRS_MAC_SIGNALING    0x5226
+#define LOG_CODE_UMTS_RRC_OTA          0x713a
+#define LOG_CODE_LTE_RRC_OTA           0xb0c0
+
 void proto_register_qcdiag(void);
 void proto_reg_handoff_qcdiag(void);
 
@@ -56,7 +65,6 @@ static int proto_qcdiag;
 
 static int hf_qcdiag_logcode;
 static int hf_qcdiag_len;
-static int hf_qcdiag_ver;
 static int hf_qcdiag_cmd;
 static int hf_qcdiag_verno_comp_date;
 static int hf_qcdiag_verno_comp_time;
@@ -376,10 +384,14 @@ static const value_string qcdiag_logcodes[] = {
     { LOG_CODE_1X_DIAG_RES_STATUS,  "Diagnostic Response Status" },
     { LOG_CODE_1X_EVENT,            "Event" },
     { LOG_CODE_WCDMA_SIGNALING_MSG, "WCDMA Signaling Messages" },
+    { LOG_CODE_RR_SIGNALING,        "GSM RR Signaling Message" },
+    { LOG_CODE_GPRS_MAC_SIGNALING,  "GPRS MAC Signaling Message" },
+    { LOG_CODE_UMTS_RRC_OTA,        "UMTS NAS OTA" },
+    { LOG_CODE_LTE_RRC_OTA,         "LTE RRC OTA" },
     { 0, NULL }
 };
 
-static value_string_ext qcdiag_logcodes_ext = VALUE_STRING_EXT_INIT(qcdiag_logcodes);
+value_string_ext qcdiag_logcodes_ext = VALUE_STRING_EXT_INIT(qcdiag_logcodes);
 
 enum log_config_op {
     LOG_CONFIG_DISABLE_OP             = 0,
@@ -397,8 +409,6 @@ static const value_string qcdiag_logcfg_ops[] = {
     { LOG_CONFIG_GET_LOGMASK_OP,         "Get Log Mask" },
     { 0, NULL }
 };
-
-static value_string_ext qcdiag_logcfg_ops_ext = VALUE_STRING_EXT_INIT(qcdiag_logcfg_ops);
 
 static const value_string qcdiag_logcfg_status[] = {
     { 0, "Success" },
@@ -485,7 +495,7 @@ qcdiag_append_type(proto_tree *tree, packet_info *pinfo, bool request)
 }
 
 static uint32_t
-qcdiag_add_cmd_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *tree, uint32_t cmd, uint32_t logcode, int logcode_offset, int ver)
+qcdiag_add_cmd_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *tree, uint32_t cmd, uint32_t logcode, int logcode_offset)
 {
     uint32_t length;
     proto_item *generated_item;
@@ -500,10 +510,6 @@ qcdiag_add_cmd_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto
     /* Length */
     generated_item = proto_tree_add_uint(tree, hf_qcdiag_len, tvb, offset, 0, length);
     proto_item_set_generated(generated_item);
-
-    /* Version */
-    if (ver > -1)
-        proto_tree_add_uint(tree, hf_qcdiag_ver, tvb, offset, 0, ver);
 
     /* Command Code */
     proto_tree_add_uint(tree, hf_qcdiag_cmd, tvb, offset, 1, cmd);
@@ -614,7 +620,7 @@ dissect_qcdiag_verno(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_t
 
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
@@ -702,7 +708,7 @@ dissect_qcdiag_esn(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tre
 
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
@@ -733,7 +739,7 @@ dissect_qcdiag_bad_cmd(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto
 
     bytes = tvb_captured_length(tvb);
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
 
@@ -762,7 +768,7 @@ dissect_qcdiag_bad_parm(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, prot
 
     bytes = tvb_captured_length(tvb);
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
 
@@ -791,7 +797,7 @@ dissect_qcdiag_bad_len(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto
 
     bytes = tvb_captured_length(tvb);
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
 
@@ -820,7 +826,7 @@ dissect_qcdiag_bad_mode(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, prot
 
     bytes = tvb_captured_length(tvb);
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
 
@@ -851,7 +857,7 @@ dissect_qcdiag_markov_reset(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
 
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 }
@@ -898,7 +904,7 @@ dissect_qcdiag_diag_ver(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, prot
 
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
@@ -944,7 +950,7 @@ dissect_qcdiag_ts(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree
 
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
@@ -1003,7 +1009,7 @@ dissect_qcdiag_parm_set(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, prot
 
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
@@ -1065,7 +1071,7 @@ dissect_qcdiag_mode_change(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
 
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
@@ -1137,7 +1143,7 @@ dissect_qcdiag_subsys_cmd(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, pr
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
     /* This message type does not include log code so the offset will be increased by 1. */
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
@@ -1275,7 +1281,7 @@ dissect_qcdiag_log_config_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
     /* Log Code value */
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     /* Append parent item name */
     proto_item_append_text(ti, ", %s", text);
@@ -1288,7 +1294,7 @@ dissect_qcdiag_log_config_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
     proto_tree_add_item_ret_uint(tree, hf_qcdiag_logcfg_operation, tvb, offset, 4, ENC_LITTLE_ENDIAN, &operation);
     offset += 4;
 
-    text = val_to_str_ext(pinfo->pool, operation, &qcdiag_logcfg_ops_ext, "Unknown Operation (0x%02x)");
+    text = val_to_str(pinfo->pool, operation, qcdiag_logcfg_ops, "Unknown Operation (0x%02x)");
 
     /* Set COL_INFO to Operation */
     col_set_str(pinfo->cinfo, COL_INFO, text);
@@ -1548,7 +1554,7 @@ dissect_qcdiag_log_on_demand(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo,
 
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
@@ -1590,7 +1596,7 @@ dissect_qcdiag_protocol_loopback(tvbuff_t *tvb, uint32_t offset, packet_info *pi
 
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
@@ -1673,7 +1679,7 @@ dissect_qcdiag_ext_build_id(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
 
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
@@ -1802,7 +1808,7 @@ dissect_qcdiag_custom(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_
         offset += 2;
     }
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, logcode_offset, -1);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, logcode_offset);
 
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, (bool)request);
 
@@ -1905,16 +1911,13 @@ proto_register_qcdiag(void)
     static hf_register_info hf[] = {
         { &hf_qcdiag_logcode,
           { "Log Code", "qcdiag.logcode",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &qcdiag_logcodes_ext, 0, NULL, HFILL }},
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, VALS_EXT_PTR(&qcdiag_logcodes_ext), 0, NULL, HFILL }},
         { &hf_qcdiag_len,
           { "Length", "qcdiag.len",
             FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL }},
-        { &hf_qcdiag_ver,
-          { "Version", "qcdiag.ver",
-            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_qcdiag_cmd,
           { "Command Code", "qcdiag.cmd",
-            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &qcdiag_cmds_ext, 0, NULL, HFILL }},
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, VALS_EXT_PTR(&qcdiag_cmds_ext), 0, NULL, HFILL }},
         { &hf_qcdiag_verno_comp_date,
           { "Compilation Date", "qcdiag.verno.comp_date",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1983,7 +1986,7 @@ proto_register_qcdiag(void)
             FT_UINT16, BASE_DEC, VALS(qcdiag_mode_change_mode_vals), 0, NULL, HFILL }},
         { &hf_qcdiag_subsys_id,
           { "Subsystem ID", "qcdiag.subsys_id",
-            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &qcdiag_subsys_ext, 0, NULL, HFILL }},
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, VALS_EXT_PTR(&qcdiag_subsys_ext), 0, NULL, HFILL }},
         { &hf_qcdiag_subsys_cmd_code,
           { "Subsystem Command Code", "qcdiag.subsys_cmd_code",
             FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -2004,7 +2007,7 @@ proto_register_qcdiag(void)
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_qcdiag_log_on_demand_logcode,
           { "Log Code", "qcdiag.log_on_demand.logcode",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &qcdiag_logcodes_ext, 0, NULL, HFILL }},
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, VALS_EXT_PTR(&qcdiag_logcodes_ext), 0, NULL, HFILL }},
         { &hf_qcdiag_log_on_demand_status,
           { "Log Code", "qcdiag.log_on_demand.status",
             FT_UINT8, BASE_DEC, VALS(qcdiag_log_on_demand_status_vals), 0, NULL, HFILL }},
