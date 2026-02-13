@@ -496,8 +496,7 @@ static uint16_t dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, 
     offset += 2;
 
     /* Take the length in bytes of the attributes list */
-    attributes_list_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-    proto_tree_add_item(rtitcp_message, hf_rtitcp_attributes_list_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(rtitcp_message, hf_rtitcp_attributes_list_length, tvb, offset, 2, ENC_BIG_ENDIAN, &attributes_list_length);
     offset += 2;
 
     /* We expect now the RTI TCP Control Magic Cookie */

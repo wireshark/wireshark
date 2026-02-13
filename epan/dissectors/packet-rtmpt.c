@@ -2794,8 +2794,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         offset = 0;
         proto_tree_add_item(amf_tree, hf_amf_version, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        header_count = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(amf_tree, hf_amf_header_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(amf_tree, hf_amf_header_count, tvb, offset, 2, ENC_BIG_ENDIAN, &header_count);
         offset += 2;
         if (header_count != 0) {
                 headers_tree = proto_tree_add_subtree(amf_tree, tvb, offset, -1, ett_amf_headers, NULL, "Headers");
@@ -2817,8 +2816,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                 offset = dissect_amf0_value_type(tvb, pinfo, offset, headers_tree, &amf3_encoding, NULL);
                 }
         }
-        message_count = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(amf_tree, hf_amf_message_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(amf_tree, hf_amf_message_count, tvb, offset, 2, ENC_BIG_ENDIAN, &message_count);
         offset += 2;
         if (message_count != 0) {
                 messages_tree = proto_tree_add_subtree(amf_tree, tvb, offset, -1, ett_amf_messages, NULL, "Messages");

@@ -794,9 +794,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
             case GET_VALUE_BY_CLASS:
                 if (retcode == 0)
                 {
-                    list_len = tvb_get_ntohs(tvb, offset);
-
-                    proto_tree_add_item(tree, hf_iap_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(tree, hf_iap_list_len, tvb, offset, 2, ENC_BIG_ENDIAN, &list_len);
                     offset += 2;
 
                     while ((offset < len) && (n < list_len))

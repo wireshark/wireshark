@@ -133,7 +133,7 @@ static int hf_linx_tcp_rlnh_msg_reserved;
 static int hf_linx_tcp_payload;
 
 
-static int rlnh_version;
+static unsigned rlnh_version;
 
 static int ett_linx;
 static int ett_linx_multicore;
@@ -546,9 +546,8 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 									offset += 4;
 								break;
 							case RLNH_INIT:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+									proto_tree_add_item_ret_uint(rlnh_header_tree, hf_linx_rlnh_version, tvb, offset, 4, ENC_BIG_ENDIAN, &rlnh_version);
 									/* This is not working if nodes are at different versions. Only the latest value will be saved in rlnh_version */
-									rlnh_version = tvb_get_ntohl(tvb, offset);
 									offset += 4;
 								break;
 							case RLNH_INIT_REPLY:
@@ -928,8 +927,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 					/*offset += 4;*/
 					break;
 				case RLNH_INIT:
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_version, tvb, offset, 4, ENC_BIG_ENDIAN);
-					rlnh_version = tvb_get_ntohl(tvb, offset);
+					proto_tree_add_item_ret_uint(rlnh_header_tree, hf_linx_tcp_rlnh_version, tvb, offset, 4, ENC_BIG_ENDIAN, &rlnh_version);
 					/*offset += 4;*/
 					break;
 				case RLNH_INIT_REPLY:

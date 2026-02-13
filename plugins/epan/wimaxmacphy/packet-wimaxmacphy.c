@@ -997,8 +997,7 @@ static int dissect_wimaxmacphy_dl_sub_burst_descriptor(tvbuff_t *tvb, unsigned o
     uint8_t     sub_burst_type;
     proto_tree *subtree;
 
-    sub_burst_type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_dl_sub_burst_type,                      tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_dl_sub_burst_type,            tvb, offset, 1, ENC_BIG_ENDIAN, &sub_burst_type);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_sub_burst_number,                       tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1089,12 +1088,10 @@ static unsigned dissect_wimaxmacphy_dl_burst_descriptor(tvbuff_t *tvb, unsigned 
     proto_item *item;
     proto_tree *subtree, *opt_tree;
 
-    burst_type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_dl_burst_type,                      tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_dl_burst_type,            tvb, offset, 1, ENC_BIG_ENDIAN, &burst_type);
     offset += 1;
 
-    burst_type_extension = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_burst_type_extension,               tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_burst_type_extension,     tvb, offset, 1, ENC_BIG_ENDIAN, &burst_type_extension);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_burst_number,                       tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1241,8 +1238,7 @@ static unsigned dissect_wimaxmacphy_dl_zone_descriptor(tvbuff_t *tvb, unsigned o
     proto_item *item;
     proto_tree *subtree;
 
-    zone_type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_dl_zone_type,                          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_dl_zone_type,                tvb, offset, 1, ENC_BIG_ENDIAN, &zone_type);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_zone_number,                           tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1475,8 +1471,7 @@ static int dissect_wimaxmacphy_ul_sub_burst_descriptor(tvbuff_t *tvb, unsigned o
     proto_tree *subtree, *feedback_tree;
     unsigned    start_offset = offset;
 
-    sub_burst_type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_ul_sub_burst_type,    tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_ul_sub_burst_type, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_burst_type);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_sub_burst_number,     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1595,12 +1590,10 @@ static unsigned dissect_wimaxmacphy_ul_burst_descriptor(tvbuff_t *tvb, unsigned 
     proto_tree *subtree, *opt_tree, *pilot_patterns_tree;
     unsigned    start_offset = offset;
 
-    burst_type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_ul_burst_type,                      tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_ul_burst_type,            tvb, offset, 1, ENC_BIG_ENDIAN, &burst_type);
     offset += 1;
 
-    burst_type_extension = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_burst_type_extension,               tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_burst_type_extension,     tvb, offset, 1, ENC_BIG_ENDIAN, &burst_type_extension);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_burst_number,                       tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1867,8 +1860,7 @@ static unsigned dissect_wimaxmacphy_ul_zone_descriptor(tvbuff_t *tvb, unsigned o
     uint8_t     zone_type, burst_descriptor_count, burst;
     proto_item *item;
 
-    zone_type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_ul_zone_type,                             tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_ul_zone_type,                   tvb, offset, 1, ENC_BIG_ENDIAN, &zone_type);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_zone_number,                              tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2181,8 +2173,7 @@ static unsigned dissect_wimaxmacphy_phy_rxsdu_indication(tvbuff_t *tvb, unsigned
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_acid_for_harq_data_bursts, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    indication_type = (tvb_get_uint8(tvb, offset) >> 4) & 0x0F;
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_indication_type,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_prim_indication_type, tvb, offset, 1, ENC_BIG_ENDIAN, &indication_type);
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_zone_permutation_type,     tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_update_aas_handle_in_mac,  tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;

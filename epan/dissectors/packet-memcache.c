@@ -505,16 +505,14 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   memcache_item = proto_tree_add_item (tree, proto_memcache, tvb, offset, -1, ENC_NA);
   memcache_tree = proto_item_add_subtree (memcache_item, ett_memcache);
 
-  magic = tvb_get_uint8 (tvb, offset);
-  ti = proto_tree_add_item (memcache_tree, hf_magic, tvb, offset, 1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item_ret_uint8 (memcache_tree, hf_magic, tvb, offset, 1, ENC_BIG_ENDIAN, &magic);
   offset += 1;
 
   if (try_val_to_str (magic, magic_vals) == NULL) {
     expert_add_info_format(pinfo, ti, &ei_magic_unknown, "Unknown magic byte: %d", magic);
   }
 
-  opcode = tvb_get_uint8 (tvb, offset);
-  ti = proto_tree_add_item (memcache_tree, hf_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item_ret_uint8 (memcache_tree, hf_opcode, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode);
   offset += 1;
 
   if (try_val_to_str (opcode, opcode_vals) == NULL) {

@@ -507,8 +507,7 @@ dissect_identity_list(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
     offset += 2;
     proto_tree_add_item(id_list_tree, hf_wai_reserved_byte, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(id_list_tree, hf_wai_no_of_ids, tvb, offset, 2, ENC_BIG_ENDIAN);
-    no_of_ids = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint16(id_list_tree, hf_wai_no_of_ids, tvb, offset, 2, ENC_BIG_ENDIAN, &no_of_ids);
     offset += 2;
 
     for(i=0; i < no_of_ids; i++) {
@@ -543,8 +542,7 @@ dissect_signature_algorithm(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
     proto_tree_add_item(sa_tree, hf_wai_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    alg_name_item = proto_tree_add_item(sa_tree, hf_wai_hash_alg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    alg_id = tvb_get_uint8(tvb, offset);
+    alg_name_item = proto_tree_add_item_ret_uint8(sa_tree, hf_wai_hash_alg_id, tvb, offset, 1, ENC_BIG_ENDIAN, &alg_id);
 
     if (1 == alg_id) {
         proto_item_set_text(alg_name_item, "Algorithm Identifier: SHA-256  (0x01)");

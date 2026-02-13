@@ -3934,8 +3934,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     uint8_t paging_package_number;
 
     msg_disc = tvb_get_uint8(tvb, offset++) >> 1;
-    msg_type = tvb_get_uint8(tvb, offset) & 0x7f;
-    proto_tree_add_item(tree, hf_rsl_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_rsl_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
 
     if (msg_disc == RSL_MSGDISC_IPACCESS) {
         offset = dissct_rsl_ipaccess_msg(tvb, pinfo, tree, offset);

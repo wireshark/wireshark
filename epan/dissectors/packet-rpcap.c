@@ -592,19 +592,16 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
   ti = proto_tree_add_item (parent_tree, hf_findalldevs_if, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_findalldevs_if);
 
-  namelen = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (tree, hf_namelen, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16 (tree, hf_namelen, tvb, offset, 2, ENC_BIG_ENDIAN, &namelen);
   offset += 2;
 
-  desclen = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (tree, hf_desclen, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16 (tree, hf_desclen, tvb, offset, 2, ENC_BIG_ENDIAN, &desclen);
   offset += 2;
 
   proto_tree_add_item (tree, hf_if_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
-  naddr = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (tree, hf_naddr, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16 (tree, hf_naddr, tvb, offset, 2, ENC_BIG_ENDIAN, &naddr);
   offset += 2;
 
   proto_tree_add_item (tree, hf_dummy, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -759,19 +756,16 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   ti = proto_tree_add_item (parent_tree, hf_auth_request, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_auth_request);
 
-  type = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (tree, hf_auth_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16 (tree, hf_auth_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
   offset += 2;
 
   proto_tree_add_item (tree, hf_dummy, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  slen1 = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (tree, hf_auth_slen1, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16 (tree, hf_auth_slen1, tvb, offset, 2, ENC_BIG_ENDIAN, &slen1);
   offset += 2;
 
-  slen2 = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (tree, hf_auth_slen2, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16 (tree, hf_auth_slen2, tvb, offset, 2, ENC_BIG_ENDIAN, &slen2);
   offset += 2;
 
   if (type == RPCAP_RMTAUTH_NULL) {
@@ -1524,13 +1518,13 @@ proto_register_rpcap (void)
       { "Name length", "rpcap.namelen", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_desclen,
-      { "Description length", "rpcap.desclen", FT_UINT32, BASE_DEC,
+      { "Description length", "rpcap.desclen", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_if_flags,
       { "Interface flags", "rpcap.if.flags", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_naddr,
-      { "Number of addresses", "rpcap.naddr", FT_UINT32, BASE_DEC,
+      { "Number of addresses", "rpcap.naddr", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_if_name,
       { "Name", "rpcap.ifname", FT_STRING, BASE_NONE,

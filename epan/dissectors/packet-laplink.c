@@ -101,7 +101,7 @@ static int
 dissect_laplink_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	int length = 0;
+	unsigned length = 0;
 	proto_item *ti;
 	proto_tree *laplink_tree;
 	uint32_t tcp_ident;
@@ -122,8 +122,7 @@ dissect_laplink_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		proto_tree_add_item(laplink_tree, hf_laplink_tcp_ident, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		length = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(laplink_tree, hf_laplink_tcp_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint(laplink_tree, hf_laplink_tcp_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
 		offset += 2;
 
 		proto_tree_add_item(laplink_tree, hf_laplink_tcp_data, tvb, offset, length, ENC_NA);

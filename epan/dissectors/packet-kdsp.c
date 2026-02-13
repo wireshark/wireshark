@@ -273,8 +273,7 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   col_add_fstr(pinfo->cinfo, COL_INFO, "Command %s; ", str_command);
   col_set_fence(pinfo->cinfo, COL_INFO);
 
-  proto_tree_add_item(kdsp_tree, hf_kdsp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
-  length = tvb_get_ntohl(tvb, offset);
+  proto_tree_add_item_ret_uint(kdsp_tree, hf_kdsp_length, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
   offset += 4;
 
   switch(command)

@@ -205,13 +205,11 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     offset += 4;
 
                     /* Control packet type (1) */
-                    datatype = tvb_get_uint8(tvb, offset);
-                    proto_tree_add_item(mactelnet_control_tree, hf_mactelnet_datatype, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item_ret_uint8(mactelnet_control_tree, hf_mactelnet_datatype, tvb, offset, 1, ENC_NA, &datatype);
                     offset += 1;
 
                     /* Control packet length (4) */
-                    datalength = tvb_get_ntohl(tvb, offset);
-                    proto_tree_add_item(mactelnet_control_tree, hf_mactelnet_control_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(mactelnet_control_tree, hf_mactelnet_control_length, tvb, offset, 4, ENC_BIG_ENDIAN, &datalength);
                     offset += 4;
 
                     switch (datatype) {

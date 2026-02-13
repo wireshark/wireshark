@@ -2280,6 +2280,7 @@ def check_double_fetches(filename, contents, items, result):
             else:
                 suggest = 'proto_tree_add_item_ret_uint64'
 
+        # TODO: allow match if underscores are removed?
         if line_has_fetch_function(prev_line) and hf_name.endswith(first_prev_token) and '=' in prev_line_tokens:
             result.warn(filename, 'PREV: val=', first_prev_token, 'hfname=', hf_name,
                         'mask=', mask_value, 'type=', item_type,

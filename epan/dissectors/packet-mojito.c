@@ -472,8 +472,7 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 		proto_tree_add_item(sc_tree, hf_mojito_storestatuscode_code, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		dhtvaluelength = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(sc_tree, hf_mojito_dhtvalue_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(sc_tree, hf_mojito_dhtvalue_length, tvb, offset, 2, ENC_BIG_ENDIAN, &dhtvaluelength);
 		offset += 2;
 
 		proto_tree_add_item(sc_tree, hf_mojito_dhtvalue_value, tvb, offset, dhtvaluelength, ENC_ASCII);
@@ -487,17 +486,16 @@ static void
 dissect_mojito_find_node_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	uint8_t ii, contactcount;
-	uint8_t sectokenlen = tvb_get_uint8(tvb, offset);
+	uint8_t sectokenlen;
 	int    contact_offset;
 
-	proto_tree_add_item(tree, hf_mojito_sectokenlen, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_mojito_sectokenlen, tvb, offset, 1, ENC_BIG_ENDIAN, &sectokenlen);
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_mojito_sectoken, tvb, offset, sectokenlen, ENC_NA);
 	offset += sectokenlen;
 
-	contactcount = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_mojito_contactcount, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_mojito_contactcount, tvb, offset, 1, ENC_BIG_ENDIAN, &contactcount);
 	offset += 1;
 
 	/* For each Contact, display the info */
@@ -552,8 +550,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(tree, hf_mojito_requestload, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	dhtvaluescount = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_mojito_dhtvaluecount, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_mojito_dhtvaluecount, tvb, offset, 1, ENC_BIG_ENDIAN, &dhtvaluescount);
 	offset += 1;
 
 	/* For each Contact, display the info */

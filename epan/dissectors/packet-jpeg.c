@@ -104,11 +104,9 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_offs, tvb, offset, 3, ENC_BIG_ENDIAN);
 		fragment_offset = tvb_get_ntoh24(tvb, offset);
 		offset += 3;
-		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		type = tvb_get_uint8(tvb, offset);
+		proto_tree_add_item_ret_uint8(main_hdr_tree, hf_rtp_jpeg_main_hdr_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
 		offset += 1;
-		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_q, tvb, offset, 1, ENC_BIG_ENDIAN);
-		q = tvb_get_uint8(tvb, offset);
+		proto_tree_add_item_ret_uint8(main_hdr_tree, hf_rtp_jpeg_main_hdr_q, tvb, offset, 1, ENC_BIG_ENDIAN, &q);
 		offset += 1;
 		w = tvb_get_uint8(tvb, offset) * 8;
 		proto_tree_add_uint(main_hdr_tree, hf_rtp_jpeg_main_hdr_width, tvb, offset, 1, w);
