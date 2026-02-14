@@ -41,6 +41,22 @@ def print_git_user_instructions():
     print('  git commit --amend --reset-author --no-edit')
     print('')
 
+def print_standards():
+    print('''
+Please rewrite your commit message to our standards, matching this format:
+
+    component: a very brief summary of the change
+
+    A commit message should start with a brief summary, followed by a single
+    blank line and an optional longer description. If the change is specific to
+    a single protocol, start the summary line with the abbreviated name of the
+    protocol and a colon.
+
+    Use paragraphs to improve readability. Limit each line to 80 characters.
+
+    Finish with a trailer about possible AI involvement, in the form of
+    AI-Assisted: no|yes [tool(s)]
+''')
 
 def verify_name(name):
     name = name.lower().strip()
@@ -129,21 +145,7 @@ def verify_body(body):
         print("Warning: the subject line '%s' is longer than 80 characters." % (cleaned_subject,))
         is_good = False
     if not is_good:
-        print('''
-Please rewrite your commit message to our standards, matching this format:
-
-    component: a very brief summary of the change
-
-    A commit message should start with a brief summary, followed by a single
-    blank line and an optional longer description. If the change is specific to
-    a single protocol, start the summary line with the abbreviated name of the
-    protocol and a colon.
-
-    Use paragraphs to improve readability. Limit each line to 80 characters.
-
-    Finish with a trailer about possible AI involvement, in the form of
-    AI-Assisted: no|yes [tool(s)]
-''')
+        print_standards()
     if any(line.startswith('Bug:') or line.startswith('Ping-Bug:') for line in old_lines):
         sys.stderr.write('''
 To close an issue, use "Closes #1234" or "Fixes #1234" instead of "Bug: 1234".
@@ -183,6 +185,11 @@ for details.
             for line in diff
         ]
         print('The commit message does not follow our standards.')
+        print_standards()
+        print('Commit message:')
+        print(body.splitlines(True))
+        print('After git stripspace:')
+        print(newbody.splitlines(True))
         print('Please rewrite it (there are likely whitespace issues):')
         print('')
         print(''.join(diff))

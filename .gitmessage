@@ -1,14 +1,13 @@
 <component>[: <subcomponent>]: <imperative change summary> [issue/ref]
 
-
 # Details (what/why), wrapped at 72 columns
 # - ...
 # - ...
-
+#
 # If this fixes an issue, you can automatically close it with the
 # "Fixes" or "Closes" keywords.
 # Fixes #10000
-
+#
 AI-Assisted: no|yes [tool(s)]
 # Required: declare whether AI was used (e.g., "AI-Assisted: yes (Claude)").
 
