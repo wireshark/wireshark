@@ -1078,32 +1078,56 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
     }
 }
 
-WSLUA_FUNCTION wslua_get_filter(lua_State* L) { /* Get the main filter text. */
+WSLUA_FUNCTION wslua_get_filter(lua_State* L) { /*
+    Get the display filter from the filter toolbar.
+    This may not be the currently active display filter.
+    */
     const char *filter_str = NULL;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
     if (!ops->get_filter) {
-        WSLUA_ERROR(get_filter, "GUI not available");
+        WSLUA_ERROR(wslua_get_filter,"GUI not available");
         return 0;
     }
 
     filter_str = ops->get_filter(ops->ops_id);
     lua_pushstring(L,filter_str);
 
-    return 1;
+    WSLUA_RETURN(1); /* The display filter string in the filter toolbar. */
 }
 
-WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text. */
+WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set (Prepare) the display filter in the filter toolbar. */
 #define WSLUA_ARG_set_filter_TEXT 1 /* The filter's text. */
     const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_filter_TEXT);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
     if (!ops->set_filter) {
-        WSLUA_ERROR(set_filter, "GUI not available");
+        WSLUA_ERROR(wslua_set_filter,"GUI not available");
         return 0;
     }
 
     ops->set_filter(ops->ops_id, filter_str);
+
+    return 0;
+}
+
+WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /*
+    Apply the display filter in the filter toolbar.
+    Requires a GUI.
+
+    [WARNING]
+    ====
+    Avoid calling this from within a dissector function or else an infinite loop can occur if it causes the dissector to be called again.
+    This function is best used in a button callback (from a dialog or text window) or menu callback.
+    ====
+    */
+    const funnel_ops_t* ops = funnel_get_funnel_ops();
+    if (!ops->apply_filter) {
+        WSLUA_ERROR(wslua_apply_filter,"GUI not available");
+        return 0;
+    }
+
+    ops->apply_filter(ops->ops_id);
 
     return 0;
 }
@@ -1199,27 +1223,6 @@ WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /*
     }
 
     ops->set_color_filter_slot(row, filter_str);
-
-    return 0;
-}
-
-WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /*
-    Apply the filter in the main filter box.
-    Requires a GUI.
-
-    [WARNING]
-    ====
-    Avoid calling this from within a dissector function or else an infinite loop can occur if it causes the dissector to be called again.
-    This function is best used in a button callback (from a dialog or text window) or menu callback.
-    ====
-    */
-    const funnel_ops_t* ops = funnel_get_funnel_ops();
-    if (!ops->apply_filter) {
-        WSLUA_ERROR(apply_filter, "GUI not available");
-        return 0;
-    }
-
-    ops->apply_filter(ops->ops_id);
 
     return 0;
 }
