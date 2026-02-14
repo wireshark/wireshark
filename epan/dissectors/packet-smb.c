@@ -4279,7 +4279,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	proto_tree       *tr;
 	smb_fid_info_t   *fid_info         = NULL;
 	smb_fid_info_t   *suspect_fid_info = NULL;
-	bool              is_dir = FALSE;
+	bool              is_dir = false;
 	/* We need this to use an array-accessed tree */
 	GSList           *GSL_iterator;
 

@@ -50,8 +50,8 @@ typedef struct _smb2_fid_info_t {
 	uint32_t frame_end;
 	/* file name used to open this FID */
 	char *name;
-	gboolean is_dir;
-	gboolean delete_on_close;
+	bool is_dir;
+	bool delete_on_close;
 	uint32_t desired_access;
 	uint32_t granted_access;
 } smb2_fid_info_t;

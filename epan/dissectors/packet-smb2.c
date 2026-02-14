@@ -9236,8 +9236,8 @@ dissect_smb2_FSCTL_DFS_GET_REFERRALS_EX(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	uint16_t bc;
 	int32_t name_len;
 	int32_t data_len;
-	bool is_sitename = FALSE;
-	bool has_site_name = FALSE;
+	bool is_sitename = false;
+	bool has_site_name = false;
 	const char *name;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -9254,7 +9254,7 @@ dissect_smb2_FSCTL_DFS_GET_REFERRALS_EX(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	/* Request flags */
 	item = proto_tree_add_item(parent_tree, hf_smb2_dfs_request_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	if (tvb_get_letohs(tvb, offset)==0x00000001) {
-		has_site_name = TRUE;
+		has_site_name = true;
 		proto_item_append_text(item, " (Site name specified)");
 	} else {
 		proto_item_append_text(item, " (Site name not specified)");
@@ -9279,10 +9279,10 @@ dissect_smb2_FSCTL_DFS_GET_REFERRALS_EX(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 		if(has_site_name
 		&& data_len == name_len + 2)
-			is_sitename = TRUE;
+			is_sitename = true;
 
 		if (name_len) {
-			name = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, TRUE, &name_len, TRUE, TRUE, &bc);
+			name = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, true, &name_len, true, true, &bc);
 			if (name) {
 				if (!is_sitename) {
 					fitem = proto_tree_add_string(tree, hf_smb2_dfs_request_data_file, tvb, offset, name_len, name);
@@ -10871,10 +10871,10 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Detect if this is a directory by the create options and attributes.
 		 */
 		if ((tvb_get_letohl(tvb, offset+16) & 1) || (tvb_get_letohl(tvb, offset+4) & 10)) {
-			si->file->is_dir = TRUE;
-			is_dir = TRUE;
+			si->file->is_dir = true;
+			is_dir = true;
 		} else {
-			si->file->is_dir = FALSE;
+			si->file->is_dir = false;
 		}
 	}
 	offset = dissect_smb_access_mask(tvb, tree, offset, is_dir, 1);
@@ -10895,7 +10895,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tvb_get_letohl(tvb, offset-4) & 0x1000) {
 		col_append_str(pinfo->cinfo, COL_INFO, ", (delete on close)");
 		if (si->file)
-			si->file->delete_on_close = TRUE;
+			si->file->delete_on_close = true;
 	}
 
 	if (si->file)
