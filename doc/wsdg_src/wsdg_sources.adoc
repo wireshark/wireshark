@@ -918,8 +918,20 @@ Keep in mind that the commit's diffs will show precisely _what_ was changed.  Th
 You can also reference and close issues in a commit message by prefixing the issue number with a https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically[number sign].
 For example, “closes #5” will close issue number 5.
 
+Other https://docs.gitlab.com/user/markdown/#gitlab-specific-references[GitLab-specific references] are `!` for a merge request and the short (8 character) hash for a commit.
+
 We also ask contributors to disclose whether AI tools were used when authoring the change.
-Add a trailer such as `AI-Assisted: yes (Claude)` or `AI-Assisted: no` to commit messages and mention the same in merge requests.
+Add a trailer such as
+[source,sh]
+----
+AI-Assisted: yes (Claude)
+----
+or
+[source,sh]
+----
+AI-Assisted: no
+----
+to commit messages and mention the same in merge requests.
 This notice is adapted with thanks from the Seerr project’s AI usage statement (https://github.com/seerr-team/seerr/blob/develop/CONTRIBUTING.md).
 
 Putting all that together, we get the following example:
@@ -930,6 +942,8 @@ MIPv6: Fix dissection of Service Selection Identifier
 
 APN field is not encoded as a dotted string so the first character is not a
 length. Closes #10323.
+
+AI-Assisted: no
 ----
 
 [#ChSrcCodeRequirements]
@@ -956,9 +970,22 @@ Others are split across multiple source files and are often more suitable to be 
 In your local repository directory, there will be a __.git/hooks/__ directory, with sample git hooks for running automatic actions before and after git commands.
 You can also optionally install other hooks that you find useful.
 
-Enable the shipped Wireshark hooks without copying them by running `git config core.hooksPath tools/git_hooks`.
+Enable the shipped Wireshark hooks without copying them by running:
+--
+[source,sh]
+----
+$ git config core.hooksPath tools/git_hooks
+----
+--
 This uses the dedicated `tools/git_hooks/` directory, so other scripts in `tools/` remain untouched.
-Set the commit template with `git config commit.template .gitmessage` to include the AI-Assisted trailer automatically.
+
+To include the AI-Assisted trailer automatically, set the commit template with:
+--
+[source,sh]
+----
+$ git config commit.template .gitmessage
+----
+--
 
 The Wireshark pre-commit hook (in `tools/git_hooks/`) runs Wireshark-specific API and formatting checks and might return false positives.
 The commit-msg hook warns if the AI-Assisted trailer is missing.
@@ -1064,8 +1091,9 @@ $EDITOR "doc/Wireshark_Release_Notes.adoc"
 git commit --amend -a
 
 # Push the change to your working repository.
-git push downstream HEAD
+git push downstream +HEAD
 ----
+The `+` sign is shorthand for forcing the push (`-f`).
 
 In the GitLab web UI for creating the Merge Request, use the *Change branches* control near the top of the page to ensure that your MR is targeted at the intended release branch.  Confirm by verifying under *Commits* that only the one cherry-picked commit is selected for the merge.
 
