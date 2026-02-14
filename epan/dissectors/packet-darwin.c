@@ -21,10 +21,6 @@
 
 #include "packet-darwin-droptap-msg.h"
 
-#define PNAME  "Apple Darwin"
-#define PSNAME "Darwin"
-#define PFNAME "darwin"
-
 void proto_register_darwin(void);
 void proto_reg_handoff_darwin(void);
 
@@ -612,7 +608,7 @@ void
 proto_register_darwin(void)
 {
     /* Register the protocol name and description */
-    proto_darwin = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_darwin = proto_register_protocol("Apple Darwin", "Darwin", "darwin");
 
     register_dissector("darwin", dissect_darwin_data, proto_darwin);
 }

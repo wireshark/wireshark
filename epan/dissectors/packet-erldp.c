@@ -61,10 +61,6 @@
 #define ATOM_CACHE_REF      'R'
 #define COMPRESSED          'P'
 
-#define PNAME  "Erlang Distribution Protocol"
-#define PSNAME "ErlDP"
-#define PFNAME "erldp"
-
 void proto_register_erldp(void);
 void proto_reg_handoff_erldp(void);
 
@@ -951,7 +947,7 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   proto_item *ti;
   tvbuff_t *next_tvb = NULL;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ErlDP");
 
   ti = proto_tree_add_item(tree, proto_erldp, tvb, 0, -1, ENC_NA);
   erldp_tree = proto_item_add_subtree(ti, ett_erldp);
@@ -1375,11 +1371,11 @@ void proto_register_erldp(void) {
   };
 
   /* Register protocol and dissector */
-  proto_erldp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_erldp = proto_register_protocol("Erlang Distribution Protocol", "ErlDP", "erldp");
   reassembly_table_register(&erldp_reassembly_table,
                           &addresses_reassembly_table_functions);
 
-  erldp_handle = register_dissector(PFNAME, dissect_erldp, proto_erldp);
+  erldp_handle = register_dissector("erldp", dissect_erldp, proto_erldp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_erldp, hf, array_length(hf));

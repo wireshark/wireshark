@@ -13,9 +13,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#define PNAME  "Canon BJNP"
-#define PSNAME "BJNP"
-#define PFNAME "bjnp"
 
 #define BJNP_PORT_RANGE    "8611-8614"
 
@@ -83,7 +80,7 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   if(!g_ascii_isprint(tvb_get_uint8(tvb, 0)))
     return 0;
 
-  col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "BJNP");
   col_clear (pinfo->cinfo, COL_INFO);
 
   ti = proto_tree_add_item (tree, proto_bjnp, tvb, offset, -1, ENC_NA);
@@ -152,9 +149,9 @@ void proto_register_bjnp (void)
     &ett_bjnp
   };
 
-  proto_bjnp = proto_register_protocol (PNAME, PSNAME, PFNAME);
+  proto_bjnp = proto_register_protocol ("Canon BJNP", "BJNP", "bjnp");
 
-  bjnp_handle = register_dissector (PFNAME, dissect_bjnp, proto_bjnp);
+  bjnp_handle = register_dissector ("bjnp", dissect_bjnp, proto_bjnp);
 
   proto_register_field_array (proto_bjnp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

@@ -47,10 +47,6 @@
 
 #include <math.h>
 
-#define PNAME  "Couchbase Protocol"
-#define PSNAME "Couchbase"
-#define PFNAME "couchbase"
-
 #define COUCHBASE_DEFAULT_PORT        "11210"
 #define COUCHBASE_HEADER_LEN   24
 
@@ -3732,7 +3728,7 @@ static void dissect_frame_value(tvbuff_t *tvb,
 static int
 dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Couchbase");
   col_clear(pinfo->cinfo, COL_INFO);
 
   proto_item *couchbase_item = proto_tree_add_item(tree, proto_couchbase, tvb, 0, -1, ENC_NA);
@@ -4043,7 +4039,7 @@ proto_register_couchbase(void)
   module_t *couchbase_module;
   expert_module_t* expert_couchbase;
 
-  proto_couchbase = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_couchbase = proto_register_protocol("Couchbase Protocol", "Couchbase", "couchbase");
 
   proto_register_field_array(proto_couchbase, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

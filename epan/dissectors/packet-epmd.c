@@ -25,10 +25,6 @@
 
 #include <wsutil/strtoi.h>
 
-#define PNAME  "Erlang Port Mapper Daemon"
-#define PSNAME "EPMD"
-#define PFNAME "epmd"
-
 void proto_register_epmd(void);
 void proto_reg_handoff_epmd(void);
 
@@ -387,7 +383,7 @@ dissect_epmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if (!check_epmd(tvb))
         return 0;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPMD");
 
     ti = proto_tree_add_item(tree, proto_epmd, tvb, 0, -1, ENC_NA);
     epmd_tree = proto_item_add_subtree(ti, ett_epmd);
@@ -502,10 +498,10 @@ proto_register_epmd(void)
         &ett_epmd_node,
     };
 
-    proto_epmd = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_epmd = proto_register_protocol("Erlang Port Mapper Daemon", "EPMD", "epmd");
     proto_register_field_array(proto_epmd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    epmd_handle = register_dissector(PFNAME, dissect_epmd, proto_epmd);
+    epmd_handle = register_dissector("epmd", dissect_epmd, proto_epmd);
 
     expert_epmd = expert_register_protocol(proto_epmd);
     expert_register_field_array(expert_epmd, ei, array_length(ei));

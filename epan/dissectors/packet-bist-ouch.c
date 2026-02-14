@@ -26,9 +26,6 @@
 #include <wsutil/wmem/wmem.h>
 #include <wsutil/wmem/wmem_map.h>
 
-#define PNAME  "BIST OUCH"
-#define PSHORT "BIST-OUCH"
-#define PFILT  "bist_ouch"
 
 /* -------------------- Prefs / globals -------------------- */
 
@@ -661,7 +658,7 @@ dissect_bist_ouch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     uint32_t type;
     const char* str_type;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSHORT);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BIST-OUCH");
 
     proto_item* ti = proto_tree_add_item(tree, proto_bist_ouch, tvb, 0, -1, ENC_NA);
     proto_tree *pt = proto_item_add_subtree(ti, ett_bist_ouch);
@@ -922,7 +919,7 @@ proto_register_bist_ouch(void)
         { &ei_ob_eot_not_initial, { "bist_ouch.order.eot_not_initial", PI_PROTOCOL, PI_NOTE, "Existing Order Token differs from the initial Enter Order token (allowed now, may not be supported later)", EXPFILL } }
     };
 
-    proto_bist_ouch = proto_register_protocol(PNAME, PSHORT, PFILT);
+    proto_bist_ouch = proto_register_protocol("BIST OUCH", "BIST-OUCH", "bist_ouch");
     proto_register_field_array(proto_bist_ouch, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_module_t* expert_bist_ouch = expert_register_protocol(proto_bist_ouch);

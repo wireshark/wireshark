@@ -33,10 +33,6 @@ void proto_reg_handoff_imf(void);
 
 static int imf_eo_tap;
 
-#define PNAME  "Internet Message Format"
-#define PSNAME "IMF"
-#define PFNAME "imf"
-
 static int proto_imf;
 
 static int hf_imf_date;
@@ -743,7 +739,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   /* Want to preserve existing protocol name and show that it is carrying IMF */
   col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
   col_set_fence(pinfo->cinfo, COL_PROTOCOL);
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "IMF");
 
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1346,7 +1342,7 @@ proto_register_imf(void)
   expert_module_t* expert_imf;
   const struct imf_field *f;
 
-  proto_imf = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_imf = proto_register_protocol("Internet Message Format", "IMF", "imf");
 
   proto_register_field_array(proto_imf, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -1354,7 +1350,7 @@ proto_register_imf(void)
   expert_register_field_array(expert_imf, ei, array_length(ei));
 
   /* Allow dissector to find be found by name. */
-  imf_handle = register_dissector(PFNAME, dissect_imf, proto_imf);
+  imf_handle = register_dissector("imf", dissect_imf, proto_imf);
 
   imf_module = prefs_register_protocol(proto_imf, NULL);
   prefs_register_uat_preference(imf_module, "custom_header_fields", "Custom IMF headers",

@@ -48,10 +48,6 @@
 void proto_register_dmp(void);
 void proto_reg_handoff_dmp(void);
 
-#define PNAME  "Direct Message Profile"
-#define PSNAME "DMP"
-#define PFNAME "dmp"
-
 /* Default UDP Port Number */
 #define DEFAULT_DMP_PORT_RANGE "5031"
 
@@ -4906,9 +4902,9 @@ void proto_register_dmp (void)
   module_t *dmp_module;
   expert_module_t* expert_dmp;
 
-  proto_dmp = proto_register_protocol (PNAME, PSNAME, PFNAME);
+  proto_dmp = proto_register_protocol ("Direct Message Profile", "DMP", "dmp");
 
-  dmp_handle = register_dissector(PFNAME, dissect_dmp, proto_dmp);
+  dmp_handle = register_dissector("dmp", dissect_dmp, proto_dmp);
 
   proto_register_field_array (proto_dmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

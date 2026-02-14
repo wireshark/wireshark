@@ -25,11 +25,6 @@
 
 #include "packet-oer.h"
 
-
-#define PNAME  "Octet Encoding Rules (ASN.1)"
-#define PSNAME "OER"
-#define PFNAME "oer"
-
 void proto_register_oer(void);
 void proto_reg_handoff_oer(void);
 
@@ -1282,7 +1277,7 @@ void proto_register_oer(void) {
     expert_module_t* expert_oer;
 
     /* Register protocol */
-    proto_oer = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_oer = proto_register_protocol("Octet Encoding Rules (ASN.1)", "OER", "oer");
 
     /* Register fields and subtrees */
     proto_register_field_array(proto_oer, hf, array_length(hf));

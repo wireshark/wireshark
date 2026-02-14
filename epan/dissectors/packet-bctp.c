@@ -17,10 +17,6 @@
 
 #include <epan/packet.h>
 
-#define PNAME  "BCTP Q.1990"
-#define PSNAME "BCTP"
-#define PFNAME "bctp"
-
 void proto_register_bctp(void);
 void proto_reg_handoff_bctp(void);
 
@@ -89,7 +85,7 @@ proto_register_bctp (void)
 		&ett_bctp
 	};
 
-	proto_bctp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_bctp = proto_register_protocol("BCTP Q.1990", "BCTP", "bctp");
 	proto_register_field_array(proto_bctp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
