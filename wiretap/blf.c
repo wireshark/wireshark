@@ -3975,6 +3975,11 @@ typedef struct _blf_writer_data {
     uint64_t logcontainer_start;
     blf_blockheader_t logcontainer_block_header;
     blf_logcontainerheader_t logcontainer_header;
+
+    /* Last object header, file position and content tracked
+     in case padding is needed at end of log container*/
+    uint64_t logobject_start;
+    blf_blockheader_t logobject_block_header;
 } blf_writer_data_t;
 
 static void
@@ -4189,7 +4194,7 @@ static bool blf_dump_write_logcontainer(wtap_dumper *wdh, int *err, char **err_i
     return true;
 }
 
-static bool blf_dump_close_logcontainer(wtap_dumper *wdh, int *err, char **err_info) {
+static bool blf_dump_pad_last_object(wtap_dumper *wdh, int *err, uint8_t padding_count) {
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
     int64_t current_position = wtap_dump_file_tell(wdh, err);
@@ -4197,15 +4202,62 @@ static bool blf_dump_close_logcontainer(wtap_dumper *wdh, int *err, char **err_i
         return false;
     }
 
+    if(!blf_write_add_padding(wdh, err, padding_count)) {
+        return false;
+    }
+    current_position += padding_count;
+    writer_data->logobject_block_header.object_length += padding_count;
+
+    /* Copy out blockheader before fixing endianness */
+    blf_blockheader_t blockheader = writer_data->logobject_block_header;
+    fix_endianness_blf_blockheader(&blockheader);
+
+    int64_t tmp = wtap_dump_file_seek(wdh, writer_data->logobject_start, SEEK_SET, err);
+    if (*err != 0 || tmp != 0) {
+        return false;
+    }
+
+    if (!wtap_dump_file_write(wdh, &(blockheader), sizeof(blf_blockheader_t), err)) {
+        return false;
+    }
+
+    tmp = wtap_dump_file_seek(wdh, current_position, SEEK_SET, err);
+    if (*err != 0 || tmp != 0) {
+        return false;
+    }
+
+    return true;
+}
+
+static bool blf_dump_close_logcontainer(wtap_dumper *wdh, int *err, char **err_info) {
+    blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
+
+    int64_t current_position = wtap_dump_file_tell(wdh, err);
+    if (current_position == -1 || *err != 0) {
+        return false;
+    }
+    int64_t logcontainer_length = current_position - writer_data->logcontainer_start;
+    if (logcontainer_length < 32) {
+        *err = WTAP_ERR_INTERNAL;
+    }
+
+    /* Add padding to last object, to ensure logcontainer ends at 4 byte alignment.
+       Improves compatibility with other tools. */
+    uint8_t padding_needed = logcontainer_length % 4;
+    if (padding_needed != 0) {
+        padding_needed = 4 - padding_needed;
+        if (!blf_dump_pad_last_object(wdh, err, padding_needed)) {
+            return false;
+        }
+        logcontainer_length += padding_needed;
+        current_position += padding_needed;
+    }
+
     int64_t tmp = wtap_dump_file_seek(wdh, writer_data->logcontainer_start, SEEK_SET, err);
     if (*err != 0 || tmp != 0) {
         return false;
     }
 
-    int64_t logcontainer_length = current_position - writer_data->logcontainer_start;
-    if (logcontainer_length < 32) {
-        *err = WTAP_ERR_INTERNAL;
-    }
     writer_data->logcontainer_block_header.object_length = GUINT32_TO_LE((uint32_t)logcontainer_length);
     writer_data->logcontainer_header.uncompressed_size = GUINT32_TO_LE((uint32_t)(logcontainer_length - 32));
 
@@ -4272,6 +4324,7 @@ static bool blf_dump_check_logcontainer_full(wtap_dumper *wdh, int *err, char **
 }
 
 static bool blf_dump_objheader(wtap_dumper *wdh, int *err, uint64_t obj_timestamp, uint32_t obj_type, uint32_t obj_length) {
+    blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
     blf_logobjectheader_t logheader;
     logheader.flags = BLF_TIMESTAMP_RESOLUTION_1NS;
     logheader.client_index = 0;
@@ -4289,6 +4342,11 @@ static bool blf_dump_objheader(wtap_dumper *wdh, int *err, uint64_t obj_timestam
     blockheader.header_type = 1;
     blockheader.object_length = sizeof(blf_blockheader_t) + sizeof(blf_logobjectheader_t) + obj_length;
     blockheader.object_type = obj_type;
+
+    /* Track blockheader of object, in case padding is needed at end of log container */
+    writer_data->logobject_start = wtap_dump_file_tell(wdh, err);
+    writer_data->logobject_block_header = blockheader;
+
     fix_endianness_blf_blockheader(&blockheader);
 
     if (!wtap_dump_file_write(wdh, &(blockheader), sizeof(blf_blockheader_t), err)) {
