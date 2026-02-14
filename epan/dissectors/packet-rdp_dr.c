@@ -25,14 +25,8 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-rdpdr_smartcard.h"
 
-
-#define PNAME  "RDP disk redirection virtual channel Protocol"
-#define PSNAME "RDPDR"
-#define PFNAME "rdpdr"
-
 void proto_register_rdpdr(void);
 void proto_reg_handoff_rdpdr(void);
-
 
 static int proto_rdpdr;
 
@@ -1238,13 +1232,13 @@ void proto_register_rdpdr(void) {
 		&ett_rdpdr_capabilities,
 	};
 
-	proto_rdpdr = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_rdpdr = proto_register_protocol("RDP disk redirection virtual channel Protocol", "RDPDR", "rdpdr");
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdpdr, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector(PFNAME, dissect_rdpdr, proto_rdpdr);
+	register_dissector("rdpdr", dissect_rdpdr, proto_rdpdr);
 }
 
 void proto_reg_handoff_rdpdr(void) {

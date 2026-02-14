@@ -28,10 +28,6 @@
 #include "packet-pcap_pktdata.h"
 #include "packet-tcp.h"
 
-#define PNAME  "Remote Packet Capture"
-#define PSNAME "RPCAP"
-#define PFNAME "rpcap"
-
 #define RPCAP_MSG_ERROR               0x01
 #define RPCAP_MSG_FINDALLIF_REQ       0x02
 #define RPCAP_MSG_OPEN_REQ            0x03
@@ -1050,7 +1046,7 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
   uint16_t msg_value;
   char* str_message_type;
 
-  col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "RPCAP");
 
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1623,9 +1619,9 @@ proto_register_rpcap (void)
   module_t *rpcap_module;
   expert_module_t* expert_rpcap;
 
-  proto_rpcap = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
-  rpcap_tcp_handle = register_dissector(PFNAME ".tcp", dissect_rpcap_tcp, proto_rpcap);
+  proto_rpcap = proto_register_protocol ("Remote Packet Capture", "RPCAP", "rpcap");
+  register_dissector ("rpcap", dissect_rpcap, proto_rpcap);
+  rpcap_tcp_handle = register_dissector("rpcap.tcp", dissect_rpcap_tcp, proto_rpcap);
   expert_rpcap = expert_register_protocol(proto_rpcap);
   expert_register_field_array(expert_rpcap, ei, array_length(ei));
 

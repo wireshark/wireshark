@@ -19,14 +19,6 @@
 #include "packet-tcp.h"
 #include "packet-x509af.h"
 
-#define PNAME  "Dropbox LAN sync Protocol"
-#define PSNAME "DB-LSP"
-#define PFNAME "db-lsp"
-
-#define PNAME_DISC  "Dropbox LAN sync Discovery Protocol"
-#define PSNAME_DISC "DB-LSP-DISC"
-#define PFNAME_DISC "db-lsp-disc"
-
 #define DB_LSP_PORT  17500
 
 void proto_register_db_lsp(void);
@@ -80,8 +72,8 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   uint8_t     type, opvalue;
   uint16_t    magic, length;
 
-  col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
-  col_set_str (pinfo->cinfo, COL_INFO, PNAME);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "DB-LSP");
+  col_set_str (pinfo->cinfo, COL_INFO, "Dropbox LAN sync Protocol");
 
   db_lsp_item = proto_tree_add_item (tree, proto_db_lsp, tvb, offset, -1, ENC_NA);
   db_lsp_tree = proto_item_add_subtree (db_lsp_item, ett_db_lsp);
@@ -157,8 +149,8 @@ dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   heur_dtbl_entry_t *hdtbl_entry;
   proto_tree *data_subtree;
 
-  col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME_DISC);
-  col_set_str (pinfo->cinfo, COL_INFO, PNAME_DISC);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "DB-LSP-DISC");
+  col_set_str (pinfo->cinfo, COL_INFO, "Dropbox LAN sync Discovery Protocol");
 
   db_lsp_item = proto_tree_add_item (tree, proto_db_lsp_disc, tvb, offset, -1, ENC_NA);
   db_lsp_tree = proto_item_add_subtree (db_lsp_item, ett_db_lsp);
@@ -222,12 +214,12 @@ proto_register_db_lsp (void)
 
   module_t *db_lsp_module;
 
-  proto_db_lsp = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  proto_db_lsp_disc = proto_register_protocol (PNAME_DISC, PSNAME_DISC, PFNAME_DISC);
+  proto_db_lsp = proto_register_protocol ("Dropbox LAN sync Protocol", "DB-LSP", "db-lsp");
+  proto_db_lsp_disc = proto_register_protocol ("Dropbox LAN sync Discovery Protocol", "DB-LSP-DISC", "db-lsp-disc");
   db_lsp_tcp_handle = register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
   db_lsp_udp_handle = register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
 
-  heur_subdissector_list = register_heur_dissector_list_with_description("db-lsp", PSNAME_DISC " payload", proto_db_lsp);
+  heur_subdissector_list = register_heur_dissector_list_with_description("db-lsp", "DB-LSP-DISC payload", proto_db_lsp);
 
   proto_register_field_array (proto_db_lsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

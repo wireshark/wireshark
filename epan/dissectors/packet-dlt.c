@@ -44,14 +44,6 @@ void proto_reg_handoff_dlt(void);
 void proto_register_dlt_storage_header(void);
 void proto_reg_handoff_dlt_storage_header(void);
 
-#define PNAME                                           "DLT"
-#define PSNAME                                          "Diagnostic Log and Trace (DLT)"
-#define PFNAME                                          "dlt"
-
-#define DLT_STORAGE_HEADER_NAME                         "DLT Storage Header (short)"
-#define DLT_STORAGE_HEADER_NAME_LONG                    "Shortened Diagnostic Log and Trace (DLT) Storage Header"
-#define DLT_STORAGE_HEADER_NAME_FILTER                  "dlt.storage"
-
 #define DLT_MIN_SIZE_FOR_PARSING                        4
 
 #define DLT_HDR_TYPE_EXT_HEADER                         0x01
@@ -1098,9 +1090,9 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
 
     const uint8_t  *ecu_id = NULL;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DLT");
     col_clear(pinfo->cinfo, COL_INFO);
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", PNAME);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", "DLT");
 
     if (captured_length < DLT_MIN_SIZE_FOR_PARSING) {
         expert_dlt_buffer_too_short(tree, pinfo, tvb, offset, captured_length);
@@ -1443,7 +1435,7 @@ void proto_register_dlt(void) {
     };
 
     /* Register the protocol name and description */
-    proto_dlt = proto_register_protocol(PSNAME, PNAME, PFNAME);
+    proto_dlt = proto_register_protocol("Diagnostic Log and Trace (DLT)", "DLT", "dlt");
     dlt_handle_tcp = register_dissector("dlt_tcp", dissect_dlt_tcp, proto_dlt);
     dlt_handle_udp = register_dissector("dlt_udp", dissect_dlt_udp, proto_dlt);
     proto_register_subtree_array(ett, array_length(ett));
@@ -1483,7 +1475,7 @@ void proto_register_dlt_storage_header(void) {
     };
 
     /* Register the protocol name and description */
-    proto_dlt_storage_header = proto_register_protocol(DLT_STORAGE_HEADER_NAME_LONG, DLT_STORAGE_HEADER_NAME, DLT_STORAGE_HEADER_NAME_FILTER);
+    proto_dlt_storage_header = proto_register_protocol("Shortened Diagnostic Log and Trace (DLT) Storage Header", "DLT Storage Header", "dlt.storage");
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_dlt, hfs, array_length(hfs));
     dlt_handle_storage = register_dissector("dlt_storage", dissect_dlt_storage_header, proto_dlt_storage_header);

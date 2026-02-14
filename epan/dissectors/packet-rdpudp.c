@@ -20,10 +20,6 @@
 #include "packet-rdp.h"
 #include "packet-rdpudp.h"
 
-#define PNAME  "UDP Remote Desktop Protocol"
-#define PSNAME "RDPUDP"
-#define PFNAME "rdpudp"
-
 void proto_register_rdpudp(void);
 void proto_reg_handoff_rdpudp(void);
 
@@ -1010,7 +1006,7 @@ proto_register_rdpudp(void) {
 	};
 
 	/* Register protocol */
-	proto_rdpudp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_rdpudp = proto_register_protocol("UDP Remote Desktop Protocol", "RDPUDP", "rdpudp");
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdpudp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

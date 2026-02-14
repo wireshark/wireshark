@@ -42,10 +42,6 @@ static int hf_git_upload_pack_adv;
 static int hf_git_upload_pack_req;
 static int hf_git_upload_pack_res;
 
-#define PNAME  "Git Smart Protocol"
-#define PSNAME "Git"
-#define PFNAME "git"
-
 #define TCP_PORT_GIT    9418
 
 static const value_string packet_type_vals[] = {
@@ -172,9 +168,9 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   proto_item             *ti;
   unsigned offset = 0;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Git");
 
-  col_set_str(pinfo->cinfo, COL_INFO, PNAME);
+  col_set_str(pinfo->cinfo, COL_INFO, "Git Smart Protocol");
 
   ti = proto_tree_add_item(tree, proto_git, tvb, offset, -1, ENC_NA);
   git_tree = proto_item_add_subtree(ti, ett_git);
@@ -206,9 +202,9 @@ dissect_http_pkt_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
   unsigned offset = 0;
   unsigned total_len = 0;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Git");
 
-  col_set_str(pinfo->cinfo, COL_INFO, PNAME);
+  col_set_str(pinfo->cinfo, COL_INFO, "Git Smart Protocol");
 
   ti = proto_tree_add_item(tree, proto_git, tvb, offset, -1, ENC_NA);
   git_tree = proto_item_add_subtree(ti, ett_git);
@@ -311,14 +307,14 @@ proto_register_git(void)
   module_t *git_module;
   expert_module_t *expert_git;
 
-  proto_git = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_git = proto_register_protocol("Git Smart Protocol", "Git", "git");
   proto_register_field_array(proto_git, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
   expert_git = expert_register_protocol(proto_git);
   expert_register_field_array(expert_git, ei, array_length(ei));
 
-  git_handle = register_dissector(PFNAME, dissect_git, proto_git);
+  git_handle = register_dissector("git", dissect_git, proto_git);
 
   git_module = prefs_register_protocol(proto_git, NULL);
 
@@ -343,16 +339,16 @@ proto_reg_handoff_git(void)
   dissector_handle_t git_upload_pack_res_handle;
 
   git_upload_pack_adv_handle = create_dissector_handle_with_name_and_description(
-                        dissect_git_upload_pack_adv, proto_git, PFNAME ".http_adv",
-                        PSNAME" Advertisement");
+                        dissect_git_upload_pack_adv, proto_git, "git.http_adv",
+                        "Git Advertisement");
 
   git_upload_pack_req_handle = create_dissector_handle_with_name_and_description(
-                        dissect_git_upload_pack_req, proto_git, PFNAME ".http_req",
-                        PSNAME" Request");
+                        dissect_git_upload_pack_req, proto_git, "git.http_req",
+                        "Git Request");
 
   git_upload_pack_res_handle = create_dissector_handle_with_name_and_description(
-                        dissect_git_upload_pack_res, proto_git, PFNAME ".http_res",
-                        PSNAME" Result");
+                        dissect_git_upload_pack_res, proto_git, "git.http_res",
+                        "Git Result");
 
   dissector_add_string("media_type",
                         "application/x-git-upload-pack-advertisement",

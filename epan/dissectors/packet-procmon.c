@@ -23,10 +23,6 @@
 // - Add a preference for the maximum number of modules to display?
 // - Add a field that indicates whether or not the event writes data?
 
-#define PNAME  "MS Procmon Event"
-#define PSNAME "MS Procmon"
-#define PFNAME "procmon"
-
 void event_register_procmon(void);
 void event_reg_handoff_procmon(void);
 
@@ -2559,7 +2555,7 @@ dissect_procmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     bool handle_extra_details = false;
     tvbuff_t *details_tvb, *extra_details_tvb;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS Procmon");
     col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_INFO, "MS Procmon Event");
 
@@ -3518,7 +3514,7 @@ event_register_procmon(void)
     expert_module_t* expert_procmon;
 
     /* Register the protocol name and description */
-    proto_procmon = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_procmon = proto_register_protocol("MS Procmon Event", "MS Procmon", "procmon");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_procmon, hf, array_length(hf));

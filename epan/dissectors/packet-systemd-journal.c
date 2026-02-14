@@ -35,10 +35,6 @@
 
 #include "packet-syslog.h"
 
-#define PNAME  "systemd Journal Entry"
-#define PSNAME "systemd Journal"
-#define PFNAME "systemd_journal"
-
 void event_register_systemd_journal(void);
 void event_reg_handoff_systemd_journal(void);
 
@@ -326,7 +322,7 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree *sje_tree;
     unsigned    offset = 0, next_offset = 0;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "systemd Journal");
     col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_INFO, "Journal Entry");
 
@@ -879,7 +875,7 @@ event_register_systemd_journal(void)
     };
 
     /* Register the protocol name and description */
-    proto_systemd_journal = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_systemd_journal = proto_register_protocol("systemd Journal Entry", "systemd Journal", "systemd_journal");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_systemd_journal, hf, array_length(hf));

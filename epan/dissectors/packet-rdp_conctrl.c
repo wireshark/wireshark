@@ -16,13 +16,8 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 
-#define PNAME  "RDP Conctrl virtual channel Protocol"
-#define PSNAME "CONCTRL"
-#define PFNAME "rdp_conctrl"
-
 void proto_register_rdp_conctrl(void);
 void proto_reg_handoff_rdp_conctrl(void);
-
 
 static int proto_rdp_conctrl;
 
@@ -117,7 +112,7 @@ void proto_register_rdp_conctrl(void) {
 	};
 
 
-	proto_rdp_conctrl = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_rdp_conctrl = proto_register_protocol("RDP Conctrl virtual channel Protocol", "CONCTRL", "rdp_conctrl");
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdp_conctrl, hf, array_length(hf));

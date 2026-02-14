@@ -24,11 +24,6 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 
-#define PNAME  "SGs Application Part (SGsAP)"
-#define PSNAME "SGSAP"
-#define PFNAME "sgsap"
-
-
 void proto_register_sgsap(void);
 void proto_reg_handoff_sgsap(void);
 
@@ -1520,7 +1515,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     len = tvb_reported_length(tvb);
 
     /* Make entry in the Protocol column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGSAP");
 
     item = proto_tree_add_item(tree, proto_sgsap, tvb, 0, -1, ENC_NA);
     sgsap_tree = proto_item_add_subtree(item, ett_sgsap);
@@ -1693,7 +1688,7 @@ void proto_register_sgsap(void) {
     }
 
     /* Register protocol */
-    proto_sgsap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_sgsap = proto_register_protocol("SGs Application Part (SGsAP)", "SGSAP", "sgsap");
     /* Register fields and subtrees */
     proto_register_field_array(proto_sgsap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1701,7 +1696,7 @@ void proto_register_sgsap(void) {
     expert_register_field_array(expert_sgsap, ei, array_length(ei));
 
     /* Register dissector */
-    sgsap_handle = register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
+    sgsap_handle = register_dissector("sgsap", dissect_sgsap, proto_sgsap);
 
     /* sgsap_module = prefs_register_protocol(proto_sgsap, NULL); */
 

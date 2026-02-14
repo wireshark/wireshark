@@ -123,11 +123,6 @@ static expert_field ei_egfx_pdulen_invalid;
 static expert_field ei_egfx_invalid_compression;
 static expert_field ei_egfx_invalid_offset;
 
-
-#define PNAME  "RDP Graphic pipeline channel Protocol"
-#define PSNAME "EGFX"
-#define PFNAME "rdp_egfx"
-
 enum {
 	RDPGFX_CMDID_WIRETOSURFACE_1 		= 0x0001,
 	RDPGFX_CMDID_WIRETOSURFACE_2 		= 0x0002,
@@ -1159,7 +1154,7 @@ void proto_register_rdp_egfx(void) {
 	expert_module_t* expert_egfx;
 
 
-	proto_rdp_egfx = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_rdp_egfx = proto_register_protocol("RDP Graphic pipeline channel Protocol", "EGFX", "rdp_egfx");
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdp_egfx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

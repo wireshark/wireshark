@@ -31,10 +31,6 @@
 void proto_register_memcache (void);
 void proto_reg_handoff_memcache(void);
 
-#define PNAME  "Memcache Protocol"
-#define PSNAME "MEMCACHE"
-#define PFNAME "memcache"
-
 #define MEMCACHE_DEFAULT_RANGE  "11211"
 #define MEMCACHE_HEADER_LEN   24
 
@@ -499,7 +495,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   uint32_t    body_len, value_len;
   bool        request;
 
-  col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "MEMCACHE");
   col_clear (pinfo->cinfo, COL_INFO);
 
   memcache_item = proto_tree_add_item (tree, proto_memcache, tvb, offset, -1, ENC_NA);
@@ -836,7 +832,7 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
   }
 
   /* Columns and summary display. */
-  col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "MEMCACHE");
 
   /* If the packet is a memcache request or reply,
    * put the first line from the buffer into the summary
@@ -2095,7 +2091,7 @@ proto_register_memcache (void)
   module_t        *memcache_module;
   expert_module_t *expert_memcache;
 
-  proto_memcache = proto_register_protocol (PNAME, PSNAME, PFNAME);
+  proto_memcache = proto_register_protocol ("Memcache Protocol", "MEMCACHE", "memcache");
   memcache_tcp_handle = register_dissector ("memcache.tcp", dissect_memcache_tcp, proto_memcache);
   memcache_udp_handle = register_dissector ("memcache.udp", dissect_memcache_udp, proto_memcache);
 

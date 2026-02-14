@@ -27,14 +27,8 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-rcg.h"
 
-
-#define PNAME  "RDP authentication redirection virtual channel Protocol"
-#define PSNAME "rdpear"
-#define PFNAME "rdp_ear"
-
 void proto_register_rdp_ear(void);
 void proto_reg_handoff_rdp_ear(void);
-
 
 static int proto_rdp_ear;
 
@@ -278,7 +272,7 @@ void proto_register_rdp_ear(void) {
 		&ett_rdp_ear_innerPacket,
 	};
 
-	proto_rdp_ear = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_rdp_ear = proto_register_protocol("RDP authentication redirection virtual channel Protocol", "rdpear", "rdp_ear");
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdp_ear, hf, array_length(hf));

@@ -20,10 +20,6 @@
 void proto_register_r09(void);
 void proto_reg_handoff_r09(void);
 
-#define PNAME  "R09.x"
-#define PSNAME "R09"
-#define PFNAME "r09"
-
 static int proto_r09;
 static int hf_r09_modus;
 static int hf_r09_ty;
@@ -198,12 +194,12 @@ proto_register_r09(void)
         &ett_r09,
     };
 
-    proto_r09 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_r09 = proto_register_protocol("R09.x", "R09", "r09");
 
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_r09, hf,array_length(hf));
 
-    r09_handle = register_dissector(PFNAME, dissect_r09, proto_r09);
+    r09_handle = register_dissector("r09", dissect_r09, proto_r09);
 
 }
 

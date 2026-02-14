@@ -29,10 +29,6 @@
 
 #include <wsutil/utf8_entities.h>
 
-#define PNAME "IEEE C37.118 Synchrophasor Protocol"
-#define PSNAME "SYNCHROPHASOR"
-#define PFNAME "synphasor"
-
 /* forward references */
 void proto_register_synphasor(void);
 void proto_reg_handoff_synphasor(void);
@@ -1848,7 +1844,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		return 0;
 
 	/* write the protocol name to the info column */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SYNCHROPHASOR");
 
 	frame_type = tvb_get_uint8(tvb, 1) >> 4;
 
@@ -2339,7 +2335,7 @@ void proto_register_synphasor(void)
 	expert_module_t* expert_synphasor;
 
 	/* register protocol */
-	proto_synphasor = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_synphasor = proto_register_protocol("IEEE C37.118 Synchrophasor Protocol", "SYNCHROPHASOR", "synphasor");
 
 	/* Registering protocol to be called by another dissector */
 	synphasor_udp_handle = register_dissector("synphasor", dissect_udp, proto_synphasor);

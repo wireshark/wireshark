@@ -26,10 +26,6 @@
 #include "packet-t124.h"
 #include "packet-rdp.h"
 
-#define PNAME  "Remote Desktop Protocol"
-#define PSNAME "RDP"
-#define PFNAME "rdp"
-
 void proto_register_rdp(void);
 void proto_reg_handoff_rdp(void);
 
@@ -5543,7 +5539,7 @@ proto_register_rdp(void) {
   expert_module_t* expert_rdp;
 
   /* Register protocol */
-  proto_rdp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_rdp = proto_register_protocol("Remote Desktop Protocol", "RDP", "rdp");
   /* Register fields and subtrees */
   proto_register_field_array(proto_rdp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

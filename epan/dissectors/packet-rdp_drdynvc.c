@@ -67,10 +67,6 @@ dissector_handle_t snd_handle;
 dissector_handle_t ear_handle;
 dissector_handle_t ecam_handle;
 
-#define PNAME  "RDP Dynamic Channel Protocol"
-#define PSNAME "DRDYNVC"
-#define PFNAME "rdp_drdynvc"
-
 enum {
 	DRDYNVC_CREATE_REQUEST_PDU = 0x01,
 	DRDYNVC_DATA_FIRST_PDU = 0x02,
@@ -939,7 +935,7 @@ void proto_register_rdp_drdynvc(void) {
 		&ett_rdp_drdynvc_softsync_dvc
 	};
 
-	proto_rdp_drdynvc = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_rdp_drdynvc = proto_register_protocol("RDP Dynamic Channel Protocol", "DRDYNVC", "rdp_drdynvc");
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdp_drdynvc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

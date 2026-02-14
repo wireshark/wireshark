@@ -20,10 +20,6 @@
 void proto_register_packetlogger(void);
 void proto_reg_handoff_packetlogger(void);
 
-#define PNAME  "PacketLogger"
-#define PSNAME "PKTLOG"
-#define PFNAME "packetlogger"
-
 static int proto_packetlogger;
 
 static int hf_type;
@@ -159,7 +155,7 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
 
   bluetooth_data = (bluetooth_data_t *) data;
 
-  col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "PKTLOG");
   col_clear (pinfo->cinfo, COL_INFO);
 
   ti = proto_tree_add_item (tree, proto_packetlogger, tvb, 0, -1, ENC_NA);
@@ -249,9 +245,9 @@ void proto_register_packetlogger (void)
     &ett_syslog
   };
 
-  proto_packetlogger = proto_register_protocol (PNAME, PSNAME, PFNAME);
+  proto_packetlogger = proto_register_protocol ("PacketLogger", "PKTLOG", "packetlogger");
 
-  packetlogger_handle = register_dissector (PFNAME, dissect_packetlogger, proto_packetlogger);
+  packetlogger_handle = register_dissector ("packetlogger", dissect_packetlogger, proto_packetlogger);
 
   proto_register_field_array (proto_packetlogger, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

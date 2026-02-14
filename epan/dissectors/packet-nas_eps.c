@@ -38,8 +38,6 @@
 void proto_register_nas_eps(void);
 void proto_reg_handoff_nas_eps(void);
 
-#define PNAME  "Non-Access-Stratum (NAS)PDU"
-#define PSNAME "NAS-EPS"
 #define PFNAME "nas-eps"
 
 #define AES_KEY_LEN 16
@@ -9808,7 +9806,7 @@ proto_register_nas_eps(void)
     }
 
     /* Register protocol */
-    proto_nas_eps = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_nas_eps = proto_register_protocol("Non-Access-Stratum (NAS)PDU", "NAS-EPS", "nas-eps");
     /* Register fields and subtrees */
     proto_register_field_array(proto_nas_eps, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -9816,7 +9814,7 @@ proto_register_nas_eps(void)
     expert_register_field_array(expert_nas_eps, ei, array_length(ei));
 
     /* Register dissector */
-    register_dissector(PFNAME, dissect_nas_eps, proto_nas_eps);
+    register_dissector("nas-eps", dissect_nas_eps, proto_nas_eps);
 
     /* Backward compatibility with old filters name */
     proto_register_alias(proto_nas_eps, "nas_eps");

@@ -22,13 +22,8 @@
 
 #include "packet-rdpudp.h"
 
-#define PNAME  "RDP Program virtual channel Protocol"
-#define PSNAME "RAIL"
-#define PFNAME "rdp_rail"
-
 void proto_register_rdp_rail(void);
 void proto_reg_handoff_rdp_rail(void);
-
 
 static int proto_rdp_rail;
 
@@ -725,7 +720,7 @@ void proto_register_rdp_rail(void) {
 		&ett_rdp_rail_clientstatus_flags,
 	};
 
-	proto_rdp_rail = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_rdp_rail = proto_register_protocol("RDP Program virtual channel Protocol", "RAIL", "rdp_rail");
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdp_rail, hf, array_length(hf));

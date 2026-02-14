@@ -19,10 +19,6 @@
 #include "packet-rdp.h"
 #include "packet-rdpudp.h"
 
-#define PNAME  "Remote Desktop Protocol Multi-transport"
-#define PSNAME "RDPMT"
-#define PFNAME "rdpmt"
-
 void proto_register_rdpmt(void);
 void proto_reg_handoff_rdpmt(void);
 
@@ -190,7 +186,7 @@ proto_register_rdpmt(void) {
 	};
 
 	/* Register protocol */
-	proto_rdpmt = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_rdpmt = proto_register_protocol("Remote Desktop Protocol Multi-transport", "RDPMT", "rdpmt");
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdpmt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

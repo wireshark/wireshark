@@ -16,13 +16,8 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 
-#define PNAME  "RDP Video Capture Virtual Channel Extension"
-#define PSNAME "RDPECAM"
-#define PFNAME "rdp_ecam"
-
 void proto_register_rdp_ecam(void);
 void proto_reg_handoff_rdp_ecam(void);
-
 
 static int proto_rdp_ecam;
 
@@ -363,7 +358,7 @@ void proto_register_rdp_ecam(void) {
 	};
 
 
-	proto_rdp_ecam = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_rdp_ecam = proto_register_protocol("RDP Video Capture Virtual Channel Extension", "RDPECAM", "rdp_ecam");
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdp_ecam, hf, array_length(hf));

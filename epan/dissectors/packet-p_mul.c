@@ -42,10 +42,6 @@
 void proto_register_p_mul(void);
 void proto_reg_handoff_p_mul(void);
 
-#define PNAME  "P_Mul (ACP142)"
-#define PSNAME "P_MUL"
-#define PFNAME "p_mul"
-
 /* Recommended UDP Port Numbers */
 #define DEFAULT_P_MUL_PORT_RANGE ""
 
@@ -1555,9 +1551,9 @@ void proto_register_p_mul (void)
   module_t *p_mul_module;
   expert_module_t* expert_p_mul;
 
-  proto_p_mul = proto_register_protocol (PNAME, PSNAME, PFNAME);
+  proto_p_mul = proto_register_protocol ("P_Mul (ACP142)", "P_MUL", "p_mul");
 
-  p_mul_handle = register_dissector(PFNAME, dissect_p_mul, proto_p_mul);
+  p_mul_handle = register_dissector("p_mul", dissect_p_mul, proto_p_mul);
 
   proto_register_field_array (proto_p_mul, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

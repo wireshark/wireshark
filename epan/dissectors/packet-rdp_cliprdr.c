@@ -22,13 +22,8 @@
 
 #include "packet-rdpudp.h"
 
-#define PNAME  "RDP clipboard redirection channel Protocol"
-#define PSNAME "cliprdr"
-#define PFNAME "rdp_cliprdr"
-
 void proto_register_rdp_cliprdr(void);
 void proto_reg_handoff_rdp_cliprdr(void);
-
 
 static int proto_rdp_cliprdr;
 
@@ -479,7 +474,7 @@ void proto_register_rdp_cliprdr(void) {
 		&ett_rdp_cliprdr_format,
 	};
 
-	proto_rdp_cliprdr = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_rdp_cliprdr = proto_register_protocol("RDP clipboard redirection channel Protocol", "cliprdr", "rdp_cliprdr");
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdp_cliprdr, hf, array_length(hf));

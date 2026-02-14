@@ -27,10 +27,6 @@
 void proto_register_openvpn(void);
 void proto_reg_handoff_openvpn(void);
 
-#define PFNAME "openvpn"
-#define PNAME  "OpenVPN Protocol"
-#define PSNAME "OpenVPN"
-
 #define OPENVPN_PORT 1194
 
 /* packet opcode and key-id are combined in one byte */
@@ -184,7 +180,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
   int            wkc_offset = -1;
 
   /* Clear out stuff in the info column */
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenVPN");
   col_clear(pinfo->cinfo,COL_INFO);
 
   /* read opcode and write to info column */
@@ -579,7 +575,7 @@ proto_register_openvpn(void)
   };
   module_t *openvpn_module;
 
-  proto_openvpn = proto_register_protocol (PNAME, PSNAME, PFNAME);
+  proto_openvpn = proto_register_protocol ("OpenVPN Protocol", "OpenVPN", "openvpn");
 
   proto_register_field_array(proto_openvpn, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

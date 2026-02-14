@@ -37,6 +37,8 @@
 void proto_register_nas_5gs(void);
 void proto_reg_handoff_nas_5gs(void);
 
+#define PFNAME "nas-5gs"
+
 static bool g_nas_5gs_null_decipher;
 enum {
     DECODE_USER_DATA_AS_NONE,
@@ -53,7 +55,6 @@ static const enum_val_t nas_5gs_user_data_container_as_vals[] = {
 };
 static int g_nas_5gs_decode_user_data_container_as = DECODE_USER_DATA_AS_NONE;
 static const char *g_nas_5gs_non_ip_data_dissector = "";
-
 
 static int dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, void* data);
 static int dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
@@ -72,10 +73,6 @@ static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t non_ip_data_handle;
 static dissector_handle_t ethernet_handle;
-
-#define PNAME  "Non-Access-Stratum 5GS (NAS)PDU"
-#define PSNAME "NAS-5GS"
-#define PFNAME "nas-5gs"
 
 static int proto_json;
 
@@ -17204,7 +17201,7 @@ proto_register_nas_5gs(void)
     module_t *nas_5GS_module;
 
     /* Register protocol */
-    proto_nas_5gs = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_nas_5gs = proto_register_protocol("Non-Access-Stratum 5GS (NAS)PDU", "NAS-5GS", "nas-5gs");
     /* Register fields and subtrees */
     proto_register_field_array(proto_nas_5gs, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -17215,7 +17212,7 @@ proto_register_nas_5gs(void)
     proto_register_alias(proto_nas_5gs, "nas_5gs");
 
     /* Register dissector */
-    nas_5gs_handle = register_dissector(PFNAME, dissect_nas_5gs, proto_nas_5gs);
+    nas_5gs_handle = register_dissector("nas-5gs", dissect_nas_5gs, proto_nas_5gs);
 
     nas_5GS_module = prefs_register_protocol(proto_nas_5gs, proto_reg_handoff_nas_5gs);
 
