@@ -77,6 +77,7 @@ static int hf_qcdiag_subtype_v2;
 static int hf_qcdiag_packet_ver;
 static int hf_qcdiag_lte_rrc_rel;
 static int hf_qcdiag_nr_rrc_rel;
+static int hf_qcdiag_lte_nas_rel;
 static int hf_qcdiag_log_len;
 static int hf_qcdiag_log_more;
 static int hf_qcdiag_log_timestamp;
@@ -581,6 +582,56 @@ qcdiag_format_ver(char *s, uint32_t ver)
         snprintf(s, ITEM_LABEL_LENGTH, "%u (%u)", ver, low);
 }
 
+static void
+qcdiag_log_update_version(uint32_t offset, uint32_t version)
+{
+    field_info *fi;
+
+    if (!ti_qcdiag_ver) return;
+
+    /* Set the item visible before updating it */
+    proto_item_set_visible(ti_qcdiag_ver);
+
+    fi = PNODE_FINFO(ti_qcdiag_ver);
+    if (!fi) return;
+
+    if (version <= 0xFF) {
+        fi->length = 1;
+    } else if (version > 0xFF) {
+        fi->hfinfo = proto_registrar_get_nth(hf_qcdiag_ver_4);
+        fi->length = 4;
+    }
+
+    /* Set the actual offset */
+    fi->start = offset;
+
+    /* Set the actual version */
+    fvalue_set_uinteger(fi->value, version);
+}
+
+static void
+dissect_qcdiag_log_set_col(packet_info *pinfo, uint32_t gsmtap_type)
+{
+    const char *str;
+
+    str = val_to_str(pinfo->pool, gsmtap_type, gsmtap_types, "Unknown GSMTAP type (%d)");
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSMTAP");
+    col_set_str(pinfo->cinfo, COL_INFO, str);
+}
+
+static void
+dissect_qcdiag_log_append_text(proto_tree *log_tree, proto_tree *tree, bool direction)
+{
+    proto_item *ti;
+
+    ti = proto_tree_get_parent(log_tree);
+    proto_item_append_text(ti, " (%s)", tfs_get_string(direction, &tfs_uplink_downlink));
+
+    ti = proto_tree_get_parent(tree);
+    proto_item_append_text(ti, " (%s)", tfs_get_string(direction, &tfs_uplink_downlink));
+}
+
 static uint32_t
 get_lte_rrc_subtype(uint32_t pkt_ver, uint32_t pdu)
 {
@@ -632,13 +683,11 @@ get_lte_rrc_subtype(uint32_t pkt_ver, uint32_t pdu)
 static void
 dissect_qcdiag_log_wcdma(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
 {
-    proto_item *ti;
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb;
     uint32_t ct_offset, chan_type, subtype, uplink;
     uint32_t arfcn_val;
     int hf_rrc_ct, hf_qcdiag_subtype;
     uint8_t *gsmtap_hdr_bytes;
-    const char *str;
 
     uint32_t arfcn[] = { 0, 0 };
 
@@ -768,18 +817,8 @@ dissect_qcdiag_log_wcdma(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_
     tvb_composite_append(gsmtap_tvb, payload_tvb);
     tvb_composite_finalize(gsmtap_tvb);
 
-    str = val_to_str(pinfo->pool, GSMTAP_TYPE_UMTS_RRC, gsmtap_types, "Unknown GSMTAP type (%d)");
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSMTAP");
-    col_set_str(pinfo->cinfo, COL_INFO, str);
-
-    if (uplink == 0 || uplink == 1) {
-        ti = proto_tree_get_parent(log_tree);
-        proto_item_append_text(ti, " (%s)", tfs_get_string(uplink, &tfs_uplink_downlink));
-
-        ti = proto_tree_get_parent(tree);
-        proto_item_append_text(ti, " (%s)", tfs_get_string(uplink, &tfs_uplink_downlink));
-    }
+    dissect_qcdiag_log_set_col(pinfo, GSMTAP_TYPE_UMTS_RRC);
+    dissect_qcdiag_log_append_text(log_tree, tree, (bool)uplink);
 
     add_new_data_source(pinfo, gsmtap_tvb, "UMTS RRC");
     try_call_dissector(gsmtap_handle, gsmtap_tvb, pinfo, proto_tree_get_parent_tree(tree));
@@ -788,12 +827,10 @@ dissect_qcdiag_log_wcdma(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_
 static void
 dissect_qcdiag_log_rr(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
 {
-    proto_item *ti;
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb, *lapdm_tvb;
     uint32_t channel_type_dir, channel_type, length;
     uint8_t *gsmtap_hdr_bytes, *lapdm_bytes;
     bool direction;
-    const char *str;
 
     uint32_t arfcn[] = { 0, 0 };
 
@@ -870,16 +907,8 @@ dissect_qcdiag_log_rr(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tre
     tvb_composite_append(gsmtap_tvb, payload_tvb);
     tvb_composite_finalize(gsmtap_tvb);
 
-    str = val_to_str(pinfo->pool, GSMTAP_TYPE_UM, gsmtap_types, "Unknown GSMTAP type (%d)");
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSMTAP");
-    col_set_str(pinfo->cinfo, COL_INFO, str);
-
-    ti = proto_tree_get_parent(log_tree);
-    proto_item_append_text(ti, " (%s)", tfs_get_string(direction, &tfs_uplink_downlink));
-
-    ti = proto_tree_get_parent(tree);
-    proto_item_append_text(ti, " (%s)", tfs_get_string(direction, &tfs_uplink_downlink));
+    dissect_qcdiag_log_set_col(pinfo, GSMTAP_TYPE_UM);
+    dissect_qcdiag_log_append_text(log_tree, tree, direction);
 
     add_new_data_source(pinfo, gsmtap_tvb, "GSM RR");
     try_call_dissector(gsmtap_handle, gsmtap_tvb, pinfo, proto_tree_get_parent_tree(tree));
@@ -888,14 +917,12 @@ dissect_qcdiag_log_rr(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tre
 static void
 dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
 {
-    proto_item *ti;
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb, *mac_hdr_tvb;
     uint32_t channel_type_dir, channel_type, length;
     uint8_t *gsmtap_hdr_bytes, *mac_hdr_bytes;
     uint8_t mac_hdr_dl_payload_type, mac_hdr_dl_rrbp, mac_hdr_dl_sp, mac_hdr_dl_usf;
     uint8_t mac_hdr_ul_payload_type, mac_hdr_ul_retry;
     bool direction;
-    const char *str;
 
     uint32_t arfcn[] = { 0, 0 };
 
@@ -1011,16 +1038,8 @@ dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
     tvb_composite_append(gsmtap_tvb, payload_tvb);
     tvb_composite_finalize(gsmtap_tvb);
 
-    str = val_to_str(pinfo->pool, GSMTAP_TYPE_UM, gsmtap_types, "Unknown GSMTAP type (%d)");
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSMTAP");
-    col_set_str(pinfo->cinfo, COL_INFO, str);
-
-    ti = proto_tree_get_parent(log_tree);
-    proto_item_append_text(ti, " (%s)", tfs_get_string(direction, &tfs_uplink_downlink));
-
-    ti = proto_tree_get_parent(tree);
-    proto_item_append_text(ti, " (%s)", tfs_get_string(direction, &tfs_uplink_downlink));
+    dissect_qcdiag_log_set_col(pinfo, GSMTAP_TYPE_UM);
+    dissect_qcdiag_log_append_text(log_tree, tree, direction);
 
     add_new_data_source(pinfo, gsmtap_tvb, "GPRS MAC");
     try_call_dissector(gsmtap_handle, gsmtap_tvb, pinfo, proto_tree_get_parent_tree(tree));
@@ -1029,11 +1048,9 @@ dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
 static void
 dissect_qcdiag_log_umts_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
 {
-    proto_item *ti;
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb;
     bool direction;
     uint8_t *gsmtap_hdr_bytes;
-    const char *str;
 
     /* Direction */
     proto_tree_add_item_ret_boolean(log_tree, hf_qcdiag_nas_direction, tvb, offset, 1, ENC_NA, &direction);
@@ -1059,16 +1076,8 @@ dissect_qcdiag_log_umts_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
     tvb_composite_append(gsmtap_tvb, payload_tvb);
     tvb_composite_finalize(gsmtap_tvb);
 
-    str = val_to_str(pinfo->pool, GSMTAP_TYPE_ABIS, gsmtap_types, "Unknown GSMTAP type (%d)");
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSMTAP");
-    col_set_str(pinfo->cinfo, COL_INFO, str);
-
-    ti = proto_tree_get_parent(log_tree);
-    proto_item_append_text(ti, " (%s)", tfs_get_string(direction, &tfs_uplink_downlink));
-
-    ti = proto_tree_get_parent(tree);
-    proto_item_append_text(ti, " (%s)", tfs_get_string(direction, &tfs_uplink_downlink));
+    dissect_qcdiag_log_set_col(pinfo, GSMTAP_TYPE_ABIS);
+    dissect_qcdiag_log_append_text(log_tree, tree, direction);
 
     add_new_data_source(pinfo, gsmtap_tvb, "UMTS NAS");
     try_call_dissector(gsmtap_handle, gsmtap_tvb, pinfo, proto_tree_get_parent_tree(tree));
@@ -1077,33 +1086,32 @@ dissect_qcdiag_log_umts_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
 static void
 dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
 {
-    proto_item *ti;
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb;
     uint8_t *gsmtap_hdr_bytes;
-    uint32_t version, sfn, pdu, uplink, subtype, arfcn, earfcn, frame_nr;
-    uint32_t lte_rnum, lte_rmajmin, nr_rnum, nr_rmajmin;
-    const char *str;
+    uint32_t version, sfn, pdu, subtype, arfcn, earfcn, frame_nr;
+    uint8_t lte_rnum, lte_rmajmin, nr_rnum, nr_rmajmin;
+    bool direction;
 
     /* Packet Version */
     proto_tree_add_item_ret_uint(log_tree, hf_qcdiag_packet_ver, tvb, offset, 1, ENC_NA, &version);
     offset += 1;
 
-    lte_rnum    = (uint32_t)tvb_get_uint8(tvb, offset);
-    lte_rmajmin = (uint32_t)tvb_get_uint8(tvb, offset+1);
+    lte_rnum    = tvb_get_uint8(tvb, offset);
+    lte_rmajmin = tvb_get_uint8(tvb, offset+1);
 
     /* LTE Release Number */
     proto_tree_add_string_format_value(log_tree, hf_qcdiag_lte_rrc_rel, tvb, offset, 2,
-        "LTE RRC Release", "LTE RRC Release: %u.%u.%u", lte_rnum, lte_rmajmin / 16, lte_rmajmin % 16);
+        "LTE RRC Release", "%u.%u.%u", lte_rnum, lte_rmajmin / 16, lte_rmajmin % 16);
     offset += 2;
 
 
     if (version > 24) {
-        nr_rnum    = (uint32_t)tvb_get_uint8(tvb, offset);
-        nr_rmajmin = (uint32_t)tvb_get_uint8(tvb, offset+1);
+        nr_rnum    = tvb_get_uint8(tvb, offset);
+        nr_rmajmin = tvb_get_uint8(tvb, offset+1);
 
         /* NR Release Number */
         proto_tree_add_string_format_value(log_tree, hf_qcdiag_nr_rrc_rel, tvb, offset, 2,
-            "NR RRC Release", "NR RRC Release: %u.%u.%u", nr_rnum, nr_rmajmin / 16, nr_rmajmin % 16);
+            "NR RRC Release", "%u.%u.%u", nr_rnum, nr_rmajmin / 16, nr_rmajmin % 16);
         offset += 2;
     }
 
@@ -1148,13 +1156,16 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
 
     subtype = get_lte_rrc_subtype(version, pdu);
 
-    uplink = (uint32_t)(subtype == UL_CCCH ||
-                        subtype == UL_DCCH ||
-                        subtype == UL_CCCH_NB ||
-                        subtype == UL_DCCH_NB);
+    /* Uplink */
+    direction = (subtype == UL_CCCH ||
+                 subtype == UL_DCCH ||
+                 subtype == UL_CCCH_NB ||
+                 subtype == UL_DCCH_NB);
 
-    arfcn  = (earfcn > ((1 << 14) - 1)) ? 0 : earfcn;
-    arfcn += (uplink << 14);
+    arfcn = (earfcn >= GSMTAP_ARFCN_F_UPLINK) ? 0 : earfcn;
+
+    if (direction)
+        arfcn = arfcn | GSMTAP_ARFCN_F_UPLINK;
 
     frame_nr = (sfn & 0xfff0) >> 4;
 
@@ -1181,18 +1192,73 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
     tvb_composite_append(gsmtap_tvb, payload_tvb);
     tvb_composite_finalize(gsmtap_tvb);
 
-    str = val_to_str(pinfo->pool, GSMTAP_TYPE_LTE_RRC, gsmtap_types, "Unknown GSMTAP type (%d)");
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSMTAP");
-    col_set_str(pinfo->cinfo, COL_INFO, str);
-
-    ti = proto_tree_get_parent(log_tree);
-    proto_item_append_text(ti, " (%s)", tfs_get_string(uplink, &tfs_uplink_downlink));
-
-    ti = proto_tree_get_parent(tree);
-    proto_item_append_text(ti, " (%s)", tfs_get_string(uplink, &tfs_uplink_downlink));
+    dissect_qcdiag_log_set_col(pinfo, GSMTAP_TYPE_LTE_RRC);
+    dissect_qcdiag_log_append_text(log_tree, tree, direction);
 
     add_new_data_source(pinfo, gsmtap_tvb, "LTE RRC");
+    try_call_dissector(gsmtap_handle, gsmtap_tvb, pinfo, proto_tree_get_parent_tree(tree));
+}
+
+static void
+dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree, bool plain)
+{
+    tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb;
+    uint32_t version, arfcn;
+    uint8_t *gsmtap_hdr_bytes;
+    uint8_t msgtype, lte_maj, lte_min, lte_patch;
+    bool direction;
+
+    /* Version */
+    version = tvb_get_uint8(tvb, offset);
+    qcdiag_log_update_version(offset, version);
+    offset += 1;
+
+    lte_maj   = tvb_get_uint8(tvb, offset);
+    lte_min   = tvb_get_uint8(tvb, offset+1);
+    lte_patch = tvb_get_uint8(tvb, offset+2);
+
+    /* Release Version */
+    proto_tree_add_string_format_value(log_tree, hf_qcdiag_lte_nas_rel, tvb, offset, 3,
+        "Release Version", "%u.%u.%u", lte_maj, lte_min, lte_patch);
+    offset += 3;
+
+    /* Message Type */
+    msgtype = tvb_get_uint8(tvb, offset+1);
+
+    /* Uplink */
+    direction = (msgtype == 0x41 ||  /* Attach request */
+                 msgtype == 0x45 ||  /* Detach request */
+                 msgtype == 0x48 ||  /* Tracking area update request */
+                 msgtype == 0x4c ||  /* Extended service request */
+                 msgtype == 0x4d ||  /* Control plane service request */
+                 msgtype == 0x52 ||  /* Authentication request */
+                 msgtype == 0x55 ||  /* Identity request */
+                 msgtype == 0x63 ||  /* Uplink NAS transport */
+                 msgtype == 0x69);   /* Uplink generic NAS transport */
+
+    arfcn = (direction) ? GSMTAP_ARFCN_F_UPLINK : 0;
+
+    payload_tvb = tvb_new_subset_remaining(tvb, offset);
+
+    gsmtap_hdr_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 16);
+
+    gsmtap_hdr_bytes[GSMTAP_HDR_VERSION]  = 0x02;
+    gsmtap_hdr_bytes[GSMTAP_HDR_HDR_LEN]  = 0x04;
+    gsmtap_hdr_bytes[GSMTAP_HDR_TYPE]     = GSMTAP_TYPE_LTE_NAS;
+    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_4]  = arfcn >> 8;
+    gsmtap_hdr_bytes[GSMTAP_HDR_SUB_TYPE] = !plain;
+
+    gsmtap_hdr_tvb = tvb_new_real_data(gsmtap_hdr_bytes, 16, 16);
+
+    gsmtap_tvb = tvb_new_composite();
+    tvb_composite_append(gsmtap_tvb, gsmtap_hdr_tvb);
+    tvb_composite_append(gsmtap_tvb, payload_tvb);
+    tvb_composite_finalize(gsmtap_tvb);
+
+    dissect_qcdiag_log_set_col(pinfo, GSMTAP_TYPE_LTE_NAS);
+    dissect_qcdiag_log_append_text(log_tree, tree, direction);
+
+    add_new_data_source(pinfo, gsmtap_tvb, "LTE NAS");
     try_call_dissector(gsmtap_handle, gsmtap_tvb, pinfo, proto_tree_get_parent_tree(tree));
 }
 
@@ -1327,6 +1393,22 @@ dissect_qcdiag_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
     case 0xb0c0:
         dissect_qcdiag_log_lte_rrc(tvb, offset, pinfo, diag_log_tree, tree);
         break;
+    case 0xb0e0:
+    case 0xb0e1:
+        dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, false);
+        break;
+    case 0xb0e2:
+    case 0xb0e3:
+        dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, true);
+        break;
+    case 0xb0ea:
+    case 0xb0eb:
+        dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, false);
+        break;
+    case 0xb0ec:
+    case 0xb0ed:
+        dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, true);
+        break;
     default:
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         dissector_try_uint(qcdiag_log_code_dissector_table, code, payload_tvb, pinfo, diag_log_tree);
@@ -1342,10 +1424,10 @@ proto_register_qcdiag_log(void)
     static hf_register_info hf[] = {
         { &hf_qcdiag_ver,
           { "Version", "qcdiag_log.ver",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(qcdiag_format_ver), 0, NULL, HFILL }},
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(qcdiag_format_ver), 0, "Log Code Version", HFILL }},
         { &hf_qcdiag_ver_4,
           { "Version", "qcdiag_log.ver",
-            FT_UINT32, BASE_CUSTOM, CF_FUNC(qcdiag_format_ver), 0, NULL, HFILL }},
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(qcdiag_format_ver), 0, "Log Code Version", HFILL }},
         { &hf_qcdiag_log_len,
           { "Log Message Length", "qcdiag_log.length",
             FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL } },
@@ -1376,12 +1458,6 @@ proto_register_qcdiag_log(void)
         { &hf_qcdiag_packet_ver,
           { "Packet Version", "qcdiag_log.pkt_ver",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_qcdiag_lte_rrc_rel,
-          { "LTE RRC Release", "qcdiag_log.lte_rrc_rel",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_qcdiag_nr_rrc_rel,
-          { "NR RRC Release", "qcdiag_log.nr_rrc_rel",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_qcdiag_msg_len_1,
           { "Message Length", "qcdiag_log.msg_len",
             FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL } },
@@ -1434,6 +1510,12 @@ proto_register_qcdiag_log(void)
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 
         /* LTE RRC */
+        { &hf_qcdiag_lte_rrc_rel,
+          { "LTE RRC Release", "qcdiag_log.lte_rrc_rel",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_rel,
+          { "NR RRC Release", "qcdiag_log.nr_rrc_rel",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_qcdiag_lte_rrc_rb_id,
           {"Radio Bearer Id", "qcdiag_log.lte_rrc.rb_id",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -1455,6 +1537,11 @@ proto_register_qcdiag_log(void)
         { &hf_qcdiag_lte_rrc_sib,
           { "SIB Mask in SI", "qcdiag_log.lte_rrc.sib",
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+
+        /* LTE NAS */
+        { &hf_qcdiag_lte_nas_rel,
+          { "Release Version", "qcdiag_log.lte_nas_rel",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     };
 
     int *ett[] = {

@@ -50,6 +50,14 @@
 #define LOG_CODE_GPRS_MAC_SIGNALING    0x5226
 #define LOG_CODE_UMTS_RRC_OTA          0x713a
 #define LOG_CODE_LTE_RRC_OTA           0xb0c0
+#define LOG_CODE_LTE_NAS_ESM_SEC_IN    0xb0e0
+#define LOG_CODE_LTE_NAS_ESM_SEC_OUT   0xb0e1
+#define LOG_CODE_LTE_NAS_ESM_PLAIN_IN  0xb0e2
+#define LOG_CODE_LTE_NAS_ESM_PLAIN_OUT 0xb0e3
+#define LOG_CODE_LTE_NAS_EMM_SEC_IN    0xb0ea
+#define LOG_CODE_LTE_NAS_EMM_SEC_OUT   0xb0eb
+#define LOG_CODE_LTE_NAS_EMM_PLAIN_IN  0xb0ec
+#define LOG_CODE_LTE_NAS_EMM_PLAIN_OUT 0xb0ed
 
 void proto_register_qcdiag(void);
 void proto_reg_handoff_qcdiag(void);
@@ -380,14 +388,22 @@ static const value_string qcdiag_subsys[] = {
 static value_string_ext qcdiag_subsys_ext = VALUE_STRING_EXT_INIT(qcdiag_subsys);
 
 static const value_string qcdiag_logcodes[] = {
-    { LOG_CODE_1X_DIAG_REQUEST,     "Diagnostic Request" },
-    { LOG_CODE_1X_DIAG_RES_STATUS,  "Diagnostic Response Status" },
-    { LOG_CODE_1X_EVENT,            "Event" },
-    { LOG_CODE_WCDMA_SIGNALING_MSG, "WCDMA Signaling Messages" },
-    { LOG_CODE_RR_SIGNALING,        "GSM RR Signaling Message" },
-    { LOG_CODE_GPRS_MAC_SIGNALING,  "GPRS MAC Signaling Message" },
-    { LOG_CODE_UMTS_RRC_OTA,        "UMTS NAS OTA" },
-    { LOG_CODE_LTE_RRC_OTA,         "LTE RRC OTA" },
+    { LOG_CODE_1X_DIAG_REQUEST,       "Diagnostic Request" },
+    { LOG_CODE_1X_DIAG_RES_STATUS,    "Diagnostic Response Status" },
+    { LOG_CODE_1X_EVENT,              "Event" },
+    { LOG_CODE_WCDMA_SIGNALING_MSG,   "WCDMA Signaling Messages" },
+    { LOG_CODE_RR_SIGNALING,          "GSM RR Signaling Message" },
+    { LOG_CODE_GPRS_MAC_SIGNALING,    "GPRS MAC Signaling Message" },
+    { LOG_CODE_UMTS_RRC_OTA,          "UMTS NAS OTA" },
+    { LOG_CODE_LTE_RRC_OTA,           "LTE RRC OTA" },
+    { LOG_CODE_LTE_NAS_ESM_SEC_IN,    "LTE NAS ESM Security Protected Incoming Message" },
+    { LOG_CODE_LTE_NAS_ESM_SEC_OUT,   "LTE NAS ESM Security Protected Outgoing Message" },
+    { LOG_CODE_LTE_NAS_ESM_PLAIN_IN,  "LTE NAS ESM Plain OTA Incoming Message" },
+    { LOG_CODE_LTE_NAS_ESM_PLAIN_OUT, "LTE NAS ESM Plain OTA Outgoing Message" },
+    { LOG_CODE_LTE_NAS_EMM_SEC_IN,    "LTE NAS EMM Security Protected Incoming Message" },
+    { LOG_CODE_LTE_NAS_EMM_SEC_OUT,   "LTE NAS EMM Security Protected Outgoing Message" },
+    { LOG_CODE_LTE_NAS_EMM_PLAIN_IN,  "LTE NAS EMM Plain OTA Incoming Message" },
+    { LOG_CODE_LTE_NAS_EMM_PLAIN_OUT, "LTE NAS EMM Plain OTA Outgoing Message" },
     { 0, NULL }
 };
 
