@@ -235,6 +235,11 @@ static int hf_capwap_msg_element_type_wtp_reboot_statistics_other_failure_count;
 static int hf_capwap_msg_element_type_wtp_reboot_statistics_unknown_failure_count;
 static int hf_capwap_msg_element_type_wtp_reboot_statistics_last_failure_type;
 
+static int hf_capwap_msg_element_type_wtp_static_ip_address_information_ip_address;
+static int hf_capwap_msg_element_type_wtp_static_ip_address_information_netmask;
+static int hf_capwap_msg_element_type_wtp_static_ip_address_information_gateway;
+static int hf_capwap_msg_element_type_wtp_static_ip_address_information_static;
+
 static int hf_capwap_msg_element_type_capwap_local_ipv6_address;
 
 static int hf_capwap_msg_element_type_capwap_transport_protocol;
@@ -2598,6 +2603,17 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_reboot_statistics_last_failure_type, tvb, offset+18, 1, ENC_BIG_ENDIAN);
         break;
 
+    case TYPE_WTP_STATIC_IP_ADDRESS_INFORMATION: /* WTP Static IP Address Information (49) */
+        if (optlen != 13) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "WTP Static IP Address Information length %u wrong, must be = 13", optlen);
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_static_ip_address_information_ip_address, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_static_ip_address_information_netmask, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_static_ip_address_information_gateway, tvb, offset+12, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_static_ip_address_information_static, tvb, offset+16, 1, ENC_BIG_ENDIAN);
+        break;
+
     case TYPE_CAPWAP_LOCAL_IPV6_ADDRESS: /* CAPWAP Local IPv6 Address (50) */
         if (optlen != 16) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
@@ -4246,6 +4262,27 @@ proto_register_capwap_control(void)
             { "Last Failure Type", "capwap.control.message_element.wtp_reboot_statistics.last_failure_type",
               FT_UINT8, BASE_DEC, VALS(last_failure_type_vals), 0x0,
               "The failure type of the most recent WTP failure", HFILL }
+        },
+
+        { &hf_capwap_msg_element_type_wtp_static_ip_address_information_ip_address,
+            { "IP Address", "capwap.control.message_element.wtp_static_ip_address_information.ip_address",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              "The static IP address of the WTP", HFILL }
+        },
+        { &hf_capwap_msg_element_type_wtp_static_ip_address_information_netmask,
+            { "Netmask", "capwap.control.message_element.wtp_static_ip_address_information.netmask",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              "The IP Netmask", HFILL }
+        },
+        { &hf_capwap_msg_element_type_wtp_static_ip_address_information_gateway,
+            { "Gateway", "capwap.control.message_element.wtp_static_ip_address_information.gateway",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              "The default gateway associated with the WTP's static IP address", HFILL }
+        },
+        { &hf_capwap_msg_element_type_wtp_static_ip_address_information_static,
+            { "Static", "capwap.control.message_element.wtp_static_ip_address_information.static",
+              FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
+              "Whether WTP should use a static IP address (1=enabled, 0=disabled)", HFILL }
         },
 
         { &hf_capwap_msg_element_type_capwap_local_ipv6_address,
