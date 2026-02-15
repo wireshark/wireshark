@@ -62,14 +62,14 @@ static int ett_tcpros;
  * here: http://wiki.ros.org/ROS/TCPROS
  * In short, a connection header looks like such: '4-byte length + [4-byte field length + "field=value" ]*'
  */
-static int
-dissect_ros_connection_header_field(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+static unsigned
+dissect_ros_connection_header_field(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset)
 {
 	proto_item *ti;
 	proto_tree *field_tree;
 
 	uint32_t fLen = 0;
-	int   sep, ret = 0;
+	unsigned   sep, ret = 0;
 
 	/** Do we have enough for a length field? (ie: 4 bytes) */
 	if( tvb_reported_length_remaining(tvb, offset) > SIZE_OF_LENGTH_FIELD ) {
@@ -86,10 +86,11 @@ dissect_ros_connection_header_field(tvbuff_t *tvb, proto_tree *tree, packet_info
 		ti = proto_tree_add_item(field_tree, hf_tcpros_connection_header_field_data, tvb, offset, fLen, ENC_UTF_8);
 
 		/** Look for the '=' separator */
-		sep = (tvb_find_uint8(tvb, offset, fLen, '=') - offset);
+		bool sep_found = tvb_find_uint8_length(tvb, offset, fLen, '=', &sep);
+		sep = sep - offset;
 
 		/** If we find a separator, then split field name and value */
-		if( sep > 0 ) {
+		if((sep_found == false) ||( sep > 0 )) {
 			const char* field;
 			field_tree = proto_item_add_subtree(ti, ett_tcpros);
 			proto_tree_add_item_ret_string(field_tree, hf_tcpros_connection_header_field_name, tvb, offset, sep, ENC_UTF_8|ENC_NA, pinfo->pool, (const uint8_t**)&field);
@@ -103,13 +104,13 @@ dissect_ros_connection_header_field(tvbuff_t *tvb, proto_tree *tree, packet_info
 	return ret;
 }
 
-static int
-dissect_ros_connection_header(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, int offset)
+static unsigned
+dissect_ros_connection_header(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, unsigned offset)
 {
 	proto_item *ti;
 	proto_tree *sub_tree;
 
-	int consumed_len = 0;
+	unsigned consumed_len = 0;
 	uint32_t header_len = tvb_get_letohl(tvb, offset);
 
 	col_append_str(pinfo->cinfo, COL_INFO, "[ROS Conn] Metadata: [");
@@ -126,13 +127,13 @@ dissect_ros_connection_header(tvbuff_t *tvb, proto_tree *root_tree, packet_info 
 
 	header_len += SIZE_OF_LENGTH_FIELD;
 
-	while( consumed_len < (int)header_len ) {
-		int len = dissect_ros_connection_header_field(tvb, sub_tree, pinfo, offset + consumed_len);
+	while( consumed_len < header_len ) {
+		unsigned len = dissect_ros_connection_header_field(tvb, sub_tree, pinfo, offset + consumed_len);
 		consumed_len += len;
 		if( len == 0 ) {
 			break;
 		}
-		if( consumed_len < (int)header_len ) {
+		if( consumed_len < header_len ) {
 			col_append_str(pinfo->cinfo, COL_INFO, ",");
 		}
 	}
@@ -142,13 +143,13 @@ dissect_ros_connection_header(tvbuff_t *tvb, proto_tree *root_tree, packet_info 
 }
 
 
-static int
-dissect_ros_message_header_stamp(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, int offset)
+static unsigned
+dissect_ros_message_header_stamp(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, unsigned offset)
 {
 	proto_item *ti;
 	proto_tree *sub_tree;
 
-	int consumed_len = 0;
+	unsigned consumed_len = 0;
 	uint32_t sec, nsec;
 
 	ti = proto_tree_add_item(root_tree, hf_tcpros_message_header_stamp, tvb, offset + consumed_len, SIZE_OF_LENGTH_STAMP, ENC_LITTLE_ENDIAN);
@@ -170,13 +171,13 @@ dissect_ros_message_header_stamp(tvbuff_t *tvb, proto_tree *root_tree, packet_in
 	return consumed_len;
 }
 
-static int
-dissect_ros_clock(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, int offset)
+static unsigned
+dissect_ros_clock(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, unsigned offset)
 {
 	proto_item *ti;
 	proto_tree *sub_tree;
 
-	int consumed_len = 0;
+	unsigned consumed_len = 0;
 
 	col_append_str(pinfo->cinfo, COL_INFO, "[ROS Clock] ");
 
@@ -192,13 +193,13 @@ dissect_ros_clock(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, int 
 	return consumed_len;
 }
 
-static int
-dissect_ros_message_header(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, int offset)
+static unsigned
+dissect_ros_message_header(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, unsigned offset)
 {
 	proto_item *ti;
 	proto_tree *sub_tree;
 
-	int consumed_len = 0;
+	unsigned consumed_len = 0;
 	uint32_t frame_id_len;
 	uint32_t seq;
 	unsigned header_len;
@@ -242,13 +243,13 @@ dissect_ros_message_header(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pi
  * However, every packet has the same header as defined here: http://docs.ros.org/api/std_msgs/html/msg/Header.html
  * So, we can break this one down and display it.
  */
-static int
-dissect_ros_message(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, int offset)
+static unsigned
+dissect_ros_message(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pinfo, unsigned offset)
 {
 	proto_item *ti;
 	proto_tree *sub_tree;
 
-	int consumed_len = 0;
+	unsigned consumed_len = 0;
 	uint32_t total_len = tvb_get_letohl(tvb, offset);
 	unsigned payload_len;
 
@@ -302,7 +303,7 @@ is_rosheaderfield(tvbuff_t *tvb, packet_info *pinfo _U_ , unsigned offset)
 {
 	/** ROS Header Field:
 	    4-byte len + string */
-	int available = tvb_reported_length_remaining(tvb, offset);
+	unsigned available = tvb_reported_length_remaining(tvb, offset);
 	uint32_t string_len = 0;
 	uint32_t i;
 
@@ -312,7 +313,7 @@ is_rosheaderfield(tvbuff_t *tvb, packet_info *pinfo _U_ , unsigned offset)
 	string_len = tvb_get_letohl(tvb, offset);
 
 	/** If we don't have enough data for the whole string, assume its not */
-	if( (unsigned)available < (string_len + 4) )
+	if( available < (string_len + 4) )
 		return false;
 	/** Check for a valid ascii character and not nil */
 	for( i = 0; i < string_len; i++ ) {
@@ -330,7 +331,7 @@ is_rosconnection_header(tvbuff_t *tvb, packet_info *pinfo _U_ , unsigned offset)
 {
 	/** ROS Connection Headers: http://wiki.ros.org/ROS/Connection%20Header
 	    4-byte length + [4-byte length + string] */
-	int available = tvb_reported_length_remaining(tvb, offset);
+	unsigned available = tvb_reported_length_remaining(tvb, offset);
 	uint32_t msg_len = 0;
 
 	if( available < 8+1 )
@@ -353,7 +354,7 @@ is_rosclock(tvbuff_t *tvb, packet_info *pinfo _U_ , unsigned offset)
 {
 	/** ROS Clock message: http://docs.ros.org/api/rosgraph_msgs/html/msg/Clock.html
 	    4-byte length + 8-byte timestamp == 12 bytes exactly */
-	int available = tvb_reported_length_remaining(tvb, offset);
+	unsigned available = tvb_reported_length_remaining(tvb, offset);
 	if( available != 12 )
 		return false;
 
@@ -369,7 +370,7 @@ is_rosmsg(tvbuff_t *tvb, packet_info *pinfo _U_ , unsigned offset)
 {
 	/** Most ROS messages start with a header: http://docs.ros.org/jade/api/std_msgs/html/msg/Header.html
 	    4-byte size + 4-byte sequence id + 8-byte timestamp + 4-byte frame id length + frame id */
-	int available = tvb_reported_length_remaining(tvb, offset);
+	unsigned available = tvb_reported_length_remaining(tvb, offset);
 	uint32_t string_len = 0;
 	uint32_t msg_len = 0;
 
@@ -581,7 +582,7 @@ proto_register_tcpros(void)
 
 /* Heuristics test */
 static bool
-test_tcpros(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
+test_tcpros(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, void *data _U_)
 {
 	if (tvb_captured_length(tvb) < 8)
 		return false;

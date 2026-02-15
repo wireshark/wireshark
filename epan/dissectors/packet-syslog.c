@@ -183,8 +183,8 @@ mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, int fac, int level, const ch
 
 static bool dissect_syslog_info(proto_tree* tree, tvbuff_t* tvb, unsigned* offset, int hfindex)
 {
-  int end_offset = tvb_find_uint8(tvb, *offset, -1, CHR_SPACE);
-  if (end_offset == -1)
+  unsigned end_offset;
+  if (!tvb_find_uint8_remaining(tvb, *offset, CHR_SPACE, &end_offset))
     return false;
   proto_tree_add_item(tree, hfindex, tvb, *offset, end_offset - *offset, ENC_NA);
   *offset = end_offset + 1;
@@ -306,15 +306,14 @@ static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinf
 static unsigned
 dissect_rfc5424_syslog_message(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, unsigned offset)
 {
-  int end_offset;
+  unsigned end_offset;
 
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_version))
     return offset;
 
-  end_offset = tvb_find_uint8(tvb, offset, -1, CHR_SPACE);
-  if (end_offset == -1)
+  if (!tvb_find_uint8_remaining(tvb, offset, CHR_SPACE, &end_offset))
     return offset;
-  if ((unsigned)end_offset != offset) {
+  if (end_offset != offset) {
     /* do not call proto_tree_add_time_item with a length of 0 */
     proto_tree_add_time_item(tree, hf_syslog_timestamp, tvb, offset, end_offset - offset, ENC_ISO_8601_DATE_TIME,
       NULL, NULL, NULL);

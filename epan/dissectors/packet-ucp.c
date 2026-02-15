@@ -734,14 +734,13 @@ check_ucp(tvbuff_t *tvb, int *endpkt)
     unsigned     offset = 1;
     unsigned     checksum = 0;
     int          pkt_check, tmp;
-    int          length;
+    unsigned     length;
 
-    length = tvb_find_uint8(tvb, offset, -1, UCP_ETX);
-    if (length == -1) {
+    if (!tvb_find_uint8_remaining(tvb, offset, UCP_ETX, &length)) {
         *endpkt = tvb_reported_length_remaining(tvb, offset);
         return UCP_MALFORMED;
     }
-    for (; offset < (unsigned) (length - 2); offset++)
+    for (; offset < (length - 2); offset++)
         checksum += tvb_get_uint8(tvb, offset);
     checksum &= 0xFF;
     tmp = tvb_get_uint8(tvb, offset++);
@@ -817,10 +816,11 @@ static proto_item*
 ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, unsigned *offset)
 {
     proto_item  *ti = NULL;
-    int          idx, len;
+    unsigned     idx, len;
+    bool idx_found;
 
-    idx = tvb_find_uint8(tvb, *offset, -1, '/');
-    if (idx == -1) {
+    idx_found = tvb_find_uint8_remaining(tvb, *offset, '/', &idx);
+    if (!idx_found) {
         /* Force the appropriate exception to be thrown. */
         len = tvb_captured_length_remaining(tvb, *offset);
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
@@ -829,7 +829,7 @@ ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, unsigned *offset)
     if (len > 0)
         ti = proto_tree_add_item(tree, field, tvb, *offset, len, ENC_ASCII|ENC_NA);
     *offset += len;
-    if (idx != -1)
+    if (idx_found)
         *offset += 1;   /* skip terminating '/' */
     return ti;
 }
@@ -841,9 +841,11 @@ ucp_handle_IRAstring(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int fi
     wmem_strbuf_t *strbuf;
     char          *strval = NULL;
     unsigned      idx, len;
+    bool          idx_found;
     unsigned      tmpoff;
 
-    if (!tvb_find_uint8_remaining(tvb, *offset, '/', &idx)) {
+    idx_found = tvb_find_uint8_remaining(tvb, *offset, '/', &idx);
+    if (!idx_found) {
         /* Force the appropriate exception to be thrown. */
         tvb_ensure_bytes_exist(tvb, *offset, idx);
     }
@@ -892,19 +894,21 @@ ucp_handle_byte(proto_tree *tree, tvbuff_t *tvb, int field, unsigned *offset)
 static unsigned
 ucp_handle_int(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, unsigned *offset)
 {
-    int           idx, len;
+    unsigned      idx, len;
+    bool          idx_found;
     const char   *strval;
     unsigned      intval = 0;
     bool          intval_valid;
     proto_item   *pi;
 
-    idx = tvb_find_uint8(tvb, *offset, -1, '/');
-    if (idx == -1) {
+    idx_found = tvb_find_uint8_remaining(tvb, *offset, '/', &idx);
+    if (!idx_found) {
         /* Force the appropriate exception to be thrown. */
         len = tvb_captured_length_remaining(tvb, *offset);
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
-    } else
+    } else {
         len = idx - *offset;
+    }
     strval = (char*)tvb_get_string_enc(pinfo->pool, tvb, *offset, len, ENC_ASCII);
     if (len > 0) {
         intval_valid = ws_strtou32(strval, NULL, &intval);
@@ -914,7 +918,7 @@ ucp_handle_int(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, u
                 "Invalid integer string: %s", strval);
     }
     *offset += len;
-    if (idx != -1)
+    if (idx_found)
         *offset += 1;   /* skip terminating '/' */
     return intval;
 }
@@ -922,13 +926,15 @@ ucp_handle_int(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, u
 static void
 ucp_handle_time(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, unsigned *offset)
 {
-    int         idx, len;
+    unsigned    idx, len;
+    bool        idx_found;
+
     const char *strval;
     time_t      tval;
     nstime_t    tmptime;
 
-    idx = tvb_find_uint8(tvb, *offset, -1, '/');
-    if (idx == -1) {
+    idx_found = tvb_find_uint8_remaining(tvb, *offset, '/', &idx);
+    if (!idx_found) {
         /* Force the appropriate exception to be thrown. */
         len = tvb_captured_length_remaining(tvb, *offset);
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
@@ -942,7 +948,7 @@ ucp_handle_time(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, 
         proto_tree_add_time(tree, field, tvb, *offset, len, &tmptime);
     }
     *offset += len;
-    if (idx != -1)
+    if (idx_found)
         *offset += 1;   /* skip terminating '/' */
 }
 
@@ -1060,7 +1066,6 @@ ucp_handle_alphanum_OAdC(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, in
     unsigned      idx, len;
     unsigned      tmpoff;
 
-    idx = tvb_find_uint8(tvb, *offset, -1, '/');
     if (!tvb_find_uint8_remaining(tvb, *offset, '/', &idx)) {
         /* Force the appropriate exception to be thrown. */
         tvb_ensure_bytes_exist(tvb, *offset, idx);
