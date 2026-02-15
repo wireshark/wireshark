@@ -892,7 +892,7 @@
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation>Részletek</translation>
+        <translation type="vanished">Részletek</translation>
     </message>
     <message>
         <source>Edit Comments</source>

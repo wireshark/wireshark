@@ -902,7 +902,7 @@
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation>Подробиці</translation>
+        <translation type="vanished">Подробиці</translation>
     </message>
     <message>
         <source>Edit Comments</source>

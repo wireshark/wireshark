@@ -5565,6 +5565,14 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x107A,   "CodaHD LLC" },
     { 0x107B,   "E.J. Brooks Company" },
     { 0x107C,   "Martin.Care GmbH" },
+    { 0x107D,   "IMPACT-BZ LTD" },
+    { 0x107E,   "Belford investment holdings pty ltd" },
+    { 0x107F,   "Anton Paar ConsumerTec GmbH" },
+    { 0x1080,   "Knit Sound Company" },
+    { 0x1081,   "Australis Scientific Pty Ltd." },
+    { 0x1082,   "AIR PRODUCTS AND CHEMICALS, INC." },
+    { 0x1083,   "SYSTEM LOCO LTD" },
+    { 0x1084,   "24x8, LLC" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };

@@ -912,7 +912,7 @@
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation>Rincian</translation>
+        <translation type="vanished">Rincian</translation>
     </message>
     <message>
         <source>Edit Comments</source>

@@ -912,7 +912,7 @@
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation>자세한 정보</translation>
+        <translation type="vanished">자세한 정보</translation>
     </message>
     <message>
         <source>Edit Comments</source>

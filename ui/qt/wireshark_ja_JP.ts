@@ -912,7 +912,7 @@
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation>詳細</translation>
+        <translation type="vanished">詳細</translation>
     </message>
     <message>
         <source>Edit Comments</source>
@@ -4516,7 +4516,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 I/O Graphs: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 入出力グラフ: %2</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -7018,7 +7018,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Clear Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>メニューをクリア</translation>
     </message>
 </context>
 <context>
@@ -8296,7 +8296,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 Plots: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 描画: %2</translation>
     </message>
     <message>
         <source>Packet</source>

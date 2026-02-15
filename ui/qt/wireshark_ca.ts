@@ -920,7 +920,7 @@
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation>Detalls</translation>
+        <translation type="vanished">Detalls</translation>
     </message>
     <message>
         <source>Edit Comments</source>

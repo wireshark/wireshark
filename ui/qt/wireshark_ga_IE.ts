@@ -928,7 +928,7 @@
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation>Sonraí</translation>
+        <translation type="vanished">Sonraí</translation>
     </message>
     <message>
         <source>Edit Comments</source>
@@ -7066,7 +7066,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Clear Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Glan an Roghchlár</translation>
     </message>
 </context>
 <context>
@@ -9731,7 +9731,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>not found</source>
-        <translation type="unfinished"></translation>
+        <translation>níor aimsíodh</translation>
     </message>
 </context>
 <context>
@@ -10255,10 +10255,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source> %Ln stream(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>sruth %Ln,</numerusform>
+            <numerusform>sruthanna %Ln,</numerusform>
+            <numerusform>sruthanna %Ln,</numerusform>
         </translation>
     </message>
     <message>
@@ -10903,10 +10903,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln stream(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>sruth %Ln</numerusform>
+            <numerusform>sruthanna %Ln</numerusform>
+            <numerusform>sruthanna %Ln</numerusform>
         </translation>
     </message>
     <message>
@@ -11264,18 +11264,18 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln stream(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>sruth %Ln</numerusform>
+            <numerusform>sruthanna %Ln</numerusform>
+            <numerusform>sruthanna %Ln</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %1 selected, %Ln total packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>, %1 roghnaithe, %Ln paicéad iomlán</numerusform>
+            <numerusform>, %1 roghnaithe, %Ln paicéid san iomlán</numerusform>
+            <numerusform>, %1 roghnaithe, %Ln paicéid san iomlán</numerusform>
         </translation>
     </message>
     <message>
@@ -12401,7 +12401,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <name>ShowPacketBytesTextEdit</name>
     <message>
         <source>&lt;html&gt;Mouse byte selection is enabled when&lt;p&gt;&quot;Decode as&quot; = None&lt;p&gt;AND&lt;p&gt;&quot;Show as&quot; = ASCII, ASCII &amp; Control, EBCDIC or Raw&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;Cumasaítear rogha beart luiche nuair a bhíonn&lt;p&gt;&quot;Díchódaigh mar&quot; = Gan aon cheann&lt;p&gt;AGUS&lt;p&gt;&quot;Taispeáin mar&quot; = ASCII, ASCII &amp; Rialú, EBCDIC nó Raw&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show Selected</source>
@@ -13911,7 +13911,47 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head&gt;
+&lt;style&gt;
+a:link {
+  color: palette(text);
+  text-decoration: none;
+}
+a:hover {
+  color: palette(text);
+  text-decoration: underline;
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table&gt;&lt;tr&gt;
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;Treoir Úsáideora&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://gitlab.com/wireshark/wireshark/-/wikis/&quot;&gt;Vicí&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Ceisteanna agus Freagraí
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Liostaí Poist&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://sharkfest.wireshark.org/&quot;&gt;SharkFest&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://discord.gg/fT2jvkawGj&quot;&gt;Wireshark Discord&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://wiresharkfoundation.org/donate/&quot;&gt;Tabhair Síntiús&lt;/a&gt;&lt;/th&gt;
+
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -16266,11 +16306,11 @@ a:hover {
     </message>
     <message>
         <source> before exporting PDUs</source>
-        <translation type="unfinished"></translation>
+        <translation>sula n-onnmhairítear PDUanna</translation>
     </message>
     <message>
         <source> before stripping headers</source>
-        <translation type="unfinished"></translation>
+        <translation>sula mbaintear ceanntásca</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>

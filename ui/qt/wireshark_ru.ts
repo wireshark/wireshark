@@ -928,7 +928,7 @@
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation>Подробности</translation>
+        <translation type="vanished">Подробности</translation>
     </message>
     <message>
         <source>Edit Comments</source>

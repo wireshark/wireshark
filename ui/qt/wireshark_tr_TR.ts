@@ -912,7 +912,7 @@
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation>Detaylar</translation>
+        <translation type="vanished">Detaylar</translation>
     </message>
     <message>
         <source>Edit Comments</source>
