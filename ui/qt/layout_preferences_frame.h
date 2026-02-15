@@ -44,6 +44,10 @@ private:
     pref_t *pref_packet_list_cached_rows_max_;
     pref_t *pref_show_selected_packet_;
     pref_t *pref_show_file_load_time_;
+    pref_t *pref_packet_list_multi_color_mode_;
+    pref_t *pref_packet_list_multi_color_shift_percent_;
+    pref_t *pref_packet_list_multi_color_details_;
+    pref_t *pref_packet_list_multi_color_separator_;
 
     void updateWidgets();
 
@@ -77,6 +81,15 @@ private slots:
     void on_packetListCachedRowsLineEdit_textEdited(const QString &new_str);
     void on_statusBarShowSelectedPacketCheckBox_toggled(bool checked);
     void on_statusBarShowFileLoadTimeCheckBox_toggled(bool checked);
+    void on_packetListMultiColorDetailsCheckBox_toggled(bool checked);
+    void on_packetListMultiColorOffRadioButton_toggled(bool checked);
+    void on_packetListMultiColorScrollbarOnlyRadioButton_toggled(bool checked);
+    void on_packetListMultiColorEqualStripesRadioButton_toggled(bool checked);
+    void on_packetListMultiColorShiftRightRadioButton_toggled(bool checked);
+    void on_packetListMultiColorShiftPercentComboBox_currentIndexChanged(int index);
+    void on_packetListMultiColorSeparatorVerticalRadioButton_toggled(bool checked);
+    void on_packetListMultiColorSeparatorDiagonalRadioButton_toggled(bool checked);
+    void on_packetListMultiColorSeparatorBubbleRadioButton_toggled(bool checked);
 };
 
 #endif // LAYOUT_PREFERENCES_FRAME_H

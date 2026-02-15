@@ -171,6 +171,25 @@ typedef enum {
     UPDATE_CHANNEL_STABLE
 } software_update_channel_e;
 
+/*
+ * Packet list multi-color display mode.
+ */
+typedef enum {
+    PACKET_LIST_MULTI_COLOR_MODE_OFF = 0,          /* Multi-color disabled */
+    PACKET_LIST_MULTI_COLOR_MODE_SCROLLBAR_ONLY,   /* Scrollbar only, no row stripes */
+    PACKET_LIST_MULTI_COLOR_MODE_FULL,             /* Full stripes in rows + scrollbar */
+    PACKET_LIST_MULTI_COLOR_MODE_SHIFT_RIGHT       /* Shift right (configurable %) in rows + scrollbar */
+} gui_packet_list_multi_color_mode_e;
+
+/*
+ * Packet list multi-color separator style.
+ */
+typedef enum {
+    PACKET_LIST_MULTI_COLOR_SEPARATOR_VERTICAL = 0, /* Straight vertical separator */
+    PACKET_LIST_MULTI_COLOR_SEPARATOR_DIAGONAL,     /* Diagonal / candy-cane separator */
+    PACKET_LIST_MULTI_COLOR_SEPARATOR_BUBBLE        /* Bubble / half-moon separator */
+} gui_packet_list_multi_color_separator_e;
+
 typedef struct _e_prefs {
   GList       *col_list;
   unsigned     num_cols;
@@ -277,6 +296,10 @@ typedef struct _e_prefs {
   bool         gui_packet_list_show_minimap;
   bool         gui_packet_list_sortable;
   unsigned     gui_packet_list_cached_rows_max;
+  gui_packet_list_multi_color_mode_e gui_packet_list_multi_color_mode; /* Multi-color display mode */
+  unsigned     gui_packet_list_multi_color_shift_percent; /* Shift Right primary color percentage (75-95) */
+  bool         gui_packet_list_multi_color_details; /* Display all matching colors in packet details tree */
+  gui_packet_list_multi_color_separator_e gui_packet_list_multi_color_separator; /* Separator style between color stripes */
   unsigned     gui_decimal_places1; /* Used for type 1 calculations */
   unsigned     gui_decimal_places2; /* Used for type 2 calculations */
   unsigned     gui_decimal_places3; /* Used for type 3 calculations */

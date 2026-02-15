@@ -77,6 +77,8 @@ signals:
     void relatedFrame(int, ft_framenum_type_t);
     void showProtocolPreferences(const QString module_name);
     void editProtocolPreference(pref_t *pref, module_t *module);
+    void recolorPacketsRequested();
+    void redissectPacketsRequested();
 
 public slots:
 

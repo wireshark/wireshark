@@ -475,6 +475,183 @@
     </widget>
    </item>
    <item>
+    <spacer name="verticalSpacerMultiColor">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="multiColorGroupLayout">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="packetListMultiColorModeLabel">
+       <property name="text">
+        <string>Packet list multi-color display mode:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="multiColorModeLayout">
+       <item>
+        <widget class="QRadioButton" name="packetListMultiColorOffRadioButton">
+         <property name="text">
+          <string>Off</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">multiColorModeButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="packetListMultiColorScrollbarOnlyRadioButton">
+         <property name="text">
+          <string>Scrollbar only</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">multiColorModeButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="packetListMultiColorEqualStripesRadioButton">
+         <property name="text">
+          <string>Equal stripes</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">multiColorModeButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="packetListMultiColorShiftRightRadioButton">
+         <property name="text">
+          <string>Shift right</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">multiColorModeButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="packetListMultiColorShiftPercentComboBox">
+         <item>
+          <property name="text">
+           <string>75%</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>80%</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>85%</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>90%</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>95%</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <spacer name="multiColorModeHorizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="separatorModeLayout">
+       <item>
+        <widget class="QLabel" name="separatorStyleLabel">
+         <property name="text">
+          <string>Separator style:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="packetListMultiColorSeparatorVerticalRadioButton">
+         <property name="text">
+          <string>Vertical</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">separatorModeButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="packetListMultiColorSeparatorDiagonalRadioButton">
+         <property name="text">
+          <string>Diagonal</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">separatorModeButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="packetListMultiColorSeparatorBubbleRadioButton">
+         <property name="text">
+          <string>Bubble</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">separatorModeButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <spacer name="separatorModeHorizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="packetListMultiColorDetailsCheckBox">
+       <property name="text">
+        <string>Display multiple colors in packet details</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -505,5 +682,7 @@
   <buttongroup name="pane3ButtonGroup"/>
   <buttongroup name="pane2ButtonGroup"/>
   <buttongroup name="pane1ButtonGroup"/>
+  <buttongroup name="multiColorModeButtonGroup"/>
+  <buttongroup name="separatorModeButtonGroup"/>
  </buttongroups>
 </ui>

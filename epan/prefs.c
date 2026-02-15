@@ -136,6 +136,21 @@ static const enum_val_t gui_selection_style[] = {
     {NULL, NULL, -1}
 };
 
+static const enum_val_t gui_packet_list_multi_color_modes[] = {
+    {"off",            "Off",               PACKET_LIST_MULTI_COLOR_MODE_OFF},
+    {"scrollbar_only", "Scrollbar Only",    PACKET_LIST_MULTI_COLOR_MODE_SCROLLBAR_ONLY},
+    {"full_stripes",   "Full Stripes",      PACKET_LIST_MULTI_COLOR_MODE_FULL},
+    {"shift_right",    "Shift Right",       PACKET_LIST_MULTI_COLOR_MODE_SHIFT_RIGHT},
+    {NULL, NULL, -1}
+};
+
+static const enum_val_t gui_packet_list_multi_color_separators[] = {
+    {"vertical",  "Vertical",  PACKET_LIST_MULTI_COLOR_SEPARATOR_VERTICAL},
+    {"diagonal",  "Diagonal",  PACKET_LIST_MULTI_COLOR_SEPARATOR_DIAGONAL},
+    {"bubble",    "Bubble",    PACKET_LIST_MULTI_COLOR_SEPARATOR_BUBBLE},
+    {NULL, NULL, -1}
+};
+
 static const enum_val_t gui_color_scheme[] = {
     {"system",  "System Default",   COLOR_SCHEME_DEFAULT},
     {"light",   "Light Mode",       COLOR_SCHEME_LIGHT},
@@ -3751,6 +3766,27 @@ prefs_register_modules(void)
                                    "Show the intelligent scroll bar (a minimap of packet list colors in the scrollbar)",
                                    &prefs.gui_packet_list_show_minimap);
 
+    prefs_register_enum_preference(gui_layout_module, "packet_list_multi_color_mode",
+                                   "Multi-Color Display Mode",
+                                   "How to display multiple colors: Equal Stripes (entire row) or Shift Right (configurable primary color percentage)",
+                                   (int*)(void*)(&prefs.gui_packet_list_multi_color_mode), gui_packet_list_multi_color_modes, false);
+
+    prefs_register_uint_preference(gui_layout_module, "packet_list_multi_color_shift_percent",
+                                   "Shift Right percentage",
+                                   "Primary color percentage in Shift Right mode (75, 80, 85, 90, or 95)",
+                                   10,
+                                   &prefs.gui_packet_list_multi_color_shift_percent);
+
+    prefs_register_bool_preference(gui_layout_module, "packet_list_multi_color_details",
+                                   "Display Multiple Colors in Packet Details",
+                                   "Show all matching color filter names in packet details pane and TShark output when multiple color filters match",
+                                   &prefs.gui_packet_list_multi_color_details);
+
+    prefs_register_enum_preference(gui_layout_module, "packet_list_multi_color_separator",
+                                   "Color Stripe Separator Style",
+                                   "Shape of the boundary between color stripes: Vertical, Diagonal (candy-cane), or Bubble (half-moon)",
+                                   (int*)(void*)(&prefs.gui_packet_list_multi_color_separator), gui_packet_list_multi_color_separators, false);
+
     prefs_register_bool_preference(gui_module, "packet_list_is_sortable",
                                    "Allow packet list to be sortable",
                                    "To prevent sorting by mistake (which can take some time to calculate), it can be disabled",
@@ -4454,6 +4490,10 @@ prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, in
     prefs.gui_packet_list_show_minimap = true;
     prefs.gui_packet_list_sortable     = true;
     prefs.gui_packet_list_cached_rows_max = 10000;
+    prefs.gui_packet_list_multi_color_mode = PACKET_LIST_MULTI_COLOR_MODE_OFF;
+    prefs.gui_packet_list_multi_color_shift_percent = 85;
+    prefs.gui_packet_list_multi_color_details = false;
+    prefs.gui_packet_list_multi_color_separator = PACKET_LIST_MULTI_COLOR_SEPARATOR_DIAGONAL;
     wmem_free(pref_scope, prefs.gui_interfaces_hide_types);
     prefs.gui_interfaces_hide_types = wmem_strdup(pref_scope, "");
     prefs.gui_interfaces_show_hidden = false;

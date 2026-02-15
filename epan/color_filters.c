@@ -57,6 +57,9 @@ static GSList *color_filter_valid_list;
 /* Color Filters can en-/disabled. */
 static bool filters_enabled = true;
 
+/* Session-level disabled (paused) filters */
+static GHashTable *session_disabled_filters;
+
 /* Remember if there are temporary coloring filters set to
  * add sensitivity to the "Reset Coloring 1-10" menu item
  */
@@ -360,7 +363,14 @@ color_filters_init(char** err_msg, color_filter_add_cb_func add_cb, const char* 
     color_filter_list_delete(&color_filter_list);
 
     /* now try to construct the filters list */
-    return color_filters_get(err_msg, add_cb, app_env_var_prefix);
+    bool result = color_filters_get(err_msg, add_cb, app_env_var_prefix);
+
+    /* Load paused filters from profile after loading color filters */
+    if (result) {
+        color_filter_read_paused(app_env_var_prefix);
+    }
+
+    return result;
 }
 
 bool
@@ -380,6 +390,11 @@ color_filters_cleanup(void)
 {
     /* delete the previously deleted filters */
     color_filter_list_delete(&color_filter_deleted_list);
+
+    if (session_disabled_filters) {
+        g_hash_table_destroy(session_disabled_filters);
+        session_disabled_filters = NULL;
+    }
 }
 
 typedef struct _color_clone
@@ -586,7 +601,8 @@ color_filters_colorize_packet(epan_dissect_t *edt)
             colorf = (color_filter_t *)curr->data;
             if ( (!colorf->disabled) &&
                  (colorf->c_colorfilter != NULL) &&
-                 dfilter_apply_edt(colorf->c_colorfilter, edt)) {
+                 dfilter_apply_edt(colorf->c_colorfilter, edt) &&
+                 !color_filter_is_session_disabled(colorf->filter_name)) {
                 return colorf;
             }
             curr = g_slist_next(curr);
@@ -594,6 +610,172 @@ color_filters_colorize_packet(epan_dissect_t *edt)
     }
 
     return NULL;
+}
+
+const color_filter_t *
+color_filters_colorize_packet_all(epan_dissect_t *edt, GSList **matches)
+{
+    GSList         *curr;
+    color_filter_t *colorf;
+    const color_filter_t *first_match = NULL;
+
+    if (matches) {
+        *matches = NULL;
+    }
+
+    /* If we have color filters, collect ALL matching ones. */
+    if ((edt->tree != NULL) && (color_filters_used())) {
+        curr = color_filter_list;
+
+        while(curr != NULL) {
+            colorf = (color_filter_t *)curr->data;
+            if ( (!colorf->disabled) &&
+                 (colorf->c_colorfilter != NULL) &&
+                 dfilter_apply_edt(colorf->c_colorfilter, edt)) {
+
+                bool is_session_disabled = color_filter_is_session_disabled(colorf->filter_name);
+
+                /* Add to matches list even if paused (for Frame tree display) */
+                if (matches) {
+                    *matches = g_slist_append(*matches, colorf);
+                }
+
+                /* Only use non-paused filters for first_match */
+                if (!first_match && !is_session_disabled) {
+                    first_match = colorf;  /* Backward compatibility */
+                }
+            }
+            curr = g_slist_next(curr);
+        }
+    }
+
+    return first_match;
+}
+
+void
+color_filter_set_session_disabled(const char *filter_name, bool disabled)
+{
+    if (!filter_name) return;
+
+    if (!session_disabled_filters) {
+        session_disabled_filters = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+    }
+
+    if (disabled) {
+        g_hash_table_insert(session_disabled_filters, g_strdup(filter_name), GINT_TO_POINTER(1));
+    } else {
+        g_hash_table_remove(session_disabled_filters, filter_name);
+    }
+
+    /* Auto-save to profile directory after every change */
+    color_filter_write_paused(NULL);  /* NULL uses default env prefix */
+}
+
+bool
+color_filter_is_session_disabled(const char *filter_name)
+{
+    if (!filter_name || !session_disabled_filters) {
+        return false;
+    }
+    return g_hash_table_contains(session_disabled_filters, filter_name);
+}
+
+void
+color_filter_clear_session_disabled(void)
+{
+    if (session_disabled_filters) {
+        g_hash_table_remove_all(session_disabled_filters);
+    }
+    /* Restore from profile directory after clearing (workaround for rescan) */
+    color_filter_read_paused(NULL);
+}
+
+#define PAUSED_FILTERS_FILE "paused_filters"
+
+/* Get profile-specific paused filters file path */
+static char *
+get_paused_filters_path(const char *app_env_var_prefix)
+{
+    /* Use profile-specific path (true = use profile directory) */
+    return get_persconffile_path(PAUSED_FILTERS_FILE, true, app_env_var_prefix);
+}
+
+/* Save paused filters to profile directory */
+void
+color_filter_write_paused(const char *app_env_var_prefix)
+{
+    if (!session_disabled_filters) return;
+
+    char *path = get_paused_filters_path(app_env_var_prefix);
+    if (!path) return;
+
+    FILE *f = ws_fopen(path, "w");
+    if (!f) {
+        g_free(path);
+        return;
+    }
+
+    /* Write each paused filter name, one per line */
+    GHashTableIter iter;
+    gpointer key, value;
+    g_hash_table_iter_init(&iter, session_disabled_filters);
+    while (g_hash_table_iter_next(&iter, &key, &value)) {
+        fprintf(f, "%s\n", (const char*)key);
+    }
+
+    fclose(f);
+    g_free(path);
+}
+
+/* Read paused filters from profile directory */
+void
+color_filter_read_paused(const char *app_env_var_prefix)
+{
+    char *path = get_paused_filters_path(app_env_var_prefix);
+    if (!path) return;
+
+    FILE *f = ws_fopen(path, "r");
+    g_free(path);
+
+    if (!f) return;  /* File doesn't exist yet - that's OK */
+
+    char line[1024];
+    while (fgets(line, sizeof(line), f)) {
+        /* Remove trailing newline/whitespace */
+        line[strcspn(line, "\r\n")] = 0;
+        g_strstrip(line);  /* GLib function to trim whitespace */
+
+        if (line[0] && line[0] != '#') {  /* Skip empty lines and comments */
+            /* Add to session_disabled_filters without triggering auto-save */
+            if (!session_disabled_filters) {
+                session_disabled_filters = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+            }
+            g_hash_table_insert(session_disabled_filters, g_strdup(line), GINT_TO_POINTER(1));
+        }
+    }
+
+    fclose(f);
+}
+
+/* Resume all paused filters (clears all and saves empty file) */
+void
+color_filter_resume_all(const char *app_env_var_prefix)
+{
+    /* Clear the hash table */
+    if (session_disabled_filters) {
+        g_hash_table_remove_all(session_disabled_filters);
+    }
+
+    /* Write empty file to profile directory */
+    char *path = get_paused_filters_path(app_env_var_prefix);
+    if (!path) return;
+
+    FILE *f = ws_fopen(path, "w");
+    if (f) {
+        /* Write empty file (or just close it) */
+        fclose(f);
+    }
+    g_free(path);
 }
 
 /* read filters from the given file */

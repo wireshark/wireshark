@@ -41,6 +41,13 @@ public:
     bool colorized() { return colorized_ && (color_ver_ == rows_color_ver_); }
     unsigned int conversation() { return conv_index_; }
 
+    /** Get list of all matching color filters */
+    const GSList* matchingColorFilters() const { return color_filters_; }
+    /** Check if packet has multiple color matches */
+    bool hasMultipleColors() const { return color_filter_count_ > 1; }
+    /** Get count of matching color filters */
+    int colorFilterCount() const { return color_filter_count_; }
+
     int columnTextSize(const char *str);
 
     void invalidateColorized() { colorized_ = false; }
@@ -77,6 +84,10 @@ private:
 
     bool read_failed_;
     int row_;
+
+    /** All matching color filters (only if multi-color enabled) */
+    GSList *color_filters_;
+    int color_filter_count_;
 
     void dissect(capture_file *cap_file, bool dissect_columns, bool dissect_color = false);
     void cacheColumnStrings(column_info *cinfo);

@@ -784,6 +784,9 @@ void WiresharkMainWindow::captureFileReadStarted(const QString &action) {
     /* Set up main window for a capture file. */
 //    main_set_for_capture_file(true);
 
+    /* Clear session-disabled (paused) color filters for new capture */
+    color_filter_clear_session_disabled();
+
     mainApp->popStatus(WiresharkApplication::FileStatus);
     QString msg = tr("%1: %2").arg(action).arg(capture_file_.fileName());
     QString msgtip = QString();

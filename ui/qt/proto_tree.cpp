@@ -17,6 +17,8 @@
 #include <epan/print.h>
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
+#include <epan/color_filters.h>
+#include <epan/dissectors/packet-frame.h>
 #include <cfile.h>
 
 #include <ui/qt/utils/color_utils.h>
@@ -31,6 +33,7 @@
 #include <ui/qt/io_graph_action.h>
 #include <ui/qt/plot_action.h>
 #include <ui/qt/protocol_preferences_menu.h>
+#include <ui/qt/models/pref_models.h>
 #include <ui/all_files_wildcard.h>
 #include <ui/urls.h>
 #include "main_application.h"
@@ -410,6 +413,65 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
             this, SIGNAL(editProtocolPreference(pref_t*,module_t*)));
 
     ctx_menu->addMenu(proto_prefs_menu);
+
+    // Add actions for coloring rule fields
+    bool is_color_rule_name = fi && fi->hfinfo &&
+        strcmp(fi->hfinfo->abbrev, "frame.coloring_rule.name") == 0;
+    bool is_color_rule_string = fi && fi->hfinfo &&
+        strcmp(fi->hfinfo->abbrev, "frame.coloring_rule.string") == 0;
+
+    if (is_color_rule_name || is_color_rule_string) {
+        // "Coloring Rule Preferences..." positioned right below Protocol Preferences
+        action = ctx_menu->addAction(tr("Coloring Rule Preferences..."), [this]() {
+            emit showProtocolPreferences(PrefsModel::typeToString(PrefsModel::Layout));
+        });
+
+        // "Coloring Rules..." opens the View -> Coloring Rules dialog
+        action = ctx_menu->addAction(tr("Coloring Rules..."), [this]() {
+            QAction *coloring_rules_action = window()->findChild<QAction *>("actionViewColoringRules");
+            if (coloring_rules_action)
+                coloring_rules_action->trigger();
+        });
+
+        // Pause/Resume and Resume All (only when multi-color details is enabled)
+        if (prefs.gui_packet_list_multi_color_details) {
+            QString filter_name;
+            if (is_color_rule_name) {
+                filter_name = finfo->toString();
+            } else {
+                // frame.coloring_rule.string: the name field is always the previous sibling
+                QModelIndex nameIdx = index.sibling(index.row() - 1, 0);
+                if (nameIdx.isValid()) {
+                    FieldInformation nameInfo(proto_tree_model_->protoNodeFromIndex(nameIdx), nullptr);
+                    filter_name = nameInfo.toString();
+                }
+            }
+            if (filter_name.startsWith("[PAUSED] ")) {
+                filter_name = filter_name.mid(9);
+            }
+
+            if (!filter_name.isEmpty()) {
+                bool is_paused = color_filter_is_session_disabled(filter_name.toUtf8().constData());
+                QString action_text = is_paused ? tr("Resume Coloring Rule") : tr("Pause Coloring Rule");
+
+                action = ctx_menu->addAction(action_text, [this, filter_name, is_paused]() {
+                    color_filter_set_session_disabled(filter_name.toUtf8().constData(), !is_paused);
+                    QTimer::singleShot(0, this, [this]() {
+                        emit redissectPacketsRequested();
+                    });
+                });
+
+                action = ctx_menu->addAction(tr("Resume All Coloring Rules"), [this]() {
+                    color_filter_resume_all(NULL);
+                    QTimer::singleShot(0, this, [this]() {
+                        emit redissectPacketsRequested();
+                    });
+                });
+            }
+        }
+
+    }
+
     ctx_menu->addSeparator();
 
     if (! buildForDialog)

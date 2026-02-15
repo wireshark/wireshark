@@ -15,6 +15,7 @@
 #include "proto_tree.h"
 #include "protocol_preferences_menu.h"
 #include <ui/qt/models/related_packet_delegate.h>
+#include <ui/qt/models/multi_color_packet_delegate.h>
 #include <ui/qt/utils/field_information.h>
 
 #include <QMenu>
@@ -151,6 +152,7 @@ private:
     QModelIndex mouse_pressed_at_;
 
     RelatedPacketDelegate related_packet_delegate_;
+    MultiColorPacketDelegate multi_color_delegate_;
     QAction *show_hide_separator_;
     QList<QAction *>show_hide_actions_;
     bool capture_in_progress_;

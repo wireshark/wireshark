@@ -137,6 +137,57 @@ color_filters_use_proto(int proto_id);
 WS_DLL_PUBLIC const color_filter_t *
 color_filters_colorize_packet(struct epan_dissect *edt);
 
+/** Colorize a packet with ALL matching filters.
+ *
+ * @param edt the dissected packet
+ * @param matches output parameter: GSList of matching color_filter_t* (can be NULL)
+ * @return the first matching color filter or NULL (for backward compatibility)
+ */
+WS_DLL_PUBLIC const color_filter_t *
+color_filters_colorize_packet_all(struct epan_dissect *edt, GSList **matches);
+
+/** Set a color filter as session-disabled (paused).
+ *
+ * @param filter_name the name of the filter to disable/enable
+ * @param disabled true to disable, false to enable
+ */
+WS_DLL_PUBLIC void
+color_filter_set_session_disabled(const char *filter_name, bool disabled);
+
+/** Check if a color filter is session-disabled.
+ *
+ * @param filter_name the name of the filter to check
+ * @return true if disabled, false otherwise
+ */
+WS_DLL_PUBLIC bool
+color_filter_is_session_disabled(const char *filter_name);
+
+/** Clear all session-disabled filters.
+ */
+WS_DLL_PUBLIC void
+color_filter_clear_session_disabled(void);
+
+/** Write paused filters to profile directory.
+ *
+ * @param app_env_var_prefix The prefix for the application environment variable
+ */
+WS_DLL_PUBLIC void
+color_filter_write_paused(const char *app_env_var_prefix);
+
+/** Read paused filters from profile directory.
+ *
+ * @param app_env_var_prefix The prefix for the application environment variable
+ */
+WS_DLL_PUBLIC void
+color_filter_read_paused(const char *app_env_var_prefix);
+
+/** Resume all paused filters (clears all session-disabled filters and saves to profile).
+ *
+ * @param app_env_var_prefix The prefix for the application environment variable
+ */
+WS_DLL_PUBLIC void
+color_filter_resume_all(const char *app_env_var_prefix);
+
 /** Clone the currently active filter list.
  *
  * @param user_data will be returned by each call to color_filter_add_cb()

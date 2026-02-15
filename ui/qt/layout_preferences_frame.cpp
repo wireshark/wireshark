@@ -40,11 +40,12 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     ui->layout6ToolButton->setStyleSheet(image_pad_ss);
 
     QStyleOption style_opt;
+    int indent = ui->packetListSeparatorCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left();
     QString indent_ss = QStringLiteral(
              "QCheckBox, QLabel {"
              "  margin-left: %1px;"
              "}"
-             ).arg(ui->packetListSeparatorCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left());
+             ).arg(indent);
     ui->packetListSeparatorCheckBox->setStyleSheet(indent_ss);
     ui->packetListHeaderShowColumnDefinition->setStyleSheet(indent_ss);
     ui->packetListHoverStyleCheckbox->setStyleSheet(indent_ss);
@@ -52,6 +53,11 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     ui->packetListCachedRowsLabel->setStyleSheet(indent_ss);
     ui->statusBarShowSelectedPacketCheckBox->setStyleSheet(indent_ss);
     ui->statusBarShowFileLoadTimeCheckBox->setStyleSheet(indent_ss);
+
+    if (QLayout *lay = findChild<QLayout *>("multiColorModeLayout"))
+        lay->setContentsMargins(indent, 0, 0, 0);
+    if (QLayout *lay = findChild<QLayout *>("separatorModeLayout"))
+        lay->setContentsMargins(indent * 4, 0, 0, 0);
 
     pref_packet_list_separator_ = prefFromPrefPtr(&prefs.gui_packet_list_separator);
     ui->packetListSeparatorCheckBox->setChecked(prefs_get_bool_value(pref_packet_list_separator_, pref_stashed));
@@ -72,6 +78,58 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
 
     pref_show_file_load_time_ = prefFromPrefPtr(&prefs.gui_show_file_load_time);
     ui->statusBarShowFileLoadTimeCheckBox->setChecked(prefs_get_bool_value(pref_show_file_load_time_, pref_stashed));
+
+    pref_packet_list_multi_color_details_ = prefFromPrefPtr(&prefs.gui_packet_list_multi_color_details);
+    ui->packetListMultiColorDetailsCheckBox->setChecked(prefs_get_bool_value(pref_packet_list_multi_color_details_, pref_stashed));
+    ui->packetListMultiColorDetailsCheckBox->setStyleSheet(indent_ss);
+
+    pref_packet_list_multi_color_mode_ = prefFromPrefPtr(&prefs.gui_packet_list_multi_color_mode);
+    pref_packet_list_multi_color_shift_percent_ = prefFromPrefPtr(&prefs.gui_packet_list_multi_color_shift_percent);
+    pref_packet_list_multi_color_separator_ = prefFromPrefPtr(&prefs.gui_packet_list_multi_color_separator);
+
+    // Set shift percent combobox index from stored value (75=0, 80=1, 85=2, 90=3, 95=4)
+    unsigned shift_pct = prefs_get_uint_value(pref_packet_list_multi_color_shift_percent_, pref_stashed);
+    ui->packetListMultiColorShiftPercentComboBox->setCurrentIndex((shift_pct - 75) / 5);
+
+    // Set initial radio button and enable/disable percent combobox
+    bool stripe_mode = false;
+    switch ((gui_packet_list_multi_color_mode_e)prefs_get_uint_value(pref_packet_list_multi_color_mode_, pref_stashed)) {
+    case PACKET_LIST_MULTI_COLOR_MODE_SCROLLBAR_ONLY:
+        ui->packetListMultiColorScrollbarOnlyRadioButton->setChecked(true);
+        break;
+    case PACKET_LIST_MULTI_COLOR_MODE_FULL:
+        ui->packetListMultiColorEqualStripesRadioButton->setChecked(true);
+        stripe_mode = true;
+        break;
+    case PACKET_LIST_MULTI_COLOR_MODE_SHIFT_RIGHT:
+        ui->packetListMultiColorShiftRightRadioButton->setChecked(true);
+        stripe_mode = true;
+        break;
+    default:
+        ui->packetListMultiColorOffRadioButton->setChecked(true);
+        break;
+    }
+    ui->packetListMultiColorShiftPercentComboBox->setEnabled(
+        ui->packetListMultiColorShiftRightRadioButton->isChecked());
+
+    // Set separator radio button
+    switch ((gui_packet_list_multi_color_separator_e)prefs_get_enum_value(pref_packet_list_multi_color_separator_, pref_stashed)) {
+    case PACKET_LIST_MULTI_COLOR_SEPARATOR_VERTICAL:
+        ui->packetListMultiColorSeparatorVerticalRadioButton->setChecked(true);
+        break;
+    case PACKET_LIST_MULTI_COLOR_SEPARATOR_BUBBLE:
+        ui->packetListMultiColorSeparatorBubbleRadioButton->setChecked(true);
+        break;
+    default:
+        ui->packetListMultiColorSeparatorDiagonalRadioButton->setChecked(true);
+        break;
+    }
+
+    // Enable separator controls only when a stripe mode is active
+    ui->separatorStyleLabel->setEnabled(stripe_mode);
+    ui->packetListMultiColorSeparatorVerticalRadioButton->setEnabled(stripe_mode);
+    ui->packetListMultiColorSeparatorDiagonalRadioButton->setEnabled(stripe_mode);
+    ui->packetListMultiColorSeparatorBubbleRadioButton->setEnabled(stripe_mode);
 }
 
 LayoutPreferencesFrame::~LayoutPreferencesFrame()
@@ -162,6 +220,44 @@ void LayoutPreferencesFrame::updateWidgets()
     }
 
     ui->packetListCachedRowsLineEdit->setText(QString::number(prefs_get_uint_value(pref_packet_list_cached_rows_max_, pref_stashed)));
+
+    bool stripe_mode = false;
+    switch ((gui_packet_list_multi_color_mode_e)prefs_get_uint_value(pref_packet_list_multi_color_mode_, pref_stashed)) {
+    case PACKET_LIST_MULTI_COLOR_MODE_SCROLLBAR_ONLY:
+        ui->packetListMultiColorScrollbarOnlyRadioButton->setChecked(true);
+        break;
+    case PACKET_LIST_MULTI_COLOR_MODE_FULL:
+        ui->packetListMultiColorEqualStripesRadioButton->setChecked(true);
+        stripe_mode = true;
+        break;
+    case PACKET_LIST_MULTI_COLOR_MODE_SHIFT_RIGHT:
+        ui->packetListMultiColorShiftRightRadioButton->setChecked(true);
+        stripe_mode = true;
+        break;
+    default:
+        ui->packetListMultiColorOffRadioButton->setChecked(true);
+        break;
+    }
+    unsigned shift_pct = prefs_get_uint_value(pref_packet_list_multi_color_shift_percent_, pref_stashed);
+    ui->packetListMultiColorShiftPercentComboBox->setCurrentIndex((shift_pct - 75) / 5);
+    ui->packetListMultiColorShiftPercentComboBox->setEnabled(
+        ui->packetListMultiColorShiftRightRadioButton->isChecked());
+
+    switch ((gui_packet_list_multi_color_separator_e)prefs_get_enum_value(pref_packet_list_multi_color_separator_, pref_stashed)) {
+    case PACKET_LIST_MULTI_COLOR_SEPARATOR_VERTICAL:
+        ui->packetListMultiColorSeparatorVerticalRadioButton->setChecked(true);
+        break;
+    case PACKET_LIST_MULTI_COLOR_SEPARATOR_BUBBLE:
+        ui->packetListMultiColorSeparatorBubbleRadioButton->setChecked(true);
+        break;
+    default:
+        ui->packetListMultiColorSeparatorDiagonalRadioButton->setChecked(true);
+        break;
+    }
+    ui->separatorStyleLabel->setEnabled(stripe_mode);
+    ui->packetListMultiColorSeparatorVerticalRadioButton->setEnabled(stripe_mode);
+    ui->packetListMultiColorSeparatorDiagonalRadioButton->setEnabled(stripe_mode);
+    ui->packetListMultiColorSeparatorBubbleRadioButton->setEnabled(stripe_mode);
 }
 
 void LayoutPreferencesFrame::on_layout5ToolButton_toggled(bool checked)
@@ -354,6 +450,11 @@ void LayoutPreferencesFrame::on_restoreButtonBox_clicked(QAbstractButton *)
     ui->packetListAllowSorting->setChecked(prefs_get_bool_value(pref_packet_list_sorting_, pref_default));
     ui->statusBarShowSelectedPacketCheckBox->setChecked(prefs_get_bool_value(pref_show_selected_packet_, pref_default));
     ui->statusBarShowFileLoadTimeCheckBox->setChecked(prefs_get_bool_value(pref_show_file_load_time_, pref_default));
+    ui->packetListMultiColorDetailsCheckBox->setChecked(prefs_get_bool_value(pref_packet_list_multi_color_details_, pref_default));
+    reset_stashed_pref(pref_packet_list_multi_color_mode_);
+    reset_stashed_pref(pref_packet_list_multi_color_shift_percent_);
+    reset_stashed_pref(pref_packet_list_multi_color_separator_);
+    updateWidgets();
 }
 
 void LayoutPreferencesFrame::on_packetListSeparatorCheckBox_toggled(bool checked)
@@ -393,4 +494,76 @@ void LayoutPreferencesFrame::on_statusBarShowSelectedPacketCheckBox_toggled(bool
 void LayoutPreferencesFrame::on_statusBarShowFileLoadTimeCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_show_file_load_time_, (bool) checked, pref_stashed);
+}
+
+void LayoutPreferencesFrame::on_packetListMultiColorDetailsCheckBox_toggled(bool checked)
+{
+    prefs_set_bool_value(pref_packet_list_multi_color_details_, (bool) checked, pref_stashed);
+}
+
+void LayoutPreferencesFrame::on_packetListMultiColorOffRadioButton_toggled(bool checked)
+{
+    if (!checked) return;
+    prefs_set_uint_value(pref_packet_list_multi_color_mode_, PACKET_LIST_MULTI_COLOR_MODE_OFF, pref_stashed);
+    ui->packetListMultiColorShiftPercentComboBox->setEnabled(false);
+    ui->separatorStyleLabel->setEnabled(false);
+    ui->packetListMultiColorSeparatorVerticalRadioButton->setEnabled(false);
+    ui->packetListMultiColorSeparatorDiagonalRadioButton->setEnabled(false);
+    ui->packetListMultiColorSeparatorBubbleRadioButton->setEnabled(false);
+}
+
+void LayoutPreferencesFrame::on_packetListMultiColorScrollbarOnlyRadioButton_toggled(bool checked)
+{
+    if (!checked) return;
+    prefs_set_uint_value(pref_packet_list_multi_color_mode_, PACKET_LIST_MULTI_COLOR_MODE_SCROLLBAR_ONLY, pref_stashed);
+    ui->packetListMultiColorShiftPercentComboBox->setEnabled(false);
+    ui->separatorStyleLabel->setEnabled(false);
+    ui->packetListMultiColorSeparatorVerticalRadioButton->setEnabled(false);
+    ui->packetListMultiColorSeparatorDiagonalRadioButton->setEnabled(false);
+    ui->packetListMultiColorSeparatorBubbleRadioButton->setEnabled(false);
+}
+
+void LayoutPreferencesFrame::on_packetListMultiColorEqualStripesRadioButton_toggled(bool checked)
+{
+    if (!checked) return;
+    prefs_set_uint_value(pref_packet_list_multi_color_mode_, PACKET_LIST_MULTI_COLOR_MODE_FULL, pref_stashed);
+    ui->packetListMultiColorShiftPercentComboBox->setEnabled(false);
+    ui->separatorStyleLabel->setEnabled(true);
+    ui->packetListMultiColorSeparatorVerticalRadioButton->setEnabled(true);
+    ui->packetListMultiColorSeparatorDiagonalRadioButton->setEnabled(true);
+    ui->packetListMultiColorSeparatorBubbleRadioButton->setEnabled(true);
+}
+
+void LayoutPreferencesFrame::on_packetListMultiColorShiftRightRadioButton_toggled(bool checked)
+{
+    if (!checked) return;
+    prefs_set_uint_value(pref_packet_list_multi_color_mode_, PACKET_LIST_MULTI_COLOR_MODE_SHIFT_RIGHT, pref_stashed);
+    ui->packetListMultiColorShiftPercentComboBox->setEnabled(true);
+    ui->separatorStyleLabel->setEnabled(true);
+    ui->packetListMultiColorSeparatorVerticalRadioButton->setEnabled(true);
+    ui->packetListMultiColorSeparatorDiagonalRadioButton->setEnabled(true);
+    ui->packetListMultiColorSeparatorBubbleRadioButton->setEnabled(true);
+}
+
+void LayoutPreferencesFrame::on_packetListMultiColorShiftPercentComboBox_currentIndexChanged(int index)
+{
+    prefs_set_uint_value(pref_packet_list_multi_color_shift_percent_, 75 + (index * 5), pref_stashed);
+}
+
+void LayoutPreferencesFrame::on_packetListMultiColorSeparatorVerticalRadioButton_toggled(bool checked)
+{
+    if (!checked) return;
+    prefs_set_enum_value(pref_packet_list_multi_color_separator_, PACKET_LIST_MULTI_COLOR_SEPARATOR_VERTICAL, pref_stashed);
+}
+
+void LayoutPreferencesFrame::on_packetListMultiColorSeparatorDiagonalRadioButton_toggled(bool checked)
+{
+    if (!checked) return;
+    prefs_set_enum_value(pref_packet_list_multi_color_separator_, PACKET_LIST_MULTI_COLOR_SEPARATOR_DIAGONAL, pref_stashed);
+}
+
+void LayoutPreferencesFrame::on_packetListMultiColorSeparatorBubbleRadioButton_toggled(bool checked)
+{
+    if (!checked) return;
+    prefs_set_enum_value(pref_packet_list_multi_color_separator_, PACKET_LIST_MULTI_COLOR_SEPARATOR_BUBBLE, pref_stashed);
 }

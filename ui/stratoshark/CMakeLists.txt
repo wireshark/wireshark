@@ -131,6 +131,7 @@ set(WIRESHARK_MODEL_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/profile_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/proto_tree_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/recentcapturefiles_list_model.h
+	${CMAKE_SOURCE_DIR}/ui/qt/models/multi_color_packet_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/related_packet_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/resolved_addresses_models.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/sparkline_delegate.h
@@ -391,6 +392,7 @@ set(WIRESHARK_MODEL_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/profile_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/proto_tree_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/recentcapturefiles_list_model.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/models/multi_color_packet_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/related_packet_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/resolved_addresses_models.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/sparkline_delegate.cpp

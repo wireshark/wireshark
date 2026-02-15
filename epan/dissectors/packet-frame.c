@@ -11,6 +11,8 @@
 
 #include "config.h"
 
+#include <string.h>
+
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
@@ -1243,21 +1245,101 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	/* Attempt to (re-)calculate color filters (if any). */
 	if (pinfo->fd->need_colorize) {
-		color_filter = color_filters_colorize_packet(fr_data->color_edt);
+		GSList *matches = NULL;
+
+		/* Get ALL matching color filters (not just first).
+		 * Store matches in proto_data so the display code below can show
+		 * multiple matching rules in the frame tree. This enables multi-color
+		 * support in TShark when --color flag is used. */
+		color_filter = color_filters_colorize_packet_all(fr_data->color_edt, &matches);
 		pinfo->fd->color_filter = color_filter;
 		pinfo->fd->need_colorize = 0;
+
+		/* Store matches in proto_data for display code below to access.
+		 * Free any previously stored list (from a prior dissect pass) first. */
+		if (matches) {
+			GSList *old_matches = (GSList *)p_get_proto_data(wmem_file_scope(), pinfo, proto_frame, 0);
+			if (old_matches) {
+				g_slist_free(old_matches);
+				p_remove_proto_data(wmem_file_scope(), pinfo, proto_frame, 0);
+			}
+			p_add_proto_data(wmem_file_scope(), pinfo, proto_frame, 0, matches);
+		}
 	} else {
 		color_filter = pinfo->fd->color_filter;
 	}
-	if (color_filter) {
-		ensure_tree_item(fh_tree, 1);
-		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
-					     0, 0, color_filter->filter_name);
-		proto_item_set_generated(item);
-		ensure_tree_item(fh_tree, 1);
-		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
-					     0, 0, color_filter->filter_text);
-		proto_item_set_generated(item);
+
+	bool has_color_info = (color_filter != NULL);
+
+	/* Retrieve all matching filters from proto_data (stored during colorization above).
+	 * This enables multi-color display for both GUI and TShark. */
+	GSList *matches = NULL;
+	if (fh_tree) {
+		matches = (GSList *)p_get_proto_data(wmem_file_scope(), pinfo, proto_frame, 0);
+		if (matches && !has_color_info) {
+			/* All filters are paused, but we still want to show them so user can resume */
+			has_color_info = true;
+		}
+		/* If proto_data was cleared (e.g., after rescan_packets() without color priming)
+		 * but we have a known primary color filter, re-run colorization now. The full
+		 * protocol tree has already been built by sub-dissectors above, so dfilter
+		 * evaluation works correctly without prior priming. */
+		if (!matches && has_color_info && prefs.gui_packet_list_multi_color_details) {
+			color_filters_colorize_packet_all(fr_data->color_edt, &matches);
+			if (matches) {
+				p_add_proto_data(wmem_file_scope(), pinfo, proto_frame, 0, matches);
+			}
+		}
+	}
+
+	if (has_color_info && fh_tree) {
+		/* Show all matching color filters if packet details multi-color is enabled.
+		 * This is controlled independently from packet list and scrollbar display. */
+		if (matches && prefs.gui_packet_list_multi_color_details) {
+				/* Show all matching color filters from stored list */
+				for (const GSList *item_list = matches; item_list != NULL; item_list = g_slist_next(item_list)) {
+					const color_filter_t *colorf = (const color_filter_t *)item_list->data;
+					/* Skip conversation color filters (temporary filters) */
+					if (strncmp(colorf->filter_name, CONVERSATION_COLOR_PREFIX,
+						    strlen(CONVERSATION_COLOR_PREFIX)) == 0) {
+						continue;
+					}
+
+					ensure_tree_item(fh_tree, 1);
+					/* Add [PAUSED] prefix if filter is session disabled */
+					const char *display_name = colorf->filter_name;
+					if (color_filter_is_session_disabled(colorf->filter_name)) {
+						display_name = wmem_strdup_printf(pinfo->pool, "[PAUSED] %s", colorf->filter_name);
+					}
+					item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
+								     0, 0, display_name);
+					proto_item_set_generated(item);
+
+					ensure_tree_item(fh_tree, 1);
+					item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
+								     0, 0, colorf->filter_text);
+					proto_item_set_generated(item);
+				}
+			} else {
+				/* Fallback to single filter if no stored matches */
+				/* Skip conversation color filters (temporary filters) */
+				if (strncmp(color_filter->filter_name, CONVERSATION_COLOR_PREFIX,
+					    strlen(CONVERSATION_COLOR_PREFIX)) != 0) {
+					ensure_tree_item(fh_tree, 1);
+					/* Add [PAUSED] prefix if filter is session disabled */
+					const char *display_name = color_filter->filter_name;
+					if (color_filter_is_session_disabled(color_filter->filter_name)) {
+						display_name = wmem_strdup_printf(pinfo->pool, "[PAUSED] %s", color_filter->filter_name);
+					}
+					item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
+								     0, 0, display_name);
+					proto_item_set_generated(item);
+					ensure_tree_item(fh_tree, 1);
+					item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
+								     0, 0, color_filter->filter_text);
+					proto_item_set_generated(item);
+				}
+			}
 	}
 
 	tap_queue_packet(frame_tap, pinfo, NULL);

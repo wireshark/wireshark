@@ -415,6 +415,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/proto_tree_model.cpp
 	models/recentcapturefiles_list_model.cpp
 	models/related_packet_delegate.cpp
+	models/multi_color_packet_delegate.cpp
 	models/resolved_addresses_models.cpp
 	models/sparkline_delegate.cpp
 	models/supported_protocols_model.cpp
