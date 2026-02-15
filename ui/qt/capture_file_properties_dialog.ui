@@ -19,18 +19,12 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QWidget" name="">
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QTextEdit" name="detailsTextEdit">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
+    <widget class="QTextEdit" name="detailsTextEdit">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
