@@ -219,8 +219,8 @@ typedef struct tn_opt {
   const char      *name;          /* name of option */
   int             *subtree_index; /* pointer to subtree index for option */
   tn_opt_len_type  len_type;      /* type of option length field */
-  int              optlen;        /* value length should be (minimum if VARIABLE) */
-  void  (*dissect)(packet_info *pinfo, const char *, tvbuff_t *, int, int, proto_tree *, proto_item*);
+  unsigned         optlen;        /* value length should be (minimum if VARIABLE) */
+  void  (*dissect)(packet_info *pinfo, const char *, tvbuff_t *, unsigned, unsigned, proto_tree *, proto_item*);
                                   /* routine to dissect option */
 } tn_opt;
 
@@ -311,7 +311,7 @@ add_telnet_data_bytes_str(packet_info *pinfo, unsigned *num_items, unsigned len)
 }
 
 static void
-dissect_string_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, int offset, int len,
+dissect_string_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, unsigned offset, unsigned len,
                       proto_tree *tree, proto_item *item)
 {
   uint8_t cmd;
@@ -349,8 +349,8 @@ dissect_string_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, in
 }
 
 static void
-dissect_tn3270_regime_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset,
-                       int len, proto_tree *tree, proto_item *item _U_)
+dissect_tn3270_regime_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, unsigned offset,
+                       unsigned len, proto_tree *tree, proto_item *item _U_)
 {
 #define TN3270_REGIME_ARE          0x01
 #define TN3270_REGIME_IS           0x00
@@ -440,15 +440,15 @@ static const value_string tn3270_request_vals[] = {
 };
 
 static void
-dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                       int len, proto_tree *tree, proto_item *item _U_)
+dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, unsigned offset,
+  unsigned len, proto_tree *tree, proto_item *item _U_)
 {
 
   uint8_t cmd;
-  int    datalen;
-  int    connect_offset = 0;
-  int    device_type    = 0;
-  int    rsn            = 0;
+  unsigned    datalen;
+  unsigned    connect_offset = 0;
+  unsigned    device_type    = 0;
+  unsigned    rsn            = 0;
 
   while (len > 0) {
     cmd = tvb_get_uint8(tvb, offset);
@@ -463,8 +463,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
             device_type = tvb_get_uint8(tvb, offset-1);
             if (device_type == TN3270_DEVICE_TYPE) {
                 /* If there is a terminal type to display, then it will be followed by CONNECT */
-                connect_offset = tvb_find_uint8(tvb, offset + 1, len, TN3270_CONNECT);
-                if (connect_offset != -1) {
+                if (tvb_find_uint8_length(tvb, offset + 1, len, TN3270_CONNECT, &connect_offset)) {
                   datalen = connect_offset - (offset + 1);
                   if (datalen > 0) {
                     proto_tree_add_item( tree, hf_tn3270_is, tvb, offset + 1, datalen, ENC_ASCII );
@@ -507,8 +506,8 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
 }
 
 static void
-dissect_starttls_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                       int len _U_, proto_tree *tree, proto_item *item _U_)
+dissect_starttls_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, unsigned offset,
+  unsigned len _U_, proto_tree *tree, proto_item *item _U_)
 {
   telnet_conv_info_t *session = telnet_get_session(pinfo);
 
@@ -537,10 +536,10 @@ static const value_string telnet_outmark_subopt_cmd_vals[] = {
 };
 
 static void
-dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                       int len, proto_tree *tree, proto_item *item _U_)
+dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, unsigned offset,
+  unsigned len, proto_tree *tree, proto_item *item _U_)
 {
-  int    gs_offset, datalen;
+  unsigned    gs_offset, datalen;
 
   while (len > 0) {
     proto_tree_add_item(tree, hf_telnet_outmark_subopt_cmd, tvb, offset, 1, ENC_ASCII);
@@ -549,8 +548,7 @@ dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
     len--;
 
     /* Look for a GS */
-    gs_offset = tvb_find_uint8(tvb, offset, len, 29);
-    if (gs_offset == -1) {
+    if (!tvb_find_uint8_length(tvb, offset, len, 29, &gs_offset)) {
       /* None found - run to the end of the packet. */
       gs_offset = offset + len;
     }
@@ -564,7 +562,7 @@ dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
 }
 
 static void
-dissect_htstops_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, int offset, int len,
+dissect_htstops_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, unsigned offset, unsigned len,
                        proto_tree *tree, proto_item *item)
 {
   uint8_t cmd;
@@ -628,8 +626,8 @@ dissect_htstops_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
 }
 
 static void
-dissect_naws_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                    int len _U_, proto_tree *tree, proto_item *item _U_)
+dissect_naws_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, unsigned offset,
+                    unsigned len _U_, proto_tree *tree, proto_item *item _U_)
 {
   proto_tree_add_item(tree, hf_telnet_naws_subopt_width, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
@@ -655,7 +653,7 @@ dissect_naws_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *t
 /* END RFC-2217 (COM Port Control) Definitions */
 
 static void
-dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, int offset, int len,
+dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, unsigned offset, unsigned len,
                        proto_tree *tree, proto_item *item)
 {
   static const char *datasizes[] = {
@@ -919,8 +917,8 @@ static const value_string rfc_opt_vals[] = {
 };
 
 static void
-dissect_rfc_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                   int len _U_, proto_tree *tree, proto_item *item _U_)
+dissect_rfc_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, unsigned offset,
+                   unsigned len _U_, proto_tree *tree, proto_item *item _U_)
 {
   proto_tree_add_item(tree, hf_telnet_rfc_subopt_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
@@ -1050,7 +1048,7 @@ static const value_string auth_krb5_types[] = {
   { 0, NULL }
 };
 static void
-dissect_authentication_type_pair(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_authentication_type_pair(packet_info *pinfo _U_, tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   static int * const auth_mods[] = {
     &hf_telnet_auth_mod_enc,
@@ -1068,7 +1066,7 @@ dissect_authentication_type_pair(packet_info *pinfo _U_, tvbuff_t *tvb, int offs
 #define MAX_TELNET_OPTION_SUBNEG_LEN 10240
 
 static tvbuff_t *
-unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
+unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned len)
 {
   tvbuff_t     *option_subneg_tvb;
   uint8_t      *buf;
@@ -1106,7 +1104,7 @@ unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offs
 
 /* as per RFC2942 */
 static void
-dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, int len, proto_tree *tree, uint8_t acmd)
+dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree, uint8_t acmd)
 {
   tvbuff_t *krb5_tvb;
   uint8_t   krb5_cmd;
@@ -1171,7 +1169,7 @@ static const value_string ssl_auth_status[] = {
 };
 
 static void
-dissect_ssl_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, uint8_t acmd)
+dissect_ssl_authentication_data(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8_t acmd)
 {
   unsigned ssl_status;
 
@@ -1184,7 +1182,7 @@ dissect_ssl_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, p
 
 /* as per RFC2941 */
 static void
-dissect_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, int len, proto_tree *tree, uint8_t acmd)
+dissect_authentication_data(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree, uint8_t acmd)
 {
   uint8_t auth_type;
 
@@ -1213,7 +1211,7 @@ dissect_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, int l
 }
 
 static void
-dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len,
+dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, unsigned offset, unsigned len,
                               proto_tree *tree, proto_item *item _U_)
 {
   uint8_t acmd;
@@ -1244,14 +1242,14 @@ dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuf
 }
 
 /* This function only uses the octet in the buffer at 'offset' */
-static void dissect_encryption_type(tvbuff_t *tvb, int offset, proto_tree *tree) {
+static void dissect_encryption_type(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
   uint8_t etype;
   etype = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(tree, hf_telnet_enc_type, tvb, offset, 1, etype);
 }
 
 static void
-dissect_encryption_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len,
+dissect_encryption_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, unsigned offset, unsigned len,
                           proto_tree *tree, proto_item *item)
 {
   uint8_t ecmd, key_first_octet;
@@ -1388,7 +1386,7 @@ static const value_string vmware_proxy_direction_vals[] = {
 };
 
 static void
-dissect_vmware_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset, int len,
+dissect_vmware_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, unsigned offset, unsigned len,
                       proto_tree *tree, proto_item *item _U_)
 {
   /*
@@ -1979,23 +1977,23 @@ telnet_find_option(uint8_t opt_byte)
 }
 
 static int
-telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *option_item, tvbuff_t *tvb, int start_offset)
+telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *option_item, tvbuff_t *tvb, unsigned start_offset)
 {
-  int           offset = start_offset;
+  unsigned      offset = start_offset;
   uint8_t       opt_byte;
   const tn_opt *opt;
-  int           subneg_len;
-  int           iac_offset;
+  unsigned      subneg_len;
+  unsigned      iac_offset;
   unsigned      len;
   tvbuff_t     *unescaped_tvb;
-  int           cur_offset;
+  unsigned      cur_offset;
   bool          iac_found;
 
   /*
    * As data with value iac (0xff) is possible, this value must be escaped
    * with iac (rfc 854).
    */
-  int  iac_data = 0;
+  unsigned  iac_data = 0;
 
   offset += 2;  /* skip IAC and SB */
 
@@ -2008,11 +2006,12 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
   cur_offset = offset;
   len = tvb_reported_length_remaining(tvb, offset);
   do {
-    iac_offset = tvb_find_uint8(tvb, cur_offset, len, TN_IAC);
-    iac_found = true;
-    if (iac_offset == -1) {
+    iac_found = tvb_find_uint8_length(tvb, cur_offset, len, TN_IAC, &iac_offset);
+    if (iac_found == false) {
       /* None found - run to the end of the packet. */
       offset += len;
+      /* To exit loop ?? (to keep logic from tvb_find_uint8())*/
+      iac_found = true;
     } else {
       if (!tvb_offset_exists(tvb, iac_offset + 1) ||
           (tvb_get_uint8(tvb, iac_offset + 1) != TN_IAC)) {
@@ -2221,13 +2220,14 @@ telnet_add_text(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigned len)
   }
 }
 
-static int find_unescaped_iac(tvbuff_t *tvb, int offset, int len)
+static unsigned
+find_unescaped_iac(tvbuff_t *tvb, unsigned offset, unsigned len)
 {
-  int iac_offset = offset;
+  unsigned iac_offset = offset;
 
   /* If we find an IAC (0XFF), make sure it is not followed by another 0XFF.
      Such cases indicate that it is not an IAC at all */
-  while ((iac_offset = tvb_find_uint8(tvb, iac_offset, len, TN_IAC)) != -1 &&
+  while ((tvb_find_uint8_length(tvb, iac_offset, len, TN_IAC, &iac_offset)) &&
          (tvb_get_uint8(tvb, iac_offset + 1) == TN_IAC))
   {
     iac_offset+=2;
