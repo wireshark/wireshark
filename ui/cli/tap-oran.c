@@ -48,7 +48,7 @@ uint32_t ul_configured_max = 0;
 uint32_t ul_within_configured_max = 0;
 uint32_t ul_above_configured_max = 0;
 
-#define MAX_BEAMS_IN_CAPTURE 64
+#define MAX_BEAMS_IN_CAPTURE 256U
 uint16_t num_beams;
 uint16_t beams[MAX_BEAMS_IN_CAPTURE];
 
@@ -325,6 +325,8 @@ oran_stat_draw(void *phs)
     for (tmp = hs->flow_list; tmp; tmp=tmp->next) {
 
         oran_row_data *row = (oran_row_data*)tmp->data;
+
+        /* TODO: use wmem_strbuf_t for these strings */
         char sections[32];
         int sections_offset = 0;
         sections[0] = '\0';
@@ -371,7 +373,7 @@ oran_stat_draw(void *phs)
 
         /* Beams. Only showing for DL CP..  */
         if (!row->base_info.uplink && !row->base_info.userplane) {
-            for (unsigned b=0; b < row->base_info.num_beams && section_ids_offset < 64-1; b++) {
+            for (int b=0; b < MIN(row->base_info.num_beams, MAX_BEAMS_IN_FRAME) && (section_ids_offset < (64-1)); b++) {
                 beams_offset += snprintf(beams_string+beams_offset, 64-beams_offset-1, " %u", row->base_info.beams[b]);
             }
         }
