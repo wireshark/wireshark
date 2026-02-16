@@ -33,10 +33,15 @@
 #include <ws_symbol_export.h>
 #include <wsutil/plugins.h>
 #include <wsutil/str_util.h>
+#include <wsutil/nstime.h>
+#include <wsutil/to_str.h>
+#include <wsutil/strtoi.h>
 #include <epan/proto.h>
 
 // for prefs
 #include <wsutil/report_message.h>
+
+#include <locale.h>
 
 #include "config.h"
 
@@ -94,7 +99,7 @@
 
 // Normally set by Wireshark builds
 #ifndef VERSION
-# define VERSION        "1.0.5"
+# define VERSION        "1.0.6"
 #endif
 
 /*
@@ -133,7 +138,9 @@ typedef struct {
     bool cur_heur_enable;
     bool prefer_tls; // enable TLS
     bool varval_tree; // enable displaying var=val as a tree
-    bool hide_nul; // hide the terminating NUL of a variable
+    bool time_utc; // display time fields in UTC rather than local time zone
+    bool clear_info; // clear the INFO col and append count, funcs; else append count
+    bool show_nul; // show the terminating NUL of a variable
 } p4prefs_t;
 
 /*
@@ -148,13 +155,18 @@ static p4prefs_t p4prefs = {
     true, // cur heur enable
     true, // prefer_tls
     true, // varval_tree
-    true, // hide_nul
+    true, // time_utc
+    true, // clear_info
+    false // show_nul
 };
 
+static char *decimal_point = ".";
+
 static int proto_p4rpc;         // main tree proto
-static int ett_p4rpc;           // first registered subtree proto
-static int ett_argtree;         // second registered subtree proto
-static int ett_haverec;         // third registered subtree proto
+static int ett_p4rpc;           // first registered subtree
+static int ett_argtree;         // second registered subtree
+static int ett_haverec;         // third registered subtree
+static int ett_sync_time;       // fourth registered subtree
 
 // header indices
 static int hf_p4rpc_checksum_len;
@@ -165,6 +177,7 @@ static int hf_p4rpc_varbytes;
 static int hf_p4rpc_varname;
 static int hf_p4rpc_varvallen;
 static int hf_p4rpc_varval;
+static int hf_p4rpc_sync_time;
 static int hf_p4rpc_have_client_path;
 static int hf_p4rpc_have_depot_path;
 static int hf_p4rpc_have_file_rev;
@@ -183,15 +196,268 @@ static expert_field ei_p4rpc_msg_len_cksum;
 static expert_field ei_p4rpc_msg_len;
 static expert_field ei_p4rpc_msg_val_len;
 static expert_field ei_p4rpc_msg_val_nul;
+static expert_field ei_p4rpc_timestr_non_numeric;
 
 void proto_register_p4rpc(void);
 void proto_reg_handoff_p4rpc(void);
+
+/*
+ * Time field number of displayed digits after decimal point (max 9)
+ * All time fields are integers, so we set TIME_PREC to 0
+ */
+#define TIME_PREC 0
 
 // used for calculating the checksum of the message length field
 static uint8_t
 calc_checksum( uint32_t val )
 {
     return ( (val & 0xFF) ^ ((val >> 8) & 0xFF) ^ ((val >> 16) & 0xFF) ^ ((val >> 24) & 0xFF) );
+}
+
+/*
+ * Generate an ISO-8601 datetime string to append to the field representation.
+ * - Fill "obuf" with the ISO-8601 datetime representation of "secs"
+ *   with " (" prepended and ")" appended
+ * - "secs" is the number of seconds since the epoch
+ * - "secs" is an integer, so "obuf" will not contain a fractional part
+ * - "len" must be the size of "obuf" and must be at least NSTIME_ISO8601_BUFSIZE+4
+ */
+static bool
+p4rpc_secs_to_8601_str( char *obuf, unsigned int len, uint64_t secs, int precision )
+{
+    if( len < NSTIME_ISO8601_BUFSIZE+4 ) {
+        obuf[0] = '\0'; // ensure it's terminated
+
+        return false;
+    }
+
+    nstime_t when = { secs, 0 };
+
+    obuf[0] = ' ';
+    obuf[1] = '(';
+
+    format_nstime_as_iso8601( obuf+2, NSTIME_ISO8601_BUFSIZE, &when,
+        decimal_point, !p4prefs.time_utc, precision );
+
+    g_strlcat( obuf, ")", NSTIME_ISO8601_BUFSIZE+4 ); // close our parens
+
+    return true;
+}
+
+/*
+ * Generate an ISO-8601 datetime string to append to the field representation.
+ * - Fill "obuf" with the ISO-8601 datetime representation of "secs"
+ *   with " (" prepended and ")" appended
+ * - "ibuf" is the ASCII string representation of the seconds since the epoch
+ * - "obuf" will not contain a fractional part
+ * - "len" must be the size of "obuf" and must be at least NSTIME_ISO8601_BUFSIZE+4
+ * - "secs" will be set to the integer value of the "ibuf" string
+ * - return true on success, false on error
+ */
+static bool
+p4rpc_secs_str_to_8601_str( char *obuf, unsigned int len, const char *ibuf,
+    bool *non_numeric, uint64_t *secs, int precision )
+{
+    obuf[0] = '\0'; // ensure it's terminated
+    *secs = 0;
+
+    nstime_t nst;
+    const char *endptr = NULL;
+
+    if( (endptr = unix_epoch_to_nstime(&nst, ibuf)) ) {
+        if( non_numeric && *endptr )
+            *non_numeric = true;
+
+        *secs = nst.secs;
+        return p4rpc_secs_to_8601_str( obuf, len, nst.secs, precision );
+    }
+
+    return false;
+}
+
+/*
+ * Special handling for the "haveRec" field value
+ * because it's a compound structure.
+ *
+ * Display a "haveRec" structure as a subtree with a subitem
+ * for each field of the structure.
+ *
+ * Append ISO-8601 datetime strings to the numeric display.
+ */
+static void
+p4rpc_decode_haverec( packet_info *pinfo, tvbuff_t *tvb, proto_item *parent_tree,
+    uint32_t offset, uint32_t recsize )
+{
+    uint32_t cur_offset = offset;
+
+    /*
+     * Format of the haveRec field:
+     *
+     * struct haveRec {
+     *     char clientPath[];
+     *     char depotPath[];
+     *     uint32_t rev;
+     *     uint32_t type;
+     *     uint32_t date; // sometimes a uint64_t
+     * };
+     */
+
+    /*
+     * add a new item item to our sub-subtree
+     * and attach a new "value" sub-subtree to it
+     */
+    proto_item *have_tree = proto_item_add_subtree( parent_tree, ett_haverec );
+
+    // add the client path to our sub-sub-subtree
+    uint32_t client_len;
+
+    tvb_get_stringz_enc( pinfo->pool, tvb, cur_offset, &client_len, ENC_UTF_8 );
+    proto_tree_add_item( have_tree, hf_p4rpc_have_client_path, tvb, cur_offset,
+        client_len, ENC_UTF_8 );
+    cur_offset += client_len;
+
+    // add the depot path to our sub-sub-subtree
+    uint32_t depot_len;
+
+    tvb_get_stringz_enc( pinfo->pool, tvb, cur_offset, &depot_len, ENC_UTF_8 );
+    proto_tree_add_item( have_tree, hf_p4rpc_have_depot_path, tvb, cur_offset,
+        depot_len, ENC_UTF_8 );
+    cur_offset += depot_len;
+
+    // add the file rev number to our sub-sub-subtree
+    proto_tree_add_item( have_tree, hf_p4rpc_have_file_rev, tvb, cur_offset,
+        4, ENC_LITTLE_ENDIAN );
+    cur_offset += 4;
+
+    // add the file type to our sub-sub-subtree
+    proto_tree_add_item( have_tree, hf_p4rpc_have_file_type, tvb, cur_offset,
+        4, ENC_LITTLE_ENDIAN );
+    cur_offset += 4;
+
+    /*
+     * Add the file datetime to our sub-sub-subtree.
+     * If there are 8 bytes remaining before the NUL terminator
+     * then all 8 are the 64-bit datetime;
+     * otherwise the next 4 bytes are the 32-bit datetime.
+     *
+     * Datetimes up to and including 03:14:07 UTC on 19 January 2038
+     * will use 4 bytes, and datetimes after that will use 8 bytes.
+     *
+     * A datetime of 0 means that a datetime was not set.
+     */
+
+    unsigned int datetime_len = 4;
+    uint64_t timestamp = 0;
+
+    if( cur_offset - offset + 8 <= recsize ) {
+        // 64-bit timestamp
+        timestamp = tvb_get_letoh64( tvb, cur_offset );
+        datetime_len = 8;
+    } else {
+        // 32-bit timestamp
+        timestamp = tvb_get_letohl( tvb, cur_offset );
+    }
+
+    proto_item *date_item = proto_tree_add_item( have_tree,
+        hf_p4rpc_have_file_datetime, tvb, cur_offset,
+        datetime_len, ENC_LITTLE_ENDIAN );
+
+    if( timestamp ) {
+        char buf[NSTIME_ISO8601_BUFSIZE+4];
+
+        p4rpc_secs_to_8601_str( buf, sizeof(buf), timestamp, TIME_PREC );
+        proto_item_append_text( date_item, "%s", buf );
+    } else {
+        // Annotate that a datetime was not set
+        proto_item_append_text( date_item, " (not set)" );
+    }
+}
+
+/*
+ * Display a time field (decimal string) as an ISO-8601 string.
+ * - Special-case "syncTime" to allow filtering as an integer.
+ * - Used only when "var=val" is a subtree, because for "syncTime"
+ *   it will append text to that subtree.
+ * - Used for time fields that are decimal strings rather than
+ *   32- or 64-bit integer fields.
+ */
+static void
+p4rpc_decode_time_str( tvbuff_t *tvb, proto_item *parent_tree,
+    proto_item *item, const uint8_t *varname, const uint8_t *varval,
+    bool *non_numeric, uint32_t vallen, uint32_t val_offset )
+{
+    /*
+     * All params whose name ends in "Time" have values
+     * that are a numeric string of seconds since the epoch.
+     * Append the formatted datetime to the value field
+     * if the value is set (ie, non-zero).
+     */
+    bool is_sync_time = strcmp((const char *)varname, "syncTime") == 0;
+
+    char buf[NSTIME_ISO8601_BUFSIZE+4];
+    uint64_t secs = 0;
+
+    p4rpc_secs_str_to_8601_str( buf, sizeof(buf),
+            (const char *)varval, non_numeric, &secs, TIME_PREC );
+
+    if( secs ) {
+        proto_item_append_text( item, "%s", buf );
+        proto_item_append_text( parent_tree, "%s", buf );
+    } else {
+        // Annotate that a datetime wasn't set
+        proto_item_append_text( item, " (not set)" );
+        proto_item_append_text( parent_tree, " (not set)" );
+    }
+
+    /*
+     * As a special case, allow filtering on "syncTime".
+     *
+     * We might want to consider allowing filtering
+     * on other timestamp fields.
+     *
+     * These field values are decimal strings, so comparing
+     * them except for something other than equality or inequality
+     * requires creating a separate numeric field for each one,
+     * as we have done here for "syncTime".
+     */
+    if( is_sync_time ) {
+        // add the syncTime integer field
+        proto_item *sync_item_val =
+            proto_tree_add_uint64_format_value( parent_tree,
+                hf_p4rpc_sync_time, tvb, val_offset, vallen,
+                secs, "%" PRIu64, secs );
+
+        /*
+         * Hide the syncTime integer field because we already show
+         * the time string and just want to allow filtering by its
+         * value as an integer.
+         */
+        proto_item_set_hidden( sync_item_val );
+    }
+}
+
+/*
+ * Display a time field (decimal string) as an ISO-8601 string.
+ * - Used only when "var=val" is a leaf node, not a subtree
+ * - Used for time fields that are decimal strings rather than
+ *   32- or 64-bit integer fields.
+ * - Appends time string or "(not set)" to the leaf node.
+ */
+static void
+item_decode_time_str( proto_item *tree, const uint8_t *varval, bool *non_numeric )
+{
+    char buf[NSTIME_ISO8601_BUFSIZE+4];
+    uint64_t secs = 0;
+
+    p4rpc_secs_str_to_8601_str( buf, sizeof(buf),
+        (const char *)varval, non_numeric, &secs, TIME_PREC );
+
+    if( secs ) {
+        proto_item_append_text( tree, "%s", buf );
+    } else {
+        // Annotate a datetime that wasn't set
+        proto_item_append_text( tree, " (not set)" );
+    }
 }
 
 /*
@@ -212,7 +478,7 @@ calc_checksum( uint32_t val )
  */
 static uint32_t
 dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
-    packet_info *pinfo, proto_tree *tree, void *data _U_ )
+    packet_info *pinfo, proto_tree *tree, unsigned int msg_idx, void *data _U_ )
 {
     uint32_t msg_start = offset;
 
@@ -222,7 +488,7 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
 
     // we need at least MSG_HEADER_LEN bytes to find the message length
     if ( !tvb_bytes_exist(tvb, offset, MSG_HEADER_LEN) ) {
-        proto_tree_add_expert_format(ti_tree, pinfo, &ei_p4rpc_msg_short, tvb,
+        proto_tree_add_expert_format( ti_tree, pinfo, &ei_p4rpc_msg_short, tvb,
             0, MSG_HEADER_LEN,
             "Invalid message: Fewer than %d bytes available", MSG_HEADER_LEN );
     }
@@ -234,8 +500,8 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
 
     // add the length field as an item to our subtree
     uint32_t msg_len = tvb_get_letohl( tvb, offset );
-    proto_tree_add_item( ti_tree, hf_p4rpc_len, tvb, offset, sizeof(uint32_t), ENC_LITTLE_ENDIAN );
-    offset += sizeof(uint32_t);
+    proto_tree_add_item( ti_tree, hf_p4rpc_len, tvb, offset, 4, ENC_LITTLE_ENDIAN );
+    offset += 4;
 
     // warn if the length checksum doesn't match the actual checksum
     if( cksum_of_len != calc_checksum(msg_len) ) {
@@ -246,7 +512,7 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
 
     // warn if the message length is out of bounds
     if ( msg_len < MSG_MIN_LEN || msg_len > MSG_MAX_LEN ) {
-        proto_tree_add_expert_format( ti_tree, pinfo, &ei_p4rpc_msg_len, tvb, 1, sizeof(uint32_t),
+        proto_tree_add_expert_format( ti_tree, pinfo, &ei_p4rpc_msg_len, tvb, 1, 4,
             "Message length %d (0x%0X) not in range [%d, %d]", msg_len, msg_len,
             MSG_MIN_LEN, MSG_MAX_LEN );
     }
@@ -254,7 +520,7 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
     // there's something wrong if msg len exceeds the captured data
     uint32_t tvb_len = tvb_captured_length( tvb );
     if( msg_len > tvb_len - MSG_HEADER_LEN ) {
-        proto_tree_add_expert_format( ti_tree, pinfo, &ei_p4rpc_msg_len, tvb, 1, sizeof(uint32_t),
+        proto_tree_add_expert_format( ti_tree, pinfo, &ei_p4rpc_msg_len, tvb, 1, 4,
             "Message length %d (0x%0X) exceeds tvb length (%d)",
             msg_len, msg_len, tvb_len - MSG_HEADER_LEN );
 
@@ -277,12 +543,12 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
 
         // get the param value length
         uint32_t vallen = tvb_get_letohl( tvb, offset );
-        offset += sizeof(uint32_t);
+        offset += 4;
 
         // get the param value
         uint32_t val_offset = offset; // the offset to the start of the value
         uint8_t *varval = tvb_get_string_enc( pinfo->pool, tvb, offset, vallen, ENC_UTF_8 );
-        int32_t tot_var_len = name_len + vallen + sizeof(uint32_t);
+        int32_t tot_var_len = name_len + vallen + 4;
 
         // get the (expected) NUL byte
         uint32_t nul_offset = offset + vallen;
@@ -317,70 +583,47 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
             proto_tree_add_item( arg_tree, hf_p4rpc_varname, tvb, name_offset, name_len, ENC_UTF_8 );
 
             // add the length of the param value to our sub-subtree
-            proto_tree_add_item( arg_tree, hf_p4rpc_varvallen, tvb, vallen_offset, sizeof(uint32_t), ENC_LITTLE_ENDIAN );
+            proto_tree_add_item( arg_tree, hf_p4rpc_varvallen, tvb, vallen_offset, 4, ENC_LITTLE_ENDIAN );
 
             // add the param value to our sub-subtree
             proto_item *vv_rec = proto_tree_add_item( arg_tree, hf_p4rpc_varval, tvb, val_offset, vallen, ENC_NA );
 
             /*
-             * Special handling for the "haveRec" parameter
-             * because it's a compound structure.
+             * Special handling for the compound structure fields:
+             *   haveRec
+             * TODO:
+             * - Decode the other "*Rec" structure fields.
+             *
+             * Special handling for time fields -- append ISO-8601 datetime
+             * strings to the numeric display:
+             *   depotTime
+             *   headModTime
+             *   headTime
+             *   maxLockTime
+             *   maxPauseTime
+             *   theirTime
              */
-            if( strcmp((char *)varname, "haveRec") == 0 ) {
-                uint32_t cur_offset = val_offset;
+            if( strcmp((const char *)varname, "haveRec") == 0 ) {
+                p4rpc_decode_haverec( pinfo, tvb, arg_tree, val_offset, vallen );
+            } else if( g_str_has_suffix((const char *)varname, "Time") ) {
+                bool non_numeric = false;
 
-                /*
-                 * Format of the haveRec field:
-                 *
-                 * struct haveRec {
-                 *     char clientPath[];
-                 *     char depotPath[];
-                 *     uint32_t rev;
-                 *     uint32_t type;
-                 *     uint32_t date; // sometimes a uint64_t
-                 * };
-                 */
+                p4rpc_decode_time_str( tvb, arg_tree, vv_rec, varname,
+                    varval, &non_numeric, vallen, val_offset );
 
-                // add a new item item to our sub-subtree and attach a new "value" sub-subtree to it
-                proto_item *have_tree = proto_item_add_subtree( vv_rec, ett_haverec );
-
-                // add the client path to our sub-sub-subtree
-                uint32_t client_len;
-                tvb_get_stringz_enc( pinfo->pool, tvb, cur_offset, &client_len, ENC_UTF_8 );
-                proto_tree_add_item( have_tree, hf_p4rpc_have_client_path, tvb, cur_offset, client_len, ENC_UTF_8 );
-                cur_offset += client_len;
-
-                // add the depot path to our sub-sub-subtree
-                uint32_t depot_len;
-                tvb_get_stringz_enc( pinfo->pool, tvb, cur_offset, &depot_len, ENC_UTF_8 );
-                proto_tree_add_item( have_tree, hf_p4rpc_have_depot_path, tvb, cur_offset, depot_len, ENC_UTF_8 );
-                cur_offset += depot_len;
-
-                // add the file rev number to our sub-sub-subtree
-                proto_tree_add_item( have_tree, hf_p4rpc_have_file_rev, tvb, cur_offset, sizeof(uint32_t), ENC_LITTLE_ENDIAN );
-                cur_offset += sizeof(uint32_t);
-
-                // add the file type to our sub-sub-subtree
-                proto_tree_add_item( have_tree, hf_p4rpc_have_file_type, tvb, cur_offset, sizeof(uint32_t), ENC_LITTLE_ENDIAN );
-                cur_offset += sizeof(uint32_t);
-
-                /*
-                 * Add the file datetime to our sub-sub-subtree.
-                 * If there are 8 bytes remaining before the NUL terminator
-                 * then all 8 are the 64-bit datetime.
-                 * Otherwise the next 4 bytes are the 32-bit datetime.
-                 */
-                uint32_t datetime_len = (cur_offset + sizeof(uint64_t) < nul_offset )
-                                      ? sizeof(uint64_t)
-                                      : sizeof(uint32_t);
-                proto_tree_add_item( have_tree, hf_p4rpc_have_file_datetime,
-                    tvb, cur_offset, datetime_len, ENC_LITTLE_ENDIAN );
+                // report non-numeric char in time string
+                if( non_numeric )
+                {
+                    proto_tree_add_expert_format( arg_tree, pinfo,
+                        &ei_p4rpc_timestr_non_numeric, tvb, val_offset, vallen,
+                        "Time string contains non-numeric character" );
+                }
             }
 
             // decode the nul terminator
             proto_item *nul_item =
                 proto_tree_add_item( arg_tree, hf_p4rpc_nul, tvb, nul_offset, 1, ENC_NA );
-            if( p4prefs.hide_nul )
+            if( !p4prefs.show_nul )
                 proto_item_set_hidden( nul_item );
 
             if( zero )
@@ -397,31 +640,44 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
             if( vallen > bytes_left )
             {
                 proto_tree_add_expert_format( arg_tree, pinfo, &ei_p4rpc_msg_val_len,
-                tvb, vallen_offset, sizeof(uint32_t),
-                "Invalid value: length %d > %d bytes remaining in message",
-                vallen, bytes_left );
+                    tvb, vallen_offset, 4,
+                    "Invalid value: length %d > %d bytes remaining in message",
+                    vallen, bytes_left );
 
                 // don't try to read past the end
                 vallen = bytes_left;
             }
         } else {
-            // add "name=value" to be a leaf item to our subtree
-            proto_tree_add_bytes_format( ti_tree, hf_p4rpc_varbytes, tvb,
-                name_offset, tot_var_len, NULL, "%s", argbuf );
+            // add "var=value" to be a leaf item to our subtree
+            proto_item *arg_tree =
+                proto_tree_add_bytes_format( ti_tree, hf_p4rpc_varbytes, tvb,
+                    name_offset, tot_var_len, NULL, "%s", argbuf );
 
-            // add the param name to our sub-subtree
-            proto_tree_add_item( ti_tree, hf_p4rpc_varname, tvb, name_offset, name_len, ENC_UTF_8 );
+            /*
+             * All params whose name ends in "Time" have values
+             * that are a numeric string of seconds since the epoch.
+             * Append the formatted datetime to the value field
+             * if the value is set (ie, non-zero).
+             */
+            if( g_str_has_suffix((const char *)varname, "Time") ) {
+                bool non_numeric = false;
 
-            // add the length of the param value to our sub-subtree
-            proto_tree_add_item( ti_tree, hf_p4rpc_varvallen, tvb, vallen_offset, sizeof(uint32_t), ENC_LITTLE_ENDIAN );
+                item_decode_time_str( arg_tree, varval, &non_numeric );
 
-            // add the param value to our sub-subtree
-            proto_tree_add_item( ti_tree, hf_p4rpc_varval, tvb, val_offset, vallen, ENC_NA );
+                // report non-numeric char in time string
+                if( non_numeric )
+                {
+                    proto_tree_add_expert_format( ti_tree, pinfo,
+                        &ei_p4rpc_timestr_non_numeric, tvb, offset+vallen,
+                        vallen,
+                        "Time string contains non-numeric character" );
+                }
+            }
 
             // decode the nul terminator
             proto_item *nul_item =
                 proto_tree_add_item( ti_tree, hf_p4rpc_nul, tvb, nul_offset, 1, ENC_NA );
-            if( p4prefs.hide_nul )
+            if( !p4prefs.show_nul )
                 proto_item_set_hidden( nul_item );
 
             // report incorrect NUL terminator
@@ -437,14 +693,13 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
             if( vallen > bytes_left )
             {
                 proto_tree_add_expert_format( ti_tree, pinfo, &ei_p4rpc_msg_val_len,
-                    tvb, vallen_offset, sizeof(uint32_t),
+                    tvb, vallen_offset, 4,
                     "Invalid value: var \"%s\" length %d > %d bytes remaining in message",
                     varname, vallen, bytes_left );
 
                 // don't try to read past the end
                 vallen = bytes_left;
             }
-
         } // var=val subtree
 
         /*
@@ -453,6 +708,12 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
 
         if( strcmp((char *)varname, "func") == 0 )
         {
+            if( p4prefs.clear_info ) {
+                // append the current func name to the INFO column
+                col_append_fstr( pinfo->cinfo, COL_INFO,
+                    (msg_idx == 0) ? "%s" : " | %s", varval );
+            }
+
             // add the "func" name to the subtree (not sub-subtree) text
             proto_item_append_text( ti_tree, " : [%s] [len=%d]",
                 varval, offset+vallen+1 );
@@ -523,17 +784,14 @@ dissect_p4rpc_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     ++info->num_pdus; // we get called once per pdu
 
-    col_set_str( pinfo->cinfo, COL_PROTOCOL, "P4RPC" );
-
     /*
      * Process every message in this PDU
-     * (but a PDU is exactly on message
+     * (but a PDU is exactly one message
      * so we pass through the loop exactly once).
      */
     while( offset < tvb_len )
     {
-        offset = dissect_one_p4rpc_message( tvb, offset, &seqno, pinfo, tree, data );
-        ++info->num_msgs; // we processed another message
+        offset = dissect_one_p4rpc_message( tvb, offset, &seqno, pinfo, tree, info->num_msgs++, data );
     }
 
     return offset;
@@ -572,6 +830,12 @@ dissect_p4rpc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 {
     pdu_info    info = { 0, 0 };
 
+    col_set_str( pinfo->cinfo, COL_PROTOCOL, "P4RPC" );
+
+    // clear the INFO column if the user requested it
+    if( p4prefs.clear_info )
+        col_clear( pinfo->cinfo, COL_INFO );
+
     // reassemble TCP packets and call dissect_p4rpc_pdu on each pdu
     tcp_dissect_pdus( tvb, pinfo, tree, true, MSG_HEADER_LEN,
                      get_p4rpc_pdu_len, dissect_p4rpc_pdu, &info );
@@ -579,14 +843,8 @@ dissect_p4rpc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /*
      * Add [msgs=NN] to the INFO of the packet tree where NN
      * is the number of messages in the packet
-     * (or [msgs=NN, pdus=NN] if we're showing PDUs as well).
      */
-#define NUMBUF_SZ 48
-    char *info_buf = wmem_alloc( pinfo->pool, NUMBUF_SZ ); /* big enough */
-
-    snprintf( info_buf, NUMBUF_SZ-1, " [msgs=%d]", info.num_msgs );
-
-    col_append_str( pinfo->cinfo, COL_INFO, info_buf );
+    col_prepend_fstr( pinfo->cinfo, COL_INFO, "[msgs=%d] ", info.num_msgs );
 
     /*
      * Similar to "func" and "hidden", allow filtering by number
@@ -724,7 +982,7 @@ p4rpc_setup_ports( bool isInit )
          * because none could have been registered already.
          *
          * After initialization it's still possible that no heuristic
-         * dissector has registered.
+         * dissector was registered.
          * Rather than track whether or not one has already been registered
          * we always delete it, because heur_dissector_delete() is a no-op
          * if the dissector isn't registered.
@@ -828,14 +1086,27 @@ register_prefs(void)
         "Show message parameters as a \"var=value\" tree",
         "Show message parameters as a \"var=value\" subtree with \"var\", "
         " \"length\", and \"val\" children.\n"
-        "\nIt is recommended to enable this.",
+        "\nIt is highly recommended to enable this, because this is required"
+        " to enable filtering by parameter names and values (eg, p4rpc.var.*, etc)",
         &p4prefs.varval_tree );
 
-    // hide_nul preference
-    prefs_register_bool_preference( prefs_mod, "hide_nul",
-        "Don't add the NUL byte of var=val params into the protocol tree",
-        "If set, don't add a subtree item for the ending NUL byte of a message parameter",
-        &p4prefs.hide_nul );
+    // UTC vs local time field preference
+    prefs_register_bool_preference( prefs_mod, "time_fields_in_utc",
+        "Display time fields in UTC rather than in the local time zone",
+        "If set, display time fields in UTC rather than in the local time zone",
+        &p4prefs.time_utc );
+
+    // Clear INFO field preference
+    prefs_register_bool_preference( prefs_mod, "clear_info",
+        "Clear the INFO column and show the message count and the request names",
+        "If not set then just prepend the message count",
+        &p4prefs.clear_info );
+
+    // show_nul preference
+    prefs_register_bool_preference( prefs_mod, "show_nul",
+        "Show the NUL byte of var=val params in the protocol tree",
+        "If set, add a subtree item for the ending NUL byte of a message parameter",
+        &p4prefs.show_nul );
 
     /*
      * Not real preferences, just some static text to display.
@@ -855,15 +1126,16 @@ proto_register_p4rpc(void)
 {
     static hf_register_info hf[] = {
         {
+            // basic protocol fields
             &hf_p4rpc_checksum_len,
             {
                 "message cksum of len",
-                "p4rpc.cksum.len",
+                "p4rpc.len.cksum",
                 FT_UINT8,
                 BASE_HEX,
                 NULL,
                 0x0,
-                "checksum of p4rpc.msg.len (XOR of the 4 length bytes)",
+                "Checksum of p4rpc.msg.len (XOR of the 4 length bytes)",
                 HFILL
             }
         },
@@ -886,7 +1158,7 @@ proto_register_p4rpc(void)
             {
                 "param name=val", // placeholder
                 "p4rpc.var.name.val",
-                FT_STRINGZTRUNC, // or FT_BYTES
+                FT_BYTES,
                 BASE_NONE,
                 NULL,
                 0x0,
@@ -971,11 +1243,9 @@ proto_register_p4rpc(void)
                 "Number of messages in this (reassembled) packet", // blurb (const char *)
                 HFILL
             }
-        }
-    };
+        },
 
-    // name=value subtree
-    static hf_register_info nv[] = {
+        // name=value subtree
         {
             &hf_p4rpc_varname,
             {
@@ -1015,10 +1285,23 @@ proto_register_p4rpc(void)
                 HFILL
             }
         },
-    };
 
-    // haveRec subtree
-    static hf_register_info hr[] = {
+        // syncTime item
+        {
+            &hf_p4rpc_sync_time,
+            {
+                "sync time",
+                "p4rpc.synctime",
+                FT_UINT64,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "Integer value of syncTime param",
+                HFILL
+            }
+        },
+
+        // haveRec subtree
         {
             &hf_p4rpc_have_client_path,
             {
@@ -1028,7 +1311,7 @@ proto_register_p4rpc(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "Value of this parameter",
+                "File path in client syntax",
                 HFILL
             }
         },
@@ -1041,7 +1324,7 @@ proto_register_p4rpc(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "Value of this parameter",
+                "File path in depot syntax",
                 HFILL
             }
         },
@@ -1054,7 +1337,7 @@ proto_register_p4rpc(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "Value of this parameter",
+                "File revision number",
                 HFILL
             }
         },
@@ -1067,7 +1350,7 @@ proto_register_p4rpc(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "Value of this parameter",
+                "Internal code for the file type",
                 HFILL
             }
         },
@@ -1076,11 +1359,16 @@ proto_register_p4rpc(void)
             {
                 "file datetime",
                 "p4rpc.have.file.datetime",
-                FT_ABSOLUTE_TIME,
-                ABSOLUTE_TIME_LOCAL,
+                /*
+                 * Use FT_INT64 rather than FT_ABSOLUTE_TIME
+                 * so that we can display in ISO-8601 format,
+                 * in either UTC or local timezone.
+                 */
+                FT_INT64, // often only 32 bits
+                BASE_DEC,
                 NULL,
                 0x0,
-                "Value of this parameter",
+                "Timestamp of this file",
                 HFILL
             }
         }
@@ -1090,8 +1378,6 @@ proto_register_p4rpc(void)
      * Register our expert info variables
      * (message warnings, errors, corruption, etc)
      */
-    expert_module_t *expert_p4rpc = NULL;
-
     static ei_register_info ei[] = {
         {
             &ei_p4rpc_msg_short,
@@ -1142,40 +1428,37 @@ proto_register_p4rpc(void)
                 "expected NUL terminator is not zero",
                 EXPFILL
             }
+        },
+        {
+            &ei_p4rpc_timestr_non_numeric,
+            {
+                "p4rpc.timestr.inval",
+                PI_MALFORMED,
+                PI_WARN,
+                "time string contains non-numeric character",
+                EXPFILL
+            }
         }
     };
 
-    // Setup protocol subtree array
-    static int *ett[] = {
-        &ett_p4rpc
-    };
-
-    // Setup protocol subtree name=value array
-    static int *ett_name_value[] = {
-        &ett_argtree
-    };
-
-    // Setup protocol subtree haveRec value array
-    static int *ett_haverec_value[] = {
-        &ett_haverec
+    // setup subtree arrays
+    static int *ett_arrays[] = {
+        &ett_p4rpc, // protocol subtree array
+        &ett_argtree, // protocol subtree name=value array
+        &ett_sync_time, // protocol subtree datetime array
+        &ett_haverec // protocol subtree haveRec value array
     };
 
     // Finally, register our protocol
     proto_p4rpc = proto_register_protocol ("P4RPC (Perforce Protocol)", "P4RPC", "p4rpc");
 
-    // register our variables
+    // Register our protocol variables
     proto_register_field_array( proto_p4rpc, hf, array_length(hf) );
-    proto_register_subtree_array( ett, array_length(ett) );
-
-    // register more variables
-    proto_register_field_array( proto_p4rpc, nv, array_length(nv) );
-    proto_register_subtree_array( ett_name_value, array_length(ett_name_value) );
-
-    // register haverec variables
-    proto_register_field_array( proto_p4rpc, hr, array_length(hr) );
-    proto_register_subtree_array( ett_haverec_value, array_length(ett_haverec_value) );
+    proto_register_subtree_array( ett_arrays, array_length(ett_arrays) );
 
     // register expert variables
+    expert_module_t *expert_p4rpc = NULL;
+
     expert_p4rpc = expert_register_protocol( proto_p4rpc );
     expert_register_field_array( expert_p4rpc, ei, array_length(ei) );
 
@@ -1201,6 +1484,8 @@ proto_register_p4rpc(void)
     );
 
     register_prefs();
+
+    decimal_point = localeconv()->decimal_point;
 } // proto_register_p4rpc
 
 /*
