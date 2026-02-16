@@ -2765,7 +2765,7 @@ dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     megaco_packagesdescriptor_tree = proto_item_add_subtree(megaco_packagesdescriptor_ti, ett_megaco_packagesdescriptor);
 
     found = tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_RBRKT, '=', &tvb_current_offset);
-    tvb_LBRKT_found = tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_RBRKT, '{', &tvb_next_offset);
+    tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_RBRKT, '{', &tvb_next_offset);
 
     if ( tvb_current_offset < tvb_RBRKT && found == true ){
 
