@@ -40,11 +40,11 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_item	*ti, *hidden_item;
 	proto_tree	*gift_tree, *cmd_tree;
 	bool	is_request;
-	int             offset = 0;
+	unsigned        offset = 0;
 	const unsigned char    *line;
-	int             next_offset;
-	int             linelen;
-	int             tokenlen;
+	unsigned        next_offset;
+	unsigned        linelen;
+	unsigned        tokenlen;
 	const unsigned char    *next_token;
 
 	/* set "Protocol" column text */
@@ -56,7 +56,7 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	else
 		is_request = false;
 
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+	tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
 	/* set "Info" column text */

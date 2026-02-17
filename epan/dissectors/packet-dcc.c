@@ -537,7 +537,7 @@ dissect_dcc_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 {
 	proto_tree *dcc_tree, *dcc_optree, *dcc_opnumtree, *ti;
 	uint32_t packet_length, op;
-	int offset = 0;
+	unsigned offset = 0;
 	int client_is_le = 0;
 	int i;
 	bool is_response = (pinfo->srcport == DCC_PORT);
@@ -629,7 +629,7 @@ dissect_dcc_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 		case DCC_OP_ADMN:
 			if ( is_response )
 			{
-				int left_local = tvb_reported_length_remaining(tvb, offset) - (int)sizeof(DCC_SIGNATURE);
+				unsigned left_local = tvb_reported_length_remaining(tvb, offset) - (int)sizeof(DCC_SIGNATURE);
 				if ( left_local == sizeof(DCC_ADMN_RESP_CLIENTS) )
 				{
 					proto_tree_add_item(dcc_optree, hf_dcc_addr, tvb, offset, 16, ENC_NA);
@@ -643,10 +643,10 @@ dissect_dcc_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 				}
 				else
 				{
-					int next_offset, left;
+					unsigned next_offset, left;
 					while (tvb_reported_length_remaining(tvb, offset+(int)sizeof(DCC_SIGNATURE)) > 0) {
 						left = tvb_reported_length_remaining(tvb,offset) - (int)sizeof(DCC_SIGNATURE);
-						tvb_find_line_end(tvb, offset, left, &next_offset, false);
+						tvb_find_line_end_length(tvb, offset, left, NULL, &next_offset);
 						proto_tree_add_item(dcc_optree, hf_dcc_response_text, tvb, offset,
 							next_offset - offset, ENC_ASCII);
 						offset = next_offset;
@@ -716,8 +716,7 @@ dissect_dcc_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 }
 
 static unsigned
-dissect_dcc_pdu_len(packet_info* pinfo _U_, tvbuff_t* tvb,
-	int offset, void* data _U_)
+dissect_dcc_pdu_len(packet_info* pinfo _U_, tvbuff_t* tvb, int offset, void* data _U_)
 {
 	return tvb_get_ntohs(tvb, offset);
 }

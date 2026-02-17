@@ -34,13 +34,13 @@ static dissector_handle_t ber_handle;
 static dissector_table_t rfc7468_label_table;
 
 static bool
-line_is_eb(const unsigned char *line, int linelen, const char *prefix,
-           size_t prefixlen, const unsigned char **labelpp, int *labellenp)
+line_is_eb(const unsigned char *line, unsigned linelen, const char *prefix,
+           size_t prefixlen, const unsigned char **labelpp, unsigned *labellenp)
 {
     static const char suffix[] = "-----";
 #define suffixlen (sizeof suffix - 1)
     const unsigned char *labelp;
-    int labellen;
+    unsigned labellen;
 
     /*
      * Is this line an encapsulation boundary of the type specified by the
@@ -101,7 +101,7 @@ line_is_eb(const unsigned char *line, int linelen, const char *prefix,
     /*
      * The rest of the characters must be printable ASCII.
      */
-    for (int i = 0; i < labellen; i++, labelp++) {
+    for (unsigned i = 0; i < labellen; i++, labelp++) {
         if (*labelp < 0x20 || *labelp > 0x7E) {
             /* Not printable ASCII. */
             return false;
@@ -111,12 +111,12 @@ line_is_eb(const unsigned char *line, int linelen, const char *prefix,
 }
 
 static bool
-line_is_blank(const unsigned char *line, int linelen)
+line_is_blank(const unsigned char *line, unsigned linelen)
 {
     const unsigned char *p;
 
     p = line;
-    for (int i = 0; i < linelen; i++, p++) {
+    for (unsigned i = 0; i < linelen; i++, p++) {
         if (*p != ' ' && *p != '\t') {
             /* Not space or tab */
             return false;
@@ -133,12 +133,12 @@ static const char posteb_prefix[] = "-----END ";
 static int
 dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset;
-    int linelen;
-    int next_offset = 0;
+    unsigned offset;
+    unsigned linelen;
+    unsigned next_offset = 0;
     const unsigned char *line;
     const unsigned char *labelp = NULL;
-    int labellen = 0;
+    unsigned labellen = 0;
     char *label;
     proto_tree *rfc7468_tree, *preeb_tree, *posteb_tree;
     proto_item *rfc7468_item, *ti;
@@ -154,8 +154,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      * boundary; they're explanatory text lines.
      */
     while (tvb_offset_exists(tvb, offset)) {
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-        if (linelen == -1) {
+        if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
             /* No complete line was found.  Nothing more to do. */
             return tvb_captured_length(tvb);
         }
@@ -163,7 +162,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         /*
          * Get a buffer that refers to the line.
          *
-         * Note that "tvb_find_line_end()" will return a value that
+         * Note that "tvb_find_line_end_remaining()" will return a value that
          * is not longer than what's in the buffer, so the
          * "tvb_get_ptr()" call won't throw an exception.
          */
@@ -216,8 +215,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      * Skip over any blank lines before the base64 information.
      */
     while (tvb_offset_exists(tvb, offset)) {
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-        if (linelen == -1) {
+        if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
             /* No complete line was found.  We're done. */
             return tvb_captured_length(tvb);
         }
@@ -225,7 +223,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         /*
          * Get a buffer that refers to the line.
          *
-         * Note that "tvb_find_line_end()" will return a value that
+         * Note that "tvb_find_line_end_remaining()" will return a value that
          * is not longer than what's in the buffer, so the
          * "tvb_get_ptr()" call won't throw an exception.
          */
@@ -261,8 +259,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     unsigned base64_save = 0;
     unsigned datasize = 0;
     while (tvb_offset_exists(tvb, offset)) {
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-        if (linelen == -1) {
+        if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
             /*
              * No complete line was found.  Nothing more to do.
              */
@@ -272,7 +269,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         /*
          * Get a buffer that refers to the line.
          *
-         * Note that "tvb_find_line_end()" will return a value that
+         * Note that "tvb_find_line_end_remaining()" will return a value that
          * is not longer than what's in the buffer, so the
          * "tvb_get_ptr()" call won't throw an exception.
          */
@@ -368,12 +365,12 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 static bool
 dissect_rfc7468_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    int offset;
-    int linelen;
-    int next_offset;
+    unsigned offset;
+    unsigned linelen;
+    unsigned next_offset;
     const unsigned char *line;
     const unsigned char *labelp;
-    int labellen;
+    unsigned labellen;
     bool found = false;
 
     /*
@@ -383,8 +380,7 @@ dissect_rfc7468_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
      */
     offset = 0;
     for (unsigned int i = 0; i < MAX_EXPLANATORY_TEXT_LINES; i++) {
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-        if (linelen == -1) {
+        if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
             /*
              * No complete line was found; we ran out of file data
              * and didn't find a pre-encapsulation boundary, so this
@@ -396,7 +392,7 @@ dissect_rfc7468_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         /*
          * Get a buffer that refers to the line.
          *
-         * Note that "tvb_find_line_end()" will return a value that
+         * Note that "tvb_find_line_end_remaining)" will return a value that
          * is not longer than what's in the buffer, so the
          * "tvb_get_ptr()" call won't throw an exception.
          */

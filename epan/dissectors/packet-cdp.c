@@ -165,7 +165,7 @@ dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, uint16_t length
 static void
 dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static void
-add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, int start,
+add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, unsigned start,
   int len, int hf);
 
 #define TYPE_DEVICE_ID          0x0001
@@ -1283,15 +1283,15 @@ dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length,
 }
 
 static void
-add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, int start,
+add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, unsigned start,
   int len, int hf)
 {
-    int next;
-    int  line_len;
-    int  data_len;
+    unsigned next;
+    unsigned  line_len;
+    unsigned  data_len;
 
     while (len > 0) {
-        line_len = tvb_find_line_end(tvb, start, len, &next, false);
+        tvb_find_line_end_length(tvb, start, len, &line_len , &next);
         data_len = next - start;
         proto_tree_add_string(tree, hf, tvb, start, data_len, tvb_format_stringzpad(scope, tvb, start, line_len));
         start += data_len;

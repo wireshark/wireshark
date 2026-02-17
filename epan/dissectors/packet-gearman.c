@@ -82,7 +82,7 @@ static const char *GEARMAN_MGR_CMDS[] = {
   "version"
 };
 
-static const int GEARMAN_MGR_CMDS_COUNT = array_length(GEARMAN_MGR_CMDS);
+static const unsigned GEARMAN_MGR_CMDS_COUNT = array_length(GEARMAN_MGR_CMDS);
 
 typedef enum
 {
@@ -188,7 +188,7 @@ get_gearman_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *dat
 static int
 dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  int curr_offset;
+  unsigned curr_offset;
   char *magic_code;
   uint32_t type, size;
   unsigned len;
@@ -544,7 +544,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 static void
 dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  int i, type = 0, cmdlen, linelen, offset = 0, next_offset = 0;
+  unsigned i, type = 0, cmdlen, linelen, offset = 0, next_offset = 0;
   proto_item *ti;
   proto_tree *gearman_tree;
 
@@ -554,7 +554,7 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item(tree, proto_gearman, tvb, 0, -1, ENC_NA);
   gearman_tree = proto_item_add_subtree(ti, ett_gearman);
 
-  while ((linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false)) > 0)
+  while (tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset))
   {
     for (i=0; i<GEARMAN_MGR_CMDS_COUNT; i++)
     {

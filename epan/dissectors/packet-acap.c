@@ -43,11 +43,11 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     bool          is_request;
     proto_tree   *acap_tree, *reqresp_tree;
     proto_item   *ti, *hidden_item;
-    int           offset = 0;
+    unsigned      offset = 0;
     const unsigned char *line;
-    int           next_offset;
-    int           linelen;
-    int           tokenlen;
+    unsigned      next_offset;
+    unsigned      linelen;
+    unsigned      tokenlen;
     const unsigned char *next_token;
 
 
@@ -66,11 +66,11 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /*
      * Find the end of the first line.
      *
-     * Note that "tvb_find_line_end()" will return a value that is
+     * Note that "tvb_find_line_end_remaining()" will return a value that is
      * not longer than what's in the buffer, so the "tvb_get_ptr()"
      * call won't throw an exception.
      */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+    tvb_find_line_end_remaining(tvb, offset, &linelen , &next_offset);
     line = tvb_get_ptr(tvb, offset, linelen);
 
     if (pinfo->match_uint == pinfo->destport)

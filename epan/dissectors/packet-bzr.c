@@ -62,26 +62,24 @@ static const value_string message_results[] = {
 /* desegmentation of Bazaar over TCP */
 static bool bzr_desegment = true;
 
-static unsigned get_bzr_prefixed_len(tvbuff_t *tvb, int offset)
+static unsigned get_bzr_prefixed_len(tvbuff_t *tvb, unsigned offset)
 {
     unsigned header_len;
     header_len = tvb_get_ntohl(tvb, offset);
     return 4 + header_len;
 }
 
-static unsigned
-get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static bool
+get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, unsigned offset, unsigned *pdu_len)
 {
-    int    next_offset;
-    int    len = 0, current_len;
-    int    protocol_version_len;
-    uint8_t cmd = 0;
+    unsigned    next_offset;
+    unsigned    len = 0, current_len;
+    unsigned    protocol_version_len;
+    uint8_t     cmd = 0;
 
     /* Protocol version */
-    protocol_version_len = tvb_find_line_end(tvb, offset, -1, &next_offset,
-                                             true);
-    if (protocol_version_len == -1) /* End of the packet not seen yet */
-        return -1;
+    if (!tvb_find_line_end_remaining(tvb, offset, &protocol_version_len, &next_offset)) /* End of the packet not seen yet */
+        return false;
 
     len += protocol_version_len + 1;
 
@@ -89,7 +87,7 @@ get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     current_len = len;
     len += get_bzr_prefixed_len(tvb, next_offset);
     if (current_len > len) /* Make sure we're not going backwards */
-        return -1;
+        return false;
 
     while (tvb_reported_length_remaining(tvb, offset + len) > 0) {
         cmd = tvb_get_uint8(tvb, offset + len);
@@ -101,22 +99,22 @@ get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
             current_len = len;
             len += get_bzr_prefixed_len(tvb, offset + len);
             if (current_len > len) /* Make sure we're not going backwards */
-                return -1;
+                return false;
             break;
         case 'o':
             len += 1;
             break;
         case 'e':
-            return len;
+            *pdu_len = len;
+            return true;
         }
     }
 
-    return -1;
+    return false;
 }
 
 static int
-dissect_prefixed_bencode(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                         proto_tree *tree)
+dissect_prefixed_bencode(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
     uint32_t    plen;
     proto_tree *prefixed_bencode_tree;
@@ -141,8 +139,7 @@ dissect_prefixed_bencode(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_prefixed_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                       proto_tree *tree)
+dissect_prefixed_bytes(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     uint32_t    plen;
     proto_tree *prefixed_bytes_tree;
@@ -165,7 +162,7 @@ dissect_prefixed_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
-dissect_body(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_body(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
     uint8_t cmd = 0;
 
@@ -199,14 +196,13 @@ dissect_bzr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *bzr_tree;
     proto_item *ti;
-    int         offset = 0;
-    int         protocol_version_len;
+    unsigned    offset = 0;
+    unsigned    protocol_version_len;
 
     ti = proto_tree_add_item(tree, proto_bzr, tvb, offset, -1, ENC_NA);
     bzr_tree = proto_item_add_subtree(ti, ett_bzr);
 
-    protocol_version_len = tvb_find_line_end(tvb, offset, -1, &offset, true);
-    if (protocol_version_len == -1) /* Invalid packet */
+    if (!tvb_find_line_end_remaining(tvb, offset, &protocol_version_len, &offset)) /* Invalid packet */
         return;
 
     if (bzr_tree)
@@ -222,7 +218,7 @@ dissect_bzr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_bzr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int       offset = 0, pdu_len;
+    unsigned  offset = 0, pdu_len;
     tvbuff_t *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BZR");
@@ -230,8 +226,7 @@ dissect_bzr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_set_str(pinfo->cinfo, COL_INFO, "Bazaar Smart Protocol");
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        pdu_len = get_bzr_pdu_len(pinfo, tvb, offset);
-        if (pdu_len == -1) {
+        if (!get_bzr_pdu_len(pinfo, tvb, offset, &pdu_len)) {
             if (pinfo->can_desegment && bzr_desegment) {
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
