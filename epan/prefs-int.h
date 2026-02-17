@@ -354,6 +354,17 @@ WS_DLL_PUBLIC
 char *
 join_string_list(GList *sl);
 
+/** Sanitize a string so that it can be written to a preference file.
+ *
+ * The preference file format (along with some other Wireshark file formats)
+ * expects one entry per line. This takes a string, which may come from user
+ * input, and converts line terminators (along with adjacent whitespace) into
+ * a single space.
+ */
+WS_DLL_PUBLIC
+char *
+prefs_sanitize_string(const char* str);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

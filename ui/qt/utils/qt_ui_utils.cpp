@@ -38,6 +38,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QUrl>
 #include <QScreen>
 
@@ -189,6 +190,21 @@ QString html_escape(const QString plain_string) {
     return plain_string.toHtmlEscaped();
 }
 
+// This matches line terminators plus whitespace before or after.
+static const QRegularExpression join_lines_regexp("\\s*\\R\\s*");
+
+QString join_lines(const QString multiline_string) {
+    // Replace all nonoverlapping matches with a single space.
+    // Certain file formats (prefs, filter files, etc.) expect one entry
+    // per line and newlines create unexpected behavior.
+    // Removing line terminators outside quotes doesn't change the behavior
+    // of a filter, but it does to remove non-escaped line terminators inside
+    // string and character literals (which are arguably user error.)
+    // A more complicated algorithm could try to escape things inside
+    // quotes, which would work for normal string and character literals
+    // but not for raw string literals, which just break with newlines.
+    return QString(multiline_string).replace(join_lines_regexp, QStringLiteral(" "));
+}
 
 void smooth_font_size(QFont &font) {
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))

@@ -197,6 +197,17 @@ QUuid e_guid_t_to_quuid(const struct _e_guid_t &guid);
  */
 QString html_escape(const QString plain_string);
 
+/** Remove line terminators from a string. Similar to QString::simplified,
+ * but does not remove long stretches of spaces or tabs where no newline
+ * or carriage return is present.
+ *
+ * @param multiline_string String to sanitize.
+ *
+ * @return A QString with line terminators (and whitespace before and after)
+ * replaced with a single space.
+*/
+QString join_lines(const QString multiline_string);
+
 /**
  * Round the current size of a font up to its next "smooth" size.
  * If a smooth size can't be found the font is left unchanged.

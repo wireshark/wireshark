@@ -309,6 +309,12 @@ static wmem_tree_t *prefs_top_level_modules;
  */
 static wmem_tree_t *prefs_module_aliases;
 
+/*
+ * Regex to match line terminators. Prefs are written and read to file line by
+ * line, so unescaped line terminators cause unexpected behavior.
+ */
+static GRegex *prefs_regex;
+
 /** Sets up memory used by proto routines. Called at program startup */
 void
 prefs_init(const char** col_fmt, int num_cols)
@@ -317,6 +323,9 @@ prefs_init(const char** col_fmt, int num_cols)
     prefs_modules = wmem_tree_new(wmem_epan_scope());
     prefs_top_level_modules = wmem_tree_new(wmem_epan_scope());
     prefs_module_aliases = wmem_tree_new(wmem_epan_scope());
+    if (!prefs_regex)
+        prefs_regex = g_regex_new("\\s*\\R\\s*", (GRegexCompileFlags)G_REGEX_OPTIMIZE,
+            (GRegexMatchFlags)G_REGEX_MATCH_BSR_ANYCRLF, NULL);
 
     prefs_set_global_defaults(wmem_epan_scope(), col_fmt, num_cols);
     prefs_register_modules();
@@ -419,6 +428,8 @@ prefs_cleanup(void)
     g_free(prefs.saved_at_version);
     g_free(gpf_path);
     gpf_path = NULL;
+    g_regex_unref(prefs_regex);
+    prefs_regex = NULL;
 }
 
 void prefs_set_gui_theme_is_dark(bool is_dark)
@@ -5078,6 +5089,21 @@ prefs_set_uat_pref(char *uat_entry, char **errmsg) {
     return ret;
 }
 
+char *
+prefs_sanitize_string(const char* str)
+{
+    char *sanitized;
+    if (!prefs_regex) {
+        prefs_regex = g_regex_new("\\s*\\R\\s*", (GRegexCompileFlags)G_REGEX_OPTIMIZE,
+            (GRegexMatchFlags)G_REGEX_MATCH_BSR_ANYCRLF, NULL);
+    } else {
+        g_regex_ref(prefs_regex);
+    }
+    sanitized = g_regex_replace(prefs_regex, str, -1, 0, " ", G_REGEX_MATCH_DEFAULT, NULL);
+    g_regex_unref(prefs_regex);
+    return sanitized;
+}
+
 /*
  * Given a string of the form "<pref name>:<pref value>", as might appear
  * as an argument to a "-o" option, parse it and set the preference in
@@ -5093,11 +5119,14 @@ prefs_set_pref(char *prefarg, char **errmsg)
     *errmsg = NULL;
 
     colonp = strchr(prefarg, ':');
-    if (colonp == NULL)
+    if (colonp == NULL) {
+        *errmsg = g_strdup("missing ':' (syntax is prefname:value).");
         return PREFS_SET_SYNTAX_ERR;
+    }
 
     p = colonp;
     *p++ = '\0';
+    /* XXX - Replace line terminators, or match and fail with errmsg, or ignore? */
 
     /*
      * Skip over any white space (there probably won't be any, but
@@ -6719,7 +6748,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source)
         case PREF_DIRNAME:
         case PREF_PASSWORD:
         case PREF_DISSECTOR:
-            return g_strdup(*(const char **) valp);
+            return prefs_sanitize_string(*(const char **) valp);
 
         case PREF_DECODE_AS_RANGE:
         case PREF_RANGE:

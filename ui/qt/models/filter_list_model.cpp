@@ -151,9 +151,17 @@ QVariant FilterListModel::data(const QModelIndex &index, int role) const
     if (! index.isValid() || index.row() >= rowCount())
         return QVariant();
 
-    QStringList row = storage.at(index.row()).split("\n");
-    if (role == Qt::DisplayRole)
-        return row.at(index.column());
+    auto row = storage.at(index.row());
+    if (role == Qt::DisplayRole) {
+        switch (index.column()) {
+        case FilterListModel::ColumnName:
+            return row.name;
+        case FilterListModel::ColumnExpression:
+            return row.expression;
+        default:
+            break;
+        }
+    }
 
     return QVariant();
 }
@@ -163,15 +171,20 @@ bool FilterListModel::setData(const QModelIndex &index, const QVariant &value, i
     if (! index.isValid() || index.row() >= rowCount() || role != Qt::EditRole)
         return false;
 
-    QStringList row = storage.at(index.row()).split("\n");
-    if (row.count() <= index.column())
-        return false;
+    auto row = storage.at(index.row());
 
-    if (index.column() == FilterListModel::ColumnName && value.toString().contains("\""))
+    switch (index.column()) {
+    case FilterListModel::ColumnName:
+        if (value.toString().contains("\""))
+            return false;
+        storage[index.row()].name = value.toString();
+        break;
+    case FilterListModel::ColumnExpression:
+        storage[index.row()].expression = value.toString();
+        break;
+    default:
         return false;
-
-    row[index.column()] = value.toString();
-    storage[index.row()] = row.join("\n");
+    }
 
     return true;
 }
@@ -194,7 +207,11 @@ QModelIndex FilterListModel::addFilter(QString name, QString expression)
         return QModelIndex();
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    storage << QStringLiteral("%1\n%2").arg(name).arg(expression);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    storage.emplace_back(name, expression);
+#else
+    storage << FilterListValue(name, expression);
+#endif
     endInsertRows();
 
     return index(rowCount() - 1, 0);
@@ -207,7 +224,7 @@ QModelIndex FilterListModel::findByName(QString name)
 
     for (int cnt = 0; cnt < rowCount(); cnt++)
     {
-        if (storage.at(cnt).startsWith(QStringLiteral("%1\n").arg(name)))
+        if (storage.at(cnt).name == name)
             return index(cnt, 0);
     }
 
@@ -221,7 +238,7 @@ QModelIndex FilterListModel::findByExpression(QString expression)
 
     for (int cnt = 0; cnt < rowCount(); cnt++)
     {
-        if (storage.at(cnt).endsWith(QStringLiteral("\n%1").arg(expression)))
+        if (storage.at(cnt).expression == expression)
             return index(cnt, 0);
     }
 
@@ -260,7 +277,7 @@ void FilterListModel::saveList()
     for (int row = 0; row < rowCount(); row++)
     {
         QString line = QStringLiteral("\"%1\"").arg(index(row, ColumnName).data().toString().trimmed());
-        line.append(QStringLiteral(" %1").arg(index(row, ColumnExpression).data().toString()));
+        line.append(join_lines(QStringLiteral(" %1").arg(index(row, ColumnExpression).data().toString())));
 
         out << line << Qt::endl;
     }

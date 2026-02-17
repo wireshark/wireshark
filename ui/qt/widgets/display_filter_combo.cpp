@@ -32,7 +32,7 @@ extern "C" void dfilter_recent_combo_write_all(FILE *rf) {
         return;
 
     for (int i = 0; i < cur_model->rowCount(); i++ ) {
-        const QByteArray& filter = cur_model->item(i)->text().toUtf8();
+        const QByteArray& filter = join_lines(cur_model->item(i)->text()).toUtf8();
         if (!filter.isEmpty()) {
             fprintf(rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter.constData());
         }

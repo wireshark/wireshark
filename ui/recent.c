@@ -730,15 +730,18 @@ cfilter_recent_write_all_list(FILE *rf, const char *ifname, GList *cfilter_list)
 {
     unsigned   max_count = 0;
     GList     *li;
+    char      *sanitized;
 
     /* write all non empty capture filter strings to the recent file (until max count) */
     li = g_list_first(cfilter_list);
     while (li && (max_count++ <= cfilter_combo_max_recent) ) {
         if (li->data && strlen((const char *)li->data)) {
+            sanitized = prefs_sanitize_string((char *)li->data);
             if (ifname == NULL)
-                fprintf (rf, RECENT_KEY_CAPTURE_FILTER ": %s\n", (char *)li->data);
+                fprintf (rf, RECENT_KEY_CAPTURE_FILTER ": %s\n", sanitized);
             else
-                fprintf (rf, RECENT_KEY_CAPTURE_FILTER ".%s: %s\n", ifname, (char *)li->data);
+                fprintf (rf, RECENT_KEY_CAPTURE_FILTER ".%s: %s\n", ifname, sanitized);
+            g_free(sanitized);
         }
         li = li->next;
     }

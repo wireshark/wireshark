@@ -37,6 +37,13 @@ public:
         ColumnExpression
     };
 
+    struct FilterListValue {
+        QString name;
+        QString expression;
+
+        FilterListValue(QString n, QString e) : name(n), expression(e) {}
+    };
+
     void setFilterType(FilterListModel::FilterListType type);
     FilterListModel::FilterListType filterType() const;
 
@@ -64,7 +71,7 @@ private:
 
     FilterListModel::FilterListType type_;
 
-    QStringList storage;
+    QList<struct FilterListModel::FilterListValue> storage;
 
     void reload();
 };
