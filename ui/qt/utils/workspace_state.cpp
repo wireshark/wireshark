@@ -180,6 +180,12 @@ void WorkspaceState::addRecentCaptureFile(const QString &filePath)
 #ifdef Q_OS_WIN
         return info.filename.compare(filePath, Qt::CaseInsensitive) == 0;
 #else
+        /*
+         * XXX - on UN*Xes such as macOS, where you can use pathconf()
+         * to check whether a given file system is case-sensitive or
+         * not, we should check whether this particular file system
+         * is case-sensitive and do the appropriate comparison.
+         */
         return info.filename == filePath;
 #endif
     };
@@ -214,6 +220,12 @@ void WorkspaceState::removeRecentCaptureFile(const QString &filePath)
 #ifdef Q_OS_WIN
         return info.filename.compare(filePath, Qt::CaseInsensitive) == 0;
 #else
+        /*
+         * XXX - on UN*Xes such as macOS, where you can use pathconf()
+         * to check whether a given file system is case-sensitive or
+         * not, we should check whether this particular file system
+         * is case-sensitive and do the appropriate comparison.
+         */
         return info.filename == filePath;
 #endif
     };
@@ -264,6 +276,12 @@ void WorkspaceState::onFileStatusChecked(const QString &filename, qint64 size, b
 #ifdef Q_OS_WIN
         if (info.filename.compare(filename, Qt::CaseInsensitive) == 0) {
 #else
+        /*
+         * XXX - on UN*Xes such as macOS, where you can use pathconf()
+         * to check whether a given file system is case-sensitive or
+         * not, we should check whether this particular file system
+         * is case-sensitive and do the appropriate comparison.
+         */
         if (info.filename == filename) {
 #endif
             if (info.size != size || info.accessible != accessible) {
