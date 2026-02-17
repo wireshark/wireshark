@@ -439,6 +439,7 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     connect(mainApp, &MainApplication::aggregationChanged, [this]() { if (recent.aggregation_view) { aggregationViewChanged(true); } });
 
     connect(WorkspaceState::instance(), &WorkspaceState::recentCaptureFilesChanged, this, &WiresharkMainWindow::updateRecentCaptures);
+    connect(WorkspaceState::instance(), &WorkspaceState::recentFileStatusChanged, this, &WiresharkMainWindow::updateRecentCaptures);
     connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::updateRecentCaptures);
     updateRecentCaptures();
 

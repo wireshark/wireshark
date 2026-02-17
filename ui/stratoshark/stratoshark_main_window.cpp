@@ -394,6 +394,7 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::updateTitlebar);
 
     connect(WorkspaceState::instance(), &WorkspaceState::recentCaptureFilesChanged, this, &StratosharkMainWindow::updateRecentCaptures);
+    connect(WorkspaceState::instance(), &WorkspaceState::recentFileStatusChanged, this, &StratosharkMainWindow::updateRecentCaptures);
     connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::updateRecentCaptures);
     updateRecentCaptures();
 
