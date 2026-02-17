@@ -3210,7 +3210,7 @@ get_body_uncompression_info(packet_info *pinfo, http2_session_t* h2session)
 /* Try to dissect reassembled http2.data.data according to content_type. */
 static void
 dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2session, tvbuff_t *tvb,
-                  const int start, int length, const unsigned encoding, bool streaming_mode)
+                  const unsigned start, unsigned length, const unsigned encoding, bool streaming_mode)
 {
     http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo, h2session);
     http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, false);
@@ -3257,8 +3257,9 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
             /* Try heuristics */
             /* Check for possible boundary string */
             if (tvb_strneql(data_tvb, 0, "--", 2) == 0) {
-                int next_offset;
-                int boundary_len = tvb_find_line_end(data_tvb, 0, -1, &next_offset, true);
+                unsigned next_offset;
+                unsigned boundary_len;
+                tvb_find_line_end_remaining(data_tvb, 0, &boundary_len , &next_offset);
                 if ((boundary_len > 4) && (boundary_len < 70)){
                     boundary_len = boundary_len - 2; /* ignore ending CRLF*/
                     /* We have a potential boundary string */
@@ -3291,7 +3292,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
              *  %x0D                ; Carriage return
              * )
              */
-            int offset = 0;
+            unsigned offset = 0;
             offset = tvb_skip_wsp(data_tvb, 0, length);
             uint8_t oct = tvb_get_uint8(data_tvb, offset);
             if ((oct == 0x5b) || (oct == 0x7b)) {
@@ -3321,7 +3322,7 @@ dissect_http2_data_full_body(tvbuff_t *tvb, packet_info *pinfo, http2_session_t*
         return;
     }
 
-    int datalen = tvb_reported_length(tvb);
+    unsigned datalen = tvb_reported_length(tvb);
 
     enum body_uncompression uncompression = get_body_uncompression_info(pinfo, h2session);
     if (uncompression != BODY_UNCOMPRESSION_NONE) {

@@ -898,21 +898,19 @@ dissect_hl7_message(tvbuff_t *tvb, unsigned tvb_offset, unsigned len,
 
     /* body */
     while (offset < eob_offset) {
-        int next_offset = -1;
-        int segment_len = -1;
-        int segment_len_crlf = -1;
+        unsigned next_offset;
+        unsigned segment_len;
+        unsigned segment_len_crlf;
         /* FF: even if HL7 2.3.1 says each segment must be terminated with CR
          * we look either for a CR or an LF or both (I did find a system out
          * there that uses both) */
-        segment_len = tvb_find_line_end(tvb, offset, -1, &next_offset, true);
-        if (segment_len == -1) {
+        if (!tvb_find_line_end_remaining(tvb, offset, &segment_len, &next_offset)) {
             expert_add_info_format(pinfo, NULL, &ei_hl7_malformed,
                                    "Segments must be terminated with CR");
             return;
         }
         segment_len_crlf = next_offset - offset;
-        dissect_hl7_segment(tvb, pinfo, hl7_tree,
-                            offset, segment_len, segment_len_crlf, &msh);
+        dissect_hl7_segment(tvb, pinfo, hl7_tree, offset, segment_len, segment_len_crlf, &msh);
         offset += segment_len_crlf;
     }
     /* EOB */

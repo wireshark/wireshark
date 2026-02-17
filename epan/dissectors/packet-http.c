@@ -1216,19 +1216,19 @@ dissect_http_message(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 	proto_item	*ti = NULL;
 	proto_item	*hidden_item;
 	const unsigned char	*line, *firstline;
-	int		next_offset;
+	unsigned	next_offset;
 	const unsigned char	*linep, *lineend;
-	int		orig_offset = offset;
-	int		first_linelen, linelen;
+	unsigned	orig_offset = offset;
+	unsigned	first_linelen, linelen;
 	bool	is_request_or_reply, is_tls = false;
 	bool	saw_req_resp_or_header;
 	media_container_type_t     http_type;
 	proto_item	*hdr_item = NULL;
 	ReqRespDissector reqresp_dissector;
 	proto_tree	*req_tree;
-	int		colon_offset;
+	unsigned	colon_offset;
 	headers_t	*headers = NULL;
-	int		datalen;
+	unsigned	datalen;
 	int		reported_datalen = -1;
 	dissector_handle_t handle = NULL;
 	bool	dissected = false;
@@ -1412,15 +1412,14 @@ dissect_http_message(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 	/*
 	 * Is this a request or response?
 	 *
-	 * Note that "tvb_find_line_end()" will return a value that
+	 * Note that "tvb_find_line_end_length()" will return a value that
 	 * is not longer than what's in the buffer, so the
 	 * "tvb_get_ptr()" call won't throw an exception.
 	 */
-	first_linelen = tvb_find_line_end(tvb, offset,
-	    tvb_ensure_captured_length_remaining(tvb, offset), &next_offset,
-	    true);
+	bool lind_end_found = tvb_find_line_end_length(tvb, offset,
+	    tvb_ensure_captured_length_remaining(tvb, offset), &first_linelen , &next_offset);
 
-	if (first_linelen == -1) {
+	if (!lind_end_found) {
 		/* No complete line was found in this segment, do
 		 * desegmentation if we're told to.
 		 */
@@ -1464,8 +1463,7 @@ dissect_http_message(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 
 	/*
 	 * Is the first line a request or response?
-	 *
-	 * Note that "tvb_find_line_end()" will return a value that
+	 * Note that "tvb_find_line_end_length()" will return a value that
 	 * is not longer than what's in the buffer, so the
 	 * "tvb_get_ptr()" call won't throw an exception.
 	 */
@@ -1657,16 +1655,15 @@ dissect_http_message(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		 * split across TCP segments?  How much dissection should
 		 * we do on it?
 		 */
-		linelen = tvb_find_line_end(tvb, offset,
-		    tvb_ensure_captured_length_remaining(tvb, offset), &next_offset,
-		    false);
-		if (linelen < 0)
+		bool linelen_found = tvb_find_line_end_length(tvb, offset,
+		    tvb_ensure_captured_length_remaining(tvb, offset), &linelen ,&next_offset);
+		if (!linelen_found)
 			return -1;
 
 		/*
 		 * Get a buffer that refers to the line.
 		 *
-		 * Note that "tvb_find_line_end()" will return a value that
+		 * Note that "tvb_find_line_end_length()" will return a value that
 		 * is not longer than what's in the buffer, so the
 		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
@@ -1705,7 +1702,7 @@ dissect_http_message(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			if (saw_req_resp_or_header || valid_header_name(line, (int)(linep - line))) {
 				colon_offset += (int)(linep - line);
 				if (http_check_ascii_headers) {
-					int i;
+					unsigned i;
 					for (i = 0; i < linelen; i++) {
 						if (line[i] & 0x80) {
 							/*
@@ -2915,16 +2912,18 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		if (chunk_size == 0) {
 			/* Check for: trailer-part CRLF.
 			 * trailer-part   = *( header-field CRLF ) */
-			int trailer_offset = offset, trailer_len;
-			int header_field_len;
+			unsigned trailer_offset = offset, trailer_len;
+			unsigned header_field_len;
+			bool header_field_len_found;
 			/* Skip all header-fields. */
 			do {
 				trailer_len = trailer_offset - offset;
-				header_field_len = tvb_find_line_end(tvb,
+				header_field_len_found = tvb_find_line_end_length(tvb,
 					trailer_offset,
 					datalen - trailer_len,
-					&trailer_offset, true);
-			} while (header_field_len > 0);
+					&header_field_len,
+					&trailer_offset);
+			} while (header_field_len_found && header_field_len > 0);
 			if (trailer_len > 0) {
 				proto_tree_add_item(subtree,
 					hf_http_chunked_trailer_part,
@@ -5196,8 +5195,9 @@ dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
 	proto_tree	*subtree;
 	proto_item	*ti;
-	int		offset = 0, next_offset;
-	int		len;
+	unsigned	offset = 0, next_offset;
+	unsigned	len;
+	bool		len_found;
 
 	col_append_str(pinfo->cinfo, COL_INFO, " (message/http)");
 	if (tree) {
@@ -5205,10 +5205,10 @@ dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 				tvb, 0, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_message_http);
 		while (tvb_offset_exists(tvb, offset)) {
-			len = tvb_find_line_end(tvb, offset,
+			len_found = tvb_find_line_end_length(tvb, offset,
 					tvb_ensure_captured_length_remaining(tvb, offset),
-					&next_offset, false);
-			if (len == -1)
+					&len, &next_offset);
+			if (len_found == false)
 				break;
 			proto_tree_add_format_text(subtree, tvb, offset, len);
 			offset = next_offset;

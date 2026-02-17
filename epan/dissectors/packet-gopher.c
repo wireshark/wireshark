@@ -129,10 +129,10 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gopher");
 
     if (client) {
-        line_len = tvb_find_line_end(tvb, 0, -1, NULL, false);
+        tvb_find_line_end_remaining(tvb, 0, &line_len, NULL);
         if (line_len == 0) {
             request = "[Directory list]";
-        } else if (line_len > 0) {
+        } else {
             request = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, line_len, ENC_ASCII);
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", request);
