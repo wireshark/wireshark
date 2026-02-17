@@ -28,6 +28,8 @@
 #include <wiretap/wtap.h>
 #include <wsutil/bitswap.h>
 #include <epan/packet.h> /* Required dissection API header */
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 #include <epan/expert.h> /* Include only as needed */
 #include <epan/prefs.h>  /* Include only as needed */
 #include "packet-ieee802154.h"
@@ -563,15 +565,23 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     case 5: // Zigbee on RAIL
     case 7: // Wi-SUN on RAIL
     case 8: // Custom on 802.15.4 built-in PHY
-      if (crc_len > 0)
+      TRY
       {
-        int fcs_type = crc_len == 2 ? IEEE802154_FCS_16_BIT : IEEE802154_FCS_32_BIT;
-        call_dissector_with_data(ieee802154_handle, next_tvb, pinfo, tree, &fcs_type);
+        if (crc_len > 0)
+        {
+          int fcs_type = crc_len == 2 ? IEEE802154_FCS_16_BIT : IEEE802154_FCS_32_BIT;
+          call_dissector_with_data(ieee802154_handle, next_tvb, pinfo, tree, &fcs_type);
+        }
+        else
+        {
+          call_dissector(ieee802154nofcs_handle, next_tvb, pinfo, tree);
+        }
       }
-      else
+      CATCH_NONFATAL_ERRORS
       {
-        call_dissector(ieee802154nofcs_handle, next_tvb, pinfo, tree);
+        show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
       }
+      ENDTRY;
       break;
     default:
       proto_tree_add_expert_format_remaining(efr32_tree, pinfo, &ei_silabs_dch_unsupported_protocol, tvb, offset, "Protocol - %s not supported yet", protocol->title);
