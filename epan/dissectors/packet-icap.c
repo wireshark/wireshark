@@ -41,7 +41,7 @@ static int ett_icap;
 static dissector_handle_t http_handle;
 
 #define TCP_PORT_ICAP           1344
-static int is_icap_message(const char *data, int linelen, icap_type_t *type);
+static bool is_icap_message(const char *data, unsigned linelen, icap_type_t *type);
 static int
 dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -49,14 +49,14 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item   *ti        = NULL;
     proto_item   *hidden_item;
     tvbuff_t     *new_tvb;
-    int           offset    = 0;
+    unsigned      offset    = 0;
     const unsigned char *line;
-    int           next_offset;
+    unsigned       next_offset;
     const unsigned char *linep, *lineend;
-    int           linelen;
+    unsigned       linelen;
     unsigned char c;
     icap_type_t   icap_type;
-    int           datalen;
+    unsigned      datalen;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICAP");
 
@@ -66,11 +66,11 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * line terminator).
      * Otherwise, just call it a continuation.
      *
-     * Note that "tvb_find_line_end()" will return a value that
+     * Note that "tvb_find_line_end_remaining()" will return a value that
      * is not longer than what's in the buffer, so the
      * "tvb_get_ptr()" call won't throw an exception.
      */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+    tvb_find_line_end_remaining(tvb, offset, &linelen , &next_offset);
     line = tvb_get_ptr(tvb, offset, linelen);
     icap_type = ICAP_OTHER; /* type not known yet */
     if (is_icap_message((char*)line, linelen, &icap_type))
@@ -95,8 +95,7 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         /*
          * Find the end of the line.
          */
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
-            false);
+        tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset);
 
         /*
          * Get a buffer that refers to the line.
@@ -238,8 +237,8 @@ is_icap_header:
 }
 
 
-static int
-is_icap_message(const char *data, int linelen, icap_type_t *type)
+static bool
+is_icap_message(const char *data, unsigned linelen, icap_type_t *type)
 {
 #define ICAP_COMPARE(string, length, msgtype) {     \
     if (strncmp(data, string, length) == 0) {   \

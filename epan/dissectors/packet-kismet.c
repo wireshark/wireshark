@@ -52,22 +52,22 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 	proto_tree *kismet_tree=NULL, *reqresp_tree=NULL;
 	proto_item *ti;
 	proto_item *tmp_item;
-	int offset = 0;
+	unsigned offset = 0;
 	const unsigned char *line;
-	int next_offset;
-	int linelen;
-	int tokenlen;
+	unsigned next_offset;
+	unsigned linelen;
+	unsigned tokenlen;
 	int i;
 	const unsigned char *next_token;
 
 	/*
 	 * Find the end of the first line.
 	 *
-	 * Note that "tvb_find_line_end()" will return a value that is
+	 * Note that "tvb_find_line_end_remaining()" will return a value that is
 	 * not longer than what's in the buffer, so the "tvb_get_ptr()"
 	 * call won't throw an exception.
 	 */
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+	tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
 	/*
@@ -144,9 +144,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 		/*
 		 * Find the end of the line.
 		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-
-		if (linelen) {
+		if (tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
 			/*
 			 * Put this line.
 			 */

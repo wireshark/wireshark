@@ -792,11 +792,12 @@ static conversation_t *get_peer_conversation(packet_info * pinfo, jxta_stream_co
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
-static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, address * found_addr, bool initiator)
+static int
+dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, address * found_addr, bool initiator)
 {
     unsigned offset = 0;
-    int afterwelcome;
-    int first_linelen;
+    unsigned afterwelcome;
+    unsigned first_linelen;
     unsigned available = tvb_reported_length_remaining(tvb, offset);
     char **tokens = NULL;
 
@@ -809,9 +810,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         return 0;
     }
 
-    first_linelen = tvb_find_line_end(tvb, offset, -1, &afterwelcome, gDESEGMENT && pinfo->can_desegment);
-
-    if (-1 == first_linelen) {
+    if (!tvb_find_line_end_remaining(tvb, offset, &first_linelen, &afterwelcome)) {
         if (available > 4096) {
             /* it's too far too be reasonable */
             return 0;

@@ -377,7 +377,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /*
      * Find the end of each line
      *
-     * Note that "tvb_find_line_end()" will return a value that is
+     * Note that "tvb_find_line_end_remaining()" will return a value that is
      * not longer than what's in the buffer, so the "tvb_get_ptr()"
      * call won't throw an exception.
      */
