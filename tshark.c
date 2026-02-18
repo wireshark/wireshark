@@ -2435,7 +2435,7 @@ main(int argc, char *argv[])
             warn_about_capture_filter(rfilter);
 #endif
 
-            exit_status = WS_EXIT_INVALID_INTERFACE;
+            exit_status = WS_EXIT_INVALID_FILTER;
             goto clean_exit;
         }
     }
