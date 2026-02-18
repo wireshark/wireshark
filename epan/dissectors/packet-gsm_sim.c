@@ -23,6 +23,7 @@
 #include <wiretap/wtap.h>
 
 #include "packet-gsmtap.h"
+#include "packet-sgp22.h"
 #include "packet-sgp32.h"
 
 void proto_register_gsm_sim(void);
@@ -1056,6 +1057,8 @@ static const value_string fcp_tag_vals[] = {
 	{ 0xA5, "Proprietary information" },
 	{ 0xAB, "Security attributes (expanded format)" },
 	{ 0xC6, "PIN Status Template DO" },
+	{ 0xE0, "ISD-R Proprietary Application Template"},
+	{ 0xE1, "ISD-R Proprietary Application Template IoT"},
 	{ 0, NULL }
 };
 
@@ -1967,6 +1970,7 @@ dissect_fcp_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 {
 	proto_item *value_ti;
 	proto_tree *value_tree;
+	tvbuff_t *subtvb;
 	uint32_t tag, len;
 	uint8_t tag_size, len_size;
 	uint8_t byte;
@@ -2061,6 +2065,14 @@ dissect_fcp_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 			break;
 		case 0xC6: /* PIN Status Template DO */
 			proto_tree_add_item(value_tree, hf_fcp_pin_status_do, tvb, offset, len, ENC_NA);
+			break;
+		case 0xE0: /* ISDRProprietaryApplicationTemplate (SGP.22) */
+			subtvb = tvb_new_subset_length(tvb, start_offset, tag_size + len_size + len);
+			dissect_sgp22_ISDRProprietaryApplicationTemplate_PDU(subtvb, pinfo, value_tree, NULL);
+			break;
+		case 0xE1: /* ISDRProprietaryApplicationTemplateIoT (SGP.32) */
+			subtvb = tvb_new_subset_length(tvb, start_offset, tag_size + len_size + len);
+			dissect_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU(subtvb, pinfo, value_tree, NULL);
 			break;
 		default:
 			/* Unknown tag */

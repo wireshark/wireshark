@@ -42,7 +42,7 @@ static int hf_sgp32_ProfileDownloadData_PDU;      /* ProfileDownloadData */
 static int hf_sgp32_EimAcknowledgements_PDU;      /* EimAcknowledgements */
 static int hf_sgp32_EuiccPackageResult_PDU;       /* EuiccPackageResult */
 static int hf_sgp32_IpaEuiccDataResponse_PDU;     /* IpaEuiccDataResponse */
-static int hf_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU;  /* ISDRProprietaryApplicationTemplateIoT */
+static int hf_sgp32_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU;  /* ISDRProprietaryApplicationTemplateIoT */
 static int hf_sgp32_IpaeActivationRequest_PDU;    /* IpaeActivationRequest */
 static int hf_sgp32_IpaeActivationResponse_PDU;   /* IpaeActivationResponse */
 static int hf_sgp32_AddInitialEimRequest_PDU;     /* AddInitialEimRequest */
@@ -4876,11 +4876,11 @@ static int dissect_IpaEuiccDataResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   offset = dissect_sgp32_IpaEuiccDataResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_IpaEuiccDataResponse_PDU);
   return offset;
 }
-static int dissect_ISDRProprietaryApplicationTemplateIoT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+int dissect_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_ISDRProprietaryApplicationTemplateIoT(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU);
+  offset = dissect_sgp32_ISDRProprietaryApplicationTemplateIoT(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU);
   return offset;
 }
 static int dissect_IpaeActivationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -5370,7 +5370,7 @@ void proto_register_sgp32(void)
       { "IpaEuiccDataResponse", "sgp32.IpaEuiccDataResponse",
         FT_UINT32, BASE_DEC, VALS(sgp32_IpaEuiccDataResponse_U_vals), 0,
         NULL, HFILL }},
-    { &hf_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU,
+    { &hf_sgp32_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU,
       { "ISDRProprietaryApplicationTemplateIoT", "sgp32.ISDRProprietaryApplicationTemplateIoT_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -7007,7 +7007,6 @@ void proto_reg_handoff_sgp32(void)
   dissector_add_string("media_type", "application/x-gsma-rsp-asn1", sgp32_handle);
   dissector_add_string("coap_uri_path", "/gsma/rsp2/asn1", sgp32_handle);
 
-  dissector_add_uint("sgp32.request", 0xE1, create_dissector_handle(dissect_ISDRProprietaryApplicationTemplateIoT_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF2B, create_dissector_handle(dissect_RetrieveNotificationsListRequest_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF2B, create_dissector_handle(dissect_RetrieveNotificationsListResponse_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF39, create_dissector_handle(dissect_InitiateAuthenticationRequestEsipa_PDU, proto_sgp32));

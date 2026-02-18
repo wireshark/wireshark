@@ -81,5 +81,6 @@ unsigned dissect_sgp22_NotificationMetadata(bool implicit_tag _U_, tvbuff_t *tvb
 unsigned dissect_sgp22_DpProprietaryData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 unsigned dissect_sgp22_OtherSignedNotification(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 unsigned dissect_sgp22_RulesAuthorisationTable(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_sgp22_ISDRProprietaryApplicationTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 #endif  /* PACKET_SGP22_H */

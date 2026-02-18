@@ -11,9 +11,13 @@ PKIX1Implicit88 pkix1implicit
 #.OMIT_ASSIGNMENT
 AuthenticateClientRequest
 
+#.EXPORTS
+ISDRProprietaryApplicationTemplateIoT_PDU
+
 #.PDU
 EsipaMessageFromIpaToEim
 EsipaMessageFromEimToIpa
+ISDRProprietaryApplicationTemplateIoT
 
 #.FN_PARS
 EsipaMessageFromIpaToEim VAL_PTR = &choice
@@ -47,7 +51,6 @@ EsipaMessageFromEimToIpa VAL_PTR = &choice
   }
 
 #.REGISTER
-ISDRProprietaryApplicationTemplateIoT      N sgp32.request   0xE1
 RetrieveNotificationsListRequest           N sgp32.request   0xBF2B
 RetrieveNotificationsListResponse          N sgp32.response  0xBF2B
 InitiateAuthenticationRequestEsipa         N sgp32.request   0xBF39

@@ -13,12 +13,12 @@
 #ifndef PACKET_SGP32_H
 #define PACKET_SGP32_H
 
+#include "packet-sgp32-exp.h"
+
 bool is_sgp32_request(tvbuff_t *tvb);
 bool is_sgp32_response(tvbuff_t *tvb);
 
 int dissect_sgp32_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 int dissect_sgp32_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
-
-#include "packet-sgp32-exp.h"
 
 #endif  /* PACKET_SGP32_H */

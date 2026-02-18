@@ -18,11 +18,14 @@
 #ifndef PACKET_SGP32_H
 #define PACKET_SGP32_H
 
+#include <epan/asn1.h>
+
+int dissect_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+
 bool is_sgp32_request(tvbuff_t *tvb);
 bool is_sgp32_response(tvbuff_t *tvb);
 
 int dissect_sgp32_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 int dissect_sgp32_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
-
 
 #endif  /* PACKET_SGP32_H */

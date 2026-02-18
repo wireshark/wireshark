@@ -94,7 +94,7 @@ static int hf_sgp22_GetBoundProfilePackageResponse_PDU;  /* GetBoundProfilePacka
 static int hf_sgp22_HandleNotification_PDU;       /* HandleNotification */
 static int hf_sgp22_EuiccConfiguredAddressesRequest_PDU;  /* EuiccConfiguredAddressesRequest */
 static int hf_sgp22_EuiccConfiguredAddressesResponse_PDU;  /* EuiccConfiguredAddressesResponse */
-static int hf_sgp22_ISDRProprietaryApplicationTemplate_PDU;  /* ISDRProprietaryApplicationTemplate */
+static int hf_sgp22_sgp22_ISDRProprietaryApplicationTemplate_PDU;  /* ISDRProprietaryApplicationTemplate */
 static int hf_sgp22_LpaeActivationRequest_PDU;    /* LpaeActivationRequest */
 static int hf_sgp22_LpaeActivationResponse_PDU;   /* LpaeActivationResponse */
 static int hf_sgp22_SetDefaultDpAddressRequest_PDU;  /* SetDefaultDpAddressRequest */
@@ -4621,11 +4621,11 @@ static int dissect_EuiccConfiguredAddressesResponse_PDU(tvbuff_t *tvb _U_, packe
   offset = dissect_sgp22_EuiccConfiguredAddressesResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp22_EuiccConfiguredAddressesResponse_PDU);
   return offset;
 }
-static int dissect_ISDRProprietaryApplicationTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+int dissect_sgp22_ISDRProprietaryApplicationTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp22_ISDRProprietaryApplicationTemplate(false, tvb, offset, &asn1_ctx, tree, hf_sgp22_ISDRProprietaryApplicationTemplate_PDU);
+  offset = dissect_sgp22_ISDRProprietaryApplicationTemplate(false, tvb, offset, &asn1_ctx, tree, hf_sgp22_sgp22_ISDRProprietaryApplicationTemplate_PDU);
   return offset;
 }
 static int dissect_LpaeActivationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -4938,7 +4938,7 @@ void proto_register_sgp22(void)
       { "EuiccConfiguredAddressesResponse", "sgp22.EuiccConfiguredAddressesResponse_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_sgp22_ISDRProprietaryApplicationTemplate_PDU,
+    { &hf_sgp22_sgp22_ISDRProprietaryApplicationTemplate_PDU,
       { "ISDRProprietaryApplicationTemplate", "sgp22.ISDRProprietaryApplicationTemplate_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -6221,7 +6221,6 @@ void proto_reg_handoff_sgp22(void)
   register_ber_oid_dissector("2.23.146.1.2.0.2", dissect_TotalPartialCrlNumber_PDU, proto_sgp22, "id-rsp-totalPartialCrlNumber");
   register_ber_oid_dissector("2.23.146.1.2.0.3", dissect_PartialCrlNumber_PDU, proto_sgp22, "id-rsp-partialCrlNumber");
   register_ber_oid_dissector("2.23.146.1.3.1.1", dissect_ActivationCodeRetrievalInfo_PDU, proto_sgp22, "id-rsp-metadata-activationCodeRetrievalInfo");
-  dissector_add_uint("sgp22.request", 0xE0, create_dissector_handle(dissect_ISDRProprietaryApplicationTemplate_PDU, proto_sgp22));
   dissector_add_uint("sgp22.request", 0xE3, create_dissector_handle(dissect_ProfileInfo_PDU, proto_sgp22));
   dissector_add_uint("sgp22.request", 0xBF20, create_dissector_handle(dissect_GetEuiccInfo1Request_PDU, proto_sgp22));
   dissector_add_uint("sgp22.response", 0xBF20, create_dissector_handle(dissect_EUICCInfo1_PDU, proto_sgp22));
