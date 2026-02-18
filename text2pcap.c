@@ -1079,9 +1079,21 @@ main(int argc, char *argv[])
     memset(&info, 0, sizeof(info));
     wtap_dump_params_init(&params, NULL);
     if ((ret = parse_options(argc, argv, &info, &params)) != EXIT_SUCCESS) {
-        /* Check for options that print information and then quit */
-        if (ret == WS_EXIT_NOW)
+        //
+        // Either we got an error parsing the command-line options
+        // or we got an option specifying that we should print
+        // information and then quit, and have, in fact, printed
+        // that information successfully.
+        //
+        if (ret == WS_EXIT_NOW) {
+            //
+            // One of the options indicated we should just print
+            // something and exit, e.g --help, and we have already
+            // successfully printed it, so we don't have anything
+            // more to do, and should just exit successfully.
+            //
             ret = EXIT_SUCCESS;
+        }
         goto clean_exit;
     }
 
