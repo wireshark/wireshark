@@ -1087,7 +1087,7 @@ QFileInfoList ProfileModel::filterProfilePath(QString path, QFileInfoList ent, b
         }
         else
         {
-            if (path.compare(entry.absoluteFilePath()) != 0)
+            if (!filePathsMatch(path, entry.absoluteFilePath()))
                 // We recurse here, but our depth is limited
                 result.append(filterProfilePath(entry.absoluteFilePath(), result, fromZip));
         }

@@ -285,6 +285,27 @@ QString openDialogInitialDir();
  */
 void storeLastDir(QString dir);
 
+/**
+ * Compare two file paths for equality using platform-aware logic.
+ *
+ * When both files exist on disk, QFileInfo::operator== is used,
+ * which resolves symlinks, normalizes paths, and respects the
+ * filesystem's case sensitivity.  When at least one file is
+ * missing, absolute paths are compared with platform-appropriate
+ * case sensitivity:
+ *
+ *  - Windows: always case-insensitive.
+ *  - macOS / FreeBSD (where _PC_CASE_SENSITIVE is available):
+ *    pathconf() is queried at runtime to detect whether the
+ *    underlying volume is case-sensitive or not.
+ *  - Other Unix: case-sensitive.
+ *
+ * @param path1 First file path.
+ * @param path2 Second file path.
+ * @return true if the two paths refer to the same file.
+ */
+bool filePathsMatch(const QString &path1, const QString &path2);
+
 #endif /* __QT_UI_UTILS__H__ */
 
 // XXX Add a routine to fetch the HWND corresponding to a widget using QPlatformIntegration

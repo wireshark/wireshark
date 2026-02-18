@@ -22,6 +22,7 @@
 #include <wsutil/filesystem.h>
 #include <app/application_flavor.h>
 
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/recent.h>
 #include <epan/prefs.h>
 
@@ -169,42 +170,6 @@ QStringList WorkspaceState::recentCaptureFilenames() const
     return filenames;
 }
 
-//
-// Check whether two file names match.
-//
-// On Windows, do a case-insensitive match.
-///
-// XXX - in Windows 10 April 2018 Update and later versions of Windows,
-// directories on an NTFS file system can be marked as case-sensitive.
-// Querying this can be done using NtQueryInformationByName() (yeah,
-// native API) with the* FILE_CASE_SENSITIVE_INFORMATION information
-// level.
-//
-// XXX - on UN*Xes such as macOS and FreeBSD, where you can use
-// pathconf() (_PC_CASE_SENSITIVE on macOS, PC_CASE_INSENSITIVE on
-// FreeBSD) to check whether a given file system is case-sensitive or
-// not, we should check whether this particular file system is
-// case-sensitive and do the appropriate comparison.
-//
-// XXX - the comparison should be done a component at a time, as, on
-// Windows, individual directories on an NTFS file system can be made
-// case-sensitive, and, even on UN*Xes, even if the file system doesn't
-// support that, case-sensitivity may change across mount points.
-//
-// Furthermore, comparison of drive letters should always be
-// case-insensitive on Windows.
-//
-// XXX - does Qt offer a routine or method that handles all that?
-//
-static bool filenamesMatch(const RecentFileInfo &info, const QString &fileName)
-{
-#ifdef Q_OS_WIN
-    return info.filename.compare(fileName, Qt::CaseInsensitive) == 0;
-#else
-    return info.filename == fileName;
-#endif
-}
-
 void WorkspaceState::addRecentCaptureFile(const QString &filePath)
 {
     if (filePath.isEmpty()) {
@@ -213,7 +178,7 @@ void WorkspaceState::addRecentCaptureFile(const QString &filePath)
 
     // Remove existing entry if present (Qt5-compatible approach)
     auto matchesPath = [&filePath](const RecentFileInfo &info) {
-        return filenamesMatch(info, filePath);
+        return filePathsMatch(info.filename, filePath);
     };
     recent_capture_files_.erase(
         std::remove_if(recent_capture_files_.begin(), recent_capture_files_.end(), matchesPath),
@@ -243,7 +208,7 @@ void WorkspaceState::removeRecentCaptureFile(const QString &filePath)
 {
     // Qt5-compatible approach using std::remove_if
     auto matchesPath = [&filePath](const RecentFileInfo &info) {
-        return filenamesMatch(info, filePath);
+        return filePathsMatch(info.filename, filePath);
     };
     auto originalSize = recent_capture_files_.size();
     auto newEnd = std::remove_if(recent_capture_files_.begin(), recent_capture_files_.end(), matchesPath);
@@ -289,7 +254,7 @@ void WorkspaceState::queueFileStatusCheck(const QString &filename)
 void WorkspaceState::onFileStatusChecked(const QString &filename, qint64 size, bool accessible)
 {
     for (RecentFileInfo &info : recent_capture_files_) {
-        if (filenamesMatch(info, filename)) {
+        if (filePathsMatch(info.filename, filename)) {
             if (info.size != size || info.accessible != accessible) {
                 info.size = size;
                 info.accessible = accessible;
