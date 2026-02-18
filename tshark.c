@@ -251,7 +251,10 @@ static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, bool tree, boo
 typedef enum {
     PROCESS_FILE_SUCCEEDED,
     PROCESS_FILE_NO_FILE_PROCESSED,
-    PROCESS_FILE_ERROR,
+    PROCESS_FILE_READ_ERROR,
+    PROCESS_FILE_WRITE_ERROR,
+    PROCESS_FILE_PRINT_ERROR,
+    PROCESS_FILE_OUT_OF_MEMORY,
     PROCESS_FILE_INTERRUPTED
 } process_file_status_t;
 static process_file_status_t process_cap_file(capture_file *, char *, int, bool, int, int64_t, int, ws_compression_type);
@@ -2651,7 +2654,7 @@ main(int argc, char *argv[])
                     "\n"
                     "More information and workarounds can be found at\n"
                     WS_WIKI_URL("KnownBugs/OutOfMemory") "\n");
-            status = PROCESS_FILE_ERROR;
+            status = PROCESS_FILE_OUT_OF_MEMORY;
         }
         ENDTRY;
 
@@ -2665,20 +2668,41 @@ main(int argc, char *argv[])
             case PROCESS_FILE_NO_FILE_PROCESSED:
                 /* We never got to try to read the file, so there are no tap
                    results to dump.  Exit with an error status. */
-                exit_status = 2;
+                exit_status = WS_EXIT_OPEN_ERROR;
                 break;
 
-            case PROCESS_FILE_ERROR:
+            case PROCESS_FILE_READ_ERROR:
                 /* We still dump out the results of taps, etc., as we might have
                    read some packets; however, we exit with an error status. */
                 draw_taps = true;
-                exit_status = 2;
+                exit_status = WS_EXIT_READ_ERROR;
+                break;
+
+            case PROCESS_FILE_WRITE_ERROR:
+                /* We still dump out the results of taps, etc., as we might have
+                   read some packets; however, we exit with an error status. */
+                draw_taps = true;
+                exit_status = WS_EXIT_WRITE_ERROR;
+                break;
+
+            case PROCESS_FILE_PRINT_ERROR:
+                /* We still dump out the results of taps, etc., as we might have
+                   read some packets; however, we exit with an error status. */
+                draw_taps = true;
+                exit_status = WS_EXIT_PRINT_ERROR;
+                break;
+
+            case PROCESS_FILE_OUT_OF_MEMORY:
+                /* We still dump out the results of taps, etc., as we might have
+                   read some packets; however, we exit with an error status. */
+                draw_taps = true;
+                exit_status = WS_EXIT_OUT_OF_MEMORY;
                 break;
 
             case PROCESS_FILE_INTERRUPTED:
                 /* The user interrupted the read process; Don't dump out the
-                   result of taps, etc., and exit with an error status. */
-                exit_status = 2;
+                   result of taps, etc., and exit. */
+                exit_status = EXIT_SUCCESS;
                 break;
         }
 
@@ -4341,7 +4365,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
             case PASS_READ_ERROR:
                 /* Read error. */
                 report_cfile_read_failure(cf->filename, err_pass1, err_info_pass1);
-                status = PROCESS_FILE_ERROR;
+                status = PROCESS_FILE_READ_ERROR;
                 break;
 
             case PASS_WRITE_ERROR:
@@ -4369,7 +4393,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
             case PASS_READ_ERROR:
                 /* Read error. */
                 report_cfile_read_failure(cf->filename, err, err_info);
-                status = PROCESS_FILE_ERROR;
+                status = PROCESS_FILE_READ_ERROR;
                 break;
 
             case PASS_WRITE_ERROR:
@@ -4378,12 +4402,12 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
                    the input file if there was a read filter. */
                 report_cfile_write_failure(cf->filename, save_file, err, err_info,
                         err_framenum, out_file_type);
-                status = PROCESS_FILE_ERROR;
+                status = PROCESS_FILE_WRITE_ERROR;
                 break;
 
             case PASS_PRINT_ERROR:
                 /* The print error has already been reported. */
-                status = PROCESS_FILE_ERROR;
+                status = PROCESS_FILE_PRINT_ERROR;
                 break;
 
             case PASS_INTERRUPTED:
@@ -4423,20 +4447,20 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
             /* Now close the capture file. */
             if (!wtap_dump_close(pdh, NULL, &err, &err_info)) {
                 report_cfile_close_failure(save_file, err, err_info);
-                status = PROCESS_FILE_ERROR;
+                status = PROCESS_FILE_WRITE_ERROR;
             }
         } else {
             /* We got a write error; it was reported, so just close the dump file
                without bothering to check for further errors. */
             wtap_dump_close(pdh, NULL, &err, &err_info);
             g_free(err_info);
-            status = PROCESS_FILE_ERROR;
+            status = PROCESS_FILE_WRITE_ERROR;
         }
     } else {
         if (print_packet_info) {
             if (!write_finale()) {
                 show_print_file_io_error();
-                status = PROCESS_FILE_ERROR;
+                status = PROCESS_FILE_PRINT_ERROR;
             }
         }
     }

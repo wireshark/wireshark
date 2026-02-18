@@ -697,8 +697,20 @@ int main(int argc, char *qt_argv[])
     };
     ret_val = commandline_early_options(argc, argv, &commandline_app_data);
     if (ret_val != EXIT_SUCCESS) {
+        //
+        // Either we got an error parsing the command-line options
+        // or we got an option specifying that we should print
+        // information and then quit, and have, in fact, printed
+        // that information successfully.
+        //
         if (ret_val == WS_EXIT_NOW) {
-            return 0;
+            //
+            // One of the options indicated we should just print
+            // something and exit, e.g --help, and we have already
+            // successfully printed it, so we don't have anything
+            // more to do, and should just exit successfully.
+            //
+            return EXIT_SUCCESS;
         }
 
         return ret_val;
