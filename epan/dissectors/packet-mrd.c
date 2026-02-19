@@ -1,4 +1,4 @@
-/* packet-mrdisc.c   2001 Ronnie Sahlberg <See AUTHORS for email>
+/* packet-mrd.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/MRD packet disassembly
  *
  * Wireshark - Network traffic analyzer

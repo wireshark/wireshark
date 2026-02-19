@@ -1,4 +1,4 @@
-/* packet-silabs_dch.c
+/* packet-silabs-dch.c
  * Routines for Silicon Labs Debug Channel dissection
  * Copyright 2023, Dhruv Chandwani <dhchandw@silabs.com>
  *

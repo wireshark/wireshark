@@ -1,4 +1,4 @@
-/* packet-btaatt.h
+/* packet-btatt.h
  * Headers for ATT
  *
  * Copyright 2015, Michal Labedzki for Tieto Corporation

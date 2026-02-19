@@ -1,4 +1,4 @@
-/* packet-clique_rm.c
+/* packet-clique-rm.c
  * Routines for clique reliable multicast dissector
  * Copyright 2007, Collabora Ltd.
  *   @author: Sjoerd Simons <sjoerd.simons@collabora.co.uk>

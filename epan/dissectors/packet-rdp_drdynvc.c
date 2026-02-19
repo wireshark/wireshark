@@ -1,4 +1,4 @@
-/* Packet-rdp_drdynvc.c
+/* packet-rdp_drdynvc.c
  * Routines for Dynamic Virtual channel RDP packet dissection
  * Copyright 2021, David Fort
  *

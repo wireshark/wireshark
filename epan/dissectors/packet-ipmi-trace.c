@@ -1,4 +1,4 @@
-/* packet-hpm2-trace.c
+/* packet-ipmi-trace.c
  * Routines for HPM.2 Trace Data Block disassembly
  * By Dmitry Bazhenov <dima_b@pigeonpoint.com>
  * Copyright 2014 Pigeon Point Systems

@@ -1,4 +1,4 @@
-/* packet-rdpudp.c
+/* packet-rdp_multitransport.c
  * Routines for RDP multi transport packet dissection
  * Copyright 2021, David Fort
  *

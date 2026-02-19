@@ -1,4 +1,4 @@
-/* packet-macmgmt.c
+/* packet-docsis-macmgmt.c
  *
  * Relevant DOCSIS specifications:
  * - DOCSIS MAC and Upper Layer Protocols Interface:

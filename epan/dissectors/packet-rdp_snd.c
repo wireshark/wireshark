@@ -1,4 +1,4 @@
-/* Packet-rdp_snd.c
+/* packet-rdp_snd.c
  * Routines for the audio output RDP channel
  * Copyright 2023, David Fort <contact@hardening-consulting.com>
  *

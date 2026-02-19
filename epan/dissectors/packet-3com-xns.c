@@ -1,4 +1,4 @@
-/* packet-xns-llc.c
+/* packet-3com-xns.c
  * Routines for 3Com's encapsulation of XNS over 802.2 LLC
  * (and other protocols using DSAP 80)
  *

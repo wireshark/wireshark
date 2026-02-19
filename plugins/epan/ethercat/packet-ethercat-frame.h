@@ -1,4 +1,4 @@
-/* paket-ethercat-frame.h
+/* packet-ethercat-frame.h
  *
  * Copyright (c) 2007 by Beckhoff Automation GmbH
  *

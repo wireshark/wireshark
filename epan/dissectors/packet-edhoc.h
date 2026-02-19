@@ -1,4 +1,4 @@
-/* packet-cose.h
+/* packet-edhoc.h
  * Definitions for Ephemeral Diffie-Hellman Over COSE (EDHOC) dissection
  * References:
  *     RFC 9528: https://tools.ietf.org/html/rfc9528

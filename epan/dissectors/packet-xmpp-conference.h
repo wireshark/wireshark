@@ -1,4 +1,4 @@
-/* xmpp-conference.h
+/* packet-xmpp-conference.h
  *
  * Copyright 2011, Mariusz Okroj <okrojmariusz[]gmail.com>
  *

@@ -1,4 +1,4 @@
-/* packet-hbbak.c
+/* packet-pa-hbbackup.c
  * Routines for ethertype 0x8988 Paloalto heartbeat backup traffic via mgmt
  *
  * Copyright 2020 Joerg Mayer (see AUTHORS file)

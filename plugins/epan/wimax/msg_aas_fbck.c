@@ -1,4 +1,4 @@
-/* msg_aas_beam.c
+/* msg_aas_fbck.c
  * WiMax MAC Management AAS-BEAM-SELECT/REQ/RSP Messages decoders
  *
  * Copyright (c) 2007 by Intel Corporation.

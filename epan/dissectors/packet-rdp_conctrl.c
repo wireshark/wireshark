@@ -1,4 +1,4 @@
-/* Packet-rdp_conctrl.c
+/* packet-rdp_conctrl.c
  * Routines for the CONCTRL RDP channel
  * Copyright 2025, David Fort <contact@hardening-consulting.com>
  *

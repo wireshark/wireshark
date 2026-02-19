@@ -1,4 +1,4 @@
-/* packet-pdu_transport.c
+/* packet-pdu-transport.c
  * PDU Transport dissector for FDN and others.
  * By <lars.voelker@technica-engineering.de>
  * Copyright 2020-2025 Dr. Lars Völker

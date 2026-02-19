@@ -1,4 +1,4 @@
-/* xmpp-utils.h
+/* packet-xmpp-utils.h
  *
  * Copyright 2011, Mariusz Okroj <okrojmariusz[]gmail.com>
  *

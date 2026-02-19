@@ -1,4 +1,4 @@
-/* packet-gsmtap-log.c
+/* packet-gsmtap_log.c
  * Routines for GSMTAP logging packets
  *
  * (C) 2016 by Harald Welte <laforge@gnumonks.org>

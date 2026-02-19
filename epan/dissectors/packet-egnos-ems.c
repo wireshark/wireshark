@@ -1,4 +1,4 @@
-/* packet-ems.c
+/* packet-egnos-ems.c
  * EGNOS Message Server file format dissection.
  *
  * By Timo Warns <timo.warns@gmail.com>

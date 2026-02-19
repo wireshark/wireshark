@@ -1,4 +1,4 @@
-/* packet-gsm_cell_broadcast.c
+/* packet-cell_broadcast.c
  * Routines for GSM Cell Broadcast Service dissection - A.K.A. 3GPP 23.041 (GSM 03.41) section 9.4
  *
  * Copyright 2011, Mike Morrin <mike.morrin [AT] ipaccess.com>

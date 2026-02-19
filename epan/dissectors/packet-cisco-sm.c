@@ -1,4 +1,4 @@
-/* packet-sm.c
+/* packet-cisco-sm.c
  * Routines for Cisco Session Management Protocol dissection
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *

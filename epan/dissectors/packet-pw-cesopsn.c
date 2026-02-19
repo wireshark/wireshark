@@ -1,4 +1,4 @@
-/* packet-pw-satop.c
+/* packet-pw-cesopsn.c
  * Routines for CESoPSN PW dissection as per RFC5086.
  * Copyright 2009, Dmitry Trebich, Artem Tamazov <artem.tamazov@tellabs.com>
  *

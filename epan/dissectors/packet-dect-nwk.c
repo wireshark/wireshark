@@ -1,4 +1,4 @@
-/* packet-dect_nwk.c
+/* packet-dect-nwk.c
  *
  * Dissector for the DECT (Digital Enhanced Cordless Telecommunications)
  * NWK protocol layer as described in ETSI EN 300 175-5 V2.7.1 (2017-11)

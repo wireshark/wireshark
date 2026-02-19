@@ -1,4 +1,4 @@
-/* packet-usbdfu.c
+/* packet-usb-dfu.c
  * Routines for USB DFU dissection
  *
  * Copyright 2014, Michal Labedzki for Tieto Corporation

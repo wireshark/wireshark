@@ -1,4 +1,4 @@
-/* packet-gluster_hndsk.c
+/* packet-glusterfs_hndsk.c
  * Routines for GlusterFS Handshake dissection
  * Copyright 2012, Niels de Vos <ndevos@redhat.com>
  *

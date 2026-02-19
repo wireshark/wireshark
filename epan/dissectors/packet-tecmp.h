@@ -1,15 +1,15 @@
- /* packet-tecmp.h
-  *
-  * Definitions for TECMP
-  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
-  * Copyright 2022-2024 Dr. Lars Voelker
-  *
-  * Wireshark - Network traffic analyzer
-  * By Gerald Combs <gerald@wireshark.org>
-  * Copyright 1998 Gerald Combs
-  *
-  * SPDX-License-Identifier: GPL-2.0-or-later
-  */
+/* packet-tecmp.h
+ *
+ * Definitions for TECMP
+ * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
+ * Copyright 2022-2024 Dr. Lars Voelker
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __PACKET_TECMP_H__
 #define __PACKET_TECMP_H__

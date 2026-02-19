@@ -1,4 +1,4 @@
-/* packet-per.h
+/* packet-oer.h
  * Routines for dissection of ASN.1  OER
  *
  * Wireshark - Network traffic analyzer

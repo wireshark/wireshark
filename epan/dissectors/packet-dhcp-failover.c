@@ -1,4 +1,4 @@
-/* packet-dhcpfo.c
+/* packet-dhcp-failover.c
  * Routines for ISC DHCP Server failover protocol dissection
  * Copyright 2004, M. Ortega y Strupp <moys@loplof.de>
  *

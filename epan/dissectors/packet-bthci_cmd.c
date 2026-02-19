@@ -1,4 +1,4 @@
-/* packet-bthci-cmd.c
+/* packet-bthci_cmd.c
  * Routines for the Bluetooth HCI Command dissection
  * Copyright 2002, Christoph Scholz <scholz@cs.uni-bonn.de>
  *  From: http://affix.sourceforge.net/archive/ethereal_affix-3.patch

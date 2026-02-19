@@ -1,4 +1,4 @@
-/* packet-ieee8021CB.c
+/* packet-ieee8021cb.c
  * Routines for 802.1CB R-tag ethernet header disassembly
  *
  * Copyright 2020, Rene Nielsen <rene.nielsen@microchip.com>

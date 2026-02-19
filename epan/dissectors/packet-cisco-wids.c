@@ -1,4 +1,4 @@
-/* packet-cwids.c
+/* packet-cisco-wids.c
  * Routines for dissecting wireless ids packets sent from a Cisco
  * access point to the WLSE (or whatever)
  *

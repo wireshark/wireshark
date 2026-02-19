@@ -1,4 +1,4 @@
-/* Packet-rdp_ear.c
+/* packet-rdp_ear.c
  * Routines for the redirected authentication RDP channel
  * Copyright 2023, David Fort <contact@hardening-consulting.com>
  *

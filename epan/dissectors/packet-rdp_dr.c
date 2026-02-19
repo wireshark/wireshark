@@ -1,4 +1,4 @@
-/* Packet-rdp_dr.c
+/* packet-rdp_dr.c
  * Routines for the DR RDP channel
  * Copyright 2025, David Fort <contact@hardening-consulting.com>
  *

@@ -1,4 +1,4 @@
-/* packet-mpeg-sdt.c
+/* packet-dvb-sdt.c
  * Routines for DVB (ETSI EN 300 468) Servide Description Table (SDT) dissection
  * Copyright 2012, Guy Martin <gmsoft@tuxicoman.be>
  *

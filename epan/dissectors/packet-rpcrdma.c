@@ -1,4 +1,4 @@
-/* packet-rpcordma.c
+/* packet-rpcrdma.c
  * Routines for RPC over RDMA dissection (RFC 5666)
  * Copyright 2014-2015, Mellanox Technologies Ltd.
  * Code by Yan Burman.

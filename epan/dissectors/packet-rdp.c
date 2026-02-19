@@ -1,4 +1,4 @@
-/* Packet-rdp.c
+/* packet-rdp.c
  * Routines for Remote Desktop Protocol (RDP) packet dissection
  * Copyright 2010, Graeme Lunt
  *

@@ -1,4 +1,4 @@
-/* Packet-rdp_egfx.c
+/* packet-rdp_egfx.c
  * Routines for the EGFX RDP channel
  * Copyright 2021, David Fort <contact@hardening-consulting.com>
  *

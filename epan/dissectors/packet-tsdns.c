@@ -1,4 +1,4 @@
-/* packet-dns.c
+/* packet-tsdns.c
  * Routines for TSDNS (TeamSpeak3 DNS) packet disassembly
  * Copyright 2018, Maciej Krueger <mkg20001@gmail.com>
  *

@@ -1,4 +1,4 @@
-/* packet-bthci_vendor.c
+/* packet-bthci_vendor_android.c
  * Routines for the Bluetooth HCI Vendors Commands/Events
  *
  * Copyright 2014, Michal Labedzki for Tieto Corporation

@@ -1,4 +1,4 @@
-/* Packet-rdp_rail.c
+/* packet-rdp_rail.c
  * Routines for the RAIL RDP channel
  * Copyright 2023, David Fort <contact@hardening-consulting.com>
  *

@@ -1,4 +1,4 @@
-/* packet-pn532_hci.c
+/* packet-rfid-pn532-hci.c
  * Routines for NXP PN532 HCI Protocol
  *
  * http://www.nxp.com/documents/user_manual/141520.pdf

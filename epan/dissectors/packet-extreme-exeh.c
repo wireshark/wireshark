@@ -1,4 +1,4 @@
-/* packet-extreme-internal-eth.c
+/* packet-extreme-exeh.c
  * Routines for the disassembly of Extreme Networks internal
  * Ethernet capture headers
  *

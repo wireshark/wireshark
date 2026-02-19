@@ -1,4 +1,4 @@
-/* packet-bananna.c
+/* packet-banana.c
  * Routines for the Twisted Banana serialization protocol dissection
  * Copyright 2009, Gerald Combs <gerald@wireshark.org>
  *

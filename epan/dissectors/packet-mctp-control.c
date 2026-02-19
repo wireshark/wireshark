@@ -1,4 +1,4 @@
-/* packet-mctp.c
+/* packet-mctp-control.c
  * Routines for Management Component Transport Protocol (MCTP) control
  * protocol disassembly
  * Copyright 2022, Jeremy Kerr <jk@codeconstruct.com.au>

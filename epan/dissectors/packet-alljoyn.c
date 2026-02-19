@@ -1,4 +1,4 @@
-/* packet-allJoyn.c
+/* packet-alljoyn.c
  * Routines for AllJoyn (AllJoyn.org) packet dissection
  * Copyright (c) 2013-2014, The Linux Foundation.
  *

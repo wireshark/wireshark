@@ -1,4 +1,4 @@
-/* packet-stat.c
+/* packet-stat-notify.c
  * Routines for async NSM stat callback dissection
  * 2001 Ronnie Sahlberg <See AUTHORS for email>
  *

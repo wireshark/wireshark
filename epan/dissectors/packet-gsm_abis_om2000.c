@@ -1,4 +1,4 @@
-/* packet-abis_om2000.c
+/* packet-gsm_abis_om2000.c
  * Routines for packet dissection of Ericsson A-bis OML (OM 2000)
  * Copyright 2010-2012 by Harald Welte <laforge@gnumonks.org>
  *

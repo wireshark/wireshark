@@ -1,4 +1,4 @@
-/* xmpp-gtalk.c
+/* packet-xmpp-gtalk.c
  * Wireshark's XMPP dissector.
  *
  * GTalk extensions.

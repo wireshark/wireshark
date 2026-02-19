@@ -1,4 +1,4 @@
-/* xmpp-other.c
+/* packet-xmpp-other.c
  * Wireshark's XMPP dissector.
  *
  * Copyright 2011, Mariusz Okroj <okrojmariusz[]gmail.com>

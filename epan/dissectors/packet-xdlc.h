@@ -1,4 +1,4 @@
-/* xdlc.h
+/* packet-xdlc.h
  * Define *DLC frame types, and routine to dissect the control field of
  * a *DLC frame.
  *

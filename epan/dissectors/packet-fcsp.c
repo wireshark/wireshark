@@ -1,4 +1,4 @@
-/* packet-fc-sp.c
+/* packet-fcsp.c
  * Routines for Fibre Channel Security Protocol (FC-SP)
  * This decoder is for FC-SP version 1.1
  * Copyright 2003, Dinesh G Dutt <ddutt@cisco.com>

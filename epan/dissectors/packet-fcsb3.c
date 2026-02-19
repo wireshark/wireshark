@@ -1,4 +1,4 @@
-/* packet-fc-sb3.c
+/* packet-fcsb3.c
  * Routines for Fibre Channel Single Byte Protocol (SBCCS); used in FICON.
  * This decoder is for FC-SB3 version 1.4
  * Copyright 2003, Dinesh G Dutt <ddutt@cisco.com>

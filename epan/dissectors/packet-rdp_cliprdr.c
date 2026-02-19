@@ -1,4 +1,4 @@
-/* Packet-rdp_cliprdr.c
+/* packet-rdp_cliprdr.c
  * Routines for the clipboard redirection RDP channel
  * Copyright 2023, David Fort <contact@hardening-consulting.com>
  *

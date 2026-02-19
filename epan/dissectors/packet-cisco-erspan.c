@@ -1,4 +1,4 @@
-/* packet-erspan.c
+/* packet-cisco-erspan.c
  * Routines for the disassembly of Cisco's ERSPAN protocol
  *
  * Copyright 2005 Joerg Mayer (see AUTHORS file)

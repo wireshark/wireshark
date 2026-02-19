@@ -2043,9 +2043,24 @@ apiChecks.append(TVBGetBits('tvb_get_bits16', maxlen=16))
 apiChecks.append(TVBGetBits('tvb_get_bits32', maxlen=32))
 apiChecks.append(TVBGetBits('tvb_get_bits64', maxlen=64))
 
+def check_filename_in_first_line(filename, result, line):
+    # Check if first line names the wrong file?
+    try:
+        ext = filename.split('.')[-1]
+        first_line = line[2:]
+        file_end_idx = line.find('.' + ext)
+        if file_end_idx == -1:
+            raise Exception
+        read_filename = first_line[0:file_end_idx+len(ext)].strip()
+        basename = os.path.basename(filename)
+        if read_filename != basename:
+            result.warn(filename, 'first line names a different file:', read_filename)
+    except Exception:
+        #print(e)
+        pass
 
 # Looking for simple #define macros or enumerations.
-def find_macros(filename, contents):
+def find_macros(filename, contents, result):
     # Pre-populate with some useful values..
     macros = {'BASE_NONE': 0,  'BASE_DEC': 1}
 
@@ -2063,6 +2078,11 @@ def find_macros(filename, contents):
         else:
             with open(file, 'r', encoding="utf8") as f:
                 contents_to_check = f.read()
+                # Check if first line names the wrong file?
+                check_filename_in_first_line(str(file), result,
+                                             contents_to_check.split("\n")[0])
+
+
                 # Remove comments so as not to trip up RE.
                 contents_to_check = removeComments(contents_to_check)
 
@@ -2312,8 +2332,11 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         contents_no_comments = removeComments(contents)
         lines = contents.splitlines()
 
+        # Check if first line names the wrong file?
+        check_filename_in_first_line(filename, result, lines[0])
+
     # Find simple macros so can substitute into items and calls.
-    macros = find_macros(filename, contents_no_comments)
+    macros = find_macros(filename, contents_no_comments, result)
 
     # Find (and sanity-check) value_strings
     value_strings = findValueStrings(filename, contents_no_comments, macros, result, do_extra_checks=extra_value_string_checks)

@@ -1,4 +1,4 @@
-/* packet-miwi_p2pstar.c
+/* packet-miwi-p2pstar.c
  * Dissector  routines for the Microchip MiWi_P2P_Star
  * Copyright 2013 Martin Leixner <info@sewio.net>
  *

@@ -1,4 +1,4 @@
-/* packet-mrp_mvrp.c
+/* packet-mrp-mvrp.c
  * Routines for MVRP (MRP Multiple VLAN Registration Protocol) dissection
  * Copyright 2011, Pascal Levesque <plevesque[AT]orthogone.ca>
  *

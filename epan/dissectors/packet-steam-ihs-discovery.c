@@ -1,4 +1,4 @@
-/* packet-steam_ihs_discovery.c
+/* packet-steam-ihs-discovery.c
  * Routines for Steam In-Home Streaming Discovery Protocol dissection
  * Copyright 2017, Jan Holthuis <jan.holthuis@ruhr-uni-bochum.de>
  *

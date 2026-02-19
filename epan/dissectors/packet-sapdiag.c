@@ -1,4 +1,4 @@
-/* packet-saphdb.c
+/* packet-sapdiag.c
  * Routines for SAP Diag (SAP GUI Protocol) dissection
  * Copyright 2022, Martin Gallo <martin.gallo [AT] gmail.com>
  * Code contributed by SecureAuth Corp.

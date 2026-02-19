@@ -1,4 +1,4 @@
-/* packet-abis_oml.c
+/* packet-gsm_abis_oml.c
  * Routines for packet dissection of GSM A-bis OML (3GPP TS 12.21)
  * Copyright 2009-2011 by Harald Welte <laforge@gnumonks.org>
  * Copyright 2009 by Holger Hans Peter Freyther <zecke@selfish.org>

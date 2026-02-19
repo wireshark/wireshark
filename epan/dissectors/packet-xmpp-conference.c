@@ -1,4 +1,4 @@
-/* xmpp-conference.c
+/* packet-xmpp-conference.c
  * Wireshark's XMPP dissector.
  *
  * XEP-0298: Delivering Conference Information to Jingle Participants (Coin)
