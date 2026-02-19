@@ -511,24 +511,40 @@ qcdiag_append_type(proto_tree *tree, packet_info *pinfo, bool request)
 }
 
 static uint32_t
-qcdiag_add_cmd_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *tree, uint32_t cmd, uint32_t logcode, int logcode_offset)
+qcdiag_add_cmd_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *tree, uint32_t cmd, uint32_t logcode)
 {
     uint32_t length;
     proto_item *generated_item;
+
     length = tvb_reported_length(tvb);
-
-    /* Log Code */
-    generated_item = proto_tree_add_uint(tree, hf_qcdiag_logcode, tvb, offset, logcode_offset, logcode);
-    if (logcode_offset == 0)
-        proto_item_set_generated(generated_item);
-    offset += logcode_offset;
-
-    /* Length */
-    generated_item = proto_tree_add_uint(tree, hf_qcdiag_len, tvb, offset, 0, length);
-    proto_item_set_generated(generated_item);
 
     /* Command Code */
     proto_tree_add_uint(tree, hf_qcdiag_cmd, tvb, offset, 1, cmd);
+
+    if (cmd == DIAG_LOG_F) {
+        if (length > 2) {  /* Response */
+            /* Length of the included LOG_ITEM */
+            proto_tree_add_item(tree, hf_qcdiag_len, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
+
+            /* Log Code */
+            proto_tree_add_item(tree, hf_qcdiag_logcode, tvb, offset+6, 2, ENC_LITTLE_ENDIAN);
+        } else {  /* Request */
+            /* Length */
+            generated_item = proto_tree_add_uint(tree, hf_qcdiag_len, tvb, offset, 0, length);
+            proto_item_set_generated(generated_item);
+
+            /* Log Code is not included */
+        }
+    } else {
+        /* Length */
+        generated_item = proto_tree_add_uint(tree, hf_qcdiag_len, tvb, offset, 0, length);
+        proto_item_set_generated(generated_item);
+
+        /* Log Code */
+        generated_item = proto_tree_add_uint(tree, hf_qcdiag_logcode, tvb, offset, 0, logcode);
+        proto_item_set_generated(generated_item);
+    }
+
     offset += 1;
 
     return offset;
@@ -555,7 +571,7 @@ qcdiag_add_cmd_subtree(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto
     /* Append COL_INFO and parent item name */
     qcdiag_append_type(tree, pinfo, request);
 
-    if (length == offset)
+    if (length == offset || cmd == DIAG_LOG_F)
         return NULL;
 
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, length, /* -1 fails */
@@ -631,13 +647,10 @@ dissect_qcdiag_verno(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_t
     char *msm;
 
     length = tvb_reported_length(tvb);
-
-    request = (length == 1) ? true : false;
-
+    request = (length == 1);
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     if (request) return;
@@ -719,19 +732,37 @@ dissect_qcdiag_esn(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tre
     bool request;
 
     length = tvb_reported_length(tvb);
-
-    request = (length == 1) ? true : false;
-
+    request = (length == 1);
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     if (request) return;
 
     /* ESN */
     proto_tree_add_item(subtree, hf_qcdiag_esn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+}
+
+
+/* Get Log Request/Response
+ *
+ * Details in packet-qcdiag_log.c
+ */
+
+static void
+dissect_qcdiag_log(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint32_t cmd)
+{
+    uint32_t length;
+    bool request;
+
+    length = tvb_reported_length(tvb);
+    request = (length == 2);
+
+    qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, 0);
+    qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
+
+    dissector_try_uint(qcdiag_dissector_table, cmd, tvb, pinfo, tree);
 }
 
 
@@ -755,8 +786,7 @@ dissect_qcdiag_bad_cmd(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto
 
     bytes = tvb_captured_length(tvb);
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
 
     /* DATA */
@@ -784,8 +814,7 @@ dissect_qcdiag_bad_parm(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, prot
 
     bytes = tvb_captured_length(tvb);
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
 
     /* DATA */
@@ -813,8 +842,7 @@ dissect_qcdiag_bad_len(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto
 
     bytes = tvb_captured_length(tvb);
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
 
     /* DATA */
@@ -842,8 +870,7 @@ dissect_qcdiag_bad_mode(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, prot
 
     bytes = tvb_captured_length(tvb);
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, LOG_CODE_1X_DIAG_RES_STATUS);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, false);
 
     /* DATA */
@@ -869,12 +896,10 @@ dissect_qcdiag_markov_reset(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
     length = tvb_reported_length(tvb);
 
     /* It is not possible to distinguish between Request and Response */
-    request = (length == 0) ? true : false;
-
+    request = (length == 0);
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 }
 
@@ -915,13 +940,10 @@ dissect_qcdiag_diag_ver(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, prot
     bool request;
 
     length = tvb_reported_length(tvb);
-
-    request = (length == 1) ? true : false;
-
+    request = (length == 1);
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     if (request) return;
@@ -958,16 +980,13 @@ dissect_qcdiag_ts(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree
     uint32_t logcode, length;
     bool request;
     nstime_t abs_time;
-    char *timestamp;
+    const char *timestamp;
 
     length = tvb_reported_length(tvb);
-
-    request = (length == 1) ? true : false;
-
+    request = (length == 1);
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     if (request) return;
@@ -1017,16 +1036,13 @@ dissect_qcdiag_parm_set(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, prot
     uint32_t logcode, length;
     bool request;
     nstime_t abs_time;
-    char *timestamp;
+    const char *timestamp;
 
     length = tvb_reported_length(tvb);
-
-    request = (length == 1) ? true : false;
-
+    request = (length == 1);
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     if (request) {
@@ -1083,12 +1099,10 @@ dissect_qcdiag_mode_change(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
     length = tvb_reported_length(tvb);
 
     /* It is not possible to distinguish between Request and Response */
-    request = (length == 0) ? true : false;
-
+    request = (length == 0);
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     /* MODE */
@@ -1144,7 +1158,7 @@ dissect_qcdiag_subsys_cmd(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, pr
     ti = proto_tree_get_parent(tree);
     length = tvb_reported_length(tvb);
 
-    request = (length == 4) ? true : false;
+    request = (length == 4);
 
     /* SUBSYS_ID value */
     subsys_id = (uint32_t)tvb_get_uint8(tvb, offset+1);
@@ -1159,8 +1173,7 @@ dissect_qcdiag_subsys_cmd(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, pr
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
     /* This message type does not include log code so the offset will be increased by 1. */
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     /* Append parent item name */
@@ -1291,13 +1304,12 @@ dissect_qcdiag_log_config_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
 
     ti = proto_tree_get_parent(tree);
 
-    /* Command Code value */
     text = val_to_str_ext(pinfo->pool, cmd, &qcdiag_cmds_ext, "Unknown Command (0x%02x)");
 
     /* Log Code value */
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
 
     /* Append parent item name */
     proto_item_append_text(ti, ", %s", text);
@@ -1340,7 +1352,7 @@ dissect_qcdiag_log_config_disable_op(tvbuff_t *tvb, uint32_t offset, packet_info
     length = tvb_reported_length(tvb);
 
     /* 8 = CMD_CODE (1) + RESERVED (3) + OPERATION (4) */
-    request = (length == 8) ? true : false;
+    request = (length == 8);
 
     offset = dissect_qcdiag_log_config_hdr(tvb, offset, pinfo, tree, cmd, request);
 
@@ -1371,7 +1383,7 @@ dissect_qcdiag_log_config_retreive_id_ranges(tvbuff_t *tvb, uint32_t offset, pac
 
     length = tvb_reported_length(tvb);
 
-    request = (length == 8) ? true : false;
+    request = (length == 8);
 
     offset = dissect_qcdiag_log_config_hdr(tvb, offset, pinfo, tree, cmd, request);
 
@@ -1475,7 +1487,7 @@ dissect_qcdiag_log_config_getlogmask(tvbuff_t *tvb, uint32_t offset, packet_info
     length = tvb_reported_length(tvb);
 
     /* 12 = CMD_CODE (1) + RESERVED (3) + OPERATION (4) + EQUIP_ID (4) */
-    request = (length == 12) ? true : false;
+    request = (length == 12);
 
     offset = dissect_qcdiag_log_config_hdr(tvb, offset, pinfo, tree, cmd, request);
 
@@ -1565,13 +1577,10 @@ dissect_qcdiag_log_on_demand(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo,
     bool request;
 
     length = tvb_reported_length(tvb);
-
-    request = (length == 3) ? true : false;
-
+    request = (length == 3);
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     /* LOG_CODE */
@@ -1608,12 +1617,10 @@ dissect_qcdiag_protocol_loopback(tvbuff_t *tvb, uint32_t offset, packet_info *pi
     length = tvb_reported_length(tvb);
 
     /* It is not possible to distinguish between Request and Response */
-    request = (length == 0) ? true : false;
-
+    request = (length == 0);
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     /* PAYLOAD */
@@ -1690,13 +1697,10 @@ dissect_qcdiag_ext_build_id(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
     bool request;
 
     length = tvb_reported_length(tvb);
-
-    request = (length == 1) ? true : false;
-
+    request = (length == 1);
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, 0);
-
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
     subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     if (request) return;
@@ -1749,12 +1753,6 @@ dissect_qcdiag_ext_build_id(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
  * | CMD_CODE (255 / 0xFF) |       1        | Message ID: The CMD_CODE is set to 255  |
  * | (DIAG_MAX_F)          |                | for this message                        |
  * +-----------------------+----------------+-----------------------------------------+
- * | MSG_TYPE              |       1        | Specifies the message type;             |
- * |                       |                | 0 - Response, 1 - Request               |
- * +-----------------------+----------------+-----------------------------------------+
- * | LOG_CODE              |       2        | Specifies the log code;                 |
- * |                       |                | The value 0 means ignore it             |
- * +-----------------------+----------------+-----------------------------------------+
  * | CMD_CODE (xxx / 0xYY) |       1        | Message ID: The CMD_CODE is set to      |
  * |                       |                | custom CMD_CODE value for this message  |
  * +-----------------------+----------------+-----------------------------------------+
@@ -1766,17 +1764,13 @@ dissect_qcdiag_ext_build_id(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
  * | CMD_CODE (255 / 0xFF) |       1        | Message ID: The CMD_CODE is set to 255  |
  * | (DIAG_MAX_F)          |                | for this message                        |
  * +-----------------------+----------------+-----------------------------------------+
- * | MSG_TYPE              |       1        | Specifies the message type;             |
- * |                       |                | 0 - Response, 1 - Request               |
- * +-----------------------+----------------+-----------------------------------------+
- * | LOG_CODE              |       2        | Specifies the log code;                 |
- * |                       |                | The value 0 means ignore it             |
- * +-----------------------+----------------+-----------------------------------------+
  * | CMD_CODE (xxx / 0xYY) |       1        | Message ID: The CMD_CODE is set to      |
  * |                       |                | custom CMD_CODE value for this message  |
  * +-----------------------+----------------+-----------------------------------------+
  * | TEXT_DATA             |    Variable    | the custom data in text format;         |
- * |                       |                | "Line-based text data" dissector        |
+ * |                       |                | "Line-based text data" dissector;       |
+ * |                       |                | if CMD_CODE is 16/0x10 (Get Log),       |
+ * |                       |                | additional header fields are present    |
  * +-----------------------+----------------+-----------------------------------------+
  */
 
@@ -1788,51 +1782,37 @@ dissect_qcdiag_custom(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_
 {
     proto_tree *subtree;
     tvbuff_t *payload_tvb;
-    uint32_t length, cmd, request, logcode, logcode_offset;
+    qcdiag_data_t qcdata;
+    uint32_t length, cmd, logcode;
     const char *text;
-
-    length = tvb_reported_length(tvb);
+    bool request;
 
     /* DIAG_MAX_F */
     offset += 1;
 
-    /* MSG_TYPE */
-    request = (uint32_t)tvb_get_uint8(tvb, offset);
-    offset += 1;
-
-    /* LOG_CODE */
-    logcode = (uint32_t)tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
-
-    /* Determine if Log Code needs offset */
-    logcode_offset = (logcode) ? 2 : 0;
-
-    if (logcode == 0)
-        logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
-
-    cmd = (uint32_t)tvb_get_uint8(tvb, offset+2);
-
+    cmd = (uint32_t)tvb_get_uint8(tvb, offset);
     text = val_to_str_ext(pinfo->pool, cmd, &qcdiag_cmds_ext, "Unknown Command (0x%02x)");
 
     /* Set COL_INFO to the Command Code Name */
     col_set_str(pinfo->cinfo, COL_INFO, text);
 
-    /* Append COL_INFO with Equipment ID */
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", try_val_to_str(logcode >> 12, qcdiag_logcfg_equipid));
+    length = tvb_reported_length(tvb);
+    request = (length == 2);
 
-    if (logcode_offset == 0) {
-        /* Log Code 0x0000 was in the packet which we need to step over */
-        offset += 2;
-    }
+    logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
+    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
 
-    offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode, logcode_offset);
-
-    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, (bool)request);
+    subtree = qcdiag_add_cmd_subtree(tvb, offset, pinfo, tree, cmd, request);
 
     if (request) return;
 
-    payload_tvb = tvb_new_subset_length(tvb, offset, length-offset);
-
-    call_dissector(text_lines_handle, payload_tvb, pinfo, subtree);
+    if (cmd == DIAG_LOG_F) {
+        qcdata.custom = true;
+        dissector_try_uint_with_data(qcdiag_dissector_table, cmd, tvb, pinfo, tree, true, &qcdata);
+    } else {
+        payload_tvb = tvb_new_subset_length(tvb, offset, length-offset);
+        call_dissector(text_lines_handle, payload_tvb, pinfo, subtree);
+    }
 }
 
 
@@ -1856,7 +1836,6 @@ dissect_qcdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     subtree = proto_item_add_subtree(ti, ett_qcdiag);
 
     cmd = (uint32_t)tvb_get_uint8(tvb, offset);
-
     text = val_to_str_ext(pinfo->pool, cmd, &qcdiag_cmds_ext, "Unknown Command (0x%02x)");
 
     /* Set COL_INFO to the Command Code Name */
@@ -1868,6 +1847,9 @@ dissect_qcdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         break;
     case DIAG_ESN_F:
         dissect_qcdiag_esn(tvb, offset, pinfo, subtree, cmd);
+        break;
+    case DIAG_LOG_F:
+        dissect_qcdiag_log(tvb, offset, pinfo, subtree, cmd);
         break;
     case DIAG_BAD_CMD_F:
         dissect_qcdiag_bad_cmd(tvb, offset, pinfo, subtree, cmd);

@@ -25,6 +25,10 @@
 #ifndef PACKET_QCDIAG_H
 #define PACKET_QCDIAG_H
 
+typedef struct _qcdiag_data {
+    bool custom;
+} qcdiag_data_t;
+
 extern value_string_ext qcdiag_logcodes_ext;
 extern nstime_t qcdiag_parse_timestamp(tvbuff_t *tvb, uint32_t offset);
 

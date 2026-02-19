@@ -58,13 +58,12 @@ void proto_register_qcdiag_log(void);
 void proto_reg_handoff_qcdiag_log(void);
 
 static dissector_handle_t data_handle;
+static dissector_handle_t text_lines_handle;
 static dissector_handle_t gsmtap_handle;
 
 static dissector_table_t qcdiag_log_code_dissector_table;
 
 static int proto_qcdiag_log;
-
-static proto_item *ti_qcdiag_ver;
 
 static int hf_qcdiag_ver;
 static int hf_qcdiag_ver_4;
@@ -583,33 +582,6 @@ qcdiag_format_ver(char *s, uint32_t ver)
 }
 
 static void
-qcdiag_log_update_version(uint32_t offset, uint32_t version)
-{
-    field_info *fi;
-
-    if (!ti_qcdiag_ver) return;
-
-    /* Set the item visible before updating it */
-    proto_item_set_visible(ti_qcdiag_ver);
-
-    fi = PNODE_FINFO(ti_qcdiag_ver);
-    if (!fi) return;
-
-    if (version <= 0xFF) {
-        fi->length = 1;
-    } else if (version > 0xFF) {
-        fi->hfinfo = proto_registrar_get_nth(hf_qcdiag_ver_4);
-        fi->length = 4;
-    }
-
-    /* Set the actual offset */
-    fi->start = offset;
-
-    /* Set the actual version */
-    fvalue_set_uinteger(fi->value, version);
-}
-
-static void
 dissect_qcdiag_log_set_col(packet_info *pinfo, uint32_t gsmtap_type)
 {
     const char *str;
@@ -1090,6 +1062,7 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
     uint8_t *gsmtap_hdr_bytes;
     uint32_t version, sfn, pdu, subtype, arfcn, earfcn, frame_nr;
     uint8_t lte_rnum, lte_rmajmin, nr_rnum, nr_rmajmin;
+    wmem_strbuf_t *buf;
     bool direction;
 
     /* Packet Version */
@@ -1099,19 +1072,22 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
     lte_rnum    = tvb_get_uint8(tvb, offset);
     lte_rmajmin = tvb_get_uint8(tvb, offset+1);
 
-    /* LTE Release Number */
-    proto_tree_add_string_format_value(log_tree, hf_qcdiag_lte_rrc_rel, tvb, offset, 2,
-        "LTE RRC Release", "%u.%u.%u", lte_rnum, lte_rmajmin / 16, lte_rmajmin % 16);
-    offset += 2;
+    buf = wmem_strbuf_new(pinfo->pool, "");
+    wmem_strbuf_append_printf(buf, "%u.%u.%u", lte_rnum, lte_rmajmin / 16, lte_rmajmin % 16);
 
+    /* LTE Release Number */
+    proto_tree_add_string(log_tree, hf_qcdiag_lte_rrc_rel, tvb, offset, 2, wmem_strbuf_finalize(buf));
+    offset += 2;
 
     if (version > 24) {
         nr_rnum    = tvb_get_uint8(tvb, offset);
         nr_rmajmin = tvb_get_uint8(tvb, offset+1);
 
+        buf = wmem_strbuf_new(pinfo->pool, "");
+        wmem_strbuf_append_printf(buf, "%u.%u.%u", nr_rnum, nr_rmajmin / 16, nr_rmajmin % 16);
+
         /* NR Release Number */
-        proto_tree_add_string_format_value(log_tree, hf_qcdiag_nr_rrc_rel, tvb, offset, 2,
-            "NR RRC Release", "%u.%u.%u", nr_rnum, nr_rmajmin / 16, nr_rmajmin % 16);
+        proto_tree_add_string(log_tree, hf_qcdiag_nr_rrc_rel, tvb, offset, 2, wmem_strbuf_finalize(buf));
         offset += 2;
     }
 
@@ -1203,23 +1179,25 @@ static void
 dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree, bool plain)
 {
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb;
-    uint32_t version, arfcn;
+    uint32_t arfcn;
     uint8_t *gsmtap_hdr_bytes;
     uint8_t msgtype, lte_maj, lte_min, lte_patch;
+    wmem_strbuf_t *buf;
     bool direction;
 
     /* Version */
-    version = tvb_get_uint8(tvb, offset);
-    qcdiag_log_update_version(offset, version);
+    proto_tree_add_item(log_tree, hf_qcdiag_ver, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     lte_maj   = tvb_get_uint8(tvb, offset);
     lte_min   = tvb_get_uint8(tvb, offset+1);
     lte_patch = tvb_get_uint8(tvb, offset+2);
 
+    buf = wmem_strbuf_new(pinfo->pool, "");
+    wmem_strbuf_append_printf(buf, "%u.%u.%u", lte_maj, lte_min, lte_patch);
+
     /* Release Version */
-    proto_tree_add_string_format_value(log_tree, hf_qcdiag_lte_nas_rel, tvb, offset, 3,
-        "Release Version", "%u.%u.%u", lte_maj, lte_min, lte_patch);
+    proto_tree_add_string(log_tree, hf_qcdiag_lte_nas_rel, tvb, offset, 3, wmem_strbuf_finalize(buf));
     offset += 3;
 
     /* Message Type */
@@ -1316,39 +1294,35 @@ dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
  */
 
 static int
-dissect_qcdiag_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
+dissect_qcdiag_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item *ti;
     proto_tree *diag_log_tree;
     tvbuff_t *payload_tvb;
-    int hf_id;
+    qcdiag_data_t *qcdata;
     uint32_t offset = 0;
-    uint32_t code = 0;
+    uint32_t length, code;
     nstime_t abs_time;
-    char *timestamp;
+    const char *timestamp;
     const char *str;
 
-    hf_id = proto_registrar_get_id_byname("qcdiag.logcode");
+    qcdata = (qcdiag_data_t*)data;
+
+    length = tvb_reported_length(tvb);
+
+    if (qcdata && qcdata->custom) {
+        /* DIAG_MAX_F */
+        offset++;
+        length--;
+    }
+
+    /* Request */
+    if (length == 2) {
+        return tvb_captured_length(tvb);
+    }
 
     /* Log Code */
-    if (hf_id > -1)
-        proto_tree_add_item_ret_uint(tree, hf_id, tvb, offset+6, 2, ENC_LITTLE_ENDIAN, &code);
-
-    hf_id = proto_registrar_get_id_byname("qcdiag.len");
-
-    /* Length of the included LOG_ITEM */
-    if (hf_id > -1)
-        proto_tree_add_item(tree, hf_id, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
-
-    /* Version */
-    ti_qcdiag_ver = proto_tree_add_uint(tree, hf_qcdiag_ver, tvb, offset, 0, 0);
-    proto_item_set_hidden(ti_qcdiag_ver);
-
-    hf_id = proto_registrar_get_id_byname("qcdiag.cmd");
-
-    /* Command Code */
-    if (hf_id > -1)
-        proto_tree_add_uint(tree, hf_id, tvb, offset, 1, DIAG_LOG_F);
+    code = tvb_get_uint16(tvb, offset+6, ENC_LITTLE_ENDIAN);
 
     /* More */
     proto_tree_add_item(tree, hf_qcdiag_log_more, tvb, offset+1, 1, ENC_NA);
@@ -1369,13 +1343,23 @@ dissect_qcdiag_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
     proto_tree_add_string(tree, hf_qcdiag_log_timestamp, tvb, offset, 8, timestamp);
     offset += 8;
 
-    str = val_to_str_ext(pinfo->pool, code, &qcdiag_logcodes_ext, "Unknown Log Code (0x%02x)");
+    str = val_to_str_ext(pinfo->pool, code, &qcdiag_logcodes_ext, "Unknown Log Code (0x%04x)");
 
     ti = proto_tree_get_parent(tree);
     col_set_str(pinfo->cinfo, COL_INFO, str);
     proto_item_append_text(ti, ", %s", str);
 
-    diag_log_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_qcdiag_log, NULL, str);
+    ti = proto_tree_add_item(tree, proto_qcdiag_log, tvb, offset, -1, ENC_NA);
+    proto_item_set_text(ti, "%s", str);
+
+    diag_log_tree = proto_item_add_subtree(ti, ett_qcdiag_log);
+
+    if (qcdata && qcdata->custom) {
+        payload_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(text_lines_handle, payload_tvb, pinfo, diag_log_tree);
+
+        return tvb_captured_length(tvb);
+    }
 
     switch (code) {
     case 0x512f:
@@ -1565,6 +1549,7 @@ proto_reg_handoff_qcdiag_log(void)
     dissector_add_uint("qcdiag.cmd", DIAG_LOG_F, qcdiag_log_handle);
 
     data_handle = find_dissector("data");
+    text_lines_handle = find_dissector("data-text-lines");
     gsmtap_handle = find_dissector("gsmtap");
 }
 
