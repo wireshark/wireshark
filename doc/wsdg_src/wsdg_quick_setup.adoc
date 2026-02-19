@@ -103,14 +103,14 @@ The setup script is `tools/rpm-setup.sh`; its options are:
 You must first install Xcode.
 
 As with Windows we provide pre-built third party libraries which will be automatically installed if you set the `WIRESHARK_BASE_DIR` CMake variable to a directory that is writable by you, such as _/opt/wireshark-third-party_ or _wireshark-libraries_ at the same level as your Wireshark source code directory.
+We recommend this instead of using Homebrew's libraries, since it's easy, it's what we use to create the official packages, and our pre-built libraries are univeral and support older versions of macOS.
 
-You can use `tools/macos-setup-brew.sh` to install the tools required to build Wireshark using the https://brew.sh/[Homebrew] package manager.
-You can also use it to install third party libraries instead of setting `WIRESHARK_BASE_DIR`.
+You can use `tools/macos-setup-brew.sh` to install CMake, Ninja, and other tools required to build Wireshark using the https://brew.sh/[Homebrew] package manager, and optionally to install third party libraries as an alternative to setting `WIRESHARK_BASE_DIR`.
 
 * `--install-required` install third party libraries required to build Wireshark. Not needed if you set `WIRESHARK_BASE_DIR`.
 * `--install-optional` install optional third party libraries. Not needed if you set `WIRESHARK_BASE_DIR`.
 * `--install-dmg-deps` install packages required to build the .dmg file
-* `--install-sparkle-deps` install the Sparkle automatic updater
+* `--install-sparkle-deps` install the Sparkle automatic updater. Not needed if you set `WIRESHARK_BASE_DIR`.
 * `--install-all` install everything
 * `--install-stratoshark` install libraries required to build Stratoshark and the Falco Events plugin
 * `[other]` other options are passed as-is to brew
@@ -124,9 +124,6 @@ It supports the following options:
 * `-n` dry run; don't build or install any tools
 * `-p` specify the installation prefix; _/usr/local_ is the default
 * `-u` uninstall packages
-
-We recommend setting `WIRESHARK_BASE_DIR` to install libraries, since it's easy and it's what we use to create the official packages.
-If you're using Homebrew we recommend using `tools/macos-setup-brew.sh` with no options to install CMake and Ninja.
 
 You will also have to install Qt 6. To install
 Qt, go to the https://www.qt.io/download-qt-installer-oss[Download Qt
