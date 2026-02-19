@@ -100,7 +100,14 @@ guids_init(void)
 void
 guids_add_guid(const e_guid_t* guid, const char* name)
 {
-	uuid_type_insert(guid_id, (void*)guid, (void*)name);
+	/* The previous implementation used a wmem_tree with an array
+	 * of 32-bit keys, allowing callers to pass in a pointer to a
+	 * e_guid_t allocated on the stack. To insert into a map, the
+	 * e_guid_t key needs to be copied to heap-allocated memory.
+	 */
+	e_guid_t* guid_key = wmem_new(wmem_epan_scope(), e_guid_t);
+	*guid_key = *guid;
+	uuid_type_insert(guid_id, (void*)guid_key, (void*)name);
 }
 
 void
