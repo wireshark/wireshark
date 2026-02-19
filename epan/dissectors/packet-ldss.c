@@ -474,8 +474,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			transfer_info->req->file = wmem_new0(wmem_file_scope(), ldss_file_t);
 		}
 
-		ti = proto_tree_add_item(tree, proto_ldss,
-				tvb, 0, tvb_reported_length(tvb), ENC_NA);
+		ti = proto_tree_add_item(tree, proto_ldss, tvb, 0, tvb_reported_length(tvb), ENC_NA);
 		ldss_tree = proto_item_add_subtree(ti, ett_ldss_transfer);
 
 		/* Populate digest data into the file struct in the request */
@@ -484,12 +483,12 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		/* Grab each line from the packet, there should be 4 but lets
 		 * not walk off the end looking for more. */
 		while (tvb_offset_exists(tvb, offset)) {
-			int next_offset;
+			unsigned next_offset;
 			const char *line;
-			int linelen;
+			unsigned linelen;
 			unsigned digest_type_len = 0;
 
-			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+			tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset);
 
 			/* Include new-line in line */
 			line = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
