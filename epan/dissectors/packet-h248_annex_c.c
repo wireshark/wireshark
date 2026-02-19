@@ -27,11 +27,6 @@
 void proto_register_h248_annex_c(void);
 void proto_reg_handoff_h248_annex_c(void);
 
-
-#define PNAME  "H.248 Annex C"
-#define PSNAME "H248C"
-#define PFNAME "h248.annexc"
-
 /* H.248 Annex C */
 static int proto_h248_pkg_annexc;
 
@@ -1564,7 +1559,7 @@ void proto_register_h248_annex_c(void) {
 			"Invalid SDP media port", EXPFILL }}
 	};
 
-	proto_h248_pkg_annexc = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_h248_pkg_annexc = proto_register_protocol("H.248 Annex C", "H248C", "h248.annexc");
 
 	proto_register_field_array(proto_h248_pkg_annexc, hf, array_length(hf));
 

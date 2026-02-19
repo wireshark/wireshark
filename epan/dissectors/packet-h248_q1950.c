@@ -25,10 +25,6 @@
 void proto_reg_handoff_q1950(void);
 void proto_register_q1950(void);
 
-#define PNAME  "H.248 Q.1950 Annex A"
-#define PSNAME "H248Q1950"
-#define PFNAME "h248q1950"
-
 static int proto_q1950;
 static bool implicit;
 
@@ -610,7 +606,7 @@ void proto_register_q1950(void) {
         &ett_h248_pkg_GB_BNCChange
     };
 
-    proto_q1950 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_q1950 = proto_register_protocol("H.248 Q.1950 Annex A", "H248Q1950", "h248q1950");
 
     proto_register_field_array(proto_q1950, hf, array_length(hf));
 

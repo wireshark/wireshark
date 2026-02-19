@@ -20,10 +20,6 @@
 
 void proto_register_h248_dot2(void);
 
-#define PNAME  "H.248.2"
-#define PSNAME "H248_2"
-#define PFNAME "h248.2"
-
 static int proto_h248_2;
 
 /* static int hf_h248_2_dtone_evt; */
@@ -134,7 +130,7 @@ void proto_register_h248_dot2(void) {
         &ett_h248_2_dtone_dtt_obs_evt,
     };
 
-    proto_h248_2 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_h248_2 = proto_register_protocol("H.248.2", "H248_2", "h248.2");
 
     proto_register_field_array(proto_h248_2, hf, array_length(hf));
 

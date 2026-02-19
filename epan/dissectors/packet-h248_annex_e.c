@@ -23,9 +23,6 @@
 
 void proto_register_h248_annex_e(void);
 
-#define PNAME  "H.248 Annex E"
-#define PSNAME "H248E"
-#define PFNAME "h248e"
 /*
 */
 static int proto_h248_annex_E;
@@ -1139,7 +1136,7 @@ void proto_register_h248_annex_e(void) {
 		&ett_h248_pkg_tdmc
 	};
 
-	proto_h248_annex_E = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_h248_annex_E = proto_register_protocol("H.248 Annex E", "H248E", "h248e");
 
 	proto_register_field_array(proto_h248_annex_E, hf, array_length(hf));
 

@@ -19,14 +19,9 @@
 #include "packet-ber.h"
 #include "packet-isup.h"
 #include "packet-h248.h"
+#include "packet-gsm_a_common.h"
 
 void proto_register_h248_3gpp(void);
-
-#define PNAME  "H.248 3GPP"
-#define PSNAME "H2483GPP"
-#define PFNAME "h248.3gpp"
-
-#include "packet-gsm_a_common.h"
 
 /*
  * 3GUP Package
@@ -679,7 +674,7 @@ void proto_register_h248_3gpp(void) {
 		&ett_h248_package_threegint
 	};
 
-	proto_h248_package_3GUP = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_h248_package_3GUP = proto_register_protocol("H.248 3GPP", "H2483GPP", "h248.3gpp");
 
 	proto_register_field_array(proto_h248_package_3GUP, hf, array_length(hf));
 
