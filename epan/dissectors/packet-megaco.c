@@ -209,8 +209,8 @@ static const value_string megaco_context_vals[] = {
 };
 
 /* Some basic utility functions that are specific to this dissector */
-static int megaco_tvb_skip_wsp(tvbuff_t *tvb, int offset);
-static int megaco_tvb_skip_wsp_return(tvbuff_t *tvb, int offset);
+static unsigned megaco_tvb_skip_wsp(tvbuff_t *tvb, unsigned offset);
+static unsigned megaco_tvb_skip_wsp_return(tvbuff_t *tvb, unsigned offset);
 
 #define NUM_TIMESTATS 12
 
@@ -443,7 +443,7 @@ export_megaco_pdu(packet_info *pinfo, tvbuff_t *tvb)
 static void
 dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, proto_tree *top_tree, uint32_t context);
 static void
-dissect_megaco_digitmapdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int tvb_RBRKT, int tvb_previous_offset);
+dissect_megaco_digitmapdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned tvb_RBRKT, unsigned tvb_previous_offset);
 static void
 dissect_megaco_topologydescriptor(tvbuff_t *tvb, proto_tree *tree, unsigned tvb_RBRKT, unsigned tvb_previous_offset);
 static void
@@ -462,8 +462,8 @@ static void
 tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 static int
 dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
-static int
-megaco_tvb_find_token(tvbuff_t *tvb, int offset, int maxlength);
+static bool
+megaco_tvb_find_token(tvbuff_t *tvb, unsigned offset, unsigned maxlength, unsigned *token_pos);
 static dissector_handle_t data_handle;
 static dissector_handle_t sdp_handle;
 static dissector_handle_t h245_handle;
@@ -797,14 +797,14 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     tvb_find_uint8_length(tvb, tvb_offset, tvb_len, '{', &tvb_LBRKT);
     tvb_current_offset = tvb_LBRKT;
-    tvb_transaction_end_offset = megaco_tvb_find_token(tvb, tvb_LBRKT - 1, tvb_len);
+    megaco_tvb_find_token(tvb, tvb_LBRKT - 1, tvb_len, &tvb_transaction_end_offset);
 
     switch ( token_index ){
         /* errorDescriptor */
         case ERRORTOKEN:
             col_set_str(pinfo->cinfo, COL_INFO, "Error  ");
 
-            tvb_current_offset = megaco_tvb_find_token(tvb, tvb_offset, tvb_len); /*tvb_find_uint8(tvb, tvb_offset+1, tvb_len, '}');*/
+            megaco_tvb_find_token(tvb, tvb_offset, tvb_len, &tvb_current_offset); /*tvb_find_uint8(tvb, tvb_offset+1, tvb_len, '}');*/
 
             ti = proto_tree_add_format_text(megaco_tree, tvb, tvb_previous_offset, tvb_current_offset-tvb_previous_offset);
             message_body_tree = proto_item_add_subtree(ti, ett_megaco_message_body);
@@ -831,7 +831,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             tvb_previous_offset = megaco_tvb_skip_wsp(tvb, tvb_offset+1);
             tvb_find_uint8_length(tvb, tvb_offset + 1, tvb_len, '}', &tvb_current_offset);
-            /*tvb_current_offset = megaco_tvb_find_token(tvb, tvb_offset, tvb_transaction_end_offset);*/
+            /*megaco_tvb_find_token(tvb, tvb_offset, tvb_transaction_end_offset, &tvb_current_offset);*/
             tvb_current_offset = megaco_tvb_skip_wsp_return(tvb, tvb_current_offset)-1; /* cut last RBRKT */
             len = tvb_current_offset - tvb_previous_offset;
 
@@ -1449,7 +1449,7 @@ nextcontext:
                     term = wmem_new0(pinfo->pool, gcp_term_t);
                     wild_term = GCP_WILDCARD_NONE;
                     term->type = GCP_TERM_TYPE_UNKNOWN;
-                    int bytelen;
+                    unsigned bytelen;
 
                     switch ( tempchar ){
 
@@ -1614,7 +1614,7 @@ static const megaco_tokens_t megaco_descriptors_names[] = {
 
 /* Returns index of megaco_tokens_t */
 /* note - also called by dissect_megaco_auditdescriptor */
-static int find_megaco_descriptors_names(tvbuff_t *tvb, int offset, unsigned header_len)
+static unsigned find_megaco_descriptors_names(tvbuff_t *tvb, unsigned offset, unsigned header_len)
 {
     unsigned i;
 
@@ -1627,14 +1627,14 @@ static int find_megaco_descriptors_names(tvbuff_t *tvb, int offset, unsigned hea
             tvb_strncaseeql(tvb, offset, megaco_descriptors_names[i].compact_name, header_len) == 0)
             return i;
     }
-    return -1;
+    return 0;
 }
 
 static void
-dissect_megaco_modemdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree_command_line,  int tvb_RBRKT, int tvb_previous_offset)
+dissect_megaco_modemdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree_command_line, unsigned tvb_RBRKT, unsigned tvb_previous_offset)
 {
 
-    int     tokenlen;
+    unsigned     tokenlen;
 
     tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
     proto_tree_add_string(megaco_tree_command_line, hf_megaco_modem_descriptor, tvb,
@@ -1644,10 +1644,10 @@ dissect_megaco_modemdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *me
 
 }
 static void
-dissect_megaco_multiplexdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree_command_line,  int tvb_RBRKT, int tvb_previous_offset)
+dissect_megaco_multiplexdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree_command_line, unsigned tvb_RBRKT, unsigned tvb_previous_offset)
 {
 
-    int     tokenlen;
+    unsigned     tokenlen;
 
     tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
     proto_tree_add_string(megaco_tree_command_line, hf_megaco_multiplex_descriptor, tvb,
@@ -1700,7 +1700,7 @@ static const megaco_tokens_t megaco_mediaParm_names[] = {
 };
 
 /* Returns index of megaco_tokens_t */
-static unsigned find_megaco_mediaParm_names(tvbuff_t *tvb, int offset, unsigned header_len)
+static unsigned find_megaco_mediaParm_names(tvbuff_t *tvb, unsigned offset, unsigned header_len)
 {
     unsigned i;
 
@@ -1835,7 +1835,7 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 }
 
 static void
-dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, int offset, int len, proto_tree *top_tree)
+dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, unsigned offset, unsigned len, proto_tree *top_tree)
 {
     /*proto_item *item;*/
     /*proto_tree *tree;*/
@@ -1846,7 +1846,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 
     /* arbitrary maximum length */
     if(len<20480){
-        int i;
+        unsigned i;
         tvbuff_t *h245_tvb;
         uint8_t *buf = (uint8_t *)wmem_alloc(pinfo->pool, 10240);
 
@@ -1878,7 +1878,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
         while( ((*msg>='0')&&(*msg<='9'))
              ||((*msg>='a')&&(*msg<='f'))
              ||((*msg>='A')&&(*msg<='F'))  ){
-            int val;
+            unsigned val;
             if((*msg>='0')&&(*msg<='9')){
                 val=(*msg)-'0';
             } else if((*msg>='a')&&(*msg<='f')){
@@ -1918,13 +1918,13 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 }
 
 static void
-dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, int offset _U_, int len, char *msg)
+dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, unsigned offset _U_, unsigned len, char *msg)
 {
     asn1_ctx_t actx;
 
     /* arbitrary maximum length */
     if(len<20480){
-        int i;
+        unsigned i;
         tvbuff_t *h245_tvb;
         uint8_t *buf = (uint8_t *)wmem_alloc(pinfo->pool, 10240);
 
@@ -1956,7 +1956,7 @@ dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *meg
         while( ((*msg>='0')&&(*msg<='9'))
              ||((*msg>='a')&&(*msg<='f'))
              ||((*msg>='A')&&(*msg<='F'))  ){
-            int val;
+            unsigned val;
             if((*msg>='0')&&(*msg<='9')){
                 val=(*msg)-'0';
             } else if((*msg>='a')&&(*msg<='f')){
@@ -2284,7 +2284,7 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 static void
 dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_info *pinfo _U_, proto_tree *top_tree, uint32_t context)
 {
-    int         token_index;
+    unsigned    token_index;
     unsigned    tokenlen, tvb_offset, tvb_stop, tvb_end, tvb_next, tvb_token_end;
     proto_tree  *megaco_auditdescriptor_tree, *megaco_auditdescriptor_ti;
     bool        descriptor;
@@ -2334,9 +2334,7 @@ dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_in
             tokenlen = tvb_token_end - tvb_offset;                                                /* get length of token */
 
             token_index = find_megaco_descriptors_names(tvb, tvb_offset, tokenlen);               /* lookup the token */
-            if( token_index == -1 )                                                               /* if not found then 0 => Unknown */
-                token_index = 0;
-
+                                                                                                  /* if not found then 0 => Unknown */
             if (descriptor) {
                 tvbuff_t *descriptor_tvb = tvb_new_subset_length(tvb, tvb_offset, tvb_end - tvb_offset + 1);
                 switch ( token_index ){
@@ -2414,7 +2412,7 @@ static const megaco_tokens_t megaco_serviceChangeParm_names[] = {
 };
 
 /* Returns index of megaco_tokens_t */
-static int find_megaco_megaco_serviceChangeParm_names(tvbuff_t *tvb, int offset, unsigned header_len)
+static int find_megaco_megaco_serviceChangeParm_names(tvbuff_t *tvb, unsigned offset, unsigned header_len)
 {
     unsigned i;
 
@@ -2559,10 +2557,10 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_
 
 }
 static void
-dissect_megaco_digitmapdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree_command_line,  int tvb_RBRKT, int tvb_previous_offset)
+dissect_megaco_digitmapdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree_command_line, unsigned tvb_RBRKT, unsigned tvb_previous_offset)
 {
 
-    int     tokenlen;
+    unsigned     tokenlen;
 
     tokenlen =  tvb_RBRKT - tvb_previous_offset;
     proto_tree_add_string(megaco_tree_command_line, hf_megaco_digitmap_descriptor, tvb,
@@ -3027,7 +3025,7 @@ static void
 dissect_megaco_LocalRemotedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescriptor_tree, packet_info *pinfo,
                                     uint32_t context, bool is_local)
 {
-    int tokenlen;
+    unsigned tokenlen;
     tvbuff_t *next_tvb;
     media_content_info_t content_info = { MEDIA_CONTAINER_SIP_DATA, NULL, NULL, NULL };
 
@@ -3068,8 +3066,8 @@ dissect_megaco_LocalRemotedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadesc
          * (Restoring is optional, the SDP dissector doesn't really need the
          * last line end.)
          */
-        int sdp_end_offset = megaco_tvb_skip_wsp_return(tvb, tokenlen - 2);
-        tvb_find_line_end(tvb, sdp_end_offset, tokenlen, &sdp_end_offset, false);
+        unsigned sdp_end_offset = megaco_tvb_skip_wsp_return(tvb, tokenlen - 2);
+        tvb_find_line_end_length(tvb, sdp_end_offset, tokenlen, NULL, &sdp_end_offset);
         next_tvb = tvb_new_subset_length(tvb, 0, sdp_end_offset);
         call_dissector_with_data(sdp_handle, next_tvb, pinfo, megaco_localdescriptor_tree, &content_info);
     }
@@ -3136,7 +3134,7 @@ static const megaco_tokens_t megaco_localParam_names[] = {
 };
 
 /* Returns index of megaco_tokens_t */
-static int find_megaco_localParam_names(tvbuff_t *tvb, int offset, unsigned header_len)
+static int find_megaco_localParam_names(tvbuff_t *tvb, unsigned offset, unsigned header_len)
 {
     unsigned i;
 
@@ -3500,7 +3498,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packe
 
 static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
 
-    int tvb_linebegin,tvb_lineend,linelen;
+    unsigned tvb_linebegin,tvb_lineend,linelen;
     proto_tree* text_tree;
 
     tvb_linebegin = 0;
@@ -3509,7 +3507,7 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
         text_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_megaco_raw_text, NULL, "-------------- (RAW text output) ---------------");
 
         do {
-            linelen = tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend,false);
+            tvb_find_line_end_remaining(tvb,tvb_linebegin,&linelen,&tvb_lineend);
             proto_tree_add_format_wsp_text(text_tree, tvb, tvb_linebegin, linelen);
             tvb_linebegin = tvb_lineend;
         } while (tvb_offset_exists(tvb, tvb_lineend) && linelen > 0);
@@ -3527,18 +3525,18 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
 *
 * Returns: The position in tvb of the first non-whitespace
 */
-static int megaco_tvb_skip_wsp(tvbuff_t* tvb, int offset ){
-    int counter = offset;
-    int end = tvb_reported_length(tvb);
+static unsigned megaco_tvb_skip_wsp(tvbuff_t* tvb, unsigned offset ){
+    unsigned counter = offset;
+    unsigned end = tvb_reported_length(tvb);
 
     for(counter = offset; counter < end &&
         (g_ascii_isspace(tvb_get_uint8(tvb,counter))); counter++);
     return (counter);
 }
 
-static int megaco_tvb_skip_wsp_return(tvbuff_t* tvb, int offset){
-    int counter = offset;
-    int end = 0;
+static unsigned megaco_tvb_skip_wsp_return(tvbuff_t* tvb, unsigned offset){
+    unsigned counter = offset;
+    unsigned end = 0;
 
     for(counter = offset; counter > end &&
         (g_ascii_isspace(tvb_get_uint8(tvb,counter))); counter--);
@@ -3546,15 +3544,16 @@ static int megaco_tvb_skip_wsp_return(tvbuff_t* tvb, int offset){
     return (counter);
 }
 
-static int megaco_tvb_find_token(tvbuff_t* tvb, int offset, int maxlength){
+static bool megaco_tvb_find_token(tvbuff_t* tvb, unsigned offset, unsigned maxlength, unsigned *token_pos){
     int counter = 0;
-    int pos = offset;
+    unsigned pos = offset;
     unsigned char needle;
 
     do {
-        pos = tvb_ws_mempbrk_pattern_uint8(tvb, pos + 1, maxlength, &pbrk_braces, &needle);
-        if(pos == -1)
-            return -1;
+        if (!tvb_ws_mempbrk_uint8_length(tvb, pos + 1, maxlength, &pbrk_braces, &pos, &needle)) {
+            *token_pos = pos;
+            return false;
+        }
         switch(needle){
         case '{':
             counter++;
@@ -3566,12 +3565,12 @@ static int megaco_tvb_find_token(tvbuff_t* tvb, int offset, int maxlength){
             break;
         }
     } while (counter>0);
-    if(counter<0)
-        return -1;
-    else
-    {
-        pos = megaco_tvb_skip_wsp(tvb,pos+1);
-        return pos;
+    if (counter < 0) {
+        *token_pos = offset + maxlength;
+        return false;
+    } else {
+        *token_pos = megaco_tvb_skip_wsp(tvb,pos+1);
+        return true;
     }
 }
 

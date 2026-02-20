@@ -36,7 +36,7 @@ static int ett_lsd;
 static expert_field ei_lsd_field;
 
 static bool
-parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, int offset, int* next_offset, int* linelen)
+parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned* next_offset, unsigned* linelen)
 {
   const char *str;
   header_field_info* hf_info = proto_registrar_get_nth(hf);
@@ -44,8 +44,7 @@ parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, 
   proto_item* ti;
   char *p;
 
-  *linelen = tvb_find_line_end(tvb, offset, -1, next_offset, false);
-  if (*linelen < 0)
+  if (!tvb_find_line_end_remaining(tvb, offset, linelen, next_offset))
     return false;
 
   str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, *linelen, ENC_ASCII);
@@ -71,14 +70,13 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti = NULL;
   proto_tree *lsd_tree;
-  int offset = 0, next_offset = 0, linelen;
+  unsigned offset = 0, next_offset = 0, linelen;
   const char *str;
   char **field_and_value;
   uint16_t port;
   bool valid;
 
-  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-  if (linelen < 0)
+  if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset))
       return 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LSD");
@@ -95,8 +93,7 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       return offset+linelen;
 
   offset = next_offset;
-  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-  if (linelen < 0)
+  if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset))
       return offset+linelen;
   str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
   if (g_ascii_strncasecmp(str, "Port", strlen("Port")) == 0)
@@ -121,8 +118,7 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       return offset+linelen;
 
   offset = next_offset;
-  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
-  if (linelen < 0)
+  if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset))
       return offset+linelen;
   /* Cookie is optional */
   if (tvb_strncaseeql(tvb, offset, "cookie", strlen("cookie")) == 0)
