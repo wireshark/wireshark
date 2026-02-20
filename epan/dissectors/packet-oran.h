@@ -43,7 +43,14 @@ enum section_c_types {
 typedef struct oran_tap_info {
     /* Key info */
     bool     userplane;
+
     uint16_t eaxc;
+    /* Breakdown according to preference settings */
+    uint16_t eaxc_du_port_id;
+    uint16_t eaxc_bandsector_id;
+    uint16_t eaxc_cc_id;
+    uint16_t eaxc_ru_port_id;
+
     bool     uplink;
     /* Timing info */
     uint8_t frame;

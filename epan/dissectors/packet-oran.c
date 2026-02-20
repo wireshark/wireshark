@@ -1931,7 +1931,7 @@ static void add_reserved_field(proto_tree *tree, int hf, tvbuff_t *tvb, int offs
 
 /* 5.1.3.2.7 (real time control data / IQ data transfer message series identifier) */
 static void
-addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAxC)
+addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAxC, oran_tap_info *tap_info)
 {
     /* Subtree */
     proto_item *oran_pcid_ti = proto_tree_add_item(tree, hf,
@@ -1974,6 +1974,12 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAx
     snprintf(id, 16, "%x:%x:%x:%x", (int)duPortId, (int)bandSectorId, (int)ccId, (int)ruPortId);
     proto_item *pi = proto_tree_add_string(oran_pcid_tree, hf_oran_c_eAxC_ID, tvb, id_offset, 2, id);
     proto_item_set_generated(pi);
+
+    tap_info->eaxc = *eAxC;
+    tap_info->eaxc_du_port_id = (uint16_t)duPortId;
+    tap_info->eaxc_bandsector_id = (uint16_t)bandSectorId;
+    tap_info->eaxc_cc_id = (uint16_t)ccId;
+    tap_info->eaxc_ru_port_id = (uint16_t)ruPortId;
 }
 
 /* Uniquely identify the U-plane stream that may need to be reassembled */
@@ -5467,7 +5473,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
 
     /* ecpriRtcid (eAxC ID) */
     uint16_t eAxC;
-    addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_rtcid, &eAxC);
+    addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_rtcid, &eAxC, tap_info);
     tap_info->eaxc = eAxC;
 
     /* Look up any existing conversation state for eAxC+plane */
@@ -6606,7 +6612,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Transport header */
     /* Real-time control data / IQ data transfer message series identifier */
     uint16_t eAxC;
-    addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_pcid, &eAxC);
+    addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_pcid, &eAxC, tap_info);
     tap_info->eaxc = eAxC;
 
     /* Update/report status of conversation */

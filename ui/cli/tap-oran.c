@@ -177,6 +177,10 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
         /* Set key fields */
         row->base_info.userplane = si->userplane;
         row->base_info.eaxc = si->eaxc;
+        row->base_info.eaxc_du_port_id = si->eaxc_du_port_id;
+        row->base_info.eaxc_bandsector_id = si->eaxc_bandsector_id;
+        row->base_info.eaxc_cc_id = si->eaxc_cc_id;
+        row->base_info.eaxc_ru_port_id = si->eaxc_ru_port_id;
         row->base_info.uplink = si->uplink;
         /* Add to list */
         hs->flow_list = g_list_prepend(hs->flow_list, row);
@@ -379,10 +383,11 @@ oran_stat_draw(void *phs)
         }
 
 
-        /* Print this row */
-        printf("%6s  %1x:%1x:%1x:%1x %11s %9u %13u %17s %28s %18s %50s %13u %12u",
+        /* Print this row. */
+        /* TODO: will be wrong if any of the constituent parts of eaxc run to 2 hex chars - need to print to separate string and give column fixed width */
+        printf("%6s  %x:%x:%x:%x %11s %9u %13u %17s %28s %18s %50s %13u %12u",
                (row->base_info.userplane) ? "U" : "C",
-               (row->base_info.eaxc >> 12) & 0x0f, (row->base_info.eaxc >> 8) & 0x0f, (row->base_info.eaxc >> 4) & 0x0f, row->base_info.eaxc & 0x0f,
+               row->base_info.eaxc_du_port_id, row->base_info.eaxc_bandsector_id, row->base_info.eaxc_cc_id, row->base_info.eaxc_ru_port_id,
                (row->base_info.uplink) ? "UL" : "DL",
                row->num_frames,
                row->largest_pdu,
