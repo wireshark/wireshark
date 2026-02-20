@@ -137,6 +137,37 @@ static const value_string mp_tcprst_reasons[] = {
         { 0, NULL },
 };
 
+/*
+ * RST Diagnostic Payload:
+ * https://datatracker.ietf.org/doc/html/draft-boucadair-tcpm-rst-diagnostic-payload-14
+ */
+#define TCP_RST_DIAGNOSTIC_MAGIC 0x33AA
+#define TCP_RST_DIAGNOSTIC_HDR_LEN 4  /* magic(2) + length(2) */
+#define TCP_RST_DIAGNOSTIC_MIN_LEN 8  /* hdr(4) + reason_length(2) + reason_code(2) */
+
+/* IANA "TCP Failure Causes" registry */
+static const value_string tcp_failure_cause_vals[] = {
+        { 0,  "Reserved" },
+        { 1,  "Illegal Option" },
+        { 2,  "Desynchronized state" },
+        { 3,  "New data is received after CLOSE is called" },
+        { 4,  "ABORT Process" },
+        { 5,  "Unexpected ACK received by non-synchronized state connection" },
+        { 6,  "Unexpected SYN in the window" },
+        { 7,  "Unexpected security compartment" },
+        { 8,  "Malformed Message" },
+        { 9,  "Not Authorized" },
+        { 10, "Resource Exceeded" },
+        { 11, "Network Failure" },
+        { 12, "Reset received from the peer" },
+        { 13, "Destination Unreachable" },
+        { 14, "Connection Timeout" },
+        { 15, "Too much outstanding data" },
+        { 16, "Unacceptable performance" },
+        { 17, "Middlebox interference" },
+        { 0, NULL },
+};
+
 static int tcp_default_window_scaling = (int)WindowScaling_NotKnown;
 
 static int tcp_default_override_analysis = (int)OverrideAnalysis_0;
@@ -391,6 +422,13 @@ static int hf_tcp_proc_dst_cmd;
 static int hf_tcp_segment_data;
 static int hf_tcp_payload;
 static int hf_tcp_reset_cause;
+static int hf_tcp_rst_diagnostic_magic;
+static int hf_tcp_rst_diagnostic_length;
+static int hf_tcp_rst_diagnostic_reason_length;
+static int hf_tcp_rst_diagnostic_reason_code;
+static int hf_tcp_rst_diagnostic_vendor_reason_code;
+static int hf_tcp_rst_diagnostic_pen;
+static int hf_tcp_rst_diagnostic_reason_desc;
 static int hf_tcp_fin_retransmission;
 static int hf_tcp_option_rvbd_probe_reserved;
 static int hf_tcp_option_scps_binding_data;
@@ -442,6 +480,7 @@ static int ett_tcp_unknown_opt;
 static int ett_tcp_option_other;
 static int ett_tcp_syncookie;
 static int ett_tcp_syncookie_option;
+static int ett_tcp_rst_diagnostic;
 static int ett_mptcp_analysis;
 static int ett_mptcp_analysis_subflows;
 
@@ -8462,6 +8501,107 @@ static void tcp_tap_cleanup(void *data)
     tap_queue_packet(tcp_tap, cleanup->pinfo, cleanup->tcph);
 }
 
+/*
+ * RFC1122 says:
+ *
+ *  4.2.2.12  RST Segment: RFC-793 Section 3.4
+ *
+ *    A TCP SHOULD allow a received RST segment to include data.
+ *
+ *    DISCUSSION
+ *         It has been suggested that a RST segment could contain
+ *         ASCII text that encoded and explained the cause of the
+ *         RST.  No standard has yet been established for such
+ *         data.
+ *
+ * If the payload matches the structured diagnostic format, parse it;
+ * otherwise display the data as text.
+ */
+static void
+dissect_tcp_rst_payload(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
+{
+    /*
+     * Check for structured RST diagnostic payload:
+     * https://datatracker.ietf.org/doc/html/draft-boucadair-tcpm-rst-diagnostic-payload-14
+     */
+    if (length >= TCP_RST_DIAGNOSTIC_MIN_LEN &&
+        tvb_get_ntohs(tvb, offset) == TCP_RST_DIAGNOSTIC_MAGIC &&
+        tvb_get_ntohs(tvb, offset + 2) <= length - TCP_RST_DIAGNOSTIC_HDR_LEN) {
+        uint16_t diag_length;
+        uint16_t reason_length;
+        uint16_t reason_code = 0;
+        int diag_offset = offset;
+        proto_tree *rst_diag_tree;
+        proto_item *rst_diag_ti;
+
+        rst_diag_tree = proto_tree_add_subtree(tree, tvb, offset,
+            length, ett_tcp_rst_diagnostic, &rst_diag_ti,
+            "RST Diagnostic Payload");
+
+        proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_magic,
+            tvb, diag_offset, 2, ENC_BIG_ENDIAN);
+        diag_offset += 2;
+
+        diag_length = tvb_get_ntohs(tvb, diag_offset);
+        proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_length,
+            tvb, diag_offset, 2, ENC_BIG_ENDIAN);
+        diag_offset += 2;
+
+        reason_length = tvb_get_ntohs(tvb, diag_offset);
+        proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_reason_length,
+            tvb, diag_offset, 2, ENC_BIG_ENDIAN);
+        diag_offset += 2;
+
+        if (reason_length == 0) {
+            reason_code = tvb_get_ntohs(tvb, diag_offset);
+
+            /* PEN presence is inferred from the Length and Reason Length fields */
+            if (diag_length >= 8) {
+                uint32_t pen_value;
+
+                proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_vendor_reason_code,
+                    tvb, diag_offset, 2, ENC_BIG_ENDIAN);
+                diag_offset += 2;
+
+                pen_value = tvb_get_ntohl(tvb, diag_offset);
+                proto_tree_add_uint_format_value(rst_diag_tree, hf_tcp_rst_diagnostic_pen,
+                    tvb, diag_offset, 4, pen_value,
+                    "%s (%u)", enterprises_lookup(pen_value, "Unknown"), pen_value);
+                diag_offset += 4;
+
+                if (pen_value != 0) {
+                    proto_item_append_text(rst_diag_ti,
+                        ": Vendor-Specific reason %u (PEN: %s [%u])",
+                        reason_code,
+                        enterprises_lookup(pen_value, "Unknown"),
+                        pen_value);
+                } else {
+                    const char *cause_str = try_val_to_str(reason_code, tcp_failure_cause_vals);
+                    proto_item_append_text(rst_diag_ti, ": %s (%u)",
+                        cause_str ? cause_str : "Unknown", reason_code);
+                }
+            } else {
+                const char *cause_str;
+
+                proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_reason_code,
+                    tvb, diag_offset, 2, ENC_BIG_ENDIAN);
+                diag_offset += 2;
+
+                cause_str = try_val_to_str(reason_code, tcp_failure_cause_vals);
+                proto_item_append_text(rst_diag_ti, ": %s (%u)",
+                    cause_str ? cause_str : "Unknown", reason_code);
+            }
+        }
+
+        if (reason_length > 0 && tvb_captured_length_remaining(tvb, diag_offset) >= reason_length) {
+            proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_reason_desc,
+                tvb, diag_offset, reason_length, ENC_UTF_8);
+        }
+    } else {
+        proto_tree_add_item(tree, hf_tcp_reset_cause, tvb, offset, length, ENC_ASCII);
+    }
+}
+
 static int
 dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -9708,22 +9848,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      */
     if (captured_length_remaining != 0) {
         if (tcph->th_flags & TH_RST) {
-            /*
-             * RFC1122 says:
-             *
-             *  4.2.2.12  RST Segment: RFC-793 Section 3.4
-             *
-             *    A TCP SHOULD allow a received RST segment to include data.
-             *
-             *    DISCUSSION
-             *         It has been suggested that a RST segment could contain
-             *         ASCII text that encoded and explained the cause of the
-             *         RST.  No standard has yet been established for such
-             *         data.
-             *
-             * so for segments with RST we just display the data as text.
-             */
-            proto_tree_add_item(tcp_tree, hf_tcp_reset_cause, tvb, offset, captured_length_remaining, ENC_ASCII);
+            dissect_tcp_rst_payload(tvb, tcp_tree, offset, captured_length_remaining);
         } else {
         /* When we have a frame with TCP SYN bit set and segmented TCP payload we need
          * to increment seq and nxtseq to detect the overlapping byte(s). This is to fix Bug 9882.
@@ -10596,6 +10721,34 @@ proto_register_tcp(void)
           { "Reset cause", "tcp.reset_cause", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_tcp_rst_diagnostic_magic,
+          { "Magic Cookie", "tcp.rst_diagnostic.magic", FT_UINT16, BASE_HEX, NULL, 0x0,
+            "RST diagnostic payload magic cookie (draft-boucadair-tcpm-rst-diagnostic-payload-14)", HFILL }},
+
+        { &hf_tcp_rst_diagnostic_length,
+          { "Length", "tcp.rst_diagnostic.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Total length of the diagnostic payload following this field", HFILL }},
+
+        { &hf_tcp_rst_diagnostic_reason_length,
+          { "Reason Length", "tcp.rst_diagnostic.reason_length", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the reason-description field in octets", HFILL }},
+
+        { &hf_tcp_rst_diagnostic_reason_code,
+          { "Reason Code", "tcp.rst_diagnostic.reason_code", FT_UINT16, BASE_DEC, VALS(tcp_failure_cause_vals), 0x0,
+            "IANA TCP Failure Cause code", HFILL }},
+
+        { &hf_tcp_rst_diagnostic_vendor_reason_code,
+          { "Vendor-Specific Reason Code", "tcp.rst_diagnostic.vendor_reason_code", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Vendor-specific reason code (scoped to the PEN)", HFILL }},
+
+        { &hf_tcp_rst_diagnostic_pen,
+          { "Private Enterprise Number", "tcp.rst_diagnostic.pen", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "IANA Private Enterprise Number identifying the vendor", HFILL }},
+
+        { &hf_tcp_rst_diagnostic_reason_desc,
+          { "Reason Description", "tcp.rst_diagnostic.reason_desc", FT_STRING, BASE_NONE, NULL, 0x0,
+            "Free-text UTF-8 description of the reset reason", HFILL }},
+
         { &hf_tcp_syncookie_time,
           { "SYN Cookie Time", "tcp.syncookie.time", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
@@ -10676,7 +10829,8 @@ proto_register_tcp(void)
         &ett_tcp_opt_scpscor,
         &ett_tcp_option_other,
         &ett_tcp_syncookie,
-        &ett_tcp_syncookie_option
+        &ett_tcp_syncookie_option,
+        &ett_tcp_rst_diagnostic
     };
 
     static int *mptcp_ett[] = {

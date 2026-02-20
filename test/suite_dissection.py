@@ -812,6 +812,53 @@ class TestDissectTcp:
             encoding='utf-8', env=test_env)
         assert stdout == '2\t16\n'
 
+    def test_tcp_rst_diagnostic_iana_reason(self, cmd_tshark, capture_file, test_env):
+        '''RST diagnostic payload with IANA reason code (no PEN).'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tcp-rst-diagnostic.pcap'),
+            '-Tfields', '-eframe.number', '-etcp.rst_diagnostic.reason_code',
+            '-Y', 'tcp.rst_diagnostic.reason_code == 9',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '1\t9'
+
+    def test_tcp_rst_diagnostic_vendor_reason(self, cmd_tshark, capture_file, test_env):
+        '''RST diagnostic payload with vendor-specific reason code and PEN.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tcp-rst-diagnostic.pcap'),
+            '-Tfields', '-eframe.number',
+            '-etcp.rst_diagnostic.vendor_reason_code',
+            '-etcp.rst_diagnostic.pen',
+            '-Y', 'tcp.rst_diagnostic.pen == 32473',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '2\t3\t32473'
+
+    def test_tcp_rst_diagnostic_reason_desc(self, cmd_tshark, capture_file, test_env):
+        '''RST diagnostic payload with free-text reason description.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tcp-rst-diagnostic.pcap'),
+            '-Tfields', '-eframe.number', '-etcp.rst_diagnostic.reason_desc',
+            '-Y', 'tcp.rst_diagnostic.reason_desc contains "reset"',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '3\treset by policy'
+
+    def test_tcp_rst_diagnostic_legacy_fallback(self, cmd_tshark, capture_file, test_env):
+        '''RST without magic cookie falls back to plain ASCII reset cause.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tcp-rst-diagnostic.pcap'),
+            '-Tfields', '-eframe.number', '-etcp.reset_cause',
+            '-Y', 'frame.number == 4',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '4\tConnection refused'
+
+    def test_tcp_rst_diagnostic_bad_length_fallback(self, cmd_tshark, capture_file, test_env):
+        '''RST with magic cookie but inconsistent Length falls back to ASCII.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tcp-rst-diagnostic.pcap'),
+            '-Tfields', '-eframe.number', '-etcp.reset_cause',
+            '-Y', 'frame.number == 5',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().startswith('5\t')
+
 class TestDissectGit:
     def test_git_prot(self, cmd_tshark, capture_file, features, test_env):
         '''
