@@ -5693,7 +5693,7 @@ proto_register_ospf(void)
       { &hf_ospf_ls_mpls_bc, { "BC", "ospf.mpls.bc", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_minimum_lsp_bandwidth, { "Minimum LSP bandwidth", "ospf.mpls.minimum_lsp_bandwidth", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_sonet_sdh, { "SONET/SDH", "ospf.mpls.sonet.sdh", FT_BOOLEAN, BASE_NONE, TFS(&tfs_arbitrary_standard), 0x0, NULL, HFILL }},
-      { &hf_ospf_oif_signal_type, { "Signal Type", "ospf.oif.signal_type", FT_UINT8, BASE_DEC|BASE_EXT_STRING, VALS_EXT_PTR(&gmpls_sonet_signal_type_str_ext), 0x0, NULL, HFILL }},
+      { &hf_ospf_oif_signal_type, { "Signal Type", "ospf.oif.signal_type", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gmpls_sonet_signal_type_str_ext, 0x0, NULL, HFILL }},
       { &hf_ospf_tlv_value, { "TLV Value", "ospf.tlv_value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_oif_node_id, { "Node ID", "ospf.oif.node_id", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_pad_bytes, { "Pad Bytes", "ospf.pad_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},

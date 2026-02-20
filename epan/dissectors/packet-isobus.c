@@ -893,7 +893,7 @@ proto_register_isobus(void) {
         { &hf_isobus_src_addr, {
             "Source Address", "isobus.src_addr", FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(address_range), 0xff, NULL, HFILL } },
         { &hf_isobus_pgn, {
-            "PGN", "isobus.pgn", FT_UINT24, BASE_DEC_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+            "PGN", "isobus.pgn", FT_UINT24, BASE_DEC_HEX | BASE_EXT_STRING, &isobus_pgn_names_ext, 0x0, NULL, HFILL } },
         { &hf_isobus_payload, {
             "Payload", "isobus.payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
@@ -923,10 +923,10 @@ proto_register_isobus(void) {
         { &hf_isobus_ack_exended_identifier, {
             "Extended identifier", "isobus.ack_response.extended_identifier", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_isobus_ack_pgn, {
-            "PGN", "isobus.pgn", FT_UINT24, BASE_DEC_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+            "PGN", "isobus.pgn", FT_UINT24, BASE_DEC_HEX | BASE_EXT_STRING, &isobus_pgn_names_ext, 0x0, NULL, HFILL } },
 
         { &hf_isobus_req_requested_pgn, {
-            "Requested PGN", "isobus.req.requested_pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+            "Requested PGN", "isobus.req.requested_pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, &isobus_pgn_names_ext, 0x0, NULL, HFILL } },
 
         { &hf_isobus_ac_name, {
             "Name", "isobus.ac.name", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -960,29 +960,29 @@ proto_register_isobus(void) {
         { &hf_isobus_transportprotocol_requesttosend_maximumpackets, {
             "Maximum Packets", "isobus.transport_protocol.request_to_send.maximum_packets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_requesttosend_pgn, {
-            "PGN", "isobus.transport_protocol.request_to_send.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+            "PGN", "isobus.transport_protocol.request_to_send.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, &isobus_pgn_names_ext, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_cleartosend_numberofpacketscanbesent, {
             "Number of packets that can be sent", "isobus.transport_protocol.request_to_send.number_of_packets_that_can_be_sent", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_cleartosend_nextpacketnumber, {
             "Next packet number", "isobus.transport_protocol.request_to_send.next_packet_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_cleartosend_pgn, {
-            "PGN", "isobus.transport_protocol.clear_to_send.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+            "PGN", "isobus.transport_protocol.clear_to_send.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, &isobus_pgn_names_ext, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_endofmsgack_totalsize, {
             "Total Size", "isobus.transport_protocol.end_of_message_acknowledgement.total_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_endofmsgack_numberofpackets, {
             "Number of Packets", "isobus.transport_protocol.end_of_message_acknowledgement.number_of_packets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_endofmsgack_pgn, {
-            "PGN", "isobus.transport_protocol.end_of_message_acknowledgement.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+            "PGN", "isobus.transport_protocol.end_of_message_acknowledgement.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, &isobus_pgn_names_ext, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_connabort_abortreason, {
             "Connection Abort reason", "isobus.transport_protocol.connection_abort.abort_reason", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(connection_abort_reasons), 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_connabort_pgn, {
-            "PGN", "isobus.transport_protocol.connection_abort.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+            "PGN", "isobus.transport_protocol.connection_abort.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, &isobus_pgn_names_ext, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_broadcastannouncemessage_totalsize, {
             "Total Message Size", "isobus.transport_protocol.broadcast_announce_message.total_message_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_broadcastannouncemessage_numberofpackets, {
             "Total Number of Packets", "isobus.transport_protocol.broadcast_announce_message.total_number_of_packets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_broadcastannouncemessage_pgn, {
-            "PGN", "isobus.transport_protocol.broadcast_announce_message.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+            "PGN", "isobus.transport_protocol.broadcast_announce_message.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, &isobus_pgn_names_ext, 0x0, NULL, HFILL } },
         { &hf_isobus_transportprotocol_reserved, {
             "Reserved", "isobus.transport_protocol.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 

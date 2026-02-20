@@ -218,7 +218,7 @@ def make_hf(name, indent):
     code = indent + indent + '{ &hf_%s,\n' % name
     code += indent*3 + '{ "%s", "nl80211.%s",\n' % (field_name, field_abbrev)
     code += indent*3 + '  %s, BASE_DEC | BASE_EXT_STRING,\n' % (field_type)
-    code += indent*3 + '  VALS_EXT_PTR(&ws_%s_vals_ext), 0x00,\n' % (name)
+    code += indent*3 + '  &ws_%s_vals_ext, 0x00,\n' % (name)
     code += indent*3 + '  %s, HFILL },\n' % (field_blurb)
     code += indent + indent + '},'
     return code

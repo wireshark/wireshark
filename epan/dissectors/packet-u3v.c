@@ -2565,7 +2565,7 @@ static hf_register_info hf[] =
 
     { &hf_u3v_stream_pixel_format,
     { "Pixel Format", "u3v.stream.pixel_format",
-    FT_UINT32, BASE_HEX|BASE_EXT_STRING, VALS_EXT_PTR( &pixel_format_names_ext ), 0x0,
+    FT_UINT32, BASE_HEX|BASE_EXT_STRING, &pixel_format_names_ext, 0x0,
     "U3V Stream Pixel Format", HFILL
     } },
 

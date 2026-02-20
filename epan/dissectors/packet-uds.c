@@ -3436,7 +3436,7 @@ proto_register_uds(void) {
         { &hf_uds_diag_target_addr_name, {
             "Diagnostic Target Address Name", "uds.diag_addr_target_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_service, {
-            "Service Identifier", "uds.sid", FT_UINT8,  BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_services_ext), UDS_SID_MASK, NULL, HFILL } },
+            "Service Identifier", "uds.sid", FT_UINT8,  BASE_HEX | BASE_EXT_STRING, &uds_services_ext, UDS_SID_MASK, NULL, HFILL } },
         { &hf_uds_reply, {
             "Reply Flag", "uds.reply", FT_UINT8, BASE_HEX, NULL, UDS_REPLY_MASK, NULL, HFILL } },
 
@@ -3487,7 +3487,7 @@ proto_register_uds(void) {
             "Memory Selection", "uds.cdtci.memory_selection", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_rdtci_subfunction, {
-            "SubFunction", "uds.rdtci.subfunction", FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_rdtci_types_ext), 0x0, NULL, HFILL } },
+            "SubFunction", "uds.rdtci.subfunction", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &uds_rdtci_types_ext, 0x0, NULL, HFILL } },
         { &hf_uds_rdtci_dtc_status_mask, {
             "DTC Status Mask", "uds.rdtci.dtc_status_mask", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_rdtci_dtc_status_mask_tf, {
@@ -3605,7 +3605,7 @@ proto_register_uds(void) {
         { &hf_uds_rsdbi_formula_constant_mantissa, {
             "Constant", "uds.rsdbi.scaling_byte_ext.formulat_constant", FT_UINT16, BASE_HEX, NULL, 0x0FFF, NULL, HFILL } },
         { &hf_uds_rsdbi_unit, {
-            "Unit Identifier", "uds.rsdbi.scaling_byte_ext.unit", FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_rsdbi_units_ext), 0x0, NULL, HFILL } },
+            "Unit Identifier", "uds.rsdbi.scaling_byte_ext.unit", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &uds_rsdbi_units_ext, 0x0, NULL, HFILL } },
 
         { &hf_uds_sa_subfunction, {
             "SubFunction", "uds.sa.subfunction", FT_UINT8, BASE_CUSTOM, CF_FUNC(uds_sa_subfunction_format), 0x0, NULL, HFILL } },
@@ -3759,9 +3759,9 @@ proto_register_uds(void) {
             "SubFunction (without Suppress)", "uds.tp.subfunction_without_suppress", FT_UINT8, BASE_HEX, NULL, UDS_SUBFUNCTION_MASK, NULL, HFILL } },
 
         { &hf_uds_err_sid,  {
-            "Service Identifier", "uds.err.sid", FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_services_ext), 0x0, NULL, HFILL } },
+            "Service Identifier", "uds.err.sid", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &uds_services_ext, 0x0, NULL, HFILL } },
         { &hf_uds_err_code, {
-            "Code", "uds.err.code",  FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_response_codes_ext), 0x0, NULL, HFILL }  },
+            "Code", "uds.err.code",  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &uds_response_codes_ext, 0x0, NULL, HFILL }  },
 
         { &hf_uds_sdt_administrative_param, {
             "Administrative Parameter", "uds.sdt.admin_param",  FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -3784,7 +3784,7 @@ proto_register_uds(void) {
         { &hf_uds_sdt_encapsulated_message, {
             "Encapsulated Message", "uds.sdt.encapsulated_message",  FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_sdt_encapsulated_message_sid, {
-            "Service Identifier", "uds.sdt.encapsulated_message.sid",  FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_services_ext), UDS_SID_MASK, NULL, HFILL } },
+            "Service Identifier", "uds.sdt.encapsulated_message.sid",  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &uds_services_ext, UDS_SID_MASK, NULL, HFILL } },
         { &hf_uds_sdt_encapsulated_message_sid_reply, {
             "Reply Flag", "uds.sdt.encapsulated_message.reply", FT_UINT8, BASE_HEX, NULL, UDS_REPLY_MASK, NULL, HFILL } },
         { &hf_uds_sdt_signature_mac, {
