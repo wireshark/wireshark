@@ -198,7 +198,7 @@ def generate_version_h(repo_data):
     ws_num_commits_line = '#define WIRESHARK_VCS_NUM_COMMITS "0"'
     ws_commit_id_line = '/* #undef WIRESHARK_VCS_COMMIT_ID */'
 
-    ss_vcs_line = '#define STRATOHARK_VCS_VERSION "Git Rev Unknown from unknown"'
+    ss_vcs_line = '#define STRATOSHARK_VCS_VERSION "Git Rev Unknown from unknown"'
     ss_num_commits_line = '#define STRATOSHARK_VCS_NUM_COMMITS "0"'
     ss_commit_id_line = '/* #undef STRATOSHARK_VCS_COMMIT_ID */'
 
