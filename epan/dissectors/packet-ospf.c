@@ -1557,14 +1557,12 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item(ospf_header_tree, hf_ospf_header_src_router, tvb, 4, 4, ENC_BIG_ENDIAN);
 
 
-    ti = proto_tree_add_item(ospf_header_tree, hf_ospf_header_area_id, tvb, 8, 4, ENC_BIG_ENDIAN);
-    areaid = tvb_get_ntohl(tvb,8);
+    ti = proto_tree_add_item_ret_ipv4(ospf_header_tree, hf_ospf_header_area_id, tvb, 8, 4, ENC_BIG_ENDIAN, &areaid);
     if(areaid == 0){
         proto_item_append_text(ti, " (Backbone)");
     }
 
-    ti_sum = proto_tree_add_item(ospf_header_tree, hf_ospf_header_checksum, tvb, 12, 2, ENC_BIG_ENDIAN);
-    cksum = tvb_get_ntohs(tvb, 12);
+    ti_sum = proto_tree_add_item_ret_uint16(ospf_header_tree, hf_ospf_header_checksum, tvb, 12, 2, ENC_BIG_ENDIAN, &cksum);
     if(cksum == 0){
         proto_item_append_text(ti_sum, " (None)");
     }
@@ -1696,8 +1694,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     case OSPF_VERSION_3:
         /* Instance ID and "reserved" is OSPFv3-only */
-        proto_tree_add_item(ospf_header_tree, hf_ospf_v3_header_instance_id, tvb, 14, 1, ENC_BIG_ENDIAN);
-        instance_id = tvb_get_uint8(tvb, 14);
+        proto_tree_add_item_ret_uint8(ospf_header_tree, hf_ospf_v3_header_instance_id, tvb, 14, 1, ENC_BIG_ENDIAN, &instance_id);
         /* By default set address_family to OSPF_AF_6 */
         address_family = OSPF_AF_6;
         if(instance_id > 65 && instance_id < 128) {
@@ -2670,8 +2667,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                             proto_tree_add_item(sstlv_tree, hf_ospf_mpls_bandwidth_type, tvb, sstlv_offset, 2, ENC_BIG_ENDIAN);
                             proto_tree_add_item(sstlv_tree, hf_ospf_mpls_length, tvb, sstlv_offset + 2, 2, ENC_BIG_ENDIAN);
                             proto_tree_add_item(sstlv_tree, hf_ospf_mpls_pri, tvb, sstlv_offset + 4, 1, ENC_NA);
-                            action = ((tvb_get_uint8(tvb, sstlv_offset + 8) & 0xF0 )  >> 4);
-                            proto_tree_add_item(sstlv_tree, hf_ospf_mpls_action, tvb, sstlv_offset + 8, 1, ENC_NA);
+                            proto_tree_add_item_ret_uint8(sstlv_tree, hf_ospf_mpls_action, tvb, sstlv_offset + 8, 1, ENC_NA, &action);
                             proto_tree_add_item(sstlv_tree, hf_ospf_mpls_num_labels, tvb, sstlv_offset + 8, 2, ENC_BIG_ENDIAN);
                             proto_tree_add_item(sstlv_tree, hf_ospf_mpls_length, tvb, sstlv_offset + 10, 2, ENC_BIG_ENDIAN);
                             bitmap_length = tvb_get_ntohs(tvb, sstlv_offset + 10);
@@ -2700,8 +2696,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                         proto_tree_add_item(sstlv_tree, hf_ospf_mpls_bandwidth_type, tvb, sstlv_offset, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(sstlv_tree, hf_ospf_mpls_length, tvb, sstlv_offset + 2, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(sstlv_tree, hf_ospf_mpls_pri, tvb, sstlv_offset + 4, 1, ENC_NA);
-                        action = ((tvb_get_uint8(tvb, sstlv_offset + 8) & 0xF0 )  >> 4);
-                        proto_tree_add_item(sstlv_tree, hf_ospf_mpls_action, tvb, sstlv_offset + 8, 1, ENC_NA);
+                        proto_tree_add_item_ret_uint8(sstlv_tree, hf_ospf_mpls_action, tvb, sstlv_offset + 8, 1, ENC_NA, &action);
                         proto_tree_add_item(sstlv_tree, hf_ospf_mpls_num_labels, tvb, sstlv_offset+8, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(sstlv_tree, hf_ospf_mpls_length, tvb, sstlv_offset + 10, 2, ENC_BIG_ENDIAN);
                         bitmap_length = tvb_get_ntohs(tvb, sstlv_offset + 10);
@@ -3032,8 +3027,7 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, packet_info *pinfo, int o
 
         if(tlv_type == GRACE_TLV_PERIOD)
         {
-            grace_period = tvb_get_ntohl(tvb, offset + 4);
-            proto_tree_add_item(tlv_tree, hf_ospf_grace_period, tvb, offset + 4, tlv_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(tlv_tree, hf_ospf_grace_period, tvb, offset + 4, tlv_length, ENC_BIG_ENDIAN, &grace_period);
             proto_item_set_text(tree_item, "Grace Period: %u seconds", grace_period);
         }
         else if(tlv_type == GRACE_TLV_REASON)
@@ -3643,8 +3637,7 @@ dissect_ospf_lsa_app_link_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
             if (reserved != 0) {
                 expert_add_info(pinfo, ti, &ei_ospf_header_reserved);
             }
-            delay_max = tvb_get_uint24(tvb, stlv_offset + 5, ENC_BIG_ENDIAN);
-            proto_tree_add_item(stlv_tree, hf_ospf_ls_unidir_link_delay_max, tvb, stlv_offset+5, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(stlv_tree, hf_ospf_ls_unidir_link_delay_max, tvb, stlv_offset+5, 3, ENC_BIG_ENDIAN, &delay_max);
             if (ti_tree) {
                 proto_item_append_text(ti_tree, "  (Min/Max Delay: %u/%u usec)", delay_min, delay_max);
             }
@@ -3652,13 +3645,11 @@ dissect_ospf_lsa_app_link_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
 
         case SR_STLV_UNIDIR_DELAY_VARIATION:
             /* 14: Unidirectional Delay Variation (rfc7471) */
-            ti = proto_tree_add_item(stlv_tree, hf_ospf_ls_unidir_link_reserved, tvb, stlv_offset, 1, ENC_NA);
-            reserved = tvb_get_uint8(tvb, stlv_offset);
+            ti = proto_tree_add_item_ret_uint(stlv_tree, hf_ospf_ls_unidir_link_reserved, tvb, stlv_offset, 1, ENC_NA, &reserved);
             if (reserved != 0) {
                 expert_add_info(pinfo, ti, &ei_ospf_header_reserved);
             }
-            delay = tvb_get_uint24(tvb, stlv_offset + 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(stlv_tree, hf_ospf_ls_unidir_delay_variation, tvb, stlv_offset + 1, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(stlv_tree, hf_ospf_ls_unidir_delay_variation, tvb, stlv_offset + 1, 3, ENC_BIG_ENDIAN, &delay);
             if (ti_tree) {
                 proto_item_append_text(ti_tree, "  (Variation: %u usec)", delay);
             }
@@ -3666,8 +3657,7 @@ dissect_ospf_lsa_app_link_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
 
         case SR_STLV_ADMIN_GROUP:
             /* 19: Administrative Group (rfc3630) */
-            admin_group = tvb_get_uint32(tvb, stlv_offset, ENC_BIG_ENDIAN);
-            proto_tree_add_item(stlv_tree, hf_ospf_ls_admin_group, tvb, stlv_offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(stlv_tree, hf_ospf_ls_admin_group, tvb, stlv_offset, 4, ENC_BIG_ENDIAN, &admin_group);
             if (ti_tree) {
                 proto_item_append_text(ti_tree, "  (Admin Group: 0x%08x)", admin_group);
             }
@@ -3680,8 +3670,7 @@ dissect_ospf_lsa_app_link_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
 
         case SR_STLV_TE_METRIC:
             /* 22: TE Metric (rfc3630) */
-            te_metric = tvb_get_uint32(tvb, stlv_offset, ENC_BIG_ENDIAN);
-            proto_tree_add_item(stlv_tree, hf_ospf_ls_mpls_te_metric, tvb, stlv_offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(stlv_tree, hf_ospf_ls_mpls_te_metric, tvb, stlv_offset, 4, ENC_BIG_ENDIAN, &te_metric);
             if (ti_tree) {
                 proto_item_append_text(ti_tree, "  (TE Metric: %u)", te_metric);
             }
@@ -3852,10 +3841,8 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
                     /* Application-Specific Link Attributes Sub-TLV (rfc9492) */
                     local_length = stlv_length;
                     local_offset = stlv_offset + 4;
-                    proto_tree_add_item(stlv_tree, hf_ospf_ls_app_sabm_length, tvb, local_offset, 1, ENC_NA);
-                    sabm_length = tvb_get_uint8(tvb, local_offset);
-                    proto_tree_add_item(stlv_tree, hf_ospf_ls_app_udabm_length, tvb, local_offset + 1, 1, ENC_NA);
-                    udabm_length = tvb_get_uint8(tvb, local_offset + 1);
+                    proto_tree_add_item_ret_uint8(stlv_tree, hf_ospf_ls_app_sabm_length, tvb, local_offset, 1, ENC_NA, &sabm_length);
+                    proto_tree_add_item_ret_uint8(stlv_tree, hf_ospf_ls_app_udabm_length, tvb, local_offset + 1, 1, ENC_NA, &udabm_length);
                     reserved = tvb_get_uint16(tvb, local_offset + 2, ENC_BIG_ENDIAN);
                     ti = proto_tree_add_item(stlv_tree, hf_ospf_header_reserved, tvb, local_offset + 2, 2, ENC_NA);
                     if (reserved != 0) {

@@ -6349,8 +6349,7 @@ s7comm_decode_szl_id_xy77_idx_xxxx(tvbuff_t *tvb,
 
     proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    num_parent = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_num_parent, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_s7comm_szl_xy77_xxxx_num_parent, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num_parent);
     offset += 2;
 
     for (i = 0; i < num_parent; i++) {
@@ -6358,8 +6357,7 @@ s7comm_decode_szl_id_xy77_idx_xxxx(tvbuff_t *tvb,
         offset += 2;
     }
 
-    num_child = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_num_child, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_s7comm_szl_xy77_xxxx_num_child, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num_child);
     offset += 2;
 
     for (i = 0; i < num_child; i++) {
@@ -6367,8 +6365,7 @@ s7comm_decode_szl_id_xy77_idx_xxxx(tvbuff_t *tvb,
         offset += 2;
     }
 
-    num_red = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_num_redundancy_links, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_s7comm_szl_xy77_xxxx_num_redundancy_links, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num_red);
     offset += 2;
 
     for (i = 0; i < num_red; i++) {
@@ -6376,8 +6373,7 @@ s7comm_decode_szl_id_xy77_idx_xxxx(tvbuff_t *tvb,
         offset += 2;
     }
 
-    num_agent = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_num_iodevice_agent_links, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_s7comm_szl_xy77_xxxx_num_iodevice_agent_links, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num_agent);
     offset += 2;
 
     for (i = 0; i < num_agent; i++) {
@@ -6437,8 +6433,7 @@ s7comm_decode_szl_id_xy78_idx_xxxx(tvbuff_t *tvb,
     const uint16_t cdiag_entry_len = 28;
     const uint16_t supported_version = 0x0005;
 
-    version = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_s7comm_szl_xy78_xxxx_version, tvb, offset, 2, ENC_LITTLE_ENDIAN, &version);
     offset += 2;
 
     /*unknown version data*/
@@ -6522,11 +6517,9 @@ s7comm_decode_szl_id_xy78_idx_xxxx(tvbuff_t *tvb,
             offset += 2;
 
             /*evaluate ext. channel error type (ECHET)*/
-            echet = tvb_get_letohs(tvb, offset);
-            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_echet, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint16(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_echet, tvb, offset, 2, ENC_LITTLE_ENDIAN, &echet);
             offset += 2;
-            text_list = tvb_get_letohs(tvb, offset);
-            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_echet, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint16(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_echet, tvb, offset, 2, ENC_LITTLE_ENDIAN, &text_list);
             if (text_list == 8 && echet != 0) {
                 echet_item_gen = proto_tree_add_uint(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8, tvb, offset - 2, 2, echet);
                 PROTO_ITEM_SET_GENERATED(echet_item_gen);
@@ -6610,11 +6603,9 @@ s7comm_decode_szl_id_xy78_idx_xxxx(tvbuff_t *tvb,
         tlv_item_item = proto_tree_add_item(tlv_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_item, tvb, offset, 2, ENC_NA);
         tlv_item_item_tree = proto_item_add_subtree(tlv_item_item, ett_s7comm_szl_xy78_xxxx_tlv_item);
 
-        tlv_type = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(tlv_item_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_item_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint8(tlv_item_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_item_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &tlv_type);
         offset += 1;
-        tlv_item_len = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(tlv_item_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_item_len, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint8(tlv_item_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_item_len, tvb, offset, 1, ENC_LITTLE_ENDIAN, &tlv_item_len);
         offset += 1;
         switch (tlv_type) {
             case 1:

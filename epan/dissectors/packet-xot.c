@@ -234,13 +234,11 @@ static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
          hdr_offset += 1;
          proto_tree_add_item(xot_tree, hf_xot_pvc_status, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
          hdr_offset += 1;
-         proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-         init_itf_name_len = tvb_get_uint8(tvb, hdr_offset);
+         proto_tree_add_item_ret_uint(xot_tree, hf_xot_pvc_init_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN, &init_itf_name_len);
          hdr_offset += 1;
          proto_tree_add_item(xot_tree, hf_xot_pvc_init_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
          hdr_offset += 2;
-         proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-         resp_itf_name_len = tvb_get_uint8(tvb, hdr_offset);
+         proto_tree_add_item_ret_uint(xot_tree, hf_xot_pvc_resp_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN, &resp_itf_name_len);
          hdr_offset += 1;
          proto_tree_add_item(xot_tree, hf_xot_pvc_resp_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
          hdr_offset += 2;

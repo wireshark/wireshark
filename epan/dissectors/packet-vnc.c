@@ -1437,8 +1437,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		num_auth_types = tvb_get_ntohl(tvb, offset);
 		offset += 4;
 
-		auth_code = tvb_get_ntohl(tvb, offset);
-		auth_item = proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+		auth_item = proto_tree_add_item_ret_uint(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN, &auth_code);
 		offset += 4;
 		vendor = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
 		process_vendor(tree, pinfo, hf_vnc_tight_server_vendor, tvb, offset);
@@ -1489,8 +1488,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 	case VNC_SESSION_STATE_TIGHT_AUTH_TYPE_REPLY:
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC authentication type selected by client");
-		auth_code = tvb_get_ntohl(tvb, offset);
-		auth_item = proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+		auth_item = proto_tree_add_item_ret_uint(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN, &auth_code);
 
 		switch(auth_code) {
 			case VNC_SECURITY_TYPE_NONE:
@@ -3619,8 +3617,7 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			/* explicit filter */
 
 			VNC_BYTES_NEEDED(1);
-			proto_tree_add_item(tree, hf_vnc_tight_filter_id, tvb, *offset, 1, ENC_BIG_ENDIAN);
-			filter_id = tvb_get_uint8(tvb, *offset);
+			proto_tree_add_item_ret_uint8(tree, hf_vnc_tight_filter_id, tvb, *offset, 1, ENC_BIG_ENDIAN, &filter_id);
 			*offset += 1;
 
 			switch (filter_id) {

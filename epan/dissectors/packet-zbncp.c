@@ -1689,8 +1689,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         {
             uint16_t pkt_len;
 
-            pkt_len = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_pkt_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint16(zbncp_hl_body_tree, hf_zbncp_data_pkt_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &pkt_len);
             offset += 2;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_pkt, tvb, offset, pkt_len, ENC_NA);

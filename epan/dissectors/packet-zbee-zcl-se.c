@@ -2601,8 +2601,7 @@ dissect_zcl_price_publish_price_matrix(tvbuff_t *tvb, proto_tree *tree, unsigned
     *offset += 1;
 
     /* Sub-Payload Control */
-    sub_payload_control = tvb_get_uint8(tvb, *offset) && 0x01; /* First bit determines Tier/Block ID field type */
-    proto_tree_add_item(tree, hf_zbee_zcl_price_price_matrix_sub_payload_control, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_price_price_matrix_sub_payload_control, tvb, *offset, 1, ENC_NA, &sub_payload_control);
     *offset += 1;
 
     while (tvb_reported_length_remaining(tvb, *offset) > 0) {
@@ -2667,8 +2666,7 @@ dissect_zcl_price_publish_block_thresholds(tvbuff_t *tvb, proto_tree *tree, unsi
     *offset += 1;
 
     /* Sub-Payload Control */
-    sub_payload_control = tvb_get_uint8(tvb, *offset) && 0x01; /* First bit determines Tier/Number of Block Thresholds field type */
-    proto_tree_add_item(tree, hf_zbee_zcl_price_block_thresholds_sub_payload_control, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_price_block_thresholds_sub_payload_control, tvb, *offset, 1, ENC_NA, &sub_payload_control);
     *offset += 1;
 
     while (tvb_reported_length_remaining(tvb, *offset) > 0) {
@@ -3373,7 +3371,7 @@ proto_register_zbee_zcl_price(void)
 
         { &hf_zbee_zcl_price_price_matrix_sub_payload_control,
             { "Sub Payload Control", "zbee_zcl_se.price.price_matrix.sub_payload_control", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x01, NULL, HFILL } },
 
         /* start Tier/Block ID fields */
         { &hf_zbee_zcl_price_price_matrix_tier_block_id,
@@ -3399,7 +3397,7 @@ proto_register_zbee_zcl_price(void)
 
         { &hf_zbee_zcl_price_block_thresholds_sub_payload_control,
             { "Sub Payload Control", "zbee_zcl_se.price.block_thresholds.sub_payload_control", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x01, NULL, HFILL } },
 
         /* start Tier/Number of Block Thresholds fields */
         { &hf_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds,

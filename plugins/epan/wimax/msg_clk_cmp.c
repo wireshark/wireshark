@@ -50,10 +50,8 @@ static int dissect_mac_mgmt_msg_clk_cmp_decoder(tvbuff_t *tvb, packet_info *pinf
 		clk_cmp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_clk_cmp_decoder, tvb, offset, -1, "Clock Comparison (CLK-CMP)");
 		/* add MAC CLK_CMP subtree */
 		clk_cmp_tree = proto_item_add_subtree(clk_cmp_item, ett_mac_mgmt_msg_clk_cmp_decoder);
-		/* get the clock count */
-		clock_count = tvb_get_uint8(tvb, offset);
-		/* display the clock count */
-		proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_clock_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+		/* clock count */
+		proto_tree_add_item_ret_uint(clk_cmp_tree, hf_clk_cmp_clock_count, tvb, offset, 1, ENC_BIG_ENDIAN, &clock_count);
 		/* set the offset for clock comparison */
 		offset++;
 		for (i = 0; i < clock_count; i++ )

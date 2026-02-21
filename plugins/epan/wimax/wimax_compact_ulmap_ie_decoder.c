@@ -1006,10 +1006,8 @@ static unsigned wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_inf
 			length = 4;
 		}
 		else
-		{	/* Get the prefix bit */
-			prefix = (tvb_get_uint8(tvb, offset) & 0x08);
-			/* display the prefix */
-			proto_tree_add_item(tree, hf_rcid_ie_prefix, tvb, offset, 2, ENC_BIG_ENDIAN);
+		{	/* Prefix bit */
+			proto_tree_add_item_ret_uint(tree, hf_rcid_ie_prefix, tvb, offset, 2, ENC_BIG_ENDIAN, &prefix);
 			if(prefix || (cid_type == CID_TYPE_RCID11))
 			{	/* display the CID11 */
 				proto_tree_add_item(tree, hf_rcid_ie_cid11_2, tvb, offset, 2, ENC_BIG_ENDIAN);
