@@ -5287,6 +5287,8 @@ static bool blf_dump_interface_setup(wtap_dumper *wdh, int *err) {
     return true;
 }
 
+#define NS_PER_S 1000000000
+
 static bool blf_dump(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err_info) {
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
     ws_debug("encap = %d (%s) rec type = %u", rec->rec_header.packet_header.pkt_encap,
@@ -5304,13 +5306,26 @@ static bool blf_dump(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err
     /* logcontainer full already? we just estimate the headers/overhead to be less than 100 */
     blf_dump_check_logcontainer_full(wdh, err, err_info, rec->rec_header.packet_header.len + 100);
 
+    uint64_t obj_timestamp = (rec->ts.secs * 1000 * 1000 * 1000 + rec->ts.nsecs);
+
+    /* Due to all object timestamps being relative the file header start time, we only want to do this once */
     if (!writer_data->start_time_set) {
-        /* TODO: consider to set trace start time to first packet time stamp - is this the lowest timestamp? how to know? */
-        writer_data->start_time = 0;
+        /* TODO: refine method. Right now assume no event will ever be more than 1 second prior to first packet time. */
+        /* Suggested improvement 1: For 2-pass or preloaded data use the time of the actual first event. */
+        /* Suggested improvement 2: For single step conversion, make safety margin configurable. */
+        if(obj_timestamp > NS_PER_S) {
+            writer_data->start_time = obj_timestamp - NS_PER_S;
+        } else {
+            writer_data->start_time = 0;
+        }
         writer_data->start_time_set = true;
     }
 
-    uint64_t obj_timestamp = (rec->ts.secs * 1000 * 1000 * 1000 + rec->ts.nsecs);
+    if (obj_timestamp < writer_data->start_time) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("blf_dump: packet timestamp more than 1 second earlier than first packet encountered, making the file timetamp invalid. Reordering packets chronologically will solve this.");
+        return false;
+    }
 
     if (writer_data->end_time < obj_timestamp) {
         writer_data->end_time = obj_timestamp;
