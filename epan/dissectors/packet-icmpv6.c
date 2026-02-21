@@ -240,11 +240,17 @@ static int hf_icmpv6_opt_dnssl;
 static int hf_icmpv6_opt_aro_status;
 static int hf_icmpv6_opt_earo_opaque;
 static int hf_icmpv6_opt_earo_flag;
+static int hf_icmpv6_opt_earo_flag_reserved;
+static int hf_icmpv6_opt_earo_flag_c;
 static int hf_icmpv6_opt_earo_flag_p;
 static int hf_icmpv6_opt_earo_flag_i;
 static int hf_icmpv6_opt_earo_flag_t;
 static int hf_icmpv6_opt_earo_flag_r;
 static int hf_icmpv6_opt_earo_tid;
+static int hf_icmpv6_opt_earo_rovr;
+static int hf_icmpv6_opt_earo_flag_f;
+static int hf_icmpv6_opt_earo_prefix_len;
+static int hf_icmpv6_opt_earo_reserved;
 static int hf_icmpv6_opt_aro_registration_lifetime;
 static int hf_icmpv6_opt_aro_eui64;
 static int hf_icmpv6_opt_6co_context_length;
@@ -588,9 +594,14 @@ static int hf_icmpv6_ilnp_locator;
 static int hf_icmpv6_ilnp_preference;
 static int hf_icmpv6_ilnp_lifetime;
 
+static int hf_icmpv6_da_code_prefix;
+static int hf_icmpv6_da_code_suffix;
+static int hf_icmpv6_dar_code_suffix;
+static int hf_icmpv6_dac_code_suffix;
 static int hf_icmpv6_da_status;
 static int hf_icmpv6_da_rsv;
 static int hf_icmpv6_da_lifetime;
+static int hf_icmpv6_da_rovr;
 static int hf_icmpv6_da_eui64;
 static int hf_icmpv6_da_raddr;
 
@@ -1178,15 +1189,18 @@ static const value_string nd_opt_earo_status_val[] = {
     { 0,  NULL }
 };
 
-#define ND_OPT_EARO_FLAG_P 0x30
-#define ND_OPT_EARO_FLAG_I 0x0C
-#define ND_OPT_EARO_FLAG_R 0x02
-#define ND_OPT_EARO_FLAG_T 0x01
+#define ND_OPT_EARO_FLAG_RESERVED 0x80
+#define ND_OPT_EARO_FLAG_C        0x40
+#define ND_OPT_EARO_FLAG_P        0x30
+#define ND_OPT_EARO_FLAG_I        0x0C
+#define ND_OPT_EARO_FLAG_R        0x02
+#define ND_OPT_EARO_FLAG_T        0x01
 
 static const value_string nd_opt_earo_p_val[] = {
-    { 0, "Unicast" },
-    { 1, "Multicast" },
-    { 2, "Anycast" },
+    { 0, "Unicast Address" },
+    { 1, "Multicast Address" },
+    { 2, "Anycast Address" },
+    { 3, "Unicast Prefix" },
     { 0, NULL }
 };
 
@@ -1204,6 +1218,30 @@ static const value_string nd_opt_da_status_val[] = {
     { 1, "Duplicate Address" },
     { 2, "Neighbor Cache Full" },
     { 0, NULL }
+};
+
+#define ND_OPT_DA_DA      0
+#define ND_OPT_DA_EDA_64  1
+#define ND_OPT_DA_EDA_128 2
+#define ND_OPT_DA_EDA_192 3
+#define ND_OPT_DA_EDA_256 4
+
+static const value_string nd_opt_dar_code_suffix_val[] = {
+    { ND_OPT_DA_DA,      "DAR message" },
+    { ND_OPT_DA_EDA_64,  "EDAR message with 64-bit ROVR field" },
+    { ND_OPT_DA_EDA_128, "EDAR message with 128-bit ROVR field" },
+    { ND_OPT_DA_EDA_192, "EDAR message with 192-bit ROVR field" },
+    { ND_OPT_DA_EDA_256, "EDAR message with 256-bit ROVR field" },
+    { 0,                  NULL }
+};
+
+static const value_string nd_opt_dac_code_suffix_val[] = {
+    { ND_OPT_DA_DA,      "DAC message" },
+    { ND_OPT_DA_EDA_64,  "EDAC message with 64-bit ROVR field" },
+    { ND_OPT_DA_EDA_128, "EDAC message with 128-bit ROVR field" },
+    { ND_OPT_DA_EDA_192, "EDAC message with 192-bit ROVR field" },
+    { ND_OPT_DA_EDA_256, "EDAC message with 256-bit ROVR field" },
+    { 0,                  NULL }
 };
 
 static const value_string icmpv6_option_name_type_vals[] = {
@@ -1815,7 +1853,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
 
 // This is recursive, but we'll run out of PDU before we'll run out of stack.
 // NOLINTNEXTLINE(misc-no-recursion)
-static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
+static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, uint8_t icmpv6_type)
 {
     proto_tree *icmp6opt_tree;
     proto_item *ti, *ti_opt, *ti_opt_len;
@@ -2353,7 +2391,7 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
                 }
 
                 /* Options */
-                opt_offset = dissect_icmpv6_nd_opt(tvb, opt_offset, pinfo, icmp6opt_tree);
+                opt_offset = dissect_icmpv6_nd_opt(tvb, opt_offset, pinfo, icmp6opt_tree, icmpv6_type);
 
                 break;
             }
@@ -2646,11 +2684,19 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
                 /* TODO: Calculate padding length and exclude from the signature */
                 break;
             }
-            case ND_OPT_ADDR_REGISTRATION: /* Address Registration (TBD1 Pending IANA...) */
+            case ND_OPT_ADDR_REGISTRATION:
             {
                 /* 6lowpan-ND */
-                uint8_t status;
+                uint8_t status_field;
+
+                static int * const earo_prefix_flags[] = {
+                    &hf_icmpv6_opt_earo_flag_f,
+                    NULL
+                };
+
                 static int * const earo_flags[] = {
+                    &hf_icmpv6_opt_earo_flag_reserved,
+                    &hf_icmpv6_opt_earo_flag_c,
                     &hf_icmpv6_opt_earo_flag_p,
                     &hf_icmpv6_opt_earo_flag_i,
                     &hf_icmpv6_opt_earo_flag_r,
@@ -2658,8 +2704,41 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
                     NULL
                 };
 
-                /* Status */
-                proto_tree_add_item_ret_uint8(icmp6opt_tree, hf_icmpv6_opt_aro_status, tvb, opt_offset, 1, ENC_BIG_ENDIAN, &status);
+                /* T-Flag determines EARO instead of ARO */
+                bool is_earo = tvb_get_uint8(tvb, opt_offset + 2) & ND_OPT_EARO_FLAG_T;
+
+                /* Status/Prefix length
+                 * Re-use of field (RFC 9926/9927)
+                 *
+                 * With EARO messages, the 8-bit status field is re-used for
+                 *
+                 * NS: 1 bit F-Flag; 7 bits Prefix length
+                 * NA: 2 bits reserved, 6 bits Status
+                 */
+                status_field = tvb_get_uint8(tvb, opt_offset);
+
+                if(is_earo && icmpv6_type == ICMP6_ND_NEIGHBOR_SOLICIT) {
+
+                    proto_tree_add_bitmask(icmp6opt_tree, tvb, opt_offset, hf_icmpv6_opt_earo_flag, ett_icmpv6_flag_earo, earo_prefix_flags, ENC_BIG_ENDIAN);
+
+                    /* No status_field, we don't need to store or correct its value */
+                    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_earo_prefix_len, tvb, opt_offset, 1, (uint32_t)(status_field & 0x7F));
+
+                } else if(is_earo && icmpv6_type == ICMP6_ND_NEIGHBOR_ADVERT) {
+
+                    /* Reserved: 2 MSB of status_field */
+                    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_earo_reserved, tvb, opt_offset, 1, (uint32_t)((status_field & 0xC0) >> 6));
+
+                    /* Set status_field to the actual status (6 LSB) */
+                    status_field &= 0x3F;
+                    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_aro_status, tvb, opt_offset, 1, (uint32_t)status_field);
+
+                } else {
+
+                    /* "Regular" ARO status */
+                    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_aro_status, tvb, opt_offset, 1, (uint32_t)status_field);
+
+                }
                 opt_offset += 1;
 
                 /* EARO Opaque */
@@ -2678,10 +2757,38 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_registration_lifetime, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                 opt_offset += 2;
 
-                /* EUI-64 */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti, " : Register %s %s", tvb_address_to_str(pinfo->pool, tvb, AT_EUI64, opt_offset), val_to_str(pinfo->pool, status, nd_opt_earo_status_val, "Unknown %d"));
-                opt_offset += 8;
+                /* RFC 6775 defines the field for the EUI-64 interface ID.
+                 * With RFC 8505 which introduced 'Extended Address Registration Option' (EARO),
+                 * the field is used for 'Registration Ownership Verifier' (ROVR).
+                 *
+                 * RFC 8505 Sect. 4.1:
+                 * The ROVR size MUST be 64 bits when backward compatibility is needed;
+                 * otherwise, the size MAY be 128, 192, or 256 bits
+                 *
+                 * In genaral, the T-flag indicates the presence of the TID and therefore
+                 * distinguishes between ARO (T=0) and EARO (T=1).
+                 */
+                if(is_earo) {
+
+                    /* Check length, dissect arbitrary data and add expert item if length violates rules above.
+                     *
+                     * We already dissected 8 octets in the option.
+                     * opt_len-8 is the remaining data in this option.
+                     *
+                     * ToDo: Add proper dissection of ROVR data (RFC 8505) or Crypto-ID (RFC 8928).
+                     */
+                    unsigned int opt_remaining = opt_len-8;
+
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_earo_rovr, tvb, opt_offset, opt_remaining, ENC_NA);
+                    if(opt_remaining != 8 && opt_remaining != 16 && opt_remaining != 24 && opt_remaining != 32)
+                        expert_add_info_format(pinfo, ti, &ei_icmpv6_invalid_option_length, "Invalid ROVR length (%i)", opt_remaining);
+
+                    opt_offset += opt_remaining;
+                } else {
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti, " : Register %s %s", tvb_address_to_str(pinfo->pool, tvb, AT_EUI64, opt_offset), val_to_str(pinfo->pool, status_field, nd_opt_earo_status_val, "Unknown %d"));
+                    opt_offset += 8;
+                }
 
             }
             break;
@@ -4496,7 +4603,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     uint16_t            cksum;
     unsigned            offset;
     tvbuff_t           *next_tvb;
-    uint8_t             icmp6_type, icmp6_code;
+    uint8_t             icmp6_type, icmp6_code, icmp6_code_prefix, icmp6_code_suffix;
     icmp_transaction_t *trans      = NULL;
     ws_ip6 *iph = WS_IP6_PTR(data);
 
@@ -4535,6 +4642,23 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     icmp6_code = tvb_get_uint8(tvb, offset);
+
+    /* Split ICMPv6 code into two 4-bit fields for ICMPv6 types which need it */
+    icmp6_code_prefix = (icmp6_code & 0xF0) >> 4;
+    icmp6_code_suffix = (icmp6_code & 0x0F);
+
+    if(icmp6_type == ICMP6_6LOWPANND_DAR) {
+        proto_tree_add_uint(icmp6_tree, hf_icmpv6_da_code_prefix, tvb, offset, 1, icmp6_code_prefix);
+        proto_tree_add_uint(icmp6_tree, hf_icmpv6_dar_code_suffix, tvb, offset, 1, icmp6_code_suffix);
+        proto_item *pi_csfx = proto_tree_add_uint(icmp6_tree, hf_icmpv6_da_code_suffix, tvb, offset, 1, icmp6_code_suffix);
+        proto_item_set_hidden(pi_csfx);
+    }
+    else if(icmp6_type == ICMP6_6LOWPANND_DAC) {
+        proto_tree_add_uint(icmp6_tree, hf_icmpv6_da_code_prefix, tvb, offset, 1, icmp6_code_prefix);
+        proto_tree_add_uint(icmp6_tree, hf_icmpv6_dac_code_suffix, tvb, offset, 1, icmp6_code_suffix);
+        proto_item *pi_csfx = proto_tree_add_uint(icmp6_tree, hf_icmpv6_da_code_suffix, tvb, offset, 1, icmp6_code_suffix);
+        proto_item_set_hidden(pi_csfx);
+    }
     offset += 1;
 
     switch (icmp6_type) {
@@ -4818,7 +4942,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 4;
 
                 /* Show options */
-                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree, icmp6_type);
                 break;
             }
             case ICMP6_ND_ROUTER_ADVERT: /* Router Advertisement (134) */
@@ -4855,7 +4979,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 4;
 
                 /* Show options */
-                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree, icmp6_type);
                 break;
             }
             case ICMP6_ND_NEIGHBOR_SOLICIT: /* Neighbor Solicitation (135) */
@@ -4871,7 +4995,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 16;
 
                 /* Show options */
-                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree, icmp6_type);
                 break;
             }
             case ICMP6_ND_NEIGHBOR_ADVERT: /* Neighbor Advertisement (136) */
@@ -4915,7 +5039,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 16;
 
                 /* Show options */
-                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree, icmp6_type);
                 break;
             }
             case ICMP6_ND_REDIRECT: /* Redirect Message (137) */
@@ -4933,7 +5057,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 16;
 
                 /* Show options */
-                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree, icmp6_type);
                 break;
             }
             case ICMP6_ROUTER_RENUMBERING: /* Router Renumbering (138) */
@@ -4955,7 +5079,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 4;
 
                 /* Show options */
-                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree, icmp6_type);
                 break;
             }
             case ICMP6_MLDV2_REPORT: /* Version 2 Multicast Listener Report (143) */
@@ -5022,7 +5146,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 /* Show options */
-                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree, icmp6_type);
                 break;
             }
             case ICMP6_CERT_PATH_SOL: /* Certification Path Solicitation Message (148) */
@@ -5037,7 +5161,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 /* Show options */
-                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree, icmp6_type);
                 break;
             }
             case ICMP6_CERT_PATH_AD: /* Certification Path Advertisement Message (149) */
@@ -5060,7 +5184,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 /* Show options */
-                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree, icmp6_type);
                 break;
             }
             case ICMP6_EXPERIMENTAL_MOBILITY: /* ICMP messages utilized by experimental mobility protocols (150) */
@@ -5116,7 +5240,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 /* Show options */
-                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+                offset = dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree, icmp6_type);
                 break;
             }
             case ICMP6_MCAST_ROUTER_ADVERT: /* Multicast Router Advertisement (151) */
@@ -5185,9 +5309,34 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_da_lifetime, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                /* EUI-64 */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_da_eui64, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
+                switch (icmp6_code_suffix) {
+
+                    case ND_OPT_DA_EDA_64:
+                        proto_tree_add_item(icmp6_tree, hf_icmpv6_da_rovr, tvb, offset, 8, ENC_NA);
+                        offset += 8;
+                        break;
+
+                    case ND_OPT_DA_EDA_128:
+                        proto_tree_add_item(icmp6_tree, hf_icmpv6_da_rovr, tvb, offset, 16, ENC_NA);
+                        offset += 16;
+                        break;
+
+                    case ND_OPT_DA_EDA_192:
+                        proto_tree_add_item(icmp6_tree, hf_icmpv6_da_rovr, tvb, offset, 24, ENC_NA);
+                        offset += 24;
+                        break;
+
+                    case ND_OPT_DA_EDA_256:
+                        proto_tree_add_item(icmp6_tree, hf_icmpv6_da_rovr, tvb, offset, 32, ENC_NA);
+                        offset += 32;
+                        break;
+
+                    default:
+                        /* EUI-64 */
+                        proto_tree_add_item(icmp6_tree, hf_icmpv6_da_eui64, tvb, offset, 8, ENC_BIG_ENDIAN);
+                        offset += 8;
+                        break;
+                }
 
                 /* Address */
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_da_raddr, tvb, offset, 16, ENC_NA);
@@ -5708,15 +5857,24 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_aro_status,
           { "Status", "icmpv6.opt.aro.status", FT_UINT8, BASE_DEC, VALS(nd_opt_earo_status_val), 0x00,
             "Indicates the status of a registration in the NA response", HFILL }},
+        { &hf_icmpv6_opt_earo_reserved,
+          { "Reserved", "icmpv6.opt.earo.reserved", FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }},
         { &hf_icmpv6_opt_earo_opaque,
           { "Opaque", "icmpv6.opt.earo.opaque", FT_UINT8, BASE_HEX, NULL, 0x00,
             "An opaque field whose content is dictated by flag I", HFILL }},
         { &hf_icmpv6_opt_earo_flag,
           { "Flags", "icmpv6.opt.earo.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
+        { &hf_icmpv6_opt_earo_flag_reserved,
+          { "Reserved", "icmpv6.opt.earo.flag.reserved", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_OPT_EARO_FLAG_RESERVED,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_earo_flag_c,
+          { "C", "icmpv6.opt.earo.flag.c", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_OPT_EARO_FLAG_C,
+            "Indicates that the ROVR field contains a Crypto-ID", HFILL }},
         { &hf_icmpv6_opt_earo_flag_p,
           { "P", "icmpv6.opt.earo.flag.p", FT_UINT8, BASE_DEC, VALS(nd_opt_earo_p_val), ND_OPT_EARO_FLAG_P,
-            "Registered address type", HFILL }},
+            "Registered Address Type Indicator (RATInd)", HFILL }},
         { &hf_icmpv6_opt_earo_flag_i,
           { "I", "icmpv6.opt.earo.flag.i", FT_UINT8, BASE_DEC, VALS(nd_opt_earo_i_val), ND_OPT_EARO_FLAG_I,
             "Indicates the contents of the Opaque field", HFILL }},
@@ -5726,11 +5884,20 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_earo_flag_t,
           { "T", "icmpv6.opt.earo.flag.t", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_OPT_EARO_FLAG_T,
             "When 0, the Transaction ID field must be ignored", HFILL }},
+        { &hf_icmpv6_opt_earo_flag_f,
+          { "F", "icmpv6.opt.earo.flag.f", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_earo_prefix_len,
+          { "Prefix Length", "icmpv6.opt.earo.prefix_len", FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }},
         { &hf_icmpv6_opt_earo_tid,
           { "TID (Transaction ID)", "icmpv6.opt.earo.tid", FT_UINT8, BASE_DEC, NULL, 0x00,
             "Unsigned integer maintained by the node and incremented with each registration.", HFILL }},
+        { &hf_icmpv6_opt_earo_rovr,
+          { "ROVR", "icmpv6.opt.earo.rovr", FT_BYTES, BASE_NONE, NULL, 0x00,
+            "Registration Ownership Verifier (ROVR)", HFILL }},
         { &hf_icmpv6_opt_aro_registration_lifetime,
-          { "Registration  Lifetime", "icmpv6.opt.aro.registration_lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
+          { "Registration Lifetime", "icmpv6.opt.aro.registration_lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
             "The amount of time (in a unit of 60 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
         { &hf_icmpv6_opt_aro_eui64,
           { "EUI-64", "icmpv6.opt.aro.eui64", FT_EUI64, BASE_NONE, NULL, 0x00,
@@ -6701,6 +6868,18 @@ proto_register_icmpv6(void)
             "The maximum number of seconds that this particular Locator may be considered valid", HFILL }},
 
         /* 6lowpan-nd: Neighbour Discovery for 6LoWPAN Networks */
+        { &hf_icmpv6_da_code_prefix,
+          { "Code Prefix", "icmpv6.6lowpannd.da.code.prefix", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_da_code_suffix,
+          { "Code Suffix", "icmpv6.6lowpannd.da.code.suffix", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_dar_code_suffix,
+          { "Code Suffix", "icmpv6.6lowpannd.dar.code.suffix", FT_UINT8, BASE_DEC, VALS(nd_opt_dar_code_suffix_val), 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_dac_code_suffix,
+          { "Code Suffix", "icmpv6.6lowpannd.dac.code.suffix", FT_UINT8, BASE_DEC, VALS(nd_opt_dac_code_suffix_val), 0x0,
+            NULL, HFILL }},
         { &hf_icmpv6_da_status,
           { "Status", "icmpv6.6lowpannd.da.status", FT_UINT8, BASE_DEC, VALS(nd_opt_da_status_val), 0x0,
             "Indicates the status of a registration in the DAC", HFILL }},
@@ -6713,6 +6892,9 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_da_eui64,
           { "EUI-64", "icmpv6.6lowpannd.da.eui64", FT_EUI64, BASE_NONE, NULL, 0x0,
             "This field is used to uniquely identify the interface of the registered address by including the EUI-64 identifier", HFILL }},
+        { &hf_icmpv6_da_rovr,
+          { "ROVR", "icmpv6.6lowpannd.da.rovr", FT_BYTES, BASE_NONE, NULL, 0x00,
+            "Registration Ownership Verifier (ROVR)", HFILL }},
         { &hf_icmpv6_da_raddr,
           { "Registered Address", "icmpv6.6lowpannd.da.reg_addr", FT_IPv6, BASE_NONE, NULL, 0x0,
             "Carries the host address, which was contained in the IPv6 Source field in the NS that contained the ARO option sent by the host", HFILL }},
