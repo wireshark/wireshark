@@ -258,9 +258,18 @@ static int hf_icmpv6_opt_abro_version_low;
 static int hf_icmpv6_opt_abro_version_high;
 static int hf_icmpv6_opt_abro_valid_lifetime;
 static int hf_icmpv6_opt_abro_6lbr_address;
-static int hf_icmpv6_opt_6cio_unassigned1;
+static int hf_icmpv6_opt_6cio_flag;
+static int hf_icmpv6_opt_6cio_flag_experimental;
+static int hf_icmpv6_opt_6cio_flag_x;
+static int hf_icmpv6_opt_6cio_flag_a;
+static int hf_icmpv6_opt_6cio_flag_d;
+static int hf_icmpv6_opt_6cio_flag_l;
+static int hf_icmpv6_opt_6cio_flag_b;
+static int hf_icmpv6_opt_6cio_flag_p;
+static int hf_icmpv6_opt_6cio_flag_e;
 static int hf_icmpv6_opt_6cio_flag_g;
-static int hf_icmpv6_opt_6cio_unassigned2;
+static int hf_icmpv6_opt_6cio_flag_f;
+static int hf_icmpv6_opt_6cio_flag_reserved;
 
 static int hf_icmpv6_opt_captive_portal;
 
@@ -669,6 +678,7 @@ static int ett_icmpv6_flag_rpl_daoack;
 static int ett_icmpv6_flag_rpl_dco;
 static int ett_icmpv6_flag_rpl_dcoack;
 static int ett_icmpv6_flag_rpl_cc;
+static int ett_icmpv6_flag_6cio;
 static int ett_icmpv6_opt_name;
 static int ett_icmpv6_cga_param_name;
 static int ett_icmpv6_mpl_seed_info;
@@ -1443,9 +1453,18 @@ static const value_string rpl_ocp_vals[] = {
     { 0, NULL }
 };
 
-/* RFC 7400 */
-#define ND_OPT_6CIO_FLAG_G          0x0001
-#define ND_OPT_6CIO_FLAG_UNASSIGNED 0xFFFE
+/* RFC 7400, 8505, 8928, 9685, 9926 */
+#define ND_OPT_6CIO_FLAG_RESERVED     0x00007FFFFFFF
+#define ND_OPT_6CIO_FLAG_F            0x000080000000
+#define ND_OPT_6CIO_FLAG_G            0x000100000000
+#define ND_OPT_6CIO_FLAG_E            0x000200000000
+#define ND_OPT_6CIO_FLAG_P            0x000400000000
+#define ND_OPT_6CIO_FLAG_B            0x000800000000
+#define ND_OPT_6CIO_FLAG_L            0x001000000000
+#define ND_OPT_6CIO_FLAG_D            0x002000000000
+#define ND_OPT_6CIO_FLAG_A            0x004000000000
+#define ND_OPT_6CIO_FLAG_X            0x008000000000
+#define ND_OPT_6CIO_FLAG_EXPERIMENTAL 0xFF0000000000
 
 /* RFC 7731 */
 #define MPL_SEED_INFO_BM_LEN        0xFC
@@ -2755,12 +2774,24 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
             case ND_OPT_6CIO: /* 6LoWPAN Capability Indication Option (35) */
             {
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6cio_unassigned1, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6cio_flag_g, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
-                opt_offset += 2;
+                static int * const opt_6cio_flags[] = {
+                    &hf_icmpv6_opt_6cio_flag_reserved,
+                    &hf_icmpv6_opt_6cio_flag_f,
+                    &hf_icmpv6_opt_6cio_flag_g,
+                    &hf_icmpv6_opt_6cio_flag_e,
+                    &hf_icmpv6_opt_6cio_flag_p,
+                    &hf_icmpv6_opt_6cio_flag_b,
+                    &hf_icmpv6_opt_6cio_flag_l,
+                    &hf_icmpv6_opt_6cio_flag_d,
+                    &hf_icmpv6_opt_6cio_flag_a,
+                    &hf_icmpv6_opt_6cio_flag_x,
+                    &hf_icmpv6_opt_6cio_flag_experimental,
+                    NULL
+                };
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6cio_unassigned2, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
-                opt_offset += 4;
+                proto_tree_add_bitmask(icmp6opt_tree, tvb, opt_offset, hf_icmpv6_opt_6cio_flag,
+                                ett_icmpv6_flag_6cio, opt_6cio_flags, ENC_BIG_ENDIAN);
+                opt_offset += 6;
 
 
             }
@@ -5737,14 +5768,41 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_abro_6lbr_address,
           { "6LBR Address", "icmpv6.opt.abro.6lbr_address", FT_IPv6, BASE_NONE, NULL, 0x00,
             "IPv6 address of the 6LBR that is the origin of the included version number", HFILL }},
-        { &hf_icmpv6_opt_6cio_unassigned1,
-          { "Unassigned", "icmpv6.opt.6cio.unassigned1", FT_UINT16, BASE_HEX, NULL, ND_OPT_6CIO_FLAG_UNASSIGNED,
+        { &hf_icmpv6_opt_6cio_flag,
+          { "Capability Bits", "icmpv6.opt.6cio.flag", FT_UINT48, BASE_HEX, NULL, 0x00,
             NULL, HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_reserved,
+          { "Reserved", "icmpv6.opt.6cio.flag.reserved", FT_BOOLEAN, 48, TFS(&tfs_set_notset), ND_OPT_6CIO_FLAG_RESERVED,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_f,
+          { "Prefix registration (F bit)", "icmpv6.opt.6cio.flag.f", FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported), ND_OPT_6CIO_FLAG_F,
+            "Registration for prefixes supported (RFC9926)", HFILL }},
         { &hf_icmpv6_opt_6cio_flag_g,
-          { "G", "icmpv6.opt.6cio.flag_g", FT_UINT16, BASE_HEX, NULL, ND_OPT_6CIO_FLAG_G,
-            NULL, HFILL }},
-        { &hf_icmpv6_opt_6cio_unassigned2,
-          { "Unassigned", "icmpv6.opt.6cio.unassigned2", FT_UINT32, BASE_HEX, NULL, 0x00,
+          { "GHC (G bit)", "icmpv6.opt.6cio.flag.g", FT_BOOLEAN, 48, TFS(&tfs_capable_not_capable), ND_OPT_6CIO_FLAG_G,
+            "GHC capable (RFC7400)", HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_e,
+          { "EARO (E bit)", "icmpv6.opt.6cio.flag.e", FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported), ND_OPT_6CIO_FLAG_E,
+            "EARO support (RFC8505)", HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_p,
+          { "Routing Registrar (P bit)", "icmpv6.opt.6cio.flag.p", FT_BOOLEAN, 48, TFS(&tfs_set_notset), ND_OPT_6CIO_FLAG_P,
+            "Routing Registrar (RFC8505)", HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_b,
+          { "6LBR (B bit)", "icmpv6.opt.6cio.flag.b", FT_BOOLEAN, 48, TFS(&tfs_capable_not_capable), ND_OPT_6CIO_FLAG_B,
+            "6LBR capable (RFC8505)", HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_l,
+          { "6LR (L bit)", "icmpv6.opt.6cio.flag.l", FT_BOOLEAN, 48, TFS(&tfs_capable_not_capable), ND_OPT_6CIO_FLAG_L,
+            "6LR capable (RFC8505)", HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_d,
+          { "EDA (D bit)", "icmpv6.opt.6cio.flag.d", FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported), ND_OPT_6CIO_FLAG_D,
+            "EDA Support (RFC8505)", HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_a,
+          { "AP-ND (A bit)", "icmpv6.opt.6cio.flag.a", FT_BOOLEAN, 48, TFS(&tfs_enabled_disabled), ND_OPT_6CIO_FLAG_A,
+            "AP-ND Enabled (RFC8928)", HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_x,
+          { "Address registration (X bit)", "icmpv6.opt.6cio.flag.x", FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported), ND_OPT_6CIO_FLAG_X,
+            "Registration for Unicast, Multicast, and Anycast Addresses Supported (RFC9685)", HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_experimental,
+          { "Reserved", "icmpv6.opt.6cio.flag.experimental", FT_BOOLEAN, 48, TFS(&tfs_set_notset), ND_OPT_6CIO_FLAG_EXPERIMENTAL,
             NULL, HFILL }},
 
         { &hf_icmpv6_opt_captive_portal,
@@ -6769,6 +6827,7 @@ proto_register_icmpv6(void)
         &ett_icmpv6_flag_rpl_dco,
         &ett_icmpv6_flag_rpl_dcoack,
         &ett_icmpv6_flag_rpl_cc,
+        &ett_icmpv6_flag_6cio,
         &ett_icmpv6_opt_name,
         &ett_icmpv6_cga_param_name,
         &ett_icmpv6_mpl_seed_info,
