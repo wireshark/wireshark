@@ -890,6 +890,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C37,   "Voice Assistant Supported Languages" },
     { 0x2C38,   "Voice Assistant Supported Features" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC41,   "Yoto Limited" },
     { 0xFC43,   "Atmosic Technologies, Inc." },
     { 0xFC44,   "Block, Inc." },
     { 0xFC45,   "Mitsubishi Electric Corporation" },
@@ -1680,7 +1681,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0048,   "Marvell Technology Group Ltd." },
     { 0x0049,   "3DSP Corporation" },
     { 0x004A,   "Accel Semiconductor Ltd." },
-    { 0x004B,   "Continental Automotive Systems" },
+    { 0x004B,   "AUMOVIO Systems, Inc." },
     { 0x004C,   "Apple, Inc." },
     { 0x004D,   "Staccato Communications, Inc." },
     { 0x004E,   "Avago Technologies" },
@@ -5573,6 +5574,12 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x1082,   "AIR PRODUCTS AND CHEMICALS, INC." },
     { 0x1083,   "SYSTEM LOCO LTD" },
     { 0x1084,   "24x8, LLC" },
+    { 0x1085,   "FUTURE INTELLIGENCE TECHNOLOGY SINGAPORE PTE. LTD." },
+    { 0x1086,   "M3SH TECHNOLOGY INC." },
+    { 0x1087,   "Matisse Interactif inc." },
+    { 0x1088,   "Sesame AI, Inc." },
+    { 0x1089,   "DEER MANAGEMENT SYSTEMS, LLC" },
+    { 0x108A,   "Grayhill Inc." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6342,6 +6349,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c37,   "Bluetooth GATT Attribute Voice Assistant Supported Languages (UUID 0x2c37)", "BT GATT Voice Assistant Supported Languages (UUID 0x2c37)", "btgatt.uuid0x2c37" },
     { 0x2c38,   "Bluetooth GATT Attribute Voice Assistant Supported Features (UUID 0x2c38)", "BT GATT Voice Assistant Supported Features (UUID 0x2c38)", "btgatt.uuid0x2c38" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc41,   "Bluetooth GATT Attribute Yoto Limited (UUID 0xfc41)", "BT GATT Yoto Limited (UUID 0xfc41)", "btgatt.uuid0xfc41" },
     { 0xfc43,   "Bluetooth GATT Attribute Atmosic Technologies, Inc. (UUID 0xfc43)", "BT GATT Atmosic Technologies, Inc. (UUID 0xfc43)", "btgatt.uuid0xfc43" },
     { 0xfc44,   "Bluetooth GATT Attribute Block, Inc. (UUID 0xfc44)", "BT GATT Block, Inc. (UUID 0xfc44)", "btgatt.uuid0xfc44" },
     { 0xfc45,   "Bluetooth GATT Attribute Mitsubishi Electric Corporation (UUID 0xfc45)", "BT GATT Mitsubishi Electric Corporation (UUID 0xfc45)", "btgatt.uuid0xfc45" },
