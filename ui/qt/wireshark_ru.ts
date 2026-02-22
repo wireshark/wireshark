@@ -927,10 +927,6 @@
 <context>
     <name>CaptureFilePropertiesDialog</name>
     <message>
-        <source>Details</source>
-        <translation type="vanished">Подробности</translation>
-    </message>
-    <message>
         <source>Edit Comments</source>
         <translation>Редактировать комментарии</translation>
     </message>

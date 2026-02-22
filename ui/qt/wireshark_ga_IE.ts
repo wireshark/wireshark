@@ -927,10 +927,6 @@
 <context>
     <name>CaptureFilePropertiesDialog</name>
     <message>
-        <source>Details</source>
-        <translation type="vanished">Sonraí</translation>
-    </message>
-    <message>
         <source>Edit Comments</source>
         <translation>Cuir Tuairimí in Eagar</translation>
     </message>

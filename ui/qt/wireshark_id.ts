@@ -911,10 +911,6 @@
 <context>
     <name>CaptureFilePropertiesDialog</name>
     <message>
-        <source>Details</source>
-        <translation type="vanished">Rincian</translation>
-    </message>
-    <message>
         <source>Edit Comments</source>
         <translation>Sunting Komentar</translation>
     </message>

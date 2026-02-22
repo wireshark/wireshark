@@ -896,10 +896,6 @@
 <context>
     <name>CaptureFilePropertiesDialog</name>
     <message>
-        <source>Details</source>
-        <translation type="vanished">Detalles</translation>
-    </message>
-    <message>
         <source>Edit Comments</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1822,7 +1818,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Detalles</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -9409,7 +9405,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Detalles</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UE Id</source>

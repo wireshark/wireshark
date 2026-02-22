@@ -901,10 +901,6 @@
 <context>
     <name>CaptureFilePropertiesDialog</name>
     <message>
-        <source>Details</source>
-        <translation type="vanished">Подробиці</translation>
-    </message>
-    <message>
         <source>Edit Comments</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1829,7 +1825,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Подробиці</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -9414,7 +9410,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Подробиці</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UE Id</source>

@@ -919,10 +919,6 @@
 <context>
     <name>CaptureFilePropertiesDialog</name>
     <message>
-        <source>Details</source>
-        <translation type="vanished">Détails</translation>
-    </message>
-    <message>
         <source>Edit Comments</source>
         <translation>Modifier les commentaires</translation>
     </message>

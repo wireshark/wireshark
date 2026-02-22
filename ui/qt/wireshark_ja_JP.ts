@@ -911,10 +911,6 @@
 <context>
     <name>CaptureFilePropertiesDialog</name>
     <message>
-        <source>Details</source>
-        <translation type="vanished">詳細</translation>
-    </message>
-    <message>
         <source>Edit Comments</source>
         <translation>コメントを編集</translation>
     </message>
