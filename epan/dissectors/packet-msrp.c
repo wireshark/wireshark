@@ -446,7 +446,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
     /* We have a MSRP header with at least three tokens
      *
-     * Note that "tvb_find_line_end()" will return a value that
+     * Note that "tvb_find_line_end_remaining()" will return a value that
      * is not longer than what's in the buffer, so the
      * "tvb_get_ptr()" calls below won't throw exceptions.   *
      */

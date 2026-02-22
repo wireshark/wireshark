@@ -284,8 +284,8 @@ static bool global_mgcp_raw_text;
 static bool global_mgcp_message_count;
 
 /* Some basic utility functions that are specific to this dissector */
-static bool is_mgcp_verb(tvbuff_t *tvb, int offset, int maxlength, const char **verb_name);
-static bool is_mgcp_rspcode(tvbuff_t *tvb, int offset, int maxlength);
+static bool is_mgcp_verb(tvbuff_t *tvb, unsigned offset, int maxlength, const char **verb_name);
+static bool is_mgcp_rspcode(tvbuff_t *tvb, unsigned offset, int maxlength);
 
 /*
  * The various functions that either dissect some
@@ -297,17 +297,17 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mgcp_info_t* mi);
 static void dissect_mgcp_params(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, mgcp_info_t* mi);
 static void dissect_mgcp_connectionparams(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb,
-					  int offset, int param_type_len,
-					  int param_val_len);
+					  unsigned offset, unsigned param_type_len,
+					  unsigned param_val_len);
 static void dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb,
-						int offset, int param_type_len,
-						int param_val_len);
+						unsigned offset, unsigned param_type_len,
+						unsigned param_val_len);
 static void dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb,
-						int offset, int param_type_len,
-						int param_val_len);
+						unsigned offset, unsigned param_type_len,
+						unsigned param_val_len);
 static void dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb,
-						int offset, int param_type_len,
-						int param_val_len);
+						unsigned offset, unsigned param_type_len,
+						unsigned param_val_len);
 
 static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
@@ -648,13 +648,13 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
  */
 static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 {
-	int tvb_linebegin, tvb_lineend, linelen;
+	unsigned tvb_linebegin, tvb_lineend, linelen;
 
 	tvb_linebegin = 0;
 
 	do
 	{
-		tvb_find_line_end(tvb, tvb_linebegin, -1, &tvb_lineend, false);
+		tvb_find_line_end_remaining(tvb, tvb_linebegin, NULL, &tvb_lineend);
 		linelen = tvb_lineend - tvb_linebegin;
 		proto_tree_add_format_text(tree, tvb, tvb_linebegin, linelen);
 		tvb_linebegin = tvb_lineend;
@@ -674,7 +674,7 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
  *
  * Return: true if there is an MGCP verb at offset in tvb, otherwise false
  */
-static bool is_mgcp_verb(tvbuff_t *tvb, int offset, int maxlength, const char **verb_name)
+static bool is_mgcp_verb(tvbuff_t *tvb, unsigned offset, int maxlength, const char **verb_name)
 {
 	bool returnvalue = false;
 	char word[5];
@@ -734,7 +734,7 @@ static bool is_mgcp_verb(tvbuff_t *tvb, int offset, int maxlength, const char **
  * Return: true if there is an MGCP response code at offset in tvb,
  *         otherwise false
  */
-static bool is_mgcp_rspcode(tvbuff_t *tvb, int offset, int maxlength)
+static bool is_mgcp_rspcode(tvbuff_t *tvb, unsigned offset, int maxlength)
 {
 	bool returnvalue = false;
 	char word[4];
@@ -781,7 +781,7 @@ static bool is_mgcp_rspcode(tvbuff_t *tvb, int offset, int maxlength)
  * Returns: The offset in tvb where the value of the MGCP parameter
  *          begins.
  */
-static int tvb_parse_param(tvbuff_t* tvb, packet_info* pinfo, int offset, int len, int** hf, mgcp_info_t* mi)
+static int tvb_parse_param(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, unsigned len, int** hf, mgcp_info_t* mi)
 {
 	int returnvalue = -1, tvb_current_offset, ext_off;
 	uint8_t tempchar, plus_minus;
@@ -1512,9 +1512,10 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  */
 static void dissect_mgcp_params(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, mgcp_info_t* mi)
 {
-	int linelen, tokenlen, *my_param;
-	int tvb_lineend, tvb_linebegin, tvb_len, old_lineend;
-	int tvb_tokenbegin;
+	unsigned linelen, tokenlen;
+	int *my_param;
+	unsigned tvb_lineend, tvb_linebegin, tvb_len, old_lineend;
+	unsigned tvb_tokenbegin;
 	proto_tree *mgcp_param_ti, *mgcp_param_tree;
 
 	tvb_len = tvb_reported_length(tvb);
@@ -1530,12 +1531,12 @@ static void dissect_mgcp_params(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
 	while (tvb_offset_exists(tvb, tvb_lineend))
 	{
 		old_lineend = tvb_lineend;
-		linelen = tvb_find_line_end(tvb, tvb_linebegin, -1, &tvb_lineend, false);
+		tvb_find_line_end_remaining(tvb, tvb_linebegin, &linelen, &tvb_lineend);
 		tvb_tokenbegin = tvb_parse_param(tvb, pinfo, tvb_linebegin, linelen, &my_param, mi);
 
 		if (my_param)
 		{
-			tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, false);
+			tvb_find_line_end_remaining(tvb, tvb_tokenbegin, &tokenlen, &tvb_lineend);
 			if (*my_param == hf_mgcp_param_connectionparam) {
 				dissect_mgcp_connectionparams(mgcp_param_tree, pinfo, tvb, tvb_linebegin,
 							      tvb_tokenbegin - tvb_linebegin, tokenlen);
@@ -1576,7 +1577,7 @@ static void dissect_mgcp_params(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
 
 /* Dissect the connection params */
 static void
-dissect_mgcp_connectionparams(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
+dissect_mgcp_connectionparams(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, unsigned offset, unsigned param_type_len, unsigned param_val_len)
 {
 	proto_tree *tree;
 	proto_item *item;
@@ -1602,7 +1603,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, packet_info* pinfo, tvbuf
 		int hf_uint = 0;
 		int hf_string = 0;
 
-		tokenlen = (int)strlen(tokens[i]);
+		tokenlen = (unsigned)strlen(tokens[i]);
 		typval = wmem_strsplit(pinfo->pool, tokens[i], "=", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
@@ -1678,7 +1679,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, packet_info* pinfo, tvbuf
 
 /* Dissect the local connection option */
 static void
-dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
+dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, unsigned offset, unsigned param_type_len, unsigned param_val_len)
 {
 	proto_tree *tree;
 	proto_item *item;
@@ -1835,7 +1836,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, packet_info* pinfo,
 
 /* Dissect the Local Voice Metrics option */
 static void
-dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
+dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, unsigned offset, unsigned param_type_len, unsigned param_val_len)
 {
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
@@ -1986,7 +1987,7 @@ dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbu
 
 /* Dissect the Remote Voice Metrics option */
 static void
-dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
+dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, unsigned offset, unsigned param_type_len, unsigned param_val_len)
 {
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
