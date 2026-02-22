@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+#include "vcs_version.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 
 #include <app/application_flavor.h>

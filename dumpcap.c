@@ -8,6 +8,7 @@
  */
 
 #include <config.h>
+#include "vcs_version.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_CAPCHILD
 
 #include <stdio.h>

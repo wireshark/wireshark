@@ -40,8 +40,6 @@
 //#include <zlib-ng.h>
 //#endif
 
-#include "vcs_version.h"
-
 #include <wsutil/cpu_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/crash_info.h>
