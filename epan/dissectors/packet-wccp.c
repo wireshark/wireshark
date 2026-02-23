@@ -2,6 +2,8 @@
  * Routines for Web Cache C* Protocol dissection
  * Jerry Talkington <jtalkington@users.sourceforge.net>
  *
+ * https://datatracker.ietf.org/doc/html/draft-mclaggan-wccp-v2rev1-00
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -1469,16 +1471,30 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
   element_tree = proto_item_add_subtree(tf, ett_table_element);
   EAT(4);
 
+  /* Allocate the tables if needed */
+  /* An address table component is not allowed to appear more than once in
+   * a packet, so we take the first one. */
   if (wccp_wccp_address_table->in_use == false) {
     wccp_wccp_address_table->family = family;
     wccp_wccp_address_table->table_length =  table_length;
 
-    /* check if the length is valid and allocate the tables if needed */
     switch (wccp_wccp_address_table->family) {
     case 1:
       if (wccp_wccp_address_table->table_ipv4 == NULL)
         wccp_wccp_address_table->table_ipv4 = (uint32_t *)
           wmem_alloc0(pinfo->pool, wccp_wccp_address_table->table_length * 4);
+      break;
+    case 2:
+      if (wccp_wccp_address_table->table_ipv6 == NULL)
+        wccp_wccp_address_table->table_ipv6 = (ws_in6_addr *)
+          wmem_alloc0(pinfo->pool, wccp_wccp_address_table->table_length * sizeof(ws_in6_addr));
+      break;
+    };
+  }
+
+  /* Check if the length is valid */
+  switch (family) {
+    case 1:
       if (address_length != 4) {
         expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                                "The Address length must be 4, but I found %d for IPv4 addresses. Correcting this.",
@@ -1487,9 +1503,6 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
       }
       break;
     case 2:
-      if (wccp_wccp_address_table->table_ipv6 == NULL)
-        wccp_wccp_address_table->table_ipv6 = (ws_in6_addr *)
-          wmem_alloc0(pinfo->pool, wccp_wccp_address_table->table_length * sizeof(ws_in6_addr));
       if (address_length != 16) {
         expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                                "The Address length must be 16, but I found %d for IPv6 addresses. Correcting this.",
@@ -1512,7 +1525,6 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
                                "The Address length must be at least 4. Correcting this.");
         address_length = 4;
       }
-    };
   }
 
   /* now read the addresses and print/store them */
