@@ -10784,16 +10784,16 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                GTP_E_MASK, GTP_S_MASK, or GTP_PN_MASK are set. */
             if (gtp_hdr->flags & (GTP_E_MASK|GTP_S_MASK|GTP_PN_MASK)) {
                 /* Those fields are only *interpreted* if the
-                   particular flag for the field is set. */
+                   particular flag for the field is set.
+                   However, they (S, PN) are still displayed because they are present,
+                   instead of leaving a gap. */
                 if (gtp_hdr->flags & GTP_S_MASK) {
                     has_SN = true;
-                    proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, ENC_BIG_ENDIAN, &seq_no);
                 }
+                proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, ENC_BIG_ENDIAN, &seq_no);
                 offset += 2;
 
-                if (gtp_hdr->flags & GTP_PN_MASK) {
-                    proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, ENC_NA, &pdu_no);
-                }
+                proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, ENC_NA, &pdu_no);
                 offset++;
 
                 if (gtp_hdr->flags & GTP_E_MASK) {
