@@ -35,10 +35,6 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 
-#define PNAME  "OMA UserPlane Location Protocol"
-#define PSNAME "ULP"
-#define PFNAME "ulp"
-
 void proto_register_ulp(void);
 
 static dissector_handle_t rrlp_handle;
@@ -7786,7 +7782,7 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_
   it = proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, ENC_NA);
   ulp_tree = proto_item_add_subtree(it, ett_ulp);
 
-  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "ULP");
   col_clear(actx->pinfo->cinfo, COL_INFO);
   offset = dissect_per_sequence(tvb, offset, actx, ulp_tree, hf_index,
                                    ett_ulp_ULP_PDU, ULP_PDU_sequence);
@@ -10846,7 +10842,7 @@ void proto_register_ulp(void) {
 
 
   /* Register protocol */
-  proto_ulp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ulp = proto_register_protocol("OMA UserPlane Location Protocol", "ULP", "ulp");
   ulp_tcp_handle = register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
   ulp_pdu_handle = register_dissector("ulp.pdu", dissect_ULP_PDU_PDU, proto_ulp);
 

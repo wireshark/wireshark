@@ -22,10 +22,6 @@
 #include "packet-pkix1implicit.h"
 #include "packet-x509ce.h"
 
-#define PNAME  "PKIX Attribute Certificate"
-#define PSNAME "PKIXAC"
-#define PFNAME "pkixac"
-
 void proto_register_pkixac(void);
 void proto_reg_handoff_pkixac(void);
 
@@ -56,7 +52,7 @@ void proto_register_pkixac(void) {
   };
 
   /* Register protocol */
-  proto_pkixac = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_pkixac = proto_register_protocol("PKIX Attribute Certificate", "PKIXAC", "pkixac");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_pkixac, hf, array_length(hf));

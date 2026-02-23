@@ -32,15 +32,6 @@
 #include "packet-pres.h"
 #include "packet-rtse.h"
 
-
-#define PNAME  "ISO 8823 OSI Presentation Protocol"
-#define PSNAME "PRES"
-#define PFNAME "pres"
-
-#define CLPNAME  "ISO 9576-1 OSI Connectionless Presentation Protocol"
-#define CLPSNAME "CLPRES"
-#define CLPFNAME "clpres"
-
 void proto_register_pres(void);
 void proto_reg_handoff_pres(void);
 
@@ -1850,11 +1841,11 @@ void proto_register_pres(void) {
   module_t *pres_module;
 
   /* Register protocol */
-  proto_pres = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_pres = proto_register_protocol("ISO 8823 OSI Presentation Protocol", "PRES", "pres");
   register_dissector("pres", dissect_pres, proto_pres);
 
   /* Register connectionless protocol (just for the description) */
-  proto_clpres = proto_register_protocol(CLPNAME, CLPSNAME, CLPFNAME);
+  proto_clpres = proto_register_protocol("ISO 9576-1 OSI Connectionless Presentation Protocol", "CLPRES", "clpres");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_pres, hf, array_length(hf));

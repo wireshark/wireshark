@@ -26,10 +26,6 @@
 #include "packet-pres.h"
 #include "packet-ros.h"
 
-#define PNAME  "X.880 OSI Remote Operations Service"
-#define PSNAME "ROS"
-#define PFNAME "ros"
-
 void proto_register_ros(void);
 void proto_reg_handoff_ros(void);
 
@@ -1175,7 +1171,7 @@ void proto_register_ros(void) {
   expert_module_t* expert_ros;
 
   /* Register protocol */
-  proto_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ros = proto_register_protocol("X.880 OSI Remote Operations Service", "ROS", "ros");
   ros_handle = register_dissector("ros", dissect_ros, proto_ros);
   /* Register fields and subtrees */
   proto_register_field_array(proto_ros, hf, array_length(hf));

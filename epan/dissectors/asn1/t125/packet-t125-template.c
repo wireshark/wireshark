@@ -22,11 +22,6 @@
 
 #include "packet-t124.h"
 
-#define PNAME  "MULTIPOINT-COMMUNICATION-SERVICE T.125"
-#define PSNAME "T.125"
-#define PFNAME "t125"
-
-
 #define HF_T125_ERECT_DOMAIN_REQUEST 1
 #define HF_T125_DISCONNECT_PROVIDER_ULTIMATUM 8
 #define HF_T125_ATTACH_USER_REQUEST 10
@@ -153,7 +148,7 @@ void proto_register_t125(void) {
   };
 
   /* Register protocol */
-  proto_t125 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_t125 = proto_register_protocol("MULTIPOINT-COMMUNICATION-SERVICE T.125", "T.125", "t125");
   /* Register fields and subtrees */
   proto_register_field_array(proto_t125, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

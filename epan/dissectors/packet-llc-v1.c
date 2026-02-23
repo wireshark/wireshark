@@ -25,11 +25,6 @@
 #include "packet-e2ap.h"
 #include "packet-per.h"
 
-#define PNAME  "LLC V1"
-#define PSNAME "LLCv1"
-#define PFNAME "llc-v1"
-
-
 void proto_register_llc_v1(void);
 void proto_reg_handoff_llc_v1(void);
 
@@ -5102,7 +5097,7 @@ void proto_register_llc_v1(void) {
 
 
   /* Register protocol */
-  proto_llc_v1 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_llc_v1 = proto_register_protocol("LLC V1", "LLCv1", "llc-v1");
   /* Register fields and subtrees */
   proto_register_field_array(proto_llc_v1, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

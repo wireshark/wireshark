@@ -27,11 +27,6 @@
 #include "packet-per.h"
 #include "packet-gsm_a_common.h"
 
-#define PNAME  "Radio Resource LCS Protocol (RRLP)"
-#define PSNAME "RRLP"
-#define PFNAME "rrlp"
-
-
 void proto_register_rrlp(void);
 void proto_reg_handoff_rrlp(void);
 
@@ -12858,7 +12853,7 @@ void proto_register_rrlp(void) {
 
 
   /* Register protocol */
-  proto_rrlp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_rrlp = proto_register_protocol("Radio Resource LCS Protocol (RRLP)", "RRLP", "rrlp");
   register_dissector("rrlp", dissect_PDU_PDU, proto_rrlp);
 
   /* Register fields and subtrees */

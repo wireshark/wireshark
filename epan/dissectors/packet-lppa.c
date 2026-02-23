@@ -27,10 +27,6 @@
 #include "packet-per.h"
 #include "packet-lppa.h"
 
-#define PNAME  "LTE Positioning Protocol A (LPPa)"
-#define PSNAME "LPPa"
-#define PFNAME "lppa"
-
 void proto_register_lppa(void);
 void proto_reg_handoff_lppa(void);
 
@@ -5464,7 +5460,7 @@ void proto_register_lppa(void) {
     };
 
     /* Register protocol */
-    proto_lppa = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_lppa = proto_register_protocol("LTE Positioning Protocol A (LPPa)", "LPPa", "lppa");
     register_dissector("lppa", dissect_LPPA_PDU_PDU, proto_lppa);
 
     /* Register fields and subtrees */

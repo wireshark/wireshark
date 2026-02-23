@@ -23,10 +23,6 @@
 #include "packet-ber.h"
 #include "packet-sctp.h"
 
-#define PNAME  "Generic Data Transfer Protocol"
-#define PSNAME "GDT"
-#define PFNAME "gdt"
-
 void proto_register_gdt(void);
 void proto_reg_handoff_gdt(void);
 
@@ -1017,7 +1013,7 @@ static int dissect_gdt(tvbuff_t *tvb,
     proto_tree *gdt_tree = NULL;
 
     /* make entry in the Protocol column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GDT");
 
     /* create the gdt protocol tree */
     if (tree) {
@@ -1261,7 +1257,7 @@ void proto_register_gdt(void) {
     };
 
     /* Register protocol */
-    proto_gdt = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_gdt = proto_register_protocol("Generic Data Transfer Protocol", "GDT", "gdt");
 
     /* Register fields and subtrees */
     proto_register_field_array(proto_gdt, hf, array_length(hf));

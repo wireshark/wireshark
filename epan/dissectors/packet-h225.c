@@ -50,10 +50,6 @@
 #include "packet-q931.h"
 #include "packet-tls.h"
 
-#define PNAME  "H323-MESSAGES"
-#define PSNAME "H.225.0"
-#define PFNAME "h225"
-
 #define UDP_PORT_RAS_RANGE "1718-1719"
 #define TCP_PORT_CS   1720
 #define TLS_PORT_CS   1300
@@ -7740,10 +7736,10 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   h245_list = next_tvb_list_new(pinfo->pool);
   tp_list = next_tvb_list_new(pinfo->pool);
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, -1, PSNAME" CS");
+  it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, -1, "H.225.0 CS");
   tr=proto_item_add_subtree(it, ett_h225);
 
   offset = dissect_H323_UserInformation_PDU(tvb, pinfo, tr, NULL);
@@ -7776,9 +7772,9 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   h245_list = next_tvb_list_new(pinfo->pool);
   tp_list = next_tvb_list_new(pinfo->pool);
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
 
-  it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, -1, PSNAME" RAS");
+  it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, -1, "H.225.0 RAS");
   tr=proto_item_add_subtree(it, ett_h225);
 
   offset = dissect_RasMessage_PDU(tvb, pinfo, tr, NULL);
@@ -11566,7 +11562,7 @@ void proto_register_h225(void) {
   static stat_tap_table_ui h225_stat_table = {
     REGISTER_TELEPHONY_GROUP_UNSORTED,
     "H.225",
-    PFNAME,
+    "h225",
     "h225,counter",
     h225_stat_init,
     h225_stat_packet,
@@ -11583,7 +11579,7 @@ void proto_register_h225(void) {
   int i, proto_h225_ras;
 
   /* Register protocol */
-  proto_h225 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_h225 = proto_register_protocol("H323-MESSAGES", "H.225.0", "h225");
 
   /* Create a "fake" protocol to get proper display strings for SRT dialogs */
   proto_h225_ras = proto_register_protocol("H.225 RAS", "H.225 RAS", "h225_ras");
@@ -11611,7 +11607,7 @@ void proto_register_h225(void) {
     "ON - display tunnelled protocols inside H.225.0 tree, OFF - display tunnelled protocols in root tree after H.225.0",
     &h225_tp_in_tree);
 
-  register_dissector(PFNAME, dissect_h225_H323UserInformation, proto_h225);
+  register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
   register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
   h225ras_handle = register_dissector("h225.ras", dissect_h225_h225_RasMessage, proto_h225);
 
@@ -11625,9 +11621,9 @@ void proto_register_h225(void) {
     ras_calls[i] = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), h225ras_call_hash, h225ras_call_equal);
   }
 
-  h225_tap = register_tap(PFNAME);
+  h225_tap = register_tap("h225");
 
-  register_rtd_table(proto_h225_ras, PFNAME, NUM_RAS_STATS, 1, ras_message_category, h225rassrt_packet, NULL);
+  register_rtd_table(proto_h225_ras, "h225", NUM_RAS_STATS, 1, ras_message_category, h225rassrt_packet, NULL);
 
   register_stat_tap_table_ui(&h225_stat_table);
 

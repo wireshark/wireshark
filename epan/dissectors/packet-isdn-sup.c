@@ -24,10 +24,6 @@
 
 #include "packet-ber.h"
 
-#define PNAME  "ISDN supplementary services"
-#define PSNAME "ISDN_SUP"
-#define PFNAME "isdn_sup"
-
 void proto_register_isdn_sup(void);
 void proto_reg_handoff_isdn_sup(void);
 
@@ -3730,7 +3726,7 @@ void proto_register_isdn_sup(void) {
   expert_module_t* expert_isdn_sup;
 
   /* Register protocol */
-  proto_isdn_sup = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_isdn_sup = proto_register_protocol("ISDN supplementary services", "ISDN_SUP", "isdn_sup");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_isdn_sup, hf, array_length(hf));
@@ -3739,7 +3735,7 @@ void proto_register_isdn_sup(void) {
   expert_register_field_array(expert_isdn_sup, ei, array_length(ei));
 
   /* Register dissectors */
-  isdn_sup_arg_handle = register_dissector(PFNAME "_arg", dissect_isdn_sup_arg, proto_isdn_sup);
-  isdn_sup_res_handle = register_dissector(PFNAME "_res", dissect_isdn_sup_res, proto_isdn_sup);
-  isdn_sup_err_handle = register_dissector(PFNAME "_err", dissect_isdn_sup_err, proto_isdn_sup);
+  isdn_sup_arg_handle = register_dissector("isdn_sup_arg", dissect_isdn_sup_arg, proto_isdn_sup);
+  isdn_sup_res_handle = register_dissector("isdn_sup_res", dissect_isdn_sup_res, proto_isdn_sup);
+  isdn_sup_err_handle = register_dissector("isdn_sup_err", dissect_isdn_sup_err, proto_isdn_sup);
 }

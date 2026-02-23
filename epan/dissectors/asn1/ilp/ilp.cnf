@@ -43,7 +43,7 @@ CellGlobalIdEUTRA/cellIdentity ABBREV=cellglobalideutra.cellIdentity
   it = proto_tree_add_item(tree, proto_ilp, tvb, 0, -1, ENC_NA);
   ilp_tree = proto_item_add_subtree(it, ett_ilp);
 
-  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "ILP");
   col_clear(actx->pinfo->cinfo, COL_INFO);
 #.END
 

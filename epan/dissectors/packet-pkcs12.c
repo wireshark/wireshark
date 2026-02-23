@@ -36,10 +36,6 @@
 
 #include <wsutil/wsgcrypt.h>
 
-#define PNAME  "PKCS#12: Personal Information Exchange"
-#define PSNAME "PKCS12"
-#define PFNAME "pkcs12"
-
 #define PKCS12_PBE_ARCFOUR_SHA1_OID     "1.2.840.113549.1.12.1.1"
 #define PKCS12_PBE_3DES_SHA1_OID	"1.2.840.113549.1.12.1.3"
 #define PKCS12_PBE_RC2_40_SHA1_OID	"1.2.840.113549.1.12.1.6"
@@ -1304,7 +1300,7 @@ void proto_register_pkcs12(void) {
   expert_module_t* expert_pkcs12;
 
   /* Register protocol */
-  proto_pkcs12 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_pkcs12 = proto_register_protocol("PKCS#12: Personal Information Exchange", "PKCS12", "pkcs12");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_pkcs12, hf, array_length(hf));

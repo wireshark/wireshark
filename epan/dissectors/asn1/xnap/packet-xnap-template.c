@@ -38,11 +38,6 @@
 #include "packet-sctp.h"
 #include "packet-lpp.h"
 
-
-#define PNAME  "NG-RAN Xn Application Protocol (XnAP)"
-#define PSNAME "XnAP"
-#define PFNAME "xnap"
-
 /* Dissector will use SCTP PPID 61 or SCTP port. IANA assigned port = 38422 */
 #define SCTP_PORT_XnAP	38422
 
@@ -781,7 +776,7 @@ void proto_register_xnap(void) {
 
   module_t *xnap_module;
 
-  proto_xnap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_xnap = proto_register_protocol("NG-RAN Xn Application Protocol (XnAP)", "XnAP", "xnap");
   proto_register_field_array(proto_xnap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

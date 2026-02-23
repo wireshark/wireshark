@@ -30,10 +30,6 @@
 #include "packet-dap.h"
 #include "packet-dsp.h"
 
-#define PNAME  "Intelligent Network Application Protocol"
-#define PSNAME "INAP"
-#define PFNAME "inap"
-
 void proto_register_inap(void);
 void proto_reg_handoff_inap(void);
 
@@ -258,7 +254,7 @@ void proto_register_inap(void) {
   expert_module_t* expert_inap;
 
   /* Register protocol */
-  proto_inap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_inap = proto_register_protocol("Intelligent Network Application Protocol", "INAP", "inap");
   inap_handle = register_dissector("inap", dissect_inap, proto_inap);
   /* Register fields and subtrees */
   proto_register_field_array(proto_inap, hf, array_length(hf));

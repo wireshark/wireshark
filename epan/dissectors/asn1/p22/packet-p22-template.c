@@ -29,10 +29,6 @@
 
 #include "packet-p22.h"
 
-#define PNAME  "X.420 Information Object"
-#define PSNAME "P22"
-#define PFNAME "p22"
-
 void proto_reg_handoff_p22(void);
 void proto_register_p22(void);
 
@@ -119,7 +115,7 @@ void proto_register_p22(void) {
   };
 
   /* Register protocol */
-  proto_p22 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_p22 = proto_register_protocol("X.420 Information Object", "P22", "p22");
   register_dissector("p22", dissect_p22, proto_p22);
   /* Register fields and subtrees */
   proto_register_field_array(proto_p22, hf, array_length(hf));

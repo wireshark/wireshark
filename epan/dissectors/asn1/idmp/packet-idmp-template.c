@@ -30,10 +30,6 @@
 #include "packet-x509ce.h"
 
 
-#define PNAME  "X.519 Internet Directly Mapped Protocol"
-#define PSNAME "IDMP"
-#define PFNAME "idmp"
-
 void proto_register_idmp(void);
 void proto_reg_handoff_idm(void);
 void register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name);
@@ -311,7 +307,7 @@ void proto_register_idmp(void)
     module_t *idmp_module;
 
     /* Register protocol */
-    proto_idmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_idmp = proto_register_protocol("X.519 Internet Directly Mapped Protocol", "IDMP", "idmp");
 
     /* Register fields and subtrees */
     proto_register_field_array(proto_idmp, hf, array_length(hf));

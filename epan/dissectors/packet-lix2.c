@@ -28,10 +28,6 @@
 #include "packet-gsm_a_common.h"
 #include "packet-gtpv2.h"
 
-#define PNAME  "X2 xIRI payload"
-#define PSNAME "xIRI"
-#define PFNAME "xiri"
-
 void proto_reg_handoff_lix2(void);
 void proto_register_lix2(void);
 
@@ -30522,7 +30518,7 @@ void proto_register_lix2(void) {
   };
 
   /* Register protocol */
-  proto_lix2 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_lix2 = proto_register_protocol("X2 xIRI payload", "xIRI", "xiri");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lix2, hf, array_length(hf));

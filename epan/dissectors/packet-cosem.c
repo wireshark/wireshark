@@ -34,10 +34,6 @@
 #include "packet-ber.h"
 #include "packet-x509if.h"
 
-#define PNAME  "DLMS/COSEM"
-#define PSNAME "COSEM"
-#define PFNAME "cosem"
-
 void proto_register_cosem(void);
 void proto_reg_handoff_cosem(void);
 
@@ -3464,10 +3460,10 @@ void proto_register_cosem(void) {
     };
 
     /* Register protocol */
-    proto_cosem = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_cosem = proto_register_protocol("DLMS/COSEM", "COSEM", "cosem");
     proto_dlms = proto_register_protocol("Device Language Message Specification", "DLMS", "dlms");
 
-    cosem_handle = register_dissector(PFNAME, dissect_cosem, proto_cosem);
+    cosem_handle = register_dissector("cosem", dissect_cosem, proto_cosem);
 
     proto_register_field_array(proto_cosem, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

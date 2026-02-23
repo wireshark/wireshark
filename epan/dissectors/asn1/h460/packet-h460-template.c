@@ -21,10 +21,6 @@
 #include "packet-h235.h"
 #include "packet-h245.h"
 
-#define PNAME  "H.460 Supplementary Services"
-#define PSNAME "H.460"
-#define PFNAME "h460"
-
 void proto_register_h460(void);
 void proto_reg_handoff_h460(void);
 
@@ -245,13 +241,13 @@ void proto_register_h460(void) {
   };
 
   /* Register protocol */
-  proto_h460 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_h460 = proto_register_protocol("H.460 Supplementary Services", "H.460", "h460");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_h460, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  h460_name_handle = register_dissector(PFNAME, dissect_h460_name, proto_h460);
+  h460_name_handle = register_dissector("h460", dissect_h460_name, proto_h460);
   for (ftr=h460_feature_tab; ftr->id; ftr++) {
     if (ftr->opt & GD) ftr->key_gd = wmem_strdup_printf(wmem_epan_scope(), "GenericData/%s", ftr->id);
     if (ftr->opt & FD) ftr->key_fd = wmem_strdup_printf(wmem_epan_scope(), "FeatureDescriptor/%s", ftr->id);

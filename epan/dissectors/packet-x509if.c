@@ -29,10 +29,6 @@
 #include "packet-x509sat.h"
 #include "packet-frame.h"
 
-#define PNAME  "X.509 Information Framework"
-#define PSNAME "X509IF"
-#define PFNAME "x509if"
-
 void proto_register_x509if(void);
 void proto_reg_handoff_x509if(void);
 
@@ -2780,7 +2776,7 @@ void proto_register_x509if(void) {
   };
 
   /* Register protocol */
-  proto_x509if = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_x509if = proto_register_protocol("X.509 Information Framework", "X509IF", "x509if");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509if, hf, array_length(hf));

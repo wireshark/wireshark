@@ -44,10 +44,6 @@
 #include "packet-lpp.h"
 #include "packet-sctp.h"
 
-#define PNAME  "S1 Application Protocol"
-#define PSNAME "S1AP"
-#define PFNAME "s1ap"
-
 /* Dissector will use SCTP PPID 18 or SCTP port. IANA assigned port = 36412 */
 #define SCTP_PORT_S1AP 36412
 
@@ -822,7 +818,7 @@ void proto_register_s1ap(void) {
   expert_module_t* expert_s1ap;
 
   /* Register protocol */
-  proto_s1ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_s1ap = proto_register_protocol("S1 Application Protocol", "S1AP", "s1ap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_s1ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

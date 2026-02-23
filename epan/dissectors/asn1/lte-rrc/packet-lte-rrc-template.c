@@ -44,10 +44,6 @@
 #include "packet-nr-rrc.h"
 #include "packet-lte-rrc.h"
 
-#define PNAME  "LTE Radio Resource Control (RRC) protocol"
-#define PSNAME "LTE RRC"
-#define PFNAME "lte_rrc"
-
 void proto_register_lte_rrc(void);
 void proto_reg_handoff_lte_rrc(void);
 
@@ -4635,7 +4631,7 @@ void proto_register_lte_rrc(void) {
   module_t *lte_rrc_module;
 
   /* Register protocol */
-  proto_lte_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_lte_rrc = proto_register_protocol("LTE Radio Resource Control (RRC) protocol", "LTE RRC", "lte_rrc");
 
   /* These entry points will first create an lte_rrc root node */
   lte_rrc_dl_ccch_handle = register_dissector("lte_rrc.dl_ccch", dissect_lte_rrc_DL_CCCH, proto_lte_rrc);

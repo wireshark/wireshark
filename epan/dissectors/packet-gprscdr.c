@@ -32,10 +32,6 @@
 #include "packet-gtp.h"
 #include "packet-gtpv2.h"
 
-#define PNAME  "GPRS CDR"
-#define PSNAME "GPRSCDR"
-#define PFNAME "gprscdr"
-
 void proto_register_gprscdr(void);
 
 /* Define the GPRS CDR proto */
@@ -7173,7 +7169,7 @@ proto_register_gprscdr(void)
 
   expert_module_t* expert_gprscdr;
 
-  proto_gprscdr = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_gprscdr = proto_register_protocol("GPRS CDR", "GPRSCDR", "gprscdr");
 
   proto_register_field_array(proto_gprscdr, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

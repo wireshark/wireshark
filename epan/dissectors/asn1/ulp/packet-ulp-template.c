@@ -30,10 +30,6 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 
-#define PNAME  "OMA UserPlane Location Protocol"
-#define PSNAME "ULP"
-#define PFNAME "ulp"
-
 void proto_register_ulp(void);
 
 static dissector_handle_t rrlp_handle;
@@ -404,7 +400,7 @@ void proto_register_ulp(void) {
 
 
   /* Register protocol */
-  proto_ulp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ulp = proto_register_protocol("OMA UserPlane Location Protocol", "ULP", "ulp");
   ulp_tcp_handle = register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
   ulp_pdu_handle = register_dissector("ulp.pdu", dissect_ULP_PDU_PDU, proto_ulp);
 

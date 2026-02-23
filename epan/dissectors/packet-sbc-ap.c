@@ -33,10 +33,6 @@
 #include "packet-lte-rrc.h"
 #include "packet-sctp.h"
 
-#define PNAME  "SBc Application Part"
-#define PSNAME "SBcAP"
-#define PFNAME "sbcap"
-
 void proto_register_sbc_ap(void);
 void proto_reg_handoff_sbc_ap(void);
 
@@ -2830,7 +2826,7 @@ dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree      *sbc_ap_tree = NULL;
 
     /* make entry in the Protocol column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBcAP");
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* create the sbc_ap protocol tree */
@@ -3573,13 +3569,13 @@ void proto_register_sbc_ap(void) {
 
 
   /* Register protocol */
-  proto_sbc_ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_sbc_ap = proto_register_protocol("SBc Application Part", "SBcAP", "sbcap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_sbc_ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  sbc_ap_handle = register_dissector(PFNAME, dissect_sbc_ap, proto_sbc_ap);
+  sbc_ap_handle = register_dissector("sbcap", dissect_sbc_ap, proto_sbc_ap);
 
   /* Register dissector tables */
   sbc_ap_ies_dissector_table = register_dissector_table("sbc_ap.ies", "SBC-AP-PROTOCOL-IES", proto_sbc_ap, FT_UINT32, BASE_DEC);

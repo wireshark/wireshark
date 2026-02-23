@@ -24,9 +24,6 @@
 #include "packet-tcp.h"
 #include "packet-c1222.h"
 
-#define PNAME  "ANSI C12.22"
-#define PSNAME "C12.22"
-#define PFNAME "c1222"
 #define C1222_PORT 1153    /* TCP port */
 
 /* C12.22 flag definitions */
@@ -1089,7 +1086,7 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree      *c1222_tree = NULL;
 
     /* make entry in the Protocol column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "C12.22");
 
     /* create the c1222 protocol tree */
     c1222_item = proto_tree_add_item(tree, proto_c1222, tvb, 0, -1, ENC_NA);
@@ -1413,7 +1410,7 @@ void proto_register_c1222(void) {
   };
 
   /* Register protocol */
-  proto_c1222 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_c1222 = proto_register_protocol("ANSI C12.22", "C12.22", "c1222");
   /* Register fields and subtrees */
   proto_register_field_array(proto_c1222, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

@@ -29,10 +29,6 @@
 #include "packet-tcp.h"
 #include "packet-sctp.h"
 
-#define PNAME  "E1 Application Protocol"
-#define PSNAME "E1AP"
-#define PFNAME "e1ap"
-
 #define SCTP_PORT_E1AP 38462
 
 void proto_register_e1ap(void);
@@ -319,7 +315,7 @@ void proto_register_e1ap(void) {
   };
 
   /* Register protocol */
-  proto_e1ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_e1ap = proto_register_protocol("E1 Application Protocol", "E1AP", "e1ap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_e1ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

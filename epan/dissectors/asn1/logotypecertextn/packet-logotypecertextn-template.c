@@ -17,10 +17,6 @@
 #include "packet-ber.h"
 #include "packet-x509af.h"
 
-#define PNAME  "Logotype Certificate Extensions"
-#define PSNAME "LogotypeCertExtn"
-#define PFNAME "logotypecertextn"
-
 void proto_register_logotypecertextn(void);
 void proto_reg_handoff_logotypecertextn(void);
 
@@ -49,7 +45,7 @@ void proto_register_logotypecertextn(void) {
   };
 
   /* Register protocol */
-  proto_logotypecertextn = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_logotypecertextn = proto_register_protocol("Logotype Certificate Extensions", "LogotypeCertExtn", "logotypecertextn");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_logotypecertextn, hf, array_length(hf));

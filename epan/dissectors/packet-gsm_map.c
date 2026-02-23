@@ -65,10 +65,6 @@
 #include "packet-ranap.h"
 #include "packet-isup.h"
 
-#define PNAME  "GSM Mobile Application"
-#define PSNAME "GSM_MAP"
-#define PFNAME "gsm_map"
-
 void proto_register_gsm_map(void);
 void proto_reg_handoff_gsm_map(void);
 
@@ -34446,7 +34442,7 @@ void proto_register_gsm_map(void) {
   };
 
   /* Register protocol */
-  proto_gsm_map_ms = proto_gsm_map_dialogue = proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_gsm_map_ms = proto_gsm_map_dialogue = proto_gsm_map = proto_register_protocol("GSM Mobile Application", "GSM_MAP", "gsm_map");
 
   map_handle = register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
   register_dissector("gsm_map_sccp", dissect_gsm_map_sccp, proto_gsm_map);

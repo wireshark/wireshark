@@ -22,10 +22,6 @@
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
 
-#define PNAME  "Certificate Request Message Format"
-#define PSNAME "CRMF"
-#define PFNAME "crmf"
-
 void proto_register_crmf(void);
 void proto_reg_handoff_crmf(void);
 
@@ -57,7 +53,7 @@ void proto_register_crmf(void) {
   };
 
   /* Register protocol */
-  proto_crmf = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_crmf = proto_register_protocol("Certificate Request Message Format", "CRMF", "crmf");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_crmf, hf, array_length(hf));

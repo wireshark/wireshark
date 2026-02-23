@@ -28,10 +28,6 @@
 #include "packet-x509sat.h"
 #include "packet-p1.h"
 
-#define PNAME  "X.509 Certificate Extensions"
-#define PSNAME "X509CE"
-#define PFNAME "x509ce"
-
 void proto_register_x509ce(void);
 void proto_reg_handoff_x509ce(void);
 
@@ -3037,7 +3033,7 @@ void proto_register_x509ce(void) {
   };
 
   /* Register protocol */
-  proto_x509ce = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_x509ce = proto_register_protocol("X.509 Certificate Extensions", "X509CE", "x509ce");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509ce, hf, array_length(hf));

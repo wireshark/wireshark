@@ -28,10 +28,6 @@
 #include "packet-pkix1implicit.h"
 #include <epan/prefs.h>
 
-#define PNAME  "PKCS10 Certification Request"
-#define PSNAME "PKCS10"
-#define PFNAME "pkcs10"
-
 void proto_reg_handoff_pkcs10(void);
 void proto_register_pkcs10(void);
 
@@ -264,13 +260,13 @@ void proto_register_pkcs10(void) {
     &ett_pkcs10_CertificationRequest,
 	};
 	/* Register protocol */
-	proto_pkcs10 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_pkcs10 = proto_register_protocol("PKCS10 Certification Request", "PKCS10", "pkcs10");
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_pkcs10, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-  csr_handle = register_dissector(PFNAME, dissect_CertificationRequest_PDU, proto_pkcs10);
+  csr_handle = register_dissector("pkcs10", dissect_CertificationRequest_PDU, proto_pkcs10);
   register_ber_syntax_dissector("CertificationRequest", proto_pkcs10, dissect_CertificationRequest_PDU);
   register_ber_oid_syntax(".p10", NULL, "CertificationRequest");
   register_ber_oid_syntax(".csr", NULL, "CertificationRequest");

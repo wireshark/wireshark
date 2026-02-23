@@ -31,10 +31,6 @@
 #include "packet-ntp.h"
 #include "packet-sctp.h"
 
-#define PNAME  "E2 Application Protocol"
-#define PSNAME "E2AP"
-#define PFNAME "e2ap"
-
 /* Dissector will use SCTP PPID 70, 71 or 72 or SCTP port 37464. */
 #define SCTP_PORT_E2AP 37464
 
@@ -1099,7 +1095,7 @@ void proto_register_e2ap(void) {
   expert_module_t* expert_e2ap;
 
   /* Register protocol */
-  proto_e2ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_e2ap = proto_register_protocol("E2 Application Protocol", "E2AP", "e2ap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_e2ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

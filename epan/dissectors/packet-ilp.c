@@ -31,10 +31,6 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 
-#define PNAME  "OMA Internal Location Protocol"
-#define PSNAME "ILP"
-#define PFNAME "ilp"
-
 void proto_register_ilp(void);
 
 static dissector_handle_t rrlp_handle;
@@ -4657,7 +4653,7 @@ dissect_ilp_ILP_PDU(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_
   it = proto_tree_add_item(tree, proto_ilp, tvb, 0, -1, ENC_NA);
   ilp_tree = proto_item_add_subtree(it, ett_ilp);
 
-  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "ILP");
   col_clear(actx->pinfo->cinfo, COL_INFO);
   offset = dissect_per_sequence(tvb, offset, actx, ilp_tree, hf_index,
                                    ett_ilp_ILP_PDU, ILP_PDU_sequence);
@@ -6621,7 +6617,7 @@ void proto_register_ilp(void) {
 
 
   /* Register protocol */
-  proto_ilp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ilp = proto_register_protocol("OMA Internal Location Protocol", "ILP", "ilp");
   ilp_tcp_handle = register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
 
   /* Register fields and subtrees */

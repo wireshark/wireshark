@@ -16,10 +16,6 @@
 
 #include "packet-ber.h"
 
-#define PNAME  "NetScape Certificate Extensions"
-#define PSNAME "NS_CERT_EXTS"
-#define PFNAME "ns_cert_exts"
-
 void proto_register_ns_cert_exts(void);
 void proto_reg_handoff_ns_cert_exts(void);
 
@@ -47,7 +43,7 @@ void proto_register_ns_cert_exts(void) {
   };
 
   /* Register protocol */
-  proto_ns_cert_exts = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ns_cert_exts = proto_register_protocol("NetScape Certificate Extensions", "NS_CERT_EXTS", "ns_cert_exts");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ns_cert_exts, hf, array_length(hf));

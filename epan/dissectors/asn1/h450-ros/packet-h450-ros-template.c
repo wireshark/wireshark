@@ -20,10 +20,6 @@
 #include "packet-per.h"
 #include "packet-h450-ros.h"
 
-#define PNAME  "H.450 Remote Operations Apdus"
-#define PSNAME "H450.ROS"
-#define PFNAME "h450.ros"
-
 void proto_register_h450_ros(void);
 void proto_reg_handoff_h450_ros(void);
 
@@ -86,7 +82,7 @@ void proto_register_h450_ros(void) {
   expert_module_t* expert_h450_ros;
 
   /* Register protocol and dissector */
-  proto_h450_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_h450_ros = proto_register_protocol("H.450 Remote Operations Apdus", "H450.ROS", "h450.ros");
   proto_set_cant_toggle(proto_h450_ros);
 
   /* Register fields and subtrees */

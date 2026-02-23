@@ -24,10 +24,6 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 
-#define PNAME  "ACP133 Attribute Syntaxes"
-#define PSNAME "ACP133"
-#define PFNAME "acp133"
-
 void proto_register_acp133(void);
 void proto_reg_handoff_acp133(void);
 
@@ -60,7 +56,7 @@ void proto_register_acp133(void) {
   };
 
   /* Register protocol */
-  proto_acp133 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_acp133 = proto_register_protocol("ACP133 Attribute Syntaxes", "ACP133", "acp133");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_acp133, hf, array_length(hf));

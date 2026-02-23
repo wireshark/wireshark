@@ -33,10 +33,6 @@
 #include "packet-lpp.h"
 #include "packet-sctp.h"
 
-#define PNAME  "F1 Application Protocol"
-#define PSNAME "F1AP"
-#define PFNAME "f1ap"
-
 #define SCTP_PORT_F1AP 38472
 
 void proto_register_f1ap(void);
@@ -996,7 +992,7 @@ void proto_register_f1ap(void) {
   };
 
   /* Register protocol */
-  proto_f1ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_f1ap = proto_register_protocol("F1 Application Protocol", "F1AP", "f1ap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_f1ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

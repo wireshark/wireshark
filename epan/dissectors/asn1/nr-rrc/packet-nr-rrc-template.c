@@ -43,10 +43,6 @@
 #include "packet-gsm_a_common.h"
 #include "packet-lpp.h"
 
-#define PNAME  "NR Radio Resource Control (RRC) protocol"
-#define PSNAME "NR RRC"
-#define PFNAME "nr-rrc"
-
 void proto_register_nr_rrc(void);
 void proto_reg_handoff_nr_rrc(void);
 
@@ -1170,7 +1166,7 @@ proto_register_nr_rrc(void) {
   module_t *nr_rrc_module;
 
   /* Register protocol */
-  proto_nr_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_nr_rrc = proto_register_protocol("NR Radio Resource Control (RRC) protocol", "NR RRC", "nr-rrc");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_nr_rrc, hf, array_length(hf));

@@ -39,10 +39,6 @@
 
 #define SCCP_SSN_RANAP 142
 
-#define PNAME  "Radio Access Network Application Part"
-#define PSNAME "RANAP"
-#define PFNAME "ranap"
-
 /* Highest Ranap_ProcedureCode_value, use in heuristics */
 #define RANAP_MAX_PC  49 /* id_RerouteNASRequest =  49 */
 
@@ -18521,7 +18517,7 @@ void proto_register_ranap(void) {
 
 
   /* Register protocol */
-  proto_ranap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ranap = proto_register_protocol("Radio Access Network Application Part", "RANAP", "ranap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_ranap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

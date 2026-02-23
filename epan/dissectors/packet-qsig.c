@@ -26,10 +26,6 @@
 #include "packet-ber.h"
 #include "packet-qsig.h"
 
-#define PNAME  "QSIG"
-#define PSNAME "QSIG"
-#define PFNAME "qsig"
-
 /* Shifted codeset values */
 #define CS0 0x000
 #define CS1 0x100
@@ -16321,7 +16317,7 @@ void proto_register_qsig(void) {
   expert_module_t* expert_qsig;
 
   /* Register protocol and dissector */
-  proto_qsig = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_qsig = proto_register_protocol("QSIG", "QSIG", "qsig");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_qsig, hf, array_length(hf));
@@ -16330,11 +16326,11 @@ void proto_register_qsig(void) {
   expert_register_field_array(expert_qsig, ei, array_length(ei));
 
   /* Register dissectors */
-  qsig_arg_handle = register_dissector(PFNAME "_arg", dissect_qsig_arg, proto_qsig);
-  qsig_res_handle = register_dissector(PFNAME "_res", dissect_qsig_res, proto_qsig);
-  qsig_err_handle = register_dissector(PFNAME "_err", dissect_qsig_err, proto_qsig);
-  qsig_ie4_handle = register_dissector(PFNAME "_ie_cs4", dissect_qsig_ie_cs4, proto_qsig);
-  qsig_ie5_handle = register_dissector(PFNAME "_ie_cs5", dissect_qsig_ie_cs5, proto_qsig);
+  qsig_arg_handle = register_dissector("qsig_arg", dissect_qsig_arg, proto_qsig);
+  qsig_res_handle = register_dissector("qsig_res", dissect_qsig_res, proto_qsig);
+  qsig_err_handle = register_dissector("qsig_err", dissect_qsig_err, proto_qsig);
+  qsig_ie4_handle = register_dissector("qsig_ie_cs4", dissect_qsig_ie_cs4, proto_qsig);
+  qsig_ie5_handle = register_dissector("qsig_ie_cs5", dissect_qsig_ie_cs5, proto_qsig);
 
   /* Register dissector tables */
   extension_dissector_table = register_dissector_table("qsig.ext", "QSIG Extension", proto_qsig, FT_STRING, STRING_CASE_SENSITIVE);

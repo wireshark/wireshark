@@ -27,10 +27,6 @@
 
 #include "packet-h450-ros.h"
 
-#define PNAME  "H.450 Supplementary Services"
-#define PSNAME "H.450"
-#define PFNAME "h450"
-
 void proto_register_h450(void);
 void proto_reg_handoff_h450(void);
 
@@ -270,7 +266,7 @@ void proto_register_h450(void) {
   expert_module_t* expert_h450;
 
   /* Register protocol */
-  proto_h450 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_h450 = proto_register_protocol("H.450 Supplementary Services", "H.450", "h450");
   register_dissector("h4501", dissect_h450_H4501SupplementaryService_PDU, proto_h450);
   /* Register fields and subtrees */
   proto_register_field_array(proto_h450, hf, array_length(hf));

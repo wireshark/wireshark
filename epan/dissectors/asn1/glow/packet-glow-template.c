@@ -17,10 +17,6 @@
 #include <wsutil/array.h>
 #include "packet-ber.h"
 
-#define PNAME  "Glow"
-#define PSNAME "GLOW"
-#define PFNAME "glow"
-
 void proto_register_glow(void);
 
 static dissector_handle_t glow_handle;
@@ -42,7 +38,7 @@ dissect_glow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree      *glow_tree = NULL;
 
     /* make entry in the Protocol column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Glow");
 
     /* create the glow protocol tree */
     glow_item = proto_tree_add_item(tree, proto_glow, tvb, 0, -1, ENC_NA);
@@ -69,7 +65,7 @@ void proto_register_glow(void) {
 
 
   /* Register protocol */
-  proto_glow = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_glow = proto_register_protocol("Glow", "GLOW", "glow");
   glow_handle = register_dissector("glow", dissect_glow, proto_glow);
 
   /* Register fields and subtrees */

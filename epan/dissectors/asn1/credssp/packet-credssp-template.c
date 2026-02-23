@@ -23,10 +23,6 @@
 #include "packet-ntlmssp.h"
 #include "packet-credssp-val.h"
 
-#define PNAME  "Credential Security Support Provider"
-#define PSNAME "CredSSP"
-#define PFNAME "credssp"
-
 void proto_reg_handoff_credssp(void);
 void proto_register_credssp(void);
 
@@ -178,7 +174,7 @@ void proto_register_credssp(void) {
 
 
   /* Register protocol */
-  proto_credssp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_credssp = proto_register_protocol("Credential Security Support Provider", "CredSSP", "credssp");
   register_dissector("credssp", dissect_credssp, proto_credssp);
 
   /* Register fields and subtrees */

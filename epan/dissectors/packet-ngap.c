@@ -54,10 +54,6 @@
 #include "packet-sctp.h"
 #include "packet-lpp.h"
 
-#define PNAME  "NG Application Protocol"
-#define PSNAME "NGAP"
-#define PFNAME "ngap"
-
 /* Dissector will use SCTP PPID 60 or SCTP port. IANA assigned port = 38412 */
 #define SCTP_PORT_NGAP 38412
 
@@ -42791,7 +42787,7 @@ void proto_register_ngap(void) {
   expert_module_t* expert_ngap;
 
   /* Register protocol */
-  proto_ngap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ngap = proto_register_protocol("NG Application Protocol", "NGAP", "ngap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_ngap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

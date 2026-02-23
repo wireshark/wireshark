@@ -21,10 +21,6 @@
 #include "packet-pkix1implicit.h"
 #include "packet-sgp22.h"
 
-#define PNAME  "SGP.22 GSMA Remote SIM Provisioning (RSP)"
-#define PSNAME "SGP.22"
-#define PFNAME "sgp22"
-
 void proto_register_sgp22(void);
 void proto_reg_handoff_sgp22(void);
 
@@ -77,7 +73,7 @@ void proto_register_sgp22(void)
 #include "packet-sgp22-ettarr.c"
   };
 
-  proto_sgp22 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_sgp22 = proto_register_protocol("SGP.22 GSMA Remote SIM Provisioning (RSP)", "SGP.22", "sgp22");
   proto_register_field_array(proto_sgp22, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

@@ -26,10 +26,6 @@
 #include "packet-per.h"
 #include "packet-sctp.h"
 
-
-#define PNAME  "UTRAN Iuh interface RUA signalling"
-#define PSNAME "RUA"
-#define PFNAME "rua"
 /* Dissector to use SCTP PPID 19 or a configured SCTP port. IANA assigned port = 29169*/
 #define SCTP_PORT_RUA              29169
 
@@ -1662,7 +1658,7 @@ void proto_register_rua(void) {
 
 
   /* Register protocol */
-  proto_rua = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_rua = proto_register_protocol("UTRAN Iuh interface RUA signalling", "RUA", "rua");
   /* Register fields and subtrees */
   proto_register_field_array(proto_rua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

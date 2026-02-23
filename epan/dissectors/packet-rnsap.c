@@ -31,11 +31,6 @@
 #include "packet-ber.h"
 #include "packet-e212.h"
 
-
-#define PNAME  "UTRAN Iur interface Radio Network Subsystem Application Part"
-#define PSNAME "RNSAP"
-#define PFNAME "rnsap"
-
 #define SCCP_SSN_RNSAP 143
 
 #define maxPrivateIEs                  65535
@@ -63111,7 +63106,7 @@ void proto_register_rnsap(void) {
 
 
   /* Register protocol */
-  proto_rnsap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_rnsap = proto_register_protocol("UTRAN Iur interface Radio Network Subsystem Application Part", "RNSAP", "rnsap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_rnsap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

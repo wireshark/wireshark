@@ -30,11 +30,6 @@
 #include "packet-tcap.h"
 #include "packet-mtp3.h"
 
-
-#define PNAME  "Transaction Capabilities Application Part"
-#define PSNAME "TCAP"
-#define PFNAME "tcap"
-
 void proto_reg_handoff_tcap(void);
 void proto_register_tcap(void);
 
@@ -1923,7 +1918,7 @@ proto_register_tcap(void)
   module_t *tcap_module;
 
 /* Register the protocol name and description */
-  proto_tcap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_tcap = proto_register_protocol("Transaction Capabilities Application Part", "TCAP", "tcap");
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_tcap, hf, array_length(hf));

@@ -36,10 +36,6 @@
 #include <gnutls/gnutls.h>
 #endif
 
-#define PNAME  "X.509 Authentication Framework"
-#define PSNAME "X509AF"
-#define PFNAME "x509af"
-
 void proto_register_x509af(void);
 void proto_reg_handoff_x509af(void);
 
@@ -1521,7 +1517,7 @@ void proto_register_x509af(void) {
   expert_module_t *expert_x509af;
 
   /* Register protocol */
-  proto_x509af = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_x509af = proto_register_protocol("X.509 Authentication Framework", "X509AF", "x509af");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509af, hf, array_length(hf));
@@ -1534,7 +1530,7 @@ void proto_register_x509af(void) {
 
   register_cleanup_routine(&x509af_cleanup_protocol);
 
-  pkix_crl_handle = register_dissector(PFNAME, dissect_pkix_crl, proto_x509af);
+  pkix_crl_handle = register_dissector("x509af", dissect_pkix_crl, proto_x509af);
 
   register_ber_syntax_dissector("Certificate", proto_x509af, dissect_x509af_Certificate_PDU);
   register_ber_syntax_dissector("CertificateList", proto_x509af, dissect_CertificateList_PDU);

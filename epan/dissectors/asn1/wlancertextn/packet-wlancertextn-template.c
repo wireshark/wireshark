@@ -22,10 +22,6 @@
 #include "packet-x509ce.h"
 #include "packet-x509sat.h"
 
-#define PNAME  "Wlan Certificate Extension"
-#define PSNAME "WLANCERTEXTN"
-#define PFNAME "wlancertextn"
-
 void proto_register_wlancertextn(void);
 void proto_reg_handoff_wlancertextn(void);
 
@@ -53,7 +49,7 @@ void proto_register_wlancertextn(void) {
   };
 
   /* Register protocol */
-  proto_wlancertextn = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_wlancertextn = proto_register_protocol("Wlan Certificate Extension", "WLANCERTEXTN", "wlancertextn");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_wlancertextn, hf, array_length(hf));

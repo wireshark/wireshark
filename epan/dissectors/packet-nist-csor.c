@@ -24,10 +24,6 @@
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
 
-#define PNAME  "NIST_CSOR"
-#define PSNAME "NIST_CSOR"
-#define PFNAME "nist_csor"
-
 void proto_register_nist_csor(void);
 void proto_reg_handoff_nist_csor(void);
 
@@ -145,7 +141,7 @@ void proto_register_nist_csor(void) {
   };
 
   /* Register protocol */
-  proto_nist_csor = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_nist_csor = proto_register_protocol("NIST_CSOR", "NIST_CSOR", "nist_csor");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_nist_csor, hf, array_length(hf));

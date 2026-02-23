@@ -14,10 +14,6 @@
 #include <wsutil/array.h>
 #include "packet-ber.h"
 
-#define PNAME  "Local Number Portability Database Query"
-#define PSNAME "LNPDQP"
-#define PFNAME "lnpdqp"
-
 /*
  * Operation Code is partitioned into:
  * Operation Family = ConnectionControl, no Reply Required (4)
@@ -224,7 +220,7 @@ dissect_lnpdqp_cc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LNPDQP");
     col_set_str(pinfo->cinfo, COL_INFO, "ConnectionControl");
 
 
@@ -244,7 +240,7 @@ dissect_lnpdqp_pi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LNPDQP");
     col_set_str(pinfo->cinfo, COL_INFO, "ProvideInstruction");
 
 
@@ -324,7 +320,7 @@ void proto_register_lnpdqp(void) {
   };
 
   /* Register protocol */
-  proto_lnpdqp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_lnpdqp = proto_register_protocol("Local Number Portability Database Query", "LNPDQP", "lnpdqp");
 
 
   register_dissector("lnpdqp_cc", dissect_lnpdqp_cc, proto_lnpdqp);

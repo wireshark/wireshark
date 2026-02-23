@@ -23,10 +23,6 @@
 #include "packet-e212.h"
 #include "packet-sctp.h"
 
-
-#define PNAME  "UTRAN Iuh interface HNBAP signalling"
-#define PSNAME "HNBAP"
-#define PFNAME "hnbap"
 /* Dissector will use SCTP PPID 20 or SCTP port. IANA assigned port = 29169*/
 #define SCTP_PORT_HNBAP              29169
 
@@ -160,7 +156,7 @@ void proto_register_hnbap(void) {
 
 
   /* Register protocol */
-  proto_hnbap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_hnbap = proto_register_protocol("UTRAN Iuh interface HNBAP signalling", "HNBAP", "hnbap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_hnbap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

@@ -26,10 +26,6 @@
 #include "packet-sctp.h"
 #include "packet-cell_broadcast.h"
 
-#define PNAME  "UTRAN IuBC interface SABP signaling"
-#define PSNAME "SABP"
-#define PFNAME "sabp"
-
 #include "packet-sabp-val.h"
 
 void proto_register_sabp(void);
@@ -164,7 +160,7 @@ dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree  *sabp_tree = NULL;
 
   /* make entry in the Protocol column on summary display */
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SABP");
 
   /* create the sabp protocol tree */
   sabp_item = proto_tree_add_item(tree, proto_sabp, tvb, 0, -1, ENC_NA);
@@ -253,7 +249,7 @@ void proto_register_sabp(void) {
 
 
   /* Register protocol */
-  proto_sabp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_sabp = proto_register_protocol("UTRAN IuBC interface SABP signaling", "SABP", "sabp");
   /* Register fields and subtrees */
   proto_register_field_array(proto_sabp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

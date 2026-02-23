@@ -32,10 +32,6 @@
 #include "packet-kerberos.h"
 #include "packet-ber.h"
 
-#define PNAME  "Simple Protected Negotiation"
-#define PSNAME "SPNEGO"
-#define PFNAME "spnego"
-
 void proto_register_spnego(void);
 void proto_reg_handoff_spnego(void);
 
@@ -1418,7 +1414,7 @@ void proto_register_spnego(void) {
   expert_module_t* expert_spnego;
 
   /* Register protocol */
-  proto_spnego = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_spnego = proto_register_protocol("Simple Protected Negotiation", "SPNEGO", "spnego");
 
   spnego_handle = register_dissector("spnego", dissect_spnego, proto_spnego);
   spnego_wrap_handle = register_dissector("spnego-wrap", dissect_spnego_wrap, proto_spnego);

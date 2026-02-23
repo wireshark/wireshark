@@ -44,10 +44,6 @@
 #pragma warning(disable:4049)
 #endif
 
-#define PNAME  "Radio Resource Control (RRC) protocol"
-#define PSNAME "RRC"
-#define PFNAME "rrc"
-
 extern int proto_fp;       /*Handler to FP*/
 extern int proto_umts_mac; /*Handler to MAC*/
 extern int proto_umts_rlc; /*Handler to RLC*/
@@ -618,7 +614,7 @@ void proto_register_rrc(void) {
   module_t *rrc_module;
 
   /* Register protocol */
-  proto_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_rrc = proto_register_protocol("Radio Resource Control (RRC) protocol", "RRC", "rrc");
   /* Register fields and subtrees */
   proto_register_field_array(proto_rrc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

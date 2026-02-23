@@ -29,10 +29,6 @@
 
 #include "packet-ber.h"
 
-#define PNAME  "Citizen Broadband Radio Service - Object Identifiers"
-#define PSNAME "CBRS_OIDS"
-#define PFNAME "cbrs_oids"
-
 void proto_register_cbrs_oids(void);
 void proto_reg_handoff_cbrs_oids(void);
 
@@ -218,7 +214,7 @@ void proto_register_cbrs_oids(void) {
   };
 
   /* Register protocol */
-  proto_cbrs_oids = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_cbrs_oids = proto_register_protocol("Citizen Broadband Radio Service - Object Identifiers", "CBRS_OIDS", "cbrs_oids");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_cbrs_oids, hf, array_length(hf));

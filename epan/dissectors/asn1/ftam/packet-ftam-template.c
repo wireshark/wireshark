@@ -26,10 +26,6 @@
 #include "packet-acse.h"
 #include "packet-ftam.h"
 
-#define PNAME  "ISO 8571 FTAM"
-#define PSNAME "FTAM"
-#define PFNAME "ftam"
-
 void proto_register_ftam(void);
 void proto_reg_handoff_ftam(void);
 
@@ -131,7 +127,7 @@ void proto_register_ftam(void) {
   expert_module_t* expert_ftam;
 
   /* Register protocol */
-  proto_ftam = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ftam = proto_register_protocol("ISO 8571 FTAM", "FTAM", "ftam");
   register_dissector("ftam", dissect_ftam, proto_ftam);
   /* Register fields and subtrees */
   proto_register_field_array(proto_ftam, hf, array_length(hf));

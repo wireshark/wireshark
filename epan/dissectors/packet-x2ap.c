@@ -44,11 +44,6 @@
 #include "packet-xnap.h"
 #include "packet-sctp.h"
 
-
-#define PNAME  "EUTRAN X2 Application Protocol (X2AP)"
-#define PSNAME "X2AP"
-#define PFNAME "x2ap"
-
 void proto_register_x2ap(void);
 
 /* Dissector will use SCTP PPID 27 or SCTP port. IANA assigned port = 36422 */
@@ -29873,7 +29868,7 @@ void proto_register_x2ap(void) {
   module_t *x2ap_module;
 
   /* Register protocol */
-  proto_x2ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_x2ap = proto_register_protocol("EUTRAN X2 Application Protocol (X2AP)", "X2AP", "x2ap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_x2ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

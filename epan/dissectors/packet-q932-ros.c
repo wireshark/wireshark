@@ -24,10 +24,6 @@
 
 #include "packet-ber.h"
 
-#define PNAME  "Q.932 Operations Service Element"
-#define PSNAME "Q932.ROS"
-#define PFNAME "q932.ros"
-
 void proto_register_q932_ros(void);
 void proto_reg_handoff_q932_ros(void);
 
@@ -747,7 +743,7 @@ void proto_register_q932_ros(void) {
   expert_module_t* expert_q932_ros;
 
   /* Register protocol and dissector */
-  proto_q932_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_q932_ros = proto_register_protocol("Q.932 Operations Service Element", "Q932.ROS", "q932.ros");
   proto_set_cant_toggle(proto_q932_ros);
 
   /* Register fields and subtrees */
@@ -756,7 +752,7 @@ void proto_register_q932_ros(void) {
   expert_q932_ros = expert_register_protocol(proto_q932_ros);
   expert_register_field_array(expert_q932_ros, ei, array_length(ei));
 
-  register_dissector(PFNAME, dissect_q932_ros, proto_q932_ros);
+  register_dissector("q932.ros", dissect_q932_ros, proto_q932_ros);
 }
 
 /*--- proto_reg_handoff_q932_ros --------------------------------------------*/

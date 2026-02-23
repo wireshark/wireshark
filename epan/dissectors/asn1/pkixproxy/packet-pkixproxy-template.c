@@ -18,10 +18,6 @@
 
 #include "packet-ber.h"
 
-#define PNAME  "PKIXProxy (RFC3820)"
-#define PSNAME "PKIXPROXY"
-#define PFNAME "pkixproxy"
-
 void proto_register_pkixproxy(void);
 void proto_reg_handoff_pkixproxy(void);
 
@@ -49,7 +45,7 @@ void proto_register_pkixproxy(void) {
   };
 
   /* Register protocol */
-  proto_pkixproxy = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_pkixproxy = proto_register_protocol("PKIXProxy (RFC3820)", "PKIXPROXY", "pkixproxy");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_pkixproxy, hf, array_length(hf));

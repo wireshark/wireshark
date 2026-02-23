@@ -34,14 +34,6 @@
 #include "packet-pres.h"
 #include "packet-x509if.h"
 
-#define PNAME  "ISO 8650-1 OSI Association Control Service"
-#define PSNAME "ACSE"
-#define PFNAME "acse"
-
-#define CLPNAME  "ISO 10035-1 OSI Connectionless Association Control Service"
-#define CLPSNAME "CLACSE"
-#define CLPFNAME "clacse"
-
 #define ACSE_APDU_OID "2.2.1.0.1"
 
 void proto_register_acse(void);
@@ -253,11 +245,11 @@ void proto_register_acse(void) {
   expert_module_t* expert_acse;
 
   /* Register protocol */
-  proto_acse = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_acse = proto_register_protocol("ISO 8650-1 OSI Association Control Service", "ACSE", "acse");
   acse_handle = register_dissector("acse", dissect_acse, proto_acse);
 
   /* Register connectionless protocol */
-  proto_clacse = proto_register_protocol(CLPNAME, CLPSNAME, CLPFNAME);
+  proto_clacse = proto_register_protocol("ISO 10035-1 OSI Connectionless Association Control Service", "CLACSE", "clacse");
 
 
   /* Register fields and subtrees */

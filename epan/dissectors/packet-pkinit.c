@@ -28,10 +28,6 @@
 #include "packet-pkix1explicit.h"
 #include "packet-kerberos.h"
 
-#define PNAME  "PKINIT"
-#define PSNAME "PKInit"
-#define PFNAME "pkinit"
-
 void proto_register_pkinit(void);
 void proto_reg_handoff_pkinit(void);
 
@@ -773,7 +769,7 @@ void proto_register_pkinit(void) {
   };
 
   /* Register protocol */
-  proto_pkinit = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_pkinit = proto_register_protocol("PKINIT", "PKInit", "pkinit");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_pkinit, hf, array_length(hf));

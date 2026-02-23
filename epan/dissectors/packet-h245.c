@@ -44,11 +44,6 @@
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-t38.h"
-
-#define PNAME  "MULTIMEDIA-SYSTEM-CONTROL"
-#define PSNAME "H.245"
-#define PFNAME "h245"
-
 void proto_register_h245(void);
 void proto_reg_handoff_h245(void);
 
@@ -14335,9 +14330,9 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 	upcoming_channel = NULL;
 	codec_type = NULL;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.245");
 
-	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, -1, PSNAME);
+	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, -1, "H.245");
 	tr=proto_item_add_subtree(it, ett_h245);
 
 	/* assume that whilst there is more tvb data, there are more h245 commands */
@@ -20502,7 +20497,7 @@ void proto_register_h245(void) {
   module_t *h245_module;
 
   /* Register protocol */
-  proto_h245 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_h245 = proto_register_protocol("MULTIMEDIA-SYSTEM-CONTROL", "H.245", "h245");
   h223_pending_olc_reqs[P2P_DIR_SENT] = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal );
   h223_pending_olc_reqs[P2P_DIR_RECV] = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal );
   h245_pending_olc_reqs = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);

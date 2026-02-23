@@ -32,10 +32,6 @@
 #include "packet-gtpv2.h"
 #include "packet-sctp.h"
 
-#define PNAME  "M3 Application Protocol"
-#define PSNAME "M3AP"
-#define PFNAME "m3ap"
-
 void proto_register_m3ap(void);
 void proto_reg_handoff_m3ap(void);
 
@@ -2058,7 +2054,7 @@ dissect_m3ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree      *m3ap_tree = NULL;
 
   /* make entry in the Protocol column on summary display */
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3AP");
   col_clear_fence(pinfo->cinfo, COL_INFO);
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -2547,14 +2543,14 @@ void proto_register_m3ap(void) {
   };
 
   /* Register protocol */
-  proto_m3ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_m3ap = proto_register_protocol("M3 Application Protocol", "M3AP", "m3ap");
   /* Register fields and subtrees */
   proto_register_field_array(proto_m3ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_m3ap = expert_register_protocol(proto_m3ap);
   expert_register_field_array(expert_m3ap, ei, array_length(ei));
   /* Register dissector */
-  m3ap_handle = register_dissector(PFNAME, dissect_m3ap, proto_m3ap);
+  m3ap_handle = register_dissector("m3ap", dissect_m3ap, proto_m3ap);
 
   /* Register dissector tables */
   m3ap_ies_dissector_table = register_dissector_table("m3ap.ies", "M3AP-PROTOCOL-IES", proto_m3ap, FT_UINT32, BASE_DEC);

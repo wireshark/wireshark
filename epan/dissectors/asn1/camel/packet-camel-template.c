@@ -45,10 +45,6 @@
 #include "packet-inap.h"
 #include "packet-tcap.h"
 
-#define PNAME  "Camel"
-#define PSNAME "CAMEL"
-#define PFNAME "camel"
-
 void proto_reg_handoff_camel(void);
 void proto_register_camel(void);
 
@@ -1487,7 +1483,7 @@ void proto_register_camel(void) {
   static stat_tap_table_ui camel_stat_table = {
     REGISTER_TELEPHONY_GROUP_GSM,
     "CAMEL Messages and Response Status",
-    PSNAME,
+    "CAMEL",
     "camel,counter",
     camel_stat_init,
     camel_stat_packet,
@@ -1501,7 +1497,7 @@ void proto_register_camel(void) {
   };
 
   /* Register protocol */
-  proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_camel = proto_register_protocol("Camel", "CAMEL", "camel");
 
   camel_handle = register_dissector("camel", dissect_camel, proto_camel);
   camel_v1_handle = register_dissector("camel-v1", dissect_camel_v1, proto_camel);
@@ -1553,9 +1549,9 @@ void proto_register_camel(void) {
   /* create new hash-table for SRT */
   srt_calls = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), camelsrt_call_hash, camelsrt_call_equal);
 
-  camel_tap=register_tap(PSNAME);
+  camel_tap=register_tap("CAMEL");
 
-  register_srt_table(proto_camel, PSNAME, 1, camelstat_packet, camelstat_init, NULL);
+  register_srt_table(proto_camel, "CAMEL", 1, camelstat_packet, camelstat_init, NULL);
   register_stat_tap_table_ui(&camel_stat_table);
 
   register_external_value_string("camelSRTtype_naming", camelSRTtype_naming);

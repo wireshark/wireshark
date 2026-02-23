@@ -63,10 +63,6 @@
 #include "packet-snmp.h"
 #include <wsutil/wsgcrypt.h>
 
-#define PNAME  "Simple Network Management Protocol"
-#define PSNAME "SNMP"
-#define PFNAME "snmp"
-
 #define UDP_PORT_SNMP		161
 #define UDP_PORT_SNMP_TRAP	162
 #define TCP_PORT_SNMP		161
@@ -4128,7 +4124,7 @@ void proto_register_snmp(void) {
 					    specific_traps_flds);
 
 	/* Register protocol */
-	proto_snmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_snmp = proto_register_protocol("Simple Network Management Protocol", "SNMP", "snmp");
 	snmp_handle = register_dissector("snmp", dissect_snmp, proto_snmp);
 
 	/* Register fields and subtrees */

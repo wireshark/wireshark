@@ -30,10 +30,6 @@
 #include "packet-x509ce.h"
 #include "packet-x509af.h"
 
-#define PNAME  "Extended Security Services"
-#define PSNAME "ESS"
-#define PFNAME "ess"
-
 void proto_register_ess(void);
 void proto_reg_handoff_ess(void);
 
@@ -1459,7 +1455,7 @@ void proto_register_ess(void) {
   static module_t *ess_module;
 
   /* Register protocol */
-  proto_ess = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ess = proto_register_protocol("Extended Security Services", "ESS", "ess");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ess, hf, array_length(hf));

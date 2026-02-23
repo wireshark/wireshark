@@ -25,10 +25,6 @@
 #include "packet-pkix1implicit.h"
 #include "packet-cms.h"
 
-#define PNAME  "PKIX Time Stamp Protocol"
-#define PSNAME "PKIXTSP"
-#define PFNAME "pkixtsp"
-
 void proto_register_pkixtsp(void);
 void proto_reg_handoff_pkixtsp(void);
 
@@ -674,14 +670,14 @@ void proto_register_pkixtsp(void) {
   };
 
   /* Register protocol */
-  proto_pkixtsp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_pkixtsp = proto_register_protocol("PKIX Time Stamp Protocol", "PKIXTSP", "pkixtsp");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_pkixtsp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  timestamp_reply_handle = register_dissector_with_description(PFNAME "_reply", PSNAME " Response", dissect_timestamp_reply, proto_pkixtsp);
-  timestamp_query_handle = register_dissector_with_description(PFNAME "_query", PSNAME " Request", dissect_timestamp_query, proto_pkixtsp);
+  timestamp_reply_handle = register_dissector_with_description("pkixtsp_reply", "PKIXTSP Response", dissect_timestamp_reply, proto_pkixtsp);
+  timestamp_query_handle = register_dissector_with_description("pkixtsp_query", "PKIXTSP Request", dissect_timestamp_query, proto_pkixtsp);
 
   register_ber_syntax_dissector("TimeStampReq", proto_pkixtsp, dissect_TimeStampReq_PDU);
   register_ber_syntax_dissector("TimeStampResp", proto_pkixtsp, dissect_TimeStampResp_PDU);

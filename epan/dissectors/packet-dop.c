@@ -37,10 +37,6 @@
 
 #include "packet-dop.h"
 
-#define PNAME  "X.501 Directory Operational Binding Management Protocol"
-#define PSNAME "DOP"
-#define PFNAME "dop"
-
 void proto_register_dop(void);
 void proto_reg_handoff_dop(void);
 
@@ -2972,7 +2968,7 @@ void proto_register_dop(void) {
   module_t *dop_module;
 
   /* Register protocol */
-  proto_dop = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_dop = proto_register_protocol("X.501 Directory Operational Binding Management Protocol", "DOP", "dop");
 
   dop_handle = register_dissector("dop", dissect_dop, proto_dop);
 

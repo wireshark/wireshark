@@ -28,10 +28,6 @@
 #include "packet-acse.h"
 #include "packet-mms.h"
 
-#define PNAME  "MMS"
-#define PSNAME "MMS"
-#define PFNAME "mms"
-
 void proto_register_mms(void);
 void proto_reg_handoff_mms(void);
 
@@ -11717,7 +11713,7 @@ void proto_register_mms(void) {
     expert_module_t* expert_mms;
 
     /* Register protocol */
-    proto_mms = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_mms = proto_register_protocol("MMS", "MMS", "mms");
     register_dissector("mms", dissect_mms, proto_mms);
     /* Register fields and subtrees */
     proto_register_field_array(proto_mms, hf, array_length(hf));

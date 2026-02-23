@@ -32,10 +32,6 @@
 
 #include "packet-p1.h"
 
-#define PNAME  "X.411 Message Transfer Service"
-#define PSNAME "P1"
-#define PFNAME "p1"
-
 void proto_reg_handoff_p1(void);
 void proto_register_p1(void);
 
@@ -350,7 +346,7 @@ void proto_register_p1(void) {
   module_t *p1_module;
 
   /* Register protocol */
-  proto_p1 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_p1 = proto_register_protocol("X.411 Message Transfer Service", "P1", "p1");
   p1_handle = register_dissector("p1", dissect_p1, proto_p1);
 
   proto_p3 = proto_register_protocol("X.411 Message Access Service", "P3", "p3");

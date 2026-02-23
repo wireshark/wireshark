@@ -27,10 +27,6 @@
 #include "packet-lpp.h"
 #include "packet-media-type.h"
 
-#define PNAME  "LTE Positioning Protocol (LPP)"
-#define PSNAME "LPP"
-#define PFNAME "lpp"
-
 void proto_register_lpp(void);
 void proto_reg_handoff_lpp(void);
 
@@ -2148,7 +2144,7 @@ void proto_register_lpp(void) {
 
 
   /* Register protocol */
-  proto_lpp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_lpp = proto_register_protocol("LTE Positioning Protocol (LPP)", "LPP", "lpp");
   register_dissector("lpp", dissect_lpp, proto_lpp);
 
   /* Register fields and subtrees */

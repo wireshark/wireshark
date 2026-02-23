@@ -24,10 +24,6 @@
 #include "packet-pkix1explicit.h"
 #include "packet-x509ce.h"
 
-#define PNAME  "PKIX1Implicit"
-#define PSNAME "PKIX1IMPLICIT"
-#define PFNAME "pkix1implicit"
-
 void proto_register_pkix1implicit(void);
 void proto_reg_handoff_pkix1implicit(void);
 
@@ -363,7 +359,7 @@ void proto_register_pkix1implicit(void) {
   };
 
   /* Register protocol */
-  proto_pkix1implicit = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_pkix1implicit = proto_register_protocol("PKIX1Implicit", "PKIX1IMPLICIT", "pkix1implicit");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_pkix1implicit, hf, array_length(hf));

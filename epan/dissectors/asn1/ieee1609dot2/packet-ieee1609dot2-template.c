@@ -28,10 +28,6 @@
 #include "packet-oer.h"
 #include "packet-ieee1609dot2.h"
 
-#define PNAME  "IEEE1609dot2"
-#define PSNAME "IEEE1609dot2"
-#define PFNAME "ieee1609dot2"
-
 void proto_register_ieee1609dot2(void);
 void proto_reg_handoff_ieee1609dot2(void);
 
@@ -138,7 +134,7 @@ void proto_register_ieee1609dot2(void) {
   };
 
   /* Register protocol */
-  proto_ieee1609dot2 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ieee1609dot2 = proto_register_protocol("IEEE1609dot2", "IEEE1609dot2", "ieee1609dot2");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ieee1609dot2, hf, array_length(hf));

@@ -25,10 +25,6 @@
 #include "packet-pkixalgs.h"
 #include "packet-x509af.h"
 
-#define PNAME  "PKIX Algorithms"
-#define PSNAME "PKIXALGS"
-#define PFNAME "pkixalgs"
-
 void proto_register_pkixalgs(void);
 void proto_reg_handoff_pkixalgs(void);
 
@@ -637,7 +633,7 @@ void proto_register_pkixalgs(void) {
   };
 
   /* Register protocol */
-  proto_pkixalgs = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_pkixalgs = proto_register_protocol("PKIX Algorithms", "PKIXALGS", "pkixalgs");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_pkixalgs, hf, array_length(hf));

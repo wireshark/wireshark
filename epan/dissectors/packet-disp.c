@@ -39,13 +39,6 @@
 #include "packet-dsp.h"
 #include "packet-disp.h"
 
-
-/* we don't have a separate dissector for X519 -
-   and most of DISP is defined in X525 */
-#define PNAME  "X.519 Directory Information Shadowing Protocol"
-#define PSNAME "DISP"
-#define PFNAME "disp"
-
 void proto_register_disp(void);
 void proto_reg_handoff_disp(void);
 
@@ -2077,7 +2070,7 @@ void proto_register_disp(void) {
   expert_module_t* expert_disp;
 
   /* Register protocol */
-  proto_disp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_disp = proto_register_protocol("X.519 Directory Information Shadowing Protocol", "DISP", "disp");
   disp_handle = register_dissector("disp", dissect_disp, proto_disp);
 
   /* Register fields and subtrees */

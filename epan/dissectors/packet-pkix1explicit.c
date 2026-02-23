@@ -30,10 +30,6 @@
 /* from packet-tls-utils.h */
 extern const value_string tls_hello_extension_types[];
 
-#define PNAME  "PKIX1Explicit"
-#define PSNAME "PKIX1EXPLICIT"
-#define PFNAME "pkix1explicit"
-
 void proto_register_pkix1explicit(void);
 void proto_reg_handoff_pkix1explicit(void);
 
@@ -1056,7 +1052,7 @@ void proto_register_pkix1explicit(void) {
   };
 
   /* Register protocol */
-  proto_pkix1explicit = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_pkix1explicit = proto_register_protocol("PKIX1Explicit", "PKIX1EXPLICIT", "pkix1explicit");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_pkix1explicit, hf, array_length(hf));

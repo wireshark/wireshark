@@ -34,10 +34,6 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-#define PNAME  "Advanced Intelligent Network"
-#define PSNAME "AIN"
-#define PFNAME "ain"
-
 void proto_register_ain(void);
 void proto_reg_handoff_ain(void);
 
@@ -265,7 +261,7 @@ void proto_register_ain(void) {
     expert_module_t* expert_ain;
 
     /* Register protocol */
-    proto_ain = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_ain = proto_register_protocol("Advanced Intelligent Network", "AIN", "ain");
     ain_handle = register_dissector("ain", dissect_ain, proto_ain);
     /* Register fields and subtrees */
     proto_register_field_array(proto_ain, hf, array_length(hf));

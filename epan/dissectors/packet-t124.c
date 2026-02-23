@@ -27,11 +27,6 @@
 #include "packet-ber.h"
 #include "packet-t124.h"
 
-
-#define PNAME  "GENERIC-CONFERENCE-CONTROL T.124"
-#define PSNAME "T.124"
-#define PFNAME "t124"
-
 void proto_register_t124(void);
 void proto_reg_handoff_t124(void);
 
@@ -3953,7 +3948,7 @@ void proto_register_t124(void) {
   };
 
   /* Register protocol */
-  proto_t124 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_t124 = proto_register_protocol("GENERIC-CONFERENCE-CONTROL T.124", "T.124", "t124");
   /* Register fields and subtrees */
   proto_register_field_array(proto_t124, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

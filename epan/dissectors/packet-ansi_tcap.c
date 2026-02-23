@@ -30,10 +30,6 @@
 #include "packet-tcap.h"
 #include "packet-ansi_tcap.h"
 
-#define PNAME  "ANSI Transaction Capabilities Application Part"
-#define PSNAME "ANSI_TCAP"
-#define PFNAME "ansi_tcap"
-
 void proto_register_ansi_tcap(void);
 void proto_reg_handoff_ansi_tcap(void);
 
@@ -3061,7 +3057,7 @@ proto_register_ansi_tcap(void)
     };
 
 /* Register the protocol name and description */
-    proto_ansi_tcap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_ansi_tcap = proto_register_protocol("ANSI Transaction Capabilities Application Part", "ANSI_TCAP", "ansi_tcap");
     register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
 
    /* Note the high bit should be masked off when registering in this table (0x7fff)*/

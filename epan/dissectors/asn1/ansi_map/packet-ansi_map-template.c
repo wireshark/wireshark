@@ -89,11 +89,6 @@
 #include "packet-tcap.h"
 #include "packet-ansi_tcap.h"
 
-#define PNAME  "ANSI Mobile Application Part"
-#define PSNAME "ANSI MAP"
-#define PFNAME "ansi_map"
-
-
 void proto_register_ansi_map(void);
 void proto_reg_handoff_ansi_map(void);
 
@@ -5432,7 +5427,7 @@ void proto_register_ansi_map(void) {
     };
 
     /* Register protocol */
-    proto_ansi_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_ansi_map = proto_register_protocol("ANSI Mobile Application Part", "ANSI MAP", "ansi_map");
     /* Register fields and subtrees */
     proto_register_field_array(proto_ansi_map, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

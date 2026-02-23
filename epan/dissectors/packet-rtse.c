@@ -32,10 +32,6 @@
 #include "packet-ros.h"
 #include "packet-rtse.h"
 
-#define PNAME  "X.228 OSI Reliable Transfer Service"
-#define PSNAME "RTSE"
-#define PFNAME "rtse"
-
 void proto_register_rtse(void);
 void proto_reg_handoff_rtse(void);
 
@@ -948,7 +944,7 @@ void proto_register_rtse(void) {
   module_t *rtse_module;
 
   /* Register protocol */
-  proto_rtse = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_rtse = proto_register_protocol("X.228 OSI Reliable Transfer Service", "RTSE", "rtse");
   rtse_handle = register_dissector("rtse", dissect_rtse, proto_rtse);
   /* Register fields and subtrees */
   proto_register_field_array(proto_rtse, hf, array_length(hf));

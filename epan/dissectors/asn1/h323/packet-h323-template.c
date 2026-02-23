@@ -20,10 +20,6 @@
 #include "packet-h225.h"
 #include "packet-h323.h"
 
-#define PNAME  "H.323"
-#define PSNAME "H.323"
-#define PFNAME "h323"
-
 void proto_register_h323(void);
 void proto_reg_handoff_h323(void);
 
@@ -96,7 +92,7 @@ void proto_register_h323(void) {
   };
 
   /* Register protocol */
-  proto_h323 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_h323 = proto_register_protocol("H.323", "H.323", "h323");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_h323, hf, array_length(hf));

@@ -21,10 +21,6 @@
 #include "packet-per.h"
 #include "packet-nrppa.h"
 
-#define PNAME  "NR Positioning Protocol A (NRPPa)"
-#define PSNAME "NRPPa"
-#define PFNAME "nrppa"
-
 void proto_register_nrppa(void);
 void proto_reg_handoff_nrppa(void);
 
@@ -99,7 +95,7 @@ void proto_register_nrppa(void) {
   };
 
   /* Register protocol */
-  proto_nrppa = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_nrppa = proto_register_protocol("NR Positioning Protocol A (NRPPa)", "NRPPa", "nrppa");
   register_dissector("nrppa", dissect_NRPPA_PDU_PDU, proto_nrppa);
 
   /* Register fields and subtrees */

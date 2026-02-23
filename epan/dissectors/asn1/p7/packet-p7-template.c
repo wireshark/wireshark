@@ -27,10 +27,6 @@
 #include "packet-p1.h"
 #include <epan/strutil.h>
 
-#define PNAME  "X.413 Message Store Service"
-#define PSNAME "P7"
-#define PFNAME "p7"
-
 void proto_register_p7(void);
 void proto_reg_handoff_p7(void);
 
@@ -82,7 +78,7 @@ void proto_register_p7(void) {
   module_t *p7_module;
 
   /* Register protocol */
-  proto_p7 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_p7 = proto_register_protocol("X.413 Message Store Service", "P7", "p7");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_p7, hf, array_length(hf));

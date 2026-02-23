@@ -27,11 +27,6 @@
 #include "packet-pkcs12.h"
 #include "packet-x509af.h"
 
-#define PNAME  "Asymmetric Key Packages"
-#define PSNAME "AKP"
-#define PFNAME "akp"
-
-
 void proto_register_akp(void);
 void proto_reg_handoff_akp(void);
 
@@ -286,7 +281,7 @@ void proto_register_akp(void) {
   };
 
   /* Register protocol */
-  proto_akp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_akp = proto_register_protocol("Asymmetric Key Packages", "AKP", "akp");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_akp, hf, array_length(hf));

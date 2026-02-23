@@ -34,11 +34,6 @@
 #include "packet-tcp.h"
 #include "packet-http.h"
 #include <epan/prefs.h>
-
-#define PNAME  "Certificate Management Protocol"
-#define PSNAME "CMP"
-#define PFNAME "cmp"
-
 #define TCP_PORT_CMP 829
 
 void proto_reg_handoff_cmp(void);
@@ -2378,7 +2373,7 @@ void proto_register_cmp(void) {
 	module_t *cmp_module;
 
 	/* Register protocol */
-	proto_cmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_cmp = proto_register_protocol("Certificate Management Protocol", "CMP", "cmp");
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_cmp, hf, array_length(hf));
@@ -2412,9 +2407,9 @@ void proto_register_cmp(void) {
          * name, but leave it.
          * https://datatracker.ietf.org/doc/html/rfc6712#section-1
          */
-	cmp_http_handle = register_dissector_with_description("cmp.http", PSNAME, dissect_cmp_http, proto_cmp);
-	cmp_tcp_style_http_handle = register_dissector_with_description("cmp.tcp_pdu", PSNAME " TCP-Messaging PDU", dissect_cmp_tcp_pdu, proto_cmp);
-	cmp_tcp_handle = register_dissector_with_description("cmp", PSNAME " TCP-Messaging", dissect_cmp_tcp, proto_cmp);
+	cmp_http_handle = register_dissector_with_description("cmp.http", "CMP", dissect_cmp_http, proto_cmp);
+	cmp_tcp_style_http_handle = register_dissector_with_description("cmp.tcp_pdu", "CMP TCP-Messaging PDU", dissect_cmp_tcp_pdu, proto_cmp);
+	cmp_tcp_handle = register_dissector_with_description("cmp", "CMP TCP-Messaging", dissect_cmp_tcp, proto_cmp);
 	register_ber_syntax_dissector("PKIMessage", proto_cmp, dissect_cmp_pdu);
 }
 

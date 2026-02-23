@@ -18,10 +18,6 @@
 #include "packet-ber.h"
 #include "packet-charging_ase.h"
 
-#define PNAME  "Charging ASE"
-#define PSNAME "ChargingASE"
-#define PFNAME "chargingase"
-
 void proto_register_charging_ase(void);
 void proto_reg_handoff_charging_ase(void);
 
@@ -76,7 +72,7 @@ proto_register_charging_ase(void)
 
   expert_module_t* expert_charging_ase;
 
-  proto_charging_ase = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_charging_ase = proto_register_protocol("Charging ASE", "ChargingASE", "chargingase");
 
   proto_register_field_array(proto_charging_ase, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

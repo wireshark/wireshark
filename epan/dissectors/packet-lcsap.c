@@ -35,11 +35,6 @@
 #include "packet-lcsap.h"
 #include "packet-sctp.h"
 
-
-#define PNAME  "LCS Application Protocol"
-#define PSNAME "LCSAP"
-#define PFNAME "lcsap"
-
 void proto_register_lcsap(void);
 void proto_reg_handoff_lcsap(void);
 
@@ -3825,7 +3820,7 @@ void proto_register_lcsap(void) {
 
 
   /* Register protocol */
-  proto_lcsap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_lcsap = proto_register_protocol("LCS Application Protocol", "LCSAP", "lcsap");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lcsap, hf, array_length(hf));

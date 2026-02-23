@@ -28,10 +28,6 @@
 #include "packet-x509sat.h"
 #include "packet-pkcs12.h"
 
-#define PNAME  "Cryptographic Message Syntax"
-#define PSNAME "CMS"
-#define PFNAME "cms"
-
 void proto_register_cms(void);
 void proto_reg_handoff_cms(void);
 
@@ -169,9 +165,9 @@ void proto_register_cms(void) {
   };
 
   /* Register protocol */
-  proto_cms = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_cms = proto_register_protocol("Cryptographic Message Syntax", "CMS", "cms");
 
-  cms_handle = register_dissector(PFNAME, dissect_cms, proto_cms);
+  cms_handle = register_dissector("cms", dissect_cms, proto_cms);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_cms, hf, array_length(hf));

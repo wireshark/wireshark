@@ -29,10 +29,6 @@
 #include "packet-mtp3.h"
 #include "packet-h248.h"
 
-#define PNAME  "H.248 MEGACO"
-#define PSNAME "H.248"
-#define PFNAME "h248"
-
 void proto_register_h248(void);
 
 /* Initialize the protocol and registered fields */
@@ -2355,7 +2351,7 @@ void proto_register_h248(void) {
     module_t *h248_module;
 
     /* Register protocol */
-    proto_h248 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    proto_h248 = proto_register_protocol("H.248 MEGACO", "H.248", "h248");
     h248_handle = register_dissector("h248", dissect_h248, proto_h248);
     h248_tpkt_handle = register_dissector("h248.tpkt", dissect_h248_tpkt, proto_h248);
 

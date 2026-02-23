@@ -30,10 +30,6 @@
 #include "packet-dsp.h"
 
 
-#define PNAME  "X.519 Directory System Protocol"
-#define PSNAME "DSP"
-#define PFNAME "dsp"
-
 void proto_register_dsp(void);
 void proto_reg_handoff_dsp(void);
 
@@ -275,7 +271,7 @@ void proto_register_dsp(void) {
   expert_module_t* expert_dsp;
 
   /* Register protocol */
-  proto_dsp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_dsp = proto_register_protocol("X.519 Directory System Protocol", "DSP", "dsp");
 
   dsp_handle = register_dissector("dsp", dissect_dsp, proto_dsp);
 

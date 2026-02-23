@@ -22,10 +22,6 @@
 #include "packet-x509if.h"
 #include "packet-cmip.h"
 
-#define PNAME  "X711 CMIP"
-#define PSNAME "CMIP"
-#define PFNAME "cmip"
-
 void proto_register_cmip(void);
 void proto_reg_handoff_cmip(void);
 
@@ -158,7 +154,7 @@ void proto_register_cmip(void) {
   expert_module_t* expert_cmip;
 
   /* Register protocol */
-  proto_cmip = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_cmip = proto_register_protocol("X711 CMIP", "CMIP", "cmip");
   cmip_handle = register_dissector("cmip", dissect_cmip, proto_cmip);
 
   /* Register fields and subtrees */
