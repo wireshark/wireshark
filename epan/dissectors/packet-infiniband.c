@@ -3765,8 +3765,7 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_lid, tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_lid = tvb_get_ntohs(tvb, local_offset);
     local_offset += 2;
-    proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_lid, tvb, local_offset, 2, ENC_BIG_ENDIAN);
-    remote_lid = tvb_get_ntohs(tvb, local_offset);
+    proto_tree_add_item_ret_uint(CM_header_tree, hf_cm_req_primary_remote_lid, tvb, local_offset, 2, ENC_BIG_ENDIAN, &remote_lid);
     local_offset += 2;
 
     if (pinfo->dst.type == AT_IPv4) {

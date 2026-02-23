@@ -556,8 +556,7 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     bool       end_tlv = false;
     int loop_offset, start_offset;
 
-    func = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_lltd_discovery_func, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_lltd_discovery_func, tvb, offset, 1, ENC_NA, &func);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, func, lltd_discovery_vals, "Unknown (0x%02x)"));
     offset++;
 
@@ -673,8 +672,7 @@ dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     uint16_t   seq_num, temp16;
     int loop_offset;
 
-    func = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_lltd_qos_diag_func, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_lltd_qos_diag_func, tvb, offset, 1, ENC_NA, &func);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, func, lltd_qos_diag_vals, "Unknown (0x%02x)"));
     offset++;
 
@@ -682,8 +680,7 @@ dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
     proto_tree_add_item(header_tree, hf_lltd_qos_real_dest_addr, tvb, offset, 6, ENC_NA);
     proto_tree_add_item(header_tree, hf_lltd_qos_real_src_addr, tvb, offset+6, 6, ENC_NA);
-    proto_tree_add_item(header_tree, hf_lltd_qos_seq_num, tvb, offset+12, 2, ENC_BIG_ENDIAN);
-    seq_num = tvb_get_ntohs(tvb, offset+12);
+    proto_tree_add_item_ret_uint16(header_tree, hf_lltd_qos_seq_num, tvb, offset+12, 2, ENC_BIG_ENDIAN, &seq_num);
 
     switch(func)
     {

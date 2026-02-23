@@ -1007,8 +1007,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 /* Function Code 11 Digital Input Force Report */
                 case LG8979_FC_DIG_FRCRPT:
 
-                    ptnum8 = tvb_get_uint8(tvb, offset);
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item_ret_uint8(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN, &ptnum8);
                     offset += 1;
 
                     /* 1 byte per start block and 2 bytes per 16-bit block to follow */
@@ -1048,8 +1047,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_ACC_CHGRPT:
                 case LG8979_FC_ACC_FRCRPT:
 
-                    ptnum8 = tvb_get_uint8(tvb, offset);
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item_ret_uint8(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN, &ptnum8);
                     offset += 1;
 
                     /* 1 byte for start point number and 2 bytes for each 16-bit accumulator value */
@@ -1152,8 +1150,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_RTU_CONFIG:
 
                     /* Number of IO Chassis */
-                    num_chassis = tvb_get_uint8(tvb, offset);
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_rtucfg_num_chassis, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item_ret_uint8(lg8979_tree, hf_lg8979_rtucfg_num_chassis, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_chassis);
                     offset += 1;
 
                     for (cnt=0; cnt<num_chassis; cnt++) {

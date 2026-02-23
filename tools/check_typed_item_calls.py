@@ -2233,13 +2233,21 @@ def check_double_fetches(filename, contents, items, result):
 
     line_re = r'(.*)\n'
 
-    # Look for all calls in this file - note line before and after item added
-    matches = re.finditer(r'\n' + line_re +
-                          r'([\sa-z_\*=]*?)(proto_tree_add_item)\s*\(([a-zA-Z0-9_]+)\s*,\s*([a-zA-Z0-9_]+).*?\)\;\s*\n' +
-                          line_re,
-                          contents, re.MULTILINE)
+    # N.B., obvious re.finditer() won't work here as won't catch overlapping matches
+    search_index = 0
+    while True:
+        m = re.search(r'\n' + line_re +
+                      r'([\sa-z_\*=]*?)(proto_tree_add_item)\s*\(([a-zA-Z0-9_]+)\s*,\s*([a-zA-Z0-9_]+).*?\)\;\s*\n' +
+                      line_re,
+                      contents[search_index:], re.MULTILINE)
 
-    for m in matches:
+        if not m:
+            # No (more) matches, get out of loop
+            break
+
+        # Move just beyond previous match so don't get caught in loop.
+        search_index += (m.start() + 1)
+
         hf_name = m.group(5)
 
         prev_line = m.group(1)
@@ -2311,6 +2319,7 @@ def check_double_fetches(filename, contents, items, result):
                         'mask=', mask_value, 'type=', item_type,
                         '- use', suggest + '() ?\n',
                         m.group(0))
+
 
 
 # Run checks on the given dissector file.

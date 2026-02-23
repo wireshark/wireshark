@@ -1009,7 +1009,7 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     uint8_t     cip_qpc = 0;
     uint8_t     cip_qi2 = 0;
     uint8_t     cip_fmt = 0;
-    uint8_t     cip_sph = 0;
+    bool        cip_sph = false;
     uint8_t     cip_fn = 0;
     unsigned    datalen = 0;
     unsigned    db_size = 0;
@@ -1075,15 +1075,13 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_item_prepend_text(ti, "IIDC 1394 video payload:");
         break;
     case IEEE_1722_61883_TAG_CIP:
-        ti = proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_qi1, tvb, offset, 1, ENC_BIG_ENDIAN);
-        cip_qi1 = tvb_get_uint8(tvb, offset) & IEEE_1722_QI1_MASK;
+        ti = proto_tree_add_item_ret_uint8(ti_61883_tree, hf_1722_61883_cip_qi1, tvb, offset, 1, ENC_BIG_ENDIAN, &cip_qi1);
         if (cip_qi1 != 0)
         {
             expert_add_info(pinfo, ti, &ei_1722_61883_incorrect_qi1);
         }
 
-        ti = proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_sid, tvb, offset, 1, ENC_BIG_ENDIAN);
-        cip_sid = tvb_get_uint8(tvb, offset) & IEEE_1722_SID_MASK;
+        ti = proto_tree_add_item_ret_uint8(ti_61883_tree, hf_1722_61883_cip_sid, tvb, offset, 1, ENC_BIG_ENDIAN, &cip_sid);
         if (cip_sid != IEEE_1722_61883_SID_AVTP)
         {
             proto_item_append_text(ti, ": Originating Source ID from an IEEE 1394 serial bus");
@@ -1105,8 +1103,7 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         }
         offset += 1;
 
-        ti_cip_dbs = proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_dbs, tvb, offset, 1, ENC_BIG_ENDIAN);
-        cip_dbs = tvb_get_uint8(tvb, offset);
+        ti_cip_dbs = proto_tree_add_item_ret_uint8(ti_61883_tree, hf_1722_61883_cip_dbs, tvb, offset, 1, ENC_BIG_ENDIAN, &cip_dbs);
         offset += 1;
         ti_cip_fn = proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_fn, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1127,15 +1124,13 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             break;
         }
 
-        ti = proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_qpc, tvb, offset, 1, ENC_BIG_ENDIAN);
-        cip_qpc = tvb_get_uint8(tvb, offset) & IEEE_1722_QPC_MASK;
+        ti = proto_tree_add_item_ret_uint8(ti_61883_tree, hf_1722_61883_cip_qpc, tvb, offset, 1, ENC_BIG_ENDIAN, &cip_qpc);
         if (cip_qpc != 0)
         {
             expert_add_info(pinfo, ti, &ei_1722_61883_incorrect_qpc);
         }
 
-        ti_cip_sph = proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_sph, tvb, offset, 1, ENC_BIG_ENDIAN);
-        cip_sph = tvb_get_uint8(tvb, offset) & IEEE_1722_SPH_MASK;
+        ti_cip_sph = proto_tree_add_item_ret_boolean(ti_61883_tree, hf_1722_61883_cip_sph, tvb, offset, 1, ENC_BIG_ENDIAN, &cip_sph);
         offset += 1;
         proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_dbc, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -1148,8 +1143,7 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         }
 
         /* Check format field for 61883-4 MPEG-TS video or 61883-6 for audio */
-        ti_cip_fmt = proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_fmt, tvb, offset, 1, ENC_BIG_ENDIAN);
-        cip_fmt = tvb_get_uint8(tvb, offset) & IEEE_1722_FMT_MASK;
+        ti_cip_fmt = proto_tree_add_item_ret_uint8(ti_61883_tree, hf_1722_61883_cip_fmt, tvb, offset, 1, ENC_BIG_ENDIAN, &cip_fmt);
         offset += 1;
 
         if ((cip_fmt & 0x20) == 0)
@@ -1225,7 +1219,7 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             {
                 expert_add_info(pinfo, ti_cip_fn, &ei_1722_61883_4_incorrect_cip_fn);
             }
-            if (cip_sph != 4)
+            if (!cip_sph)
             {
                 expert_add_info(pinfo, ti_cip_sph, &ei_1722_61883_4_incorrect_cip_sph);
             }

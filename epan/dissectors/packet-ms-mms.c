@@ -429,8 +429,7 @@ static int dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     offset += 4;
 
     /* Sequence number */
-    sequence_number = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(msmms_common_command_tree, hf_msmms_command_sequence_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(msmms_common_command_tree, hf_msmms_command_sequence_number, tvb, offset, 4, ENC_LITTLE_ENDIAN, &sequence_number);
     offset += 4;
 
     /* Timestamp */
@@ -646,8 +645,7 @@ static int dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     msmms_tree = proto_item_add_subtree(ti, ett_msmms_data);
 
     /* Sequence number */
-    sequence_number = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(msmms_tree, hf_msmms_data_sequence_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(msmms_tree, hf_msmms_data_sequence_number, tvb, offset, 4, ENC_LITTLE_ENDIAN, &sequence_number);
     offset += 4;
 
     /* Packet ID type */
@@ -670,8 +668,7 @@ static int dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset++;
 
     /* Packet Length */
-    packet_length = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(msmms_tree, hf_msmms_data_packet_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(msmms_tree, hf_msmms_data_packet_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &packet_length);
     offset += 2;
 
     /* Parse UDP Timing packet pair headers if present */
@@ -808,13 +805,11 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
     /* Length of server version */
-    server_version_length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(tree, hf_msmms_command_server_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_msmms_command_server_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &server_version_length);
     offset += 4;
 
     /* Length of tool version */
-    tool_version_length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(tree, hf_msmms_command_tool_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_msmms_command_tool_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &tool_version_length);
     offset += 4;
 
     /* Length of download update player URL */

@@ -569,8 +569,7 @@ dissect_bittorrent_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    case BITTORRENT_MESSAGE_HAVE:
    case BITT_FAST_EX_SUGGEST_PIECE:
    case BITT_FAST_EX_ALLOWED_FAST:
-      piece_index = tvb_get_ntohl(tvb, offset);
-      proto_tree_add_item(mtree, hf_bittorrent_piece_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint(mtree, hf_bittorrent_piece_index, tvb, offset, 4, ENC_BIG_ENDIAN, &piece_index);
       proto_item_append_text(ti, ", Piece (Idx:0x%x)", piece_index);
 
       col_append_fstr(pinfo->cinfo, COL_INFO, ", Piece (Idx:0x%x)", piece_index);

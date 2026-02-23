@@ -107,8 +107,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     subitem = proto_tree_add_uint(maintree, hf_logcat_version, tvb, offset, 0, logger_version);
     proto_item_set_generated(subitem);
 
-    proto_tree_add_item(maintree, hf_logcat_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    length = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item_ret_uint16(maintree, hf_logcat_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
     offset += 2;
 
     if (logger_version == 1) {

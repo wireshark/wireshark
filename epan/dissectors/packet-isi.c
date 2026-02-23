@@ -670,8 +670,7 @@ static int dissect_isi_sim_auth(tvbuff_t *tvb, packet_info *pinfo, proto_item *i
 	item = proto_tree_add_item(isitree, hf_isi_sim_auth_payload, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_isi_msg);
 
-	proto_tree_add_item(tree, hf_isi_sim_auth_cmd, tvb, 0, 1, ENC_BIG_ENDIAN);
-	cmd = tvb_get_uint8(tvb, 0);
+	proto_tree_add_item_ret_uint8(tree, hf_isi_sim_auth_cmd, tvb, 0, 1, ENC_BIG_ENDIAN, &cmd);
 
 	switch(cmd) {
 		case 0x01: /* SIM_AUTH_PROTECTED_REQ */
@@ -1279,8 +1278,7 @@ static int dissect_isi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitre
 	item = proto_tree_add_item(isitree, hf_isi_gps_payload, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_isi_msg);
 
-	proto_tree_add_item(tree, hf_isi_gps_cmd, tvb, 0, 1, ENC_BIG_ENDIAN);
-	cmd = tvb_get_uint8(tvb, 0);
+	proto_tree_add_item_ret_uint8(tree, hf_isi_gps_cmd, tvb, 0, 1, ENC_BIG_ENDIAN, &cmd);
 
 	switch(cmd) {
 		case 0x7d: /* GPS Status */
@@ -1329,8 +1327,7 @@ static int dissect_isi_ss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree
 	switch(cmd) {
 		case 0x00: /* SS_SERVICE_REQ */
 			proto_tree_add_item(tree, hf_isi_ss_operation, tvb, 1, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_isi_ss_service_code, tvb, 2, 1, ENC_BIG_ENDIAN);
-			code = tvb_get_uint8(tvb, 1);
+			proto_tree_add_item_ret_uint8(tree, hf_isi_ss_service_code, tvb, 2, 1, ENC_BIG_ENDIAN, &code);
 			switch(code) {
 				case 0x05:
 					col_set_str(pinfo->cinfo, COL_INFO, "Service Request: Interrogation");
@@ -1346,8 +1343,7 @@ static int dissect_isi_ss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree
 
 		case 0x01: /* SS_SERVICE_COMPLETED_RESP */
 			proto_tree_add_item(tree, hf_isi_ss_operation, tvb, 1, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_isi_ss_service_code, tvb, 2, 1, ENC_BIG_ENDIAN);
-			code = tvb_get_uint8(tvb, 1);
+			proto_tree_add_item_ret_uint8(tree, hf_isi_ss_service_code, tvb, 2, 1, ENC_BIG_ENDIAN, &code);
 			switch(code) {
 				case 0x05:
 					col_set_str(pinfo->cinfo, COL_INFO, "Service Completed Response: Interrogation");
@@ -1446,8 +1442,7 @@ static int dissect_isi_ss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree
 
 		case 0x10: /* SS_SERVICE_COMPLETED_IND */
 			proto_tree_add_item(tree, hf_isi_ss_operation, tvb, 1, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_isi_ss_service_code, tvb, 2, 1, ENC_BIG_ENDIAN);
-			code = tvb_get_uint8(tvb, 1);
+			proto_tree_add_item_ret_uint8(tree, hf_isi_ss_service_code, tvb, 2, 1, ENC_BIG_ENDIAN, &code);
 			switch(code) {
 				case 0x05:
 					col_set_str(pinfo->cinfo, COL_INFO, "Service Completed Indication: Interrogation");
@@ -1520,8 +1515,7 @@ static void dissect_isi_network_status(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 			case 0xe3: /* UNKNOWN */
 				/* FIXME: TODO: byte 0: message type (provider name / network name) ? */
 
-				len = tvb_get_ntohs(tvb, offset+2);
-				proto_tree_add_item(subtree, hf_isi_network_status_sub_msg_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint16(subtree, hf_isi_network_status_sub_msg_len, tvb, offset+2, 2, ENC_BIG_ENDIAN, &len);
 
 				proto_tree_add_item(subtree, hf_isi_network_status_sub_msg, tvb, offset+4, len*2, ENC_UTF_16|ENC_BIG_ENDIAN);
 				break;
@@ -1592,8 +1586,7 @@ static int dissect_isi_network(tvbuff_t *tvb, packet_info *pinfo, proto_item *is
 	item = proto_tree_add_item(isitree, hf_isi_network_payload, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_isi_msg);
 
-	proto_tree_add_item(tree, hf_isi_network_cmd, tvb, 0, 1, ENC_BIG_ENDIAN);
-	cmd = tvb_get_uint8(tvb, 0);
+	proto_tree_add_item_ret_uint8(tree, hf_isi_network_cmd, tvb, 0, 1, ENC_BIG_ENDIAN, &cmd);
 
 	switch(cmd) {
 		case 0x07:

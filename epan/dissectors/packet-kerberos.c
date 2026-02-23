@@ -4710,19 +4710,15 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, unsigned o
 	tree = proto_item_add_subtree(item, ett_krb_pac_upn_dns_info);
 
 	/* upn */
-	upn_len = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_krb_pac_upn_upn_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_krb_pac_upn_upn_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &upn_len);
 	offset+=2;
-	upn_offset = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_krb_pac_upn_upn_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_krb_pac_upn_upn_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &upn_offset);
 	offset+=2;
 
 	/* dns */
-	dns_len = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_krb_pac_upn_dns_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_krb_pac_upn_dns_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &dns_len);
 	offset+=2;
-	dns_offset = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_krb_pac_upn_dns_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_krb_pac_upn_dns_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &dns_offset);
 	offset+=2;
 
 	/* flags */
@@ -4735,18 +4731,14 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, unsigned o
 	offset+=4;
 
 	if (flags & PAC_UPN_DNS_FLAG_HAS_SAM_NAME_AND_SID) {
-		samaccountname_len = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(tree, hf_krb_pac_upn_samaccountname_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_krb_pac_upn_samaccountname_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &samaccountname_len);
 		offset+=2;
-		samaccountname_offset = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(tree, hf_krb_pac_upn_samaccountname_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_krb_pac_upn_samaccountname_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &samaccountname_offset);
 		offset+=2;
 
-		objectsid_len = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(tree, hf_krb_pac_upn_objectsid_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_krb_pac_upn_objectsid_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &objectsid_len);
 		offset+=2;
-		objectsid_offset = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(tree, hf_krb_pac_upn_objectsid_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_krb_pac_upn_objectsid_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &objectsid_offset);
 		/* offset+=2; */
 	}
 

@@ -4660,8 +4660,7 @@ dissect_mpx_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, void
         case IEEE802159_MPX_FULL_FRAME_NO_MUXID:
             break;  // nothing to do
         case IEEE802159_MPX_NON_LAST_FRAGMENT:
-            fragment_number = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(tree, hf_ieee802159_mpx_fragment_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_ieee802159_mpx_fragment_number, tvb, offset, 1, ENC_LITTLE_ENDIAN, &fragment_number);
             offset += 1;
             if (fragment_number == 0) {
                 proto_tree_add_item(tree, hf_ieee802159_mpx_total_frame_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
