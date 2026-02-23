@@ -129,11 +129,13 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 	/* Load the configurations already present in the system configuration file. */
 	/* They will be overwritten by the user-provided configurations. */
 #ifdef _WIN32
-	/* On Windows, do not try to read C:\etc\ssh\ssh_config.
-	 * libssh tries to read from /etc/ssh/ssh_config on all OSes by
-	 * default (i.e., if the second parameter is NULL.)
+	/* libssh < 0.11.4 tries to read C:\etc\ssh\ssh_config by default
+	 * on Windows (i.e., if the second parameter is NULL.), and later
+	 * versions try to read from %PROGRAMDATA%\ssh\ssh_config. Neither
+	 * of those is a good choice for us, since anyone can create them
+	 * if they don't exist. Just look for %HOME%\.ssh\config instead.
 	 */
-	if (ssh_options_parse_config(sshs, "%d/config") != 0) {
+	if (ssh_options_parse_config(sshs, "%d/.ssh/config") != 0) {
 #else
 	if (ssh_options_parse_config(sshs, NULL) != 0) {
 #endif
