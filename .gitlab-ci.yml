@@ -879,7 +879,11 @@ Windows Build:
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug test-programs.vcxproj
     - C:\Windows\py.exe -m pytest --disable-gui --build-type=Debug
 
-macOS Build:
+# Disable this, at least for the time being.
+# GitLab's macOS builders are unreliable, and given the fact that we're
+# on an old stable branch any merge requests will likely build fine on
+# macOS.
+.macOS Build:
   extends: .build-macos
   rules: !reference [.if-w-w-only-merge-request]
   script:
