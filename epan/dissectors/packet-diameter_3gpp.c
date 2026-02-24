@@ -813,7 +813,7 @@ dissect_diameter_3gpp_codec_data(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
      * or the word "answer", or the word "description" (in ASCII, without quotes)
      * followed by a new-line character
      */
-    if (!tvb_find_line_end_remaining(tvb, offset, &next_offset, &linelen)) {
+    if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
         return tvb_reported_length(tvb);
     }
     str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII | ENC_NA);
