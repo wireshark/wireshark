@@ -160,7 +160,7 @@ rlc_3gpp_tap_info* select_rlc_lte_session(capture_file *cf,
     if (th.num_hdrs>1){
         /* Can only handle a single RLC channel yet */
         wtap_rec_cleanup(&rec);
-        *err_msg = g_strdup("The selected packet has more than one LTE RLC channel in it.");
+        *err_msg = g_strdup("The selected packet has traffic from more than one RLC bearer.");
         return NULL;
     }
 
