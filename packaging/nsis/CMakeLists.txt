@@ -186,10 +186,21 @@ if (BUILD_wireshark)
 		if(${_profile_file} MATCHES "^([^/]+)/.+")
 			if (NOT ${_outdir} STREQUAL ${CMAKE_MATCH_1})
 				set(_outdir "${CMAKE_MATCH_1}")
+				# file and cmake_path use the format of the
+				# build system, not target system, so using
+				# NATIVE_PATH won't work when cross-compiling.
+				# The OutPath is parsed by the installing
+				# system.
 				set(_profile_manifest_contents "${_profile_manifest_contents}SetOutPath '\$INSTDIR\\profiles\\${_outdir}'\n")
 			endif()
-			file(TO_NATIVE_PATH "${_profile_file}" _native_profile_file)
-			set(_profile_manifest_contents "${_profile_manifest_contents}File \"\${TOP_SRC_DIR}\\resources\\share\\wireshark\\profiles\\${_native_profile_file}\"\n")
+			# Using a UN*X style path still works when finding the
+			# source file to add when cross-compiling, because that
+			# is done on the build system. file(TO_NATIVE_PATH ...)
+			# adds an escaping backslash before a space on MinGW,
+			# which won't work, but cmake_path(NATIVE_PATH ...)
+			# doesn't, so use the latter.
+			cmake_path(CONVERT "${TOP_SRC_DIR}/resources/share/wireshark/profiles/${_profile_file}" TO_NATIVE_PATH_LIST _native_profile_file)
+			set(_profile_manifest_contents "${_profile_manifest_contents}File \"${_native_profile_file}\"\n")
 		endif()
 	endforeach()
 	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/wireshark-profile-manifest.nsh" "${_profile_manifest_contents}")
@@ -240,8 +251,8 @@ if (BUILD_stratoshark)
 				set(_outdir "${CMAKE_MATCH_1}")
 				set(_profile_manifest_contents "${_profile_manifest_contents}SetOutPath '\$INSTDIR\\profiles\\${_outdir}'\n")
 			endif()
-			file(TO_NATIVE_PATH "${_profile_file}" _native_profile_file)
-			set(_profile_manifest_contents "${_profile_manifest_contents}File \"\${TOP_SRC_DIR}\\resources\\share\\stratoshark\\profiles\\${_native_profile_file}\"\n")
+			cmake_path(CONVERT "${TOP_SRC_DIR}/resources/share/stratoshark/profiles/${_profile_file}" TO_NATIVE_PATH_LIST _native_profile_file)
+			set(_profile_manifest_contents "${_profile_manifest_contents}File \"${_native_profile_file}\"\n")
 		endif()
 	endforeach()
 	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/stratoshark-profile-manifest.nsh" "${_profile_manifest_contents}")
