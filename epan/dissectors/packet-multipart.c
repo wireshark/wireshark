@@ -433,12 +433,11 @@ find_next_boundary(tvbuff_t *tvb, unsigned start, const char *boundary,
                 *last_boundary = false;
             }
             /* Look for line end of the boundary line */
-            if (!tvb_find_line_end_remaining(tvb, next_offset, &line_len, &offset)) {
-                *boundary_line_len = 0;
-            } else {
-                *boundary_line_len = offset - *boundary_start;
-            }
-            return boundary_start;
+            (void) tvb_find_line_end_remaining(tvb, next_offset, &line_len, &offset);
+            /* If there is no CRLF, set it to the remaining captured length.
+             * The next call will return false due to the tvb_offset_exists. */
+            *boundary_line_len = offset - *boundary_start;
+            return true;
         /* check if last before CRLF; some ignore the standard, so there is no CRLF before the boundary */
         } else if ((tvb_strneql(tvb, *boundary_start - 2, "--", 2) == 0)
                     && (tvb_strneql(tvb, *boundary_start - (2 + boundary_len), boundary, boundary_len) == 0)
@@ -582,6 +581,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
             next_offset -= 2;
         } else if (next_offset > boundary_start) {
             /* if there is no CRLF between last field and next boundary - trim it! */
+            last_field = true;
             next_offset = boundary_start;
         }
 
