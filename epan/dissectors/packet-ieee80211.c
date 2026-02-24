@@ -38182,9 +38182,7 @@ add_trigger_common_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   int            length = 0;
   int            start_offset = offset;
   uint64_t       bw_etc = tvb_get_letoh64(tvb, offset);
-  uint64_t       special_user = tvb_get_letoh64(tvb, offset+8);
-  bool           is_uhr = (((bw_etc >> 54) & 0x03) != 0x03) && (((special_user >> 12) & 0x01) == 0x01);
-  bool           is_eht = (((bw_etc >> 54) & 0x03) != 0x03) && (((special_user >> 12) & 0x01) == 0x00);
+  bool           special_user_present = ((bw_etc >> 55) & 0x01) != 0x01;
 
   global_he_trigger_bw = (bw_etc >> 18) & 0x03;
 
@@ -38192,18 +38190,27 @@ add_trigger_common_info(proto_tree *tree, tvbuff_t *tvb, int offset,
                         ett_he_trigger_common_info, &pi, "Common Info");
   *common_tree = common_info;
 
-  if (is_eht) {
-    proto_tree_add_bitmask_with_flags(common_info, tvb, offset,
-                        hf_ieee80211_eht_trigger_common_info,
-                        ett_he_trigger_base_common_info,
-                        eht_common_info_headers,
-                        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-  } else if (is_uhr) {
-    proto_tree_add_bitmask_with_flags(common_info, tvb, offset,
-                        hf_ieee80211_uhr_trigger_common_info,
-                        ett_he_trigger_base_common_info,
-                        uhr_common_info_headers,
-                        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  if (special_user_present) {
+    uint8_t phy_version = (tvb_get_letohs(tvb, offset + 8) >> 12) & 0x07;
+    switch (phy_version) {
+    case 0:
+      proto_tree_add_bitmask_with_flags(common_info, tvb, offset,
+                          hf_ieee80211_eht_trigger_common_info,
+                          ett_he_trigger_base_common_info,
+                          eht_common_info_headers,
+                          ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      break;
+    case 1:
+      proto_tree_add_bitmask_with_flags(common_info, tvb, offset,
+                          hf_ieee80211_uhr_trigger_common_info,
+                          ett_he_trigger_base_common_info,
+                          uhr_common_info_headers,
+                          ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      break;
+    default:
+      expert_add_info_format(pinfo, pi, &ei_ieee80211_inv_val,
+                             "Unknown PHY Version Identifier (%u)", phy_version);
+    }
   } else {
     proto_tree_add_bitmask_with_flags(common_info, tvb, offset,
                         hf_ieee80211_he_trigger_common_info,
