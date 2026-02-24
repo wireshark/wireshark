@@ -345,7 +345,7 @@ oran_stat_draw(void *phs)
         section_ids[0] = '-';
         section_ids[1] = '\0';
 
-        char beams_string[64];
+        char beams_string[50];
         int beams_offset = 0;
         beams_string[0] = '-';
         beams_string[1] = '\0';
@@ -377,8 +377,8 @@ oran_stat_draw(void *phs)
 
         /* Beams. Only showing for DL CP..  */
         if (!row->base_info.uplink && !row->base_info.userplane) {
-            for (int b=0; b < MIN(row->base_info.num_beams, MAX_BEAMS_IN_FRAME) && (section_ids_offset < (64-1)); b++) {
-                beams_offset += snprintf(beams_string+beams_offset, 64-beams_offset-1, " %u", row->base_info.beams[b]);
+            for (int b=0; b < MIN(row->base_info.num_beams, MAX_BEAMS_IN_FRAME) && (beams_offset <= (50-2)); b++) {
+                beams_offset += snprintf(beams_string+beams_offset, 50-beams_offset, " %u", row->base_info.beams[b]);
             }
         }
 
