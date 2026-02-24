@@ -462,10 +462,8 @@ void PlotDialog::createPlot(int currentRow)
         axisRect->axis(QCPAxis::atBottom)->setRange(ui->plot->xAxis->range());
 
         // Synchronize their ranges
-        connect(axisRect->axis(QCPAxis::atBottom), QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged),
-            ui->plot->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::setRange));
-        connect(ui->plot->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged),
-            axisRect->axis(QCPAxis::atBottom), QOverload<const QCPRange&>::of(&QCPAxis::setRange));
+        connect(axisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), ui->plot->xAxis, SLOT(setRange(QCPRange)));
+        connect(ui->plot->xAxis, SIGNAL(rangeChanged(QCPRange)), axisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
 
         syncPlotSettings(currentRow);
     }
@@ -1273,25 +1271,41 @@ QRectF PlotDialog::getZoomRanges(QRect zoom_rect, QCPAxisRect** matchedAxisRect)
 
 void PlotDialog::resetAxes()
 {
-    double axis_pixels;
-    if (ui->actionAutoScroll->isChecked()) {
-        foreach(QCPAxisRect * axisRect, axisRects()) {
-            axisRect->axis(QCPAxis::AxisType::atLeft)->rescale(true);
+    if (!ui->actionAutoScroll->isChecked()) {
+        /*
+         * We cannot call rescale() to automatically rescale the x axes, since they are
+         * linked together. We need to calculate a range that includes all visible plots
+         * and scale the axes accordingly. As they are linked, we only call setRange once.
+         */
+        QCPRange x_range = QCPRange();
+        for (int i = 0; i < ui->plot->plottableCount(); i++) {
+            const QCPAbstractPlottable* plottable = ui->plot->plottable(i);
+            if (plottable->realVisibility()) {
+                /*
+                 * XXX - If we ever use a logarithmic x axis, we need to change the
+                 * signDomain we pass to getKeyRange. Similarly, if the x axis is not
+                 * the key axis, we need to use getValueRange instead (see QCPAxis::rescale).
+                 */
+                bool foundRange;
+                QCPRange newRange = plottable->getKeyRange(foundRange);
+                if (foundRange) x_range.expand(newRange);
+            }
         }
-    }
-    else {
-        ui->plot->rescaleAxes(true);
+        ui->plot->xAxis2->setRange(x_range);
 
-        QCPRange x_range = ui->plot->xAxis2->scaleType() == QCPAxis::stLogarithmic ?
-            ui->plot->xAxis2->range().sanitizedForLogScale() : ui->plot->xAxis2->range();
-        axis_pixels = ui->plot->xAxis2->axisRect()->width();
+        //if (ui->plot->xAxis2->scaleType() == QCPAxis::stLogarithmic) {
+        //    x_range = x_range.sanitizedForLogScale();
+        //}
+        double axis_pixels = ui->plot->xAxis2->axisRect()->width();
         ui->plot->xAxis2->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, x_range.center());
     }
+
     for (const QCPAxisRect* axisRect : axisRects()) {
         QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
+        yAxis->rescale(true);
         QCPRange y_range = yAxis->scaleType() == QCPAxis::stLogarithmic ?
             yAxis->range().sanitizedForLogScale() : yAxis->range();
-        axis_pixels = yAxis->axisRect()->height();
+        double axis_pixels = yAxis->axisRect()->height();
         yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, y_range.center());
     }
 
