@@ -1853,8 +1853,8 @@ void PlotDialog::on_rightButtonBox_accepted()
     // Gaze upon my beautiful plot with lossy artifacts!
     QString jpeg_filter = tr("JPEG File Interchange Format (*.jpeg *.jpg)");
     //QString csv_filter = tr("Comma Separated Values (*.csv)");
-    //QString filter = QStringLiteral("%1;;%2;;%3;;%4;;%5")
-    QString filter = QStringLiteral("%1;;%2;;%3;;%4;;%5").arg(
+    //QString filter = QStringLiteral("%1;;%2;;%3;;%4;;%5").arg(
+    QString filter = QStringLiteral("%1;;%2;;%3;;%4").arg(
         pdf_filter,
         png_filter,
         bmp_filter,
