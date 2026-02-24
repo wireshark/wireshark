@@ -913,7 +913,7 @@ dissect_rtspmessage(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tr
     /*
      * Is this a request or response?
      *
-     * Note that "tvb_find_line_end()" will return a value that
+     * Note that "tvb_find_line_end_remaining()" will return a value that
      * is not longer than what's in the buffer, so the
      * "tvb_get_ptr()" call won't throw an exception.
      */
@@ -992,7 +992,7 @@ dissect_rtspmessage(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tr
         * line terminator).
         * Otherwise, just call it a continuation.
         *
-        * Note that "tvb_find_line_end()" will return a value that
+        * Note that "tvb_find_line_end_remaining()" will return a value that
         * is not longer than what's in the buffer, so the
         * "tvb_get_ptr()" call won't throw an exception.
         */

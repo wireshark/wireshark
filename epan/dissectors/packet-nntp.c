@@ -40,10 +40,10 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	const char      *type;
 	proto_tree	*nntp_tree;
 	proto_item	*ti;
-	int		offset = 0;
-	int		next_offset;
+	unsigned	offset = 0;
+	unsigned	next_offset;
 	const unsigned char    *line;
-	int		linelen;
+	unsigned	linelen;
 	conversation_t  *conversation;
 	nntp_conversation_t *session_state;
 
@@ -66,11 +66,11 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	 * Put the first line from the buffer into the summary
 	 * (but leave out the line terminator).
 	 *
-	 * Note that "tvb_find_line_end()" will return a value that
+	 * Note that "tvb_find_line_end_remaining()" will return a value that
 	 * is not longer than what's in the buffer, so the
 	 * "tvb_get_ptr()" call won't throw an exception.
 	 */
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+	tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset);
 	line    = tvb_get_ptr(tvb, offset, linelen);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", type,
 		    tvb_format_text(pinfo->pool, tvb, offset, linelen));
@@ -109,7 +109,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		/*
 		 * Find the end of the line.
 		 */
-		tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+		tvb_find_line_end_remaining(tvb, offset, NULL, &next_offset);
 
 		/*
 		 * Put this line.

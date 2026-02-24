@@ -89,8 +89,8 @@ static int hf_resp_map_length;
 static int hf_resp_attribute;
 static int hf_resp_attribute_length;
 
-static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_elements);
-static int dissect_resp_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_entries, int ett_entry_type);
+static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int array_depth, int64_t expected_elements);
+static int dissect_resp_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int array_depth, int64_t expected_entries, int ett_entry_type);
 static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const char *bulk_string_as_str, const char data_type);
 void proto_reg_handoff_resp(void);
 void proto_register_resp(void);
@@ -99,7 +99,7 @@ static bool prefs_try_json_on_string = TRUE;
 
 static dissector_handle_t json_handle;
 
-static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
+static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int string_length, int array_depth) {
     const char *string_value;
 
     string_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
@@ -114,7 +114,7 @@ static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return string_length + CRLF_LENGTH;
 }
 
-static int dissect_resp_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
+static int dissect_resp_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int string_length, int array_depth) {
     if (string_length != RESP_TOKEN_PREFIX_LENGTH) {
         expert_add_info(pinfo, tree, &ei_resp_malformed_length);
         return string_length + CRLF_LENGTH;
@@ -127,7 +127,7 @@ static int dissect_resp_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return string_length + CRLF_LENGTH;
 }
 
-static int dissect_resp_boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
+static int dissect_resp_boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int string_length, int array_depth) {
     const char value = tvb_get_uint8(tvb, offset + 1);
     bool bool_value;
     switch (value) {
@@ -151,7 +151,7 @@ static int dissect_resp_boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return string_length + CRLF_LENGTH;
 }
 
-static int dissect_resp_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
+static int dissect_resp_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int string_length, int array_depth) {
     const char *string_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                       string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
     char *endptr = 0;
@@ -167,7 +167,7 @@ static int dissect_resp_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return string_length + CRLF_LENGTH;
 }
 
-static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length) {
+static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int string_length) {
     const char *error_value;
 
     error_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
@@ -177,7 +177,7 @@ static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return string_length + CRLF_LENGTH;
 }
 
-static int dissect_resp_big_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
+static int dissect_resp_big_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int string_length, int array_depth) {
     const char *string_value;
 
     if (string_length < 1) {
@@ -208,7 +208,7 @@ static int dissect_resp_big_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return string_length + CRLF_LENGTH;
 }
 
-static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bulk_string_string_length, int array_depth, const char data_type) {
+static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int bulk_string_string_length, int array_depth, const char data_type) {
     const char *bulk_string_length_as_str;
     int bulk_string_length;
     int bulk_string_captured_length;
@@ -354,7 +354,7 @@ static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, 
     }
 }
 
-static int dissect_resp_verbatim_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int verbatim_string_string_length, int array_depth) {
+static int dissect_resp_verbatim_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int verbatim_string_string_length, int array_depth) {
     const char *verbatim_string_length_as_str;
     int verbatim_string_length;
     int verbatim_string_captured_length;
@@ -426,7 +426,7 @@ static int dissect_resp_verbatim_string(tvbuff_t *tvb, packet_info *pinfo, proto
     return verbatim_string_string_length + CRLF_LENGTH + verbatim_string_captured_length_with_crlf;
 }
 
-static int dissect_resp_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bulk_string_string_length, int array_depth) {
+static int dissect_resp_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int bulk_string_string_length, int array_depth) {
     const char *integer_as_string;
     int64_t integer;
     integer_as_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
@@ -441,7 +441,7 @@ static int dissect_resp_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_resp_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth, char data_type) {
+static int dissect_resp_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int string_length, int array_depth, char data_type) {
     int hf_resp_x;
     int hf_resp_x_length;
     int ett_resp_x;
@@ -536,7 +536,7 @@ static int dissect_resp_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_resp_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth, char data_type) {
+static int dissect_resp_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int string_length, int array_depth, char data_type) {
     int hf_resp_x;
     int hf_resp_x_length;
     int ett_resp_x;
@@ -620,7 +620,7 @@ static int dissect_resp_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_resp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
+static int dissect_resp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int string_length, int array_depth) {
     const char data_type = tvb_get_uint8(tvb, offset);
     switch (data_type) {
         case '+':
@@ -666,10 +666,10 @@ static int dissect_resp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_elements) {
+static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int array_depth, int64_t expected_elements) {
     int error_or_offset;
-    int crlf_string_line_length;
-    int done_elements = 0;
+    unsigned crlf_string_line_length;
+    unsigned done_elements = 0;
 
     while (tvb_offset_exists(tvb, offset)) {
         /* If we ended up in here from a recursive call when traversing an array, don't drain the tvb to empty.
@@ -677,9 +677,7 @@ static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         if (expected_elements >= 0 && done_elements == expected_elements) {
             return offset;
         }
-        crlf_string_line_length = tvb_find_line_end(tvb, offset, -1, NULL, DESEGMENT_ENABLED(pinfo));
-        /* If desegment is disabled, tvb_find_line_end() will return a positive length, regardless if it finds a CRLF */
-        if (crlf_string_line_length == -1) {
+        if (!tvb_find_line_end_remaining(tvb, offset, &crlf_string_line_length, NULL)) {
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             return -1;
@@ -698,9 +696,9 @@ static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_resp_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_entries, int ett_entry_type) {
+static int dissect_resp_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int array_depth, int64_t expected_entries, int ett_entry_type) {
     int error_or_offset;
-    int crlf_string_line_length;
+    unsigned crlf_string_line_length;
     int done_entries = 0;
     proto_tree *entry_tree;
     proto_item *ti;
@@ -711,9 +709,7 @@ static int dissect_resp_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         if (expected_entries >= 0 && done_entries == expected_entries) {
             return offset;
         }
-        crlf_string_line_length = tvb_find_line_end(tvb, offset, -1, NULL, DESEGMENT_ENABLED(pinfo));
-        /* If desegment is disabled, tvb_find_line_end() will return a positive length, regardless if it finds a CRLF */
-        if (crlf_string_line_length == -1) {
+        if (!tvb_find_line_end_remaining(tvb, offset, &crlf_string_line_length, NULL)) {
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             return -1;
@@ -729,9 +725,7 @@ static int dissect_resp_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         }
         offset += error_or_offset;
 
-        crlf_string_line_length = tvb_find_line_end(tvb, offset, -1, NULL, DESEGMENT_ENABLED(pinfo));
-        /* If desegment is disabled, tvb_find_line_end() will return a positive length, regardless if it finds a CRLF */
-        if (crlf_string_line_length == -1) {
+        if (!tvb_find_line_end_remaining(tvb, offset, &crlf_string_line_length, NULL)) {
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             return -1;
@@ -750,7 +744,7 @@ static int dissect_resp_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 static int dissect_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *root_resp_item;
     proto_tree *resp_tree;
 

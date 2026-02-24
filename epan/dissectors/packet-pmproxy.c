@@ -51,7 +51,7 @@ static int is_ascii(const unsigned char *data, int size)
 }
 
 static int looks_like_proxy_exchange(tvbuff_t *tvb) {
-    int packet_length;
+    unsigned packet_length;
     const unsigned char *packet_data;
 
     packet_length = tvb_ensure_captured_length_remaining(tvb, PMPROXY_START_OF_PACKET);
@@ -61,10 +61,10 @@ static int looks_like_proxy_exchange(tvbuff_t *tvb) {
     return is_ascii(packet_data, packet_length) && packet_data[packet_length-1] == '\n';
 }
 
-static int dissect_proxy_to_host(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    int offset = 0;
-    int next_offset;
-    int proxy_to_length;
+static unsigned dissect_proxy_to_host(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    unsigned offset = 0;
+    unsigned next_offset;
+    unsigned proxy_to_length;
     char *pmproxy_host_and_port_string;
     char **host_and_port;
     char *host;
@@ -72,8 +72,7 @@ static int dissect_proxy_to_host(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     col_set_str(pinfo->cinfo, COL_INFO, "Proxy");
 
-    proxy_to_length = tvb_find_line_end(tvb, offset, tvb_ensure_captured_length_remaining(tvb, offset), &next_offset, false);
-    if(proxy_to_length != -1) {
+    if(tvb_find_line_end_remaining(tvb, offset, &proxy_to_length, &next_offset)) {
         pmproxy_host_and_port_string = (char *) tvb_get_string_enc(pinfo->pool, tvb, offset, proxy_to_length, ENC_ASCII);
         host_and_port = wmem_strsplit(pinfo->pool, pmproxy_host_and_port_string, " ", -1);
         if(host_and_port != NULL) {
@@ -117,7 +116,7 @@ static int is_client_exchange(tvbuff_t *tvb, packet_info *pinfo) {
 }
 
 static int dissect_server_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pmproxy_tree) {
-    int offset = PMPROXY_START_OF_PACKET;
+    unsigned offset = PMPROXY_START_OF_PACKET;
     col_set_str(pinfo->cinfo, COL_INFO, "Server exchange");
     proto_tree_add_item(pmproxy_tree, hf_pmproxy_server_version, tvb, offset, PMPROXY_CLIENT_SERVER_VERSION_LENGTH, ENC_ASCII);
     offset += PMPROXY_CLIENT_SERVER_VERSION_LENGTH;
@@ -125,7 +124,7 @@ static int dissect_server_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static int dissect_client_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pmproxy_tree) {
-    int offset = PMPROXY_START_OF_PACKET;
+    unsigned offset = PMPROXY_START_OF_PACKET;
     col_set_str(pinfo->cinfo, COL_INFO, "Client exchange");
     proto_tree_add_item(pmproxy_tree, hf_pmproxy_client_version, tvb, offset, PMPROXY_CLIENT_SERVER_VERSION_LENGTH, ENC_ASCII);
     offset += PMPROXY_CLIENT_SERVER_VERSION_LENGTH;

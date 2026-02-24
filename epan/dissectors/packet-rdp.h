@@ -75,7 +75,7 @@ typedef struct _rdp_conv_info_t {
   rdp_channel_def_t staticChannels[RDP_MAX_CHANNELS+1];
 } rdp_conv_info_t;
 
-int dissect_rdp_bandwidth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bool from_server);
+unsigned dissect_rdp_bandwidth_req(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, bool from_server);
 void rdp_transport_set_udp_conversation(const packet_info *pinfo, bool reliable, uint32_t reqId,
 		uint8_t *cookie, conversation_t *conv);
 conversation_t *rdp_find_tcp_conversation_from_udp(conversation_t *udp);

@@ -885,7 +885,7 @@ typedef struct rdp_field_info_t {
   const int *pfield;
   int32_t  fixedLength;
   uint32_t *variableLength;
-  int      offsetOrTree;
+  int offsetOrTree;
   uint32_t flags;
   const struct rdp_field_info_t *subfields;
 } rdp_field_info_t;
@@ -1423,11 +1423,11 @@ rdp_get_conversation_data(packet_info *pinfo)
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const rdp_field_info_t *fields, int totlen)
+dissect_rdp_fields(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, const rdp_field_info_t *fields, unsigned totlen)
 {
   const rdp_field_info_t *c;
-  int               len;
-  int               base_offset = offset;
+  unsigned          len;
+  unsigned          base_offset = offset;
   uint32_t          info_flags = 0;
   unsigned          encoding;
 
@@ -1508,7 +1508,7 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-dissect_rdp_nyi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *info)
+dissect_rdp_nyi(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, const char *info)
 {
   rdp_field_info_t nyi_fields[] = {
     {&hf_rdp_notYetImplemented,      -1, NULL, 0, 0, NULL },
@@ -1524,7 +1524,7 @@ dissect_rdp_nyi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
-dissect_rdp_encrypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *info)
+dissect_rdp_encrypted(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, const char *info)
 {
   rdp_field_info_t enc_fields[] = {
     {&hf_rdp_encrypted,      -1, NULL, 0, 0, NULL },
@@ -1559,7 +1559,7 @@ find_known_channel_by_name(const char *name) {
 }
 
 static int
-dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, unsigned length, rdp_conv_info_t *rdp_info)
+dissect_rdp_clientNetworkData(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, unsigned length, rdp_conv_info_t *rdp_info)
 {
   proto_tree *next_tree;
   proto_item *pi;
@@ -1640,7 +1640,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 static int
-dissect_rdp_basicSecurityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t *flags_ptr) {
+dissect_rdp_basicSecurityHeader(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, uint32_t *flags_ptr) {
 
   uint32_t flags = 0;
 
@@ -1671,7 +1671,7 @@ dissect_rdp_basicSecurityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static int
-dissect_rdp_securityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rdp_conv_info_t *rdp_info, bool alwaysBasic, uint32_t *flags_ptr) {
+dissect_rdp_securityHeader(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, rdp_conv_info_t *rdp_info, bool alwaysBasic, uint32_t *flags_ptr) {
 
   rdp_field_info_t fips_fields[] = {
     {&hf_rdp_fipsLength,        2, NULL, 0, 0, NULL },
@@ -1748,7 +1748,7 @@ rdp_isServerAddressTarget(packet_info *pinfo)
 
 
 static int
-dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+dissect_rdp_channelPDU(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
   uint32_t length = 0;
   uint32_t compressed = 0;
   uint32_t first = 0;
@@ -1888,7 +1888,7 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+dissect_rdp_shareDataHeader(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
   uint32_t pduType2 = 0;
   uint32_t compressedType;
   uint32_t action = 0;
@@ -2035,7 +2035,7 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static int
-dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t numberCapabilities) {
+dissect_rdp_capabilitySets(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, uint32_t numberCapabilities) {
   unsigned   i;
   uint32_t lengthCapability = 0;
   uint32_t capabilityType = 0;
@@ -2122,7 +2122,7 @@ dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 static int
-dissect_rdp_demandActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+dissect_rdp_demandActivePDU(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
 
   uint32_t lengthSourceDescriptor;
   uint32_t numberCapabilities = 0;
@@ -2151,7 +2151,7 @@ dissect_rdp_demandActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 static int
-dissect_rdp_confirmActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+dissect_rdp_confirmActivePDU(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
 
   uint32_t lengthSourceDescriptor;
   uint32_t numberCapabilities = 0;
@@ -2191,8 +2191,8 @@ dissect_rdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 }
 
 
-int
-dissect_rdp_bandwidth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bool to_server)
+unsigned
+dissect_rdp_bandwidth_req(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, bool to_server)
 {
 	uint16_t payloadLength;
 	rdp_field_info_t bandwidth_fields[] = {
@@ -2345,7 +2345,7 @@ static int
 dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 	proto_item *pi;
 	proto_tree *next_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t flags = 0;
 
 	rdp_field_info_t secFlags_fields[] = {
@@ -2453,7 +2453,7 @@ dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int
 dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   proto_item      *pi;
-  int              offset       = 0;
+  unsigned         offset       = 0;
   uint32_t         flags        = 0;
   uint32_t         cbDomain, cbUserName, cbPassword, cbAlternateShell, cbWorkingDir,
                    cbClientAddress, cbClientDir, cbAutoReconnectLen, wBlobLen, cbDynamicDSTTimeZoneKeyName, pduType = 0;
@@ -2737,7 +2737,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 static int
-dissect_rdp_monitor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+dissect_rdp_monitor(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
 
   uint32_t monitorCount, i;
   proto_item *monitorDef_item;
@@ -2773,7 +2773,7 @@ dissect_rdp_monitor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 static int
 dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-  int              offset    = 0;
+  unsigned         offset    = 0;
   proto_item      *pi;
   proto_tree      *next_tree;
   uint16_t         type;
@@ -2954,7 +2954,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 static int
 dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-  int              offset           = 0;
+  unsigned         offset           = 0;
   proto_item      *pi;
   proto_tree      *next_tree;
   uint16_t         type;
@@ -3065,7 +3065,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       break;
 
     case SC_SECURITY: {
-      int lcl_offset;
+      unsigned lcl_offset;
       pi         = proto_tree_add_item(tree, hf_rdp_serverSecurityData, tvb, offset, length, ENC_NA);
       next_tree  = proto_item_add_subtree(pi, ett_rdp_serverSecurityData);
 
@@ -3085,7 +3085,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
 
     case SC_NET: {
-      int lcl_offset;
+      unsigned lcl_offset;
       pi        = proto_tree_add_item(tree, hf_rdp_serverNetworkData, tvb, offset, length, ENC_NA);
       next_tree = proto_item_add_subtree(pi, ett_rdp_serverNetworkData);
 
@@ -3143,7 +3143,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 /* Dissect extra data in a CR PDU */
 static int
-dissect_rdpCorrelationInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+dissect_rdpCorrelationInfo(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
   uint32_t type;
   uint32_t length;
   proto_item *type_item, *length_item;
@@ -3170,7 +3170,7 @@ dissect_rdpCorrelationInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 static int
-dissect_rdpNegReq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+dissect_rdpNegReq(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
   uint64_t flags;
   uint32_t length;
   proto_item *length_item;
@@ -3220,12 +3220,12 @@ dissect_rdpNegReq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 static int
 dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-  int offset = 0;
+  unsigned offset = 0;
   bool have_cookie = false;
   bool have_rdpNegRequest = false;
   proto_item *item;
   proto_tree *tree;
-  int linelen, next_offset;
+  unsigned linelen, next_offset;
   const char *stringval;
   const char *sep = "";
 
@@ -3256,11 +3256,11 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
 
   if (have_cookie) {
     /* XXX - distinguish between routing token and cookie? */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, true);
+    bool found = tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset);
     proto_tree_add_item_ret_string(tree, hf_rdp_rt_cookie, tvb, offset,
                                    linelen, ENC_ASCII|ENC_NA,
                                    pinfo->pool, (const uint8_t**)&stringval);
-    offset = (linelen == -1) ? (int)tvb_captured_length(tvb) : next_offset;
+    offset = (found == false) ? tvb_captured_length(tvb) : next_offset;
     col_append_str(pinfo->cinfo, COL_INFO, format_text(pinfo->pool, stringval, strlen(stringval)));
     sep = ", ";
   }
@@ -3282,7 +3282,7 @@ dissect_rdp_cr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
 /* Dissect extra data in a CC PDU */
 static int
-dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+dissect_rdpNegRsp(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
   uint32_t length;
   uint32_t selectedProto;
   proto_item *length_item;
@@ -3321,7 +3321,7 @@ dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 }
 
 static int
-dissect_rdpNegFailure(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+dissect_rdpNegFailure(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
   uint32_t length;
   proto_item *length_item;
   uint32_t failureCode;
@@ -3348,7 +3348,7 @@ dissect_rdpNegFailure(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 static int
 dissect_rdp_cc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-  int offset = 0;
+  unsigned offset = 0;
   uint8_t type;
   uint16_t length;
   bool ours = false;
@@ -3674,7 +3674,7 @@ dissect_rdp_fastpath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 static bool
 dissect_rdp_rdstls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U_, void* data _U_)
 {
-	int pdu_length = 6;
+	unsigned pdu_length = 6;
 	int datatype_hf;
 	uint32_t cbRedirectionGuid = 0;
 	uint32_t cbUsername = 0;
@@ -3725,7 +3725,7 @@ dissect_rdp_rdstls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U
 	case 2: {
 		/* auth request */
 		unsigned nstrings;
-		int tmpOffset = 6;
+		unsigned tmpOffset = 6;
 
 		datatype_hf = hf_rdp_rdstls_dataTypeAuthReq;
 		switch (dataType) {
@@ -3782,7 +3782,7 @@ dissect_rdp_rdstls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U
 	proto_tree_add_item(tree, hf_rdp_rdstls_pduType, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, datatype_hf, tvb, 4, 2, ENC_LITTLE_ENDIAN);
 
-	int offset = 6;
+	unsigned offset = 6;
 	switch (pduType) {
 	case 1:
 		/* capabilities */

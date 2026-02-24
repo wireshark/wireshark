@@ -25,7 +25,7 @@ static void
 dissect_ser(tvbuff_t *tvb, proto_tree *tree);
 
 static rmi_type
-get_rmi_type(tvbuff_t *tvb, int offset, int datalen);
+get_rmi_type(tvbuff_t *tvb, unsigned offset, unsigned datalen);
 
 /* Initialize the protocol and registered fields */
 static int proto_rmi;
@@ -101,9 +101,9 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     tvbuff_t   *next_tvb;
 
-    int         offset = 0;
-    int         next_offset;
-    int         datalen;
+    unsigned    offset = 0;
+    unsigned    next_offset;
+    unsigned    datalen;
 
     uint16_t    version, len, port;
     uint8_t     message, proto;
@@ -113,7 +113,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMI");
 
-    datalen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+    tvb_find_line_end_remaining(tvb, offset, &datalen, &next_offset);
 
     rmitype = get_rmi_type(tvb, offset, datalen);
 
@@ -228,7 +228,7 @@ dissect_ser(tvbuff_t *tvb, proto_tree *tree)
     proto_item *ti;
     proto_tree *ser_tree;
 
-    int offset;
+    unsigned offset;
 
     offset = 0;
 
@@ -244,7 +244,7 @@ dissect_ser(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static rmi_type
-get_rmi_type(tvbuff_t *tvb, int offset, int datalen)
+get_rmi_type(tvbuff_t *tvb, unsigned offset, unsigned datalen)
 {
     uint16_t ser_magic;
     unsigned char  data[4];

@@ -3405,7 +3405,7 @@ dissect_sip_common(tvbuff_t *tvb, unsigned offset, unsigned remaining_length, pa
     }
 
     /*
-     * Note that "tvb_find_line_end()" will return a value that
+     * Note that "tvb_find_line_end_length()" will return a value that
      * is not longer than what's in the buffer, so the
      * "tvb_get_ptr()" calls below won't throw exceptions.
      *

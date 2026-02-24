@@ -139,15 +139,14 @@ dissect_nasdaq_soup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     proto_item *ti;
     proto_tree *nasdaq_soup_tree = NULL;
     uint8_t nasdaq_soup_type;
-    int  linelen;
-    int next_offset;
-    int  offset = 0;
-    int counter = 0;
+    unsigned linelen;
+    unsigned next_offset;
+    unsigned offset = 0;
+    unsigned counter = 0;
 
     while (tvb_offset_exists(tvb, offset)) {
       /* there's only a \n no \r */
-      linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, nasdaq_soup_desegment && pinfo->can_desegment);
-      if (linelen == -1) {
+      if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
         /*
          * We didn't find a line ending, and we're doing desegmentation;
          * tell the TCP dissector where the data for this message starts

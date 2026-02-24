@@ -136,17 +136,17 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   bool                   is_continuation;
   proto_tree             *pop_tree, *reqresp_tree;
   proto_item             *ti;
-  int                    offset = 0;
+  unsigned               offset = 0;
   unsigned char          *line;
-  int                    next_offset;
-  int                    linelen;
-  int                    tokenlen;
+  unsigned               next_offset;
+  unsigned               linelen;
+  unsigned               tokenlen;
   const unsigned char    *next_token;
   fragment_head          *frag_msg;
   tvbuff_t               *next_tvb;
   conversation_t         *conversation;
   struct pop_data_val    *data_val;
-  int                    length_remaining;
+  unsigned               length_remaining;
   pop_arg_type_t         pop_arg_type = pop_arg_type_unknown;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "POP");
@@ -166,7 +166,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   /*
    * Find the end of the first line.
    */
-  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+  tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset);
   line = (unsigned char*)wmem_alloc(pinfo->pool, linelen+1);
   tvb_memcpy(tvb, line, offset, linelen);
   line[linelen] = '\0';
@@ -389,7 +389,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /*
      * Find the end of the line.
      */
-    tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+    tvb_find_line_end_remaining(tvb, offset, NULL, &next_offset);
 
     /*
      * Put this line.
