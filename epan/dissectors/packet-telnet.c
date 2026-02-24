@@ -1504,10 +1504,10 @@ dissect_vmware_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t 
       }
       wmem_free(pinfo->pool, (void *)conv_key[0].blob.val);
     }
-    if (session->vmotion_sequence_len >= 0 && session->vmotion_sequence_len <= len) {
-      proto_tree_add_item(tree, hf_telnet_vmware_vmotion_sequence, tvb, offset, (int)session->vmotion_sequence_len, ENC_NA);
-      offset += (int)session->vmotion_sequence_len;
-      len -= (int)session->vmotion_sequence_len;
+    if (session->vmotion_sequence_len >= 0 && (unsigned)session->vmotion_sequence_len <= len) {
+      proto_tree_add_item(tree, hf_telnet_vmware_vmotion_sequence, tvb, offset, (unsigned)session->vmotion_sequence_len, ENC_NA);
+      offset += (unsigned)session->vmotion_sequence_len;
+      len -= (unsigned)session->vmotion_sequence_len;
 
       proto_tree_add_item(tree, hf_telnet_vmware_vmotion_secret, tvb, offset, len, ENC_NA);
       offset += len;
