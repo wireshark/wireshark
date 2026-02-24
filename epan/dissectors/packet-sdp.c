@@ -1542,6 +1542,8 @@ static const string_string media_format_str_types[] = {
     { "mcptt",    "Mission Critical Push To Talk"},
     /* ETSI TS 124 581 */
     { "mcvideo",  "Mission Critical Video"},
+    /* ETSI TS 124 582 */
+    { "mcdata",  "Mission Critical Data"},
     /* OMA PoC Control Plane */
     { "tbcp",     "Talk Burst Control Protocol"},
     { NULL, NULL }
