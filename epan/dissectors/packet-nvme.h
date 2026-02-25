@@ -53,6 +53,7 @@ struct nvme_cmd_ctx {
             uint16_t cns;
         } cmd_identify;
         struct {
+            uint64_t off;
             unsigned records;
             unsigned tr_rcrd_id;
             unsigned tr_off;
@@ -60,8 +61,8 @@ struct nvme_cmd_ctx {
             uint16_t lsi;
             uint8_t lid;
             uint8_t lsp;
-            uint64_t off;
             uint8_t uid_idx;
+            uint8_t tr_type;
         } get_logpage;
         struct {
             uint8_t fid;
