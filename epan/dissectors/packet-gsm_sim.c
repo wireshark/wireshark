@@ -2847,6 +2847,12 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, apdu_len, ENC_NA);
 			response_only = false;
 			break;
+		case 0x70: /* MANAGE CHANNEL */
+			if (p1 == 0 && p2 == 0) {
+				/* Logical channels are assigned by the card when P2 is 0. */
+				proto_tree_add_item(sim_tree, hf_chan_nr, tvb, offset, apdu_len, ENC_BIG_ENDIAN);
+			}
+			break;
 		case 0x76: /* SUSPEND UICC */
 			proto_tree_add_item(sim_tree, hf_suspend_uicc_max_time_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(sim_tree, hf_suspend_uicc_max_time_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
