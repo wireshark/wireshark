@@ -8333,7 +8333,7 @@ proto_register_artnet(void) {
     &ett_artnet_tod_data_tod
   };
 
-  proto_artnet = proto_register_protocol("Art-Net", "ARTNET", "artnet");
+  proto_artnet = proto_register_protocol("Art-Net", "Art-Net", "artnet");
   proto_register_field_array(proto_artnet, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
