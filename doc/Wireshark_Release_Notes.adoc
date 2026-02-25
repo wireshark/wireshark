@@ -33,7 +33,7 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 * wssalink:2026-05[] {notable}
 USB HID dissector memory exhaustion.
 wsbuglink:20972[].
-// cveidlink:2026-xxx[].
+cveidlink:2026-3201[].
 // Fixed in master: f87c426b30
 // Fixed in release-4.6: 168bf05775
 // Fixed in release-4.4: 5e80615ebc
@@ -44,7 +44,7 @@ wsbuglink:20972[].
 * wssalink:2026-06[] {notable}
 NTS-KE dissector crash.
 wsbuglink:21000[].
-// cveidlink:2026-xxx[].
+cveidlink:2026-3202[].
 // Fixed in master: 5fdfc57804
 // Fixed in release-4.6: 73d4e7eaff
 // Fixed in release-4.4: n/a
@@ -55,7 +55,7 @@ wsbuglink:21000[].
 * wssalink:2026-07[] {notable}
 RF4CE Profile dissector crash.
 wsbuglink:21009[].
-// cveidlink:2026-xxx[].
+cveidlink:2026-3203[].
 // Fixed in master: 17215397c1
 // Fixed in release-4.6: 0c4c5a531f
 // Fixed in release-4.4: d487e0e07b
@@ -95,6 +95,7 @@ The following bugs have been fixed:
 * Only first HTTP POST is parsed inside SOCKS with "Decode As". wsbuglink:21006[].
 * TShark: Bogus "Dissector bug" messages generated in pipelines where something after tshark exits before reading all its input. wsbuglink:21011[].
 * New Diameter RAT-Types in TS 29.212 not decoded. wsbuglink:21012[].
+* Malformed packet error on Trigger HE Basic frames. wsbuglink:21032[].
 
 // == Known Bugs
 
@@ -114,11 +115,12 @@ There are no new protocols in this release.
 // rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.4.. | rg packet- | sort -u)
 [commaize]
 --
-ARTNET
+Art-Net
 AT
 BGP
 GSM DTAP
 GSM SIM
+IEEE 802.11
 IPv6
 ISAKMP
 MBIM
