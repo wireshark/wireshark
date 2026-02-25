@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<logcode name="NR5G NAS 5GSM Plain OTA Incoming Message" code="0xB800" />
+<logcode name="NR5G NAS 5GSM Plain OTA Outgoing Message" code="0xB801" />
+<logcode name="NR5G NAS 5GMM Security Protected OTA Incoming Message" code="0xB808" />
+<logcode name="NR5G NAS 5GMM Security Protected OTA Outgoing Message" code="0xB809" />
+<logcode name="NR5G NAS 5GMM Plain OTA Incoming Message" code="0xB80A" />
+<logcode name="NR5G NAS 5GMM Plain OTA Outgoing Message" code="0xB80B" />
+<logcode name="NR5G NAS 5GMM State" code="0xB80C" />
+<logcode name="NR5G NAS 5GMM Plain OTA Container Message" code="0xB814" />
+<logcode name="NR5G RRC OTA Packet" code="0xB821" />
+<logcode name="NR5G RRC MIB Info" code="0xB822" />
+<logcode name="NR5G RRC Serving Cell Info" code="0xB823" />
+<logcode name="NR5G RRC Configuration Info" code="0xB825" />
+<logcode name="NR5G RRC Supported CA Combinations" code="0xB826" />

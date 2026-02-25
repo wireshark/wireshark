@@ -18,6 +18,7 @@
       <ComponentGroupRef Id="CG.Diameter" />
       <ComponentGroupRef Id="CG.RadiusDict" />
       <ComponentGroupRef Id="CG.Dtds" />
+      <ComponentGroupRef Id="CG.Qualcomm" />
       <ComponentGroupRef Id="CG.Tpncp" />
       <ComponentGroupRef Id="CG.Wimaxasncp" />
       <ComponentGroupRef Id="CG.Protobuf" />

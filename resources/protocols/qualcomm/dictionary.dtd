@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!ELEMENT dictionary (logcode*)>
+
+<!ELEMENT logcode EMPTY>
+<!ATTLIST logcode
+	name CDATA #REQUIRED
+	code CDATA #REQUIRED
+>

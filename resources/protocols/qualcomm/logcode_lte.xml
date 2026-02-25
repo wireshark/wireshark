@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<logcode name="LTE RRC OTA" code="0xB0C0" />
+<logcode name="LTE RRC MIB Message" code="0xB0C1" />
+<logcode name="LTE RRC Serving Cell Info" code="0xB0C2" />
+<logcode name="LTE RRC Supported CA Combos" code="0xB0CD" />
+<logcode name="LTE NAS ESM Security Protected Incoming Message" code="0xB0E0" />
+<logcode name="LTE NAS ESM Security Protected Outgoing Message" code="0xB0E1" />
+<logcode name="LTE NAS ESM Plain OTA Incoming Message" code="0xB0E2" />
+<logcode name="LTE NAS ESM Plain OTA Outgoing Message" code="0xB0E3" />
+<logcode name="LTE NAS EMM Security Protected Incoming Message" code="0xB0EA" />
+<logcode name="LTE NAS EMM Security Protected Outgoing Message" code="0xB0EB" />
+<logcode name="LTE NAS EMM Plain OTA Incoming Message" code="0xB0EC" />
+<logcode name="LTE NAS EMM Plain OTA Outgoing Message" code="0xB0ED" />
+<logcode name="LTE NAS EMM State" code="0xB0EE" />

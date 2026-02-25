@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<logcode name="WCDMA Search Cell Reselection Rank" code="0x4005" />
+<logcode name="WCDMA RRC States" code="0x4125" />
+<logcode name="WCDMA RRC Protocol Errors" code="0x4126" />
+<logcode name="WCDMA Cell ID" code="0x4127" />
+<logcode name="WCDMA UL Channel Mapping" code="0x4128" />
+<logcode name="WCDMA DL Channel Mapping" code="0x4129" />
+<logcode name="WCDMA CSG Finger Print Info" code="0x412A" />
+<logcode name="WCDMA SIB" code="0x412B" />
+<logcode name="WCDMA Signaling Messages" code="0x412F" />
+<logcode name="WCDMA RLC DL AM Signaling PDU" code="0x4135" />
+<logcode name="WCDMA RLC UL AM Signaling PDU" code="0x413C" />
+<logcode name="WCDMA RLC UL AM Control PDU LOG" code="0x4145" />
+<logcode name="WCDMA RLC DL AM Control PDU LOG" code="0x4146" />
+<logcode name="WCDMA RLC DL PDU Cipher Packet" code="0x4168" />
+<logcode name="WCDMA RLC UL PDU Cipher Packet" code="0x4169" />
+<logcode name="WCDMA PN Search Edition 2" code="0x4179" />
+<logcode name="WCDMA Freq Scan" code="0x41B0" />

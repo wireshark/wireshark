@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Log Code Sources:
+https://cgit.osmocom.org/osmo-qcdiag
+https://github.com/fgsect/scat
+https://github.com/bcyj/android_tools_leeco_msm8996
+https://github.com/crs-chin/qlogsort
+https://github.com/woodstone10/qualcomm_automation_script_log_filter_and_merge-perl
+https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/wlan/qcacld-2.0
+-->
+
+<!DOCTYPE dictionary SYSTEM "dictionary.dtd" [
+    <!ENTITY logcode_1x    SYSTEM "logcode_1x.xml">
+    <!ENTITY logcode_gsm   SYSTEM "logcode_gsm.xml">
+    <!ENTITY logcode_lte   SYSTEM "logcode_lte.xml">
+    <!ENTITY logcode_nr    SYSTEM "logcode_nr.xml">
+    <!ENTITY logcode_umts  SYSTEM "logcode_umts.xml">
+    <!ENTITY logcode_wcdma SYSTEM "logcode_wcdma.xml">
+]>
+
+<dictionary>
+    &logcode_1x;
+    &logcode_wcdma;
+    &logcode_gsm;
+    &logcode_umts;
+    &logcode_lte;
+    &logcode_nr;
+</dictionary>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<logcode name="UMTS NAS_GMM State" code="0x7130" />
+<logcode name="UMTS NAS_MM State" code="0x7131" />
+<logcode name="UMTS NAS_REG State" code="0x7132" />
+<logcode name="UMTS NAS CS Connection Management Call Setup" code="0x7133" />
+<logcode name="UMTS NAS PS Connection Management" code="0x7134" />
+<logcode name="UMTS NAS MM Characteristics" code="0x7135" />
+<logcode name="UMTS NAS QoS" code="0x7136" />
+<logcode name="UMTS NAS Connection Bearer Capability" code="0x7137" />
+<logcode name="UMTS UE Dynamic ID" code="0x7138" />
+<logcode name="UMTS UE Static ID" code="0x7139" />
+<logcode name="UMTS UE OTA" code="0x713A" />
+<logcode name="UMTS NAS CFA" code="0x713B" />
+<logcode name="UMTS NAS Error" code="0x713C" />
+<logcode name="UMTS NAS CS Connection Management Call Release Information" code="0x713D" />
+<logcode name="UMTS NAS CS Connection Management Call Change Information" code="0x713E" />
+<logcode name="UMTS DSDS NAS Signaling Messages" code="0x7B3A" />

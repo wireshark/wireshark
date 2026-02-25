@@ -963,6 +963,20 @@ File "${STAGING_DIR}\wimaxasncp\dictionary.xml"
 File "${STAGING_DIR}\wimaxasncp\dictionary.dtd"
 SetOutPath $INSTDIR
 
+;
+; Install the Qualcomm DTD and XML files in the "qualcomm" subdirectory
+;
+SetOutPath $INSTDIR\qualcomm
+File "${STAGING_DIR}\qualcomm\dictionary.dtd"
+File "${STAGING_DIR}\qualcomm\dictionary.xml"
+File "${STAGING_DIR}\qualcomm\logcode_1x.xml"
+File "${STAGING_DIR}\qualcomm\logcode_gsm.xml"
+File "${STAGING_DIR}\qualcomm\logcode_lte.xml"
+File "${STAGING_DIR}\qualcomm\logcode_nr.xml"
+File "${STAGING_DIR}\qualcomm\logcode_umts.xml"
+File "${STAGING_DIR}\qualcomm\logcode_wcdma.xml"
+SetOutPath $INSTDIR
+
 ; Write the installation path into the registry for InstallDirRegKey
 WriteRegStr HKEY_LOCAL_MACHINE SOFTWARE\${PROGRAM_NAME} InstallDir "$INSTDIR"
 
@@ -1421,6 +1435,7 @@ Delete "$INSTDIR\networkinformation\*.*"
 Delete "$INSTDIR\platforms\*.*"
 Delete "$INSTDIR\playlistformats\*.*"
 Delete "$INSTDIR\printsupport\*.*"
+Delete "$INSTDIR\qualcomm\*.*"
 Delete "$INSTDIR\share\glib-2.0\schemas\*.*"
 Delete "$INSTDIR\snmp\*.*"
 Delete "$INSTDIR\snmp\mibs\*.*"
@@ -1481,6 +1496,7 @@ RMDir "$INSTDIR\snmp"
 RMDir "$INSTDIR\radius"
 RMDir "$INSTDIR\dtds"
 RMDir "$INSTDIR\protobuf"
+RMDir "$INSTDIR\qualcomm"
 RMDir "$INSTDIR\tls"
 RMDir "$INSTDIR\tpncp"
 RMDir "$INSTDIR\translations"

@@ -2249,6 +2249,7 @@ set(INSTALL_DIRS
 	resources/protocols/diameter
 	resources/protocols/dtds
 	resources/protocols/json
+	resources/protocols/qualcomm
 	resources/protocols/radius
 	resources/protocols/tpncp
 	resources/protocols/wimaxasncp
@@ -2777,6 +2778,29 @@ add_custom_command(
 	WORKING_DIRECTORY ${_protocol_data_dir}
 )
 
+file(GLOB _qualcomm_src_files RELATIVE ${_protocol_data_dir}
+	${_protocol_data_dir}/qualcomm/*.dtd
+	${_protocol_data_dir}/qualcomm/*.xml
+)
+
+set (_qualcomm_data_files)
+set (_qualcomm_dep_files)
+foreach(_data_file ${_qualcomm_src_files})
+	list(APPEND _qualcomm_data_files ${DATAFILE_DIR}/${_data_file})
+	list(APPEND _qualcomm_dep_files ${_protocol_data_dir}/${_data_file})
+endforeach()
+
+add_custom_command(
+	OUTPUT ${_qualcomm_data_files}
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/qualcomm
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		${_qualcomm_src_files}
+		${DATAFILE_DIR}/qualcomm
+	VERBATIM
+	DEPENDS ${_qualcomm_dep_files}
+	WORKING_DIRECTORY ${_protocol_data_dir}
+)
+
 set(_profiles_src_dir ${CMAKE_SOURCE_DIR}/resources/share/wireshark/profiles)
 file(GLOB WIRESHARK_PROFILE_FILES RELATIVE ${_profiles_src_dir} ${_profiles_src_dir}/*/*)
 set (_profiles_data_files)
@@ -2811,6 +2835,7 @@ endif()
 list(APPEND copy_data_files_depends
 	${_dtds_data_files}
 	${_diameter_data_files}
+	${_qualcomm_data_files}
 	${_radius_data_files}
 	${_json_dict_data_files}
 	${_protobuf_data_files}

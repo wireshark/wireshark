@@ -73,6 +73,9 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'resources/protocols/diameter/dictionary.dtd': [
         'UNKNOWN',
     ],
+    'resources/protocols/qualcomm': [
+        'UNKNOWN',
+    ],
     'resources/protocols/wimaxasncp/dictionary.dtd': [
         'UNKNOWN',
     ],

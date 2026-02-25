@@ -930,7 +930,7 @@ dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
 
     /* 'GPRS MAC Signaling Message' does not have the 'GSM RLC/MAC' header byte
 
-	   [0x5226] GPRS MAC Signaling Message  (Downlink)
+       [0x5226] GPRS MAC Signaling Message  (Downlink)
        Channel Type (1 byte)
        Message Type (1 byte)
        Length       (1 byte)
@@ -940,7 +940,7 @@ dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
          PAGE_MODE (2 bits)
 
 
-	   [0x5226] GPRS MAC Signaling Message  (Uplink)
+       [0x5226] GPRS MAC Signaling Message  (Uplink)
        Channel Type (1 byte)
        Message Type (1 byte)
        Length       (1 byte)
@@ -1343,7 +1343,7 @@ dissect_qcdiag_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_string(tree, hf_qcdiag_log_timestamp, tvb, offset, 8, timestamp);
     offset += 8;
 
-    str = val_to_str_ext(pinfo->pool, code, &qcdiag_logcodes_ext, "Unknown Log Code (0x%04x)");
+    str = val_to_str_ext(pinfo->pool, code, qcdiag_logcodes_ext, "Unknown Log Code (0x%04x)");
 
     ti = proto_tree_get_parent(tree);
     col_set_str(pinfo->cinfo, COL_INFO, str);
@@ -1536,7 +1536,7 @@ proto_register_qcdiag_log(void)
     proto_register_field_array(proto_qcdiag_log, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-	/* Register dissector table(s) to do sub dissection of Log Codes */
+    /* Register dissector table(s) to do sub dissection of Log Codes */
     qcdiag_log_code_dissector_table = register_dissector_table("qcdiag_log.code", "QCDIAG LOG code", proto_qcdiag_log, FT_UINT16, BASE_HEX);
 }
 

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<logcode name="GSM Power Scan Results" code="0x5064" />
+<logcode name="GSM L1 FCCH Acquisition" code="0x5065" />
+<logcode name="GSM L1 SCH Acquisition" code="0x5066" />
+<logcode name="GSM L1 New Burst Metrics" code="0x506A" />
+<logcode name="GSM L1 Burst Metrics" code="0x506C" />
+<logcode name="GSM Surround Cell BA List" code="0x5071" />
+<logcode name="GSM L1 Neighbor Cell Acquisition" code="0x5075" />
+<logcode name="GSM L1 Serving Auxiliary Measurments" code="0x507A" />
+<logcode name="GSM L1 Neighbor Cell Auxiliary Measurments" code="0x507B" />
+<logcode name="GSM AFC Adjust" code="0x507C" />
+<logcode name="GSM L1 Monitor Bursts" code="0x5082" />
+<logcode name="GSM L1 Neighbor Cell BCCH Burst Metrics" code="0x5085" />
+<logcode name="GSM MDSP Command" code="0x508C" />
+<logcode name="GSM GL1 HW Command" code="0x508D" />
+<logcode name="GSM L2 States" code="0x50C8" />
+<logcode name="GSM L2 Transmission Status" code="0x50C9" />
+<logcode name="GSM L2 Outstanding Frame" code="0x50CA" />
+<logcode name="GSM RR State" code="0x512C" />
+<logcode name="GSM RR Signaling Message" code="0x512F" />
+<logcode name="GSM RR Control Channel Desc Parameters" code="0x5132" />
+<logcode name="GSM RR Cell Information" code="0x5134" />
+<logcode name="GPRS Indicators" code="0x51F4" />
+<logcode name="GPRS General Parameters" code="0x51F5" />
+<logcode name="GPRS Cell Options" code="0x51F6" />
+<logcode name="GPRS Power Control Parameters" code="0x51F7" />
+<logcode name="GPRS Mobile Allocation" code="0x51F8" />
+<logcode name="GPRS PBCCH Description" code="0x51F9" />
+<logcode name="GPRS GRR State" code="0x51FA" />
+<logcode name="GSM RR Cell Reselection Parameters" code="0x51FB" />
+<logcode name="GSM RR Cell Reselection Measurements" code="0x51FC" />
+<logcode name="GPRS RR Packet System Information 1" code="0x51FD" />
+<logcode name="GPRS RR Packet System Information 2" code="0x51FE" />
+<logcode name="GPRS RR Packet System Information 3" code="0x51FF" />
+<logcode name="GPRS RLC-UL Abnormal Release Counts" code="0x5200" />
+<logcode name="GPRS RLC-UL Event Counts" code="0x5201" />
+<logcode name="GPRS RLC-UL Statistics" code="0x5202" />
+<logcode name="EGPRS Uplink Header" code="0x5205" />
+<logcode name="EGPRS Downlink Header" code="0x5206" />
+<logcode name="EGPRS RLC Uplink Statistics" code="0x5207" />
+<logcode name="EGPRS RLC Downlink Statistics" code="0x5208" />
+<logcode name="EGPRS RLC EPUAN" code="0x5209" />
+<logcode name="GPRS RLC-DL Statistics" code="0x520A" />
+<logcode name="GPRS RLC-UL AckNack Parameters" code="0x520B" />
+<logcode name="GPRS RLC-DL AckNack Parameters" code="0x520C" />
+<logcode name="GPRS RLC-UL Release Indication" code="0x520D" />
+<logcode name="GPRS RLC-DL Release Indication" code="0x520E" />
+<logcode name="GPRS RLC-UL AckNack Parameters" code="0x520F" />
+<logcode name="GPRS RLC-DL AckNack Parameters" code="0x5210" />
+<logcode name="EGPRS RLC EPDAN" code="0x5211" />
+<logcode name="GPRS LLC ME (LLME) Information" code="0x5212" />
+<logcode name="GPRS LLC SAPI States" code="0x5213" />
+<logcode name="GPRS LLC XID Information" code="0x5214" />
+<logcode name="GPRS LLC PDU Statistics" code="0x5215" />
+<logcode name="GPRS LLC Periodic Statistics" code="0x5216" />
+<logcode name="GPRS LLC Ready Timer Status" code="0x5217" />
+<logcode name="GPRS LLC UI Send PDU" code="0x5218" />
+<logcode name="GPRS LLC UI Receive PDU" code="0x5219" />
+<logcode name="GPRS LLC Ready Timer Status Version 2" code="0x521A" />
+<logcode name="GPRS SNDCP Active PDP Contexts" code="0x521C" />
+<logcode name="GPRS SNDCP PDP CONTEXT Information" code="0x521D" />
+<logcode name="GPRS SNDCP States" code="0x521E" />
+<logcode name="GPRS SNDCP PDU Statistics" code="0x521F" />
+<logcode name="GPRS SNDCP UL TCP Header" code="0x5220" />
+<logcode name="GPRS SNDCP DL TCP Header" code="0x5221" />
+<logcode name="GPRS MAC Signaling Message" code="0x5226" />
+<logcode name="GPRS MAC State" code="0x5227" />
+<logcode name="GPRS MAC UL TBF Establishment" code="0x5228" />
+<logcode name="GPRS MAC UL TBF Release" code="0x5229" />
+<logcode name="GPRS MAC DL TBF Establishment" code="0x522A" />
+<logcode name="GPRS MAC DL TBF Release" code="0x522B" />
+<logcode name="EGPRS MAC UL ACK/NACK" code="0x522C" />
+<logcode name="EGPRS MAC DL ACK/NACK" code="0x522D" />
+<logcode name="GPRS SM/GMM OTA Signaling Message" code="0x5230" />
+<logcode name="GPRS Air Interface Summary" code="0x5231" />
+<logcode name="GPRS AGC" code="0x5232" />
+<logcode name="GPRS Timing Advance" code="0x5233" />
+<logcode name="GPRS Power Control" code="0x5234" />
+<logcode name="GPRS L1 Transfer Summary" code="0x5235" />
+<logcode name="GPRS Tx Scheduled Results" code="0x5237" />
+<logcode name="GPRS Frame Scheduler Information" code="0x523A" />
+<logcode name="GPRS Receive Burst Metrics A" code="0x5245" />
+<logcode name="GPRS Receive Burst Metrics B" code="0x5246" />
+<logcode name="GPRS Receive Burst Metrics C" code="0x5247" />
+<logcode name="GPRS Receive Burst Metrics D" code="0x5248" />
+<logcode name="GPRS DLPTCCH Burst Metric" code="0x5251" />
+<logcode name="GPRS DLPTCCH Message Metric" code="0x5252" />
+<logcode name="GSM DSDS L1 FCCH Acquisition" code="0x5A65" />
+<logcode name="GSM DSDS L1 SCH Acquisition" code="0x5A66" />
+<logcode name="GSM DSDS L1 Burst Metrics" code="0x5A6C" />
+<logcode name="GSM DSDS Surround Cell BA List" code="0x5A71" />
+<logcode name="GSM DSDS L1 Serving Auxiliary Measurements" code="0x5A7A" />
+<logcode name="GSM DSDS L1 Neighbor Cell Auxiliary Measurements" code="0x5A7B" />
+<logcode name="GSM DSDS RR Signaling Message" code="0x5B2F" />
+<logcode name="GSM DSDS RR Cell Information" code="0x5B34" />
+<logcode name="GPRS DSDS RR Packet System Information 1" code="0x5BFD" />
+<logcode name="GPRS DSDS RR Packet System Information 2" code="0x5BFE" />
+<logcode name="GPRS DSDS RR Packet System Information 3" code="0x5BFF" />

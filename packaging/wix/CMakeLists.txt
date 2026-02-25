@@ -12,6 +12,7 @@
 set(WIX_GENERATED_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/DependentComponents.wxs
 	${CMAKE_CURRENT_BINARY_DIR}/Diameter.wxs
+	${CMAKE_CURRENT_BINARY_DIR}/Qualcomm.wxs
 	${CMAKE_CURRENT_BINARY_DIR}/QtDependentComponents.wxs
 	${CMAKE_CURRENT_BINARY_DIR}/QtTranslation.wxs
 	${CMAKE_CURRENT_BINARY_DIR}/RadiusDict.wxs
@@ -44,6 +45,7 @@ set(WIX_FILES
 set(WIX_OUT_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/DependentComponents.wixobj
 	${CMAKE_CURRENT_BINARY_DIR}/Diameter.wixobj
+	${CMAKE_CURRENT_BINARY_DIR}/Qualcomm.wixobj
 	${CMAKE_CURRENT_BINARY_DIR}/QtDependentComponents.wixobj
 	${CMAKE_CURRENT_BINARY_DIR}/QtTranslation.wixobj
 	${CMAKE_CURRENT_BINARY_DIR}/RadiusDict.wixobj
@@ -192,6 +194,7 @@ set(WIX_CANDLE_DEFINES
 	-dAssetDir=${CMAKE_SOURCE_DIR}/packaging/wix
 	-dBuildOutputDir=${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}
 	-dDiameterDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/diameter
+	-dQualcommDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/qualcomm
 	-dIconDir=${CMAKE_SOURCE_DIR}/resources/icons
 	-dQtTranslationDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/translations
 	-dRadiusDictDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/radius
@@ -281,6 +284,14 @@ macro( ADD_WIX_PACKAGE_TARGET )
 					-out ${_wix_binary_dir}/Diameter.wxs
 		)
 
+		# Qualcomm.wxs. Collects all Qualcomm XML dictionary files
+		# in "output" qualcomm directory. Generated with heat.exe
+		add_custom_command(OUTPUT ${_wix_binary_dir}/Qualcomm.wxs
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/qualcomm
+					${WIX_HEAT_FLAGS} -cg CG.Qualcomm -dr dirQualcomm -var var.QualcommDir
+					-out ${_wix_binary_dir}/Qualcomm.wxs
+		)
+
 		# QtTranslation.wxs. Collects all Qt translation files in
 		# "output" translations directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/QtTranslation.wxs
@@ -334,6 +345,7 @@ set(CLEAN_FILES
 	SNMPMibs.wxs
 	RadiusDict.wxs
 	Diameter.wxs
+	Qualcomm.wxs
 	QtTranslation.wxs
 	wireshark-${VERSION}-${WIRESHARK_TARGET_PLATFORM}.msi
 )

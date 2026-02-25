@@ -1,0 +1,1273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<logcode name="Temporal Analyzer (Obsolete)" code="0x1000" />
+<logcode name="Automatic Gain Control (AGC) Power Control (Obsolete)" code="0x1001" />
+<logcode name="Forward Link Frame Types (Obsolete)" code="0x1002" />
+<logcode name="Reverse Link Frame Types (Obsolete)" code="0x1003" />
+<logcode name="Access Channel Message" code="0x1004" />
+<logcode name="Reverse Channel Traffic Message" code="0x1005" />
+<logcode name="Sync Channel Traffic Message" code="0x1006" />
+<logcode name="Paging Channel Message" code="0x1007" />
+<logcode name="Forward Channel Traffic Message" code="0x1008" />
+<logcode name="Forward Link Vocoder Packet" code="0x1009" />
+<logcode name="Reverse Link Vocoder Packet" code="0x100A" />
+<logcode name="Dense Pack Finger Information" code="0x100B" />
+<logcode name="Dense Pack Searcher Information" code="0x100C" />
+<logcode name="ETAK" code="0x100D" />
+<logcode name="Markov Frame Rate Statistics" code="0x100E" />
+<logcode name="Searcher, Ver 2 (Obsolete)" code="0x100F" />
+<logcode name="Handset Status (Obsolete)" code="0x1010" />
+<logcode name="Vocoder Error Mask" code="0x1011" />
+<logcode name="Analog Voice Channel" code="0x1012" />
+<logcode name="Access Channel Probe" code="0x1013" />
+<logcode name="GPS Info" code="0x1014" />
+<logcode name="Test Mobile Command (Obsolete)" code="0x1015" />
+<logcode name="Sparse Automatic Gain Control (AGC) Power Control" code="0x1016" />
+<logcode name="Band Change" code="0x1017" />
+<logcode name="Debug Message" code="0x1018" />
+<logcode name="General TA Information" code="0x1019" />
+<logcode name="General TA with SCH Information" code="0x101A" />
+<logcode name="Decoder Raw Bits Logging" code="0x101B" />
+<logcode name="Analog Forward Channel" code="0x101C" />
+<logcode name="Analog Reverse Channel" code="0x101D" />
+<logcode name="Analog Handoff Entry" code="0x101E" />
+<logcode name="FM Slot Statistics Entry" code="0x101F" />
+<logcode name="FOCC Word Sync Count" code="0x1020" />
+<logcode name="RLP Packet" code="0x1021" />
+<logcode name="Async TCP Segment" code="0x1022" />
+<logcode name="Packet Data IP Packets" code="0x1023" />
+<logcode name="FNBDT Message" code="0x1024" />
+<logcode name="RLP Rx Frames" code="0x1025" />
+<logcode name="RLP Tx Frames" code="0x1026" />
+<logcode name="Reserved for additions to RLP frames" code="0x1027" />
+<logcode name="Reserved for additions to RLP frames" code="0x1028" />
+<logcode name="Forward Link Frame Types" code="0x1029" />
+<logcode name="Reverse Link Frame Types" code="0x102A" />
+<logcode name="Fast Forward Power Control" code="0x102B" />
+<logcode name="Reverse Power Control" code="0x102C" />
+<logcode name="Searcher and Finger Information" code="0x102D" />
+<logcode name="Service Configuration" code="0x102E" />
+<logcode name="Active Set and Channel Configuration" code="0x102F" />
+<logcode name="Quick Paging Channel" code="0x1030" />
+<logcode name="RLP Statistics" code="0x1031" />
+<logcode name="Simple TDSO Counters" code="0x1032" />
+<logcode name="Pilot Phase Measurement Results" code="0x1033" />
+<logcode name="Pilot Phase Measurement Database" code="0x1034" />
+<logcode name="Pilot Phase Measurement Search Results" code="0x1035" />
+<logcode name="IS-801 Forward Link" code="0x1036" />
+<logcode name="IS-801 Reverse Link" code="0x1037" />
+<logcode name="GPS Search Session Statistics" code="0x1038" />
+<logcode name="GPS Search Results" code="0x1039" />
+<logcode name="Factory Test Mode Forward CRC Summary" code="0x103A" />
+<logcode name="GPS Multipeaks Information" code="0x103B" />
+<logcode name="GPS Post Processed Search Results" code="0x103C" />
+<logcode name="Full TDSO Counters" code="0x103D" />
+<logcode name="Bluetooth General" code="0x103E" />
+<logcode name="Bluetooth Baseband General" code="0x103F" />
+<logcode name="Bluetooth Baseband Device-specific" code="0x1040" />
+<logcode name="Bluetooth Link Manager Protocol" code="0x1041" />
+<logcode name="Bluetooth L2CAP" code="0x1042" />
+<logcode name="Bluetooth Service Discovery" code="0x1043" />
+<logcode name="Bluetooth RFCOMM Session Specific" code="0x1044" />
+<logcode name="Bluetooth Audio Gateway" code="0x1046" />
+<logcode name="Bluetooth LMP Signaling Received" code="0x1048" />
+<logcode name="Bluetooth LMP Signaling Transmitted" code="0x1049" />
+<logcode name="Bluetooth L2CAP Signaling Received" code="0x104C" />
+<logcode name="Bluetooth L2CAP Signaling Transmitted" code="0x104D" />
+<logcode name="Bluetooth SDP Signaling Received" code="0x1050" />
+<logcode name="Bluetooth SDP Signaling Transmitted" code="0x1051" />
+<logcode name="Bluetooth RFCOMM Signaling Received" code="0x1052" />
+<logcode name="Bluetooth RFCOMM Signaling Transmitted" code="0x1053" />
+<logcode name="1xEV Searcher Data" code="0x105D" />
+<logcode name="1xEV Handoff State" code="0x105E" />
+<logcode name="1xEV Active Set Pilot" code="0x105F" />
+<logcode name="1xEV Reverse Link Packet Summary" code="0x1060" />
+<logcode name="1xEV Reverse Power Control" code="0x1063" />
+<logcode name="1xEV ARQ Effective Receive Rate" code="0x1066" />
+<logcode name="1xEV Air Link Summary" code="0x1068" />
+<logcode name="1xEV Power" code="0x1069" />
+<logcode name="1xEV Access Attempt" code="0x106C" />
+<logcode name="1xEV Reverse Activity Bits Buffer" code="0x106D" />
+<logcode name="1xEV Connection Attempt" code="0x106E" />
+<logcode name="1xEV Page Message" code="0x106F" />
+<logcode name="1xEV RLP Statistics" code="0x1070" />
+<logcode name="1xEV Connection Release" code="0x1071" />
+<logcode name="1xEV Reverse Activity Bits Information" code="0x1072" />
+<logcode name="1xEV Signaling Access Channel" code="0x1076" />
+<logcode name="1xEV Signaling Reverse Traffic Channel" code="0x1077" />
+<logcode name="1xEV Signaling Control Channel Directed" code="0x1078" />
+<logcode name="1xEV Signaling Forward Traffic Channel" code="0x1079" />
+<logcode name="1xEV Traffic Channel Assignment Info" code="0x107B" />
+<logcode name="1xEV Signaling Control Channel Broadcast" code="0x107C" />
+<logcode name="1xEV State Information" code="0x107E" />
+<logcode name="1xEV Rx Partial RLP" code="0x1082" />
+<logcode name="1xEV Tx Partial RLP" code="0x1083" />
+<logcode name="1xEV Forward Statistics Summary" code="0x1084" />
+<logcode name="1xEV AC MAC Capsule" code="0x1085" />
+<logcode name="1xEV CC MAC Packet" code="0x1086" />
+<logcode name="1xEV Session Attempt Version 2" code="0x1088" />
+<logcode name="1xEV Searcher Data Version 2" code="0x1089" />
+<logcode name="1xEV DRC-ARQ Buffer Version 2" code="0x108C" />
+<logcode name="1xEV Acquisition Info" code="0x108D" />
+<logcode name="1xEV Reacquisition Info" code="0x108E" />
+<logcode name="Forward Dedicated Control Channel Message" code="0x1090" />
+<logcode name="Reverse Dedicated Control Channel Message" code="0x1091" />
+<logcode name="Zeus REX" code="0x1092" />
+<logcode name="Active Set Information" code="0x1093" />
+<logcode name="Pilot Phase Measurement 4-Shoulder Results" code="0x1094" />
+<logcode name="Extended Pilot Phase Measurement Database" code="0x1095" />
+<logcode name="GPS Visit Parameters" code="0x1096" />
+<logcode name="Log GPS Measurement" code="0x1097" />
+<logcode name="Removable User Identity Module (RUIM) Debug" code="0x1098" />
+<logcode name="Simple TDSO Counter for DCCH (Obsolete)" code="0x1099" />
+<logcode name="Full TDSO Counter for DCCH (Obsolete)" code="0x109A" />
+<logcode name="Search PPM Statistics" code="0x109B" />
+<logcode name="PPP Tx Frames" code="0x109C" />
+<logcode name="PPP Rx Frames" code="0x109D" />
+<logcode name="Security PKX MM Statistics" code="0x109E" />
+<logcode name="Quick Paging Channel Ver2" code="0x10BC" />
+<logcode name="Enhanced Access Probe" code="0x10BD" />
+<logcode name="BCCH Frame Information" code="0x10BE" />
+<logcode name="FCCCH Frame Information" code="0x10BF" />
+<logcode name="FDCH Frame Information" code="0x10C0" />
+<logcode name="RDCH Frame Information" code="0x10C1" />
+<logcode name="Fast Forward Power Control Version 2" code="0x10C2" />
+<logcode name="Reverse Power Control Version 2" code="0x10C3" />
+<logcode name="Searcher and Finger Information Version 2" code="0x10C4" />
+<logcode name="Service Configuration Version 2" code="0x10C5" />
+<logcode name="Active Set Information Version 2" code="0x10C6" />
+<logcode name="Reduced Active Set Information" code="0x10C7" />
+<logcode name="Triage Log" code="0x10C8" />
+<logcode name="RDA Frame Information" code="0x10C9" />
+<logcode name="gpsOne Fatpath" code="0x10CA" />
+<logcode name="Extended AGC" code="0x10CB" />
+<logcode name="Transmit AGC" code="0x10CC" />
+<logcode name="I/Q Offset Registers" code="0x10CD" />
+<logcode name="DACC I/Q Accum Registers" code="0x10CE" />
+<logcode name="Register Polling Results" code="0x10CF" />
+<logcode name="System Arbitration Module" code="0x10D0" />
+<logcode name="Diablo Searcher Finger" code="0x10D1" />
+<logcode name="System Determination Last Main Action" code="0x10D2" />
+<logcode name="System Determination Last Hybrid Action" code="0x10D3" />
+<logcode name="log reserved for dandrus" code="0x10D4" />
+<logcode name="log reserved for dandrus" code="0x10D5" />
+<logcode name="Broadcast Control Channel Message" code="0x10D6" />
+<logcode name="Reverse Enhanced Access Channel Message" code="0x10D7" />
+<logcode name="Forward Common Control Channel Message" code="0x10D8" />
+<logcode name="RDA Frame Information Version 2" code="0x10D9" />
+<logcode name="GPS/GPS Bit Edge Results" code="0x10DA" />
+<logcode name="Position Engine Full (Obsolete)" code="0x10DB" />
+<logcode name="Position Engine Partial (Obsolete)" code="0x10DC" />
+<logcode name="GPS Single Peak Search Results" code="0x10DD" />
+<logcode name="SRCH4_SAMPRAM" code="0x10DE" />
+<logcode name="1xEV-DO AN PPP TX Frames" code="0x10DF" />
+<logcode name="1xEV-DO AN PPP RX Frames" code="0x10E0" />
+<logcode name="GPS Scheduler Trace" code="0x10E1" />
+<logcode name="MPEG4 YUV Frame" code="0x10E2" />
+<logcode name="MPEG4 Clip Statistics" code="0x10E3" />
+<logcode name="MPEG4 Clip Statistics Ver2" code="0x10E4" />
+<logcode name="PPP Rx frames, Um iface framed" code="0x1113" />
+<logcode name="PPP Rx frames, Rm iface framed" code="0x1114" />
+<logcode name="PPP Rx frames, An iface framed" code="0x1115" />
+<logcode name="PPP Tx frames, Um iface framed" code="0x1123" />
+<logcode name="PPP Tx frames, Rm iface framed" code="0x1124" />
+<logcode name="PPP Tx frames, An iface framed" code="0x1125" />
+<logcode name="PPP Rx frames, Um iface unframed" code="0x1133" />
+<logcode name="PPP Rx frames, Rm iface unframed" code="0x1134" />
+<logcode name="PPP Rx frames, An iface unframed" code="0x1135" />
+<logcode name="PPP Tx frames, Um iface unframed" code="0x1143" />
+<logcode name="PPP Tx frames, Rm iface unframed" code="0x1144" />
+<logcode name="PPP Tx frames, An iface unframed" code="0x1145" />
+<logcode name="Position Engine Full Log Extended" code="0x1154" />
+<logcode name="Memory Debug" code="0x1155" />
+<logcode name="System Level Task Profiling" code="0x1156" />
+<logcode name="Per Task Profiling" code="0x1157" />
+<logcode name="Core Dump" code="0x1158" />
+<logcode name="Position Engine Partial Log Extended" code="0x115E" />
+<logcode name="Diag Stress Test" code="0x115F" />
+<logcode name="WMS Read" code="0x1160" />
+<logcode name="Triage, Ver 2" code="0x1161" />
+<logcode name="RLP Rx FDCH Frames" code="0x1162" />
+<logcode name="RLP Tx FDCH Frames" code="0x1163" />
+<logcode name="QTV Streaming Rx Statistics" code="0x1164" />
+<logcode name="Searcher4 - 1x CDMA" code="0x1174" />
+<logcode name="Searcher Sleep Statistics" code="0x1175" />
+<logcode name="Service Configuration, Version 3" code="0x1176" />
+<logcode name="Searcher4 - HDR" code="0x1177" />
+<logcode name="Searcher4 - AFLT" code="0x1178" />
+<logcode name="Enhanced Finger Information" code="0x1179" />
+<logcode name="DV Info" code="0x117A" />
+<logcode name="WMS Set Routes" code="0x117B" />
+<logcode name="Bluetooth FTM Log" code="0x117C" />
+<logcode name="GPS Simplified Multipeak, Version 2" code="0x117D" />
+<logcode name="GPS Verbose Multipeak, Version 2" code="0x117E" />
+<logcode name="1xEV Multicast Packet Rate Metrics" code="0x117F" />
+<logcode name="1xEV Tune Away Info" code="0x1184" />
+<logcode name="1xEV Tune Away RRI Info" code="0x1185" />
+<logcode name="1xEV Connection Term Info" code="0x1186" />
+<logcode name="1xEV Connected State Protocol Info" code="0x1187" />
+<logcode name="1xEV Connected State Tx Info" code="0x1188" />
+<logcode name="1xEV Connected State RMAC Info" code="0x1189" />
+<logcode name="1xEV Connected State Search Info" code="0x118A" />
+<logcode name="1xEV Rev-A Single-User Forward Statistics Summary" code="0x1192" />
+<logcode name="1xEV Rev-A Multi-User Forward Statistics Summary" code="0x1193" />
+<logcode name="RLP Rx - PDCH partial MuxPDU5 frames" code="0x1194" />
+<logcode name="RLP Tx - PDCH partial MuxPDU5 frames" code="0x1195" />
+<logcode name="RLP Rx internal details" code="0x1196" />
+<logcode name="RLP Tx internal details" code="0x1197" />
+<logcode name="MPEG4 Clip Statistics Ver3" code="0x1198" />
+<logcode name="Mobile IP Performance" code="0x1199" />
+<logcode name="Srch TNG Finger Status" code="0x119A" />
+<logcode name="Srch TNG 1x Searcher Dump" code="0x119B" />
+<logcode name="Srch TNG General Status" code="0x119C" />
+<logcode name="Srch TNG Demod Info" code="0x119D" />
+<logcode name="Srch TNG Sleep Stats" code="0x119E" />
+<logcode name="Srch TNG Quick Paging Channel Info" code="0x119F" />
+<logcode name="Srch TNG AFC Info" code="0x11A0" />
+<logcode name="Srch TNG Acquisition Info" code="0x11A1" />
+<logcode name="Srch TNG Finger Channel Estimate" code="0x11A2" />
+<logcode name="Srch TNG Asdiv" code="0x11A6" />
+<logcode name="QTV RTP Text Samples" code="0x11B0" />
+<logcode name="QTV PDS2 Stats" code="0x11B6" />
+<logcode name="QTV PDS2 Get Request" code="0x11B7" />
+<logcode name="QTV PDS2 Get Response Header" code="0x11B8" />
+<logcode name="QTV PDS2 Get Response Packet (Obsolete)" code="0x11B9" />
+<logcode name="QTV CMX Audio Input Data" code="0x11BA" />
+<logcode name="QTV RTSP Options" code="0x11BB" />
+<logcode name="QTV RTSP Get Parameter" code="0x11BC" />
+<logcode name="QTV RTSP Set Parameter" code="0x11BD" />
+<logcode name="QTV Video Bitstream Logging" code="0x11BE" />
+<logcode name="QTV ARM Video Decode Time Stats" code="0x11BF" />
+<logcode name="QTV DSP Slice Buffer" code="0x11C0" />
+<logcode name="QTV Cmd Logging" code="0x11C1" />
+<logcode name="QTV Audio Frame PTS Information" code="0x11C2" />
+<logcode name="QTV Video Frame Decode Information" code="0x11C3" />
+<logcode name="QTV RTCP Compound RR" code="0x11C4" />
+<logcode name="QTV frame buffer release reason" code="0x11C5" />
+<logcode name="QTV audio channel switch frame" code="0x11C6" />
+<logcode name="QTV RTP Entire Decrypted Packet" code="0x11C7" />
+<logcode name="QTV PCR Drift Rate" code="0x11C8" />
+<logcode name="GPS PDSM Position Report Callback" code="0x11E1" />
+<logcode name="GPS PDSM PD Event Callback" code="0x11E2" />
+<logcode name="GPS PDSM PA Event Callback" code="0x11E3" />
+<logcode name="GPS PDSM Notify Verify Request" code="0x11E4" />
+<logcode name="GPS Bandwidth Test Info" code="0x11E5" />
+<logcode name="GPS PDSM Reserved 2" code="0x11E6" />
+<logcode name="Search Demodulation Status" code="0x11E7" />
+<logcode name="Search Call Statistics" code="0x11E8" />
+<logcode name="GPS MS MPC Forward Link" code="0x11E9" />
+<logcode name="GPS MS MPC Reverse Link" code="0x11EA" />
+<logcode name="Data Protocol Logging (IPv4 user-plane)" code="0x11EB" />
+<logcode name="GPS Demodulation Tracking Header" code="0x1250" />
+<logcode name="GPS Demodulation Tracking Results" code="0x1251" />
+<logcode name="GPS Demodulation Bit Edge" code="0x1252" />
+<logcode name="GPS Demodulation Soft Decisions" code="0x1253" />
+<logcode name="GPS Post-Processed Demodulation Tracking Results" code="0x1254" />
+<logcode name="GPS Demodulation Subframe" code="0x1255" />
+<logcode name="F-CPCCH Quality Information" code="0x1256" />
+<logcode name="Reverse PDCCH - PDCH Frame Information" code="0x1257" />
+<logcode name="Forward G Channel Information" code="0x1258" />
+<logcode name="Forward G Channel Frame Information" code="0x1259" />
+<logcode name="Forward RC Channel Information" code="0x125A" />
+<logcode name="Forward ACK Channel Information" code="0x125B" />
+<logcode name="Forward ACK Channel ACKDA Information" code="0x125C" />
+<logcode name="Reverse REQ Channel Information" code="0x125D" />
+<logcode name="Sleep Task Statistics" code="0x125E" />
+<logcode name="1x Sleep Controller Statistics" code="0x125F" />
+<logcode name="HDR Sleep Controller Statistics" code="0x1260" />
+<logcode name="GSM Sleep Controller Statistics" code="0x1261" />
+<logcode name="WCDMA Sleep Controller Statistics" code="0x1262" />
+<logcode name="Sleep Application Statistics" code="0x1263" />
+<logcode name="PDCCH LO Selected" code="0x1266" />
+<logcode name="PDCCH HI Selected" code="0x1267" />
+<logcode name="Walsh Selected" code="0x1268" />
+<logcode name="PDCH BE Selected" code="0x1269" />
+<logcode name="PDCCH LLR Selected" code="0x126A" />
+<logcode name="CQI-ACK LO Selected" code="0x126B" />
+<logcode name="CQI-ACK HI Selected" code="0x126C" />
+<logcode name="RL-GAIN Selected" code="0x126D" />
+<logcode name="PDCCH0-SNDA Selected" code="0x126E" />
+<logcode name="PDCCH1-SNDA Selected" code="0x126F" />
+<logcode name="WMS Message List" code="0x1270" />
+<logcode name="Multimode Generic SIM Driver Interface" code="0x1271" />
+<logcode name="Generic SIM Toolkit Task" code="0x1272" />
+<logcode name="CM Phone Event" code="0x1273" />
+<logcode name="WMS Set Message List" code="0x1274" />
+<logcode name="1xEV Multi RLP Rev Statistics" code="0x1275" />
+<logcode name="1xEV Multi RLP Fwd Statistics" code="0x1276" />
+<logcode name="1xEV Rx Partial MultiRLP Packet" code="0x1277" />
+<logcode name="1xEV Tx Partial MultiRLP Packet" code="0x1278" />
+<logcode name="1xEV Equalizer Data" code="0x1279" />
+<logcode name="1xEV Equalizer C/I" code="0x127A" />
+<logcode name="1xEV Searcher Data Version 3" code="0x127C" />
+<logcode name="1xEV Rev-A RL Gains" code="0x127D" />
+<logcode name="1xEV Rev-A RL Metrics" code="0x127E" />
+<logcode name="1xEV Rev-A T2P Resource Info" code="0x127F" />
+<logcode name="1xEV Rev-A RMAC3 Packet Info" code="0x1280" />
+<logcode name="1xEV Rev-A RAB Update Info" code="0x1281" />
+<logcode name="1xEV Rev-A DRC-ARQ-DSC Buffer" code="0x1282" />
+<logcode name="1xEV Rev-A MUP User Statistics" code="0x1283" />
+<logcode name="1xEV Rev-A Fwd Link Packet Header Info" code="0x1284" />
+<logcode name="1xEV Rev-A RL ARQ Status" code="0x1285" />
+<logcode name="1xEV Rev-A RL Packet Status" code="0x1286" />
+<logcode name="1x EV Enhanced Multi RLP Fwd Stats" code="0x128C" />
+<logcode name="1x EV Enhanced Multi RLP Rev Stats" code="0x128D" />
+<logcode name="1x EV Rx Partial Enhanced Multi RLP Packet" code="0x128E" />
+<logcode name="1x EV Tx Partial Enhanced Multi RLP Packet" code="0x128F" />
+<logcode name="1x EV Enhanced Access Attempt" code="0x1292" />
+<logcode name="1x EV Access Probe" code="0x1293" />
+<logcode name="1xEV-DO Multi Carrier Forward Link Packet Header Information" code="0x1294" />
+<logcode name="1xEV-DO Multi Carrier Finger Data" code="0x1295" />
+<logcode name="1xEV-DO Multi Carrier Air Link Summary" code="0x1296" />
+<logcode name="1xEV-DO Multi Carrier Searcher Data" code="0x1297" />
+<logcode name="1xEV-DO Multi Carrier DRC ARQ DSC Buffer" code="0x1298" />
+<logcode name="1xEV-DO Multi Carrier RMAC4 T2P Resource" code="0x1299" />
+<logcode name="1xEV-DO Multi Carrier RMAC4 Packet Information" code="0x129A" />
+<logcode name="1xEV-DO Multi Carrier Power" code="0x129C" />
+<logcode name="1xEV-DO Multi Carrier Reverse Link Gains" code="0x129D" />
+<logcode name="1xEV-DO Multi Carrier Reverse Link ARQ Status" code="0x129E" />
+<logcode name="1xEV-DO Multi Carrier Reverse Link Metrics" code="0x129F" />
+<logcode name="1xEV-DO Multi Carrier RAB Update Information" code="0x12A0" />
+<logcode name="1xEV-DO Multi Carrier Pilot Sets" code="0x12A1" />
+<logcode name="1xEV-DO Multi Carrier Single User Packet Forward Statistics" code="0x12A2" />
+<logcode name="1xEV-DO Multi Carrier Multiple User Forward Statistics" code="0x12A3" />
+<logcode name="HDR Enh Sleep Info" code="0x12A4" />
+<logcode name="HDR Multi Link MRLP Fwd Stats" code="0x12A5" />
+<logcode name="HDR Multi Link MRLP Rev Stats" code="0x12A6" />
+<logcode name="HDR Multi Link MRLP Partial Rx" code="0x12A7" />
+<logcode name="HDR Multi Link MRLP Partial Tx" code="0x12A8" />
+<logcode name="1xEV-DO Multi Carrier Reverse Link Packet Status" code="0x12AA" />
+<logcode name="1xEV-DO Multi Carrier Equalizer C/I" code="0x12AB" />
+<logcode name="1xEV-DO Multi Carrier Equalizer Data" code="0x12AD" />
+<logcode name="HDR Overhead Cache Summary Log" code="0x12B5" />
+<logcode name="HDR Pilot Sets Version 3" code="0x12B6" />
+<logcode name="HDR MRLP Partial Rx" code="0x12B7" />
+<logcode name="HDR MRLP Partial Tx" code="0x12B8" />
+<logcode name="HDR Adaptive Receiver Diversity" code="0x12B9" />
+<logcode name="HDR SRCH RF TxD Event" code="0x12BA" />
+<logcode name="HDR RevA FlexConn" code="0x12BB" />
+<logcode name="HDR RevA DTX" code="0x12BC" />
+<logcode name="HDR RevB FlexConn" code="0x12BD" />
+<logcode name="HDR RevB DTX" code="0x12BE" />
+<logcode name="CM Call Event" code="0x12C1" />
+<logcode name="GPS PE Position Report" code="0x12E3" />
+<logcode name="GPS PE Position Report Extended" code="0x12E4" />
+<logcode name="MDDI Host Statistics" code="0x12E5" />
+<logcode name="GPS Decoded Ephemeris" code="0x12E6" />
+<logcode name="GPS Decoded Almanac" code="0x12E7" />
+<logcode name="Transceiver Resource Manager (TRM)" code="0x12E8" />
+<logcode name="GPS Position Engine Info" code="0x12E9" />
+<logcode name="MobileView Configuration" code="0x12EA" />
+<logcode name="Logging Requested QOS" code="0x132B" />
+<logcode name="Granted QOS Logging" code="0x132C" />
+<logcode name="QOS State Logging" code="0x132D" />
+<logcode name="Modified QOS Logging" code="0x132E" />
+<logcode name="QDJ Enqueue" code="0x132F" />
+<logcode name="QDJ Dequeue" code="0x1330" />
+<logcode name="QDJ Update" code="0x1331" />
+<logcode name="QDTX Encoder" code="0x1332" />
+<logcode name="QDTX Decoder" code="0x1333" />
+<logcode name="Port Assignment Status" code="0x1334" />
+<logcode name="Global IPv4 Stats" code="0x1335" />
+<logcode name="Global IPv6 Stats" code="0x1336" />
+<logcode name="Global ICMPv4 Stats" code="0x1337" />
+<logcode name="Global ICMPv6 Stats" code="0x1338" />
+<logcode name="Global TCP Stats" code="0x1339" />
+<logcode name="Global UDP Stats" code="0x133A" />
+<logcode name="TCP Stats" code="0x133B" />
+<logcode name="Memory Stats" code="0x133C" />
+<logcode name="Interface Stats" code="0x133D" />
+<logcode name="PPP Stats" code="0x133E" />
+<logcode name="ARP Stats" code="0x133F" />
+<logcode name="Delta Stats" code="0x1340" />
+<logcode name="TCP Instance Stats" code="0x1341" />
+<logcode name="UDP Instance Stats" code="0x1342" />
+<logcode name="PPP Instance Stats" code="0x1343" />
+<logcode name="Interface Instance Stats" code="0x1344" />
+<logcode name="MEM Instance Stats" code="0x1345" />
+<logcode name="FLOW Instance Stats" code="0x1346" />
+<logcode name="Physical Link Instance Stats" code="0x1347" />
+<logcode name="ARP Instance Stats" code="0x1348" />
+<logcode name="IPHC Instance Stats" code="0x1349" />
+<logcode name="LLC Instance Stats" code="0x134A" />
+<logcode name="ROHC Instance Stats" code="0x134B" />
+<logcode name="RSVP Instance Stats" code="0x134C" />
+<logcode name="LLC Stats" code="0x134D" />
+<logcode name="RSVP Stats" code="0x134E" />
+<logcode name="CM SS Event" code="0x134F" />
+<logcode name="TCXOMGR AFC Data" code="0x1350" />
+<logcode name="Clock Transaction And Status" code="0x1351" />
+<logcode name="GPS Processed Peak" code="0x1352" />
+<logcode name="MDSP Log Chunks" code="0x1353" />
+<logcode name="WLAN RSSI Update" code="0x1354" />
+<logcode name="WLAN LL Statistics" code="0x1355" />
+<logcode name="QOS State Logging, Ver2" code="0x1356" />
+<logcode name="BT Host HCI Tx Data" code="0x1357" />
+<logcode name="BT Host HCI Rx Data" code="0x1358" />
+<logcode name="GPS PE Position Report Part 3" code="0x1359" />
+<logcode name="Logging Requested QOS, Ver2" code="0x135A" />
+<logcode name="Granted QOS Logging, Ver 2" code="0x135B" />
+<logcode name="Modified QOS Logging, Ver 2" code="0x135C" />
+<logcode name="Bus Monitor Profiling Info" code="0x135D" />
+<logcode name="Pilot Phase Measurement Search Results V2" code="0x135E" />
+<logcode name="Pilot Phase Measurement Database V2" code="0x135F" />
+<logcode name="Pilot Phase Measurement State Machine" code="0x1360" />
+<logcode name="RoHC Compressor" code="0x1361" />
+<logcode name="RoHC Decompressor" code="0x1362" />
+<logcode name="RoHC Feedback Compressor" code="0x1363" />
+<logcode name="RoHC Feedback Decompressor" code="0x1364" />
+<logcode name="BT HCI Command" code="0x1365" />
+<logcode name="BT HCI Event" code="0x1366" />
+<logcode name="BT HCI Tx ACL Data" code="0x1367" />
+<logcode name="BT HCI Rx ACL Data" code="0x1368" />
+<logcode name="BT SOC H4 Deep Sleep" code="0x1369" />
+<logcode name="UMTS To CDMA Handover Message" code="0x136A" />
+<logcode name="QX Profiler Graphic Event Data" code="0x136B" />
+<logcode name="QX Profiler Audio Event Data" code="0x136C" />
+<logcode name="GPS Spectral Information" code="0x136D" />
+<logcode name="AHB Performance Monitor" code="0x136E" />
+<logcode name="Converged GPS Clock Report" code="0x136F" />
+<logcode name="Converged GPS Position Report" code="0x1370" />
+<logcode name="Converged GPS Measurement Report" code="0x1371" />
+<logcode name="Converged GPS RF Status Report" code="0x1372" />
+<logcode name="VOIP To CDMA Handover Message" code="0x1373" />
+<logcode name="Converged GPS PD Results" code="0x1374" />
+<logcode name="CGPS IPC Data" code="0x1375" />
+<logcode name="CGPS Non-IPC Data" code="0x1376" />
+<logcode name="CGPS Session Report" code="0x1377" />
+<logcode name="CGPS PDSM Get Position" code="0x1378" />
+<logcode name="CGPS PDSM Set Parameters" code="0x1379" />
+<logcode name="CGPS PDSM End Session" code="0x137A" />
+<logcode name="CGPS PDSM Notify Verify Response" code="0x137B" />
+<logcode name="CGPS PDSM Position Report Callback" code="0x137C" />
+<logcode name="CGPS PDSM PD Event Callback" code="0x137D" />
+<logcode name="CGPS PDSM PA Event Callback" code="0x137E" />
+<logcode name="CGPS PDSM Notify Verify Request Callback" code="0x137F" />
+<logcode name="CGPS PDSM PD Command Error Callback" code="0x1380" />
+<logcode name="CGPS PDSM PA Command Error Callback" code="0x1381" />
+<logcode name="CGPS PDSM Position Error" code="0x1382" />
+<logcode name="CGPS PDSM Extended Status Position Report" code="0x1383" />
+<logcode name="CGPS PDSM External Status NMEA Report" code="0x1384" />
+<logcode name="CGPS PDSM Extended Status Measurement Report" code="0x1385" />
+<logcode name="CGPS Report Server Tx" code="0x1386" />
+<logcode name="CGPS Report Server Rx" code="0x1387" />
+<logcode name="UMTS To CDMA Handover Paging Channel Message" code="0x1388" />
+<logcode name="UMTS To CDMA Handover Traffic Channel Message" code="0x1389" />
+<logcode name="CGPS IQ Report" code="0x138A" />
+<logcode name="VOIP To CDMA Handover Paging Channel Message" code="0x138B" />
+<logcode name="VOIP To CDMA Handover Access Channel Message" code="0x138C" />
+<logcode name="VOIP To CDMA Handover Forward Traffic Channel Message" code="0x138D" />
+<logcode name="QMI Link 1 Rx PDU" code="0x138E" />
+<logcode name="QMI Link 1 Tx PDU" code="0x138F" />
+<logcode name="QMI Link 2 Rx PDU" code="0x1390" />
+<logcode name="QMI Link 2 Tx PDU" code="0x1391" />
+<logcode name="QMI Link 3 Rx PDU" code="0x1392" />
+<logcode name="QMI Link 3 Tx PDU" code="0x1393" />
+<logcode name="QMI Link 4 Rx PDU" code="0x1394" />
+<logcode name="QMI Link 4 Tx PDU" code="0x1395" />
+<logcode name="QMI Link 5 Rx PDU" code="0x1396" />
+<logcode name="QMI Link 5 Tx PDU" code="0x1397" />
+<logcode name="QMI Link 6 Rx PDU" code="0x1398" />
+<logcode name="QMI Link 6 Tx PDU" code="0x1399" />
+<logcode name="QMI Link 7 Rx PDU" code="0x139A" />
+<logcode name="QMI Link 7 Tx PDU" code="0x139B" />
+<logcode name="QMI Link 8 Rx PDU" code="0x139C" />
+<logcode name="QMI Link 8 Tx PDU" code="0x139D" />
+<logcode name="QMI Link 9 Rx PDU" code="0x139E" />
+<logcode name="QMI Link 9 Tx PDU" code="0x139F" />
+<logcode name="QMI Link 10 Rx PDU" code="0x13A0" />
+<logcode name="QMI Link 10 Tx PDU" code="0x13A1" />
+<logcode name="QMI Link 11 Rx PDU" code="0x13A2" />
+<logcode name="QMI Link 11 Tx PDU" code="0x13A3" />
+<logcode name="QMI Link 12 Rx PDU" code="0x13A4" />
+<logcode name="QMI Link 12 Tx PDU" code="0x13A5" />
+<logcode name="QMI Link 13 Rx PDU" code="0x13A6" />
+<logcode name="QMI Link 13 Tx PDU" code="0x13A7" />
+<logcode name="QMI Link 14 Rx PDU" code="0x13A8" />
+<logcode name="QMI Link 14 Tx PDU" code="0x13A9" />
+<logcode name="QMI Link 15 Rx PDU" code="0x13AA" />
+<logcode name="QMI Link 15 Tx PDU" code="0x13AB" />
+<logcode name="QMI Link 16 Rx PDU" code="0x13AC" />
+<logcode name="QMI Link 16 Tx PDU" code="0x13AD" />
+<logcode name="QOS Info Code Update Logging" code="0x13AF" />
+<logcode name="Audio Vocoder Data Paths" code="0x13B0" />
+<logcode name="Audio Vocoder Rx PCM" code="0x13B1" />
+<logcode name="Decode CRC Frame" code="0x13B2" />
+<logcode name="File Delivery over Unidirectional Transport (FLUTE) Session Info" code="0x13B3" />
+<logcode name="File Delivery over Unidirectional Transport (FLUTE) ADP File Info" code="0x13B4" />
+<logcode name="File Delivery over Unidirectional Transport (FLUTE) File Request Info" code="0x13B5" />
+<logcode name="File Delivery over Unidirectional Transport (FLUTE) FDT Instance Info" code="0x13B6" />
+<logcode name="File Delivery over Unidirectional Transport (FLUTE) FDT Info" code="0x13B7" />
+<logcode name="File Delivery over Unidirectional Transport (FLUTE) File Info" code="0x13B8" />
+<logcode name="VOIP To CDMA 3G1X Parameters" code="0x13B9" />
+<logcode name="CGPS ME Job Info" code="0x13BA" />
+<logcode name="CGPS ME SV Lists" code="0x13BB" />
+<logcode name="Flexible Profiling Generic Status" code="0x13BC" />
+<logcode name="Flexible Profiling Generic Results" code="0x13BD" />
+<logcode name="File Delivery over Unidirectional Transport (FLUTE) ADP File Content Info" code="0x13BE" />
+<logcode name="File Delivery over Unidirectional Transport (FLUTE) FDT Instance File Content Info" code="0x13BF" />
+<logcode name="File Delivery over Unidirectional Transport (FLUTE) FDT Entries Info" code="0x13C0" />
+<logcode name="File Delivery over Unidirectional Transport (FLUTE) File Contents Info" code="0x13C1" />
+<logcode name="CGPS ME Time Transfer Information" code="0x13C2" />
+<logcode name="CGPS ME UMTS Time Tagging Information" code="0x13C3" />
+<logcode name="CGPS ME Generic Time Estimate Put Information" code="0x13C4" />
+<logcode name="CGPS ME Generic Frequency Estimate Put Information" code="0x13C5" />
+<logcode name="CGPS Slow Clock Report" code="0x13C6" />
+<logcode name="CGPS Medium Grid" code="0x13C7" />
+<logcode name="SNSD Information" code="0x13C8" />
+<logcode name="SNSD State" code="0x13C9" />
+<logcode name="SNSD Data" code="0x13CA" />
+<logcode name="CGPS Cell DB Cell Change Information" code="0x13CB" />
+<logcode name="X Scale YUV Frame" code="0x13CC" />
+<logcode name="X Scale CRC Frame" code="0x13CD" />
+<logcode name="CGPS Frequency Estimate Report" code="0x13CE" />
+<logcode name="GPS DCME Search Job Completed" code="0x13CF" />
+<logcode name="CGPS ME Fast Scan Results" code="0x13D0" />
+<logcode name="XO Frequency Estimation" code="0x13D1" />
+<logcode name="TCXO Manager Field Calibration Data" code="0x13D2" />
+<logcode name="UMB Call Processing Connection Attempt" code="0x13D3" />
+<logcode name="UMB Call Processing Connection Release" code="0x13D4" />
+<logcode name="UMB Call Processing Page Message" code="0x13D5" />
+<logcode name="UMB Call Processing OVHD Information" code="0x13D6" />
+<logcode name="UMB Call Processing Session Attempt" code="0x13D7" />
+<logcode name="UMB Call Processing Route Information" code="0x13D8" />
+<logcode name="UMB Call Processing State Information" code="0x13D9" />
+<logcode name="UMB Call Processing SNP" code="0x13DA" />
+<logcode name="CGPS Session Early Exit Decision" code="0x13DB" />
+<logcode name="CGPS ME RF Linearity Status" code="0x13DC" />
+<logcode name="CGPS ME 5ms IQ Sums" code="0x13DD" />
+<logcode name="CGPS ME 20ms IQ Sums" code="0x13DE" />
+<logcode name="ROHC Compressor Statistics" code="0x13DF" />
+<logcode name="ROHC Decompressor Statistics" code="0x13E0" />
+<logcode name="Sensors - Kalman Filter Info" code="0x13E1" />
+<logcode name="Sensors - Integrated Measurements" code="0x13E2" />
+<logcode name="Sensors - Bias Calibration Values" code="0x13E3" />
+<logcode name="DTV ISDB TS Packet Statistics" code="0x13E4" />
+<logcode name="DTV ISDB PES Packet Statistics" code="0x13E5" />
+<logcode name="DTV ISDB Sections Statistics" code="0x13E6" />
+<logcode name="DTV ISDB PES Buffering Statistics" code="0x13E7" />
+<logcode name="WLAN System Acquisition And Handoff" code="0x13E8" />
+<logcode name="WLAN General Configurable Parameters" code="0x13E9" />
+<logcode name="UMB Physical Layer Channel and Interference Estimation" code="0x13EA" />
+<logcode name="UMB Physical Layer MMSE/MRC Demodulated Data Symbols (Low)" code="0x13EB" />
+<logcode name="UMB Physical Layer MMSE/MRC Demodulated Data Symbols (High)" code="0x13EC" />
+<logcode name="UMB Physical Layer DCH Decoder" code="0x13ED" />
+<logcode name="UMB Physical Layer DCH Statistics" code="0x13EE" />
+<logcode name="UMB Physical Layer CqiPich Processing" code="0x13EF" />
+
+
+<logcode name="UMB Physical Layer MIMO/SIMO in CqiPich (High)" code="0x13F0" />
+<logcode name="UMB Physical Layer MIMO/SIMO in CquiPich (Low)" code="0x13F1" />
+<logcode name="UMB Physical Layer Time-Domain Channel Taps (High)" code="0x13F2" />
+<logcode name="UMB Physical Layer Time-Domain Channel Taps (Low)" code="0x13F3" />
+<logcode name="UMB Physical Layer AT Modulator" code="0x13F4" />
+<logcode name="UMB Physical Layer AT Modulator for R-ACK (High)" code="0x13F5" />
+<logcode name="UMB Physical Layer AT Modulator for R-ACK (Low)" code="0x13F6" />
+<logcode name="UMB Physical Layer AT Modulator for R-PICH" code="0x13F7" />
+<logcode name="UMB Physical Layer AT Modulator for R-ACH (Access)" code="0x13F8" />
+<logcode name="UMB Physical Layer AT Modulator for R-ODDCCH (High)" code="0x13F9" />
+<logcode name="UMB Physical Layer AT Modulator for R-ODDCCH (Low)" code="0x13FA" />
+<logcode name="UMB Physical Layer AT Modulator for R-CDCCH" code="0x13FB" />
+<logcode name="UMB Physical Layer AT Modulator for CQI sent on RCDCCH" code="0x13FC" />
+<logcode name="UMB Physical Layer AT Modulator for CQI sent on RCDCCH" code="0x13FD" />
+<logcode name="UMB Physical Layer AT Modulator for PACH sent on RCDCCH" code="0x13FE" />
+<logcode name="UMB Physical Layer AT Modulator for REQ sent on RCDCCH" code="0x13FF" />
+<logcode name="UMB Physical Layer AT Modulator for PSD sent on RCDCCH" code="0x1400" />
+<logcode name="UMB Physical Layer AT Modulator for R-DCH" code="0x1401" />
+<logcode name="UMB Physical Layer Time/Frequency/RxPower Estimate" code="0x1402" />
+<logcode name="UMB Physical Layer FLCS Processing" code="0x1403" />
+<logcode name="UMB Physical Layer PBCCH Processing" code="0x1404" />
+<logcode name="UMB Physical Layer SBCCH Processing" code="0x1405" />
+<logcode name="UMB Physical Layer QPCH Processing" code="0x1406" />
+<logcode name="UMB Physical Layer MRC Demodulated Data Symbols (Preamble SBCCH/QPCH)" code="0x1407" />
+<logcode name="UMB Physical Layer MRC Demodulated Data Symbols (Preamble PBCCH)" code="0x1408" />
+<logcode name="UMB Physical Layer VCQI" code="0x1409" />
+<logcode name="UMB Physical Layer Acquisition Algorithm" code="0x140A" />
+<logcode name="UMB Physical Layer Handoff Search Algorithm" code="0x140B" />
+<logcode name="UMB RF RFFE Configuration Info" code="0x140C" />
+<logcode name="UMB RF Calibrated Values After Powerup" code="0x140D" />
+<logcode name="UMB RF AGC Block in Acquisition Mode" code="0x140E" />
+<logcode name="UMB RF AGC Block in Idle Mode" code="0x140F" />
+<logcode name="UMB RF AGC Block in Connected Mode" code="0x1410" />
+<logcode name="UMB RF AGC Block in Connected Mode (FTM)" code="0x1411" />
+<logcode name="UMB RF Jammer Detector Functionality" code="0x1412" />
+<logcode name="UMB RF Jammer Detector Response" code="0x1413" />
+<logcode name="UMB RF RFFE TX Power Control" code="0x1414" />
+<logcode name="UMB Searcher Dump" code="0x1415" />
+<logcode name="UMB System Acquire" code="0x1416" />
+<logcode name="UMB Set Maintenance" code="0x1417" />
+<logcode name="UMB QPCH" code="0x1418" />
+<logcode name="UMB RLL Forward Partial RP Packet" code="0x1419" />
+<logcode name="UMB RLL Reverse Partial RP Packet" code="0x141A" />
+<logcode name="UMB RLL Forward Signal Packet" code="0x141B" />
+<logcode name="UMB RLL Reverse Signal Packet" code="0x141C" />
+<logcode name="UMB RLL Forward Statistics" code="0x141D" />
+<logcode name="UMB RLL Reverse Statistics" code="0x141E" />
+<logcode name="UMB RLL IRTP" code="0x141F" />
+<logcode name="UMB AP Forward Link MAC Packets" code="0x1420" />
+<logcode name="UMB AP Reverse Link MAC Packets" code="0x1421" />
+<logcode name="GPS Performance Statistics log" code="0x1422" />
+<logcode name="UMB Searcher General Status" code="0x1423" />
+<logcode name="UMB Superframe Scheduler" code="0x1424" />
+<logcode name="UMB Sector List" code="0x1425" />
+<logcode name="UMB MAC Access Attempt Command" code="0x1426" />
+<logcode name="UMB MAC Access Probe Information" code="0x1427" />
+<logcode name="UMB MAC RTCMAC Package Information" code="0x1428" />
+<logcode name="UMB MAC Super Frame Information" code="0x1429" />
+<logcode name="UMB MAC Quick Channel Information" code="0x142A" />
+<logcode name="UMB MAC Paging Id List" code="0x142B" />
+<logcode name="UMB MAC Quick Paging Channel Information" code="0x142C" />
+<logcode name="UMB MAC FTCMAC Information" code="0x142D" />
+<logcode name="UMB MAC Access Grant Receiving" code="0x142E" />
+<logcode name="UMB MAC Generic Debug Log" code="0x142F" />
+<logcode name="CGPS Frequency Bias Estimate" code="0x1430" />
+<logcode name="UMB MAC Request Report Information Log" code="0x1431" />
+<logcode name="UMB MAC Reverse Link QoS Token Bucket Information Log" code="0x1432" />
+<logcode name="UMB MAC Reverse Link QoS Stream Information Log" code="0x1433" />
+<logcode name="UMB MAC Reverse Link QoS Allotment Information Log" code="0x1434" />
+<logcode name="UMB Searcher Recent State Machine Transactions" code="0x1435" />
+<logcode name="ARM 11 Performance Counters Profiling Information" code="0x1436" />
+<logcode name="Flow Stats" code="0x1437" />
+<logcode name="Physical Link Stats" code="0x1438" />
+<logcode name="UDP Stats" code="0x1439" />
+<logcode name="Searcher 4 Multi Carrier HDR" code="0x143A" />
+<logcode name="IPHC Stats" code="0x143B" />
+<logcode name="ROHC Stats" code="0x143C" />
+<logcode name="BCast Security Add Program Information" code="0x143D" />
+<logcode name="BCast Security Add Program Complete" code="0x143E" />
+<logcode name="BCast Security SDP Parse" code="0x143F" />
+<logcode name="CGPS ME Dynamic Power Optimization Status" code="0x1440" />
+<logcode name="CGPS PDSM On Demand Session Start" code="0x1441" />
+<logcode name="CGPS PDSM On Demand Session Stop" code="0x1442" />
+<logcode name="CGPS PDSM On Demand Session Not Started" code="0x1443" />
+<logcode name="CGPS PDSM Extern Coarse Position Inject Start" code="0x1444" />
+<logcode name="DTV ISDB-T TMCC Information" code="0x1445" />
+<logcode name="RF Development" code="0x1446" />
+<logcode name="RF RFM API" code="0x1447" />
+<logcode name="RF RFM State" code="0x1448" />
+<logcode name="1X RF Warmup" code="0x1449" />
+<logcode name="1X RF Power Limiting" code="0x144A" />
+<logcode name="1X RF State" code="0x144B" />
+<logcode name="1X RF Sleep" code="0x144C" />
+<logcode name="1X RF Tx State" code="0x144D" />
+<logcode name="1X RF IntelliCeiver State" code="0x144E" />
+<logcode name="1X RF Rx ADC Clock" code="0x144F" />
+<logcode name="1X RF LNA Switch Point" code="0x1450" />
+<logcode name="1X RF Rx Calibration" code="0x1451" />
+<logcode name="1X RF API" code="0x1452" />
+<logcode name="1X RF Rx PLL Locking Status" code="0x1453" />
+<logcode name="1X RF Voltage Regulator" code="0x1454" />
+<logcode name="CGPS Diag Successful Fix Count" code="0x1455" />
+<logcode name="CGPS MC Tracking DPO Status" code="0x1456" />
+<logcode name="CGPS MC SBAS Demodulated Bits" code="0x1457" />
+<logcode name="CGPS MC SBAS Demodulated Soft Symbols" code="0x1458" />
+<logcode name="Data Services PPP Configuration Parameters" code="0x1459" />
+<logcode name="Data Services Physical Link Configuration Parameters" code="0x145A" />
+<logcode name="Data Services PPP Device Configuration" code="0x145B" />
+<logcode name="CGPS PDSM GPS State Information" code="0x145C" />
+<logcode name="CGPS PDSM EXT Status GPS State Information" code="0x145D" />
+<logcode name="CGPS ME Rapid Search Report" code="0x145E" />
+<logcode name="CGPS PDSM XTRA-T Session" code="0x145F" />
+<logcode name="CGPS PDSM XTRA-T Upload" code="0x1460" />
+<logcode name="CGPS Wiper Position Report" code="0x1461" />
+<logcode name="DTV DVBH Security SmartCard HTTP Digest Request" code="0x1462" />
+<logcode name="DTV DVBH Security SmartCard HTTP Digest Response" code="0x1463" />
+<logcode name="DTV DVBH Security SmartCard Services Registration Request" code="0x1464" />
+<logcode name="DTV DVBH Security SmartCard Services Registration Complete" code="0x1465" />
+<logcode name="DTV DVBH Security SmartCard Services Deregistration Request" code="0x1466" />
+<logcode name="DTV DVBH Security SmartCard Services Deregistration Complete" code="0x1467" />
+<logcode name="DTV DVBH Security SmartCard LTKM Request" code="0x1468" />
+<logcode name="DTV DVBH Security SmartCard LTKM Request Complete" code="0x1469" />
+<logcode name="DTV DVBH Security SmartCard Program Selection" code="0x146A" />
+<logcode name="DTV DVBH Security SmartCard Program Selection Complete" code="0x146B" />
+<logcode name="DTV DVBH Security SmartCard LTKM" code="0x146C" />
+<logcode name="DTV DVBH Security SmartCard LTKM Verification Message" code="0x146D" />
+<logcode name="DTV DVBH Security SmartCard Parental Control Message" code="0x146E" />
+<logcode name="DTV DVBH Security SmartCard STKM" code="0x146F" />
+<logcode name="PS Statistics Global Sock" code="0x1470" />
+<logcode name="MCS Application Manager" code="0x1471" />
+<logcode name="MCS MSGR" code="0x1472" />
+<logcode name="MCS QTF" code="0x1473" />
+<logcode name="Stationary Detector Output" code="0x1474" />
+<logcode name="CGPS PDSM EXT Status MEAS Report PPM" code="0x1475" />
+<logcode name="GNSS Position Report" code="0x1476" />
+<logcode name="GNSS GPS Measurement Report" code="0x1477" />
+<logcode name="GNSS Clock Report" code="0x1478" />
+<logcode name="GNSS Demod Soft Decisions" code="0x1479" />
+<logcode name="GNSS ME 5MS IQ Sum" code="0x147A" />
+<logcode name="GNSS CD DB Report" code="0x147B" />
+<logcode name="GNSS PE WLS Position Report" code="0x147C" />
+<logcode name="GNSS PE KF Position Report" code="0x147D" />
+<logcode name="GNSS PRX RF HW Status Report" code="0x147E" />
+<logcode name="GNSS DRX RF HW Status Report" code="0x147F" />
+<logcode name="GNSS Glonass Measurement Report" code="0x1480" />
+<logcode name="GNSS GPS HBW RXD Measurement" code="0x1481" />
+<logcode name="GNSS PDSM Position Report Callback" code="0x1482" />
+<logcode name="ISense Request String" code="0x1483" />
+<logcode name="ISense Response String " code="0x1484" />
+<logcode name="Bluetooth SOC General" code="0x1485" />
+<logcode name="QCRIL Call Flow" code="0x1486" />
+<logcode name="CGPS WB FFT Stats" code="0x1487" />
+<logcode name="CGPS Slow Clock Calibration Report" code="0x1488" />
+<logcode name="SNS GPS Timestamp " code="0x1489" />
+<logcode name="GNSS Search Strategy Task Allocation" code="0x148A" />
+<logcode name="RF MC STM State" code="0x148B" />
+<logcode name="Record In The Sparse Network DB " code="0x148C" />
+<logcode name="Record Removed From The DB" code="0x148D" />
+<logcode name="CGPS Reserved" code="0x148E" />
+<logcode name="GNSS PDSM Set Parameters" code="0x148F" />
+<logcode name="GNSS PDSM PD Event Callback" code="0x1490" />
+<logcode name="GNSS PDSM PA Event Callback" code="0x1491" />
+<logcode name="GNSS PDSM Ext Status MEAS Report" code="0x1494" />
+<logcode name="GNSS SM Error" code="0x1495" />
+<logcode name="WLAN Scan" code="0x1496" />
+<logcode name="WLAN IBSS" code="0x1497" />
+<logcode name="WLAN 802.11d" code="0x1498" />
+<logcode name="WLAN Handoff" code="0x1499" />
+<logcode name="WLAN QoS EDCA" code="0x149A" />
+<logcode name="WLAN Beacon Update" code="0x149B" />
+<logcode name="WLAN Power save wow add pattern" code="0x149C" />
+<logcode name="WLAN WCM link metrics" code="0x149D" />
+<logcode name="WLAN wps scan complete" code="0x149E" />
+<logcode name="WLAN WPS WSC Message" code="0x149F" />
+<logcode name="WLAN WPS credentials" code="0x14A0" />
+<logcode name="WLAN Linklayer stat" code="0x14A1" />
+<logcode name="WLAN Qos TSpec" code="0x14A2" />
+<logcode name="PMIC Vreg Control" code="0x14A3" />
+<logcode name="PMIC Vreg Level" code="0x14A4" />
+<logcode name="PMIC Vreg State" code="0x14A5" />
+<logcode name="CGPS SM EPH Randomization info" code="0x14A6" />
+<logcode name="Audio calibration data" code="0x14A7" />
+<logcode name="Compass 2D Tracked Calibration Set" code="0x14A8" />
+<logcode name="Compass 3D Tracked Calibration Set " code="0x14A9" />
+<logcode name="Calibration metric" code="0x14AA" />
+<logcode name="Accelerometer distance" code="0x14AB" />
+<logcode name="Plane update" code="0x14AC" />
+<logcode name="Location report " code="0x14AD" />
+<logcode name="CM Active subscription" code="0x14AE" />
+<logcode name="DSDS version of CM call event" code="0x14AF" />
+<logcode name="Sensor MobiSens Ouput" code="0x14B0" />
+<logcode name="Accelerometer Data" code="0x14B1" />
+<logcode name="Accelerometer Compensated Data" code="0x14B2" />
+<logcode name="Motion State Data" code="0x14B3" />
+<logcode name="Stationary Position Indicator" code="0x14B4" />
+<logcode name="Motion State Features" code="0x14B5" />
+<logcode name="Motion State Hard Decision" code="0x14B6" />
+<logcode name="Motion State Soft Decision" code="0x14B7" />
+<logcode name="Sensors Software Version" code="0x14B8" />
+<logcode name="MobiSens Stationary Position Indicator Log Packet" code="0x14B9" />
+<logcode name="XO IQ Data" code="0x14BA" />
+<logcode name="DTV CMMB Control Table Updated" code="0x14BB" />
+<logcode name="DTV CMMB Media API Buffering Status" code="0x14BC" />
+<logcode name="DTV CMMB Emergency Broadcast Data" code="0x14BD" />
+<logcode name="DTV CMMB EMM/ECM Data" code="0x14BE" />
+<logcode name="DTV CMMB HW Status" code="0x14BF" />
+<logcode name="DTV CMMB ESSG Program Indication Information" code="0x14C0" />
+<logcode name="SNS Converted Sensor Data" code="0x14C1" />
+<logcode name="CM Subscription Event" code="0x14C2" />
+<logcode name="Sensor Ambient Light Data" code="0x14C3" />
+<logcode name="Sensor Ambient Light Adaptive Data" code="0x14C4" />
+<logcode name="Sensor Proximity Distance Data" code="0x14C5" />
+<logcode name="Sensor Proximity Data" code="0x14C6" />
+<logcode name="GNSS SBAS Report" code="0x14C7" />
+<logcode name="CPU Monitor Modem" code="0x14C8" />
+<logcode name="CPU Monitor Apps" code="0x14C9" />
+<logcode name="BLAST Task Profiling" code="0x14CA" />
+<logcode name="BLAST System Profiling" code="0x14CB" />
+<logcode name="FM Radio FTM Messages" code="0x14CC" />
+<logcode name="FM Radio Debug Messages" code="0x14CD" />
+<logcode name="UIM DS Data" code="0x14CE" />
+<logcode name="QMI Call Flow" code="0x14CF" />
+<logcode name="APR Modem" code="0x14D0" />
+<logcode name="APR Apps" code="0x14D1" />
+<logcode name="APR ADSP" code="0x14D2" />
+<logcode name="Data MUX Rx Raw Packet" code="0x14D3" />
+<logcode name="Data MUX Tx Raw Packet" code="0x14D4" />
+<logcode name="Data MUX Rx Frame Packet" code="0x14D5" />
+<logcode name="Data MUX Tx Frame Packet" code="0x14D6" />
+<logcode name="CGPS PDSM Ext Status Pos Inject Request Info" code="0x14D7" />
+<logcode name="Temperature Monitor Log" code="0x14D8" />
+<logcode name="SNS Gestures Rest Detect" code="0x14D9" />
+<logcode name="SNS Gestures Orinetation" code="0x14DA" />
+<logcode name="SNS Gestures Facing" code="0x14DB" />
+<logcode name="SNS Gestures Basic" code="0x14DC" />
+<logcode name="SNS Gestures HINBYE" code="0x14DD" />
+<logcode name="GNSS OEMDRE Measurement Report" code="0x14DE" />
+<logcode name="GNSS OEMDRE Position Report" code="0x14E0" />
+<logcode name="GNSS OEMDRE SVPoly Report" code="0x14E1" />
+<logcode name="GNSS OEMDRE Sync" code="0x14E2" />
+<logcode name="SNS Manager Event Notify" code="0x14E3" />
+<logcode name="SNS Manager Event Register" code="0x14E4" />
+<logcode name="GNSS PDSM PPM Session Begin" code="0x14E5" />
+<logcode name="GNSS PDSM PPM Session PPM Suspend" code="0x14E6" />
+<logcode name="GNSS PDSM PPM Report Throttled" code="0x14E7" />
+<logcode name="GNSS PDSM PPM Report Fired" code="0x14E8" />
+<logcode name="GNSS PDSM PPM Session End" code="0x14E9" />
+<logcode name="SNS Registry Operation" code="0x14EA" />
+<logcode name="WMK Trace" code="0x14EB" />
+<logcode name="1x Advanced FET Stats" code="0x14EC" />
+<logcode name="1x Advanced L1 Performance" code="0x14ED" />
+<logcode name="Audio Vocoder Stream data path" code="0x14EE" />
+<logcode name="BLAST PM" code="0x14EF" />
+<logcode name="SNS Sensor1 Request" code="0x14F0" />
+<logcode name="SNS Sensor1 Response" code="0x14F1" />
+<logcode name="SNS Sensor1 Indication" code="0x14F2" />
+<logcode name="SNS SMR Request" code="0x14F3" />
+<logcode name="SNS SMR Response" code="0x14F4" />
+<logcode name="SNS SMR Indication" code="0x14F5" />
+<logcode name="INTERNAL Tx Audio PCM ADSP" code="0x14F6" />
+<logcode name="INTERNAL Rx Audio PCM ADSP" code="0x14F7" />
+<logcode name="EXTERNAL Tx Audio PCM ADSP" code="0x14F8" />
+<logcode name="EXTERNAL Rx Audio PCM ADSP" code="0x14F9" />
+<logcode name="FM Rx Audio PCM ADSP" code="0x14FA" />
+<logcode name="HDMI Rx Audio PCM ADSP" code="0x14FB" />
+<logcode name="TLM SNDB Record" code="0x14FC" />
+<logcode name="TLM CELLDB Record" code="0x14FD" />
+<logcode name="TLM OPS Measurements" code="0x14FE" />
+<logcode name="TLM Mobile Status Header" code="0x14FF" />
+<logcode name="TLM Mobile Status Data" code="0x1500" />
+<logcode name="TLM XTA Partition" code="0x1501" />
+<logcode name="TLM Client Download Data" code="0x1502" />
+<logcode name="XTM XTA Message Write" code="0x1503" />
+<logcode name="XTM XTA Message Read" code="0x1504" />
+<logcode name="XTM HTTP Response Status" code="0x1505" />
+<logcode name="XTM XTA Response Status" code="0x1506" />
+<logcode name="TLM Failed Lookup" code="0x1507" />
+<logcode name="Sensors SDP Virgo" code="0x1508" />
+<logcode name="Sensors SDP SSD" code="0x1509" />
+<logcode name="Sensors SDP CRD" code="0x150A" />
+<logcode name="Sensors SDP Time Sync" code="0x150B" />
+<logcode name="Sensors SDP MSD" code="0x150C" />
+<logcode name="GNSS Sensor Streaming Ready Status" code="0x150D" />
+<logcode name="GNSS Time Sync Request" code="0x150E" />
+<logcode name="GNSS Inject Time Sync Data" code="0x150F" />
+<logcode name="GNSS Inject Sensor Data" code="0x1510" />
+<logcode name="GNSS Get Sensor Config Response" code="0x1511" />
+<logcode name="GNSS Set Sensor Config" code="0x1512" />
+<logcode name="GNSS PE Heading Filter" code="0x1513" />
+<logcode name="GNSS PE NHC" code="0x1514" />
+<logcode name="GNSS PE CRD" code="0x1515" />
+<logcode name="GNSS Configuration State" code="0x1516" />
+<logcode name="HSU Health Tx Throughput" code="0x1517" />
+<logcode name="HSU Health Rx Throughput" code="0x1518" />
+<logcode name="GNSS YAW GYRO Calibration" code="0x1519" />
+<logcode name="GNSS BP AMP Info" code="0x1520" />
+<logcode name="Core Audio Driver Data" code="0x1521" />
+<logcode name="Core Audio Driver Control" code="0x1522" />
+<logcode name="SNS FNS Config" code="0x1523" />
+<logcode name="SNS FNS Result" code="0x1524" />
+<logcode name="SNS FNS Report" code="0x1525" />
+<logcode name="GNSS Broadband" code="0x1526" />
+<logcode name="ADSP Performance Monitor" code="0x1527" />
+<logcode name="SNS BTE Config" code="0x1528" />
+<logcode name="SNS BTE Result" code="0x1529" />
+<logcode name="SNS BTE Report" code="0x152A" />
+<logcode name="SNS Gyro SIMP CAL Config" code="0x152B" />
+<logcode name="SNS Gyro SIMP CAL Result" code="0x152C" />
+<logcode name="SNS Gyro SIMP CAL Report" code="0x152D" />
+<logcode name="ADSP Audio Decoder Input Log" code="0x152E" />
+<logcode name="ADSP Audio Per Object Post Processing Input Log" code="0x152F" />
+<logcode name="ADSP Audio Rx Matrix Mixer Input Log" code="0x1530" />
+<logcode name="ADSP Audio Common Object Post Processing Input Log" code="0x1531" />
+<logcode name="ADSP Audio Common Object Pre Processing Input Log" code="0x1532" />
+<logcode name="ADSP Audio Tx Matrix Mixer Input Log" code="0x1533" />
+<logcode name="ADSP Audio Per Object Pre Processing Input Log" code="0x1534" />
+<logcode name="ADSP Audio Encoder Input Log" code="0x1535" />
+<logcode name="ADSP Audio Encoder Output Log" code="0x1536" />
+<logcode name="QTV HTTP Buffer Occupancy" code="0x1537" />
+<logcode name="QTV HTTP Incoming Datarate" code="0x1538" />
+<logcode name="QTV HTTP Download Bitrate Switch" code="0x1539" />
+<logcode name="QTV HTTP Playback Bitrate Switch" code="0x153A" />
+<logcode name="DS EPC PDN Info" code="0x153B" />
+<logcode name="SNS QUAT Config" code="0x153C" />
+<logcode name="SNS QUAT Result" code="0x153D" />
+<logcode name="SNS QUAT Report" code="0x153E" />
+<logcode name="SNS Gravity Config" code="0x153F" />
+<logcode name="SNS Gravity Result" code="0x1540" />
+<logcode name="SNS Gravity Report" code="0x1541" />
+<logcode name="Sensor Full Calibration" code="0x1542" />
+<logcode name="QCHATUPK" code="0x1543" />
+<logcode name="MCS QCSI Packet" code="0x1544" />
+<logcode name="QBI Context 0 Rx Message" code="0x1545" />
+<logcode name="QBI Context 0 Tx Message" code="0x1546" />
+<logcode name="QBI Context 1 Rx Message" code="0x1547" />
+<logcode name="QBI Context 1 Tx Message" code="0x1548" />
+<logcode name="QBI Context 2 Rx Message" code="0x1549" />
+<logcode name="QBI Context 2 Tx Message" code="0x154A" />
+<logcode name="QBI Context 3 Rx Message" code="0x154B" />
+<logcode name="QBI Context 3 Tx Message" code="0x154C" />
+<logcode name="QBI Context 4 Rx Message" code="0x154D" />
+<logcode name="QBI Context 4 Tx Message" code="0x154E" />
+<logcode name="QBI Context 5 Rx Message" code="0x154F" />
+<logcode name="QBI Context 5 Tx Message" code="0x1550" />
+<logcode name="QBI Context 6 Rx Message" code="0x1551" />
+<logcode name="QBI Context 6 Tx Message" code="0x1552" />
+<logcode name="QBI Context 7 Rx Message" code="0x1553" />
+<logcode name="QBI Context 7 Tx Message" code="0x1554" />
+<logcode name="WMGR" code="0x1555" />
+<logcode name="DS Memory Packets" code="0x1556" />
+<logcode name="M Mode Call Flow" code="0x1557" />
+<logcode name="Wireless Connectivity Audio Data" code="0x1558" />
+<logcode name="SNS DRV MD IRQ" code="0x1559" />
+<logcode name="SNS MAG CAL Config" code="0x155A" />
+<logcode name="SNS MAG CAL Result" code="0x155B" />
+<logcode name="SNS MAG CAL Report" code="0x155C" />
+<logcode name="GNSS QUIPS Position Report" code="0x155D" />
+<logcode name="GNSS QUIPS AP Measurement Blocks" code="0x155E" />
+<logcode name="SNS Rotation Vector Config" code="0x155F" />
+<logcode name="SNS Rotation Vector Result" code="0x1560" />
+<logcode name="SNS Rotation Vector Report" code="0x1561" />
+<logcode name="SNS FMV Config" code="0x1562" />
+<logcode name="SNS FMV QUAT Update" code="0x1563" />
+<logcode name="SNS FMV MAG Update" code="0x1564" />
+<logcode name="SNS FMV Gyro Update" code="0x1565" />
+<logcode name="SNS FMV Report" code="0x1566" />
+<logcode name="GNSS Fast TCAL" code="0x1567" />
+<logcode name="IMS RTP SN and Payload" code="0x1568" />
+<logcode name="IMS RTP Packet Loss" code="0x1569" />
+<logcode name="IMS RTCP" code="0x156A" />
+<logcode name="IMS QDJ Enqueue" code="0x156B" />
+<logcode name="IMS QDJ Dequeue" code="0x156C" />
+<logcode name="IMS QDJ Update" code="0x156D" />
+<logcode name="IMS SIP Message" code="0x156E" />
+<logcode name="GNSS QUIPS In Use AP Database" code="0x156F" />
+<logcode name="CGPS PRS Occastion Measurement" code="0x1570" />
+<logcode name="IMS AMR Redundancy" code="0x1571" />
+<logcode name="Network IP Rm Tx 100 Bytes" code="0x1572" />
+<logcode name="Network IP Rm Rx 100 Bytes" code="0x1573" />
+<logcode name="Network IP Rm Tx Full" code="0x1574" />
+<logcode name="Network IP Rm Rx Full" code="0x1575" />
+<logcode name="Network IP Um Tx 100 Bytes" code="0x1576" />
+<logcode name="Network IP Um Rx 100 Bytes" code="0x1577" />
+<logcode name="NETWORK IP Um TX Full" code="0x1578" />
+<logcode name="NETWORK IP Um RX Full" code="0x1579" />
+<logcode name="Link Rm Tx 80 Bytes" code="0x157A" />
+<logcode name="Link Rm Rx 80 Bytes" code="0x157B" />
+<logcode name="Link Rm Tx Full" code="0x157C" />
+<logcode name="Link Rm Rx Full" code="0x157D" />
+<logcode name="Link Um Tx 80 Bytes" code="0x157E" />
+<logcode name="Link Um Rx 80 Bytes" code="0x157F" />
+<logcode name="Link Um Tx Full" code="0x1580" />
+<logcode name="Link Um Rx Full" code="0x1581" />
+<logcode name="Flow Rm Tx 80 Bytes" code="0x1582" />
+<logcode name="Flow Rm Tx Full" code="0x1583" />
+<logcode name="Flow Um Tx 80 Bytes" code="0x1584" />
+<logcode name="Flow Um Tx Full" code="0x1585" />
+<logcode name="ADSP AFE Rx/Tx PCM Log" code="0x1586" />
+<logcode name="GNSS PE Events" code="0x1587" />
+<logcode name="Qmi Supported Interfaces" code="0x1588" />
+<logcode name="GNSS SAP SDP Events" code="0x1589" />
+<logcode name="Voice FW Processing Rx/Tx Log" code="0x158A" />
+<logcode name="Voice FW Stream Rx/Tx Log" code="0x158B" />
+<logcode name="XO ADC" code="0x158C" />
+<logcode name="FM RADIO HCI Command" code="0x158D" />
+<logcode name="FM RADIO HCI Event" code="0x158E" />
+<logcode name="SNS Time Service Offsets" code="0x158F" />
+<logcode name="CXM CP BT" code="0x1590" />
+<logcode name="CXM CP WLAN" code="0x1591" />
+<logcode name="CXM CP LTE" code="0x1592" />
+<logcode name="CXM DP BT" code="0x1593" />
+<logcode name="CXM DP WLAN" code="0x1594" />
+<logcode name="CXM DP LTE" code="0x1595" />
+<logcode name="GNSS WWAN WLAN IMD Jammer Status" code="0x1596" />
+<logcode name="TCXOMGR IFC Summary" code="0x1597" />
+<logcode name="TCXOMGR IFC RPUSH" code="0x1598" />
+<logcode name="GNSS LOC LTE OTDOA PRS RSTD Measuremenet" code="0x1599" />
+<logcode name="LOC LTE OTDOA PRS TOA Measuremenet" code="0x159A" />
+<logcode name="INTEG Angle Config" code="0x159B" />
+<logcode name="INTEG Angle Result" code="0x159C" />
+<logcode name="INTEG Angle Report" code="0x159D" />
+<logcode name="GTAP Config" code="0x159E" />
+<logcode name="GTAP Result" code="0x159F" />
+<logcode name="GTAP Report" code="0x15A0" />
+<logcode name="SNS Basic Gestures Config" code="0x15A1" />
+<logcode name="SNS Basic Gestures Result" code="0x15A2" />
+<logcode name="SNS Basic Gestures Report" code="0x15A3" />
+<logcode name="SNS Facing Config" code="0x15A4" />
+<logcode name="SNS Facing Result" code="0x15A5" />
+<logcode name="SNS Facing Report" code="0x15A6" />
+<logcode name="CLKRGM Driver Clocks" code="0x15A7" />
+<logcode name="Time TOD Error Notify" code="0x15A8" />
+<logcode name="SNS ALGO Input" code="0x15A9" />
+<logcode name="Gyro INT Config" code="0x15AA" />
+<logcode name="Gyro INT Update" code="0x15AB" />
+<logcode name="Gyro INT Report" code="0x15AC" />
+<logcode name="Gyro INT Report Request" code="0x15AD" />
+<logcode name="Gyro BUF Config" code="0x15AE" />
+<logcode name="Gyro BUF Report Request" code="0x15AF" />
+<logcode name="Gyro BUF Report" code="0x15B0" />
+<logcode name="GNSS PDSM Best Available Info" code="0x15B1" />
+<logcode name="GNSS PDSM EXT Status Best Available Info" code="0x15B2" />
+<logcode name="Kernel TASK Profile V3" code="0x15B3" />
+<logcode name="Kernel SYS Profile V3" code="0x15B4" />
+<logcode name="System Profiling ID Lookup" code="0x15B5" />
+<logcode name="System Profiling" code="0x15B6" />
+<logcode name="DS 3GPP Event" code="0x15B7" />
+<logcode name="SNS ACCEL CAL Config" code="0x15B8" />
+<logcode name="SNS ACCEL CAL Result" code="0x15B9" />
+<logcode name="SNS ACCEL CAL Report" code="0x15BA" />
+<logcode name="GNSS SOC RFDEV Messages" code="0x15BB" />
+<logcode name="GNSS SOC UBP Messages" code="0x15BC" />
+<logcode name="RGS Log Packet" code="0x15BD" />
+<logcode name="RFIC PMIC Status" code="0x15BE" />
+<logcode name="IMS VDJ Enqueue" code="0x15CB" />
+<logcode name="IMS VDJ Dequeue" code="0x15CC" />
+<logcode name="LOC WWAN MEDB Dump" code="0x15CD" />
+<!-- 0x15CE - 0x1632 a total of 100 log codes are reserved for 1x and DO -->
+<logcode name="DSDA MCDO Tx" code="0x15D2" />
+<logcode name="DSDA MCDO Rx" code="0x15D3" />
+<logcode name="Hdr DO2W QTA" code="0x15D9" />
+<logcode name="DSDA CDMA1x Rx" code="0x161A" />
+<logcode name="DSDA CDMA1x Tx" code="0x161B" />
+<logcode name="IMS RTP Feedback" code="0x1633" />
+<logcode name="GNSS Spectrum Analyzer Scan Parameters" code="0x1634" />
+<logcode name="GNSS Spectrum Analyzer Jammer Measurements" code="0x1635" />
+<logcode name="GNSS Spectrum Analyzer Notch Assignment" code="0x1636" />
+<logcode name="SNS PED Config" code="0x1637" />
+<logcode name="SNS PED Result" code="0x1638" />
+<logcode name="SNS PED Report" code="0x1639" />
+<logcode name="SNS QMAG CAL Config" code="0x163A" />
+<logcode name="SNS QMAG CAL Result" code="0x163B" />
+<logcode name="SNS QMAG CAL Report" code="0x163C" />
+<logcode name="GNSS ME PQME1" code="0x163D" />
+<logcode name="GNSS ME PQME2" code="0x163E" />
+<logcode name="GNSS ME PQME3" code="0x163F" />
+<logcode name="PAM Config" code="0x1640" />
+<logcode name="PAM Result" code="0x1641" />
+<logcode name="PAM Report" code="0x1642" />
+<logcode name="MCS QCSI Event Packet" code="0x1643" />
+<logcode name="QURT Task Profile" code="0x1644" />
+<logcode name="QURT PM" code="0x1645" />
+<logcode name="TCXOMGR RGS Retrieval" code="0x1646" />
+<logcode name="LOC LTE OTDOA ASSIST Data" code="0x1647" />
+<!-- 0x1648 - 0x1747 Indoor reserved log codes -->
+<logcode name="Indoor Info" code="0x1648" />
+<logcode name="Indoor RTS CTS Scan" code="0x1649" />
+<logcode name="Indoor Active Scan" code="0x164A" />
+<logcode name="Indoor IPE IPC Data" code="0x164B" />
+<logcode name="Indoor SDP IPC Data" code="0x164C" />
+<logcode name="Indoor IMC IPC Data" code="0x164D" />
+<logcode name="Indoor IWMM IPC Data" code="0x164E" />
+<logcode name="Location Warehouse Information Low Power (LOWI-LP)" code="0x167A" />
+<logcode name="TLM Mobile Network Position Info" code="0x1748" />
+<logcode name="ANT HCI Command" code="0x1749" />
+<logcode name="ANT HCI EV" code="0x1750" />
+<logcode name="IMS Camera" code="0x1751" />
+<logcode name="IMS Video Encoder" code="0x1752" />
+<logcode name="IMS Video Playout" code="0x1753" />
+<logcode name="IRAT List Manager" code="0x1754" />
+<logcode name="TCXOMGR Temp Subscription" code="0x1755" />
+<logcode name="GNSS BDS Measurement Report" code="0x1756" />
+<!-- 0x1757 - 0x17D7 a total of 128 log codes reserved for eMBMS Service Layer -->
+<logcode name="EMBMS Service Layer Session" code="0x1757" />
+<logcode name="EMBMS Service Layer Flute" code="0x1758" />
+<logcode name="EMBMS Service Layer Local HTTP Server" code="0x1759" />
+<logcode name="EMBMS Service Layer Bootstrap" code="0x175A" />
+<logcode name="EMBMS Service Layer Service Discovery" code="0x175B" />
+<logcode name="EMBMS Service Layer I2" code="0x175C" />
+<logcode name="EMBMS Service Layer I1 Common" code="0x175D" />
+<logcode name="EMBMS Service Layer I1 Streaming" code="0x175E" />
+<logcode name="EMBMS Service Layer Streaming" code="0x175F" />
+<logcode name="EMBMS Service Layer I1 File Download" code="0x1760" />
+<logcode name="EMBMS Service Layer Session File Schedule" code="0x1761" />
+<logcode name="EMBMS Service Layer File Repair" code="0x1762" />
+<logcode name="EMBMS Service Layer Reception Reporting" code="0x1763" />
+<logcode name="EMBMS Service Layer Msp Common" code="0x1764" />
+<logcode name="EMBMS Service Layer Usd Data" code="0x1765" />
+<logcode name="EMBMS Configuration" code="0x1766" />
+<logcode name="EMBMS Fd Store" code="0x1767" />
+<logcode name="EMBMS Generic Dump" code="0x1768" />
+<logcode name="ADSP_AFE_CALIBRATION_DATA" code="0x17D8" />
+<logcode name="RFA Device PA" code="0x17D9" />
+<logcode name="RFA Device ASM" code="0x17DA" />
+<logcode name="RFA Device PAPM" code="0x17DB" />
+<logcode name="RFA Device Transciever" code="0x17DC" />
+<logcode name="RFA Device Tuner" code="0x17DD" />
+<logcode name="RFA Device Therm" code="0x17DE" />
+<logcode name="RFA Device HDET" code="0x17DF" />
+<logcode name="RFA RFC Signals" code="0x17E0" />
+<logcode name="RFA RFC Devices" code="0x17E1" />
+<logcode name="RFA GSM CMN" code="0x17E2" />
+<logcode name="RFA GSM Rx" code="0x17E3" />
+<logcode name="RFA GSM Tx" code="0x17E4" />
+<logcode name="RFA GSM Temperature Comp" code="0x17E5" />
+<logcode name="RFA GSM VBATT Comp" code="0x17E6" />
+<logcode name="RFA GSM IRAT" code="0x17E7" />
+<logcode name="RFA GSM FTM" code="0x17E8" />
+<logcode name="RFA GSM CAL" code="0x17E9" />
+<logcode name="SNS CMC Config" code="0x17EA" />
+<logcode name="SNS CMC Result" code="0x17EB" />
+<logcode name="SNS CMC Report" code="0x17EC" />
+<logcode name="SNS DB Config" code="0x17ED" />
+<logcode name="SNS DB Result" code="0x17EE" />
+<logcode name="SNS DB Report" code="0x17EF" />
+<logcode name="SNS CMC Result2" code="0x17F0" />
+<logcode name="PKT MEM Profiling" code="0x17F1" />
+<logcode name="IMS Voice Call Statistics" code="0x17F2" />
+<logcode name="Sensor FIFO Event" code="0x17F3" />
+<logcode name="EFS Monitor" code="0x17F4" />
+<logcode name="EFS Monitor Lookup" code="0x17F5" />
+<logcode name="WWCoex Action Info (Wireless Wide Area Network Coexistence)" code="0x17F6" />
+<logcode name="WWCoex Power Info  (Wireless Wide Area Network Coexistence)" code="0x17F7" />
+<logcode name="SNS SMD Config" code="0x17F8" />
+<logcode name="SNS SMD Result" code="0x17F9" />
+<logcode name="SNS SMD Report" code="0x17FA" />
+<logcode name="SNS Latency Sampling Poll" code="0x17FB" />
+<logcode name="SNS Latency Sampling DRI" code="0x17FC" />
+<logcode name="SNS Latency Delivery" code="0x17FD" />
+<logcode name="SNS Game Rotattion Vector Config" code="0x17FE" />
+<logcode name="SNS Game Rotattion Vector Result" code="0x17FF" />
+<logcode name="SNS Game Rotattion Vector Report" code="0x1800" />
+<logcode name="TRSP Data Stall" code="0x1801" />
+<logcode name="NFC_FTM" code="0x1802" />
+<logcode name="TCXOMGR_COARSE_DC_CAL" code="0x1803" />
+<logcode name="ADSP Core Voice Driver Stream Tx" code="0x1804" />
+<logcode name="ADSP Core Voice Driver Stream Rx" code="0x1805" />
+<logcode name="GNSS_MBM" code="0x1806" />
+<logcode name="GNSS_PLE_UPDATE" code="0x1807" />
+<logcode name="WLAN_SLM_RA_LINK" code="0x1808" />
+<logcode name="RF LTE MTPL" code="0x1809" />
+<logcode name="RF LTE HDET" code="0x180A" />
+<!-- New QMI reserved logs 0x180B - 0x182B -->
+<logcode name="QMI Link 17 Rx PDU" code="0x180B" />
+<logcode name="QMI Link 17 Tx PDU" code="0x180C" />
+<logcode name="QMI Link 18 Rx PDU" code="0x180D" />
+<logcode name="QMI Link 18 Tx PDU" code="0x180E" />
+<logcode name="QMI Link 19 Rx PDU" code="0x180F" />
+<logcode name="QMI Link 19 Tx PDU" code="0x1810" />
+<logcode name="QMI Link 20 Rx PDU" code="0x1811" />
+<logcode name="QMI Link 20 Tx PDU" code="0x1812" />
+<logcode name="Data Protocol Loggin Ex" code="0x182C" />
+<logcode name="RF WCDMA V3" code="0x182D" />
+<logcode name="ROHC Decompressor Input" code="0x182E" />
+<logcode name="ROHC Compressor Output" code="0x182F" />
+<logcode name="IMS VoLTE Session Setup" code="0x1830" />
+<logcode name="IMS VoLTE Session End" code="0x1831" />
+<logcode name="IMS Registration" code="0x1832" />
+<logcode name="GNSS Geofence Motion Detection Report" code="0x1833" />
+<logcode name="SNS Runtime Tuning Request" code="0x1834" />
+<logcode name="SNS Runtime Tuning Response" code="0x1835" />
+<logcode name="SNS BMA2X2 Doubletap Tuning" code="0x1836" />
+<logcode name="GNSS Geofence Position Report" code="0x1837" />
+<logcode name="GNSS ME DPO Status Report" code="0x1838" />
+<logcode name="GNSS Slim Time Sync" code="0x1839" />
+<logcode name="SNS Geomag Rotation Vector Config" code="0x183A" />
+<logcode name="SNS Geomag Rotation Vector Result" code="0x183B" />
+<logcode name="SNS Geomag Rotation Vector Report" code="0x183C" />
+<logcode name="IPDC Compressor Per Packet Metrics" code="0x183D" />
+<logcode name="IPDC Compressor Statistics" code="0x183E" />
+<logcode name="ROHC Compressor Statistics Ex" code="0x183F" />
+<logcode name="ROHC Decompressor Statistics Ex" code="0x1840" />
+<logcode name="RF ASDIV" code="0x1841" />
+<logcode name="RFLM Feneric Debug 1" code="0x1842" />
+<logcode name="RFLM Feneric Debug 2" code="0x1843" />
+<logcode name="RFLM Tx AGC Update" code="0x1844" />
+<logcode name="RFLM Tx AGC Tables" code="0x1845" />
+<logcode name="RFLM DTR Tx" code="0x1846" />
+<logcode name="RFLM DTR Rx" code="0x1847" />
+<logcode name="RFLM DTR CMN" code="0x1848" />
+<logcode name="RFLM Fbrx Packet" code="0x1849" />
+<logcode name="RFLM Fbrx Sample Capture" code="0x184A" />
+<logcode name="ADSP VCP Voice Process RTM" code="0x184B" />
+<logcode name="LTE RF FED Tx AGC" code="0x184C" />
+<logcode name="LTE RF FED Tx AGC Timing" code="0x184D" />
+<logcode name="Call Manager Serving System MSIM Event" code="0x184E" />
+<logcode name="Data Modem IPA Statistics" code="0x184F" />
+<logcode name="Data Modem IPA IP Filter Statistics" code="0x1850" />
+<logcode name="Modem IPA Packet Status Downlink" code="0x1851" />
+<logcode name="Modem IPA Packet Status Uplink" code="0x1852" />
+<logcode name="Modem IPA SIO Config" code="0x1853" />
+<logcode name="Modem IPA WAN Config" code="0x1854" />
+<logcode name="Modem IPA Filter Table Update" code="0x1855" />
+<logcode name="Modem IPA RTNG Table Update" code="0x1856" />
+<logcode name="WLAN ACQ RA Statistics" code="0x1857" />
+<logcode name="IMS VoIP Handover Criteria Change" code="0x1858" />
+<logcode name="DS First Reorig IP Packet Header" code="0x1859" />
+<logcode name="Touch Frame Raw" code="0x185A" />
+<logcode name="Touch Frame Post Process" code="0x185B" />
+<logcode name="Touch Baseline" code="0x185C" />
+<logcode name="Touch Frame Type 0" code="0x185D" />
+<logcode name="Touch Frame Type 1" code="0x185E" />
+<logcode name="Touch Frame Type 2" code="0x185F" />
+<logcode name="Touch Frame Type 3" code="0x1860" />
+<logcode name="Touch Frame Type 4" code="0x1861" />
+<logcode name="Touch Frame Type 5" code="0x1862" />
+<logcode name="Touch Frame Type 6" code="0x1863" />
+<logcode name="Touch Frame Type 7" code="0x1864" />
+<logcode name="Touch Frame Type 8" code="0x1865" />
+<logcode name="Touch Frame Type 9" code="0x1866" />
+<logcode name="LOC WWAN ME Events" code="0x1867" />
+<logcode name="RFLM TDSCDMA Uplink Report" code="0x1868" />
+<logcode name="RFLM TDSCDMA Downlink Report" code="0x1869" />
+<logcode name="RFLM TDSCDMA Debug" code="0x186A" />
+<logcode name="DSP Modem Firmware CXM" code="0x186B" />
+<logcode name="SNS PED Align Config" code="0x186C" />
+<logcode name="SNS PED Align Result1" code="0x186D" />
+<logcode name="SNS PED Align Result2" code="0x186E" />
+<logcode name="SNS PED Align Report" code="0x186F" />
+<logcode name="WWCoex Band Avoidance Serv Power Info" code="0x1870" />
+<logcode name="WWCoex Ba Blacklist Info" code="0x1871" />
+<logcode name="AOSTLM Report" code="0x1872" />
+<logcode name="MCPM Device Power Info" code="0x1873" />
+<logcode name="MCPM General Session Power" code="0x1874" />
+<logcode name="MCPM Chipset Config Power Info" code="0x1875" />
+<logcode name="MCPM Idle AWALE Power Info" code="0x1876" />
+<logcode name="1X Physical Layer Power Info" code="0x1877" />
+<logcode name="EVDO Physical Layer Power Info" code="0x1878" />
+<logcode name="GERAN Physical Layer Power Info" code="0x1879" />
+<logcode name="WCDMA Session Power Info" code="0x187A" />
+<logcode name="WCDMA Physical Layer Power Info" code="0x187B" />
+<logcode name="TDSCDMA Physical Layer Power Info" code="0x187C" />
+<logcode name="LTE Session Power Info" code="0x187D" />
+<logcode name="LTE Physical Layer Power Info" code="0x187E" />
+<logcode name="PA Power" code="0x187F" />
+<logcode name="WTR Power" code="0x1880" />
+<logcode name="Q6 Power" code="0x1881" />
+<logcode name="ADSP LSM Out" code="0x1882" />
+<logcode name="GNSS Geofence WWAN MOT Class" code="0x1883" />
+<logcode name="Sensor SAMLITE Algorithm States Output" code="0x1884" />
+<logcode name="GNSS SLIM Event" code="0x1885" />
+<logcode name="GNSS GAL Measurement Report" code="0x1886" />
+<logcode name="SNS TILT Detector Config" code="0x1887" />
+<logcode name="SNS TILT Detector Result" code="0x1888" />
+<logcode name="SNS TILT Detector Report" code="0x1889" />
+<logcode name="ADSP CVD CAL Data" code="0x188A" />
+<logcode name="TLM Update Consistency Info" code="0x188B" />
+<logcode name="LOC LTE OTDOA TDP Measurement" code="0x188C" />
+<logcode name="SNS UIMG Mode" code="0x188D" />
+<logcode name="GNSS OEMCPE Measurement Report" code="0x188E" />
+<logcode name="RFLM WTX" code="0x188F" />
+<logcode name="ADSP CVD VP3" code="0x1890" />
+<logcode name="MPLM ECS" code="0x1891" />
+<logcode name="CXM SMEM Data" code="0x1892" />
+<logcode name="CXM Low Priority" code="0x1893" />
+<logcode name="CXM Medium Priority" code="0x1894" />
+<logcode name="CXM High Priority" code="0x1895" />
+<logcode name="IMS State Switch" code="0x1896" />
+<logcode name="IMS System Anchor" code="0x1897" />
+<logcode name="MCS WWCOEX Slot Activity Timeline Info" code="0x1898" />
+<logcode name="GNSS Geofence Motion Detection WiFi State" code="0x1899" />
+<logcode name="WLAN QCA MEM Info" code="0x19A" />
+<logcode name="SNS DPC Config" code="0x19B" />
+<logcode name="SNS DPC Result" code="0x19C" />
+<logcode name="SNS DPC Report" code="0x19D" />
+<logcode name="DPL Iface Description And Status" code="0x189E" />
+<logcode name="MCS WWCOEX SPUR Info" code="0x189F" />
+<logcode name="LOC LTE TDP Global Cell Parameters" code="0x18A0" />
+<logcode name="GNSS LOC LTE TDP TimeStamped Meas" code="0x18A1" />
+<logcode name="LOC LTE TDP MEAS DATABASE" code="0x18A2" />
+<logcode name="GNSS GTP TDP Config" code="0x18A3" />
+<logcode name="GNSS TLM TDP Scanlist" code="0x18A4" />
+
+<logcode name="QMI Link 21 Rx PDU" code="0x192B" />
+<logcode name="QMI Link 21 Tx PDU" code="0x192C" />
+
+<logcode name="RSA Public Key for Secure Log type" code="0x1D15" />
+
+<logcode name="Diagnostic Request" code="0x1FEA" />
+<logcode name="Extended Debug Message" code="0x1FEB" />
+<logcode name="Debug Message" code="0x1FEC" />
+<logcode name="Diagnostic Response Status" code="0x1FF0" />
+<logcode name="Event" code="0x1FFB" />
+<logcode name="Annotation" code="0x1FFC" />
+<logcode name="Diagnostic Version" code="0x1FFD" />

@@ -39,25 +39,18 @@
 #include <epan/to_str.h>
 #include <epan/unit_strings.h>
 
+#include <wsutil/filesystem.h>
+#include <wsutil/report_message.h>
+#include <wsutil/strtoi.h>
+#include <libxml/tree.h>
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
+
 #include "packet-gsmtap.h"
 #include "packet-qcdiag.h"
 
 #define LOG_CODE_1X_DIAG_REQUEST       0x1fea
 #define LOG_CODE_1X_DIAG_RES_STATUS    0x1ff0
-#define LOG_CODE_1X_EVENT              0x1ffb
-#define LOG_CODE_WCDMA_SIGNALING_MSG   0x412f
-#define LOG_CODE_RR_SIGNALING          0x512f
-#define LOG_CODE_GPRS_MAC_SIGNALING    0x5226
-#define LOG_CODE_UMTS_RRC_OTA          0x713a
-#define LOG_CODE_LTE_RRC_OTA           0xb0c0
-#define LOG_CODE_LTE_NAS_ESM_SEC_IN    0xb0e0
-#define LOG_CODE_LTE_NAS_ESM_SEC_OUT   0xb0e1
-#define LOG_CODE_LTE_NAS_ESM_PLAIN_IN  0xb0e2
-#define LOG_CODE_LTE_NAS_ESM_PLAIN_OUT 0xb0e3
-#define LOG_CODE_LTE_NAS_EMM_SEC_IN    0xb0ea
-#define LOG_CODE_LTE_NAS_EMM_SEC_OUT   0xb0eb
-#define LOG_CODE_LTE_NAS_EMM_PLAIN_IN  0xb0ec
-#define LOG_CODE_LTE_NAS_EMM_PLAIN_OUT 0xb0ed
 
 void proto_register_qcdiag(void);
 void proto_reg_handoff_qcdiag(void);
@@ -70,6 +63,8 @@ static dissector_table_t qcdiag_dissector_table;
 static dissector_table_t qcdiag_subsys_dissector_table;
 
 static int proto_qcdiag;
+
+value_string_ext *qcdiag_logcodes_ext = NULL;
 
 static int hf_qcdiag_logcode;
 static int hf_qcdiag_len;
@@ -387,28 +382,6 @@ static const value_string qcdiag_subsys[] = {
 
 static value_string_ext qcdiag_subsys_ext = VALUE_STRING_EXT_INIT(qcdiag_subsys);
 
-static const value_string qcdiag_logcodes[] = {
-    { LOG_CODE_1X_DIAG_REQUEST,       "Diagnostic Request" },
-    { LOG_CODE_1X_DIAG_RES_STATUS,    "Diagnostic Response Status" },
-    { LOG_CODE_1X_EVENT,              "Event" },
-    { LOG_CODE_WCDMA_SIGNALING_MSG,   "WCDMA Signaling Messages" },
-    { LOG_CODE_RR_SIGNALING,          "GSM RR Signaling Message" },
-    { LOG_CODE_GPRS_MAC_SIGNALING,    "GPRS MAC Signaling Message" },
-    { LOG_CODE_UMTS_RRC_OTA,          "UMTS NAS OTA" },
-    { LOG_CODE_LTE_RRC_OTA,           "LTE RRC OTA" },
-    { LOG_CODE_LTE_NAS_ESM_SEC_IN,    "LTE NAS ESM Security Protected Incoming Message" },
-    { LOG_CODE_LTE_NAS_ESM_SEC_OUT,   "LTE NAS ESM Security Protected Outgoing Message" },
-    { LOG_CODE_LTE_NAS_ESM_PLAIN_IN,  "LTE NAS ESM Plain OTA Incoming Message" },
-    { LOG_CODE_LTE_NAS_ESM_PLAIN_OUT, "LTE NAS ESM Plain OTA Outgoing Message" },
-    { LOG_CODE_LTE_NAS_EMM_SEC_IN,    "LTE NAS EMM Security Protected Incoming Message" },
-    { LOG_CODE_LTE_NAS_EMM_SEC_OUT,   "LTE NAS EMM Security Protected Outgoing Message" },
-    { LOG_CODE_LTE_NAS_EMM_PLAIN_IN,  "LTE NAS EMM Plain OTA Incoming Message" },
-    { LOG_CODE_LTE_NAS_EMM_PLAIN_OUT, "LTE NAS EMM Plain OTA Outgoing Message" },
-    { 0, NULL }
-};
-
-value_string_ext qcdiag_logcodes_ext = VALUE_STRING_EXT_INIT(qcdiag_logcodes);
-
 enum log_config_op {
     LOG_CONFIG_DISABLE_OP             = 0,
     LOG_CONFIG_RETRIEVE_ID_RANGES_OP  = 1,
@@ -517,6 +490,10 @@ qcdiag_add_cmd_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto
     proto_item *generated_item;
 
     length = tvb_reported_length(tvb);
+
+    /* Load header fields if not already done */
+    if (hf_qcdiag_logcode <= 0)
+        proto_registrar_get_byname("qcdiag.code");
 
     /* Command Code */
     proto_tree_add_uint(tree, hf_qcdiag_cmd, tvb, offset, 1, cmd);
@@ -1285,7 +1262,7 @@ qcdiag_log_codes_enabled(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_,
             if ((byte >> bit) & 1) {
                 logcode = equip_id + (pos * 8) + bit;
                 if (first) {
-	                proto_item_set_text(pi, "0x%04x", logcode);
+                    proto_item_set_text(pi, "0x%04x", logcode);
                     first = false;
                 } else {
                     proto_item_append_text(pi, ", 0x%04x", logcode);
@@ -1400,7 +1377,7 @@ dissect_qcdiag_log_config_retreive_id_ranges(tvbuff_t *tvb, uint32_t offset, pac
         if (range == 0) continue;
 
         pi = proto_tree_add_format_text(tree, tvb, offset+(4*i), 1);
-	    proto_item_set_text(pi, "%u: %u", i, range);
+        proto_item_set_text(pi, "%u: %u", i, range);
     }
 }
 
@@ -1903,13 +1880,189 @@ dissect_qcdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     return tvb_captured_length(tvb);
 }
 
-void
-proto_register_qcdiag(void)
+
+/*****************************************************
+ *                                                   *
+ * START OF QUALCOMM XML DATA DICTIONARY PROCESSSING *
+ *                                                   *
+ *****************************************************/
+
+typedef struct qcdict_logcode {
+    xmlChar* name;
+    unsigned code;
+} qcdict_logcode_t;
+
+static void
+qcdictionary_clean_logcode(qcdict_logcode_t* logcode)
 {
-    static hf_register_info hf[] = {
+    xmlFree(logcode->name);
+    g_free(logcode);
+}
+
+static void
+qcdictionary_populate_logcode(void* data, void* user_data)
+{
+    qcdict_logcode_t* logcode = (qcdict_logcode_t*)data;
+    wmem_array_t* array = (wmem_array_t*)user_data;
+    value_string item;
+
+    item.value = logcode->code;
+    item.strptr = wmem_strdup(wmem_epan_scope(), (const char*)logcode->name);
+
+    if (!logcode->name) {
+        report_failure("Qualcomm Dictionary: Invalid Log Code (empty name): code=%d\n", logcode->code);
+        return;
+    }
+
+    wmem_array_append_one(array, item);
+}
+
+static void
+qualcomm_dict_print_logcode(void* data, void* user_data)
+{
+    qcdict_logcode_t* logcode = (qcdict_logcode_t*)data;
+    FILE* fh = (FILE*)user_data;
+
+    fprintf(fh, "\t0x%04x  %s\n",
+        logcode->code,
+        logcode->name ? (char*)logcode->name : "-");
+}
+
+static void
+qualcomm_dict_print(FILE* fh, GSList* logcodes)
+{
+    fprintf(fh, "\nLog Codes:\n");
+
+    g_slist_foreach(logcodes, qualcomm_dict_print_logcode, fh);
+}
+
+struct xml_read_data
+{
+    xmlDocPtr doc;
+    const char* filename;
+};
+
+static void
+dictionary_read_xml_file(void* param)
+{
+    struct xml_read_data* data = (struct xml_read_data*)param;
+    data->doc = xmlReadFile(data->filename, NULL, XML_PARSE_NOENT | XML_PARSE_NONET);
+}
+
+static bool
+dictionary_process_file(const char* dir, const char* filename, GSList** logcodes)
+{
+    xmlNodePtr root_element = NULL;
+    bool status = true;
+    struct xml_read_data func_data = { NULL, filename };
+
+    proto_execute_in_directory(dir, dictionary_read_xml_file, &func_data);
+    if (func_data.doc == NULL)
+        return false;
+
+    root_element = xmlDocGetRootElement(func_data.doc);
+    if (root_element == NULL) {
+        status = false;
+        goto cleanup;
+    }
+
+    for (xmlNodePtr current_node = root_element->children; current_node != NULL; current_node = current_node->next) {
+        if (current_node->type != XML_ELEMENT_NODE)
+            continue;
+
+        if (xmlStrcmp(current_node->name, (const xmlChar*)"logcode") == 0) {
+            qcdict_logcode_t* element = g_new0(qcdict_logcode_t, 1);
+            element->name = xmlGetProp(current_node, (const xmlChar*)"name");
+            xmlChar* code = xmlGetProp(current_node, (const xmlChar*)"code");
+            if (code != NULL) {
+                if (g_ascii_strncasecmp((const char*)code, "0x", 2) == 0) {
+                    if (!ws_hexstrtou32((const char*)code, NULL, &element->code))
+                        continue;
+                } else {
+                    if (!ws_strtou32((const char*)code, NULL, &element->code))
+                        continue;
+                }
+                xmlFree(code);
+            }
+
+            (*logcodes) = g_slist_prepend((*logcodes), element);
+        }
+    }
+    (*logcodes) = g_slist_reverse(*logcodes);
+cleanup:
+    xmlFreeDoc(func_data.doc);
+
+    return status;
+}
+
+/***************************************************
+ *                                                 *
+ * END OF QUALCOMM XML DATA DICTIONARY PROCESSSING *
+ *                                                 *
+ ***************************************************/
+
+static int
+compare_logcodes(const void *a, const void *b)
+{
+    const value_string *vsa = (const value_string *)a;
+    const value_string *vsb = (const value_string *)b;
+
+    if (vsa->value > vsb->value)
+        return 1;
+    if (vsa->value < vsb->value)
+        return -1;
+
+    return 0;
+}
+
+static int
+qcdictionary_load(wmem_array_t* hf_array _U_, GPtrArray* ett_array _U_)
+{
+    bool dump_dict = getenv("WIRESHARK_DUMP_QC_DICT");
+    GSList* all_logcodes = NULL;
+    value_string end_value_string = { 0, NULL };
+
+    /* load the dictionary */
+    char* dir = wmem_strdup_printf(NULL, "%s" G_DIR_SEPARATOR_S "qualcomm", get_datafile_dir(epan_get_environment_prefix()));
+    bool success = dictionary_process_file(dir, "./dictionary.xml", &all_logcodes);
+    wmem_free(NULL, dir);
+
+    if (success && dump_dict)
+        qualcomm_dict_print(stdout, all_logcodes);
+
+    /* Convert the dictionary data to epan scoped data structures */
+    wmem_array_t* arr = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
+    g_slist_foreach(all_logcodes, qcdictionary_populate_logcode, arr);
+
+    wmem_array_sort(arr, compare_logcodes);
+
+    /* Terminate the value_string list */
+    wmem_array_append_one(arr, end_value_string);
+
+    /* TODO: Remove duplicates in arr */
+
+    /* Clean up */
+    g_slist_free_full(all_logcodes, (GDestroyNotify)qcdictionary_clean_logcode);
+    all_logcodes = NULL;
+
+    /* Create a new extended value-string mapping structure */
+    qcdiag_logcodes_ext = value_string_ext_new(wmem_epan_scope(),
+        (value_string*)wmem_array_get_raw(arr),
+        wmem_array_get_count(arr),
+        wmem_strdup(wmem_epan_scope(), "qcdiag_logcodes_ext"));
+
+    return success;
+}
+
+static void
+real_register_qualcomm_fields(wmem_array_t* hf_array, GPtrArray* ett_array)
+{
+    unsigned i, ett_length;
+
+    hf_register_info hf[] = {
         { &hf_qcdiag_logcode,
           { "Log Code", "qcdiag.logcode",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &qcdiag_logcodes_ext, 0, NULL, HFILL }},
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, VALS_EXT_PTR(qcdiag_logcodes_ext), 0, NULL, HFILL }},
         { &hf_qcdiag_len,
           { "Length", "qcdiag.len",
             FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL }},
@@ -1988,9 +2141,9 @@ proto_register_qcdiag(void)
         { &hf_qcdiag_subsys_cmd_code,
           { "Subsystem Command Code", "qcdiag.subsys_cmd_code",
             FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-		{ &hf_qcdiag_logcfg_res,
+        { &hf_qcdiag_logcfg_res,
           { "Reserved", "qcdiag.logcfg.res",
-		    FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
+            FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_qcdiag_logcfg_operation,
           { "Operation", "qcdiag.logcfg.operation",
             FT_UINT32, BASE_DEC, VALS(qcdiag_logcfg_ops), 0, NULL, HFILL }},
@@ -2005,7 +2158,7 @@ proto_register_qcdiag(void)
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_qcdiag_log_on_demand_logcode,
           { "Log Code", "qcdiag.log_on_demand.logcode",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &qcdiag_logcodes_ext, 0, NULL, HFILL }},
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, VALS_EXT_PTR(qcdiag_logcodes_ext), 0, NULL, HFILL }},
         { &hf_qcdiag_log_on_demand_status,
           { "Log Code", "qcdiag.log_on_demand.status",
             FT_UINT8, BASE_DEC, VALS(qcdiag_log_on_demand_status_vals), 0, NULL, HFILL }},
@@ -2015,32 +2168,62 @@ proto_register_qcdiag(void)
         { &hf_qcdiag_ext_build_id_ver,
           { "Version", "qcdiag.ext_build_id.ver",
             FT_UINT16, BASE_DEC, VALS(qcdiag_ext_build_id_ver), 0, NULL, HFILL }},
-		{ &hf_qcdiag_ext_build_id_res,
+        { &hf_qcdiag_ext_build_id_res,
           { "Reserved", "qcdiag.ext_build_id.res",
-		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-		{ &hf_qcdiag_ext_build_id_msm,
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_ext_build_id_msm,
           { "MSM Revision Extension", "qcdiag.ext_build_id.msm",
-		    FT_UINT32, BASE_HEX, NULL, 0, "Extension of mobile station modem revision", HFILL }},
-		{ &hf_qcdiag_ext_build_id_mob_model,
+            FT_UINT32, BASE_HEX, NULL, 0, "Extension of mobile station modem revision", HFILL }},
+        { &hf_qcdiag_ext_build_id_mob_model,
           { "Manufacturer’s Mobile Model Extension", "qcdiag.ext_build_id.mob_model",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Extension of manufacturer’s mobile model", HFILL }},
-		{ &hf_qcdiag_ext_build_id_sw_rev,
+            FT_UINT32, BASE_DEC, NULL, 0, "Extension of manufacturer’s mobile model", HFILL }},
+        { &hf_qcdiag_ext_build_id_sw_rev,
           { "Mobile Software Revision", "qcdiag.ext_build_id.sw_rev",
-		    FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_qcdiag_ext_build_id_mob_model_str,
+            FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_ext_build_id_mob_model_str,
           { "Mobile Model String", "qcdiag.ext_build_id.mob_model_str",
-		    FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
+            FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
     };
 
-    static int *ett[] = {
+    int *ett[] = {
         &ett_qcdiag,
         &ett_qcdiag_cmd_subtree,
         &ett_qcdiag_log_codes_enabled,
     };
 
+    wmem_array_append(hf_array, hf, array_length(hf));
+
+    ett_length = array_length(ett);
+    for (i = 0; i < ett_length; i++) {
+        g_ptr_array_add(ett_array, ett[i]);
+    }
+
+    proto_register_field_array(proto_qcdiag, (hf_register_info *)wmem_array_get_raw(hf_array), wmem_array_get_count(hf_array));
+    proto_register_subtree_array((int **)ett_array->pdata, ett_array->len);
+
+    g_ptr_array_free(ett_array, true);
+}
+
+#define QUALCOMM_DYNAMIC_HF_SIZE  4096
+
+static void
+register_qualcomm_fields(const char *unused _U_)
+{
+    /* Pre allocate the arrays big enough to hold the hf:s and etts:s*/
+    wmem_array_t* hf_array = wmem_array_sized_new(wmem_epan_scope(), sizeof(hf_register_info), QUALCOMM_DYNAMIC_HF_SIZE);
+    GPtrArray* ett_array = g_ptr_array_sized_new(QUALCOMM_DYNAMIC_HF_SIZE);
+
+    qcdictionary_load(hf_array, ett_array);
+    real_register_qualcomm_fields(hf_array, ett_array);
+}
+
+void
+proto_register_qcdiag(void)
+{
     proto_qcdiag = proto_register_protocol("Qualcomm Diagnostic", "QCDIAG", "qcdiag");
-    proto_register_field_array(proto_qcdiag, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Delay registration of Qualcomm fields */
+    proto_register_prefix("qcdiag", register_qualcomm_fields);
 
     qcdiag_dissector_table = register_dissector_table("qcdiag.cmd",
                     "QCDIAG Command", proto_qcdiag, FT_UINT8, BASE_DEC);
@@ -2057,7 +2240,7 @@ proto_reg_handoff_qcdiag(void)
     dissector_add_uint("gsmtap.type", GSMTAP_TYPE_QC_DIAG, qcdiag_handle);
 
     data_handle = find_dissector("data");
-	text_lines_handle = find_dissector("data-text-lines");
+    text_lines_handle = find_dissector("data-text-lines");
 }
 
 /*

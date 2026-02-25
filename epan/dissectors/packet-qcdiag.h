@@ -29,7 +29,7 @@ typedef struct _qcdiag_data {
     bool custom;
 } qcdiag_data_t;
 
-extern value_string_ext qcdiag_logcodes_ext;
+extern value_string_ext *qcdiag_logcodes_ext;
 extern nstime_t qcdiag_parse_timestamp(tvbuff_t *tvb, uint32_t offset);
 
 #define DIAG_VERNO_F                  0
