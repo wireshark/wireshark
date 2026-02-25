@@ -608,14 +608,11 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		tvb_sectionbegin = tvb_sectionend;
 
 		/* Dissect params */
-		if (tvb_sectionbegin < tvb_len)
+		sectionlen = tvb_find_null_line_remaining(tvb, tvb_sectionbegin, &tvb_sectionend);
+		if (sectionlen > 0)
 		{
-			sectionlen = tvb_find_null_line_remaining(tvb, tvb_sectionbegin, &tvb_sectionend);
-			if (sectionlen > 0)
-			{
-				dissect_mgcp_params(tvb_new_subset_length(tvb, tvb_sectionbegin, sectionlen),
-				                                   pinfo, mgcp_tree, mi);
-			}
+			dissect_mgcp_params(tvb_new_subset_length(tvb, tvb_sectionbegin, sectionlen),
+							   pinfo, mgcp_tree, mi);
 		}
 
 		/* Set the mgcp payload length correctly so we don't include any
@@ -2136,51 +2133,48 @@ dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvb
 }
 
 /*
- * tvb_find_null_line - Returns the length from offset to the first null
- *                      line found (a null line is a line that begins
+ * tvb_find_null_line_remaining - Returns the length from offset to the first
+ *                      null line found (a null line is a line that begins
  *                      with a CR or LF.  The offset to the first character
- *                      after the null line is written into the int pointed
- *                      to by next_offset.
+ *                      after the null line is written into the unsigned int
+ *                      pointed to by next_offset.
  *
  * Parameters:
  * tvb - The tvbuff in which we are looking for a null line.
  * offset - The offset in tvb at which we will begin looking for
  *          a null line.
- * len - The maximum distance from offset in tvb that we will look for
- *       a null line.  If it is -1 we will look to the end of the buffer.
  *
  * next_offset - The location to write the offset of first character
  *               FOLLOWING the null line.
  *
  * Returns: The length from offset to the first character BEFORE
- *          the null line..
+ *          the null line.
  */
 static unsigned tvb_find_null_line_remaining(tvbuff_t* tvb, unsigned offset, unsigned* next_offset)
 {
-	unsigned tvb_lineend, tvb_current_len, tvb_linebegin, maxoffset;
+	unsigned tvb_lineend, tvb_current_len, tvb_linebegin;
 	unsigned tempchar;
+
+	if (!tvb_reported_length_remaining(tvb, offset)) {
+		*next_offset = offset;
+		return 0;
+	}
 
 	tvb_linebegin = offset;
 	tvb_lineend = tvb_linebegin;
 
-	tvb_current_len = tvb_reported_length_remaining(tvb, offset);
-
-	maxoffset = (tvb_current_len - 1) + offset;
-
-	/* Loop around until we either find a line beginning with a carriage return
-	   or newline character or until we hit the end of the tvbuff. */
+	/* Loop around until we either find a line beginning with a carriage
+	   return or newline character or until we hit the end of the tvbuff. */
 	do
 	{
 		tvb_linebegin = tvb_lineend;
-		tvb_current_len = tvb_reported_length_remaining(tvb, tvb_linebegin);
-		tvb_find_line_end_length(tvb, tvb_linebegin, tvb_current_len, NULL, &tvb_lineend);
+		tvb_find_line_end_remaining(tvb, tvb_linebegin, NULL, &tvb_lineend);
 		tempchar = tvb_get_uint8(tvb, tvb_linebegin);
-	} while (tempchar != '\r' && tempchar != '\n' && tvb_lineend <= maxoffset && tvb_offset_exists(tvb, tvb_lineend));
-
+	} while (tempchar != '\r' && tempchar != '\n' && tvb_offset_exists(tvb, tvb_lineend));
 
 	*next_offset = tvb_lineend;
 
-	if (tvb_lineend <= maxoffset)
+	if (tvb_offset_exists(tvb, tvb_lineend))
 	{
 		tvb_current_len = tvb_linebegin - offset;
 	}
