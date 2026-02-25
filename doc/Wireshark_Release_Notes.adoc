@@ -30,39 +30,6 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 // The following vulnerabilities have been fixed:
 
-* wssalink:2026-05[] {notable}
-USB HID dissector memory exhaustion.
-wsbuglink:20972[].
-cveidlink:2026-3201[].
-// Fixed in master: f87c426b30
-// Fixed in release-4.6: 168bf05775
-// Fixed in release-4.4: 5e80615ebc
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-1325
-// * USB-HID: Resource exhaustion in parse_report_descriptor() due to missing array size limit. wsbuglink:20972[].
-
-* wssalink:2026-06[] {notable}
-NTS-KE dissector crash.
-wsbuglink:21000[].
-cveidlink:2026-3202[].
-// Fixed in master: 5fdfc57804
-// Fixed in release-4.6: 73d4e7eaff
-// Fixed in release-4.4: n/a
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// * Fuzz job crash: fuzz-2026-02-05-12996899075.pcap. wsbuglink:21000[].
-
-* wssalink:2026-07[] {notable}
-RF4CE Profile dissector crash.
-wsbuglink:21009[].
-cveidlink:2026-3203[].
-// Fixed in master: 17215397c1
-// Fixed in release-4.6: 0c4c5a531f
-// Fixed in release-4.4: d487e0e07b
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-126
-// * Fuzz job crash: fuzz-2026-02-06-13021968622.pcap. wsbuglink:21009[].
-
 // * wssalink:2026-08[] {notable}
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
@@ -80,22 +47,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 // Bugs with the {notable} attribute show up in the "What's Changed" box on the download page.
 //* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to. wsbuglink:5000[] {notable}
-
-* Wireshark doesn't start if Npcap is configured with "Restrict Npcap driver's Access to Administrators only" wsbuglink:20828[]. {notable}
-* PQC signature algorithm not reported in signature_algorithms. wsbuglink:20953[].
-* Unexpected JA4 ALPN values when space characters sent. wsbuglink:20966[].
-* Expert Info seems to have quadratic performance (gets slower and slower) wsbuglink:20970[]. {notable}
-* IKEv2 EMERGENCY_CALL_NUMBERS Notify payload cannot be decoded. wsbuglink:20974[].
-* TShark and editcap fails with segmentation fault when output format (-F) set to blf. wsbuglink:20976[].
-* Fuzz job crash: fuzz-2026-02-01-12944805400.pcap [Zigbee Direct Tunneling Zigbee NWK PDUs NULL hash table] wsbuglink:20977[].
-* Wiretap writes pcapng custom options with string values invalidly. wsbuglink:20978[].
-* RDM status in Output Status (GoodOutputB) field incorrectly decoded in Art-Net PollReply dissector. wsbuglink:20980[].
-* Wiretap writes invalid pcapng Darwin option blocks. wsbuglink:20991[].
-* TDS dissector desynchronizes on RPC DATENTYPE (0x28) due to incorrect expectation of TYPE_VARLEN (MaxLen) wsbuglink:21001[].
-* Only first HTTP POST is parsed inside SOCKS with "Decode As". wsbuglink:21006[].
-* TShark: Bogus "Dissector bug" messages generated in pipelines where something after tshark exits before reading all its input. wsbuglink:21011[].
-* New Diameter RAT-Types in TS 29.212 not decoded. wsbuglink:21012[].
-* Malformed packet error on Trigger HE Basic frames. wsbuglink:21032[].
 
 // == Known Bugs
 
@@ -115,38 +66,15 @@ There are no new protocols in this release.
 // rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.4.. | rg packet- | sort -u)
 [commaize]
 --
-Art-Net
-AT
-BGP
-GSM DTAP
-GSM SIM
-IEEE 802.11
-IPv6
-ISAKMP
-MBIM
-MySQL
-NAS-5GS
-NTS-KE
-SGP.22
-Silabs DCH
-Socks
-TDS
-TECMP
-USB HID
-ZBD
-ZB TLV
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-BLF
-pcapng
-TTL
---
+// [commaize]
+// --
+// --
 
 === New and Updated File Format Decoding Support
 
@@ -169,6 +97,43 @@ There is no new or updated file format support in this release.
 // === Major API Changes
 
 == Prior Versions
+
+Wireshark 4.6.4 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.6.4.html[release notes]
+for details:
+
+* wssalink:2026-05[]
+USB HID dissector memory exhaustion.
+wsbuglink:20972[].
+cveidlink:2026-3201[].
+
+* wssalink:2026-06[]
+NTS-KE dissector crash.
+wsbuglink:21000[].
+cveidlink:2026-3202[].
+
+* wssalink:2026-07[]
+RF4CE Profile dissector crash.
+wsbuglink:21009[].
+cveidlink:2026-3203[].
+
+* Wireshark doesn't start if Npcap is configured with "Restrict Npcap driver's Access to Administrators only" wsbuglink:20828[].
+* PQC signature algorithm not reported in signature_algorithms. wsbuglink:20953[].
+* Unexpected JA4 ALPN values when space characters sent. wsbuglink:20966[].
+* Expert Info seems to have quadratic performance (gets slower and slower) wsbuglink:20970[].
+* IKEv2 EMERGENCY_CALL_NUMBERS Notify payload cannot be decoded. wsbuglink:20974[].
+* TShark and editcap fails with segmentation fault when output format (-F) set to blf. wsbuglink:20976[].
+* Fuzz job crash: fuzz-2026-02-01-12944805400.pcap [Zigbee Direct Tunneling Zigbee NWK PDUs NULL hash table] wsbuglink:20977[].
+* Wiretap writes pcapng custom options with string values invalidly. wsbuglink:20978[].
+* RDM status in Output Status (GoodOutputB) field incorrectly decoded in Art-Net PollReply dissector. wsbuglink:20980[].
+* Wiretap writes invalid pcapng Darwin option blocks. wsbuglink:20991[].
+* TDS dissector desynchronizes on RPC DATENTYPE (0x28) due to incorrect expectation of TYPE_VARLEN (MaxLen) wsbuglink:21001[].
+* Only first HTTP POST is parsed inside SOCKS with "Decode As". wsbuglink:21006[].
+* TShark: Bogus "Dissector bug" messages generated in pipelines where something after tshark exits before reading all its input. wsbuglink:21011[].
+* New Diameter RAT-Types in TS 29.212 not decoded. wsbuglink:21012[].
+* Malformed packet error on Trigger HE Basic frames. wsbuglink:21032[].
+
 
 Wireshark 4.6.3 included the following changes.
 See the
