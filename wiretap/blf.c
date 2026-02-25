@@ -815,14 +815,6 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
         /* Skip empty container */
         if (!wtap_read_bytes_or_eof(params->fh, NULL, (unsigned int)data_length, err, err_info)) {
             if (*err == WTAP_ERR_SHORT_READ) {
-                /*
-                 * XXX - our caller will turn this into an EOF.
-                 * How *should* it be treated?
-                 * For now, we turn it into Yet Another Internal Error,
-                 * pending having better documentation of the file
-                 * format.
-                 */
-                *err = WTAP_ERR_INTERNAL;
                 *err_info = ws_strdup("blf_pull_logcontainer_into_memory: short read on 0-length container");
             }
             return false;
@@ -846,13 +838,9 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
             g_free(buf);
             if (*err == WTAP_ERR_SHORT_READ) {
                 /*
-                 * XXX - our caller will turn this into an EOF.
-                 * How *should* it be treated?
-                 * For now, we turn it into Yet Another Internal Error,
-                 * pending having better documentation of the file
-                 * format.
+                 * XXX - Possible improvement: read as much as we can, instead of
+                 * skipping the last log container entirely.
                  */
-                *err = WTAP_ERR_INTERNAL;
                 *err_info = ws_strdup("blf_pull_logcontainer_into_memory: short read on uncompressed data");
             }
             return false;
@@ -872,13 +860,10 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
             g_free(compressed_data);
             if (*err == WTAP_ERR_SHORT_READ) {
                 /*
-                 * XXX - our caller will turn this into an EOF.
-                 * How *should* it be treated?
-                 * For now, we turn it into Yet Another Internal Error,
-                 * pending having better documentation of the file
-                 * format.
+                 * XXX - Possible improvement: read as much as we can, instead of
+                 * skipping the last log container entirely.
+                 * In this case, we also need to handle potential errors when inflating.
                  */
-                *err = WTAP_ERR_INTERNAL;
                 *err_info = ws_strdup("blf_pull_logcontainer_into_memory: short read on compressed data");
             }
             return false;
@@ -1193,17 +1178,31 @@ blf_pull_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
 
     container = &g_array_index(params->blf_data->log_containers, blf_log_container_t, params->blf_data->log_containers->len - 1);
     if (!blf_pull_logcontainer_into_memory(params, container, err, err_info)) {
-        if (*err == WTAP_ERR_DECOMPRESS) {
+        if (*err == WTAP_ERR_DECOMPRESS || *err == WTAP_ERR_SHORT_READ) {
             report_warning("Error while decompressing BLF log container number %u (file pos. 0x%" PRIx64 "): %s",
-                            params->blf_data->log_containers->len - 1, container->infile_start_pos, *err_info ? *err_info : "(none)");
+                params->blf_data->log_containers->len - 1, container->infile_start_pos, *err_info ? *err_info : "(none)");
             *err = 0;
             g_free(*err_info);
             *err_info = NULL;
 
-            /* Skip this log container and try to get the next one. */
+            /* Skip this log container. */
             g_array_remove_index(params->blf_data->log_containers, params->blf_data->log_containers->len - 1);
-            /* Calling blf_pull_logcontainer_into_memory advances the file pointer. Eventually we will reach the end of the file and stop recursing. */
+        }
+        switch (*err) {
+        case WTAP_ERR_DECOMPRESS:
+            /*
+             * Try to get the next log container. Calling blf_pull_logcontainer_into_memory advances
+             * the file pointer: eventually we will reach the end of the file and stop recursing.
+             */
             return blf_pull_next_logcontainer(params, err, err_info);
+        case WTAP_ERR_SHORT_READ:
+            /*
+             * This can happen if the log container (and consequently the file) was abruptly truncated for any reason.
+             * We can go on, since the file pointer has already been advanced, so we're already at EOF.
+             */
+            return true;
+        default:
+            break;
         }
 
         return false;
