@@ -2193,7 +2193,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         if (optlen < 12) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "AC Descriptor length %u wrong, must be >= 12", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_descriptor_stations, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_descriptor_limit, tvb, offset+6, 2, ENC_BIG_ENDIAN);
@@ -2222,7 +2222,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 4) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "AC IPv4 List length %u wrong, must be >= 4", optlen);
-        break;
+            break;
         }
         offset += 4;
 
@@ -2240,7 +2240,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 16) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "AC IPv6 List length %u wrong, must be >= 4", optlen);
-        break;
+            break;
         }
         offset += 4;
 
@@ -2258,7 +2258,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "AC Name length %u wrong, must be >= 1", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_name, tvb, offset+4, optlen, ENC_ASCII);
         break;
@@ -2267,7 +2267,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 2) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "AC Name with Priority length %u wrong, must be >= 2", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_name_with_priority, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_name, tvb, offset+5, optlen-1, ENC_ASCII);
@@ -2277,7 +2277,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 4) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "AC Timestamp length %u wrong, must be = 4", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_timestamp, tvb, offset + 4, 4, ENC_TIME_SECS_NTP|ENC_BIG_ENDIAN);
         break;
@@ -2287,7 +2287,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Add Station length %u wrong, must be >= 8", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_radio_id, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_length, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
@@ -2314,7 +2314,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 6) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "CAPWAP Control IPv4 Address length %u wrong, must be = 6", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_control_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_control_wtp_count, tvb, offset+8, 2, ENC_BIG_ENDIAN);
@@ -2324,7 +2324,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 18) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "CAPWAP Control IPv6 Address length %u wrong, must be = 18", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_control_ipv6, tvb, offset+4, 16, ENC_NA);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_control_wtp_count, tvb, offset+20, 2, ENC_BIG_ENDIAN);
@@ -2334,7 +2334,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 2) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "CAPWAP Timers length %u wrong, must be = 2", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_timers_discovery, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_timers_echo_request, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2344,7 +2344,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 3) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Decryption Error Report Period length %u wrong, must be = 3", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_decryption_error_report_period_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree,hf_capwap_msg_element_type_decryption_error_report_period_interval, tvb, offset+5, 2, ENC_BIG_ENDIAN);
@@ -2355,7 +2355,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Delete Station length %u wrong, must be >= 8", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_radio_id, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_length, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
@@ -2379,7 +2379,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Discovery Type length %u wrong, must be = 1", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_discovery_type, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         break;
@@ -2387,7 +2387,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 4) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Idle Timeout length %u wrong, must be = 4", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_idle_timeout, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         break;
@@ -2396,7 +2396,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 5) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Image Identifier length %u wrong, must be >= 5", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_image_identifier_vendor, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_image_identifier_data, tvb, offset+8, optlen-4, ENC_UTF_8);
@@ -2406,7 +2406,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Location Data length %u wrong, must be >= 1", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_location_data, tvb, offset+4, optlen, ENC_ASCII);
         break;
@@ -2415,7 +2415,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 2) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Maximum Message length %u wrong, must be = 2", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_maximum_message_length, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         break;
@@ -2424,7 +2424,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 4) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "CAPWAP Local IPv4 Address length %u wrong, must be = 4", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_local_ipv4_address, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         break;
@@ -2434,7 +2434,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 2) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Radio Administrative State length %u wrong, must be = 2", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_radio_admin_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_radio_admin_state, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2445,7 +2445,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 3) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Radio Operational State length %u wrong, must be = 3", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_radio_op_state_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_radio_op_state_radio_state, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2456,7 +2456,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 4) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Result Code length %u wrong, must be = 4", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_result_code, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
@@ -2466,7 +2466,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 16) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Session ID length %u wrong, must be = 16", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_session_id, tvb, offset+4, 16, ENC_NA);
         break;
@@ -2475,7 +2475,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 2) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Statistics Timer length %u wrong, must be = 2", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_statistics_timer, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         break;
@@ -2485,7 +2485,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 7) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Vendor Specific Payload length %u wrong, must be >= 7", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_vsp_vendor_identifier, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         vendor_id = tvb_get_ntohl(tvb, offset+4);
@@ -2509,7 +2509,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 14) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "WTP Board Data length %u wrong, must be >= 14", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_board_data_vendor, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         offset += 8;
@@ -2523,7 +2523,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen < 33) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "WTP Descriptor length %u wrong, must be >= 33", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_descriptor_max_radios, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_descriptor_radio_in_use, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2554,7 +2554,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "WTP Fallback length %u wrong, must be = 1", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_fallback, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         break;
@@ -2563,7 +2563,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         if (optlen != 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "WTP Frame Tunnel Mode length %u wrong, must be = 1", optlen);
-        break;
+            break;
         }
 
         proto_tree_add_bitmask_with_flags(sub_msg_element_type_tree, tvb, offset+4,
@@ -2573,7 +2573,7 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         if (optlen != 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "WTP MAC Type length %u wrong, must be = 1", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_mac_type, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         break;
@@ -2582,7 +2582,7 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         if (optlen < 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "WTP Name length %u wrong, must be >= 1", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_name, tvb, offset+4, optlen, ENC_ASCII);
         break;
@@ -2591,7 +2591,7 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         if (optlen != 15) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "WTP Reboot Statistics length %u wrong, must be = 15", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_reboot_statistics_reboot_count, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_reboot_statistics_ac_initiated_count, tvb, offset+6, 2, ENC_BIG_ENDIAN);
@@ -2607,6 +2607,7 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         if (optlen != 13) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "WTP Static IP Address Information length %u wrong, must be = 13", optlen);
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_static_ip_address_information_ip_address, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_static_ip_address_information_netmask, tvb, offset+8, 4, ENC_BIG_ENDIAN);
@@ -2618,7 +2619,7 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         if (optlen != 16) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "CAPWAP Local IPv6 Address length %u wrong, must be = 16", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_local_ipv6_address, tvb, offset+4, 16, ENC_NA);
         break;
@@ -2627,7 +2628,7 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         if (optlen != 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "CAPWAP Transport Protocol length %u wrong, must be = 1", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_transport_protocol, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         break;
@@ -2636,7 +2637,7 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         if (optlen < 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "MTU Discovery Padding length %u wrong, must be >= 1", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_mtu_discovery_padding, tvb, offset+4, optlen, ENC_NA);
         break;
@@ -2646,7 +2647,7 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         if (optlen != 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "ECN Support length %u wrong, must be = 1", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ecn_support, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         break;
@@ -2656,16 +2657,16 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
         if (optlen < 20) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Add Wlan length %u wrong, must be >= 20", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask_with_flags(sub_msg_element_type_tree, tvb, offset+6,
-hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_add_wlan_capability, ieee80211_add_wlan_capability_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+                                          hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_add_wlan_capability,
+                                          ieee80211_add_wlan_capability_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key_index, tvb, offset+8, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key_status, tvb, offset+9, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key_length, tvb, offset+10, 2, ENC_BIG_ENDIAN);
-        key_length = tvb_get_ntohs(tvb, offset+10);
+        proto_tree_add_item_ret_uint16(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key_length, tvb, offset+10, 2, ENC_BIG_ENDIAN, &key_length);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key, tvb, offset+12, key_length, ENC_NA);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_group_tsc, tvb, offset+key_length+12, 6, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_qos, tvb, offset+key_length+18, 1, ENC_BIG_ENDIAN);
@@ -2682,13 +2683,12 @@ hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_a
         if (optlen < 5) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Antenna length %u wrong, must be >= 5", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_antenna_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_antenna_diversity, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_antenna_combiner, tvb, offset+6, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_antenna_count, tvb, offset+7, 1, ENC_BIG_ENDIAN);
-        antenna_count = tvb_get_uint8(tvb, offset+7);
+        proto_tree_add_item_ret_uint8(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_antenna_count, tvb, offset+7, 1, ENC_BIG_ENDIAN, &antenna_count);
         while(antenna < antenna_count){
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_antenna_selection, tvb, offset+8+antenna, 1, ENC_BIG_ENDIAN);
             antenna += 1;
@@ -2700,7 +2700,7 @@ hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_a
         if (optlen != 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Assigned WTP BSSID length %u wrong, must be = 8", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2711,7 +2711,7 @@ hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_a
         if (optlen != 2) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Delete Wlan length %u wrong, must be = 2", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_delete_wlan_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_delete_wlan_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2721,7 +2721,7 @@ hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_a
         if (optlen != 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Direct Sequence Control length %u wrong, must be = 8", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_direct_sequence_control_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_direct_sequence_control_reserved, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2734,7 +2734,7 @@ hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_a
         if (optlen < 4) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Information Element length %u wrong, must be >= 4", optlen);
-        break;
+            break;
         }
         offset += 4;
         offset_end = offset + optlen;
@@ -2759,7 +2759,7 @@ hf_capwap_msg_element_type_ieee80211_ie_flags, ett_capwap_ieee80211_ie_flags, ie
         if (optlen != 16) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 MAC Operation length %u wrong, must be = 16", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_mac_operation_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_mac_operation_reserved, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2775,7 +2775,7 @@ hf_capwap_msg_element_type_ieee80211_ie_flags, ett_capwap_ieee80211_ie_flags, ie
         if (optlen != 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 MIC Countermeasures length %u wrong, must be = 8", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_mic_countermeasures_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_mic_countermeasures_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2786,7 +2786,7 @@ hf_capwap_msg_element_type_ieee80211_ie_flags, ett_capwap_ieee80211_ie_flags, ie
         if (optlen != 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Multi-Domain Capability length %u wrong, must be = 8", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_multi_domain_capability_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_multi_domain_capability_reserved, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2799,7 +2799,7 @@ hf_capwap_msg_element_type_ieee80211_ie_flags, ett_capwap_ieee80211_ie_flags, ie
         if (optlen != 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 OFDM Control length %u wrong, must be = 8", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_ofdm_control_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_ofdm_control_reserved, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2813,7 +2813,7 @@ hf_capwap_msg_element_type_ieee80211_ie_flags, ett_capwap_ieee80211_ie_flags, ie
         if (optlen < 3) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Rate Set length %u wrong, must be >= 3", optlen);
-        break;
+            break;
         }
         offset += 4;
         offset_end = offset + optlen;
@@ -2832,7 +2832,7 @@ hf_capwap_msg_element_type_ieee80211_ie_flags, ett_capwap_ieee80211_ie_flags, ie
         if (optlen < 14) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Station length %u wrong, must be >= 14", optlen);
-        break;
+            break;
         }
         offset_end = offset + 4 + optlen;
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
@@ -2864,7 +2864,7 @@ hf_capwap_msg_element_type_ieee80211_station_capabilities, ett_capwap_ieee80211_
         if (optlen < 25) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Station Session Key length %u wrong, must be >= 25", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_session_key_mac, tvb, offset+4, 6, ENC_NA);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_session_key_flags, tvb, offset+10, 2, ENC_BIG_ENDIAN);
@@ -2879,7 +2879,7 @@ hf_capwap_msg_element_type_ieee80211_station_capabilities, ett_capwap_ieee80211_
         if (optlen < 3) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Supported Rates length %u wrong, must be >= 3", optlen);
-        break;
+            break;
         }
         offset += 4;
         offset_end = offset + optlen;
@@ -2897,7 +2897,7 @@ hf_capwap_msg_element_type_ieee80211_station_capabilities, ett_capwap_ieee80211_
         if (optlen != 4) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Tx Power length %u wrong, must be = 4", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_reserved, tvb, offset+5, 1, ENC_BIG_ENDIAN);
@@ -2909,11 +2909,10 @@ hf_capwap_msg_element_type_ieee80211_station_capabilities, ett_capwap_ieee80211_
         if (optlen < 3) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Antenna length %u wrong, must be >= 3", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_level_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_level_num_levels, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        num_levels = tvb_get_uint8(tvb, offset+5);
+        proto_tree_add_item_ret_uint8(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_level_num_levels, tvb, offset+5, 1, ENC_BIG_ENDIAN, &num_levels);
         while(level < num_levels){
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_level_power_level, tvb, offset+6+(level*2), 2, ENC_BIG_ENDIAN);
             level += 1;
@@ -2926,16 +2925,16 @@ hf_capwap_msg_element_type_ieee80211_station_capabilities, ett_capwap_ieee80211_
         if (optlen < 8) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "IEEE80211 Update Wlan length %u wrong, must be >= 8", optlen);
-        break;
+            break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask_with_flags(sub_msg_element_type_tree, tvb, offset+6,
-hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee80211_update_wlan_capability, ieee80211_update_wlan_capability_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+                                          hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee80211_update_wlan_capability,
+                                          ieee80211_update_wlan_capability_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_key_index, tvb, offset+8, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_key_status, tvb, offset+9, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_key_length, tvb, offset+10, 2, ENC_BIG_ENDIAN);
-        key_length = tvb_get_ntohs(tvb, offset+10);
+        proto_tree_add_item_ret_uint16(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_key_length, tvb, offset+10, 2, ENC_BIG_ENDIAN, &key_length);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_key, tvb, offset+12, key_length, ENC_NA);
         }
         break;

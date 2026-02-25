@@ -415,8 +415,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         du_id = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(clnp_tree, hf_clnp_data_unit_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
-        segment_offset = tvb_get_ntohs(tvb, offset + 2);
-        proto_tree_add_item(clnp_tree, hf_clnp_segment_offset, tvb, offset + 2 , 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint16(clnp_tree, hf_clnp_segment_offset, tvb, offset + 2 , 2, ENC_BIG_ENDIAN, &segment_offset);
         ti_tot_len = proto_tree_add_item_ret_uint16(clnp_tree, hf_clnp_total_length, tvb, offset + 4 , 2, ENC_BIG_ENDIAN, &total_length);
         if (total_length < segment_length) {
             /* Reassembled length is less than the length of this segment. */

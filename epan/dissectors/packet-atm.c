@@ -477,8 +477,7 @@ dissect_le_verify_frame(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tre
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 38, ENC_NA);
   offset += 38;
 
-  num_tlvs = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_atm_le_verify_frame_num_tlvs, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item_ret_uint8(tree, hf_atm_le_verify_frame_num_tlvs, tvb, offset, 1, ENC_NA, &num_tlvs);
   offset += 1;
 
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 1, ENC_NA);

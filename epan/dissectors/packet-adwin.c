@@ -925,9 +925,7 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item(adwin_tree, hf_adwin_status,         tvb, 0,  4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(adwin_tree, hf_adwin_packet_index,   tvb, 4,  4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(adwin_tree, hf_adwin_packet_no,      tvb, 1408,  4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(adwin_tree, hf_adwin_data_type,      tvb, 1412,  4, ENC_LITTLE_ENDIAN);
-
-	data_type = tvb_get_letohl(tvb, 1412);
+	proto_tree_add_item_ret_uint(adwin_tree, hf_adwin_data_type, tvb, 1412,  4, ENC_LITTLE_ENDIAN, &data_type);
 
 	if (! global_adwin_dissect_data) {
 		call_data_dissector(tvb_new_subset_length(tvb, 8, 350*4), pinfo, adwin_debug_tree);

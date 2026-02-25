@@ -157,8 +157,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_item(tree, hf_bmc_offset_to_begin_ctch_bs_index, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    length_of_cbs_schedule_period = tvb_get_uint8(tvb,offset);
-    proto_tree_add_item(tree, hf_bmc_length_of_cbs_schedule_period, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_bmc_length_of_cbs_schedule_period, tvb, offset, 1, ENC_BIG_ENDIAN, &length_of_cbs_schedule_period);
     offset += 1;
 
     new_message_bitmap_len = length_of_cbs_schedule_period>>3;

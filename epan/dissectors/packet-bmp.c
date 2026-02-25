@@ -1030,8 +1030,7 @@ dissect_bmp_termination(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(subtree, hf_term_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    term_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(subtree, hf_term_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(subtree, hf_term_len, tvb, offset, 2, ENC_BIG_ENDIAN, &term_len);
     offset += 2;
 
     if (term_type == BMP_TERM_TYPE_STRING) {

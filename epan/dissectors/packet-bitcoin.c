@@ -532,9 +532,7 @@ dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   ti   = proto_tree_add_item(tree, hf_bitcoin_msg_version, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
-  version = tvb_get_letohl(tvb, offset);
-
-  proto_tree_add_item(tree, hf_msg_version_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_msg_version_version, tvb, offset, 4, ENC_LITTLE_ENDIAN, &version);
   offset += 4;
 
   proto_tree_add_bitmask(tree, tvb, offset, hf_msg_version_services,

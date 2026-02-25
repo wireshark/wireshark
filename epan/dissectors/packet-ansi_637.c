@@ -1342,9 +1342,7 @@ tele_param_cb_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
 
         offset += 1;
 
-        proto_tree_add_item(tree, hf_ansi_637_tele_cb_num_num_fields, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-        num_fields = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(tree, hf_ansi_637_tele_cb_num_num_fields, tvb, offset, 1, ENC_BIG_ENDIAN, &num_fields);
 
         if (num_fields == 0) return;
 

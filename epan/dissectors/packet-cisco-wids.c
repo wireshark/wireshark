@@ -97,8 +97,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		offset += 6;
 		proto_tree_add_item(cwids_tree, hf_cwids_reallength, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		capturelen = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(cwids_tree, hf_cwids_capturelen, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(cwids_tree, hf_cwids_capturelen, tvb, offset, 2, ENC_BIG_ENDIAN, &capturelen);
 		offset += 2;
 		proto_tree_add_item(cwids_tree, hf_cwids_unknown3, tvb, offset, 8, ENC_NA);
 		offset += 8;

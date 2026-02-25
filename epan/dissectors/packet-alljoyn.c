@@ -2080,8 +2080,7 @@ dissect_AllJoyn_name_server(tvbuff_t    *tvb,
 
     /* The the sender and message versions as fields for the header protocol. */
     proto_tree_add_item(header_tree, hf_alljoyn_ns_sender_version, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(header_tree, hf_alljoyn_ns_message_version, tvb, offset, 1, ENC_NA);
-    version = tvb_get_uint8(tvb, offset) & 0xF;
+    proto_tree_add_item_ret_uint8(header_tree, hf_alljoyn_ns_message_version, tvb, offset, 1, ENC_NA, &version);
     offset += 1;
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "VERSION %u", version);

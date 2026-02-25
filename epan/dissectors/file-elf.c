@@ -830,7 +830,7 @@ get_section_name_offset(wmem_allocator_t *scope, tvbuff_t *tvb, uint64_t shoff, 
         return NULL;
 
     offset = value_guard(shoff + (uint32_t)shndx * (uint32_t)shentsize);
-    sh_name = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+    sh_name = tvb_get_uint32(tvb, offset, machine_encoding);
     return (const char*)tvb_get_stringz_enc(scope, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
 }
 
@@ -886,7 +886,7 @@ dissect_dynamic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tree, p
 
     if (register_size == REGISTER_32_SIZE) {
         proto_tree_add_item(entry_tree, hf_elf_dynamic_tag, tvb, offset, 4, machine_encoding);
-        tag = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+        tag = tvb_get_uint32(tvb, offset, machine_encoding);
         offset += 4;
 
         if (tag < MAX_TAG_TO_TYPE && tag_to_type[tag] == DYNAMIC_TYPE_VALUE)
@@ -938,7 +938,7 @@ dissect_symbol_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *entry_tree, 
 
     pitem = proto_tree_add_item(entry_tree, hf_elf_symbol_table_name_index, tvb, offset, 4, machine_encoding);
     if (strtab_offset) {
-        name_index = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+        name_index = tvb_get_uint32(tvb, offset, machine_encoding);
         name = (const char*)tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(strtab_offset + name_index), NULL, ENC_ASCII);
         if (name) {
             proto_item_append_text(pitem, ": %s", name);
@@ -965,8 +965,7 @@ dissect_symbol_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *entry_tree, 
         proto_tree_add_item(entry_tree, hf_elf_symbol_table_other, tvb, offset, 1, machine_encoding);
         offset += 1;
 
-        pitem = proto_tree_add_item(entry_tree, hf_elf_symbol_table_shndx, tvb, offset, 2, machine_encoding);
-        shndx = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
+        pitem = proto_tree_add_item_ret_uint16(entry_tree, hf_elf_symbol_table_shndx, tvb, offset, 2, machine_encoding, &shndx);
         if (shndx <= shnum) {
             section_name = get_section_name_offset(pinfo->pool, tvb, shoff, shnum, shentsize, shndx, shstrtab_offset, machine_encoding);
             if (section_name && section_name[0] != '\0')
@@ -987,8 +986,7 @@ dissect_symbol_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *entry_tree, 
         proto_tree_add_item(entry_tree, hf_elf_symbol_table_other, tvb, offset, 1, machine_encoding);
         offset += 1;
 
-        pitem = proto_tree_add_item(entry_tree, hf_elf_symbol_table_shndx, tvb, offset, 2, machine_encoding);
-        shndx = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
+        pitem = proto_tree_add_item_ret_uint16(entry_tree, hf_elf_symbol_table_shndx, tvb, offset, 2, machine_encoding, &shndx);
         if (shndx <= shnum) {
             section_name = get_section_name_offset(pinfo->pool, tvb, shoff, shnum, shentsize, shndx, shstrtab_offset, machine_encoding);
             if (section_name && section_name[0] != '\0')
@@ -1073,13 +1071,13 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
 
         switch(fde_count_length) {
         case 2:
-            fde_count = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
+            fde_count = tvb_get_uint32(tvb, offset, machine_encoding);
             break;
         case 4:
-            fde_count = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+            fde_count = tvb_get_uint32(tvb, offset, machine_encoding);
             break;
         case 8:
-            fde_count = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
+            fde_count = tvb_get_uint64(tvb, offset, machine_encoding);
             break;
         case 0:
         default:
@@ -1147,13 +1145,10 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *segment_tree,
     int            entry_number = 0;
 
     while (offset - start_offset < segment_size) {
-        length = (machine_encoding == ENC_BIG_ENDIAN) ?
-                tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+        length = tvb_get_uint32(tvb, offset, machine_encoding);
         is_extended_length = length == 0xFFFFFFFF;
         if (is_extended_length) {
-            length = (machine_encoding == ENC_BIG_ENDIAN) ?
-                        tvb_get_ntoh64(tvb, offset + 4) :
-                        tvb_get_letoh64(tvb, offset + 4);
+            length = tvb_get_uint64(tvb, offset+4, machine_encoding);
         }
         /* CIE ID/pointer is located after Length (4 bytes), or Length (4 bytes)
          * + Extended Length (8 bytes). Entry is CIE when field is 0. */
@@ -1408,13 +1403,11 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     if (register_size == REGISTER_32_SIZE) {
         proto_tree_add_item(header_tree, hf_elf_phoff, tvb, offset,
                 register_size, machine_encoding);
-        phoff = (machine_encoding == ENC_BIG_ENDIAN) ?
-                tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+        phoff = tvb_get_uint32(tvb, offset, machine_encoding);
     } else {
         proto_tree_add_item(header_tree, hf_elf64_phoff, tvb, offset,
                 register_size, machine_encoding);
-        phoff = (machine_encoding == ENC_BIG_ENDIAN) ?
-                tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
+        phoff = tvb_get_uint64(tvb, offset, machine_encoding);
     }
     offset += register_size;
 
@@ -1422,13 +1415,11 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     if (register_size == REGISTER_32_SIZE) {
         proto_tree_add_item(header_tree, hf_elf_shoff, tvb, offset,
                 register_size, machine_encoding);
-        shoff = (machine_encoding == ENC_BIG_ENDIAN) ?
-                tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+        shoff = tvb_get_uint32(tvb, offset, machine_encoding);
     } else {
         proto_tree_add_item(header_tree, hf_elf64_shoff, tvb, offset,
                 register_size, machine_encoding);
-        shoff = (machine_encoding == ENC_BIG_ENDIAN) ?
-                tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
+        shoff = tvb_get_uint64(tvb, offset, machine_encoding);
     }
     offset += register_size;
 
@@ -1500,8 +1491,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     i_16 = phnum;
     while (i_16-- > 0) {
-        p_type = (machine_encoding == ENC_BIG_ENDIAN) ?
-                tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+        p_type = tvb_get_uint32(tvb, offset, machine_encoding);
         if (p_type >= 0x60000000 && p_type <= 0x6FFFFFFF) {
             ph_entry_tree = proto_tree_add_subtree_format(program_header_tree,
                      tvb, offset, phentsize, ett_elf_program_header_entry, NULL,
@@ -1535,11 +1525,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 (register_size == REGISTER_32_SIZE) ? hf_elf_p_offset : hf_elf64_p_offset,
                 tvb, offset, register_size, machine_encoding);
         if (register_size == REGISTER_32_SIZE) {
-            p_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+            p_offset = tvb_get_uint32(tvb, offset, machine_encoding);
         } else {
-            p_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
+            p_offset = tvb_get_uint64(tvb, offset, machine_encoding);
         }
 
         offset += register_size;
@@ -1558,11 +1546,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 (register_size == REGISTER_32_SIZE) ? hf_elf_p_filesz : hf_elf64_p_filesz,
                 tvb, offset, register_size, machine_encoding);
         if (register_size == REGISTER_32_SIZE) {
-            segment_size = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+            segment_size = tvb_get_uint32(tvb, offset, machine_encoding);
         } else {
-            segment_size = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
+            segment_size = tvb_get_uint64(tvb, offset, machine_encoding);
         }
         offset += register_size;
 
@@ -1608,8 +1594,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     i_16 = shnum;
     while (i_16-- > 0) {
-        sh_name = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+        sh_name = tvb_get_uint32(tvb, offset, machine_encoding);
 
         offset += 4;
 
@@ -1617,11 +1602,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
-            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, value_guard(length)) : tvb_get_letohl(tvb, value_guard(length));
+            shstrtab_offset = tvb_get_uint32(tvb, value_guard(length), machine_encoding);
         } else {
-            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, value_guard(length)) : tvb_get_letoh64(tvb, value_guard(length));
+            shstrtab_offset = tvb_get_uint64(tvb, value_guard(length), machine_encoding);
         }
 
         section_name = (const char*)tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
@@ -1639,11 +1622,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         offset += register_size;
 
         if (register_size == REGISTER_32_SIZE) {
-            segment_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+            segment_offset = tvb_get_uint32(tvb, offset, machine_encoding);
         } else {
-            segment_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
+            segment_offset = tvb_get_uint64(tvb, offset, machine_encoding);
         }
 
         if (g_strcmp0(section_name, ".strtab") == 0) {
@@ -1673,13 +1654,10 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 ett_elf_section_header_entry, &sh_entry_item,
                 "Entry #%d: ", shnum - i_16 - 1);
 
-        proto_tree_add_item(sh_entry_tree, hf_elf_sh_name, tvb, offset, 4, machine_encoding);
-        sh_name = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+        proto_tree_add_item_ret_uint(sh_entry_tree, hf_elf_sh_name, tvb, offset, 4, machine_encoding, &sh_name);
         offset += 4;
 
-        sh_type = (machine_encoding == ENC_BIG_ENDIAN) ?
-                tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+        sh_type = tvb_get_uint32(tvb, offset, machine_encoding);
         if (sh_type >= 0x60000000 && sh_type <= 0x6FFFFFFF) {
             proto_item_append_text(sh_entry_item, "Operating System Specific (0x%08x)", sh_type);
             proto_tree_add_item(sh_entry_tree, hf_elf_sh_type_operating_system_specific, tvb, offset, 4, machine_encoding);
@@ -1697,11 +1675,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
-            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, value_guard(length)) : tvb_get_letohl(tvb, value_guard(length));
+            shstrtab_offset = tvb_get_uint32(tvb, value_guard(length), machine_encoding);
         } else {
-            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, value_guard(length)) : tvb_get_letoh64(tvb, value_guard(length));
+            shstrtab_offset = tvb_get_uint64(tvb, value_guard(length), machine_encoding);
         }
 
         section_name = (const char*)tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
@@ -1741,11 +1717,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 (register_size == REGISTER_32_SIZE) ? hf_elf_sh_offset : hf_elf64_sh_offset,
                 tvb, offset, register_size, machine_encoding);
         if (register_size == REGISTER_32_SIZE) {
-            segment_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+            segment_offset = tvb_get_uint32(tvb, offset, machine_encoding);
         } else {
-            segment_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
+            segment_offset = tvb_get_uint64(tvb, offset, machine_encoding);
         }
         offset += register_size;
 
@@ -1753,11 +1727,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 (register_size == REGISTER_32_SIZE) ? hf_elf_sh_size : hf_elf64_sh_size,
                 tvb, offset, register_size, machine_encoding);
         if (register_size == REGISTER_32_SIZE) {
-            segment_size = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+            segment_size = tvb_get_uint32(tvb, offset, machine_encoding);
         } else {
-            segment_size = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
+            segment_size = tvb_get_uint64(tvb, offset, machine_encoding);
         }
         offset += register_size;
 
@@ -1776,11 +1748,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 (register_size == REGISTER_32_SIZE) ? hf_elf_sh_entsize : hf_elf64_sh_entsize,
                 tvb, offset, register_size, machine_encoding);
         if (register_size == REGISTER_32_SIZE) {
-            sh_entsize = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
+            sh_entsize = tvb_get_uint32(tvb, offset, machine_encoding);
         } else {
-            sh_entsize = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
+            sh_entsize = tvb_get_uint64(tvb, offset, machine_encoding);
         }
         offset += register_size;
 

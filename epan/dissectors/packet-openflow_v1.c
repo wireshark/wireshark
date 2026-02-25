@@ -394,16 +394,14 @@ dissect_openflow_action_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_item* ti;
 
     /* uint16_t type;  One of OFPAT_*. */
-    action_type = tvb_get_ntohs(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_openflow_action_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint16(tree, hf_openflow_action_type, tvb, offset, 2, ENC_BIG_ENDIAN, &action_type);
     offset+=2;
     /* Length of action, including this
      * header. This is the length of action,
      * including any padding to make it
      * 64-bit aligned.
      */
-    action_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_openflow_action_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_openflow_action_len, tvb, offset, 2, ENC_BIG_ENDIAN, &action_len);
     offset+=2;
 
     switch(action_type){
@@ -912,8 +910,7 @@ dissect_openflow_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     offset++;
 
     /* Length including this ofp_header. */
-    length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(openflow_tree, hf_openflow_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(openflow_tree, hf_openflow_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
     offset+=2;
 
     /* Transaction id associated with this packet. Replies use the same id as was in the request

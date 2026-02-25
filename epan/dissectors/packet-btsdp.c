@@ -4123,8 +4123,7 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_ssr_total_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    current_count = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssr_current_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_ssr_current_count, tvb, offset, 2, ENC_BIG_ENDIAN, &current_count);
     offset += 2;
 
     ti = proto_tree_add_none_format(tree, hf_service_record_handle_list, tvb, offset,
