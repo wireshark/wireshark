@@ -25,7 +25,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2026-05[] {notable}
 USB HID dissector memory exhaustion.
 wsbuglink:20972[].
-// cveidlink:2026-xxx[].
+cveidlink:2026-3201[].
 // Fixed in master: f87c426b30
 // Fixed in release-4.6: 168bf05775
 // Fixed in release-4.4: 5e80615ebc
@@ -36,7 +36,7 @@ wsbuglink:20972[].
 * wssalink:2026-07[] {notable}
 RF4CE Profile dissector crash.
 wsbuglink:21009[].
-// cveidlink:2026-xxx[].
+cveidlink:2026-3203[].
 // Fixed in master: 17215397c1
 // Fixed in release-4.6: 0c4c5a531f
 // Fixed in release-4.4: d487e0e07b
@@ -81,7 +81,7 @@ There are no new protocols in this release.
 // rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.13.. | rg packet- | sort -u)
 [commaize]
 --
-ARTNET
+Art-Net
 NAS-5GS
 TDS
 TECMP
@@ -92,11 +92,12 @@ ZB TLV
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+BLF
+--
 
 === New and Updated File Format Decoding Support
 
