@@ -18,6 +18,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include "packet-kerberos-exp.h"
+
 #ifndef KRB5_KU_USAGE_ACCEPTOR_SEAL
 #define KRB5_KU_USAGE_ACCEPTOR_SEAL     22
 #endif
@@ -107,7 +109,5 @@ void read_keytab_file_from_preferences(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#include "packet-kerberos-exp.h"
 
 #endif  /* __PACKET_KERBEROS_H */

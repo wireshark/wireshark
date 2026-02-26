@@ -23,6 +23,32 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include <epan/asn1.h>
+
+
+/* enumerated values for Applications */
+#define KERBEROS_APPLICATIONS_TICKET   1
+#define KERBEROS_APPLICATIONS_AUTHENTICATOR   2
+#define KERBEROS_APPLICATIONS_ENCTICKETPART   3
+#define KERBEROS_APPLICATIONS_AS_REQ  10
+#define KERBEROS_APPLICATIONS_AS_REP  11
+#define KERBEROS_APPLICATIONS_TGS_REQ  12
+#define KERBEROS_APPLICATIONS_TGS_REP  13
+#define KERBEROS_APPLICATIONS_AP_REQ  14
+#define KERBEROS_APPLICATIONS_AP_REP  15
+#define KERBEROS_APPLICATIONS_KRB_SAFE  20
+#define KERBEROS_APPLICATIONS_KRB_PRIV  21
+#define KERBEROS_APPLICATIONS_KRB_CRED  22
+#define KERBEROS_APPLICATIONS_ENCASREPPART  25
+#define KERBEROS_APPLICATIONS_ENCTGSREPPART  26
+#define KERBEROS_APPLICATIONS_ENCAPREPPART  27
+#define KERBEROS_APPLICATIONS_ENCKRBPRIVPART  28
+#define KERBEROS_APPLICATIONS_ENCKRBCREDPART  29
+#define KERBEROS_APPLICATIONS_KRB_ERROR  30
+unsigned dissect_kerberos_TGT_REQ(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+unsigned dissect_kerberos_TGT_REP(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+unsigned dissect_kerberos_ChangePasswdData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
 #ifndef KRB5_KU_USAGE_ACCEPTOR_SEAL
 #define KRB5_KU_USAGE_ACCEPTOR_SEAL     22
 #endif
@@ -112,31 +138,5 @@ void read_keytab_file_from_preferences(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#include <epan/asn1.h>
-
-
-/* enumerated values for Applications */
-#define KERBEROS_APPLICATIONS_TICKET   1
-#define KERBEROS_APPLICATIONS_AUTHENTICATOR   2
-#define KERBEROS_APPLICATIONS_ENCTICKETPART   3
-#define KERBEROS_APPLICATIONS_AS_REQ  10
-#define KERBEROS_APPLICATIONS_AS_REP  11
-#define KERBEROS_APPLICATIONS_TGS_REQ  12
-#define KERBEROS_APPLICATIONS_TGS_REP  13
-#define KERBEROS_APPLICATIONS_AP_REQ  14
-#define KERBEROS_APPLICATIONS_AP_REP  15
-#define KERBEROS_APPLICATIONS_KRB_SAFE  20
-#define KERBEROS_APPLICATIONS_KRB_PRIV  21
-#define KERBEROS_APPLICATIONS_KRB_CRED  22
-#define KERBEROS_APPLICATIONS_ENCASREPPART  25
-#define KERBEROS_APPLICATIONS_ENCTGSREPPART  26
-#define KERBEROS_APPLICATIONS_ENCAPREPPART  27
-#define KERBEROS_APPLICATIONS_ENCKRBPRIVPART  28
-#define KERBEROS_APPLICATIONS_ENCKRBCREDPART  29
-#define KERBEROS_APPLICATIONS_KRB_ERROR  30
-unsigned dissect_kerberos_TGT_REQ(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-unsigned dissect_kerberos_TGT_REP(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-unsigned dissect_kerberos_ChangePasswdData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 #endif  /* __PACKET_KERBEROS_H */

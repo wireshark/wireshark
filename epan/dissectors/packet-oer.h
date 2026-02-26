@@ -12,6 +12,7 @@
 #define __PACKET_OER_H__
 
 #include "ws_symbol_export.h"
+#include <epan/asn1.h>
 
 typedef unsigned (*oer_type_fn)(tvbuff_t*, unsigned, asn1_ctx_t*, proto_tree*, int);
 
