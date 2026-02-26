@@ -139,11 +139,12 @@ static const value_string mp_tcprst_reasons[] = {
 
 /*
  * RST Diagnostic Payload:
- * https://datatracker.ietf.org/doc/html/draft-boucadair-tcpm-rst-diagnostic-payload-14
+ * https://datatracker.ietf.org/doc/html/draft-boucadair-tcpm-rst-diagnostic-payload-15
  */
-#define TCP_RST_DIAGNOSTIC_MAGIC 0x33AA
-#define TCP_RST_DIAGNOSTIC_HDR_LEN 4  /* magic(2) + length(2) */
-#define TCP_RST_DIAGNOSTIC_MIN_LEN 8  /* hdr(4) + reason_length(2) + reason_code(2) */
+#define TCP_RST_DIAGNOSTIC_COMPACT_MAGIC 0x33AA
+#define TCP_RST_DIAGNOSTIC_COMPACT_LEN   8  /* magic(2) + reason_code(2) + pen(4) */
+#define TCP_RST_DIAGNOSTIC_FREE_MAGIC    0xF317
+#define TCP_RST_DIAGNOSTIC_FREE_MIN_LEN  3  /* magic(2) + at least 1 byte description */
 
 /* IANA "TCP Failure Causes" registry */
 static const value_string tcp_failure_cause_vals[] = {
@@ -423,8 +424,6 @@ static int hf_tcp_segment_data;
 static int hf_tcp_payload;
 static int hf_tcp_reset_cause;
 static int hf_tcp_rst_diagnostic_magic;
-static int hf_tcp_rst_diagnostic_length;
-static int hf_tcp_rst_diagnostic_reason_length;
 static int hf_tcp_rst_diagnostic_reason_code;
 static int hf_tcp_rst_diagnostic_vendor_reason_code;
 static int hf_tcp_rst_diagnostic_pen;
@@ -8518,18 +8517,20 @@ static void tcp_tap_cleanup(void *data)
  * otherwise display the data as text.
  */
 static void
-dissect_tcp_rst_payload(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
+dissect_tcp_rst_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length)
 {
-    /*
-     * Check for structured RST diagnostic payload:
-     * https://datatracker.ietf.org/doc/html/draft-boucadair-tcpm-rst-diagnostic-payload-14
-     */
-    if (length >= TCP_RST_DIAGNOSTIC_MIN_LEN &&
-        tvb_get_ntohs(tvb, offset) == TCP_RST_DIAGNOSTIC_MAGIC &&
-        tvb_get_ntohs(tvb, offset + 2) <= length - TCP_RST_DIAGNOSTIC_HDR_LEN) {
-        uint16_t diag_length;
-        uint16_t reason_length;
-        uint16_t reason_code = 0;
+    if (length < 2) {
+        proto_tree_add_item(tree, hf_tcp_reset_cause, tvb, offset, length, ENC_ASCII);
+        return;
+    }
+
+    uint16_t magic = tvb_get_ntohs(tvb, offset);
+
+    /* compact format (Section 3.1) */
+    if (magic == TCP_RST_DIAGNOSTIC_COMPACT_MAGIC &&
+        length == TCP_RST_DIAGNOSTIC_COMPACT_LEN) {
+        uint16_t reason_code;
+        uint32_t pen_value;
         int diag_offset = offset;
         proto_tree *rst_diag_tree;
         proto_item *rst_diag_ti;
@@ -8542,61 +8543,58 @@ dissect_tcp_rst_payload(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
             tvb, diag_offset, 2, ENC_BIG_ENDIAN);
         diag_offset += 2;
 
-        diag_length = tvb_get_ntohs(tvb, diag_offset);
-        proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_length,
-            tvb, diag_offset, 2, ENC_BIG_ENDIAN);
-        diag_offset += 2;
+        reason_code = tvb_get_ntohs(tvb, diag_offset);
+        pen_value = tvb_get_ntohl(tvb, diag_offset + 2);
 
-        reason_length = tvb_get_ntohs(tvb, diag_offset);
-        proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_reason_length,
-            tvb, diag_offset, 2, ENC_BIG_ENDIAN);
-        diag_offset += 2;
+        if (pen_value != 0) {
+            proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_vendor_reason_code,
+                tvb, diag_offset, 2, ENC_BIG_ENDIAN);
+            diag_offset += 2;
 
-        if (reason_length == 0) {
-            reason_code = tvb_get_ntohs(tvb, diag_offset);
+            proto_tree_add_uint_format_value(rst_diag_tree, hf_tcp_rst_diagnostic_pen,
+                tvb, diag_offset, 4, pen_value,
+                "%s (%u)", enterprises_lookup(pen_value, "Unknown"), pen_value);
 
-            /* PEN presence is inferred from the Length and Reason Length fields */
-            if (diag_length >= 8) {
-                uint32_t pen_value;
+            proto_item_append_text(rst_diag_ti,
+                ": Vendor-Specific reason %u (PEN: %s [%u])",
+                reason_code,
+                enterprises_lookup(pen_value, "Unknown"),
+                pen_value);
+        } else {
+            const char *cause_str;
 
-                proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_vendor_reason_code,
-                    tvb, diag_offset, 2, ENC_BIG_ENDIAN);
-                diag_offset += 2;
+            proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_reason_code,
+                tvb, diag_offset, 2, ENC_BIG_ENDIAN);
+            diag_offset += 2;
 
-                pen_value = tvb_get_ntohl(tvb, diag_offset);
-                proto_tree_add_uint_format_value(rst_diag_tree, hf_tcp_rst_diagnostic_pen,
-                    tvb, diag_offset, 4, pen_value,
-                    "%s (%u)", enterprises_lookup(pen_value, "Unknown"), pen_value);
-                diag_offset += 4;
+            proto_tree_add_uint_format_value(rst_diag_tree, hf_tcp_rst_diagnostic_pen,
+                tvb, diag_offset, 4, pen_value,
+                "IANA (%u)", pen_value);
 
-                if (pen_value != 0) {
-                    proto_item_append_text(rst_diag_ti,
-                        ": Vendor-Specific reason %u (PEN: %s [%u])",
-                        reason_code,
-                        enterprises_lookup(pen_value, "Unknown"),
-                        pen_value);
-                } else {
-                    const char *cause_str = try_val_to_str(reason_code, tcp_failure_cause_vals);
-                    proto_item_append_text(rst_diag_ti, ": %s (%u)",
-                        cause_str ? cause_str : "Unknown", reason_code);
-                }
-            } else {
-                const char *cause_str;
-
-                proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_reason_code,
-                    tvb, diag_offset, 2, ENC_BIG_ENDIAN);
-                diag_offset += 2;
-
-                cause_str = try_val_to_str(reason_code, tcp_failure_cause_vals);
-                proto_item_append_text(rst_diag_ti, ": %s (%u)",
-                    cause_str ? cause_str : "Unknown", reason_code);
-            }
+            cause_str = try_val_to_str(reason_code, tcp_failure_cause_vals);
+            proto_item_append_text(rst_diag_ti, ": %s (%u)",
+                cause_str ? cause_str : "Unknown", reason_code);
         }
+    }
+    /* free-description format (Section 3.2) */
+    else if (magic == TCP_RST_DIAGNOSTIC_FREE_MAGIC &&
+             length >= TCP_RST_DIAGNOSTIC_FREE_MIN_LEN) {
+        int desc_len = length - 2;
+        proto_tree *rst_diag_tree;
+        proto_item *rst_diag_ti;
 
-        if (reason_length > 0 && tvb_captured_length_remaining(tvb, diag_offset) >= reason_length) {
-            proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_reason_desc,
-                tvb, diag_offset, reason_length, ENC_UTF_8);
-        }
+        rst_diag_tree = proto_tree_add_subtree(tree, tvb, offset,
+            length, ett_tcp_rst_diagnostic, &rst_diag_ti,
+            "RST Diagnostic Payload");
+
+        proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_magic,
+            tvb, offset, 2, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_reason_desc,
+            tvb, offset + 2, desc_len, ENC_UTF_8);
+
+        proto_item_append_text(rst_diag_ti, ": %s",
+            tvb_get_string_enc(pinfo->pool, tvb, offset + 2, desc_len, ENC_UTF_8));
     } else {
         proto_tree_add_item(tree, hf_tcp_reset_cause, tvb, offset, length, ENC_ASCII);
     }
@@ -9848,7 +9846,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      */
     if (captured_length_remaining != 0) {
         if (tcph->th_flags & TH_RST) {
-            dissect_tcp_rst_payload(tvb, tcp_tree, offset, captured_length_remaining);
+            dissect_tcp_rst_payload(tvb, pinfo, tcp_tree, offset, captured_length_remaining);
         } else {
         /* When we have a frame with TCP SYN bit set and segmented TCP payload we need
          * to increment seq and nxtseq to detect the overlapping byte(s). This is to fix Bug 9882.
@@ -10722,16 +10720,8 @@ proto_register_tcp(void)
             NULL, HFILL }},
 
         { &hf_tcp_rst_diagnostic_magic,
-          { "Magic Cookie", "tcp.rst_diagnostic.magic", FT_UINT16, BASE_HEX, NULL, 0x0,
-            "RST diagnostic payload magic cookie (draft-boucadair-tcpm-rst-diagnostic-payload-14)", HFILL }},
-
-        { &hf_tcp_rst_diagnostic_length,
-          { "Length", "tcp.rst_diagnostic.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Total length of the diagnostic payload following this field", HFILL }},
-
-        { &hf_tcp_rst_diagnostic_reason_length,
-          { "Reason Length", "tcp.rst_diagnostic.reason_length", FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Length of the reason-description field in octets", HFILL }},
+          { "Magic Number", "tcp.rst_diagnostic.magic", FT_UINT16, BASE_HEX, NULL, 0x0,
+            "RST diagnostic payload magic number (0x33AA=compact, 0xF317=free-description)", HFILL }},
 
         { &hf_tcp_rst_diagnostic_reason_code,
           { "Reason Code", "tcp.rst_diagnostic.reason_code", FT_UINT16, BASE_DEC, VALS(tcp_failure_cause_vals), 0x0,
