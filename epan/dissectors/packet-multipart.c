@@ -200,8 +200,8 @@ unfold_and_compact_mime_header(wmem_allocator_t *pool, const char *lines, unsign
     char c;
     char *ret, *q;
     char sep_seen = 0; /* Did we see a separator ":;," */
-    char lws = false; /* Did we see LWS (incl. folding) */
-    int colon = -1;
+    bool lws = false; /* Did we see LWS (incl. folding) */
+    unsigned colon = UINT_MAX;
 
     if (! lines) return NULL;
 
@@ -212,8 +212,8 @@ unfold_and_compact_mime_header(wmem_allocator_t *pool, const char *lines, unsign
     while (c) {
         if (c == ':') {
             lws = false; /* Prevent leading LWS from showing up */
-            if (colon == -1) {/* First colon */
-                colon = (int) (q - ret);
+            if (colon == UINT_MAX) {/* First colon */
+                colon = (unsigned) (q - ret);
             }
             *(q++) = sep_seen = c;
             p++;
@@ -587,9 +587,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
         hdr_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, next_offset - offset, ENC_ASCII);
 
-        colon_offset = 0;
+        colon_offset = UINT_MAX;
         header_str = unfold_and_compact_mime_header(pinfo->pool, hdr_str, &colon_offset);
-        if (colon_offset <= 0) {
+        if (colon_offset == UINT_MAX) {
             /* if there is no colon it's no header, so break and add complete line to the body */
             next_offset = offset;
             break;
