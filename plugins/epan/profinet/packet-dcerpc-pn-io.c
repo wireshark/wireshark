@@ -8420,8 +8420,8 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
             if (u16SecurityOperation == 0x0006) // GenerateKeyPairandCSRReq
             {
                 /* CertificationRequestLength */
-                u16CertificateRequestLength = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint_format(tree, hf_pn_io_certification_request_length, tvb, offset, 2, u16CertificateRequestLength, "CertificationRequestLength: %u", u16CertificateRequestLength);
+                proto_tree_add_item_ret_uint16(tree, hf_pn_io_certification_request_length, tvb, offset, 2,
+                    ENC_BIG_ENDIAN, &u16CertificateRequestLength);
                 offset += 2;
                 /* CertificationRequestInfo */
                 proto_tree_add_item(tree, hf_pn_io_certification_request, tvb, offset, u16CertificateRequestLength, ENC_ASCII);
@@ -8430,8 +8430,8 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
             if (u16SecurityOperation == 0x0007) /* ImprintPrivateKeyReq */
             {
                 /* PrivateKeyLength */
-                u16PrivateKeyLength = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint_format(tree, hf_pn_io_private_key_length, tvb, offset, 2, u16PrivateKeyLength, "PrivateKeyLength: %u", u16PrivateKeyLength);
+                proto_tree_add_item_ret_uint16(tree, hf_pn_io_private_key_length, tvb, offset, 2,
+                    ENC_BIG_ENDIAN, &u16PrivateKeyLength);
                 offset += 2;
                 //offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_private_key_length, &u16PrivateKeyLength);
 
@@ -8456,8 +8456,8 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
                 while (u16NumberOfEntries--)
                 {
                     /* CertificateLength */
-                    u16CertificateLength = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_uint_format(tree, hf_pn_io_certificate_length, tvb, offset, 2, u16CertificateLength, "CertificateLength: %u", u16CertificateLength);
+                    proto_tree_add_item_ret_uint16(tree, hf_pn_io_certificate_length, tvb, offset, 2,
+                        ENC_BIG_ENDIAN, &u16CertificateLength);
                     offset += 2;
                //     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_certificate_length, &u16CertificateLength);
 
@@ -8474,8 +8474,8 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
             {
                 /* TrustedCACertificate */
                 /* CertificateLength */
-                u16CertificateLength = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint_format(tree, hf_pn_io_certificate_length, tvb, offset, 2, u16CertificateLength, "CertificateLength: %u", u16CertificateLength);
+                proto_tree_add_item_ret_uint16(tree, hf_pn_io_certificate_length, tvb, offset, 2,
+                    ENC_BIG_ENDIAN, &u16CertificateLength);
                 offset += 2;
             //    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_certificate_length, &u16CertificateLength);
 
@@ -8704,8 +8704,8 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
                 while (u16NumberOfEntries--)
                 {
                     /* CertificateLength */
-                    u16CertificateLength = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_uint_format(tree, hf_pn_io_certificate_length, tvb, offset, 2, u16CertificateLength, "CertificateLength: %u", u16CertificateLength);
+                    proto_tree_add_item_ret_uint16(tree, hf_pn_io_certificate_length, tvb, offset, 2,
+                        ENC_BIG_ENDIAN, &u16CertificateLength);
                     offset += 2;
 
                     /* Certificate */
@@ -8719,8 +8719,8 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
             case(0x0005): /* GetTrustedCACertificateRsp */
                 /* TrustedCACertificate */
                 /* CertificateLength */
-                u16CertificateLength = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint_format(tree, hf_pn_io_certificate_length, tvb, offset, 2, u16CertificateLength, "CertificateLength: %u", u16CertificateLength);
+                proto_tree_add_item_ret_uint16(tree, hf_pn_io_certificate_length, tvb, offset, 2,
+                    ENC_BIG_ENDIAN, &u16CertificateLength);
                 offset += 2;
 
                 /* Certificate */
@@ -8730,8 +8730,8 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
             case(0x0006): // GenerateKeyPairAndCSRRsp
 
                 /* CertificationRequestLength */
-                u16CertificateRequestLength = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint_format(tree, hf_pn_io_certification_request_length, tvb, offset, 2, u16CertificateRequestLength, "CertificationRequestLength: %u", u16CertificateRequestLength);
+                proto_tree_add_item_ret_uint16(tree, hf_pn_io_certification_request_length, tvb, offset, 2,
+                    ENC_BIG_ENDIAN, &u16CertificateRequestLength);
                 offset += 2;
                 /* CertificationRequest */
                 proto_tree_add_item(tree, hf_pn_io_certification_request, tvb, offset, u16CertificateRequestLength, ENC_ASCII);
@@ -12397,9 +12397,9 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                 u8TransferStatus = tvb_get_uint8(tvb, offset+1);
 
                 /* add data status subtree */
-                ds_item = proto_tree_add_uint_format(iocr_tree, hf_pn_io_data_status,
+                ds_item = proto_tree_add_uint_format_value(iocr_tree, hf_pn_io_data_status,
                     tvb, offset, 1, u8DataStatus,
-                    "DataStatus: 0x%02x (Frame: %s and %s, Provider: %s and %s)",
+                    "0x%02x (Frame: %s and %s, Provider: %s and %s)",
                     u8DataStatus,
                     (u8DataStatus & 0x04) ? "Valid" : "Invalid",
                     (u8DataStatus & 0x01) ? "Primary" : "Backup",
@@ -12418,13 +12418,13 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
 
                 /* add transfer status */
                 if (u8TransferStatus) {
-                    proto_tree_add_uint_format(iocr_tree, hf_pn_io_transfer_status, tvb,
+                    proto_tree_add_uint_format_value(iocr_tree, hf_pn_io_transfer_status, tvb,
                         offset, 1, u8TransferStatus,
-                        "TransferStatus: 0x%02x (ignore this frame)", u8TransferStatus);
+                        "0x%02x (ignore this frame)", u8TransferStatus);
                 } else {
-                    proto_tree_add_uint_format(iocr_tree, hf_pn_io_transfer_status, tvb,
+                    proto_tree_add_uint_format_value(iocr_tree, hf_pn_io_transfer_status, tvb,
                         offset, 1, u8TransferStatus,
-                        "TransferStatus: 0x%02x (OK)", u8TransferStatus);
+                        "0x%02x (OK)", u8TransferStatus);
                 }
 
                 offset++;
@@ -12545,9 +12545,9 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                 u8TransferStatus = tvb_get_uint8(tvb, offset+1);
 
                 /* add data status subtree */
-                ds_item = proto_tree_add_uint_format(iocr_tree, hf_pn_io_data_status,
+                ds_item = proto_tree_add_uint_format_value(iocr_tree, hf_pn_io_data_status,
                     tvb, offset, 1, u8DataStatus,
-                    "DataStatus: 0x%02x (Frame: %s and %s, Provider: %s and %s)",
+                    "0x%02x (Frame: %s and %s, Provider: %s and %s)",
                     u8DataStatus,
                     (u8DataStatus & 0x04) ? "Valid" : "Invalid",
                     (u8DataStatus & 0x01) ? "Primary" : "Backup",
@@ -12566,13 +12566,13 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
 
                 /* add transfer status */
                 if (u8TransferStatus) {
-                    proto_tree_add_uint_format(iocr_tree, hf_pn_io_transfer_status, tvb,
+                    proto_tree_add_uint_format_value(iocr_tree, hf_pn_io_transfer_status, tvb,
                         offset, 1, u8TransferStatus,
-                        "TransferStatus: 0x%02x (ignore this frame)", u8TransferStatus);
+                        "0x%02x (ignore this frame)", u8TransferStatus);
                 } else {
-                    proto_tree_add_uint_format(iocr_tree, hf_pn_io_transfer_status, tvb,
+                    proto_tree_add_uint_format_value(iocr_tree, hf_pn_io_transfer_status, tvb,
                         offset, 1, u8TransferStatus,
-                        "TransferStatus: 0x%02x (OK)", u8TransferStatus);
+                        "0x%02x (OK)", u8TransferStatus);
                 }
                 offset++;
                 proto_item_set_len(iocr_item, offset - u32IOCRStart);
@@ -13654,8 +13654,8 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
                 : tvb_get_ntohs (tvb, offset));
 
     if (tree) {
-        proto_tree_add_string_format(tree, hf_pn_io_artype_req, tvb, offset, 2,
-                        "ARType", "ARType: (0x%04x) %s ",
+        proto_tree_add_string_format_value(tree, hf_pn_io_artype_req, tvb, offset, 2,
+                "ARType", "(0x%04x) %s ",
                         u16ARType, decode_ARType_spezial(u16ARType, u32ARProperties));
     }
     offset = offset + 2;
@@ -18078,8 +18078,19 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return true;
     }
 
-    /* is this a Remote Service Interface (RSI) packet*/
+    /* is this a Remote Service Interface (RSI) or SXP packet? */
     if (u16FrameID == 0xfe02) {
+        if (tvb_captured_length(tvb) >= 5) {
+            uint8_t u8PDUType = tvb_get_uint8(tvb, 4);
+            uint8_t u8PDUTypeType = u8PDUType & 0x0F;
+            uint8_t u8PDUTypeVersion = (u8PDUType >> 4) & 0x0F;
+
+            if (u8PDUTypeType == 0x01 && u8PDUTypeVersion == 0x03) {
+                /* this is an SXP packet */
+                return false;
+            }
+        }
+
         dissect_PNIO_RSI(tvb, 0, pinfo, tree, drep);
         return true;
     }
