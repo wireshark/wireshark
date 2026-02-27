@@ -211,7 +211,7 @@ static bool memcache_desegment_body = true;
 /* should refer to either the request or the response dissector.
  */
 typedef int (*ReqRespDissector)(tvbuff_t*, packet_info *, proto_tree *,
-                                int, const unsigned char*, const unsigned char*, uint8_t);
+                                unsigned, const unsigned char*, const unsigned char*, uint8_t);
 
 /* determines if a packet contains a memcache
  * request or reply by looking at its first token.
@@ -236,7 +236,7 @@ get_memcache_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb,
 
 static void
 dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                int offset, uint8_t extras_len, uint8_t opcode, bool request)
+                unsigned offset, uint8_t extras_len, uint8_t opcode, bool request)
 {
   proto_tree *extras_tree = NULL;
   proto_item *extras_item = NULL, *ti;
@@ -368,7 +368,7 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-             int offset, int key_len, uint8_t opcode, bool request)
+             unsigned offset, int key_len, uint8_t opcode, bool request)
 {
   proto_item *ti = NULL;
   bool        illegal = false;  /* Set when key shall not be present */
@@ -417,7 +417,7 @@ dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_value (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               int offset, uint32_t value_len, uint8_t opcode, bool request)
+               unsigned offset, uint32_t value_len, uint8_t opcode, bool request)
 {
   proto_item *ti = NULL;
   bool        illegal = false;  /* Set when value shall not be present */
@@ -592,19 +592,17 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 /* Obtain the content length by peeping into the header.
  */
 static bool
-get_payload_length (tvbuff_t *tvb, packet_info *pinfo, const int token_number, int offset,
+get_payload_length (tvbuff_t *tvb, packet_info *pinfo, const unsigned token_number, unsigned offset,
                     uint32_t *bytes, bool *content_length_found)
 {
   const unsigned char *next_token;
   const unsigned char *line, *lineend;
   const char          *bytes_val;
-  int           tokenlen, i = 0, linelen;
-  int           next_offset;
+  unsigned             tokenlen, i = 0, linelen = 0;
+  unsigned             next_offset;
 
   /* get the header line. */
-  linelen = tvb_find_line_end (tvb, offset, -1, &next_offset,
-                               false);
-  if (linelen < 0) {
+  if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
     return false;
   }
 
@@ -616,7 +614,7 @@ get_payload_length (tvbuff_t *tvb, packet_info *pinfo, const int token_number, i
     if (tokenlen == 0) {
       return false;
     }
-    offset += (int) (next_token - line);
+    offset += (unsigned) (next_token - line);
     line = next_token;
   }
 
@@ -643,10 +641,10 @@ get_payload_length (tvbuff_t *tvb, packet_info *pinfo, const int token_number, i
 
 /* check if a PDU needs to be desegmented. */
 static bool
-desegment_pdus (tvbuff_t *tvb, packet_info *pinfo, const int offset,
+desegment_pdus (tvbuff_t *tvb, packet_info *pinfo, const unsigned offset,
                 const int data_offset, uint32_t content_length)
 {
-  int length_remaining, reported_length_remaining;
+  unsigned length_remaining, reported_length_remaining;
 
   /* data_offset has been set to start of the data block. */
   if (!tvb_bytes_exist (tvb, data_offset, content_length)) {
@@ -659,10 +657,6 @@ desegment_pdus (tvbuff_t *tvb, packet_info *pinfo, const int offset,
        * data, because that data wasn't captured.
        */
       return false;
-    }
-
-    if (length_remaining == -1) {
-      length_remaining = 0;
     }
 
     pinfo->desegment_offset = offset; /* start of the packet. */
@@ -678,14 +672,14 @@ desegment_pdus (tvbuff_t *tvb, packet_info *pinfo, const int offset,
  */
 static bool
 memcache_req_resp_hdrs_do_reassembly (
-    tvbuff_t *tvb, const int offset, packet_info *pinfo,
+    tvbuff_t *tvb, const unsigned offset, packet_info *pinfo,
     const bool desegment_headers, const bool desegment_body,
     const memcache_type_t type, const bool expect_content_length)
 {
-  int       linelen;
-  int       next_offset;
-  int       length_remaining;
-  int       reported_length_remaining;
+  unsigned  linelen;
+  unsigned  next_offset;
+  unsigned  length_remaining;
+  unsigned  reported_length_remaining;
   uint32_t  content_length          = 0;
   bool      content_length_found    = false;
   bool      ret                     = false;
@@ -718,8 +712,8 @@ memcache_req_resp_hdrs_do_reassembly (
     /* Request one more byte if we cannot find a
      * header (i.e. a line end).
      */
-    linelen = tvb_find_line_end (tvb, next_offset, -1, &next_offset, true);
-    if (linelen == -1 && length_remaining >= reported_length_remaining) {
+    bool found = tvb_find_line_end_remaining(tvb, next_offset,&linelen, &next_offset);
+    if (!found && length_remaining >= reported_length_remaining) {
       /* Not enough data; ask for one more byte. */
       pinfo->desegment_offset = offset;
       pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
@@ -777,15 +771,16 @@ memcache_req_resp_hdrs_do_reassembly (
 
 /* Dissect a memcache message. */
 static int
-dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_memcache_message (tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
   const unsigned char      *line;
   const unsigned char      *lineend;
-  int                orig_offset;
-  int                first_linelen;
-  int                datalen;
+  unsigned           orig_offset;
+  unsigned           first_linelen;
+  unsigned           datalen;
   bool               expect_content_length = false;
-  int                next_offset;
+  unsigned           next_offset;
+  int                toffset;
 
   bool               is_request_or_reply;
   memcache_type_t    memcache_type;
@@ -795,13 +790,11 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
   uint8_t            opcode = 0xff; /* set to something that is not in the list. */
 
   /* Find a line end in the packet.
-   * Note that "tvb_find_line_end ()" will return a value that
+   * Note that "tvb_find_line_end_remaining()" will return a value that
    * is not longer than what's in the buffer, so the
    * "tvb_get_ptr ()" call won't throw an exception.
    */
-  first_linelen = tvb_find_line_end (tvb, offset, -1, &next_offset,
-                                     false);
-  if (first_linelen < 0) {
+  if (!tvb_find_line_end_remaining(tvb, offset, &first_linelen, &next_offset)) {
     return -1;
   }
 
@@ -858,13 +851,12 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
   if (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* Dissect a request or a response. */
     if (is_request_or_reply && reqresp_dissector) {
-      next_offset = reqresp_dissector (tvb, pinfo, memcache_tree,
-                                       offset, line, lineend, opcode);
-      if (next_offset == -1) {
+      toffset = reqresp_dissector (tvb, pinfo, memcache_tree, offset, line, lineend, opcode);
+      if (toffset == -1) {
         /* Error in dissecting. */
         return -1;
       }
-      offset = next_offset;
+      offset = toffset;
     }
   }
 
@@ -891,10 +883,10 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
  * <data block>\r\n
  */
 static int
-content_data_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-                       int content_length, uint8_t opcode)
+content_data_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
+  unsigned content_length, uint8_t opcode)
 {
-  int           datalen;
+  unsigned      datalen;
   bool          short_pkt = false;
 
   /*
@@ -905,7 +897,7 @@ content_data_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
   if (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* bytes actually remaining in this tvbuff. */
     datalen = tvb_captured_length_remaining (tvb, offset);
-    if (content_length >= 0) {
+    if (content_length > 0) {
       if (datalen >= (content_length + 2)) { /* also consider \r\n*/
         datalen = content_length;
       } else {
@@ -970,20 +962,19 @@ find_stat_colon (const unsigned char *line, const unsigned char *lineend,
 
 /* incr/decr response dissector */
 static int
-incr_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
+incr_dissector (tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
-  int            next_offset;
-  int            linelen;
+  unsigned       next_offset = 0;
+  unsigned       linelen;
   const unsigned char  *line, *lineend;
 
   const unsigned char  *next_token;
-  int            tokenlen;
+  unsigned       tokenlen;
 
   /* expecting to read 'bytes' number of bytes from the buffer. */
   if (tvb_offset_exists (tvb, offset)) {
     /* Find the end of the line. */
-    linelen = tvb_find_line_end (tvb, offset, -1, &next_offset, false);
-    if (linelen < 0) {
+    if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
       /* header is out of the packet limits. */
       return -1;
     }
@@ -1018,12 +1009,12 @@ incr_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
 
 /* stats response dissector */
 static int
-stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
+stat_dissector (tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
   unsigned      occurrences = 0;
   const unsigned char *first_colon = NULL, *last_colon = NULL;
-  int           tokenlen, linelen;
-  int           next_offset;
+  unsigned      tokenlen, linelen;
+  unsigned      next_offset = 0;
   const unsigned char *next_token;
   const unsigned char *line, *lineend;
   uint32_t      slabclass;
@@ -1031,9 +1022,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
 
   while (tvb_offset_exists (tvb, offset)) {
     /* Find the end of the line. */
-    linelen = tvb_find_line_end (tvb, offset, -1, &next_offset,
-                                 false);
-    if (linelen < 0) {
+    if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
       return -1;
     }
 
@@ -1127,10 +1116,10 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
 
 /* get/gets response dissector */
 static int
-get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
-  int            next_offset;
-  int            linelen;
+  unsigned       next_offset;
+  unsigned       linelen;
   const unsigned char  *line, *lineend;
   const unsigned char  *next_token;
   int            tokenlen;
@@ -1143,9 +1132,7 @@ get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
   /* expecting to read 'bytes' number of bytes from the buffer. */
   while (tvb_offset_exists (tvb, offset)) {
     /* Find the end of the line. */
-    linelen = tvb_find_line_end (tvb, offset, -1, &next_offset,
-                                 false);
-    if (linelen < 0) {
+    if (!tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
       /* header is out of the packet limits. */
       return -1;
     }
@@ -1239,9 +1226,6 @@ get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     offset = next_offset;
     /* <datablock>\r\n */
     offset = content_data_dissector (tvb, pinfo, tree, offset, bytes, opcode);
-    if (offset == -1) {
-      return offset;
-    }
   }
 
   return offset;
@@ -1249,11 +1233,11 @@ get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 /* Basic memcache response dissector. */
 static int
-memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
                              const unsigned char *line, const unsigned char *lineend, uint8_t opcode)
 {
   const unsigned char *next_token;
-  int           tokenlen;
+  unsigned     tokenlen;
 
   switch (opcode) {
 
@@ -1341,11 +1325,11 @@ memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 /* Basic memcache request dissector. */
 static int
-memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
                             const unsigned char *line, const unsigned char *lineend, uint8_t opcode)
 {
   const unsigned char *next_token;
-  int           tokenlen;
+  unsigned      tokenlen;
 
   uint16_t      flags;
   uint32_t      expiration;
@@ -1453,9 +1437,6 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2 ; /* go past /r/n*/
     /* <datablock>\r\n */
     offset = content_data_dissector (tvb, pinfo, tree, offset, bytes, opcode);
-    if (offset == -1) {
-      return offset;
-    }
     break;
 
   case OP_INCREMENT:
@@ -1877,10 +1858,9 @@ dissect_memcache_text (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_memcache_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  int         offset = 0;
   uint8_t     magic;
 
-  magic = tvb_get_uint8 (tvb, offset);
+  magic = tvb_get_uint8 (tvb, 0);
 
   if (try_val_to_str (magic, magic_vals) != NULL) {
     tcp_dissect_pdus (tvb, pinfo, tree, memcache_desegment_body, 12,
@@ -1896,10 +1876,9 @@ dissect_memcache_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 static int
 dissect_memcache_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  int         offset = 0;
   uint8_t     magic;
 
-  magic = tvb_get_uint8 (tvb, offset);
+  magic = tvb_get_uint8 (tvb, 0);
 
   if (try_val_to_str (magic, magic_vals) != NULL) {
     dissect_memcache (tvb, pinfo, tree, data);

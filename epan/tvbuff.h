@@ -3013,33 +3013,6 @@ WS_DLL_PUBLIC bool tvb_ascii_isdigit(tvbuff_t *tvb, const unsigned offset,
 	const unsigned length);
 
 /**
- * @brief Locate the end of a line in a tvbuff, optionally desegmenting.
- *
- * Scans the given tvbuff_t starting at `offset` for a line terminator,
- * examining up to `len` bytes (or to the end of the tvbuff if `len` is -1).
- * Returns the length of the line, excluding the terminator.
- *
- * If no line terminator is found:
- * - Returns -1 if `desegment` is true.
- * - Returns the remaining number of bytes if `desegment` is false.
- *
- * If `next_offset` is non-null and a line terminator is found, sets
- * `*next_offset` to the offset immediately following the terminator.
- * If no terminator is found and `desegment` is false, sets `*next_offset`
- * to the end of the buffer. If -1 is returned, `*next_offset` is not modified.
- *
- * @param tvb          The tvbuff_t to scan.
- * @param offset       The offset in the tvbuff where the line begins.
- * @param len          The maximum number of bytes to scan, or -1 to scan to the end.
- * @param next_offset  Pointer to receive the offset past the line terminator, or NULL.
- * @param desegment    Whether to return -1 if no terminator is found.
- *
- * @return The length of the line (excluding terminator), or -1 if desegmenting and no terminator is found.
- */
-WS_DLL_PUBLIC int tvb_find_line_end(tvbuff_t *tvb, const unsigned offset, int len,
-    int *next_offset, const bool desegment);
-
-/**
  * @brief Locate the end of a line in a tvbuff.
  *
  * Scans the given tvbuff_t starting at `offset` for a line terminator,

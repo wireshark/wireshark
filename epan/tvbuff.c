@@ -4670,55 +4670,6 @@ _tvb_find_line_end_length(tvbuff_t *tvb, const unsigned offset, const unsigned l
 	return true;
 }
 
-/*
- * Given a tvbuff, an offset into the tvbuff, and a length that starts
- * at that offset (which may be -1 for "all the way to the end of the
- * tvbuff"), find the end of the (putative) line that starts at the
- * specified offset in the tvbuff, going no further than the specified
- * length.
- *
- * Return the length of the line (not counting the line terminator at
- * the end), or, if we don't find a line terminator:
- *
- * if "desegment" is true, return -1;
- *
- * if "desegment" is false, return the amount of data remaining in
- * the buffer.
- *
- * If "next_offset" is not NULL, set "*next_offset" to the offset of the
- * character past the line terminator, or past the end of the buffer if
- * we don't find a line terminator.  (It's not set if we return -1.)
- */
-int
-tvb_find_line_end(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset, const bool desegment)
-{
-	unsigned linelen;
-	unsigned abs_next_offset;
-	unsigned limit;
-	int exception;
-
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	exception = validate_offset_and_remaining(tvb, offset, &limit);
-	if (exception)
-		THROW(exception);
-
-	/* Only search to end of tvbuff, w/o throwing exception. */
-	if (len >= 0 && limit > (unsigned) len) {
-		/* Maximum length doesn't go past end of tvbuff; search
-		   to that value. */
-		limit = (unsigned) len;
-	}
-
-	if (!_tvb_find_line_end_length(tvb, offset, limit, &linelen, &abs_next_offset) && desegment) {
-		return -1;
-	}
-	if (next_offset) {
-		*next_offset = (int)abs_next_offset;
-	}
-	return (int)linelen;
-}
-
 bool
 tvb_find_line_end_remaining(tvbuff_t *tvb, const unsigned offset, unsigned *linelen, unsigned *next_offset)
 {

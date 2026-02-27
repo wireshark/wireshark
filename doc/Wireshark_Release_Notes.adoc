@@ -120,6 +120,9 @@ the latter, use tvb_new_subset_remaining instead. Internally, tvbuffer lengths
 have long been unsigned; this change should simplify dealing with 32-bit
 unsigned length fields and checking for offsets overflowing.
 
+tvb find_line_end has been changed in a similar fashion. It now returns a boolean, true
+if the line end was found.
+
 === Plugin Development Changes
 
 The list of installed dissector header files has been reduced and is now restricted to ones that contain the following:
