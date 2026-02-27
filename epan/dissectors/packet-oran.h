@@ -24,7 +24,7 @@ enum section_c_types {
     SEC_C_MAX_INDEX				/* used to size array below */
 };
 
-#define HIGHEST_EXTTYPE 29  /* Highest supported exttype */
+#define HIGHEST_EXTTYPE 30  /* Highest supported exttype */
 #define MAX_SECTION_IDs 32  /* i.e. how many may be reported from one frame */
 #define MAX_BEAMS_IN_FRAME 32
 

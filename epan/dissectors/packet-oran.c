@@ -497,6 +497,12 @@ static int hf_oran_ue_az_aoa;
 static int hf_oran_ue_ze_aoa;
 static int hf_oran_ue_pos_toa_offset;
 
+static int hf_oran_num_rep_ue;
+static int hf_oran_rep_ueid;
+static int hf_oran_is_last_rep;
+static int hf_oran_rep_index;
+static int hf_oran_num_reps;
+
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -1016,6 +1022,7 @@ static const value_string exttype_vals[] = {
     {27,    "O-DU controlled dimensionality reduction"},
     {28,    "O-DU controlled frequency resolution for SINR reporting"},
     {29,    "Cyclic delay adjustment"},
+    {30,    "PUSCH repetition indication"},
     {0, NULL}
 };
 static value_string_ext exttype_vals_ext = VALUE_STRING_EXT_INIT(exttype_vals);
@@ -1065,16 +1072,19 @@ static const AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
     { false, false, false, true,  false, false, false},   // SE 27     (5)
     { false, false, false, true,  false, false, false},   // SE 28     (5)
     { false, true,  true,  true,  false, false, false},   // SE 29     (1,3,5)
+    { false, false, false, true,  false, false, false},   // SE 30     (5)
 };
 
-static bool se_allowed_in_st(unsigned se, unsigned ct)
+static bool se_allowed_in_st(unsigned se, unsigned st)
 {
     if (se==0 || se>HIGHEST_EXTTYPE) {
         /* Don't know about new SE, so don't complain.. */
         return true;
     }
 
-    switch (ct) {
+    switch (st) {
+        case 0:
+            return ext_cts[se-1].ST0;
         case 1:
             return ext_cts[se-1].ST1;
         case 3:
@@ -4789,6 +4799,80 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item(extension_tree, hf_oran_cd_scg_phase_step, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
                 break;
+
+            case 30: /* SE 30: PUSCH repetition indication */
+            {
+                /* TODO: only valid for UL (dataDir=0) */
+
+                /* ueids[], number_of_ueids may have been rewritten by SE10 */
+
+                /* reserved (4 bits) */
+                add_reserved_field(extension_tree, hf_oran_reserved_4bits, tvb, offset, 1);
+                /* numRepUe (4 bits) */
+                uint8_t num_rep_ue;
+                proto_tree_add_item_ret_uint8(extension_tree, hf_oran_num_rep_ue, tvb, offset, 1, ENC_BIG_ENDIAN, &num_rep_ue);
+                offset ++;
+                /* reserved (8 bits) */
+                add_reserved_field(extension_tree, hf_oran_reserved_8bits, tvb, offset, 1);
+                offset += 1;
+
+                if (num_rep_ue == 1) {
+                    /* SE10 *not* present.  N.B. this should tally with number_of_ueids being set to only 1? */
+                    /* reserved (1 bit) */
+                    add_reserved_field(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1);
+                    /* isLastRep (1 bit). Value meaningless here? */
+                    proto_tree_add_item(extension_tree, hf_oran_is_last_rep, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    /* repIndex (6 bits) */
+                    proto_tree_add_item(extension_tree, hf_oran_rep_index, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+
+                    /* reserved (2 bits) */
+                    add_reserved_field(extension_tree, hf_oran_reserved_2bits, tvb, offset, 1);
+                    /* numReps (6 bits) */
+                    uint8_t num_reps;
+                    proto_tree_add_item_ret_uint8(extension_tree, hf_oran_num_reps, tvb, offset, 1, ENC_BIG_ENDIAN, &num_reps);
+                    /* TODO: should numReps be 0 here? */
+                    offset += 1;
+
+                    /* reserved (2 bits) */
+                    add_reserved_field(extension_tree, hf_oran_reserved_16bits, tvb, offset, 2);
+                    offset += 2;
+
+                }
+                else {
+                    /* SE10 present */
+                    bool is_last_rep = false;
+                    /* TODO: should is_last_rep (also) cause loop exit? */
+                    for (uint8_t ue_idx=0; (ue_idx < num_rep_ue) && !is_last_rep; ue_idx++) {
+                        /* reserved (1 bit) */
+                        add_reserved_field(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1);
+                        /* isLastRep (1 bit) */
+
+                        proto_tree_add_item_ret_boolean(extension_tree, hf_oran_is_last_rep, tvb, offset, 1, ENC_BIG_ENDIAN, &is_last_rep);
+                        /* repIndex (6 bits) */
+                        proto_tree_add_item(extension_tree, hf_oran_rep_index, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+
+                        /* reserved (2 bits) */
+                        add_reserved_field(extension_tree, hf_oran_reserved_2bits, tvb, offset, 1);
+                        /* numReps (6 bits) */
+                        uint8_t num_reps;
+                        proto_tree_add_item_ret_uint8(extension_tree, hf_oran_num_reps, tvb, offset, 1, ENC_BIG_ENDIAN, &num_reps);
+                        /* TODO: values 33-63 are reserved */
+                        offset += 1;
+
+                        for (uint8_t rep=0; rep < num_reps; rep++) {
+                            /* reserved (1 bit) */
+                            add_reserved_field(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1);
+                            /* repUeId (15 bits) */
+                            /* TODO: should be fetching and comparing with ueids[] from SE10? */
+                            proto_tree_add_item(extension_tree, hf_oran_rep_ueid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            offset += 2;
+                        }
+                    }
+                }
+                break;
+            }
 
 
             default:
@@ -9869,6 +9953,47 @@ proto_register_oran(void)
             FT_UINT16, BASE_DEC,
             NULL, 0x0,
             "UE positioning time of arrival offset",
+            HFILL}
+        },
+
+        /* 7.7.30.2 */
+        { &hf_oran_num_rep_ue,
+          {"numRepUe", "oran_fh_cus.numRepUe",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0f,
+            "Number of UEs with PUSCH repetition",
+            HFILL}
+        },
+        /* 7.7.30.3 */
+        { &hf_oran_rep_ueid,
+          {"repUeId", "oran_fh_cus.repUeId",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x7fff,
+            "UEId the PUSCH is part of",
+            HFILL}
+        },
+        /* 7.7.30.4 */
+        { &hf_oran_is_last_rep,
+          {"isLastRep", "oran_fh_cus.isLastRep",
+            FT_BOOLEAN, 8,
+            NULL, 0x40,
+            "Last transmission in the repetition",
+            HFILL}
+        },
+        /* 7.7.30.5 */
+        { &hf_oran_rep_index,
+          {"repIndex", "oran_fh_cus.repIndex",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x3f,
+            "Repetition index of the PUSCH transmission",
+            HFILL}
+        },
+        /* 7.7.30.6 */
+        { &hf_oran_num_reps,
+          {"numReps", "oran_fh_cus.numReps",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x3f,
+            "The number of total PUSCH repetitions",
             HFILL}
         },
 
