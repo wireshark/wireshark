@@ -1388,8 +1388,9 @@ dissect_3gpp_supi(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offse
 				http2_set_stream_imsi(pinfo, matched_imsi);
 			}
 		}
+		g_free(matched_imsi);
 	}
-	g_regex_unref(regex);
+	g_match_info_free(match_info);
 
 	return;
 }
@@ -1432,8 +1433,9 @@ dissect_3gpp_notifyuri(tvbuff_t* tvb, proto_tree* tree _U_, packet_info* pinfo, 
 				}
 			}
 		}
+		g_free(matched_referenceid);
 	}
-	g_regex_unref(regex);
+	g_match_info_free(match_info);
 
 	return;
 }
