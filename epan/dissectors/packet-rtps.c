@@ -18196,7 +18196,7 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
   /* All dissection_infos are added to the "dissection_infos" map */
 
   /* value */
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.value_dissection_info.member_name, "value", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.value_dissection_info.member_name, "value", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.value_dissection_info.num_elements = VALUE_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.value_dissection_info.bound = VALUE_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.value_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_ARRAY_TYPE;
@@ -18210,7 +18210,7 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
       (void*)&(_builtin_types_dissection_data->dissection_infos.value_dissection_info));
 
   /* GUID_t */
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.member_name, "GUID_t", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.member_name, "GUID_t", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.num_elements = GUID_T_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
   _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.type_id = guid_t_type_id;
@@ -18219,14 +18219,14 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
   _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.elements[0].flags = 0;
   _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.elements[0].member_id = 0;
   _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.elements[0].type_id = value_type_id;
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.elements[0].member_name, "value", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.elements[0].member_name, "value", MAX_TOPIC_AND_TYPE_LENGTH);
   wmem_map_insert(
     builtin_dissection_infos,
     &(_builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.type_id),
     (void*)&(_builtin_types_dissection_data->dissection_infos.guid_t_dissection_info));
 
   /* Payload */
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.payload_dissection_info.member_name, "payload", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.payload_dissection_info.member_name, "payload", MAX_TOPIC_AND_TYPE_LENGTH);
     _builtin_types_dissection_data->dissection_infos.payload_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE;
   _builtin_types_dissection_data->dissection_infos.payload_dissection_info.base_type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE;
   _builtin_types_dissection_data->dissection_infos.payload_dissection_info.type_id = payload_type_id;
@@ -18238,7 +18238,7 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
     (void*)&(_builtin_types_dissection_data->dissection_infos.payload_dissection_info));
 
   /* KeyHashValue */
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.member_name, "KeyHashValue", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.member_name, "KeyHashValue", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.num_elements = KEY_HAS_VALUE_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.bound = KEY_HAS_VALUE_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_ARRAY_TYPE;
@@ -18252,7 +18252,7 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
     (void*)&(_builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info));
 
   /* SerializedKey */
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.member_name, "SerializedKey", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.member_name, "SerializedKey", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.num_elements = GUID_T_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
   _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.type_id = SerializedKey_type_id;
@@ -18261,14 +18261,14 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
   _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].flags = 0;
   _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].member_id = 0;
   _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].type_id = payload_type_id;
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].member_name, "payload", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].member_name, "payload", MAX_TOPIC_AND_TYPE_LENGTH);
   wmem_map_insert(
     builtin_dissection_infos,
     &(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.type_id),
     (void*)&(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info));
 
   /* NtpTime_t */
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.member_name, "NtpTime_t", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.member_name, "NtpTime_t", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.num_elements = NTPTIME_T_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
   _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.type_id = ntptime_t_type_id;
@@ -18277,19 +18277,19 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
   _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].flags = 0;
   _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].member_id = 0;
   _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE;
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].member_name, "sec", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].member_name, "sec", MAX_TOPIC_AND_TYPE_LENGTH);
   /* uint32 frac */
   _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].flags = 0;
   _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].member_id = 1;
   _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE;
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].member_name, "frac", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].member_name, "frac", MAX_TOPIC_AND_TYPE_LENGTH);
   wmem_map_insert(
     builtin_dissection_infos,
     &(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.type_id),
     (void*)&(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info));
 
   /* SequenceNumber_t */
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.member_name, "SequenceNumber_t", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.member_name, "SequenceNumber_t", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.num_elements = SEQUENCE_NUMBER_T_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
   _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.type_id = sequencenumber_t_type_id;
@@ -18297,18 +18297,18 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
   _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[0].flags = 0;
   _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[0].member_id = 0;
   _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[0].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE;
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[0].member_name, "high", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[0].member_name, "high", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[1].flags = 0;
   _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[1].member_id = 1;
   _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[1].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE;
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[1].member_name, "low", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[1].member_name, "low", MAX_TOPIC_AND_TYPE_LENGTH);
   wmem_map_insert(
     builtin_dissection_infos,
     &(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.type_id),
     (void*)&(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info));
 
   /* Instance transition Data */
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.member_name, "InstanceTransitionData", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.member_name, "InstanceTransitionData", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.num_elements = INSTANCE_TRANSITION_DATA_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
   _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.type_id = instancetransitiondata_type_id;
@@ -18325,28 +18325,28 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = KeyHashValue_type_id;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "key_hash", MAX_TOPIC_AND_TYPE_LENGTH);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "key_hash", MAX_TOPIC_AND_TYPE_LENGTH);
       break;
     case 1:
       /* @optional SerializedKey serialized_key */
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = SerializedKey_type_id;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "serialized_key", MAX_TOPIC_AND_TYPE_LENGTH);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "serialized_key", MAX_TOPIC_AND_TYPE_LENGTH);
       break;
     case 2:
       /* NtpTime_t last_update_timestamp */
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = 0;
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = ntptime_t_type_id;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "last_update_timestamp", MAX_TOPIC_AND_TYPE_LENGTH);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "last_update_timestamp", MAX_TOPIC_AND_TYPE_LENGTH);
       break;
     case 3:
       /* SequenceNumber_t transition_sequence_number */
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = 0;
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
       _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = sequencenumber_t_type_id;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "transition_sequence_number", MAX_TOPIC_AND_TYPE_LENGTH);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "transition_sequence_number", MAX_TOPIC_AND_TYPE_LENGTH);
       break;
     }
   }
@@ -18370,10 +18370,10 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
   _builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.guid.entity_id = ENTITYID_NORMAL_META_GROUP_READER;
   _builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.guid.fields_present = GUID_HAS_ALL;
   _builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.fields_visited = TOPIC_INFO_ALL_SET;
-  g_strlcpy(_builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.topic_name, "InstanceStateDataResponse", MAX_TOPIC_AND_TYPE_LENGTH);
-  g_strlcpy(_builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.type_name, "InstanceStateDataResponse", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.topic_name, "InstanceStateDataResponse", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.type_name, "InstanceStateDataResponse", MAX_TOPIC_AND_TYPE_LENGTH);
 
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.member_name, "InstanceStateDataResponse", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.member_name, "InstanceStateDataResponse", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.num_elements = INSTANCE_STATE_DATA_RESPONSE_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.bound = INSTANCE_STATE_DATA_RESPONSE_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
@@ -18386,7 +18386,7 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
     (void*)&(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info));
 
   /* sequence_100_InstanceTransitionData */
-  g_strlcpy(_builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.member_name, "sequence_100_InstanceTransitionData", MAX_TOPIC_AND_TYPE_LENGTH);
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.member_name, "sequence_100_InstanceTransitionData", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.num_elements = INSTANCE_STATE_DATA_RESPONSE_NUM_ELEMENTS;
   _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.bound = SEQUENCE_100_IINSTANCE_TRANSITION_DATA_BOUND;
   _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE;
@@ -18403,49 +18403,49 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
     case 0:
       /* @optional sequence<InstanceTransitionData> alive_instances */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "alive_instances", MAX_MEMBER_NAME);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "alive_instances", MAX_MEMBER_NAME);
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceTransitionData_type_id;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
     case 1:
       /* @optional sequence<InstanceTransitionData> disposed_instances */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "disposed_instances", MAX_MEMBER_NAME);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "disposed_instances", MAX_MEMBER_NAME);
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceTransitionData_type_id;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
     case 2:
       /* @optional sequence<InstanceTransitionData> unregistered_instances */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "unregistered_instances", MAX_MEMBER_NAME);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "unregistered_instances", MAX_MEMBER_NAME);
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceTransitionData_type_id;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
     case 3:
       /* GUID_t writer_guid */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = 0;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "writer_gid", MAX_MEMBER_NAME);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "writer_gid", MAX_MEMBER_NAME);
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = guid_t_type_id;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
     case 4:
       /* GUID_t reader_guid */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = 0;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "reader_gid", MAX_MEMBER_NAME);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "reader_gid", MAX_MEMBER_NAME);
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = guid_t_type_id;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
     case 5:
       /* uint32 reader_group_oid */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = 0;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "reader_group_oid", MAX_MEMBER_NAME);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "reader_group_oid", MAX_MEMBER_NAME);
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
     case 6:
       /* boolean complete_snapshot */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = 0;
-      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "complete_snapshot", MAX_MEMBER_NAME);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "complete_snapshot", MAX_MEMBER_NAME);
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;

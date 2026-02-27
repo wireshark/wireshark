@@ -2963,7 +2963,7 @@ s7comm_try_block_data_heuristic(tvbuff_t *tvb,
         struct tvbuff* next_tvb = tvb_new_subset_remaining(tvb, offset);
 
         /*no need to call call_data_dissector() if dissector_try_heuristic() returns false*/
-        dissector_try_heuristic(s7comm_heur_subdissector_list_block_data, next_tvb, pinfo, tree, &hdtbl_entry, fc);
+        (void) dissector_try_heuristic(s7comm_heur_subdissector_list_block_data, next_tvb, pinfo, tree, &hdtbl_entry, fc);
     }
 }
 

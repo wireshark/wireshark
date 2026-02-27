@@ -239,7 +239,7 @@ p4rpc_secs_to_8601_str( char *obuf, unsigned int len, uint64_t secs, int precisi
     format_nstime_as_iso8601( obuf+2, NSTIME_ISO8601_BUFSIZE, &when,
         decimal_point, !p4prefs.time_utc, precision );
 
-    g_strlcat( obuf, ")", NSTIME_ISO8601_BUFSIZE+4 ); // close our parens
+    (void) g_strlcat( obuf, ")", NSTIME_ISO8601_BUFSIZE+4 ); // close our parens
 
     return true;
 }
@@ -566,7 +566,7 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
         if (bytes_written > ARGBUF_SZ - 2) { // Possibly truncated
             ws_utf8_truncate( argbuf, ARGBUF_SZ-2 ); // ensure no partial char at the end
         }
-        g_strlcat( argbuf, "}", ARGBUF_SZ ); // close our bracket
+        (void) g_strlcat( argbuf, "}", ARGBUF_SZ ); // close our bracket
 
         // used to check if a value length goes past the end of the message
         uint32_t bytes_left = msg_len - (offset - msg_start) + MSG_HEADER_LEN;

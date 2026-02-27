@@ -598,7 +598,7 @@ void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbu
     for (unsigned n=0; n < table->num_entries; n++) {
         if (e2ap_data->ran_function_id == table->entries[n].ran_function_id) {
             ran_function = table->entries[n].ran_function;
-            g_strlcpy(table->entries[n].oid, oid, MAX_OID_LEN);
+            (void) g_strlcpy(table->entries[n].oid, oid, MAX_OID_LEN);
         }
     }
 

@@ -2375,7 +2375,7 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
         snprintf(bundle_name, 32, "Bundle %3u", bundle_number);
     }
     else {
-        g_strlcpy(bundle_name, "Orphaned  ", 32);
+        (void) g_strlcpy(bundle_name, "Orphaned  ", 32);
     }
 
     /* Create Bundle root */

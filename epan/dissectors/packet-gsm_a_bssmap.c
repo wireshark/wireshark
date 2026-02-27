@@ -1819,7 +1819,7 @@ be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
             proto_tree_add_item(tree, hf_gsm_a_bssmap_sac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
             if (add_string) {
                 char *str = ws_strdup_printf("%s/SAC (%u)", add_string, value);
-                g_strlcpy(add_string, str, string_len);
+                (void) g_strlcpy(add_string, str, string_len);
                 g_free(str);
             }
             curr_offset += 2;

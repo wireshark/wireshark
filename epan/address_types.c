@@ -1093,7 +1093,7 @@ static void address_with_resolution_to_str_buf(const address* addr, char *buf, i
 #endif
 
     /* Copy the resolved name */
-    g_strlcpy(buf, at->addr_name_res_str(addr), buf_len);
+    (void) g_strlcpy(buf, at->addr_name_res_str(addr), buf_len);
 
     /* Get the length of the copied resolved name */
     pos = strlen(buf);

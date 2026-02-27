@@ -15010,7 +15010,7 @@ resolve_pa_profile_submodule_name(ioDataObject *io_data_object)
 
         if (variant != 0u)
         {
-            g_strlcat (io_data_object->moduleNameStr, " (VARIANT)", MAX_NAMELENGTH);
+            (void) g_strlcat (io_data_object->moduleNameStr, " (VARIANT)", MAX_NAMELENGTH);
         }
 
         return 1;

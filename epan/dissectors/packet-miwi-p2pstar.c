@@ -356,7 +356,7 @@ static int miwi_short_address_to_str(const address* addr, char *buf, int buf_len
 
     if (miwi_short_addr == 0xffff)
     {
-        g_strlcpy(buf, "Broadcast", buf_len);
+        (void) g_strlcpy(buf, "Broadcast", buf_len);
         return 10;
     }
 
@@ -371,7 +371,7 @@ static int miwi_short_to_str(uint16_t miwi_short_addr, char *buf, int buf_len)
 {
     if(miwi_short_addr == 0xffff)
     {
-        g_strlcpy(buf, "Broadcast", buf_len);
+        (void) g_strlcpy(buf, "Broadcast", buf_len);
         return 10;
     }
 
