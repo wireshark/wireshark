@@ -1,4 +1,4 @@
-/* software_update.h
+/* software_update.c
  * Wrappers and routines to check for software updates.
  *
  * Wireshark - Network traffic analyzer
@@ -13,6 +13,7 @@
 #include "software_update.h"
 #include "language.h"
 #include "epan/prefs.h"
+#include "wsutil/filesystem.h"  /* Added for get_progfile_dir() */
 
 /*
  * Version 0 of the update URI path has the following elements:
@@ -86,11 +87,53 @@ static char *get_appcast_update_url(software_update_channel_e chan, const char* 
 }
 
 #ifdef _WIN32
+
+/* Check whether Wireshark is being run from a PortableApps directory layout.
+ *
+ * PortableApps installs applications in a structure where the application
+ * directory sits inside an "App" folder, with an "AppInfo" directory alongside.
+ * For Wireshark, the layout is:
+ *   PortableApps/Wireshark/App/Wireshark/ (where wireshark.exe resides)
+ *   PortableApps/Wireshark/AppInfo/ (exists alongside the App folder)
+ *
+ * This function checks for the existence of the AppInfo directory to identify
+ * a PortableApps installation.
+ *
+ * Returns true if running from a PortableApps layout, false otherwise.
+ */
+static bool is_portableapp(void)
+{
+    const char *progdir;
+    char *parent_dir;
+    char *appinfo_dir;
+    bool is_portable;
+
+    progdir = get_progfile_dir();
+    if (progdir == NULL) {
+        return false;
+    }
+
+    parent_dir = g_path_get_dirname(progdir);
+    appinfo_dir = g_build_filename(parent_dir, "AppInfo", NULL);
+
+    is_portable = g_file_test(appinfo_dir, G_FILE_TEST_IS_DIR);
+
+    g_free(parent_dir);
+    g_free(appinfo_dir);
+
+    return is_portable;
+}
+
 /** Initialize software updates.
  */
 void
 software_update_init(const char* su_application, const char* su_version) {
     const char *update_url = get_appcast_update_url(prefs.gui_update_channel, su_application, su_version);
+
+    /* Disable automatic updates for PortableApps installations */
+    if (is_portableapp()) {
+        return;
+    }
 
     /*
      * According to the WinSparkle 0.5 documentation these must be called
@@ -114,6 +157,10 @@ software_update_init(const char* su_application, const char* su_version) {
  */
 void
 software_update_check(void) {
+    /* Skip update check for PortableApps installations */
+    if (is_portableapp()) {
+        return;
+    }
     win_sparkle_check_update_with_ui();
 }
 
