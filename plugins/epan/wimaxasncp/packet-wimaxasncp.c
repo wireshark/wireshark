@@ -2767,7 +2767,7 @@ wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
     xmlNodePtr root_element = NULL;
     bool status = true;
 
-    doc = xmlReadFile(filename, NULL, XML_PARSE_NOENT);
+    doc = xmlReadFile(filename, NULL, 0);
     if (doc == NULL)
         return false;
 
