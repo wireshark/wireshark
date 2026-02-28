@@ -50,26 +50,22 @@ typedef struct _wmem_strbuf_t wmem_strbuf_t;
 
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_new_sized(wmem_allocator_t *allocator, size_t alloc_size)
-G_GNUC_MALLOC;
+wmem_strbuf_new_sized(wmem_allocator_t *allocator, size_t alloc_size);
 
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_new(wmem_allocator_t *allocator, const char *str)
-G_GNUC_MALLOC;
+wmem_strbuf_new(wmem_allocator_t *allocator, const char *str);
 
 #define wmem_strbuf_create(allocator) \
     wmem_strbuf_new(allocator, "")
 
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_new_len(wmem_allocator_t *allocator, const char *str, size_t len)
-G_GNUC_MALLOC;
+wmem_strbuf_new_len(wmem_allocator_t *allocator, const char *str, size_t len);
 
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_dup(wmem_allocator_t *allocator, const wmem_strbuf_t *strbuf)
-G_GNUC_MALLOC;
+wmem_strbuf_dup(wmem_allocator_t *allocator, const wmem_strbuf_t *strbuf);
 
 WS_DLL_PUBLIC
 void
