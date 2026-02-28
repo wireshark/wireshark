@@ -70,8 +70,7 @@ struct _wmem_range_t {
  */
 WS_DLL_PUBLIC
 wmem_itree_t *
-wmem_itree_new(wmem_allocator_t *allocator)
-G_GNUC_MALLOC;
+wmem_itree_new(wmem_allocator_t *allocator);
 
 
 /**

@@ -76,8 +76,7 @@ typedef struct _wmem_multimap_t wmem_multimap_t;
 WS_DLL_PUBLIC
 wmem_multimap_t *
 wmem_multimap_new(wmem_allocator_t *allocator,
-        GHashFunc hash_func, GEqualFunc eql_func)
-G_GNUC_MALLOC;
+        GHashFunc hash_func, GEqualFunc eql_func);
 
 /**
  * @brief Creates a multimap with two allocator scopes.
@@ -103,8 +102,7 @@ G_GNUC_MALLOC;
 WS_DLL_PUBLIC
 wmem_multimap_t *
 wmem_multimap_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_scope,
-        GHashFunc hash_func, GEqualFunc eql_func)
-G_GNUC_MALLOC;
+        GHashFunc hash_func, GEqualFunc eql_func);
 
 /**
  * @brief Retrieves a list of the keys inside the multimap

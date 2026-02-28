@@ -74,8 +74,7 @@ typedef struct _wmem_strbuf_t wmem_strbuf_t;
  */
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_new_sized(wmem_allocator_t *allocator, size_t alloc_size)
-G_GNUC_MALLOC;
+wmem_strbuf_new_sized(wmem_allocator_t *allocator, size_t alloc_size);
 
 /**
  * @brief Create a new string buffer initialized with a copy of the given string.
@@ -89,8 +88,7 @@ G_GNUC_MALLOC;
  */
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_new(wmem_allocator_t *allocator, const char *str)
-G_GNUC_MALLOC;
+wmem_strbuf_new(wmem_allocator_t *allocator, const char *str);
 
 
 /**
@@ -119,8 +117,7 @@ G_GNUC_MALLOC;
  */
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_new_len(wmem_allocator_t *allocator, const char *str, size_t len)
-G_GNUC_MALLOC;
+wmem_strbuf_new_len(wmem_allocator_t *allocator, const char *str, size_t len);
 
 /**
  * @brief Duplicate an existing string buffer using the specified memory allocator.
@@ -134,8 +131,7 @@ G_GNUC_MALLOC;
  */
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_dup(wmem_allocator_t *allocator, const wmem_strbuf_t *strbuf)
-G_GNUC_MALLOC;
+wmem_strbuf_dup(wmem_allocator_t *allocator, const wmem_strbuf_t *strbuf);
 
 /**
  * @brief Append a null-terminated string to the end of a string buffer.

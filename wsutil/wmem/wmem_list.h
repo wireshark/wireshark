@@ -280,8 +280,7 @@ wmem_list_append_sorted(wmem_list_t *list, void* data, GCompareFunc func);
  */
 WS_DLL_PUBLIC
 wmem_list_t *
-wmem_list_new(wmem_allocator_t *allocator)
-G_GNUC_MALLOC;
+wmem_list_new(wmem_allocator_t *allocator);
 
 /**
  * @brief Apply a function to each data element in a wmem list.
