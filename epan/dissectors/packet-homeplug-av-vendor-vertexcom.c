@@ -1050,7 +1050,7 @@ static const value_string vertexcom_val_str_link_stats_mgmt_flag[] = {
     {0, NULL},
 };
 
-uint32_t ret_tlflag = 0xff;
+static uint32_t ret_tlflag = 0xff;
 
 static bool dissect_vs_get_link_stats_req(tvbuff_t* tvb, packet_info* pinfo,
                                           proto_tree* tree, void* data) {

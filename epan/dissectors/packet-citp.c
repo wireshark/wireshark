@@ -787,7 +787,7 @@ typedef struct sdmx_enc_info {
 } sdmx_enc_info;
 
 /** enid should have been allocated with wmem_file_scope() */
-void set_conversation_encryption(packet_info *pinfo, char* enid) {
+static void set_conversation_encryption(packet_info *pinfo, char* enid) {
     conversation_t *conv = find_or_create_conversation(pinfo);
     sdmx_enc_info * info = conversation_get_proto_data(conv, proto_citp_sdmx);
     if (info == NULL) {
@@ -806,7 +806,7 @@ void set_conversation_encryption(packet_info *pinfo, char* enid) {
     }
 }
 
-char* get_conversation_encryption(packet_info *pinfo) {
+static char* get_conversation_encryption(packet_info *pinfo) {
     conversation_t *conv = find_or_create_conversation(pinfo);
     sdmx_enc_info * info = conversation_get_proto_data(conv, proto_citp_sdmx);
     if (info == NULL) return NULL;
