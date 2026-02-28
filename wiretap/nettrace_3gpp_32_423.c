@@ -696,7 +696,7 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 	xmlDocPtr doc;
 	xmlNodePtr root_element = NULL;
 
-	doc = xmlReadFile(wth->pathname, NULL, XML_PARSE_NOENT | XML_PARSE_NONET | XML_PARSE_NOERROR);
+	doc = xmlReadFile(wth->pathname, NULL, XML_PARSE_NONET | XML_PARSE_NOERROR);
 	if (doc == NULL) {
 		return WTAP_OPEN_NOT_MINE;
 	}
