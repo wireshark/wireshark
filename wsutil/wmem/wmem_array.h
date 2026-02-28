@@ -37,13 +37,11 @@ typedef struct _wmem_array_t wmem_array_t;
 WS_DLL_PUBLIC
 wmem_array_t *
 wmem_array_sized_new(wmem_allocator_t *allocator, size_t elem_size,
-                     unsigned alloc_count)
-G_GNUC_MALLOC;
+                     unsigned alloc_count);
 
 WS_DLL_PUBLIC
 wmem_array_t *
-wmem_array_new(wmem_allocator_t *allocator, const size_t elem_size)
-G_GNUC_MALLOC;
+wmem_array_new(wmem_allocator_t *allocator, const size_t elem_size);
 
 WS_DLL_PUBLIC
 void
