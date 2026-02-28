@@ -4334,6 +4334,11 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
            progress. */
         ws_cwstream_flush(global_ld.pdh, NULL);
         report_new_capture_file(capture_opts->save_file);
+    } else {
+        /* If we're not writing to a file, we're not writing to a pipe.
+         * This is a programming error with the caller, and would lead
+         * to NULL pointer deferences. */
+        ws_assert(!capture_opts->output_to_pipe);
     }
 
     if (capture_opts->has_file_interval) {

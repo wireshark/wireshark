@@ -2241,7 +2241,7 @@ dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 			tv.nsecs = 0;
 			proto_tree_add_time_format_value(parent_tree, hf_date, tvb, offset, 4,
 			    &tv, "No time specified (0x%08x)",
-			    ((dos_date << 16) | dos_time));
+			    (((uint32_t)dos_date << 16) | dos_time));
 		}
 		offset += 4;
 		return offset;
@@ -18983,7 +18983,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 		pdata->multi_cmds = (pdata->command_count > 1);
 	}
 
-	if (pinfo->fd->visited && pdata && pdata->frame_num == pinfo->fd->num) {
+	if (pinfo->fd->visited && pdata->frame_num == pinfo->fd->num) {
 		if (pdata->cmd_index >= pdata->command_count) {
 			pdata->cmd_index = 0;
 		}
@@ -18991,7 +18991,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 
 	/* Common code for both Pass 1 (tshark) and Pass 2 (Wireshark) */
 	if ((!pinfo->fd->visited) ||
-		(pinfo->fd->visited && pdata && pdata->frame_num == pinfo->fd->num)) {
+		(pinfo->fd->visited && pdata->frame_num == pinfo->fd->num)) {
 
 		/* Remove NBT "Session message" if present */
 		const char *info = col_get_text(pinfo->cinfo, COL_INFO);

@@ -1725,10 +1725,8 @@ dissect_wps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   offset += 1; size -= 1;
 
   pi = proto_item_get_parent(pi);
-  if (pi != NULL)
-    proto_item_append_text(pi, " (Wifi Alliance, WifiProtectedSetup)");
-  if (pinfo != NULL)
-    col_append_str(pinfo->cinfo, COL_INFO, ", WPS");
+  proto_item_append_text(pi, " (Wifi Alliance, WifiProtectedSetup)");
+  col_append_str(pinfo->cinfo, COL_INFO, ", WPS");
 
   /* Flag field, if msg-len flag set, add appropriate field  */
   pi = proto_tree_add_item_ret_uint8(tree, hf_eapwps_flags,      tvb, offset, 1, ENC_BIG_ENDIAN, &flags);
