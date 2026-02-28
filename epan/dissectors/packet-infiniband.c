@@ -3846,7 +3846,7 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     }
 
     /* give a chance for subdissectors to analyze the private data */
-    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, top_tree, &hdtbl_entry, info);
+    (void) dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, top_tree, &hdtbl_entry, info);
 
     local_offset += 92;
     *offset = local_offset;
@@ -3995,7 +3995,7 @@ static void parse_CM_Rsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
 
     /* give a chance for subdissectors to get the private data */
     next_tvb = tvb_new_subset_length(tvb, local_offset, 196);
-    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, top_tree, &hdtbl_entry, info);
+    (void) dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, top_tree, &hdtbl_entry, info);
 
     local_offset += 196;
     *offset = local_offset;
@@ -4013,7 +4013,7 @@ try_connection_dissectors(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
     connection = lookup_connection(MadData->transactionID, addr);
 
     next_tvb = tvb_new_subset_length(tvb, pdata_offset, pdata_length);
-    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, top_tree,
+    (void) dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, top_tree,
                             &hdtbl_entry, info);
     return connection;
 }

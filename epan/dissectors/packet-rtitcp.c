@@ -717,7 +717,7 @@ static int dissect_rtitcp_common(tvbuff_t *tvb, packet_info *pinfo,
 
         /* Take the payload and call the registered sub-dissectors. So far, RTPS */
         next_tvb = tvb_new_subset_remaining(tvb, offset);
-        dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL);
+        (void) dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL);
         return tvb_captured_length(tvb);
 
     } else {

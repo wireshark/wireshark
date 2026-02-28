@@ -1507,7 +1507,7 @@ rs22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		/* At least one shall be present */
 		max = 1;
 	}
-	ipmi_get_data(pinfo, 0, &offs);
+	(void) ipmi_get_data(pinfo, 0, &offs);
 	for (i = 0; i < max; i++) {
 		v = tvb_get_letohs(tvb, 2 + 2 * i);
 		proto_tree_add_uint_format(tree, hf_ipmi_picmg_22_pwr_alloc, tvb, 2 + 2 * i, 2,

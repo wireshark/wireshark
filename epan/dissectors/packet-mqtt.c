@@ -1239,7 +1239,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         heur_dtbl_entry_t *hdtbl_entry;
         tvbuff_t *msg_tvb = tvb_new_subset_length(tvb, offset, mqtt_payload_len);
         char *sub_data = wmem_strdup(pinfo->pool, (const char*)topic_str);
-        dissector_try_heuristic(mqtt_topic_subdissector, msg_tvb, pinfo, tree, &hdtbl_entry, sub_data);
+        (void) dissector_try_heuristic(mqtt_topic_subdissector, msg_tvb, pinfo, tree, &hdtbl_entry, sub_data);
       }
       break;
 

@@ -897,7 +897,7 @@ dissect_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 	cbor_root = proto_tree_add_item(parent_tree, proto_cbor, tvb, offset, -1, ENC_NA);
 	cbor_tree = proto_item_add_subtree(cbor_root, ett_cbor);
-	dissect_cbor_main_type(tvb, pinfo, cbor_tree, &offset);
+	(void) dissect_cbor_main_type(tvb, pinfo, cbor_tree, &offset);
 
 	proto_item_set_len(cbor_root, offset);
 	return offset;
