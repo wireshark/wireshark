@@ -1249,14 +1249,14 @@ AlternateAccessSelection ::= CHOICE
 Read-Request ::= SEQUENCE
 	{
 	specificationWithResult		[0] IMPLICIT BOOLEAN DEFAULT FALSE,
-	variableAccessSpecificatn	[1] VariableAccessSpecification
+	variableAccessSpecification	[1] VariableAccessSpecification
 	}
 
 
 Read-Response ::= SEQUENCE
 	{
-	variableAccessSpecificatn [0] VariableAccessSpecification OPTIONAL,
-	listOfAccessResult	  [1] IMPLICIT SEQUENCE OF AccessResult
+	variableAccessSpecification	[0] VariableAccessSpecification OPTIONAL,
+	listOfAccessResult		[1] IMPLICIT SEQUENCE OF AccessResult
 	}
 
 -- WRITE
@@ -1265,7 +1265,7 @@ Read-Response ::= SEQUENCE
 
 Write-Request ::= SEQUENCE
 	{
-	variableAccessSpecificatn 	VariableAccessSpecification,
+	variableAccessSpecification 	VariableAccessSpecification,
 	listOfData			[0] IMPLICIT SEQUENCE OF Data
 	}
 
