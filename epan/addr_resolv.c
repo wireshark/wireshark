@@ -3343,7 +3343,6 @@ read_tacs_file(const char *tacspath)
     char line[MAX_LINELEN];
     char *cp;
     uint16_t id;
-    wmem_strbuf_t *tac_name = NULL;
 
     /*
     *  File format is TAC(decimal)<tab/space>TACName (no spaces)
@@ -3366,8 +3365,8 @@ read_tacs_file(const char *tacspath)
             continue; /* no TAC name */
 
         if (!wmem_map_lookup(tac_hash_table, GUINT_TO_POINTER(id))) {
-            tac_name = wmem_strbuf_new(addr_resolv_scope, cp);
-            wmem_map_insert(tac_hash_table, GUINT_TO_POINTER(id), (void *)wmem_strbuf_get_str(tac_name));
+            char *buf = wmem_strdup(addr_resolv_scope, cp);
+            wmem_map_insert(tac_hash_table, GUINT_TO_POINTER(id), (void *)buf);
         }
     }
 
