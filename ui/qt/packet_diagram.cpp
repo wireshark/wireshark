@@ -296,7 +296,7 @@ private:
         if (collapsed_row_ >= 0) {
             QRectF bounding_rect = polygon().boundingRect();
             qreal center_y = bounding_rect.top() + (layout_->rowHeight() * collapsed_row_) + (layout_->rowHeight() / 2);
-            qreal mark_w = layout_->bitWidth() / 3; // Each mark side to center
+            qreal mark_w = qreal(layout_->bitWidth()) / 3; // Each mark side to center
             QLineF span_l = QLineF(-mark_w, mark_w / 2, mark_w, -mark_w / 2);
             for (int idx = 0; idx < NumSpanMarks; idx++) {
                 QPointF center;
