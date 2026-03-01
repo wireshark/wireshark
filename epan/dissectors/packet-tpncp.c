@@ -203,7 +203,8 @@ dissect_tpncp_data(unsigned data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tr
         case 5: case 6: case 7: case 8:
             /* add char array */
             if ((g_str_len = field->array_dim)) {
-                g_str_len = MIN(g_str_len, tvb_reported_length_remaining(tvb, *offset));
+                const unsigned remaining = tvb_reported_length_remaining(tvb, *offset);
+                g_str_len = MIN(g_str_len, remaining);
                 proto_tree_add_item(ltree, field->descr, tvb, *offset, g_str_len, ENC_NA | ENC_ASCII);
                 (*offset) += g_str_len;
             } else { /* add single char */
