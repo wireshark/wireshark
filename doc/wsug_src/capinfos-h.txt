@@ -1,4 +1,4 @@
-Capinfos (Wireshark) 4.6.4 (v4.6.4rc0-3-g4857e26d586d)
+Capinfos (Wireshark) 4.6.5 (v4.6.5rc0-4-g8c31c4b7ebbd)
 Print various information (infos) about capture files.
 See https://www.wireshark.org for more information.
 
