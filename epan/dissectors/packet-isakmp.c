@@ -484,6 +484,7 @@ static expert_field ei_isakmp_attribute_value_empty;
 static expert_field ei_isakmp_payload_bad_length;
 static expert_field ei_isakmp_bad_fragment_number;
 static expert_field ei_isakmp_notify_data_3gpp_unknown_device_identity;
+static expert_field ei_isakmp_notify_data_nat_payload_sha1_mismatch;
 
 static dissector_handle_t eap_handle;
 static dissector_handle_t esp_handle;
@@ -5007,6 +5008,118 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned lengt
         proto_tree_add_item(tree, hf_isakmp_notify_data_ipcomp_cpi, tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_isakmp_notify_data_ipcomp_transform_id, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         break;
+      case 16388: /* NAT_DETECTION_SOURCE_IP */
+      {
+        /* Calculate SHA1 following https://datatracker.ietf.org/doc/html/rfc7296#section-2.23 */
+
+        /* Validate length of notification data is 20 bytes for SHA1 hash. If not, mark the item as malformed */
+        if (length != 20) {
+            proto_item_append_text(data_item, " [malformed: notify_data length %u]", length);
+            break;
+        }
+
+        /* The SHA1 hash is calculated over the concatenation of the initiator SPI, responder SPI, source IP address and source port. */
+        /* Buffer size derived from components: 2 SPIs (8 bytes each), max IP (16 bytes), and port (2 bytes). */
+        unsigned char buf[2 * sizeof(uint64_t) + 16 + sizeof(uint16_t)];
+        uint8_t offset_buf = 0;
+
+        /* Get source port */
+        /* Convert pinfo->srcport to uint16_t and to little endian */
+        uint16_t src_port = g_htons((uint16_t)pinfo->srcport);
+
+        /* Add initiator SPI */
+        tvb_memcpy(tvb, buf + offset_buf, 0, sizeof(uint64_t));
+        offset_buf += 8;
+
+        /* Add responder SPI */
+        tvb_memcpy(tvb, buf + offset_buf, sizeof(uint64_t), sizeof(uint64_t));
+        offset_buf += 8;
+
+        /* Add source IP address */
+        memcpy(buf + offset_buf, pinfo->src.data, pinfo->src.len);
+        offset_buf += pinfo->src.len;
+
+        /* Add source port */
+        memcpy(buf + offset_buf, &src_port, sizeof(uint16_t));
+        offset_buf += 2;
+
+        /* SHA1 hash of the concatenated fields. */
+        unsigned char sha1_buf[HASH_SHA1_LENGTH];
+        gcry_md_hash_buffer(GCRY_MD_SHA1, sha1_buf, buf, offset_buf);
+
+        /* Notification_data in tvb*/
+        uint8_t notif_buf[sizeof(sha1_buf)];
+        tvb_memcpy(tvb, notif_buf, offset, sizeof(notif_buf));
+
+        /* If values are the same, then NAT was not detected. */
+        if (memcmp(notif_buf, sha1_buf, sizeof(sha1_buf)) == 0) {
+            proto_item_append_text(data_item, " [correct, NAT was not detected]");
+        } else {
+            /* NAT was detected, show calculated value in hex for easier troubleshooting. */
+            char sha1_str[sizeof(sha1_buf) * 2 + 1];
+            bytes_to_hexstr(sha1_str, sha1_buf, sizeof(sha1_buf));
+            sha1_str[sizeof(sha1_buf) * 2] = '\0'; /* NULL terminate */
+            proto_item_append_text(data_item, " [not expected value, NAT detected, value should be %s]", sha1_str);
+            expert_add_info(pinfo, data_item, &ei_isakmp_notify_data_nat_payload_sha1_mismatch);
+        }
+        break;
+      }
+      case 16389: /* NAT_DETECTION_DESTINATION_IP */
+      {
+        /* Calculate SHA1 following https://datatracker.ietf.org/doc/html/rfc7296#section-2.23 */
+
+        /* Validate length of notification data is 20 bytes for SHA1 hash. If not, mark the item as malformed */
+        if (length != 20) {
+            proto_item_append_text(data_item, " [malformed: notify_data length %u]", length);
+            break;
+        }
+
+        /* The SHA1 hash is calculated over the concatenation of the initiator SPI, responder SPI, destination IP address and destination port. */
+        /* Buffer size derived from components: 2 SPIs (8 bytes each), max IP (16 bytes), and port (2 bytes). */
+        unsigned char buf[2 * sizeof(uint64_t) + 16 + sizeof(uint16_t)];
+        uint8_t offset_buf = 0;
+
+        /* Get destination port */
+        /* Convert pinfo->dstport to uint16_t and to little endian */
+        uint16_t dst_port = g_htons((uint16_t)pinfo->destport);
+
+        /* Add initiator SPI */
+        tvb_memcpy(tvb, buf + offset_buf, 0, sizeof(uint64_t));
+        offset_buf += 8;
+
+        /* Add responder SPI */
+        tvb_memcpy(tvb, buf + offset_buf, sizeof(uint64_t), sizeof(uint64_t));
+        offset_buf += 8;
+
+        /* Add destination IP address */
+        memcpy(buf + offset_buf, pinfo->dst.data, pinfo->dst.len);
+        offset_buf += pinfo->dst.len;
+
+        /* Add destination port */
+        memcpy(buf + offset_buf, &dst_port, sizeof(uint16_t));
+        offset_buf += 2;
+
+        /* SHA1 hash of the concatenated fields. */
+        unsigned char sha1_buf[HASH_SHA1_LENGTH];
+        gcry_md_hash_buffer(GCRY_MD_SHA1, sha1_buf, buf, offset_buf);
+
+        /* Notification_data in tvb*/
+        uint8_t notif_buf[sizeof(sha1_buf)];
+        tvb_memcpy(tvb, notif_buf, offset, sizeof(notif_buf));
+
+        /* If values are the same, then NAT was not detected. */
+        if (memcmp(notif_buf, sha1_buf, sizeof(sha1_buf)) == 0) {
+            proto_item_append_text(data_item, " [correct, NAT was not detected]");
+        } else {
+            /* NAT was detected, show calculated value in hex for easier troubleshooting. */
+            char sha1_str[sizeof(sha1_buf) * 2 + 1];
+            bytes_to_hexstr(sha1_str, sha1_buf, sizeof(sha1_buf));
+            sha1_str[sizeof(sha1_buf) * 2] = '\0'; /* NULL terminate */
+            proto_item_append_text(data_item, " [not expected value, NAT detected, value should be %s]", sha1_str);
+            expert_add_info(pinfo, data_item, &ei_isakmp_notify_data_nat_payload_sha1_mismatch);
+        }
+        break;
+      }
       case 16403: /* AUTH_LIFETIME" */
       {
         uint32_t hours;
@@ -8448,6 +8561,7 @@ proto_register_isakmp(void)
      { &ei_isakmp_payload_bad_length, { "isakmp.payloadlength.invalid", PI_MALFORMED, PI_ERROR, "Invalid payload length", EXPFILL }},
      { &ei_isakmp_bad_fragment_number, { "isakmp.fragment_number.invalid", PI_MALFORMED, PI_ERROR, "Invalid fragment numbering", EXPFILL }},
      { &ei_isakmp_notify_data_3gpp_unknown_device_identity, { "isakmp.notify.priv.3gpp.unknown_device_identity", PI_PROTOCOL, PI_WARN, "Type of device identity not known", EXPFILL }},
+     { &ei_isakmp_notify_data_nat_payload_sha1_mismatch, { "isakmp.notify.nat_payload.sha1_mismatch", PI_PROTOCOL, PI_NOTE, "SHA1 mismatch in NAT payload. NAT was detected", EXPFILL }},
   };
 
   expert_module_t* expert_isakmp;
