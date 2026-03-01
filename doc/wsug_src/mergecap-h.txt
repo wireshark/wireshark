@@ -1,4 +1,4 @@
-Mergecap (Wireshark) 4.4.14 (v4.4.14rc0-2-gf9fc04327122)
+Mergecap (Wireshark) 4.4.15 (v4.4.15rc0-2-g923802486f17)
 Merge two or more capture files into one.
 See https://www.wireshark.org for more information.
 
