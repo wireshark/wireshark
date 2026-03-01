@@ -300,6 +300,10 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
+[packet-cola.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-collectd.[ch]]
 indent_style = tab
 indent_size = tab
@@ -1449,6 +1453,10 @@ indent_size = 2
 
 [packet-nat-pmp.[ch]]
 indent_size = 2
+
+[packet-navitrol.[ch]]
+indent_style = tab
+indent_size = tab
 
 [packet-nbd.[ch]]
 indent_style = tab
