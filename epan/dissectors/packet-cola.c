@@ -751,6 +751,7 @@ diplay_timestamp_field(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_field
 		time_offset += 1;
 		time_info.tm_sec = tvb_get_uint8(tvb, time_offset);
 		time_offset += 1;
+		time_info.tm_isdst = -1;
 
 		time_info_seconds = mktime(&time_info);
 		ns_time_info.secs = time_info_seconds;
