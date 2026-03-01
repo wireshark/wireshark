@@ -999,17 +999,21 @@ uint16_t calculate_crc(t_solaredge_packet_header *header, const uint8_t *data, i
 }
 
 static
-void solaredge_decrypt(wmem_allocator_t *scratch, const uint8_t *in, int length, uint8_t *out, gcry_cipher_hd_t cipher)
+bool solaredge_decrypt(wmem_allocator_t *scratch, const uint8_t *in, int length, uint8_t **out, int *out_length, gcry_cipher_hd_t cipher)
 {
+	if (length < SOLAREDGE_ENCRYPTION_KEY_LENGTH) {
+		return false;
+	}
 	uint8_t rand1[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
 	uint8_t rand2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
 	int payload_length = length - SOLAREDGE_ENCRYPTION_KEY_LENGTH;
-	uint8_t *payload = (uint8_t *) wmem_alloc(scratch, payload_length);
+	const uint8_t *payload = in + SOLAREDGE_ENCRYPTION_KEY_LENGTH;
 	uint8_t *intermediate_decrypted_payload = (uint8_t *) wmem_alloc(scratch, payload_length);
 	int i = 0, posa = 0, posb = 0, posc = 0;
 	memcpy(rand2, in, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
-	memcpy(payload, in + SOLAREDGE_ENCRYPTION_KEY_LENGTH, payload_length);
-	gcry_cipher_encrypt(cipher, rand1, SOLAREDGE_ENCRYPTION_KEY_LENGTH, rand2, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
+	if (gcry_cipher_encrypt(cipher, rand1, SOLAREDGE_ENCRYPTION_KEY_LENGTH, rand2, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+		return false;
+	}
 
 	for (posb = 0; posb < payload_length; posb++) {
 		intermediate_decrypted_payload[posb] = payload[posb] ^ rand1[posa++];
@@ -1021,13 +1025,18 @@ void solaredge_decrypt(wmem_allocator_t *scratch, const uint8_t *in, int length,
 					break;
 				}
 			}
-			gcry_cipher_encrypt(cipher, rand1, SOLAREDGE_ENCRYPTION_KEY_LENGTH, rand2, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
+			if (gcry_cipher_encrypt(cipher, rand1, SOLAREDGE_ENCRYPTION_KEY_LENGTH, rand2, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+				return false;
+			}
 		}
 	}
 
+	*out = (uint8_t *)wmem_alloc(scratch, payload_length);
+	*out_length = payload_length;
 	for (i  = 0; i < payload_length; i++) {
-		out[i] = intermediate_decrypted_payload[i + 6] ^ intermediate_decrypted_payload[2+(i&3)];
+		*out[i] = intermediate_decrypted_payload[i + 6] ^ intermediate_decrypted_payload[2+(i&3)];
 	}
+	return true;
 }
 
 static int
@@ -1288,12 +1297,14 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 			proto_tree_add_item(solaredge_header_tree, hf_solaredge_payload_type, tvb, current_offset, header.length, ENC_NA);
 			conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
 			if ((conv_data != NULL) && (conv_data->session_key_found == true)) {
-				uint8_t *decrypted_buffer = (uint8_t*)wmem_alloc(pinfo->pool, header.length);
-				solaredge_decrypt(pinfo->pool, tvb_get_ptr(tvb, current_offset, header.length), header.length, decrypted_buffer, conv_data->cipher_hd_session);
-				tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer, header.length, header.length);
-				if ( tvb_get_uint32(next_tvb, 0, ENC_LITTLE_ENDIAN) == SOLAREDGE_MAGIC_NUMBER) {
-					add_new_data_source(pinfo, next_tvb, "Decrypted Packet");
-					dissect_solaredge_recursive(next_tvb, pinfo, tree, data, ett_solaredge_packet_decrypted, conv);
+				uint8_t *decrypted_buffer;
+				int decrypted_length;
+				if (solaredge_decrypt(pinfo->pool, tvb_get_ptr(tvb, current_offset, header.length), header.length, &decrypted_buffer, &decrypted_length, conv_data->cipher_hd_session)) {
+					tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer, decrypted_length, decrypted_length);
+					if ( tvb_get_uint32(next_tvb, 0, ENC_LITTLE_ENDIAN) == SOLAREDGE_MAGIC_NUMBER) {
+						add_new_data_source(pinfo, next_tvb, "Decrypted Packet");
+						dissect_solaredge_recursive(next_tvb, pinfo, tree, data, ett_solaredge_packet_decrypted, conv);
+					}
 				}
 			}
 			current_offset += header.length;
@@ -1318,18 +1329,19 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 						tvb_memcpy(tvb, session_key_message_part2, current_offset, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
 						current_offset += SOLAREDGE_ENCRYPTION_KEY_LENGTH;
 						/* Encrypt first part with system key */
-						gcry_cipher_encrypt(cipher_hd_system, session_key_intermediate, SOLAREDGE_ENCRYPTION_KEY_LENGTH, session_key_message_part1, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
-						/* XOR result with second part to obtain session key */
-						for (i = 0; i < SOLAREDGE_ENCRYPTION_KEY_LENGTH; i++) {
-							session_key_message_part2[i] = session_key_intermediate[i] ^ session_key_message_part2[i];
-						}
-						conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
-						if (!gcry_cipher_open(&conv_data->cipher_hd_session, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
-							/* Load the session key */
-							if (!gcry_cipher_setkey(conv_data->cipher_hd_session, session_key_message_part2, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
-								conv_data->session_key_found = true;
-							} else {
-								gcry_cipher_close(conv_data->cipher_hd_session);
+						if (!gcry_cipher_encrypt(cipher_hd_system, session_key_intermediate, SOLAREDGE_ENCRYPTION_KEY_LENGTH, session_key_message_part1, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+							/* XOR result with second part to obtain session key */
+							for (i = 0; i < SOLAREDGE_ENCRYPTION_KEY_LENGTH; i++) {
+								session_key_message_part2[i] = session_key_intermediate[i] ^ session_key_message_part2[i];
+							}
+							conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
+							if (!gcry_cipher_open(&conv_data->cipher_hd_session, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
+								/* Load the session key */
+								if (!gcry_cipher_setkey(conv_data->cipher_hd_session, session_key_message_part2, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+									conv_data->session_key_found = true;
+								} else {
+									gcry_cipher_close(conv_data->cipher_hd_session);
+								}
 							}
 						}
 					}
