@@ -746,7 +746,7 @@ static bool get_fid_and_frame(packet_info *pinfo, uint32_t *fid, unsigned *frame
 
 static struct message_data *find_or_create_message_data(struct mswsp_ct *conv_data, packet_info *pinfo, uint16_t msg_id, bool is_request, void *data)
 {
-	struct message_data to_find;
+	struct message_data to_find = {0};
 	struct message_data* msg_data = NULL;
 	GSList *result = NULL;
 	int *p_smb_level = (int*)p_get_proto_data(wmem_file_scope(), pinfo, proto_mswsp, 0);
