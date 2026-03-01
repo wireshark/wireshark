@@ -1937,14 +1937,28 @@ jsonplus_dissect_dict_string_field(tvbuff_t *tvb, proto_tree *tree, packet_info 
 				// Use the pre-registered field with correct type
 				if (child_field->type == JSON_FIELD_INTEGER) {
 					int64_t int_val;
-					ws_strtoi64(child->value, NULL, &int_val);
-					proto_tree_add_int64(subtree, child_field->hf_value,
-						tvb, token->start, token_len, int_val);
+					if (ws_strtoi64(child->value, NULL, &int_val)) {
+						proto_tree_add_int64(subtree, child_field->hf_value,
+							tvb, token->start, token_len, int_val);
+					} else {
+						// Failed to parse - add as string
+						ti = proto_tree_add_uint64_format_value(subtree,
+							child_field->hf_value, tvb, token->start, token_len, 0,
+							"Cannot convert value: %s", child->value);
+						expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
+					}
 				} else if (child_field->type == JSON_FIELD_UNSIGNED) {
 					uint64_t uint_val;
-					ws_strtou64(child->value, NULL, &uint_val);
-					proto_tree_add_uint64(subtree, child_field->hf_value,
-						tvb, token->start, token_len, uint_val);
+					if (ws_strtou64(child->value, NULL, &uint_val)) {
+						proto_tree_add_int64(subtree, child_field->hf_value,
+							tvb, token->start, token_len, uint_val);
+					} else {
+						// Failed to parse - add as string
+						ti = proto_tree_add_uint64_format_value(subtree,
+							child_field->hf_value, tvb, token->start, token_len, 0,
+							"Cannot convert value: %s", child->value);
+						expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
+					}
 				} else if (child_field->type == JSON_FIELD_BOOLEAN) {
 					bool bool_val = (strcmp(child->value, "true") == 0 ||
 					                 strcmp(child->value, "1") == 0);
