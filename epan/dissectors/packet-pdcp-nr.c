@@ -2476,8 +2476,9 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (global_pdcp_check_integrity && p_pdcp_info->maci_present) {
         calculated_digest = calculate_digest(&pdu_security_settings, pinfo, security_tree,
                                              tvb_new_subset_length(tvb, 0, header_length),
-                                             payload_tvb,
-                                             offset, sdap_length, &digest_was_calculated);
+                                             payload_tvb, offset,
+                                             payload_deciphered ? 0 : sdap_length,
+                                             &digest_was_calculated);
     }
 
     if (p_pdcp_info->plane == NR_SIGNALING_PLANE) {
