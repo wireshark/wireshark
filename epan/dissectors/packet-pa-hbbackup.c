@@ -23,9 +23,6 @@
 void proto_reg_handoff_hbbak(void);
 void proto_register_hbbak(void);
 
-#define PROTO_SHORT_NAME "PA-HB-Bak"
-#define PROTO_LONG_NAME "Palo Alto Heartbeat Backup"
-
 #define HBBAK_SIZE 8
 
 static int proto_hbbak;
@@ -46,9 +43,9 @@ dissect_hbbak(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	uint16_t eth_type_outer;
 	ethertype_data_t ethertype_data;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PA-HB-Bak");
 	col_clear(pinfo->cinfo, COL_INFO);
-	col_add_fstr(pinfo->cinfo, COL_INFO, PROTO_LONG_NAME);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Palo Alto Heartbeat Backup");
 
 	hbbak_tree = NULL;
 	ti = proto_tree_add_item(tree, proto_hbbak, tvb, offset, HBBAK_SIZE, ENC_NA);
@@ -93,7 +90,7 @@ proto_register_hbbak(void)
 		&ett_hbbak,
 	};
 
-	proto_hbbak = proto_register_protocol(PROTO_LONG_NAME, PROTO_LONG_NAME, "hbbak");
+	proto_hbbak = proto_register_protocol("Palo Alto Heartbeat Backup", "PA-HB-Bak", "hbbak");
 	proto_register_field_array(proto_hbbak, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	hbbak_handle = register_dissector("hbbak", dissect_hbbak, proto_hbbak);

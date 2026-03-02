@@ -107,9 +107,6 @@ static void edhoc_secrets_clear(edhoc_secrets_store_t *obj) {
 void proto_register_edhoc(void);
 void proto_reg_handoff_edhoc(void);
 
-/// Protocol column name
-static const char *const proto_name_edhoc = "EDHOC";
-
 // Protocol preferences and defaults
 static bool edhoc_ead_try_heur = false;
 
@@ -1237,7 +1234,7 @@ static int dissect_edhoc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     edhoc_state_t *state = data;
     DISSECTOR_ASSERT(state);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_edhoc);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "EDHOC");
     col_clear(pinfo->cinfo, COL_INFO);
 
     int offset = 0;
@@ -1517,7 +1514,7 @@ UAT_BUFFER_CB_DEF(edhoc_secrets_uat, th_4, edhoc_secrets_uat_t, th_4_ptr, th_4_l
 
 /// Overall registration of the protocol
 void proto_register_edhoc(void) {
-    proto_edhoc = proto_register_protocol("Ephemeral Diffie-Hellman Over COSE", proto_name_edhoc, "edhoc");
+    proto_edhoc = proto_register_protocol("Ephemeral Diffie-Hellman Over COSE", "EDHOC", "edhoc");
 
     // Capture scope data
     register_init_routine(&edhoc_init);

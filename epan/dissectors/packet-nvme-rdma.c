@@ -75,8 +75,6 @@ http://www.iana.org/assignments/service-names-port-numbers/service-names-port-nu
 #define SID_MASK (SID_ULP_MASK | SID_PROTO_MASK)
 #define SID_ULP_TCP ((SID_ULP << 3 * 8) | (SID_PROTO_TCP << 2 * 8))
 
-#define NVME_FABRICS_RDMA "NVMe Fabrics RDMA"
-
 #define NVME_FABRIC_CMD_SIZE NVME_CMD_SIZE
 #define NVME_FABRIC_CQE_SIZE NVME_CQE_SIZE
 
@@ -365,7 +363,7 @@ dissect_nvme_ib_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!conv_data)
         return false;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, NVME_FABRICS_RDMA);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe Fabrics RDMA");
     return dissect_rdma_cm_packet(tvb, tree, info->cm_attribute_id);
 }
 
@@ -671,7 +669,7 @@ dissect_nvme_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (!q_ctx)
         return false;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, NVME_FABRICS_RDMA);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe Fabrics RDMA");
 
     ti = proto_tree_add_item(tree, proto_nvme_rdma, tvb, 0, len, ENC_NA);
     nvme_tree = proto_item_add_subtree(ti, ett_data);
@@ -801,7 +799,7 @@ proto_register_nvme_rdma(void)
     };
 
     proto_nvme_rdma = proto_register_protocol("NVM Express Fabrics RDMA",
-                                              NVME_FABRICS_RDMA, "nvme-rdma");
+                                              "NVMe Fabrics RDMA", "nvme-rdma");
 
     proto_register_field_array(proto_nvme_rdma, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

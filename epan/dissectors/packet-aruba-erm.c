@@ -96,9 +96,6 @@
 
 #include <wsutil/802_11-utils.h>
 
-#define PROTO_SHORT_NAME "ARUBA_ERM"
-#define PROTO_LONG_NAME  "Aruba Networks encapsulated remote mirroring"
-
 #define TYPE_PCAP 0
 #define TYPE_PEEK 1
 #define TYPE_AIRMAGNET 2
@@ -186,8 +183,8 @@ dissect_aruba_erm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
     proto_item *ti;
     proto_tree *aruba_erm_tree;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-    col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARUBA_ERM");
+    col_set_str(pinfo->cinfo, COL_INFO, "ARUBA_ERM");
 
 
     ti = proto_tree_add_item(tree, proto_aruba_erm, tvb, 0, 0, ENC_NA);
@@ -443,7 +440,7 @@ proto_register_aruba_erm(void)
 
     expert_module_t* expert_aruba_erm;
 
-    proto_aruba_erm = proto_register_protocol(PROTO_LONG_NAME, "ARUBA_ERM" , "aruba_erm");
+    proto_aruba_erm = proto_register_protocol("Aruba Networks encapsulated remote mirroring", "ARUBA_ERM" , "aruba_erm");
     proto_aruba_erm_type0 = proto_register_protocol_in_name_only("Aruba Networks encapsulated remote mirroring - PCAP (Type 0)", "ARUBA ERM PCAP (Type 0)", "aruba_erm_type0", proto_aruba_erm, FT_PROTOCOL);
     proto_aruba_erm_type1 = proto_register_protocol_in_name_only("Aruba Networks encapsulated remote mirroring - PEEK (Type 1)", "ARUBA ERM PEEK (type 1)", "aruba_erm_type1", proto_aruba_erm, FT_PROTOCOL);
     proto_aruba_erm_type2 = proto_register_protocol_in_name_only("Aruba Networks encapsulated remote mirroring - AIRMAGNET (Type 2)", "ARUBA ERM AIRMAGNET (Type 2)", "aruba_erm_type2", proto_aruba_erm, FT_PROTOCOL);

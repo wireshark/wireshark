@@ -76,9 +76,6 @@ static int hf_djiuav_response_in;
 static int hf_djiuav_response_to;
 static int hf_djiuav_response_time;
 
-#define PROTO_SHORT_NAME "DJIUAV"
-#define PROTO_LONG_NAME "DJI UAV Drone Control Protocol"
-
 #define PORT_DJIUAV	2001 /* Not IANA registered */
 
 static const value_string djiuav_pdu_type[] = {
@@ -173,7 +170,7 @@ dissect_djiuav_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	is_cmd = (pinfo->match_uint == pinfo->destport);
 	packet_type = tvb_get_uint8(tvb, 6);
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DJIUAV");
 	col_add_str(pinfo->cinfo, COL_INFO, is_cmd?"C: ":"R: ");
 	col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, packet_type,
 			djiuav_pdu_type, "Type 0x%02x"));
@@ -356,7 +353,7 @@ proto_register_djiuav(void)
 	};
 	module_t *djiuav_module;
 
-	proto_djiuav = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "djiuav");
+	proto_djiuav = proto_register_protocol("DJI UAV Drone Control Protocol", "DJIUAV", "djiuav");
 	proto_register_field_array(proto_djiuav, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

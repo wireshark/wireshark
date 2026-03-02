@@ -31,10 +31,6 @@
   *     http://www.some-ip.com
   */
 
-#define SOMEIP_SD_NAME                          "SOME/IP-SD"
-#define SOMEIP_SD_NAME_LONG                     "SOME/IP Service Discovery Protocol"
-#define SOMEIP_SD_NAME_FILTER                   "someipsd"
-
 #define SOMEIP_SD_MESSAGEID                     0xffff8100
 #define SOMEIP_SD_SERVICE_ID_OTHER_SERVICE      0xfffe
 
@@ -889,8 +885,8 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         NULL
     };
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, SOMEIP_SD_NAME);
-    col_set_str(pinfo->cinfo, COL_INFO, SOMEIP_SD_NAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SOME/IP-SD");
+    col_set_str(pinfo->cinfo, COL_INFO, "SOME/IP-SD");
 
     ti = proto_tree_add_item(tree, proto_someip_sd, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(ti, ett_someip_sd);
@@ -1300,13 +1296,13 @@ proto_register_someip_sd(void) {
     };
 
     /* Register Protocol, Fields, ETTs, Expert Info, Taps, Dissector */
-    proto_someip_sd = proto_register_protocol(SOMEIP_SD_NAME_LONG, SOMEIP_SD_NAME, SOMEIP_SD_NAME_FILTER);
+    proto_someip_sd = proto_register_protocol("SOME/IP Service Discovery Protocol", "SOME/IP-SD", "someipsd");
     proto_register_field_array(proto_someip_sd, hf_sd, array_length(hf_sd));
     proto_register_subtree_array(ett_sd, array_length(ett_sd));
     expert_module_someip_sd = expert_register_protocol(proto_someip_sd);
     expert_register_field_array(expert_module_someip_sd, ei_sd, array_length(ei_sd));
     tap_someip_sd_entries = register_tap("someipsd_entries");
-    someip_sd_handle = register_dissector(SOMEIP_SD_NAME_FILTER, dissect_someip_sd_pdu, proto_someip_sd);
+    someip_sd_handle = register_dissector("someipsd", dissect_someip_sd_pdu, proto_someip_sd);
 
     /* Register preferences */
     someipsd_module = prefs_register_protocol(proto_someip_sd, NULL);

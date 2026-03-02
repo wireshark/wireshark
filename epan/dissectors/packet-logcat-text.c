@@ -55,8 +55,6 @@ static GRegex *thread_regex;
 static GRegex *threadtime_regex;
 static GRegex *long_regex;
 
-static const char dissector_name[] = "Logcat Text";
-
 typedef unsigned (*tGETTER) (const char *frame, const char *token, tvbuff_t *tvb,
         proto_tree *maintree, unsigned start_offset, packet_info *pinfo);
 
@@ -117,7 +115,7 @@ static unsigned get_tag(const char *frame, const char *token, tvbuff_t *tvb,
     proto_tree_add_string(maintree, hf_logcat_text_tag, tvb, offset, tok_len,
             token);
     set_address(&pinfo->src, AT_STRINGZ, tok_len + 1, src_addr);
-    set_address(&pinfo->dst, AT_STRINGZ, sizeof(dissector_name), dissector_name);
+    set_address(&pinfo->dst, AT_STRINGZ, sizeof("Logcat Text"), "Logcat Text");
     return offset + tok_len;
 }
 
@@ -189,7 +187,7 @@ static unsigned dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info
     proto_tree *maintree = proto_item_add_subtree(mainitem, ett_logcat);
     unsigned offset = 0;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, dissector_name);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Logcat Text");
 
     if (!g_regex_match(special_regex, frame, G_REGEX_MATCH_NOTEMPTY, NULL)) {
 
@@ -361,8 +359,7 @@ void proto_register_logcat_text(void) {
 
     static int *ett[] = { &ett_logcat};
 
-    proto_logcat_text = proto_register_protocol("Android Logcat Text", dissector_name,
-            "logcat_text");
+    proto_logcat_text = proto_register_protocol("Android Logcat Text", "Logcat Text", "logcat_text");
     proto_register_field_array(proto_logcat_text, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

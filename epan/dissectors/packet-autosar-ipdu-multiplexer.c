@@ -33,7 +33,6 @@ void proto_reg_handoff_autosar_ipdu_multiplexer(void);
 
 /* this protocol */
 static int proto_ipdu_multiplexer;
-#define IPDUM_NAME "AUTOSAR I-PduM"
 
 /* dissector handles - incoming messages */
 static dissector_handle_t ipdum_handle_can;
@@ -667,8 +666,8 @@ dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, 
     ipdum_message_list_t *config = get_message_config(id);
     unsigned i;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, IPDUM_NAME);
-    col_set_str(pinfo->cinfo, COL_INFO, IPDUM_NAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AUTOSAR I-PduM");
+    col_set_str(pinfo->cinfo, COL_INFO, "AUTOSAR I-PduM");
 
     if (config == NULL || config->num_of_items == 0) {
         proto_tree_add_item(tree, hf_payload_unparsed, tvb, offset, length, ENC_NA);
@@ -859,7 +858,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
     };
 
 
-    proto_ipdu_multiplexer = proto_register_protocol("AUTOSAR I-PDU Multiplexer", IPDUM_NAME, "ipdum");
+    proto_ipdu_multiplexer = proto_register_protocol("AUTOSAR I-PDU Multiplexer", "AUTOSAR I-PduM", "ipdum");
     ipdum_module = prefs_register_protocol(proto_ipdu_multiplexer, NULL);
 
     proto_register_field_array(proto_ipdu_multiplexer, hf, array_length(hf));

@@ -42,9 +42,6 @@ void proto_reg_handoff_hp_erm(void);
 
 static dissector_handle_t hp_erm_handle;
 
-#define PROTO_SHORT_NAME "HP_ERM"
-#define PROTO_LONG_NAME  "HP encapsulated remote mirroring"
-
 static int  proto_hp_erm;
 static int ett_hp_erm;
 static int  hf_hp_erm_unknown1;
@@ -88,8 +85,8 @@ dissect_hp_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         NULL
     };
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-    col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HP_ERM");
+    col_set_str(pinfo->cinfo, COL_INFO, "HP_ERM:");
 
     ti = proto_tree_add_item(tree, proto_hp_erm, tvb, 0, -1, ENC_NA);
     hp_erm_tree = proto_item_add_subtree(ti, ett_hp_erm);
@@ -143,7 +140,7 @@ proto_register_hp_erm(void)
         &ett_hp_erm,
     };
 
-    proto_hp_erm = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "hp_erm");
+    proto_hp_erm = proto_register_protocol("HP encapsulated remote mirroring", "HP_ERM", "hp_erm");
 
     proto_register_field_array(proto_hp_erm, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

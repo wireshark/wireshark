@@ -32,12 +32,8 @@
 void proto_register_ansi_801(void);
 void proto_reg_handoff_ansi_801(void);
 
-static const char *ansi_proto_name = "ANSI IS-801 (Location Services (PLD))";
-static const char *ansi_proto_name_short = "IS-801";
-
 #define	ANSI_801_FORWARD	0
 #define	ANSI_801_REVERSE	1
-
 
 /* Initialize the subtree pointers */
 static int ett_ansi_801;
@@ -1549,7 +1545,7 @@ dissect_ansi_801(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	proto_item *ansi_801_item;
 	proto_tree *ansi_801_tree = NULL;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IS-801");
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
 	 * necessary to generate protocol tree items.
@@ -1561,8 +1557,7 @@ dissect_ansi_801(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		 */
 		ansi_801_item =
 			proto_tree_add_protocol_format(tree, proto_ansi_801, tvb, 0, -1,
-						       "%s %s Link",
-						       ansi_proto_name,
+						       "ANSI IS-801 (Location Services (PLD)) %s Link",
 						       (pinfo->match_uint == ANSI_801_FORWARD) ? "Forward" : "Reverse");
 
 		ansi_801_tree =
@@ -2285,7 +2280,7 @@ proto_register_ansi_801(void)
 
 	/* Register the protocol name and description */
 	proto_ansi_801 =
-		proto_register_protocol(ansi_proto_name, "ANSI IS-801 (Location Services (PLD))", "ansi_801");
+		proto_register_protocol("ANSI IS-801 (Location Services (PLD))", "ANSI IS-801 (Location Services (PLD))", "ansi_801");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_ansi_801, hf, array_length(hf));

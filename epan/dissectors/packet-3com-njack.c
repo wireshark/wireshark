@@ -84,9 +84,6 @@ static int hf_njack_setresult;
 /* type 0c: get response */
 static int hf_njack_getresp_unknown1;
 
-#define PROTO_SHORT_NAME "NJACK"
-#define PROTO_LONG_NAME "3com Network Jack"
-
 #define NJACK_PORT_RANGE	"5264-5265"
 #define PORT_NJACK_PC	5264
 #define PORT_NJACK_SWITCH	5265
@@ -568,7 +565,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	int         remaining;
 
 	packet_type = tvb_get_uint8(tvb, 5);
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NJACK");
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, packet_type, njack_type_vals, "Type 0x%02x"));
 
 	ti = proto_tree_add_item(tree, proto_njack, tvb, offset, -1,
@@ -770,7 +767,7 @@ proto_register_njack(void)
 		&ett_njack_tlv_header,
 	};
 
-	proto_njack = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "njack");
+	proto_njack = proto_register_protocol("3com Network Jack", "NJACK", "njack");
 	proto_register_field_array(proto_njack, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

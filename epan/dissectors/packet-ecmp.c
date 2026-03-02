@@ -25,7 +25,6 @@
 #include <epan/unit_strings.h>
 #include "packet-mbtcp.h"
 
-#define PROTO_TAG_ECMP	"ECMP"
 #define ECMP_TCP_PORT   6160
 
 void proto_reg_handoff_ecmp(void);
@@ -2747,7 +2746,7 @@ static int dissect_ecmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* this code block processes ECMP TCP messages (most of them)  */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ECMP);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECMP");
 	col_clear(pinfo->cinfo,COL_INFO);
 
 
@@ -3008,7 +3007,7 @@ static int dissect_ecmp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* display the "ECMP" protocol indication in the PROTOCOL field  */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ECMP);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECMP");
 
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo,COL_INFO);
@@ -3455,7 +3454,7 @@ void proto_register_ecmp (void)
 
 	expert_module_t* expert_ecmp;
 
-	proto_ecmp = proto_register_protocol ("ECMP", PROTO_TAG_ECMP, "ecmp");
+	proto_ecmp = proto_register_protocol ("ECMP", "ECMP", "ecmp");
 	ecmp_tcp_handle = register_dissector("ecmp_tcp", dissect_ecmp_tcp, proto_ecmp);
 	ecmp_udp_handle = register_dissector("ecmp_udp", dissect_ecmp_udp, proto_ecmp);
 

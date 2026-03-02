@@ -87,9 +87,6 @@ static int hf_erspan_pid_rsvd;
 
 static expert_field ei_erspan_version_unknown;
 
-#define PROTO_SHORT_NAME "ERSPAN"
-#define PROTO_LONG_NAME "Encapsulated Remote Switch Packet ANalysis"
-
 static const true_false_string tfs_direction = { "Egress", "Ingress" };
 
 #define ERSPAN_ENCAP_00 0
@@ -163,8 +160,8 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	    ENC_NA);
 	erspan_tree = proto_item_add_subtree(ti, ett_erspan);
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ERSPAN");
+	col_set_str(pinfo->cinfo, COL_INFO, "ERSPAN:");
 
 	/*
 	 * Dissect the version field, which is present in all versions
@@ -412,8 +409,8 @@ dissect_erspan_88BE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		    ENC_NA);
 		proto_item_append_text(ti, " Type I");
 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-		col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ERSPAN");
+		col_set_str(pinfo->cinfo, COL_INFO, "ERSPAN:");
 
 		call_dissector(ethnofcs_handle, tvb, pinfo, tree);
 		return tvb_captured_length(tvb);
@@ -593,7 +590,7 @@ proto_register_erspan(void)
 		{ &ei_erspan_version_unknown, { "erspan.version.unknown", PI_UNDECODED, PI_WARN, "Unknown version, please report or test to use fake ERSPAN preference", EXPFILL }},
 	};
 
-	proto_erspan = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "erspan");
+	proto_erspan = proto_register_protocol("Encapsulated Remote Switch Packet ANalysis", "ERSPAN", "erspan");
 	proto_register_field_array(proto_erspan, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_erspan = expert_register_protocol(proto_erspan);

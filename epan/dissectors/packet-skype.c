@@ -84,10 +84,6 @@ static int hf_skype_unknown_f_unk1;
 /* Unknown packet type */
 static int hf_skype_unknown_packet;
 
-
-#define PROTO_SHORT_NAME "SKYPE"
-#define PROTO_LONG_NAME "SKYPE"
-
 typedef enum {
 	SKYPE_TYPE_UNKNOWN_0 = 0,
 	SKYPE_TYPE_PAYLOAD = 2,
@@ -126,7 +122,7 @@ dissect_skype_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	packet_length = tvb_captured_length(tvb);
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SKYPE");
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, packet_type,
 		skype_type_vals, "Type 0x%1x"));
 
@@ -181,7 +177,7 @@ dissect_skype_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	packet_length = tvb_captured_length(tvb);
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SKYPE");
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, packet_type,
 		skype_type_vals, "Type 0x%1x"));
 	if (packet_unk) {
@@ -425,7 +421,7 @@ proto_register_skype(void)
 		&ett_skype,
 	};
 
-	proto_skype = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "skype");
+	proto_skype = proto_register_protocol("SKYPE", "SKYPE", "skype");
 	proto_register_field_array(proto_skype, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

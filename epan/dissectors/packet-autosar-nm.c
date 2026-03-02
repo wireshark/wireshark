@@ -29,8 +29,6 @@
 void proto_reg_handoff_autosar_nm(void);
 void proto_register_autosar_nm(void);
 
-#define AUTOSAR_NM_NAME "AUTOSAR NM"
-
 typedef struct _user_data_field_t {
   char*  udf_name;
   char*  udf_desc;
@@ -481,7 +479,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     NULL
   };
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, AUTOSAR_NM_NAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AUTOSAR NM");
   col_clear(pinfo->cinfo, COL_INFO);
 
   msg_length = tvb_reported_length(tvb);
@@ -661,7 +659,7 @@ void proto_register_autosar_nm(void)
   };
 
   /* Register the protocol name and description */
-  proto_autosar_nm = proto_register_protocol("AUTOSAR Network Management", AUTOSAR_NM_NAME, "autosar-nm");
+  proto_autosar_nm = proto_register_protocol("AUTOSAR Network Management", "AUTOSAR NM", "autosar-nm");
   proto_register_field_array(proto_autosar_nm, hf_autosar_nm, array_length(hf_autosar_nm));
   proto_register_alias(proto_autosar_nm, "nm");
   proto_register_subtree_array(ett, array_length(ett));

@@ -35,9 +35,6 @@
 void proto_register_stcsig(void);
 void proto_reg_handoff_stcsig(void);
 
-#define PROTO_SHORT_NAME "STCSIG"
-#define PROTO_LONG_NAME "Spirent Test Center Signature"
-
 static int proto_stcsig;
 
 static int hf_stcsig_csp;
@@ -219,14 +216,14 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 #if 0
 	/* Maybe make this a preference */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	col_set_str(pinfo->cinfo, COL_INFO, PROTO_LONG_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "STCSIG");
+	col_set_str(pinfo->cinfo, COL_INFO, "Spirent Test Center Signature");
 #endif
 
 	real_stcsig = (uint8_t *)tvb_memdup(pinfo->pool, tvb, sig_offset, 20);
 	decode_signature(real_stcsig);
 	stcsig_tvb = tvb_new_child_real_data(tvb, real_stcsig, 20, 20);
-	add_new_data_source(pinfo, stcsig_tvb, PROTO_LONG_NAME);
+	add_new_data_source(pinfo, stcsig_tvb, "Spirent Test Center Signature");
 
 	ti = proto_tree_add_item(tree, proto_stcsig, tvb, sig_offset, 20, ENC_NA);
 	stcsig_tree = proto_item_add_subtree(ti, ett_stcsig);
@@ -339,7 +336,7 @@ proto_register_stcsig(void)
 
 	dissector_handle_t stcsig_handle;
 
-	proto_stcsig = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "stcsig");
+	proto_stcsig = proto_register_protocol("Spirent Test Center Signature", "STCSIG", "stcsig");
 
 	proto_register_field_array(proto_stcsig, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

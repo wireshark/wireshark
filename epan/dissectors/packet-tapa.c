@@ -76,9 +76,6 @@ static expert_field ei_tapa_length_too_short;
 
 static dissector_handle_t tapa_handle;
 
-#define PROTO_SHORT_NAME "TAPA"
-#define PROTO_LONG_NAME "Trapeze Access Point Access Protocol"
-
 #define PORT_TAPA	5000 /* Not IANA registered */
 
 typedef enum {
@@ -283,7 +280,7 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	packet_type = tvb_get_uint8(tvb, 0);
 	remaining = tvb_get_ntohs(tvb, 2) - 4;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TAPA");
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Discover - %s",
 			val_to_str(pinfo->pool, packet_type, tapa_discover_type_vals, "Unknown (%d)"));
 
@@ -346,7 +343,7 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	type = tvb_get_uint8(tvb, 1);
 	remaining = tvb_reported_length(tvb);
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TAPA");
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Tunnel - V=%d, T=%s", version >> 4,
 			val_to_str(pinfo->pool, type, tapa_tunnel_type_vals, "Unknown (%d)"));
 
@@ -618,7 +615,7 @@ proto_register_tapa(void)
 	            "Length is too short (<= 4)", EXPFILL }}
 	};
 
-	proto_tapa = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "tapa");
+	proto_tapa = proto_register_protocol("Trapeze Access Point Access Protocol", "TAPA", "tapa");
 	proto_register_field_array(proto_tapa, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_tapa = expert_register_protocol(proto_tapa);

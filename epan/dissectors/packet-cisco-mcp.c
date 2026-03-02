@@ -68,9 +68,6 @@ static expert_field ei_mcp_unexpected_tlv_length;
 static int ett_mcp;
 static int ett_mcp_tlv_header;
 
-#define PROTO_SHORT_NAME "MCP"
-#define PROTO_LONG_NAME "Miscabling Protocol"
-
 // non-strict mode
 typedef enum { // Total length of MCPDU = 62
 	MCP_TYPE_FABRIC_ID = 1,		// Len=4,
@@ -134,7 +131,7 @@ dissect_mcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	uint32_t fabricid, nodeid, vpcdomain, vpcid, portid, sendtime, strictmode;
 	char *sendtime_str, *vpcvtep_str;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MCP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	ti = proto_tree_add_item(tree, proto_mcp, tvb, offset, -1,
@@ -358,7 +355,7 @@ proto_register_mcp(void)
 
 	expert_module_t* expert_mcp;
 
-	proto_mcp = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mcp");
+	proto_mcp = proto_register_protocol("Miscabling Protocol", "MCP", "mcp");
 	proto_register_field_array(proto_mcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_mcp = expert_register_protocol(proto_mcp);

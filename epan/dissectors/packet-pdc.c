@@ -17,9 +17,6 @@
 void proto_register_pdc(void);
 void proto_reg_handoff_pdc(void);
 
-/*PDC Protocol*/
-#define PDC_PROCOTOL "PDC"
-
 /* PDC version */
 #define PDC_VERSION 2
 
@@ -369,7 +366,7 @@ static int dissect_pdc_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 static int dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	/*Set the Column*/
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PDC_PROCOTOL );
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDC");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	dissect_pdc_packet(tvb, tree, pinfo);

@@ -54,9 +54,6 @@ static int hf_mndp_ipv6address;
 static int hf_mndp_interfacename;
 static int hf_mndp_ipv4address;
 
-#define PROTO_SHORT_NAME "MNDP"
-#define PROTO_LONG_NAME "Mikrotik Neighbor Discovery Protocol"
-
 #define PORT_MNDP	5678 /* Not IANA registered */
 
 /* ============= copy/paste/modify from value_string.[hc] ============== */
@@ -207,7 +204,7 @@ dissect_mndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	uint32_t    offset = 0;
 	uint32_t    packet_length;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MNDP");
 
 	packet_length = tvb_reported_length(tvb);
 
@@ -371,7 +368,7 @@ proto_register_mndp(void)
 		&ett_mndp_tlv_header,
 	};
 
-	proto_mndp = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mndp");
+	proto_mndp = proto_register_protocol("Mikrotik Neighbor Discovery Protocol", "MNDP", "mndp");
 	proto_register_field_array(proto_mndp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

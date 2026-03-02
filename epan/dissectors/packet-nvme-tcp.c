@@ -51,7 +51,6 @@ static dissector_handle_t nvmet_tls_handle;
 
 #define NVME_TCP_PORT_RANGE    "4420,8009" /* IANA registered */
 
-#define NVME_FABRICS_TCP "NVMe/TCP"
 #define NVME_TCP_HEADER_SIZE 8
 #define PDU_LEN_OFFSET_FROM_HEADER 4
 static range_t *gPORT_RANGE;
@@ -793,7 +792,7 @@ dissect_nvme_tcp_pdu(tvbuff_t *tvb,
             pdo);
     proto_tree_add_item_ret_uint(nvme_tcp_tree, hf_nvme_tcp_plen, tvb, offset + 4, 4,
             ENC_LITTLE_ENDIAN, &plen);
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, NVME_FABRICS_TCP);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe/TCP");
 
     if (pdu_flags & NVME_TCP_F_HDGST) {
         unsigned hdgst_flags = PROTO_CHECKSUM_NO_FLAGS;
@@ -896,7 +895,7 @@ dissect_nvme_tcp(tvbuff_t *tvb,
                  void *data)
 {
     col_clear(pinfo->cinfo, COL_INFO);
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, NVME_FABRICS_TCP);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe/TCP");
     tcp_dissect_pdus(tvb, pinfo, tree, true, NVME_TCP_HEADER_SIZE,
             get_nvme_tcp_pdu_len, dissect_nvme_tcp_pdu, data);
 
@@ -1147,7 +1146,7 @@ void proto_register_nvme_tcp(void) {
     };
 
     proto_nvme_tcp = proto_register_protocol("NVM Express Fabrics TCP",
-            NVME_FABRICS_TCP, "nvme-tcp");
+            "NVMe/TCP", "nvme-tcp");
 
     proto_register_field_array(proto_nvme_tcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -40,10 +40,6 @@
 #include "packet-tcp.h"
 #include "packet-socketcan.h"
 
-#define XCP_NAME                            "XCP"
-#define XCP_FILTER_NAME                     "xcp"
-#define XCP_LONG_NAME                       "Universal Measurement and Calibration Protocol (XCP)"
-
 #define DATAFILE_XCP_MEMORY_ADDRESSES       "XCP_Addresses"
 #define DATAFILE_XCP_ETH_MAPPING            "XCP_Mapping_UDP_TCP"
 #define DATAFILE_XCP_CAN_MAPPING            "XCP_Mapping_CAN"
@@ -3603,7 +3599,7 @@ dissect_xcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, xcp_stream_t *s
     xcp_message_t *message_info;
 
     col_clear(pinfo->cinfo, COL_INFO);
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, XCP_NAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "XCP");
 
     message_info = (xcp_message_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_xcp, 0);
     if (!message_info) {
@@ -4155,7 +4151,7 @@ proto_register_xcp(void) {
         { &ei_xcp_not_implemented,{ "xcp.not_implemented", PI_UNDECODED, PI_WARN, "Not implemented yet. Please consider creating a ticket and attaching an example trace.", EXPFILL } },
     };
 
-    proto_xcp = proto_register_protocol(XCP_LONG_NAME, XCP_NAME, XCP_FILTER_NAME);
+    proto_xcp = proto_register_protocol("Universal Measurement and Calibration Protocol (XCP)", "XCP", "xcp");
 
     xcp_handle_udp = register_dissector("xcp_udp", dissect_xcp_udp, proto_xcp);
     xcp_handle_tcp = register_dissector("xcp_tcp", dissect_xcp_tcp, proto_xcp);

@@ -44,9 +44,6 @@
  * SOME/IP, and others.
  */
 
-#define SPDU_NAME                                           "Signal PDU"
-#define SPDU_NAME_LONG                                      "Signal PDU"
-#define SPDU_NAME_FILTER                                    "signal_pdu"
 #define SPDU_NAME_SIGNAL_PREFIX                             "signal_pdu.signals"
 
 
@@ -2413,7 +2410,7 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, u
         proto_item_append_text(pdu_item, ": %s", name);
         if (update_column) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (PDU: %s)", name);
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, SPDU_NAME);
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Signal PDU");
         }
         proto_item* ti = proto_tree_add_string(tree, hf_pdu_name, tvb, offset, -1, name);
         proto_item_set_generated(ti);
@@ -2793,7 +2790,7 @@ proto_register_signal_pdu(void) {
     };
 
     /* Register ETTs */
-    proto_signal_pdu = proto_register_protocol(SPDU_NAME_LONG, SPDU_NAME, SPDU_NAME_FILTER);
+    proto_signal_pdu = proto_register_protocol("Signal PDU", "Signal PDU", "signal_pdu");
     proto_register_field_array(proto_signal_pdu, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_module_lpdu = expert_register_protocol(proto_signal_pdu);

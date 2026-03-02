@@ -30,10 +30,6 @@
 #include "packet-udp.h"
 #include "packet-someip.h"
 
-#define VSOMEIP_NAME                            "vSomeIP"
-#define VSOMEIP_NAME_LONG                       "vSomeIP"
-#define VSOMEIP_NAME_FILTER                     "vsomeip"
-
 #define VSOMEIP_MESSAGE_SIZE_WITH_OFFSET         13
 #define VSOMEIP_SIZE_OFFSET                      9
 #define VSOMEIP_MESSAGE_MIN_SIZE                 17
@@ -406,7 +402,7 @@ dissect_vsomeip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_root
 
     int             offset = 0;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, VSOMEIP_NAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "vSomeIP");
     ti_root = proto_tree_add_item(tree_root, proto_vsomeip, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(ti_root, ett_vsomeip);
 
@@ -980,7 +976,7 @@ proto_register_vsomeip(void) {
     };
 
     /* Register Protocol, Handles, Fields, ETTs, Expert Info */
-    proto_vsomeip = proto_register_protocol(VSOMEIP_NAME_LONG, VSOMEIP_NAME, VSOMEIP_NAME_FILTER);
+    proto_vsomeip = proto_register_protocol("vSomeIP", "vSomeIP", "vsomeip");
     vsomeip_handle_udp = register_dissector("vsomeip_udp", dissect_vsomeip_udp, proto_vsomeip);
     vsomeip_handle_tcp = register_dissector("vsomeip_tcp", dissect_vsomeip_tcp, proto_vsomeip);
     register_dissector("vsomeip", dissect_vsomeip_message, proto_vsomeip);

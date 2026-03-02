@@ -54,10 +54,6 @@ static dissector_handle_t pw_padding_handle;
 static dissector_handle_t pw_cesopsn_udp_handle;
 static dissector_handle_t pw_cesopsn_mpls_handle;
 
-
-const char pwc_longname_pw_cesopsn[] = "CESoPSN basic NxDS0 mode (no RTP support)";
-static const char shortname[] = "CESoPSN basic (no RTP)";
-
 static const value_string vals_cw_lm[] = {
 	/* note that bitmask in hs_register_info is 0xb == 1011B */
 	/* this is why 0x8 comes just after 0x3 */
@@ -99,7 +95,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 		expert_add_info_format(pinfo, item, &ei_packet_size_too_small,
 				       "PW packet size (%d) is too small to carry sensible information"
 				       ,(int)packet_size);
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CESoPSN basic (no RTP)");
 		col_set_str(pinfo->cinfo, COL_INFO, "Malformed: PW packet is too small");
 		return;
 	}
@@ -217,7 +213,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 	}
 
 	/* fill up columns*/
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CESoPSN basic (no RTP)");
 	col_clear(pinfo->cinfo, COL_INFO);
 	if (properties & PWC_ANYOF_CW_BAD)
 	{
@@ -428,7 +424,7 @@ void proto_register_pw_cesopsn(void)
 	};
 	expert_module_t* expert_pwcesopsn;
 
-	proto = proto_register_protocol(pwc_longname_pw_cesopsn, shortname, "pwcesopsn");
+	proto = proto_register_protocol("CESoPSN basic NxDS0 mode (no RTP support)", "CESoPSN basic (no RTP)", "pwcesopsn");
 	proto_register_field_array(proto, hf, array_length(hf));
 	proto_register_subtree_array(ett_array, array_length(ett_array));
 	expert_pwcesopsn = expert_register_protocol(proto);

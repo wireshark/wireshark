@@ -28,10 +28,6 @@
   * see ISO 17987 or search for "LIN Specification 2.2a" online.
   */
 
-#define LIN_NAME                             "LIN"
-#define LIN_NAME_LONG                        "LIN Protocol"
-#define LIN_NAME_FILTER                      "lin"
-
 static heur_dissector_list_t                 heur_subdissector_list;
 static heur_dtbl_entry_t                    *heur_dtbl_entry;
 
@@ -408,7 +404,7 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     lin_info_t lininfo;
     uint64_t errors;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, LIN_NAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LIN");
     col_clear(pinfo->cinfo, COL_INFO);
 
     lininfo.bus_id = (uint16_t)get_bus_id(pinfo);
@@ -547,17 +543,17 @@ proto_register_lin(void) {
         &ett_errors,
     };
 
-    proto_lin = proto_register_protocol(LIN_NAME_LONG, LIN_NAME, LIN_NAME_FILTER);
+    proto_lin = proto_register_protocol("LIN Protocol", "LIN", "lin");
     lin_module = prefs_register_protocol(proto_lin, NULL);
 
     proto_register_field_array(proto_lin, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    lin_handle = register_dissector(LIN_NAME_FILTER, dissect_lin, proto_lin);
+    lin_handle = register_dissector("lin", dissect_lin, proto_lin);
 
     /* the lin.frame_id subdissector table carries the bus id in the higher 16 bits */
     subdissector_table = register_dissector_table("lin.frame_id", "LIN Frame ID", proto_lin, FT_UINT8, BASE_HEX);
-    heur_subdissector_list = register_heur_dissector_list_with_description(LIN_NAME_FILTER, "LIN Message data fallback", proto_lin);
+    heur_subdissector_list = register_heur_dissector_list_with_description("lin", "LIN Message data fallback", proto_lin);
 
     static uat_field_t lin_interface_mapping_uat_fields[] = {
         UAT_FLD_HEX(interface_configs,      interface_id,   "Interface ID",   "ID of the Interface with 0xffffffff = any (hex uint32 without leading 0x)"),

@@ -20,7 +20,6 @@
 #include <epan/in_cksum.h>
 #include <epan/unit_strings.h>
 
-#define CATTP_SHORTNAME "CAT-TP"
 #define CATTP_HBLEN 18
 
 #define F_SYN 0x80
@@ -220,7 +219,7 @@ dissect_cattp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     uint8_t     flags, first_byte, hlen, ver;
     uint16_t    plen, ackno, seqno, wsize, sport, dport;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, CATTP_SHORTNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAT-TP");
 
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -547,7 +546,7 @@ proto_register_cattp(void)
     module_t *cattp_module;
     expert_module_t* expert_cattp;
 
-    proto_cattp = proto_register_protocol ("ETSI Card Application Toolkit Transport Protocol", CATTP_SHORTNAME, "cattp");
+    proto_cattp = proto_register_protocol ("ETSI Card Application Toolkit Transport Protocol", "CAT-TP", "cattp");
 
     proto_register_field_array(proto_cattp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

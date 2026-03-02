@@ -84,9 +84,6 @@ static expert_field ei_exeh_outgoing_framesource;
 
 static int ett_exeh;
 
-#define PROTO_SHORT_NAME "EXEH"
-#define PROTO_LONG_NAME "EXtreme extra Eth Header"
-
 static const value_string exeh_direction_vals[] = {
 	{0x07, "Incoming"},
 	{0xff, "Outgoing"},
@@ -125,8 +122,8 @@ dissect_exeh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	int32_t databytes;
 	tvbuff_t *frame_tvb;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EXEH");
+	col_set_str(pinfo->cinfo, COL_INFO, "EXEH:");
 
 	ti = proto_tree_add_item(tree, proto_exeh, tvb, offset, -1,
 				 ENC_NA);
@@ -287,7 +284,7 @@ proto_register_exeh(void)
 
 	expert_module_t* expert_exeh;
 
-	proto_exeh = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "exeh");
+	proto_exeh = proto_register_protocol("EXtreme extra Eth Header", "EXEH", "exeh");
 	proto_register_field_array(proto_exeh, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_exeh = expert_register_protocol(proto_exeh);

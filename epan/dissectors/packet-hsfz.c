@@ -23,11 +23,6 @@
 
 #define HSFZ_HDR_LEN        6
 
-#define HSFZ_NAME           "HSFZ"
-#define HSFZ_NAME_LONG      "High Speed Fahrzeugzugang"
-#define HSFZ_NAME_FILTER    "hsfz"
-
-
 dissector_handle_t hsfz_handle_tcp;
 dissector_handle_t hsfz_handle_udp;
 dissector_handle_t uds_handle;
@@ -207,7 +202,7 @@ dissect_hsfz_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     if (tvb_captured_length_remaining(tvb, 0) < HSFZ_HDR_LEN) {
         return 0;
     }
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, HSFZ_NAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSFZ");
 
     uint32_t hsfz_length = tvb_get_ntohl(tvb, 0);
     uint16_t hsfz_ctrlword = tvb_get_ntohs(tvb, 4);
@@ -215,9 +210,9 @@ dissect_hsfz_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     const char *col_string = col_get_text(pinfo->cinfo, COL_INFO);
     if (col_string!=NULL && g_str_has_prefix(col_string, (char *)&"HSFZ\0")) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " / %s %s", HSFZ_NAME, ctrlword_description);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " / HSFZ %s", ctrlword_description);
     } else {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", HSFZ_NAME, ctrlword_description);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "HSFZ %s", ctrlword_description);
     }
 
     if (hsfz_ctrlword == HSFZ_CTRLWORD_DIAGNOSTIC_REQ_RES || (hsfz_ctrlword == HSFZ_CTRLWORD_ACKNOWLEDGE_TRANSFER && hsfz_show_uds_in_ack)) {
@@ -367,7 +362,7 @@ void proto_register_hsfz(void) {
         UAT_END_FIELDS
     };
 
-    proto_hsfz = proto_register_protocol(HSFZ_NAME_LONG, HSFZ_NAME, HSFZ_NAME_FILTER);
+    proto_hsfz = proto_register_protocol("High Speed Fahrzeugzugang", "HSFZ", "hsfz");
     proto_register_field_array(proto_hsfz, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

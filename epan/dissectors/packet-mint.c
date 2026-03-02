@@ -36,9 +36,6 @@
 void proto_register_mint(void);
 void proto_reg_handoff_mint(void);
 
-#define PROTO_SHORT_NAME "MINT"
-#define PROTO_LONG_NAME "Media Independent Network Transport"
-
 /* 0x8783 ETHERTYPE_MINT */
 /* Destmac: 01-a0-f8-00-00-00: Hello packets in multicast mode */
 /* Mint overhead: 86 bytes */
@@ -327,7 +324,7 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	mint_port = tvb_get_ntohs(tvb, offset + 12);
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MINT");
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, mint_port,
 		mint_port_vals, "Type %03d"));
 
@@ -879,7 +876,7 @@ proto_register_mint(void)
 		&ett_mint_data,
 	};
 
-	proto_mint = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mint");
+	proto_mint = proto_register_protocol("Media Independent Network Transport", "MINT", "mint");
 	/* Created to remove Decode As confusion */
 	int proto_mint_data = proto_register_protocol_in_name_only("Media Independent Network Transport Data", "MINT (Data)", "mint_data", proto_mint, FT_PROTOCOL);
 

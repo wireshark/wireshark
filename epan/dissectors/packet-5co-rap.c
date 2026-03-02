@@ -47,8 +47,6 @@ void proto_register_FiveCoRAP(void);
 #define MAX_LENGTH_BYTES 4 // Max number of bytes for data length
 #define MAX_SUB_DEVICES 10
 
-#define PROTO_TAG_FIVECO "5co-rap"
-
 /* Global sample ports preferences */
 #define FIVECO_TCP_PORT1 8030     /* TCP port of the FiveCo protocol (N.B. unassigned by IANA) */
 #define FIVECO_UDP_PORT1 7030     /* UDP port of the FiveCo protocol (N.B. assigned to "op-probe" by IANA) */
@@ -665,7 +663,7 @@ dissect_FiveCoRAP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return 0;
 
     /* Display fiveco in protocol column */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_FIVECO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "5co-rap");
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -842,7 +840,7 @@ void proto_register_FiveCoRAP(void)
     /* Register the dissector */
     /* Register the protocol name and description */
     proto_FiveCoRAP = proto_register_protocol("FiveCo RAP Register Access Protocol",
-                                                 PROTO_TAG_FIVECO, "5co_rap");
+                                                 "5co-rap", "5co_rap");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_FiveCoRAP, hf, array_length(hf));

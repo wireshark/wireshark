@@ -47,9 +47,6 @@
  * break the dissection of your messages.
  */
 
-#define SOMEIP_NAME                             "SOME/IP"
-#define SOMEIP_NAME_LONG                        "SOME/IP Protocol"
-#define SOMEIP_NAME_FILTER                      "someip"
 #define SOMEIP_NAME_PREFIX                      "someip.payload.data"
 
 #define SOMEIP_NAME_LONG_MULTIPLE               "SOME/IP Protocol (Multiple Payloads)"
@@ -4035,8 +4032,8 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     int             tvb_length = tvb_captured_length_remaining(tvb, offset);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, SOMEIP_NAME);
-    col_set_str(pinfo->cinfo, COL_INFO, SOMEIP_NAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SOME/IP");
+    col_set_str(pinfo->cinfo, COL_INFO, "SOME/IP");
     ti_someip = proto_tree_add_item(tree, proto_someip, tvb, offset, -1, ENC_NA);
     someip_tree = proto_item_add_subtree(ti_someip, ett_someip);
 
@@ -4716,7 +4713,7 @@ proto_register_someip(void) {
     };
 
     /* Register Protocol, Handles, Fields, ETTs, Expert Info, Dissector Table, Taps */
-    proto_someip = proto_register_protocol(SOMEIP_NAME_LONG, SOMEIP_NAME, SOMEIP_NAME_FILTER);
+    proto_someip = proto_register_protocol("SOME/IP Protocol", "SOME/IP", "someip");
     someip_handle_udp = register_dissector("someip_udp", dissect_someip_udp, proto_someip);
     someip_handle_tcp = register_dissector("someip_tcp", dissect_someip_tcp, proto_someip);
     register_dissector("someip", dissect_someip_message, proto_someip);

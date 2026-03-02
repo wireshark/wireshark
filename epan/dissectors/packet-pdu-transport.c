@@ -57,7 +57,6 @@ static dissector_handle_t pdu_transport_handle_tcp;
 
 static dissector_table_t subdissector_table;
 
-#define PDU_TRANSPORT_NAME "PDU Transport"
 #define PDU_TRANSPORT_HDR_LEN 8
 
 /* header field */
@@ -310,7 +309,7 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     }
 
     col_set_str(pinfo->cinfo, COL_INFO, "PDU");
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PDU_TRANSPORT_NAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDU Transport");
     proto_item *ti_top = proto_tree_add_item(tree, proto_pdu_transport, tvb, 0, -1, ENC_NA);
     proto_tree *pdu_transport_tree = proto_item_add_subtree(ti_top, ett_pdu_transport);
 
@@ -455,7 +454,7 @@ proto_register_pdu_transport(void) {
                                             NULL, NULL, decode_as_default_populate_list,
                                             decode_as_default_reset, decode_as_default_change, NULL, NULL, NULL };
 
-    proto_pdu_transport = proto_register_protocol("PDU Transport Protocol", PDU_TRANSPORT_NAME, "pdu_transport");
+    proto_pdu_transport = proto_register_protocol("PDU Transport Protocol", "PDU Transport", "pdu_transport");
 
     proto_register_field_array(proto_pdu_transport, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

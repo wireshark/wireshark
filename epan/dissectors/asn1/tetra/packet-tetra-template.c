@@ -27,8 +27,6 @@
 #include "packet-per.h"
 #include "packet-tetra.h"
 
-#define PROTO_TAG_tetra	"TETRA"
-
 void proto_register_tetra(void);
 void proto_reg_handoff_tetra(void);
 
@@ -424,7 +422,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	uint16_t type = 0;
 	uint8_t carriernumber = -1;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_tetra);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TETRA");
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo,COL_INFO);
 
