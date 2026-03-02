@@ -299,6 +299,101 @@ flexray_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     return true;
 }
 
+void
+dissect_flexray_frame(tvbuff_t* tvb, tvbuff_t* start_tvb, packet_info* pinfo, proto_tree* tree,
+    proto_tree* flexray_tree, bool call_subdissector, bool flexray_channel_is_b) {
+    proto_item* ti;
+    proto_tree* flexray_frame_tree;
+    uint16_t flexray_id;
+    uint8_t flexray_pl, flexray_cc;
+    bool payload_truncated = false;
+
+    /* FlexRay Frame [5 Bytes + Payload]*/
+    proto_item* ti_header = proto_tree_add_item(flexray_tree, hf_flexray_frame_header, tvb, 0, -1, ENC_NA);
+    flexray_frame_tree = proto_item_add_subtree(ti_header, ett_flexray_frame);
+
+    bool nfi, sfi, stfi;
+    proto_tree_add_item(flexray_frame_tree, hf_flexray_res, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(flexray_frame_tree, hf_flexray_ppi, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item_ret_boolean(flexray_frame_tree, hf_flexray_nfi, tvb, 0, 1, ENC_NA, &nfi);
+    proto_tree_add_item_ret_boolean(flexray_frame_tree, hf_flexray_sfi, tvb, 0, 1, ENC_NA, &sfi);
+    proto_tree_add_item_ret_boolean(flexray_frame_tree, hf_flexray_stfi, tvb, 0, 1, ENC_NA, &stfi);
+
+    if (stfi && !sfi) {
+        expert_add_info(pinfo, flexray_frame_tree, &ei_flexray_stfi_flag);
+        call_subdissector = false;
+    }
+
+    proto_tree_add_item_ret_uint16(flexray_frame_tree, hf_flexray_fid, tvb, 0, 2, ENC_BIG_ENDIAN, &flexray_id);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " ID %4d", flexray_id);
+
+    if (flexray_id == 0) {
+        call_subdissector = false;
+    }
+
+    proto_tree_add_item_ret_uint8(flexray_frame_tree, hf_flexray_pl, tvb, 2, 1, ENC_BIG_ENDIAN, &flexray_pl);
+    int flexray_real_payload_length = 2 * flexray_pl;
+    int flexray_current_payload_length = tvb_captured_length(tvb) - FLEXRAY_HEADER_LENGTH;
+    if (flexray_real_payload_length > flexray_current_payload_length) {
+        payload_truncated = true;
+        flexray_real_payload_length = MAX(0, flexray_current_payload_length);
+    }
+
+    proto_tree_add_item(flexray_frame_tree, hf_flexray_hcrc, tvb, 2, 3, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item_ret_uint8(flexray_frame_tree, hf_flexray_cc, tvb, 4, 1, ENC_BIG_ENDIAN, &flexray_cc);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " CC %2d", flexray_cc);
+
+    if (nfi) {
+        if (payload_truncated) {
+            expert_add_info(pinfo, flexray_frame_tree, &ei_flexray_frame_payload_truncated);
+            call_subdissector = false;
+        }
+
+        if (tvb != NULL && flexray_real_payload_length > 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, 5, flexray_real_payload_length, ' '));
+        }
+
+    }
+    else {
+        call_subdissector = false;
+        col_append_str(pinfo->cinfo, COL_INFO, "   NF");
+
+        /* Payload is optional on Null Frames */
+        if (payload_truncated && flexray_real_payload_length != 0) {
+            expert_add_info(pinfo, flexray_frame_tree, &ei_flexray_frame_payload_truncated);
+        }
+    }
+
+    proto_item_set_end(ti_header, tvb, FLEXRAY_HEADER_LENGTH);
+
+    if (flexray_current_payload_length > flexray_real_payload_length) {
+        int trailer_len = flexray_current_payload_length - flexray_real_payload_length;
+        proto_item* ti_trailer = proto_tree_add_item(flexray_tree, hf_flexray_frame_trailer, tvb, FLEXRAY_HEADER_LENGTH + flexray_real_payload_length, trailer_len, ENC_NA);
+        proto_tree* flexray_trailer = proto_item_add_subtree(ti_trailer, ett_flexray_frame_trailer);
+        proto_tree_add_item(flexray_trailer, hf_flexray_crc, tvb, FLEXRAY_HEADER_LENGTH + flexray_real_payload_length, 3, ENC_BIG_ENDIAN);
+    }
+
+    /* Only supporting single bus id right now */
+    flexray_info_t flexray_info = { .id = flexray_id,
+                                    .cc = flexray_cc,
+                                    .ch = flexray_channel_is_b ? 1 : 0,
+                                    .bus_id = 0 };
+
+    if (start_tvb) {
+        ti = proto_tree_add_uint(flexray_frame_tree, hf_flexray_flexray_id, start_tvb, 0, 7, flexray_flexrayinfo_to_flexrayid(&flexray_info));
+        proto_item_set_hidden(ti);
+    }
+    flexray_set_source_and_destination_columns(pinfo, &flexray_info);
+
+    if (flexray_real_payload_length > 0) {
+        tvbuff_t* next_tvb = tvb_new_subset_length(tvb, FLEXRAY_HEADER_LENGTH, flexray_real_payload_length);
+        if (!call_subdissector || !flexray_call_subdissectors(next_tvb, pinfo, tree, &flexray_info, prefvar_try_heuristic_first)) {
+            call_data_dissector(next_tvb, pinfo, tree);
+        }
+    }
+}
+
 static int
 dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     proto_item *ti;
@@ -322,9 +417,8 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str(pinfo->pool, frame_type, flexray_type_names, "Unknown (0x%02x)"));
 
     if (frame_type == FLEXRAY_FRAME) {
-        proto_tree *error_flags_tree, *flexray_frame_tree;
+        proto_tree* error_flags_tree;
         bool call_subdissector = true;
-        bool payload_truncated = false;
 
         /* Error Flags [1 Byte] */
         ti = proto_tree_add_bitmask(flexray_tree, tvb, 1, hf_flexray_error_flags_field, ett_flexray_error_flags, error_fields, ENC_BIG_ENDIAN);
@@ -336,92 +430,7 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             call_subdissector = false;
         }
 
-        /* FlexRay Frame [5 Bytes + Payload]*/
-        int flexray_frame_length = tvb_captured_length(tvb) - 2;
-
-        proto_item *ti_header = proto_tree_add_item(flexray_tree, hf_flexray_frame_header, tvb, 2, -1, ENC_NA);
-        flexray_frame_tree = proto_item_add_subtree(ti_header, ett_flexray_frame);
-
-        bool nfi, sfi, stfi;
-        proto_tree_add_item(flexray_frame_tree, hf_flexray_res, tvb, 2, 1, ENC_NA);
-        proto_tree_add_item(flexray_frame_tree, hf_flexray_ppi, tvb, 2, 1, ENC_NA);
-        proto_tree_add_item_ret_boolean(flexray_frame_tree, hf_flexray_nfi, tvb, 2, 1, ENC_NA, &nfi);
-        proto_tree_add_item_ret_boolean(flexray_frame_tree, hf_flexray_sfi, tvb, 2, 1, ENC_NA, &sfi);
-        proto_tree_add_item_ret_boolean(flexray_frame_tree, hf_flexray_stfi, tvb, 2, 1, ENC_NA, &stfi);
-
-        if (stfi && !sfi) {
-            expert_add_info(pinfo, flexray_frame_tree, &ei_flexray_stfi_flag);
-            call_subdissector = false;
-        }
-
-        uint32_t flexray_id;
-        proto_tree_add_item_ret_uint(flexray_frame_tree, hf_flexray_fid, tvb, 2, 2, ENC_BIG_ENDIAN, &flexray_id);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " ID %4d", flexray_id);
-
-        if (flexray_id == 0) {
-            call_subdissector = false;
-        }
-
-        uint32_t flexray_pl;
-        proto_tree_add_item_ret_uint(flexray_frame_tree, hf_flexray_pl, tvb, 4, 1, ENC_BIG_ENDIAN, &flexray_pl);
-        int flexray_real_payload_length = 2 * flexray_pl;
-        int flexray_current_payload_length = flexray_frame_length - FLEXRAY_HEADER_LENGTH;
-        if (flexray_real_payload_length > flexray_current_payload_length) {
-            payload_truncated = true;
-            flexray_real_payload_length = MAX(0, flexray_current_payload_length);
-        }
-
-        proto_tree_add_item(flexray_frame_tree, hf_flexray_hcrc, tvb, 4, 3, ENC_BIG_ENDIAN);
-
-        uint32_t flexray_cc;
-        proto_tree_add_item_ret_uint(flexray_frame_tree, hf_flexray_cc, tvb, 6, 1, ENC_BIG_ENDIAN, &flexray_cc);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " CC %2d", flexray_cc);
-
-        if (nfi) {
-            if (payload_truncated) {
-                expert_add_info(pinfo, flexray_frame_tree, &ei_flexray_frame_payload_truncated);
-                call_subdissector = false;
-            }
-
-            if (tvb != NULL && flexray_real_payload_length > 0) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, 7, flexray_real_payload_length, ' '));
-            }
-
-        } else {
-            call_subdissector = false;
-            col_append_str(pinfo->cinfo, COL_INFO, "   NF");
-
-            /* Payload is optional on Null Frames */
-            if (payload_truncated && flexray_real_payload_length != 0) {
-                expert_add_info(pinfo, flexray_frame_tree, &ei_flexray_frame_payload_truncated);
-            }
-        }
-
-        proto_item_set_end(ti_header, tvb, 2 + FLEXRAY_HEADER_LENGTH);
-
-        if (flexray_current_payload_length > flexray_real_payload_length) {
-            int trailer_len = flexray_current_payload_length - flexray_real_payload_length;
-            proto_item* ti_trailer = proto_tree_add_item(flexray_tree, hf_flexray_frame_trailer, tvb, 7 + flexray_real_payload_length, trailer_len, ENC_NA);
-            proto_tree* flexray_trailer = proto_item_add_subtree(ti_trailer, ett_flexray_frame_trailer);
-            proto_tree_add_item(flexray_trailer, hf_flexray_crc, tvb, 7 + flexray_real_payload_length, 3, ENC_BIG_ENDIAN);
-        }
-
-        /* Only supporting single bus id right now */
-        flexray_info_t flexray_info = { .id = (uint16_t)flexray_id,
-                                        .cc = (uint8_t)flexray_cc,
-                                        .ch  = flexray_channel_is_b ? 1 : 0,
-                                        .bus_id = 0};
-
-        ti = proto_tree_add_uint(flexray_frame_tree, hf_flexray_flexray_id, tvb, 0, 7, flexray_flexrayinfo_to_flexrayid(&flexray_info));
-        proto_item_set_hidden(ti);
-        flexray_set_source_and_destination_columns(pinfo, &flexray_info);
-
-        if (flexray_real_payload_length > 0) {
-            tvbuff_t *next_tvb = tvb_new_subset_length(tvb, 7, flexray_real_payload_length);
-            if (!call_subdissector || !flexray_call_subdissectors(next_tvb, pinfo, tree, &flexray_info, prefvar_try_heuristic_first)) {
-                call_data_dissector(next_tvb, pinfo, tree);
-            }
-        }
+        dissect_flexray_frame(tvb_new_subset_remaining(tvb, 2), tvb, pinfo, tree, flexray_tree, call_subdissector, flexray_channel_is_b);
     } else if (frame_type == FLEXRAY_SYMBOL) {
         /* FlexRay Symbol [1 Byte] */
         expert_add_info(pinfo, flexray_tree, &ei_flexray_symbol_frame);

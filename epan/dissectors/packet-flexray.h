@@ -53,6 +53,7 @@ uint32_t flexray_calc_flexrayid(uint16_t bus_id, uint8_t channel, uint16_t frame
 uint32_t flexray_flexrayinfo_to_flexrayid(flexray_info_t *flexray_info);
 bool flexray_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, flexray_info_t *flexray_info, const bool use_heuristics_first);
 bool flexray_set_source_and_destination_columns(packet_info* pinfo, flexray_info_t *flexray_info);
+void dissect_flexray_frame(tvbuff_t* tvb, tvbuff_t* start_tvb, packet_info* pinfo, proto_tree* tree, proto_tree* flexray_tree, bool call_subdissector, bool flexray_channel_is_b);
 
 #endif /* __PACKET_FLEXRAY_H__ */
 
