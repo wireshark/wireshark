@@ -678,7 +678,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info)
         return WTAP_OPEN_NOT_MINE;
     }
 
-    file_info->process_array = g_new(procmon_process_t, num_processes);
+    file_info->process_array = g_new0(procmon_process_t, num_processes);
     file_info->process_array_size = num_processes;
     for (unsigned idx = 0; idx < num_processes; idx++) {
         if (file_seek(wth->fh, header->process_array_offset + proc_offsets[idx], SEEK_SET, err) == -1)
@@ -764,7 +764,6 @@ wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info)
                     if (!wtap_read_bytes_or_eof(wth->fh, &cur_raw_module, sizeof(cur_raw_module), err, err_info)) {
                         file_info_cleanup(file_info);
                         g_free(proc_offsets);
-                        g_free(cur_process->modules);
                         ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
                         if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
                         {
@@ -789,7 +788,6 @@ wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info)
                     if (!wtap_read_bytes_or_eof(wth->fh, &cur_raw_module, sizeof(cur_raw_module), err, err_info)) {
                         file_info_cleanup(file_info);
                         g_free(proc_offsets);
-                        g_free(cur_process->modules);
                         ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
                         if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
                         {
