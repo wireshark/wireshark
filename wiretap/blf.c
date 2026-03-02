@@ -3187,7 +3187,9 @@ blf_set_xml_channels(blf_params_t* params, const char* text, size_t len) {
                 } else if (xmlStrcmp(attr->name, (const xmlChar*)"network") == 0) {
                     xmlChar* str_network = xmlNodeListGetString(current_channel_node->doc, attr->children, 1);
                     if (str_network != NULL) {
-                        channel_name = ws_strdup((const char*)str_network);
+                        if (channel_name == NULL) {
+                            channel_name = ws_strdup((const char*)str_network);
+                        }
                         xmlFree(str_network);
                     }
                 }
