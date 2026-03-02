@@ -536,6 +536,8 @@ Windows x64 Package:
   rules: !reference [.if-w-w-only-merged]
   tags:
     - wireshark-windows-x64-package
+  environment:
+    name: windows-package
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - cmake -G "Visual Studio 17 2022" -A x64
@@ -584,6 +586,8 @@ Windows Arm64 Package:
   rules: !reference [.if-w-w-only-merged]
   tags:
     - wireshark-windows-arm64-package
+  environment:
+    name: windows-package
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - cmake -G "Visual Studio 17 2022" -A arm64
@@ -641,7 +645,9 @@ macOS Universal Package:
     WIRESHARK_BASE_DIR: "$CI_PROJECT_DIR/../wireshark-third-party"
     FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins"
   tags:
-    - wireshark-macos-arm-package
+    - wireshark-macos-universal-package
+  environment:
+    name: macos-package
   retry: 1
   before_script:
     - export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH:$HOME/bin"
