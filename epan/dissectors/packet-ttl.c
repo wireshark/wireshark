@@ -23,6 +23,7 @@
 #include <epan/proto_data.h>
 #include <epan/dissectors/packet-lin.h>
 #include <epan/dissectors/packet-socketcan.h>
+#include <epan/dissectors/packet-flexray.h>
 
 #include <wiretap/ttl.h>
 
@@ -1059,8 +1060,9 @@ dissect_ttl_lin_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 
 static unsigned
 dissect_ttl_flexray_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree,
-    tvbuff_t* status_tvb, proto_tree* status_tree) {
+    tvbuff_t* status_tvb, proto_tree* status_tree, uint16_t src) {
     proto_item* ti;
+    proto_tree* payload_subtree;
     uint16_t    status;
     uint8_t     type;
     unsigned    offset = 0, size;
@@ -1111,7 +1113,12 @@ dissect_ttl_flexray_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
 
     if (size > 0) {
         ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry_payload, tvb, offset, size, ENC_NA);
+        payload_subtree = proto_item_add_subtree(ti, ett_ttl_trace_data_entry_payload);
         proto_item_prepend_text(ti, "FlexRay ");
+
+        if (pref_dissect_next_layer && (type == TTL_FLEXRAY_ITEM_REGULAR_FRAME || type == TTL_FLEXRAY_ITEM_ABORTED_FRAME)) {
+            dissect_flexray_frame(tvb_new_subset_length(tvb, offset, size), NULL, pinfo, payload_subtree, payload_subtree, true, ttl_is_chb_addr(src));
+        }
     }
 
     return tvb_reported_length(tvb);
@@ -1141,7 +1148,7 @@ dissect_ttl_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
     case WTAP_ENCAP_FLEXRAY:
         proto_item_append_text(root, " (FlexRay)");
         if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (FlexRay)");
-        offset += dissect_ttl_flexray_bus_data_entry(tvb, pinfo, tree, status_tvb, status_tree);
+        offset += dissect_ttl_flexray_bus_data_entry(tvb, pinfo, tree, status_tvb, status_tree, src);
         break;
     default:
         proto_item_append_text(root, " (Unsupported)");
