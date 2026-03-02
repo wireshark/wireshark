@@ -7185,8 +7185,7 @@ static int rtps_util_add_type_member(proto_tree* tree, packet_info* pinfo,
   if (member_object) member_object->flags = short_number;
   offset_tmp += 2;
   ALIGN_ZERO(offset_tmp, 4, offset);
-  proto_tree_add_item(member_property, hf_rtps_type_object_member_id, tvb, offset_tmp, 4, encoding);
-  member_id = tvb_get_uint32(tvb, offset_tmp, encoding);
+  proto_tree_add_item_ret_uint(member_property, hf_rtps_type_object_member_id, tvb, offset_tmp, 4, encoding, &member_id);
   offset_tmp += 4;
   offset_tmp = rtps_util_add_type_id(member_property, pinfo, tvb, offset_tmp, encoding,
           offset, -1, tree, &member_type_id);

@@ -3965,8 +3965,7 @@ s7comm_decode_ud_tis_item_address(tvbuff_t *tvb,
     proto_item_append_text(item, " [%d]%s:", item_no + 1, add_text);
 
     /* Area, 1 byte */
-    area = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(sub_tree, hf_s7comm_varstat_req_memory_area, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(sub_tree, hf_s7comm_varstat_req_memory_area, tvb, offset, 1, ENC_BIG_ENDIAN, &area);
     offset += 1;
 
     /* Length (repetition factor), 1 byte. If area is a bit address, then this is the bit number.
@@ -4975,11 +4974,9 @@ s7comm_decode_ud_tis_bstack(tvbuff_t *tvb, packet_info* pinfo,
             while (rem > 16) {
                 item = proto_tree_add_item(td_tree, hf_s7comm_data_item, tvb, offset, 16, ENC_NA);
                 item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
-                blocktype = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_item(item_tree, hf_s7comm_tis_interrupted_blocktype, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint16(item_tree, hf_s7comm_tis_interrupted_blocktype, tvb, offset, 2, ENC_BIG_ENDIAN, &blocktype);
                 offset += 2;
-                blocknumber = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_item(item_tree, hf_s7comm_tis_interrupted_blocknr, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint16(item_tree, hf_s7comm_tis_interrupted_blocknr, tvb, offset, 2, ENC_BIG_ENDIAN, &blocknumber);
                 offset += 2;
                 proto_tree_add_item(item_tree, hf_s7comm_tis_interrupted_address, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
@@ -5620,8 +5617,7 @@ s7comm_decode_message_service(tvbuff_t *tvb,
             proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_username, tvb, offset, 8, ENC_ASCII);
             offset += 8;
             if ((events & 0x80) && (dlength > 10)) {
-                almtype = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_almtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8(data_tree, hf_s7comm_cpu_msgservice_almtype, tvb, offset, 1, ENC_BIG_ENDIAN, &almtype);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " AlmType=%s", val_to_str(pinfo->pool, almtype, cpu_msgservice_almtype_names, "Unknown type: 0x%02x"));
                 offset += 1;
                 if (almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_INITIATE || almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_ABORT) {
@@ -5638,8 +5634,7 @@ s7comm_decode_message_service(tvbuff_t *tvb,
             proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_res_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             if (dlength > 2) {
-                almtype = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_almtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8(data_tree, hf_s7comm_cpu_msgservice_almtype, tvb, offset, 1, ENC_BIG_ENDIAN, &almtype);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " AlmType=%s", val_to_str(pinfo->pool, almtype, cpu_msgservice_almtype_names, "Unknown type: 0x%02x"));
                 offset += 1;
                 if (almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_INITIATE || almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_ABORT) {
@@ -6855,19 +6850,16 @@ s7comm_decode_ud(tvbuff_t *tvb,
     }
     offset_temp += 1;
     /* 1 Byte sequence number */
-    seq_num = tvb_get_uint8(tvb, offset_temp);
-    proto_tree_add_item(param_tree, hf_s7comm_userdata_param_seq_num, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(param_tree, hf_s7comm_userdata_param_seq_num, tvb, offset_temp, 1, ENC_BIG_ENDIAN, &seq_num);
     offset_temp += 1;
     if (varspec_syntax_id == S7COMM_SYNTAXID_EXT) {
         /* 1 Byte data unit reference. If packet is fragmented, all packets with this number belong together.
          * But there are function which use a different fragment identification methon.
          */
-        data_unit_ref = tvb_get_uint8(tvb, offset_temp);
-        proto_tree_add_item(param_tree, hf_s7comm_userdata_param_dataunitref, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(param_tree, hf_s7comm_userdata_param_dataunitref, tvb, offset_temp, 1, ENC_BIG_ENDIAN, &data_unit_ref);
         offset_temp += 1;
         /* 1 Byte fragmented flag, if this is not the last data unit (telegram is fragmented) this is != 0 */
-        last_data_unit = tvb_get_uint8(tvb, offset_temp);
-        proto_tree_add_item(param_tree, hf_s7comm_userdata_param_dataunit, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(param_tree, hf_s7comm_userdata_param_dataunit, tvb, offset_temp, 1, ENC_BIG_ENDIAN, &last_data_unit);
         offset_temp += 1;
         proto_tree_add_item_ret_uint(param_tree, hf_s7comm_param_errcod, tvb, offset_temp, 2, ENC_BIG_ENDIAN, &errorcode);
         if (errorcode > 0) {

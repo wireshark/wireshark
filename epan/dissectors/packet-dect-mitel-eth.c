@@ -1205,8 +1205,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			while ( tvb_reported_length_remaining(tvb, offset) ) {
 				proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mt_item_key, tvb, offset, 1, ENC_NA);
 				offset++;
-				proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mt_item_length, tvb, offset, 1, ENC_NA);
-				mt_item_length = tvb_get_uint8(tvb, offset);
+				proto_tree_add_item_ret_uint8(dect_mitel_eth_tree, hf_dect_mitel_eth_mt_item_length, tvb, offset, 1, ENC_NA, &mt_item_length);
 				offset++;
 				proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mt_item_value, tvb, offset, mt_item_length, ENC_NA);
 				offset += mt_item_length;

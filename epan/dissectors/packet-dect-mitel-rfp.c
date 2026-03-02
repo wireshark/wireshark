@@ -1271,8 +1271,7 @@ static unsigned dissect_dect_mitel_rfp_media_tone(tvbuff_t *tvb, packet_info *pi
 	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_tone_count, tvb, offset, 1, ENC_BIG_ENDIAN);
-	tone_count = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(tree, hf_dect_mitel_rfp_media_tone_count, tvb, offset, 1, ENC_BIG_ENDIAN, &tone_count);
 	offset += 5;
 
 	for (uint8_t i = 0; i < tone_count; i++) {

@@ -44,6 +44,7 @@
  * - for section extensions, check more constraints (which other extension types appear with them, order, repeated)
  * - re-order items (decl and hf definitions) to match spec order?
  * - track energy-saving status, and identify TRX or ASM commands as 'Sleep extension'
+ * - attempt to show (at least when section Ids are used) which beamId is associated with each DL U-Plane section
  */
 
 /* Prototypes */

@@ -19759,8 +19759,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
       offset += 4;
 
       /* Unicast Cipher Suites */
-      proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wpa_ucs_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      ucs_count = tvb_get_letohs(tvb, offset);
+      proto_tree_add_item_ret_uint16(tree, hf_ieee80211_wfa_ie_wpa_ucs_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &ucs_count);
       offset += 2;
 
       wpa_ucs_item = proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wpa_ucs_list, tvb, offset, ucs_count * 4, ENC_NA);
@@ -26263,8 +26262,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
       subtree = proto_item_add_subtree(item, ett_tag_wapi_param_set_akm_tree);
       proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_akm_suite_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
       offset += 3;
-      akm_suite_type = tvb_get_uint8(tvb, offset);
-      proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_akm_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item_ret_uint8(subtree, hf_ieee80211_tag_wapi_param_set_akm_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &akm_suite_type);
       offset += 1;
       proto_item_append_text(ti, " (%d,%s)", loop_cnt+1, val_to_str(pinfo->pool, akm_suite_type,
       ieee80211_wapi_suite_type_short, "Reserved: %d"));
@@ -26276,9 +26274,8 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
 
   }
   /* Unicast Cipher Suites: list can't be 0*/
-  ucast_cnt = tvb_get_letohs(tvb, offset);
-  item = proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_count,
-                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  item = proto_tree_add_item_ret_uint16(tree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_count,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN, &ucast_cnt);
   offset += 2;
   if (ucast_cnt != 0) {
     proto_item_append_text(ti, " Unicast Cipher List:");
@@ -26286,8 +26283,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
       subtree = proto_item_add_subtree(item, ett_tag_wapi_param_set_ucast_tree);
       proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
       offset += 3;
-      ucast_cipher_type = tvb_get_uint8(tvb, offset);
-      proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item_ret_uint8(subtree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &ucast_cipher_type);
       offset += 1;
       proto_item_append_text(ti, " (%d,%s)", loop_cnt+1, val_to_str(pinfo->pool, ucast_cipher_type, ieee80211_wapi_cipher_type, "Reserved: %d"));
     }

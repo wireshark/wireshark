@@ -1857,15 +1857,13 @@ dissect_dcm_assoc_user_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_assoc_item_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(assoc_item_user_identify_tree, hf_dcm_info_user_identify_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
     offset += 1;
 
     proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_response_requested, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    primary_field_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_primary_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(assoc_item_user_identify_tree, hf_dcm_info_user_identify_primary_field_length, tvb, offset, 2, ENC_BIG_ENDIAN, &primary_field_length);
     offset += 2;
 
     proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_primary_field, tvb, offset, primary_field_length, ENC_UTF_8);
@@ -3994,8 +3992,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
     dcm_ptree = proto_item_add_subtree(dcm_pitem, ett_dcm);
 
     /* PDU type is only one byte, then one byte reserved */
-    pdu_type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(dcm_ptree, hf_dcm_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(dcm_ptree, hf_dcm_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN, &pdu_type);
     offset += 2;
 
     proto_tree_add_item_ret_uint(dcm_ptree, hf_dcm_pdu_len, tvb, offset, 4, ENC_BIG_ENDIAN, &pdu_len);

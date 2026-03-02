@@ -1415,8 +1415,7 @@ dissect_awdl_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
   offset += 1;
   proto_tree_add_item(fixed_tree, hf_awdl_rsvd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
-  proto_tree_add_item(fixed_tree, hf_awdl_phytime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  phytime = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint(fixed_tree, hf_awdl_phytime, tvb, offset, 4, ENC_LITTLE_ENDIAN, &phytime);
   offset += 4;
   proto_tree_add_item_ret_uint(fixed_tree, hf_awdl_targettime, tvb, offset, 4, ENC_LITTLE_ENDIAN, &targettime);
   offset += 4;

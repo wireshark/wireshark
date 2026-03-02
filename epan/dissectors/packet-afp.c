@@ -3530,9 +3530,9 @@ dissect_reply_afp_map_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static int
 dissect_query_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int len;
-	int type;
-	int size;
+	int     len;
+	uint8_t type;
+	int     size;
 
 	type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_map_name_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3556,7 +3556,7 @@ dissect_query_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		break;
 	}
 	proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_BIG_ENDIAN);
-	offset += len +size;
+	offset += (len+size);
 
 	return offset;
 }

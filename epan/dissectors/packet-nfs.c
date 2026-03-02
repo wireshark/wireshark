@@ -9490,32 +9490,31 @@ dissect_nfs4_devices_scsi(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 
 	for (i = 0; i < num_vols; i++) {
 
-	vol_type = tvb_get_ntohl(tvb, offset);
-	vol_item = proto_tree_add_item(tree, hf_nfs4_devaddr_scsi_vol_type, tvb, offset, 4, ENC_BIG_ENDIAN);
-	vol_tree = proto_item_add_subtree(vol_item, ett_nfs4_scsi_layout_vol);
-	offset += 4;
-	proto_tree_add_uint(vol_tree, hf_nfs4_devaddr_scsi_vol_index, tvb, offset, 0, i);
-	switch (vol_type)
-	{
-	case PNFS_SCSI_VOLUME_SLICE:
-		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_start, tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_length, tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_scsi_vol_ref_index, tvb, offset, 4, ENC_BIG_ENDIAN);
-		break;
-	case PNFS_SCSI_VOLUME_CONCAT:
-		offset = dissect_nfs4_vol_indices(tvb, offset, vol_tree);
-		break;
-	case PNFS_SCSI_VOLUME_STRIPE:
-		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_stripe_unit, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset = dissect_nfs4_vol_indices(tvb, offset, vol_tree);
-		break;
-	case PNFS_SCSI_VOLUME_BASE:
-		offset = dissect_nfs4_devices_scsi_base_volume(tvb, offset, vol_tree);
-		break;
-	}
+		vol_item = proto_tree_add_item_ret_uint(tree, hf_nfs4_devaddr_scsi_vol_type, tvb, offset, 4, ENC_BIG_ENDIAN, &vol_type);
+		vol_tree = proto_item_add_subtree(vol_item, ett_nfs4_scsi_layout_vol);
+		offset += 4;
+		proto_tree_add_uint(vol_tree, hf_nfs4_devaddr_scsi_vol_index, tvb, offset, 0, i);
+		switch (vol_type)
+		{
+		case PNFS_SCSI_VOLUME_SLICE:
+			proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_start, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(vol_tree, hf_nfs4_devaddr_scsi_vol_ref_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+			break;
+		case PNFS_SCSI_VOLUME_CONCAT:
+			offset = dissect_nfs4_vol_indices(tvb, offset, vol_tree);
+			break;
+		case PNFS_SCSI_VOLUME_STRIPE:
+			proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_stripe_unit, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset = dissect_nfs4_vol_indices(tvb, offset, vol_tree);
+			break;
+		case PNFS_SCSI_VOLUME_BASE:
+			offset = dissect_nfs4_devices_scsi_base_volume(tvb, offset, vol_tree);
+			break;
+		}
 
-	proto_item_set_len(vol_item, offset - old_offset);
-	old_offset = offset;
+		proto_item_set_len(vol_item, offset - old_offset);
+		old_offset = offset;
 	}
 
 	return offset;
