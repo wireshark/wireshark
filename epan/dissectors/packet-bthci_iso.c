@@ -409,14 +409,23 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 if (mfp != NULL && !mfp->last_frame) {
                     int avail = (int)mfp->tot_len - mfp->cur_off;
                     if (len > avail) {
+                        /* XXX - This error only happens on the first pass, so
+                         * the error indication should be added to the mfp for
+                         * later passes. */
                         expert_add_info(pinfo, sub_item, &ei_length_bad);
                         /* Try to reassemble as much as possible */
                         len = avail;
                     }
                     tvb_memcpy(tvb, (uint8_t *) mfp->reassembled + mfp->cur_off, offset, len);
                     mfp->cur_off += len;
-                    if (pb_flag == 0x03)
+                    if (pb_flag == 0x03) {
                         mfp->last_frame = pinfo->num;
+                        if (mfp->cur_off < mfp->tot_len) {
+                            /* XXX - As above. */
+                            expert_add_info(pinfo, sub_item, &ei_length_bad);
+                            mfp->reassembled = (char *) wmem_realloc(wmem_file_scope(), mfp->reassembled, mfp->cur_off);
+                        }
+                    }
                 }
             }
             if (mfp) {
@@ -432,7 +441,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 }
 
                 if (pb_flag == 0x03) { /* last fragment */
-                    next_tvb = tvb_new_child_real_data(tvb, (uint8_t *) mfp->reassembled, mfp->tot_len, mfp->tot_len);
+                    next_tvb = tvb_new_child_real_data(tvb, (uint8_t *) mfp->reassembled, mfp->cur_off, mfp->tot_len);
                     add_new_data_source(pinfo, next_tvb, "Reassembled BTHCI ISO");
 
                     call_dissector_with_data(bthci_iso_data_handle, next_tvb, pinfo, tree, &iso_data_info);
