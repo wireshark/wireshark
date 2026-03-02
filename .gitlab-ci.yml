@@ -440,6 +440,8 @@ Windows x64 Package:
   rules: !reference [.if-w-w-only-merged]
   tags:
     - wireshark-windows-x64-package
+  environment:
+    name: windows-package
   before_script:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
@@ -484,6 +486,8 @@ Windows Arm64 Package:
   rules: !reference [.if-w-w-only-merged]
   tags:
     - wireshark-windows-arm64-package
+  environment:
+    name: windows-package
   before_script:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
@@ -540,6 +544,8 @@ macOS Arm Package:
     CODE_SIGN_IDENTITY: "Wireshark Foundation"
   tags:
     - wireshark-macos-arm-package
+  environment:
+    name: macos-package
   retry: 1
   before_script:
     - export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH:$HOME/bin"
@@ -592,6 +598,8 @@ macOS Intel Package:
     CODE_SIGN_IDENTITY: "Wireshark Foundation"
   tags:
     - wireshark-macos-intel-package
+  environment:
+    name: macos-package
   retry: 1
   script:
     - sudo --non-interactive sntp -s -S time.apple.com || true
