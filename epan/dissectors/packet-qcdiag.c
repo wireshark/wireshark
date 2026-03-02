@@ -1,15 +1,24 @@
 /* packet-qcdiag.c
  * Dissector routines for Qualcomm DIAG packet handling
  *
+ *
  * Credits/Sources:
+ *
  * - Osmocom Wireshark qcdiag branch
  *   https://gitea.osmocom.org/osmocom/wireshark/src/branch/osmocom/qcdiag
  *
+ * - Osmocom tools for Qualcomm DIAG
+ *   https://cgit.osmocom.org/osmo-qcdiag
+ *
  * - SCAT: Signaling Collection and Analysis Tool
- *   https://github.com/fgsect/scat/
+ *   https://github.com/fgsect/scat
  *
  * - Android Tools MSM8996
  *   https://github.com/bcyj/android_tools_leeco_msm8996
+ *
+ * - MobileInsight Core Functionalities
+ *   https://github.com/mobile-insight/mobileinsight-core
+ *
  *
  * (C) 2016-2017 by Harald Welte <laforge@gnumonks.org>
  * (C) 2025 by Oliver Smith <osmith@sysmocom.de>
@@ -1976,11 +1985,19 @@ dictionary_process_file(const char* dir, const char* filename, GSList** logcodes
             xmlChar* code = xmlGetProp(current_node, (const xmlChar*)"code");
             if (code != NULL) {
                 if (g_ascii_strncasecmp((const char*)code, "0x", 2) == 0) {
-                    if (!ws_hexstrtou32((const char*)code, NULL, &element->code))
+                    if (!ws_hexstrtou32((const char*)code, NULL, &element->code)) {
+                        xmlFree(element->name);
+                        xmlFree(code);
+                        g_free(element);
                         continue;
+                    }
                 } else {
-                    if (!ws_strtou32((const char*)code, NULL, &element->code))
+                    if (!ws_strtou32((const char*)code, NULL, &element->code)) {
+                        xmlFree(element->name);
+                        xmlFree(code);
+                        g_free(element);
                         continue;
+                    }
                 }
                 xmlFree(code);
             }

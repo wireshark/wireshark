@@ -1,16 +1,6 @@
 /* packet-qcdiag_log.c
  * Dissector routines for Qualcomm DIAG packet handling
  *
- * Credits/Sources:
- * - Osmocom Wireshark qcdiag branch
- *   https://gitea.osmocom.org/osmocom/wireshark/src/branch/osmocom/qcdiag
- *
- * - SCAT: Signaling Collection and Analysis Tool
- *   https://github.com/fgsect/scat/
- *
- * - Android Tools MSM8996
- *   https://github.com/bcyj/android_tools_leeco_msm8996
- *
  * (C) 2016-2017 by Harald Welte <laforge@gnumonks.org>
  * (C) 2025 by Oliver Smith <osmith@sysmocom.de>
  * (C) 2026 by Tamas Regos <regost@gmail.com>
@@ -33,9 +23,14 @@
 #include <epan/unit_strings.h>
 #include <epan/ftypes/ftypes.h>
 
+#include <wsutil/strtoi.h>
+
+#include "packet-e212.h"
 #include "packet-gsm_a_common.h"
 #include "packet-gsmtap.h"
 #include "packet-qcdiag.h"
+#include "packet-umts_rlc.h"
+#include "expert.h"
 
 #define GSMTAP_HDR_VERSION           0
 #define GSMTAP_HDR_HDR_LEN           1
@@ -54,19 +49,27 @@
 #define GSMTAP_HDR_SUB_SLOT         14
 #define GSMTAP_HDR_RES              15
 
+#define QCDIAG_WCDMA_CID_MASK       0x0FFFFFFF
+
+#define UDP_SRC_PORT                ((uint16_t) 13337)  /* Based on SCAT (assumingly P2P related) */
+#define UDP_DST_PORT                ((uint16_t) 47290)  /* User plane UDP port based on GSMTAP port 4729 */
+
 void proto_register_qcdiag_log(void);
 void proto_reg_handoff_qcdiag_log(void);
 
 static dissector_handle_t data_handle;
 static dissector_handle_t text_lines_handle;
+static dissector_handle_t udp_handle;
 static dissector_handle_t gsmtap_handle;
 
 static dissector_table_t qcdiag_log_code_dissector_table;
 
+static heur_dtbl_entry_t *hdtbl_entry;
+
 static int proto_qcdiag_log;
 
-static int hf_qcdiag_ver;
-static int hf_qcdiag_ver_4;
+static int hf_qcdiag_log_ver;
+static int hf_qcdiag_log_ver_4;
 static int hf_qcdiag_arfcn;
 static int hf_qcdiag_uplink;
 static int hf_qcdiag_pcs;
@@ -89,6 +92,62 @@ static int hf_qcdiag_mac_chan_type;
 static int hf_qcdiag_mac_direction;
 static int hf_qcdiag_mac_msg_type;
 
+static int hf_qcdiag_wcdma_rrc_state;
+static int hf_qcdiag_wcdma_rrc_procedure;
+static int hf_qcdiag_wcdma_rrc_failure_cause;
+static int hf_qcdiag_wcdma_rrc_prot_err_cause;
+static int hf_qcdiag_wcdma_cid_ul_uarfcn;
+static int hf_qcdiag_wcdma_cid_dl_uarfcn;
+static int hf_qcdiag_wcdma_cid_cell_id;
+static int hf_qcdiag_wcdma_cid_ura_id;
+static int hf_qcdiag_wcdma_cid_cell_barred;
+static int hf_qcdiag_wcdma_cid_cell_reserved;
+static int hf_qcdiag_wcdma_cid_cell_solsa;
+static int hf_qcdiag_wcdma_cid_ue_camped;
+static int hf_qcdiag_wcdma_cid_reserved;
+static int hf_qcdiag_wcdma_cid_allowed_call_access;
+static int hf_qcdiag_wcdma_cid_psc;
+static int hf_qcdiag_wcdma_cid_mcc;
+static int hf_qcdiag_wcdma_cid_mnc;
+static int hf_qcdiag_wcdma_cid_lac;
+static int hf_qcdiag_wcdma_cid_rac;
+static int hf_qcdiag_wcdma_freq_scan_type;
+static int hf_qcdiag_wcdma_freq_scan_thres;
+static int hf_qcdiag_wcdma_freq_scan_num;
+static int hf_qcdiag_wcdma_freq_scan_arfcn;
+static int hf_qcdiag_wcdma_freq_scan_rssi_raw;
+static int hf_qcdiag_wcdma_freq_scan_rssi_dbm;
+static int hf_qcdiag_wcdma_crr_ver;
+static int hf_qcdiag_wcdma_crr_num_3g;
+static int hf_qcdiag_wcdma_crr_reserved;
+static int hf_qcdiag_wcdma_crr_num_2g;
+static int hf_qcdiag_wcdma_crr_uarfcn_3g;
+static int hf_qcdiag_wcdma_crr_psc_3g;
+static int hf_qcdiag_wcdma_crr_rscp_3g;
+static int hf_qcdiag_wcdma_crr_rscp_rank_3g;
+static int hf_qcdiag_wcdma_crr_ecio_3g;
+static int hf_qcdiag_wcdma_crr_ecio_rank_3g;
+static int hf_qcdiag_wcdma_crr_arfcn_2g;
+static int hf_qcdiag_wcdma_crr_rssi_2g;
+static int hf_qcdiag_wcdma_crr_rssi_rank_2g;
+static int hf_qcdiag_wcdma_crr_bsic_2g;
+static int hf_qcdiag_wcdma_crr_bsic_bcc;
+static int hf_qcdiag_wcdma_crr_bsic_ncc;
+static int hf_qcdiag_wcdma_crr_resel_status;
+static int hf_qcdiag_wcdma_crr_hcs_priority;
+static int hf_qcdiag_wcdma_crr_h_value;
+static int hf_qcdiag_wcdma_crr_hcs_cell_qualify;
+static int hf_qcdiag_wcdma_rlc_num_ent;
+static int hf_qcdiag_wcdma_rlc_num_pdu;
+static int hf_qcdiag_wcdma_rlc_lcid;
+static int hf_qcdiag_wcdma_rlc_pdu_size;
+static int hf_qcdiag_wcdma_rlc_pdu_size_bits;
+static int hf_qcdiag_wcdma_rlc_pdu_count;
+static int hf_qcdiag_wcdma_rlc_ciph_key;
+static int hf_qcdiag_wcdma_rlc_ciph_alg;
+static int hf_qcdiag_wcdma_rlc_ciph_msg;
+static int hf_qcdiag_wcdma_rlc_ciph_countc;
+
 static int hf_qcdiag_nas_msg_length;
 static int hf_qcdiag_nas_direction;
 
@@ -108,13 +167,32 @@ static int hf_qcdiag_lte_rrc_pdu;
 static int hf_qcdiag_lte_rrc_sib;
 
 static int ett_qcdiag_log;
+static int ett_qcdiag_log_wcdma_crr_wcmda;
+static int ett_qcdiag_log_wcdma_crr_gsm;
+static int ett_qcdiag_log_wcdma_cid_car;
+static int ett_qcdiag_log_wcdma_rlc_dl_am_sig;
+static int ett_qcdiag_log_wcdma_rlc_dl_am_ciph;
+static int ett_qcdiag_log_wcdma_rlc_ul_am_ciph;
+static int ett_qcdiag_log_wcdma_freq_scan;
+
+static expert_field ei_qcdiag_log_mcc_non_decimal;
+static expert_field ei_qcdiag_log_mnc_non_decimal;
+
+static bool heur_rlc_udp_enabled;
 
 static const true_false_string tfs_downlink_uplink = { "Downlink", "Uplink" };
+
+/* Active flags indicating "not set" status for restricted states */
+static const true_false_string tfs_not_barred_barred = { "Cell Not Barred", "Cell Barred" };
+static const true_false_string tfs_not_reserved_reserved = { "Cell Not Reserved", "Cell Reserved" };
+static const true_false_string tfs_not_reserved_reserved_solsa = { "Cell Not Reserved", "Cell Reserved for SoLSA" };
+static const true_false_string tfs_not_camped_camped = { "UE Not Camped On A Cell", "UE Camped On A Cell" };
 
 /* Subscription Id 1 (Radio Id 0), Subscription Id 2 (Radio Id 1) */
 static int gsm_last_uarfcn[]     = { 0, 0 };
 static int umts_last_uarfcn_dl[] = { 0, 0 };
 static int umts_last_uarfcn_ul[] = { 0, 0 };
+//static int umts_last_cell_id[]   = { 0, 0 };
 
 typedef struct _value_number {
     uint32_t value;   /**< Numeric value to match. */
@@ -538,6 +616,96 @@ static const value_number lte_rrc_sm_v6[] = {
     { 0, UINT32_MAX }
 };
 
+static const value_string wcdma_rrc_states_vals[] = {
+    {  0, "Disconnected" },
+    {  1, "Connecting" },
+    {  2, "CELL_FACH" },
+    {  3, "CELL_DCH" },
+    {  4, "CELL_PCH" },
+    {  5, "URA_PCH" },
+    { 0, NULL }
+};
+
+static const value_string umts_rrc_procedure_vals[] = {
+    {  0, "Cell Selection" },
+    {  1, "SIB Processing" },
+    {  2, "Paging Type 2" },
+    {  3, "Measurement Control Reporting" },
+    {  4, "RRC Connection Establishment" },
+    {  5, "RRC Connection Release" },
+    {  6, "UE Capability Information" },
+    {  7, "UE Capability Enquiry" },
+    {  8, "Initial Direct Transfer" },
+    {  9, "Uplink Direct Transfer" },
+    { 10, "Downlink Direct Transfer" },
+    { 11, "Signaling Connection Release" },
+    { 12, "Signalling connection Release Request" },
+    { 13, "Counter Check" },
+    { 14, "Radio Bearer Establishment" },
+    { 15, "Radio Bearer Re-configuration" },
+    { 16, "Radio Bearer Release" },
+    { 17, "Transport Channel Re-configuration" },
+    { 18, "Physical Channel Re-configuration" },
+    { 19, "Transport Format Combination Control" },
+    { 20, "Cell Update" },
+    { 21, "URA Update" },
+    { 22, "UTRAN Mobility Information" },
+    { 23, "Active Set Update" },
+    { 24, "Inter-System Handover from UTRAN" },
+    { 25, "Inter-System Handover to UTRAN" },
+    { 26, "Inter-System Cell Reselection from UTRAN" },
+    { 27, "Inter-System Cell Reselection to UTRAN" },
+    { 28, "Paging Type 1" },
+    { 29, "Security Mode Command" },
+    { 0, NULL }
+};
+
+static const value_string umts_rrc_fail_cause_vals[] = {
+    {  0, "Configuration Unsupported" },
+    {  1, "Physical Channel Failure" },
+    {  2, "Incompatible Simultaneous Reconfig" },
+    {  3, "Protocol Error" },
+    {  4, "Compressed Mode Runtime Error" },
+    {  5, "Cell Reselection" },
+    {  6, "Invalid Configuration" },
+    {  7, "Configuration Incomplete" },
+    {  8, "Unsupported Measurement" },
+    { 0, NULL }
+};
+
+static const value_string umts_rrc_prot_err_vals[] = {
+    {  0, "ASN.1 Violation / Encoding Error" },
+    {  1, "Not Existing or Not Implemented Message Type" },
+    {  2, "Message Incompatible With Rx State" },
+    {  3, "IE Value Not Understood" },
+    {  4, "Conditional IE Error" },
+    {  5, "Message Extension Not Understood" },
+    { 0, NULL }
+};
+
+static const value_string wcdma_cid_allowed_call_access_vals[] = {
+    { 0, "All Calls" },
+    { 1, "Emergency Calls Only" },
+    { 0, NULL }
+};
+
+static const value_string wcdma_rlc_ciph_level_vals[] = {
+    {   0, "UEA0 (No ciphering)" },
+    {   1, "UEA1" },
+    {   2, "UEA2" },
+    {   3, "UEA3" },
+    { 255, "Not set" },
+    { 0, NULL }
+};
+
+static const value_string wcdma_freq_scan_type_vals[] = {
+    {   0, "Raw Scan" },
+    {   1, "Fine Scan" },
+    {   2, "Additional Channel Scan" },
+    {   3, "List Scan" },
+    { 0, NULL }
+};
+
 static uint32_t
 try_val_to_int(const uint32_t val, const value_number *cm)
 {
@@ -604,6 +772,88 @@ dissect_qcdiag_log_append_text(proto_tree *log_tree, proto_tree *tree, bool dire
     proto_item_append_text(ti, " (%s)", tfs_get_string(direction, &tfs_uplink_downlink));
 }
 
+static void
+store_uint16(uint8_t **array_ptr, uint16_t value) {
+    uint16_t network_value = g_htons(value);
+
+    memcpy(*array_ptr, &network_value, sizeof(uint16_t));
+
+    *array_ptr += sizeof(uint16_t);
+}
+
+static tvbuff_t*
+get_udp_hdr_tvb(packet_info *pinfo _U_, uint16_t pdu_size, const char *string)
+{
+    tvbuff_t *udp_hdr_tvb;
+    uint8_t udp_bytes[8], *arr_ptr;
+    uint16_t str_len, rlc_hdr_len, udp_hdr_len, udp_len;
+
+    str_len = (uint16_t)strlen(string);
+    rlc_hdr_len = str_len + 5;
+
+    udp_hdr_len = 8;
+    udp_len = udp_hdr_len + rlc_hdr_len + pdu_size;
+
+    arr_ptr = udp_bytes;
+    store_uint16(&arr_ptr, UDP_SRC_PORT);  /* Source Port */
+    store_uint16(&arr_ptr, UDP_DST_PORT);  /* Destination Port */
+    store_uint16(&arr_ptr, udp_len);       /* Length */
+    store_uint16(&arr_ptr, 0xffff);        /* Checksum */
+
+    udp_hdr_tvb = tvb_new_real_data(udp_bytes, udp_hdr_len, udp_hdr_len);
+
+    return udp_hdr_tvb;
+}
+
+static tvbuff_t*
+get_rlc_hdr_tvb(packet_info *pinfo, uint8_t direction)
+{
+    tvbuff_t *rlc_hdr_tvb;
+    uint8_t *rlc_bytes;
+    uint16_t str_len, rlc_hdr_len;
+
+    str_len = (uint16_t)strlen(RLC_START_STRING);
+    rlc_hdr_len = str_len + 5;
+
+    rlc_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, rlc_hdr_len);
+
+    memcpy(rlc_bytes, RLC_START_STRING, str_len);
+    rlc_bytes[str_len++] = RLC_MODE_TAG;
+    rlc_bytes[str_len++] = RLC_AM;
+    rlc_bytes[str_len++] = RLC_DIRECTION_TAG;
+    rlc_bytes[str_len++] = direction;
+    rlc_bytes[str_len++] = RLC_PAYLOAD_TAG;
+
+    rlc_hdr_tvb = tvb_new_real_data(rlc_bytes, rlc_hdr_len, rlc_hdr_len);
+
+    return rlc_hdr_tvb;
+}
+
+static tvbuff_t*
+get_gsmtap_hdr_tvb(packet_info *pinfo, uint8_t type, uint16_t arfcn, uint32_t frame_nr, uint8_t subtype, uint8_t subslot)
+{
+    tvbuff_t *gsmtap_hdr_tvb;
+    uint8_t *gsmtap_bytes;
+
+    gsmtap_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 16);
+
+    gsmtap_bytes[GSMTAP_HDR_VERSION]         = 0x02;
+    gsmtap_bytes[GSMTAP_HDR_HDR_LEN]         = 0x04;
+    gsmtap_bytes[GSMTAP_HDR_TYPE]            = type;
+    gsmtap_bytes[GSMTAP_HDR_ARFCN_4]         = arfcn >> 8;
+    gsmtap_bytes[GSMTAP_HDR_ARFCN_5]         = arfcn & 0xff;
+    gsmtap_bytes[GSMTAP_HDR_FRAME_NUMBER_8]  = (frame_nr >> 24) & 0xff;
+    gsmtap_bytes[GSMTAP_HDR_FRAME_NUMBER_9]  = (frame_nr >> 16) & 0xff;
+    gsmtap_bytes[GSMTAP_HDR_FRAME_NUMBER_10] = (frame_nr >>  8) & 0xff;
+    gsmtap_bytes[GSMTAP_HDR_FRAME_NUMBER_11] = frame_nr & 0xff;
+    gsmtap_bytes[GSMTAP_HDR_SUB_TYPE]        = subtype;
+    gsmtap_bytes[GSMTAP_HDR_SUB_SLOT]        = subslot;
+
+    gsmtap_hdr_tvb = tvb_new_real_data(gsmtap_bytes, 16, 16);
+
+    return gsmtap_hdr_tvb;
+}
+
 static uint32_t
 get_lte_rrc_subtype(uint32_t pkt_ver, uint32_t pdu)
 {
@@ -651,15 +901,163 @@ get_lte_rrc_subtype(uint32_t pkt_ver, uint32_t pdu)
     return try_val_to_int(pdu, selected_map);
 }
 
+static void
+dissect_qcdiag_log_wcdma_search_cell_resel_rank(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    proto_tree *subtree;
+    uint8_t i, len, version, num_wcdma, num_gsm;
+    int8_t rscp, rssi;
+    int16_t rscp_rank, ecio_rank, rssi_rank, h_val;
+    float ecio;
+
+    /* Version */
+    proto_tree_add_item_ret_uint8(log_tree, hf_qcdiag_wcdma_crr_ver, tvb, offset, 1, ENC_NA, &version);
+
+    /* Number of WCDMA Cells */
+    proto_tree_add_item_ret_uint8(log_tree, hf_qcdiag_wcdma_crr_num_3g, tvb, offset, 1, ENC_NA, &num_wcdma);
+    offset += 1;
+
+    /* Reserved */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_crr_reserved, tvb, offset, 1, ENC_NA);
+
+    /* Number of GSM Cells */
+    proto_tree_add_item_ret_uint8(log_tree, hf_qcdiag_wcdma_crr_num_2g, tvb, offset, 1, ENC_NA, &num_gsm);
+    offset += 1;
+
+    if (!(version == 0 || version == 1 || version == 2))
+        return;
+
+    /* From Version 2 there are 5 more bytes (so far unknown) */
+    if (version == 2)
+        offset += 5;
+
+    for (i = 0; i < num_wcdma; i++) {
+        len = 10;
+        if (version == 1) len = 11;
+        if (version == 2) len = 16;
+
+        subtree = proto_tree_add_subtree_format(log_tree, tvb, offset, len,
+                   ett_qcdiag_log_wcdma_crr_wcmda, NULL, "WCDMA Cell %d", i);
+
+        /* RF Channel Frequency */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_crr_uarfcn_3g, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        /* Primary Scrambling Code */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_crr_psc_3g, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        rscp = tvb_get_int8(tvb, offset) - 21;
+
+        /* Received Signal Code Power */
+        proto_tree_add_int(subtree, hf_qcdiag_wcdma_crr_rscp_3g, tvb, offset, 1, rscp);
+        offset += 1;
+
+        rscp_rank = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+        /* Cell Ranking RSCP */
+        proto_tree_add_int(subtree, hf_qcdiag_wcdma_crr_rscp_rank_3g, tvb, offset, 2, rscp_rank);
+        offset += 2;
+
+        ecio = (tvb_get_uint8(tvb, offset)-256) / 2.f;
+
+        /* Energy Per Chip Over Interference */
+        proto_tree_add_float(subtree, hf_qcdiag_wcdma_crr_ecio_3g, tvb, offset, 1, ecio);
+        offset += 1;
+
+        ecio_rank = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+        /* Cell Ranking Ec/Io */
+        proto_tree_add_int(subtree, hf_qcdiag_wcdma_crr_ecio_rank_3g, tvb, offset, 2, ecio_rank);
+        offset += 2;
+
+        // TODO: identify the reselection status values
+        if (version > 0) {
+            /* Reselection Status */
+            proto_tree_add_item(subtree, hf_qcdiag_wcdma_crr_resel_status, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (version > 1) {
+            /* Hierarchical Cell Structure (HCS) Priority */
+            proto_tree_add_item(subtree, hf_qcdiag_wcdma_crr_hcs_priority, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            h_val = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+            /* H Value */
+            proto_tree_add_int(subtree, hf_qcdiag_wcdma_crr_h_value, tvb, offset, 2, h_val);
+            offset += 2;
+
+            /* Hierarchical Cell Structure (HCS) Cell Qualify */
+            proto_tree_add_item(subtree, hf_qcdiag_wcdma_crr_hcs_cell_qualify, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+    }
+
+    for (i = 0; i < num_gsm; i++) {
+        len = 7;
+        if (version == 1) len = 8;
+        if (version == 2) len = 13;
+
+        subtree = proto_tree_add_subtree_format(log_tree, tvb, offset, len,
+                   ett_qcdiag_log_wcdma_crr_gsm, NULL, "GSM Cell %d", i);
+
+        /* RF Channel Frequency */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_crr_arfcn_2g, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        // TODO: interpret BSIC: NCC/BCC (1 byte each or 3-3 bits?)
+        /* Base Station Identity Code */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_crr_bsic_2g, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        rssi = tvb_get_int8(tvb, offset);
+
+        /* Received Signal Strength Indicator */
+        proto_tree_add_int(subtree, hf_qcdiag_wcdma_crr_rssi_2g, tvb, offset, 1, rssi);
+        offset += 1;
+
+        rssi_rank = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+        /* Cell Ranking RSSI */
+        proto_tree_add_int(subtree, hf_qcdiag_wcdma_crr_rssi_rank_2g, tvb, offset, 2, rssi_rank);
+        offset += 2;
+
+        // TODO: is there a Band here? E.g.: Band = 0 (900/1800)
+
+        // TODO: identify the reselection status values
+        if (version > 0) {
+            /* Reselection Status */
+            proto_tree_add_item(subtree, hf_qcdiag_wcdma_crr_resel_status, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (version > 1) {
+            /* Hierarchical Cell Structure (HCS) Priority */
+            proto_tree_add_item(subtree, hf_qcdiag_wcdma_crr_hcs_priority, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            h_val = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+            /* H Value */
+            proto_tree_add_int(subtree, hf_qcdiag_wcdma_crr_h_value, tvb, offset, 2, h_val);
+            offset += 2;
+
+            /* Hierarchical Cell Structure (HCS) Cell Qualify */
+            proto_tree_add_item(subtree, hf_qcdiag_wcdma_crr_hcs_cell_qualify, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+    }
+}
 
 static void
-dissect_qcdiag_log_wcdma(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
+dissect_qcdiag_log_wcdma_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
 {
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb;
     uint32_t ct_offset, chan_type, subtype, uplink;
     uint32_t arfcn_val;
     int hf_rrc_ct, hf_qcdiag_subtype;
-    uint8_t *gsmtap_hdr_bytes;
 
     uint32_t arfcn[] = { 0, 0 };
 
@@ -771,18 +1169,8 @@ dissect_qcdiag_log_wcdma(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_
         proto_tree_add_item(log_tree, hf_qcdiag_subtype, tvb, offset-1, 1, ENC_NA);
     }
 
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_UMTS_RRC, arfcn[0], 0, subtype, 0);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
-
-    gsmtap_hdr_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 16);
-
-    gsmtap_hdr_bytes[GSMTAP_HDR_VERSION]  = 0x02;
-    gsmtap_hdr_bytes[GSMTAP_HDR_HDR_LEN]  = 0x04;
-    gsmtap_hdr_bytes[GSMTAP_HDR_TYPE]     = GSMTAP_TYPE_UMTS_RRC;
-    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_4]  = arfcn[0] >> 8;
-    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_5]  = arfcn[0] & 0xff;
-    gsmtap_hdr_bytes[GSMTAP_HDR_SUB_TYPE] = subtype;
-
-    gsmtap_hdr_tvb = tvb_new_real_data(gsmtap_hdr_bytes, 16, 16);
 
     gsmtap_tvb = tvb_new_composite();
     tvb_composite_append(gsmtap_tvb, gsmtap_hdr_tvb);
@@ -797,14 +1185,492 @@ dissect_qcdiag_log_wcdma(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_
 }
 
 static void
-dissect_qcdiag_log_rr(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
+dissect_qcdiag_log_wcdma_rrc_states(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    uint32_t state;
+    const char *state_str;
+
+    /* RRC State */
+    proto_tree_add_item_ret_uint(log_tree, hf_qcdiag_wcdma_rrc_state, tvb, offset, 1, ENC_NA, &state);
+
+    state_str = val_to_str(pinfo->pool, state, wcdma_rrc_states_vals, "Unknown State (%d)");
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", state_str);
+}
+
+static void
+dissect_qcdiag_log_wcdma_rrc_prot_errors(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    /* RRC State */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_rrc_state, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* RRC Procedure */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_rrc_procedure, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* RRC Failure Cause */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_rrc_failure_cause, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* RRC Protocol Error Cause */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_rrc_prot_err_cause, tvb, offset, 1, ENC_NA);
+}
+
+static void
+dissect_qcdiag_log_wcdma_cell_id(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    proto_tree *subtree;
+    proto_item *item;
+    uint64_t mcc_mnc;
+    uint32_t mcc, mnc;
+    uint8_t mcc1, mcc2, mcc3;
+    uint8_t mnc1, mnc2, mnc3;
+    char *mcc_str, *mnc_str;
+
+    /* UL UTRA ARFCN */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_cid_ul_uarfcn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* DL UTRA ARFCN  */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_cid_dl_uarfcn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* Cell Id */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_cid_cell_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* UTRAN Registration Area */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_cid_ura_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* Cell Access Restrictions */
+    subtree = proto_tree_add_subtree_format(log_tree, tvb, offset, 1,
+                   ett_qcdiag_log_wcdma_cid_car, NULL, "Cell Access Restrictions");
+
+    /* Cell Barred */
+    proto_tree_add_item(subtree, hf_qcdiag_wcdma_cid_cell_barred, tvb, offset, 1, ENC_NA);
+
+    /* Cell Reserved */
+    proto_tree_add_item(subtree, hf_qcdiag_wcdma_cid_cell_reserved, tvb, offset, 1, ENC_NA);
+
+    /* Cell Reserved for SoLSA */
+    proto_tree_add_item(subtree, hf_qcdiag_wcdma_cid_cell_solsa, tvb, offset, 1, ENC_NA);
+
+    /* UE Camped on Cell */
+    proto_tree_add_item(subtree, hf_qcdiag_wcdma_cid_ue_camped, tvb, offset, 1, ENC_NA);
+
+    /* Reserved */
+    proto_tree_add_item(subtree, hf_qcdiag_wcdma_cid_reserved, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* Allowed Call Access */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_cid_allowed_call_access, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* Primary Scrambling Code */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_cid_psc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    mcc_mnc = tvb_get_ntoh48(tvb, offset);
+
+    mcc1 = tvb_get_uint8(tvb, offset);
+    mcc2 = tvb_get_uint8(tvb, offset+1);
+    mcc3 = tvb_get_uint8(tvb, offset+2);
+    mcc = 100*mcc1 + 10*mcc2 + mcc3;
+    mcc_str = wmem_strdup_printf(pinfo->pool, "%03u", mcc);
+
+    /* MCC */
+    item = proto_tree_add_string_format_value(log_tree, hf_qcdiag_wcdma_cid_mcc, tvb,
+               offset, 3, mcc_str, "%s (%s)",
+               val_to_str_ext_const(mcc, &E212_codes_ext, "Unknown"),
+               mcc_str);
+
+    if (((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9)) && (mcc_mnc != 0xffffffffffff))
+        expert_add_info(pinfo, item, &ei_qcdiag_log_mcc_non_decimal);
+
+    offset += 3;
+
+    mnc1 = tvb_get_uint8(tvb, offset);
+    mnc2 = tvb_get_uint8(tvb, offset+1);
+    mnc3 = tvb_get_uint8(tvb, offset+2);
+    if (mnc3 != 0xf) {
+        mnc = 100 * mnc1 + 10 * mnc2 + mnc3;
+        mnc_str = wmem_strdup_printf(pinfo->pool, "%03u", mnc);
+    } else {
+        mnc = 10 * mnc1 + mnc2;
+        mnc_str = wmem_strdup_printf(pinfo->pool, "%02u", mnc);
+    }
+
+    /* MNC */
+    if (mnc3 != 0xf) {
+        item = proto_tree_add_string_format_value(log_tree, hf_qcdiag_wcdma_cid_mnc, tvb,
+                   offset, 3, mnc_str, "%s (%s)",
+                   val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_3digits_codes_ext, "Unknown"),
+                   mnc_str);
+    } else {
+        item = proto_tree_add_string_format_value(log_tree, hf_qcdiag_wcdma_cid_mnc, tvb,
+                   offset, 3, mnc_str, "%s (%s)",
+                   val_to_str_ext_const(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext, "Unknown"),
+                   mnc_str);
+    }
+
+    if (((mnc1 > 9) || (mnc2 > 9) || ((mnc3 > 9) && (mnc3 != 0x0f))) && (mcc_mnc != 0xffffffffffff))
+        expert_add_info(pinfo, item, &ei_qcdiag_log_mnc_non_decimal);
+
+    offset += 3;
+
+    /* LAC */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_cid_lac, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* RAC */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_cid_rac, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+    //umts_last_uarfcn_ul[radio_id] = ul_uarfcn
+    //umts_last_uarfcn_dl[radio_id] = dl_uarfcn
+    //umts_last_cell_id[radio_id]   = psc
+}
+
+static void
+dissect_qcdiag_log_wcdma_rlc_dl_am_signaling_pdu(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    tvbuff_t *payload_tvb, *udp_hdr_tvb, *rlc_tvb, *rlc_hdr_tvb;
+    proto_tree *subtree;
+    uint8_t i, num;
+    uint16_t pdu_count, pdu_size;
+
+    /* Number of Entities */
+    proto_tree_add_item_ret_uint8(log_tree, hf_qcdiag_wcdma_rlc_num_ent, tvb, offset, 1, ENC_NA, &num);
+    offset += 1;
+
+    for (i = 0; i < num; i++) {
+        pdu_size = tvb_get_uint16(tvb, offset+3, ENC_LITTLE_ENDIAN);
+
+        /* Entity # */
+        subtree = proto_tree_add_subtree_format(log_tree, tvb, offset, 5+pdu_size,
+                   ett_qcdiag_log_wcdma_rlc_dl_am_sig, NULL, "Entity %d", i);
+
+        /* Logical Channel Id */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_lcid, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        /* PDU Count */
+        proto_tree_add_item_ret_uint16(subtree, hf_qcdiag_wcdma_rlc_pdu_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &pdu_count);
+        offset += 2;
+
+        /* PDU Size in Bits */
+        proto_tree_add_uint(subtree, hf_qcdiag_wcdma_rlc_pdu_size_bits, tvb, offset, 2, pdu_size);
+        offset += 2;
+
+        udp_hdr_tvb = get_udp_hdr_tvb(pinfo, pdu_size, RLC_START_STRING);
+        rlc_hdr_tvb = get_rlc_hdr_tvb(pinfo, DIRECTION_DOWNLINK);
+        payload_tvb = tvb_new_subset_length(tvb, offset, pdu_size);
+
+        offset += pdu_size;
+
+        /* To be able to call "RLC over UDP", an UDP header is also required */
+        rlc_tvb = tvb_new_composite();
+        tvb_composite_append(rlc_tvb, udp_hdr_tvb);
+        tvb_composite_append(rlc_tvb, rlc_hdr_tvb);
+        tvb_composite_append(rlc_tvb, payload_tvb);
+        tvb_composite_finalize(rlc_tvb);
+
+        /* "RLC over UDP" heuristic UDP dissector is disabled by default */
+        if (hdtbl_entry && !heur_rlc_udp_enabled)
+            hdtbl_entry->enabled = HEURISTIC_ENABLE;
+
+        add_new_data_source(pinfo, rlc_tvb, "WCDMA RLC");
+        try_call_dissector(udp_handle, rlc_tvb, pinfo, proto_tree_get_parent_tree(tree));
+
+        if (hdtbl_entry && !heur_rlc_udp_enabled)
+            hdtbl_entry->enabled = HEURISTIC_DISABLE;
+    }
+}
+
+static void
+dissect_qcdiag_log_wcdma_rlc_ul_am_signaling_pdu(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    tvbuff_t *payload_tvb, *udp_hdr_tvb, *rlc_tvb, *rlc_hdr_tvb;
+    proto_tree *subtree;
+    uint8_t i, num;
+    uint16_t pdu_count, pdu_size;
+
+    /* Number of Entities */
+    proto_tree_add_item_ret_uint8(log_tree, hf_qcdiag_wcdma_rlc_num_ent, tvb, offset, 1, ENC_NA, &num);
+    offset += 1;
+
+    for (i = 0; i < num; i++) {
+        pdu_size = tvb_get_uint16(tvb, offset+3, ENC_LITTLE_ENDIAN);
+
+        /* Entity # */
+        subtree = proto_tree_add_subtree_format(log_tree, tvb, offset, 5+pdu_size,
+                   ett_qcdiag_log_wcdma_rlc_dl_am_sig, NULL, "Entity %d", i);
+
+        /* Logical Channel Id */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_lcid, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        /* PDU Count */
+        proto_tree_add_item_ret_uint16(subtree, hf_qcdiag_wcdma_rlc_pdu_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &pdu_count);
+        offset += 2;
+
+        /* PDU Size in Bits */
+        proto_tree_add_uint(subtree, hf_qcdiag_wcdma_rlc_pdu_size_bits, tvb, offset, 2, pdu_size);
+        offset += 2;
+
+        udp_hdr_tvb = get_udp_hdr_tvb(pinfo, pdu_size, RLC_START_STRING);
+        rlc_hdr_tvb = get_rlc_hdr_tvb(pinfo, DIRECTION_UPLINK);
+        payload_tvb = tvb_new_subset_length(tvb, offset, pdu_size);
+
+        offset += pdu_size;
+
+        /* To be able to call "RLC over UDP", an UDP header is also required */
+        rlc_tvb = tvb_new_composite();
+        tvb_composite_append(rlc_tvb, udp_hdr_tvb);
+        tvb_composite_append(rlc_tvb, rlc_hdr_tvb);
+        tvb_composite_append(rlc_tvb, payload_tvb);
+        tvb_composite_finalize(rlc_tvb);
+
+        /* "RLC over UDP" heuristic UDP dissector is disabled by default */
+        if (hdtbl_entry && !heur_rlc_udp_enabled)
+            hdtbl_entry->enabled = HEURISTIC_ENABLE;
+
+        add_new_data_source(pinfo, rlc_tvb, "WCDMA RLC");
+        try_call_dissector(udp_handle, rlc_tvb, pinfo, proto_tree_get_parent_tree(tree));
+
+        if (hdtbl_entry && !heur_rlc_udp_enabled)
+            hdtbl_entry->enabled = HEURISTIC_DISABLE;
+    }
+}
+
+static void
+dissect_qcdiag_log_wcdma_rlc_ul_am_control_pdu(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    tvbuff_t *payload_tvb, *udp_hdr_tvb, *rlc_tvb, *rlc_hdr_tvb;
+    uint16_t pdu_size;
+
+    /* Logical Channel Id */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_rlc_lcid, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* PDU Size */
+    proto_tree_add_item_ret_uint16(log_tree, hf_qcdiag_wcdma_rlc_pdu_size, tvb, offset, 2, ENC_LITTLE_ENDIAN, &pdu_size);
+    offset += 2;
+
+    udp_hdr_tvb = get_udp_hdr_tvb(pinfo, pdu_size, RLC_START_STRING);
+    rlc_hdr_tvb = get_rlc_hdr_tvb(pinfo, DIRECTION_UPLINK);
+    payload_tvb = tvb_new_subset_length(tvb, offset, pdu_size);
+
+    /* To be able to call "RLC over UDP", an UDP header is also required */
+    rlc_tvb = tvb_new_composite();
+    tvb_composite_append(rlc_tvb, udp_hdr_tvb);
+    tvb_composite_append(rlc_tvb, rlc_hdr_tvb);
+    tvb_composite_append(rlc_tvb, payload_tvb);
+    tvb_composite_finalize(rlc_tvb);
+
+    /* "RLC over UDP" heuristic UDP dissector is disabled by default */
+    if (hdtbl_entry && !heur_rlc_udp_enabled)
+        hdtbl_entry->enabled = HEURISTIC_ENABLE;
+
+    add_new_data_source(pinfo, rlc_tvb, "WCDMA RLC");
+    try_call_dissector(udp_handle, rlc_tvb, pinfo, proto_tree_get_parent_tree(tree));
+
+    if (hdtbl_entry && !heur_rlc_udp_enabled)
+        hdtbl_entry->enabled = HEURISTIC_DISABLE;
+}
+
+static void
+dissect_qcdiag_log_wcdma_rlc_dl_am_control_pdu(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    tvbuff_t *payload_tvb, *udp_hdr_tvb, *rlc_tvb, *rlc_hdr_tvb;
+    uint16_t pdu_size;
+
+    /* Logical Channel Id */
+    proto_tree_add_item(log_tree, hf_qcdiag_wcdma_rlc_lcid, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* PDU Size */
+    proto_tree_add_item_ret_uint16(log_tree, hf_qcdiag_wcdma_rlc_pdu_size, tvb, offset, 2, ENC_LITTLE_ENDIAN, &pdu_size);
+    offset += 2;
+
+    udp_hdr_tvb = get_udp_hdr_tvb(pinfo, pdu_size, RLC_START_STRING);
+    rlc_hdr_tvb = get_rlc_hdr_tvb(pinfo, DIRECTION_DOWNLINK);
+    payload_tvb = tvb_new_subset_length(tvb, offset, pdu_size);
+
+    /* To be able to call "RLC over UDP", an UDP header is also required */
+    rlc_tvb = tvb_new_composite();
+    tvb_composite_append(rlc_tvb, udp_hdr_tvb);
+    tvb_composite_append(rlc_tvb, rlc_hdr_tvb);
+    tvb_composite_append(rlc_tvb, payload_tvb);
+    tvb_composite_finalize(rlc_tvb);
+
+    /* "RLC over UDP" heuristic UDP dissector is disabled by default */
+    if (hdtbl_entry && !heur_rlc_udp_enabled)
+        hdtbl_entry->enabled = HEURISTIC_ENABLE;
+
+    add_new_data_source(pinfo, rlc_tvb, "WCDMA RLC");
+    try_call_dissector(udp_handle, rlc_tvb, pinfo, proto_tree_get_parent_tree(tree));
+
+    if (hdtbl_entry && !heur_rlc_udp_enabled)
+        hdtbl_entry->enabled = HEURISTIC_DISABLE;
+}
+
+static void
+dissect_qcdiag_log_wcdma_rlc_dl_am_cipher_pdu(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    proto_tree *subtree;
+    uint16_t i, num;
+
+    /* Number of PDUs */
+    proto_tree_add_item_ret_uint16(log_tree, hf_qcdiag_wcdma_rlc_num_pdu, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num);
+    offset += 2;
+
+    for (i = 0; i < num; i++) {
+        /* PDU # */
+        subtree = proto_tree_add_subtree_format(log_tree, tvb, offset, 14,
+                   ett_qcdiag_log_wcdma_rlc_dl_am_ciph, NULL, "PDU %d", i);
+
+        /* Logical Channel Id */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_lcid, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        /* Ciphering Key */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_ciph_key, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        /* Ciphering Algorithm */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_ciph_alg, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        /* Ciphered Message */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_ciph_msg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        /* Count C */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_ciph_countc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+}
+
+static void
+dissect_qcdiag_log_wcdma_rlc_ul_am_cipher_pdu(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    proto_tree *subtree;
+    uint16_t i, num;
+
+    /* Number of PDUs */
+    proto_tree_add_item_ret_uint16(log_tree, hf_qcdiag_wcdma_rlc_num_pdu, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num);
+    offset += 2;
+
+    for (i = 0; i < num; i++) {
+        /* PDU # */
+        subtree = proto_tree_add_subtree_format(log_tree, tvb, offset, 10,
+                   ett_qcdiag_log_wcdma_rlc_ul_am_ciph, NULL, "PDU %d", i);
+
+        /* Logical Channel Id */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_lcid, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        /* Ciphering Key */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_ciph_key, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        /* Ciphering Algorithm */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_ciph_alg, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        /* Count C */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_rlc_ciph_countc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+}
+
+/* Decoded Example
+ *
+ * [0x41B0] WCDMA Freq Scan
+ * Version          = 1
+ * Freq Scan Type   = List scan (3)
+ * Freq Scan Thresh = -482
+ * Number of ARFCN  = 1
+ * -----------------------
+ * |   |     |RSSI |RSSI |
+ * |#  |ARFCN|(raw)|(dBm)|
+ * -----------------------
+ * |  0|10663|     |  -72|
+ * -----------------------
+ *
+ * Source: https://bchobby.github.io/posts/e3323df4cade84fa0b850a2b85ef1d14/
+ */
+
+static void
+dissect_qcdiag_log_wcdma_freq_scan(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo _U_, proto_tree *log_tree, proto_tree *tree _U_)
+{
+    proto_tree *subtree;
+    proto_item *generated_item;
+    uint8_t i, num, type;
+    int16_t val;
+
+    /* Version */
+    proto_tree_add_item(log_tree, hf_qcdiag_log_ver, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* Frequency Scan Type */
+    proto_tree_add_item_ret_uint8(log_tree, hf_qcdiag_wcdma_freq_scan_type, tvb, offset, 1, ENC_NA, &type);
+    offset += 1;
+
+    val = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+    /* Frequency Scan Threshold */
+    proto_tree_add_int(log_tree, hf_qcdiag_wcdma_freq_scan_thres, tvb, offset, 2, val);
+    offset += 2;
+
+    /* Number of ARFCN */
+    proto_tree_add_item_ret_uint8(log_tree, hf_qcdiag_wcdma_freq_scan_num, tvb, offset, 1, ENC_NA, &num);
+    offset += 1;
+
+    for (i = 0; i < num; i++) {
+        /* Frequency # */
+        subtree = proto_tree_add_subtree_format(log_tree, tvb, offset, 4,
+                   ett_qcdiag_log_wcdma_freq_scan, NULL, "Frequency %d", i);
+
+        /* ARFCN */
+        proto_tree_add_item(subtree, hf_qcdiag_wcdma_freq_scan_arfcn, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
+
+        val = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+        if (type == 2) {
+            /* RSSI (raw) */
+            proto_tree_add_int(subtree, hf_qcdiag_wcdma_freq_scan_rssi_raw, tvb, offset, 2, val);
+
+            /* Convert raw to dBm
+             *
+             * RSSI (dBm) = (0.474 * raw) – 112
+             * The 0.474 value is the RSSI step size, in dB/LSB.
+             * -112 dBm will be the minimum read out value.
+             */
+            val = (int16_t)(0.474 * val) - 112;
+
+            /* RSSI (dBm) */
+            generated_item = proto_tree_add_int(subtree, hf_qcdiag_wcdma_freq_scan_rssi_dbm, tvb, offset, 0, val);
+            proto_item_set_generated(generated_item);
+        } else if (type == 3) {
+            /* RSSI (dBm) */
+            proto_tree_add_int(subtree, hf_qcdiag_wcdma_freq_scan_rssi_dbm, tvb, offset, 2, val);
+        }
+
+        offset += 4;
+    }
+}
+
+static void
+dissect_qcdiag_log_rr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
 {
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb, *lapdm_tvb;
     uint32_t channel_type_dir, channel_type, length;
-    uint8_t *gsmtap_hdr_bytes, *lapdm_bytes;
+    uint8_t *lapdm_bytes;
     bool direction;
 
-    uint32_t arfcn[] = { 0, 0 };
+    uint16_t arfcn[] = { 0, 0 };
 
     channel_type_dir = (uint32_t)tvb_get_uint8(tvb, offset);
 
@@ -834,7 +1700,7 @@ dissect_qcdiag_log_rr(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tre
 
     channel_type = try_val_to_int(channel_type_dir & 0x7f, gsm_rr_channel_type_map);
 
-    lapdm_bytes = NULL;
+    lapdm_tvb = NULL;
 
     /* DCCH, SACCH requires pseudo length */
     if (channel_type == 0) {
@@ -859,23 +1725,12 @@ dissect_qcdiag_log_rr(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tre
         lapdm_tvb = tvb_new_real_data(lapdm_bytes, 5, 5);
     }
 
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_UM, arfcn[0], 0, channel_type, 0);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
-
-    gsmtap_hdr_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 16);
-
-    gsmtap_hdr_bytes[GSMTAP_HDR_VERSION]  = 0x02;
-    gsmtap_hdr_bytes[GSMTAP_HDR_HDR_LEN]  = 0x04;
-    gsmtap_hdr_bytes[GSMTAP_HDR_TYPE]     = GSMTAP_TYPE_UM;
-    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_4]  = arfcn[0] >> 8;
-    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_5]  = arfcn[0] & 0xff;
-    gsmtap_hdr_bytes[GSMTAP_HDR_SUB_TYPE] = channel_type;
-
-    gsmtap_hdr_tvb = tvb_new_real_data(gsmtap_hdr_bytes, 16, 16);
 
     gsmtap_tvb = tvb_new_composite();
     tvb_composite_append(gsmtap_tvb, gsmtap_hdr_tvb);
-    if (lapdm_bytes)
-        tvb_composite_append(gsmtap_tvb, lapdm_tvb);
+    tvb_composite_append(gsmtap_tvb, lapdm_tvb);
     tvb_composite_append(gsmtap_tvb, payload_tvb);
     tvb_composite_finalize(gsmtap_tvb);
 
@@ -887,11 +1742,11 @@ dissect_qcdiag_log_rr(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tre
 }
 
 static void
-dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
+dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
 {
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb, *mac_hdr_tvb;
     uint32_t channel_type_dir, channel_type, length;
-    uint8_t *gsmtap_hdr_bytes, *mac_hdr_bytes;
+    uint8_t *mac_hdr_bytes;
     uint8_t mac_hdr_dl_payload_type, mac_hdr_dl_rrbp, mac_hdr_dl_sp, mac_hdr_dl_usf;
     uint8_t mac_hdr_ul_payload_type, mac_hdr_ul_retry;
     bool direction;
@@ -925,8 +1780,6 @@ dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
         arfcn[0] = arfcn[0] | GSMTAP_ARFCN_F_UPLINK;
 
     channel_type = try_val_to_int(channel_type_dir, gsm_gmac_channel_type_map);
-
-    mac_hdr_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 1);
 
     /* 'GPRS MAC Signaling Message' does not have the 'GSM RLC/MAC' header byte
 
@@ -970,6 +1823,7 @@ dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
          .... ..xx = CTRL_ACK
     */
 
+    mac_hdr_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 1);
 
     if (direction) {
         mac_hdr_ul_payload_type = 0x01;  /* packet-gsm_rlcmac.c, dl_payload_type_vals */
@@ -989,20 +1843,9 @@ dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
         mac_hdr_bytes[0] += mac_hdr_dl_usf;
     }
 
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_UM, arfcn[0], 0, channel_type, 0);
     mac_hdr_tvb = tvb_new_real_data(mac_hdr_bytes, 1, 1);
-
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
-
-    gsmtap_hdr_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 16);
-
-    gsmtap_hdr_bytes[GSMTAP_HDR_VERSION]  = 0x02;
-    gsmtap_hdr_bytes[GSMTAP_HDR_HDR_LEN]  = 0x04;
-    gsmtap_hdr_bytes[GSMTAP_HDR_TYPE]     = GSMTAP_TYPE_UM;
-    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_4]  = arfcn[0] >> 8;
-    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_5]  = arfcn[0] & 0xff;
-    gsmtap_hdr_bytes[GSMTAP_HDR_SUB_TYPE] = channel_type;
-
-    gsmtap_hdr_tvb = tvb_new_real_data(gsmtap_hdr_bytes, 16, 16);
 
     gsmtap_tvb = tvb_new_composite();
     tvb_composite_append(gsmtap_tvb, gsmtap_hdr_tvb);
@@ -1018,11 +1861,11 @@ dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
 }
 
 static void
-dissect_qcdiag_log_umts_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
+dissect_qcdiag_log_umts_nas(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
 {
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb;
+    uint16_t arfcn;
     bool direction;
-    uint8_t *gsmtap_hdr_bytes;
 
     /* Direction */
     proto_tree_add_item_ret_boolean(log_tree, hf_qcdiag_nas_direction, tvb, offset, 1, ENC_NA, &direction);
@@ -1032,16 +1875,10 @@ dissect_qcdiag_log_umts_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
     proto_tree_add_item(log_tree, hf_qcdiag_nas_msg_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
+    arfcn = (uint16_t)(direction) << 14;
+
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_ABIS, arfcn, 0, 0, 0);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
-
-    gsmtap_hdr_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 16);
-
-    gsmtap_hdr_bytes[GSMTAP_HDR_VERSION] = 0x02;
-    gsmtap_hdr_bytes[GSMTAP_HDR_HDR_LEN] = 0x04;
-    gsmtap_hdr_bytes[GSMTAP_HDR_TYPE]    = GSMTAP_TYPE_ABIS;
-    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_4] = (uint8_t)(direction) << 6;
-
-    gsmtap_hdr_tvb = tvb_new_real_data(gsmtap_hdr_bytes, 16, 16);
 
     gsmtap_tvb = tvb_new_composite();
     tvb_composite_append(gsmtap_tvb, gsmtap_hdr_tvb);
@@ -1056,13 +1893,13 @@ dissect_qcdiag_log_umts_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, pro
 }
 
 static void
-dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
+dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
 {
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb;
-    uint8_t *gsmtap_hdr_bytes;
-    uint32_t version, sfn, pdu, subtype, arfcn, earfcn, frame_nr;
+    uint32_t version, sfn, pdu, subtype, subslot, arfcn, earfcn, frame_nr;
     uint8_t lte_rnum, lte_rmajmin, nr_rnum, nr_rmajmin;
     wmem_strbuf_t *buf;
+    const char *lte_buf, *nr_buf;
     bool direction;
 
     /* Packet Version */
@@ -1074,9 +1911,10 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
 
     buf = wmem_strbuf_new(pinfo->pool, "");
     wmem_strbuf_append_printf(buf, "%u.%u.%u", lte_rnum, lte_rmajmin / 16, lte_rmajmin % 16);
+    lte_buf = wmem_strbuf_finalize(buf);
 
     /* LTE Release Number */
-    proto_tree_add_string(log_tree, hf_qcdiag_lte_rrc_rel, tvb, offset, 2, wmem_strbuf_finalize(buf));
+    proto_tree_add_string(log_tree, hf_qcdiag_lte_rrc_rel, tvb, offset, 2, lte_buf);
     offset += 2;
 
     if (version > 24) {
@@ -1085,9 +1923,10 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
 
         buf = wmem_strbuf_new(pinfo->pool, "");
         wmem_strbuf_append_printf(buf, "%u.%u.%u", nr_rnum, nr_rmajmin / 16, nr_rmajmin % 16);
+        nr_buf = wmem_strbuf_finalize(buf);
 
         /* NR Release Number */
-        proto_tree_add_string(log_tree, hf_qcdiag_nr_rrc_rel, tvb, offset, 2, wmem_strbuf_finalize(buf));
+        proto_tree_add_string(log_tree, hf_qcdiag_nr_rrc_rel, tvb, offset, 2, nr_buf);
         offset += 2;
     }
 
@@ -1144,24 +1983,10 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
         arfcn = arfcn | GSMTAP_ARFCN_F_UPLINK;
 
     frame_nr = (sfn & 0xfff0) >> 4;
+    subslot = sfn & 0x000f;
 
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_LTE_RRC, arfcn, frame_nr, subtype, subslot);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
-
-    gsmtap_hdr_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 16);
-
-    gsmtap_hdr_bytes[GSMTAP_HDR_VERSION]         = 0x02;
-    gsmtap_hdr_bytes[GSMTAP_HDR_HDR_LEN]         = 0x04;
-    gsmtap_hdr_bytes[GSMTAP_HDR_TYPE]            = GSMTAP_TYPE_LTE_RRC;
-    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_4]         = arfcn >> 8;
-    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_5]         = arfcn & 0xff;
-    gsmtap_hdr_bytes[GSMTAP_HDR_FRAME_NUMBER_8]  = (frame_nr >> 24) & 0xff;
-    gsmtap_hdr_bytes[GSMTAP_HDR_FRAME_NUMBER_9]  = (frame_nr >> 16) & 0xff;
-    gsmtap_hdr_bytes[GSMTAP_HDR_FRAME_NUMBER_10] = (frame_nr >>  8) & 0xff;
-    gsmtap_hdr_bytes[GSMTAP_HDR_FRAME_NUMBER_11] = frame_nr & 0xff;
-    gsmtap_hdr_bytes[GSMTAP_HDR_SUB_TYPE]        = subtype;
-    gsmtap_hdr_bytes[GSMTAP_HDR_SUB_SLOT]        = sfn & 0x000f;
-
-    gsmtap_hdr_tvb = tvb_new_real_data(gsmtap_hdr_bytes, 16, 16);
 
     gsmtap_tvb = tvb_new_composite();
     tvb_composite_append(gsmtap_tvb, gsmtap_hdr_tvb);
@@ -1176,17 +2001,17 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
 }
 
 static void
-dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree, bool plain)
+dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree, bool plain)
 {
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb;
-    uint32_t arfcn;
-    uint8_t *gsmtap_hdr_bytes;
+    uint16_t arfcn;
     uint8_t msgtype, lte_maj, lte_min, lte_patch;
     wmem_strbuf_t *buf;
+    const char *str_buf;
     bool direction;
 
     /* Version */
-    proto_tree_add_item(log_tree, hf_qcdiag_ver, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(log_tree, hf_qcdiag_log_ver, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     lte_maj   = tvb_get_uint8(tvb, offset);
@@ -1195,9 +2020,10 @@ dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
 
     buf = wmem_strbuf_new(pinfo->pool, "");
     wmem_strbuf_append_printf(buf, "%u.%u.%u", lte_maj, lte_min, lte_patch);
+    str_buf = wmem_strbuf_finalize(buf);
 
     /* Release Version */
-    proto_tree_add_string(log_tree, hf_qcdiag_lte_nas_rel, tvb, offset, 3, wmem_strbuf_finalize(buf));
+    proto_tree_add_string(log_tree, hf_qcdiag_lte_nas_rel, tvb, offset, 3, str_buf);
     offset += 3;
 
     /* Message Type */
@@ -1216,17 +2042,8 @@ dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
 
     arfcn = (direction) ? GSMTAP_ARFCN_F_UPLINK : 0;
 
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_LTE_NAS, arfcn, 0, !plain, 0);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
-
-    gsmtap_hdr_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 16);
-
-    gsmtap_hdr_bytes[GSMTAP_HDR_VERSION]  = 0x02;
-    gsmtap_hdr_bytes[GSMTAP_HDR_HDR_LEN]  = 0x04;
-    gsmtap_hdr_bytes[GSMTAP_HDR_TYPE]     = GSMTAP_TYPE_LTE_NAS;
-    gsmtap_hdr_bytes[GSMTAP_HDR_ARFCN_4]  = arfcn >> 8;
-    gsmtap_hdr_bytes[GSMTAP_HDR_SUB_TYPE] = !plain;
-
-    gsmtap_hdr_tvb = tvb_new_real_data(gsmtap_hdr_bytes, 16, 16);
 
     gsmtap_tvb = tvb_new_composite();
     tvb_composite_append(gsmtap_tvb, gsmtap_hdr_tvb);
@@ -1362,18 +2179,60 @@ dissect_qcdiag_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
 
     switch (code) {
-    case 0x512f:
-        dissect_qcdiag_log_rr(tvb, offset, pinfo, diag_log_tree, tree);
+    /* 1X - 0x1000 log code base */
+
+    /* WCDMA - 0x4000 log code base */
+    case 0x4005:
+        dissect_qcdiag_log_wcdma_search_cell_resel_rank(tvb, offset, pinfo, diag_log_tree, tree);
         break;
     case 0x412f:
-        dissect_qcdiag_log_wcdma(tvb, offset, pinfo, diag_log_tree, tree);
+        dissect_qcdiag_log_wcdma_rrc(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0x4125:
+        dissect_qcdiag_log_wcdma_rrc_states(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0x4126:
+        dissect_qcdiag_log_wcdma_rrc_prot_errors(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0x4127:
+        dissect_qcdiag_log_wcdma_cell_id(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0x4135:
+        dissect_qcdiag_log_wcdma_rlc_dl_am_signaling_pdu(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0x413c:
+        dissect_qcdiag_log_wcdma_rlc_ul_am_signaling_pdu(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0x4145:
+        dissect_qcdiag_log_wcdma_rlc_ul_am_control_pdu(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0x4146:
+        dissect_qcdiag_log_wcdma_rlc_dl_am_control_pdu(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0x4168:
+        dissect_qcdiag_log_wcdma_rlc_dl_am_cipher_pdu(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0x4169:
+        dissect_qcdiag_log_wcdma_rlc_ul_am_cipher_pdu(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0x41b0:
+        dissect_qcdiag_log_wcdma_freq_scan(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+
+    /* GSM - 0x5000 log code base */
+    case 0x512f:
+        dissect_qcdiag_log_rr(tvb, offset, pinfo, diag_log_tree, tree);
         break;
     case 0x5226:
         dissect_qcdiag_log_gprs_mac(tvb, offset, pinfo, diag_log_tree, tree);
         break;
+
+    /* UMTS - 0x7000 log code base */
     case 0x713a:
         dissect_qcdiag_log_umts_nas(tvb, offset, pinfo, diag_log_tree, tree);
         break;
+
+    /* LTE - 0xB000 log code base (0xB010 - 0xB1FF ) */
     case 0xb0c0:
         dissect_qcdiag_log_lte_rrc(tvb, offset, pinfo, diag_log_tree, tree);
         break;
@@ -1393,6 +2252,9 @@ dissect_qcdiag_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     case 0xb0ed:
         dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, true);
         break;
+
+    /* NR - 0xB800 log code base (0xB800 - 0xB9FF ) */
+
     default:
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         dissector_try_uint(qcdiag_log_code_dissector_table, code, payload_tvb, pinfo, diag_log_tree);
@@ -1406,10 +2268,10 @@ void
 proto_register_qcdiag_log(void)
 {
     static hf_register_info hf[] = {
-        { &hf_qcdiag_ver,
+        { &hf_qcdiag_log_ver,
           { "Version", "qcdiag_log.ver",
             FT_UINT8, BASE_CUSTOM, CF_FUNC(qcdiag_format_ver), 0, "Log Code Version", HFILL }},
-        { &hf_qcdiag_ver_4,
+        { &hf_qcdiag_log_ver_4,
           { "Version", "qcdiag_log.ver",
             FT_UINT32, BASE_CUSTOM, CF_FUNC(qcdiag_format_ver), 0, "Log Code Version", HFILL }},
         { &hf_qcdiag_log_len,
@@ -1431,7 +2293,7 @@ proto_register_qcdiag_log(void)
           { "PCS band indicator", "qcdiag_log.pcs_band",
             FT_UINT16, BASE_DEC, NULL, GSMTAP_ARFCN_F_PCS, NULL, HFILL } },
         { &hf_qcdiag_psc,
-          { "Primary Scrambling Code", "qcdiag_log.psc",
+          { "Primary Scrambling Code (PSC)", "qcdiag_log.psc",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_qcdiag_subtype_v1,
           { "Subtype", "qcdiag_log.subtype",
@@ -1493,6 +2355,177 @@ proto_register_qcdiag_log(void)
           {"Radio Bearer Id", "qcdiag_log.rrc.rb_id",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 
+        /* WCDMA */
+        { &hf_qcdiag_wcdma_cid_ul_uarfcn,
+          { "UL UTRA ARFCN", "qcdiag_log.wcdma_cid.ul_uarfcn",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_dl_uarfcn,
+          { "DL UTRA ARFCN", "qcdiag_log.wcdma_cid.dl_uarfcn",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_cell_id,
+          { "Cell Id", "qcdiag_log.wcdma_cid.cell_id",
+            FT_UINT32, BASE_DEC, NULL, QCDIAG_WCDMA_CID_MASK, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_ura_id,
+          { "UTRAN Registration Area (URA) Id", "qcdiag_log.wcdma_cid.ura_id",
+            FT_UINT16, BASE_DEC, NULL, 0, "URA to use in case of overlapping URAs", HFILL } },
+        { &hf_qcdiag_wcdma_cid_cell_barred,
+          { "Cell Barred", "qcdiag_log.wcdma_cid.cell_barred",
+            FT_BOOLEAN, 8, TFS(&tfs_not_barred_barred), 0x01, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_cell_reserved,
+          { "Cell Reserved", "qcdiag_log.wcdma_cid.cell_reserved",
+            FT_BOOLEAN, 8, TFS(&tfs_not_reserved_reserved), 0x02, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_cell_solsa,
+          { "Cell Reserved for SoLSA", "qcdiag_log.wcdma_cid.cell_solsa",
+            FT_BOOLEAN, 8, TFS(&tfs_not_reserved_reserved_solsa), 0x04, "Cell Reserved for Support of Localised Service Area (SoLSA)", HFILL } },
+        { &hf_qcdiag_wcdma_cid_ue_camped,
+          { "UE Camped on Cell", "qcdiag_log.wcdma_cid.ue_camped",
+            FT_BOOLEAN, 8, TFS(&tfs_not_camped_camped), 0x08, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_reserved,
+          { "Reserved", "qcdiag_log.wcdma_cid.res",
+            FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_cid_allowed_call_access,
+          { "Allowed Call Access", "qcdiag_log.wcdma_cid.allowed_call_access",
+            FT_UINT8, BASE_DEC, VALS(wcdma_cid_allowed_call_access_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_psc,
+          { "Primary Scrambling Code (PSC)", "qcdiag_log.wcdma_cid.psc",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_mcc,
+          { "Mobile Country Code (MCC)", "qcdiag_log.wcdma_cid.mcc",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_mnc,
+          { "Mobile Network Code (MNC)", "qcdiag_log.wcdma_cid.mnc",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_lac,
+          { "Location Area Code (LAC) Id", "qcdiag_log.wcdma_cid.lac",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_cid_rac,
+          { "Routing Area Code (RAC) Id", "qcdiag_log.wcdma_cid.rac",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_freq_scan_type,
+          { "Frequency Scan Type", "qcdiag_log.wcdma_freq_scan.type",
+            FT_UINT8, BASE_DEC, VALS(wcdma_freq_scan_type_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_freq_scan_thres,
+          { "Frequency Scan Threshold", "qcdiag_log.wcdma_freq_scan.thres",
+            FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_freq_scan_num,
+          { "Number of ARFCN", "qcdiag_log.wcdma_freq_scan.num_freq",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_freq_scan_arfcn,
+          { "ARFCN", "qcdiag_log.wcdma_freq_scan.arfcn",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_freq_scan_rssi_raw,
+          { "RSSI (raw)", "qcdiag_log.wcdma_freq_scan.rssi_raw",
+            FT_INT16, BASE_DEC, NULL, 0, "Received Signal Strength Indicator (raw)", HFILL } },
+        { &hf_qcdiag_wcdma_freq_scan_rssi_dbm,
+          { "RSSI (dBm)", "qcdiag_log.wcdma_freq_scan.rssi_dbm",
+            FT_INT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0, "Received Signal Strength Indicator (dBm)", HFILL } },
+        { &hf_qcdiag_wcdma_crr_ver,
+          { "Version", "qcdiag_log.ver",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(qcdiag_format_ver), 0xc0, "Log Code Version", HFILL }},
+        { &hf_qcdiag_wcdma_crr_num_3g,
+          { "Number of WCDMA Cells Searched", "qcdiag_log.wcdma_crr.num_3g",
+            FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_crr_reserved,
+          { "Reserved", "qcdiag_log.wcdma_crr.res",
+            FT_UINT8, BASE_DEC, NULL, 0xc0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_crr_num_2g,
+          { "Number of GSM Cells Searched", "qcdiag_log.wcdma_crr.num_2g",
+            FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_crr_uarfcn_3g,
+          { "RF Channel Frequency", "qcdiag_log.wcdma_crr.uarfcn_3g",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_crr_psc_3g,
+          { "Primary Scrambling Code (PSC)", "qcdiag_log.wcdma_crr.psc_3g",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_crr_rscp_3g,
+          { "Received Signal Code Power (RSCP)", "qcdiag_log.wcdma_crr.rscp_3g",
+            FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_crr_rscp_rank_3g,
+          { "Cell Ranking RSCP", "qcdiag_log.wcdma_crr.rscp_rank_3g",
+            FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_crr_ecio_3g,
+          { "Energy Per Chip Over Interference (Ec/Io)", "qcdiag_log.wcdma_crr.ecio_3g",
+            FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_crr_ecio_rank_3g,
+          { "Cell Ranking Ec/Io", "qcdiag_log.wcdma_crr.ecio_rank_3g",
+            FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_crr_arfcn_2g,
+          { "RF Channel Frequency", "qcdiag_log.wcdma_crr.arfcn_2g",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_crr_rssi_2g,
+          { "Received Signal Strength Indicator (RSSI)", "qcdiag_log.wcdma_crr.rssi_2g",
+            FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_crr_rssi_rank_2g,
+          { "Cell Ranking RSSI", "qcdiag_log.wcdma_crr.rssi_rank_2g",
+            FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_crr_bsic_2g,
+          { "Base Station Identity Code (BSIC)", "qcdiag_log.wcdma_crr.bsic_2g",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_crr_bsic_bcc,
+          { "Base Station Color Code (BCC)", "qcdiag_log.wcdma_crr.bsic_bcc",
+            FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_crr_bsic_ncc,
+          { "Network Color Code (NCC)", "qcdiag_log.wcdma_crr.bsic_ncc",
+            FT_UINT8, BASE_DEC, NULL, 0x38, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_crr_resel_status,
+          { "Reselection Status", "qcdiag_log.wcdma_crr.resel_status",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_crr_hcs_priority,
+          { "Hierarchical Cell Structure (HCS) Priority", "qcdiag_log.wcdma_crr.hcs_priority",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_crr_h_value,
+          { "H Value", "qcdiag_log.wcdma_crr.h_value",
+            FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_crr_hcs_cell_qualify,
+          { "Hierarchical Cell Structure (HCS) Cell Qualify", "qcdiag_log.wcdma_crr.hcs_cell_qualify",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL }},
+
+        /* WCDMA RLC */
+        { &hf_qcdiag_wcdma_rlc_num_ent,
+          { "Number of Entities", "qcdiag_log.wcdma_rlc.num_ent",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_rlc_num_pdu,
+          { "Number of PDUs", "qcdiag_log.wcdma_rlc.num_pdu",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_rlc_lcid,
+          { "Logical Channel Id", "qcdiag_log.wcdma_rlc.lcid",
+            FT_UINT8, BASE_DEC, NULL, 0, "RLC Logical channel Id (range 0 to 18)", HFILL }},
+        { &hf_qcdiag_wcdma_rlc_pdu_size,
+          { "PDU Size", "qcdiag_log.wcdma_rlc.pdu_size",
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_rlc_pdu_size_bits,
+          { "PDU Size", "qcdiag_log.wcdma_rlc.pdu_size",
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_bits), 0, "PDU Size in Bits", HFILL }},
+        { &hf_qcdiag_wcdma_rlc_pdu_count,
+          { "PDU Count", "qcdiag_log.wcdma_rlc.pdu_count",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_rlc_ciph_key,
+          { "Ciphering Key", "qcdiag_log.wcdma_rlc.ciph_key",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_rlc_ciph_alg,
+          { "Ciphering Algorithm", "qcdiag_log.wcdma_rlc.ciph_alg",
+            FT_UINT8, BASE_DEC, VALS(wcdma_rlc_ciph_level_vals), 0, "Ultra Encryption Algorithm (UEA)", HFILL }},
+        { &hf_qcdiag_wcdma_rlc_ciph_msg,
+          { "Ciphered Message", "qcdiag_log.wcdma_rlc.ciph_msg",
+            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_qcdiag_wcdma_rlc_ciph_countc,
+          { "Count C", "qcdiag_log.wcdma_rlc.ciph_countc",
+            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        /* WCDMA RRC */
+        { &hf_qcdiag_wcdma_rrc_state,
+          { "RRC State", "qcdiag_log.wcdma_rrc.state",
+            FT_UINT8, BASE_DEC, VALS(wcdma_rrc_states_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_rrc_procedure,
+          { "RRC Procedure", "qcdiag_log.wcdma_rrc.procedure",
+            FT_UINT8, BASE_DEC, VALS(umts_rrc_procedure_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_rrc_failure_cause,
+          { "RRC Failure Cause", "qcdiag_log.wcdma_rrc.failure_cause",
+            FT_UINT8, BASE_DEC, VALS(umts_rrc_fail_cause_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_wcdma_rrc_prot_err_cause,
+          { "RRC Protocol Error Cause", "qcdiag_log.wcdma_rrc.prot_err_cause",
+            FT_UINT8, BASE_DEC, VALS(umts_rrc_prot_err_vals), 0, NULL, HFILL } },
+
         /* LTE RRC */
         { &hf_qcdiag_lte_rrc_rel,
           { "LTE RRC Release", "qcdiag_log.lte_rrc_rel",
@@ -1529,12 +2562,28 @@ proto_register_qcdiag_log(void)
     };
 
     int *ett[] = {
-        &ett_qcdiag_log
+        &ett_qcdiag_log,
+        &ett_qcdiag_log_wcdma_crr_wcmda,
+        &ett_qcdiag_log_wcdma_crr_gsm,
+        &ett_qcdiag_log_wcdma_cid_car,
+        &ett_qcdiag_log_wcdma_rlc_dl_am_sig,
+        &ett_qcdiag_log_wcdma_rlc_dl_am_ciph,
+        &ett_qcdiag_log_wcdma_rlc_ul_am_ciph,
+        &ett_qcdiag_log_wcdma_freq_scan
     };
+
+    static ei_register_info ei[] = {
+        { &ei_qcdiag_log_mcc_non_decimal, { "qcdiag_log.wcdma_cid.mcc.non_decimal", PI_MALFORMED, PI_WARN, "MCC contains non-decimal digits", EXPFILL }},
+        { &ei_qcdiag_log_mnc_non_decimal, { "qcdiag_log.wcdma_cid.mnc.non_decimal", PI_MALFORMED, PI_WARN, "MNC contains non-decimal digits", EXPFILL }},
+    };
+
+    expert_module_t* expert_qcdiag_log;
 
     proto_qcdiag_log = proto_register_protocol("Qualcomm Diagnostic Log", "QCDIAG LOG", "qcdiag_log");
     proto_register_field_array(proto_qcdiag_log, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_qcdiag_log = expert_register_protocol(proto_qcdiag_log);
+    expert_register_field_array(expert_qcdiag_log, ei, array_length(ei));
 
     /* Register dissector table(s) to do sub dissection of Log Codes */
     qcdiag_log_code_dissector_table = register_dissector_table("qcdiag_log.code", "QCDIAG LOG code", proto_qcdiag_log, FT_UINT16, BASE_HEX);
@@ -1550,18 +2599,25 @@ proto_reg_handoff_qcdiag_log(void)
 
     data_handle = find_dissector("data");
     text_lines_handle = find_dissector("data-text-lines");
+    udp_handle = find_dissector("udp");
     gsmtap_handle = find_dissector("gsmtap");
+
+    hdtbl_entry = find_heur_dissector_by_unique_short_name("rlc_udp");
+
+    heur_rlc_udp_enabled = true; /* Set to TRUE by default */
+    if (hdtbl_entry)
+        heur_rlc_udp_enabled = hdtbl_entry->enabled;
 }
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 8
+ * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

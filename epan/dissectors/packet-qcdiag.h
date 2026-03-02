@@ -1,16 +1,6 @@
 /* packet-qcdiag.h
  * Dissector routines for Qualcomm DIAG packet handling
  *
- * Credits/Sources:
- * - Osmocom Wireshark qcdiag branch
- *   https://gitea.osmocom.org/osmocom/wireshark/src/branch/osmocom/qcdiag
- *
- * - SCAT: Signaling Collection and Analysis Tool
- *   https://github.com/fgsect/scat/
- *
- * - Android Tools MSM8996
- *   https://github.com/bcyj/android_tools_leeco_msm8996
- *
  * (C) 2016-2017 by Harald Welte <laforge@gnumonks.org>
  * (C) 2025 by Oliver Smith <osmith@sysmocom.de>
  * (C) 2026 by Tamas Regos <regost@gmail.com>
