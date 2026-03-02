@@ -252,6 +252,8 @@ static void procmon_read_hosts(wtap *wth, int64_t host_port_array_offset, int *e
         if (!wtap_read_bytes_or_eof(wth->fh, &addr, sizeof(addr), err, err_info))
         {
             ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+            g_regex_unref(numeric_re);
+            g_free(str_buf);
             return;
         }
         char *name = procmon_read_string(wth->fh, str_buf, err, err_info);
