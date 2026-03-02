@@ -175,6 +175,7 @@ static expert_field ei_icmp_type_deprecated;
 static expert_field ei_icmp_resp_not_found;
 static expert_field ei_icmp_checksum;
 static expert_field ei_icmp_ext_checksum;
+static expert_field ei_icmp_code_must_be_zero;
 
 /* Extended Echo - Probe */
 static int hf_icmp_ext_echo_seq_num;
@@ -1636,6 +1637,29 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		proto_item_append_text(ti, " (%s)", code_str);
 	}
 
+	/* Code must be 0 for these types:
+	 * RFC 792 (Echo/Echo Reply, Timestamp/Timestamp Reply),
+	 * RFC 1256 (Router Solicitation),
+	 * RFC 950 (Address Mask Request/Reply).
+	 */
+	switch (icmp_type) {
+	case ICMP_ECHO:
+	case ICMP_ECHOREPLY:
+	case ICMP_ALTHOST:
+	case ICMP_TSTAMP:
+	case ICMP_TSTAMPREPLY:
+	case ICMP_RTRSOLICIT:
+	case ICMP_MASKREQ:
+	case ICMP_MASKREPLY:
+	case ICMP_EXTECHO:
+		if (icmp_code != 0) {
+			expert_add_info(pinfo, ti, &ei_icmp_code_must_be_zero);
+		}
+		break;
+	default:
+		break;
+	}
+
 	if (!pinfo->fragmented && captured_length >= reported_length
 	    && !pinfo->flags.in_error_pkt) {
 		/* The packet isn't part of a fragmented datagram, isn't
@@ -2468,6 +2492,7 @@ void proto_register_icmp(void)
 		{ &ei_icmp_resp_not_found, { "icmp.resp_not_found", PI_SEQUENCE, PI_WARN, "No response seen to ICMP request", EXPFILL }},
 		{ &ei_icmp_checksum, { "icmp.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
 		{ &ei_icmp_ext_checksum, { "icmp.ext.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+		{ &ei_icmp_code_must_be_zero, { "icmp.code.must_be_zero", PI_PROTOCOL, PI_WARN, "Invalid code: must be 0 for this ICMP type", EXPFILL }},
 	};
 
 	module_t *icmp_module;
