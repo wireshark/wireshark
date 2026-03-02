@@ -37,6 +37,9 @@ The following changes have been made since version 4.7.2:
 * The Export Packet Dissections C Arrays output gained an option to add an index
   array for the arrays of data sources. Also, there is an option to omit secondary
   data sources like reassembled data or decrypted data. wsbuglink:19616[].
+* Extcap interfaces now support "bookmarks," which let you have multiple configurations
+  for the same interfaces. Extcap configurations are now shared across profiles, and
+  existing per-profile configurations will be migrated to bookmarks. wsbuglink:14224[].
 
 The following changes have been made since version 4.7.1:
 

@@ -655,14 +655,37 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
  *
  * Given a module name, read the preferences associated with only that module.
  * Checks for a file in the personal configuration directory named after the
- * module with a ".cfg" extension added first.
+ * module with a ".cfg" extension added first. If that file doesn't exist, fall
+ * back to the current profile's generic preferences file.
  *
  * @param name The preference module name, e.g. "extcap".
+ * @param from_profile true if the module's preferences file is stored in the
+ * current profile's directory, false if it is shared by all profiles.
  * @param app_env_var_prefix The prefix for the application environment variable.
  */
 WS_DLL_PUBLIC
 void
-prefs_read_module(const char *name, const char* app_env_var_prefix);
+prefs_read_module(const char *name, bool from_profile, const char* app_env_var_prefix);
+
+/**
+ * @brief Write the preferences for a specific module.
+ *
+ * Given a module name, write the preferences associated with only that module.
+ * Unlike prefs_read_module(), this won't fall back from the current profile
+ * directory to the shared / default directory.
+ *
+ * Preferences will be written to a file in the personal configuration
+ * directory named after the module with a ".cfg" extension added.
+ *
+ * @param name The preference module name, e.g. "extcap".
+ * @param from_profile true if the module's preferences file is stored in the
+ * current profile's directory, false if it is shared by all profiles.
+ * @param app_env_var_prefix The prefix for the application environment variable.
+ * @return 0 on success, or an errno value on failure.
+ */
+WS_DLL_PUBLIC
+int
+prefs_write_module(const char *name, bool from_profile, const char* app_env_var_prefix);
 
 /**
  * @brief Check if a preference is at its default value.

@@ -416,16 +416,13 @@ void PreferencesDialog::apply()
     }
     prefs_modules_for_all_modules(module_prefs_unstash, NULL);
 
-    // If prefs.capture_no_extcap is false we'll write out extcap.cfg
-    // below in prefs_main_write. We need to make sure that the extcap
-    // preferences are registered so that we'll write out any existing
-    // values and not overwrite with a nearly empty file.
-    // XXX - It would be better to just neither read nor write extcap.cfg
-    // here, and let InterfaceListManager read it if necessary. Note that
-    // newly registered preferences don't get a stashed value in the model,
-    // which causes some warnings/unexpected behavior if the "Apply"
-    // button was selected instead of "Ok."
-    extcap_register_preferences(NULL, NULL);
+    // Extcap preferences have a file of their own, which prefs_main_write()
+    // below doesn't write for us. Write it here instead of registering the
+    // extcap preferences so that we have something to write, which caused
+    // warnings and unexpected behavior of its own: newly registered
+    // preferences don't get a stashed value in the model, which matters if the
+    // "Apply" button was selected instead of "Ok".
+    extcap_write_preferences();
 
     if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
         // Layout type changed, reset sizes

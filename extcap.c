@@ -43,6 +43,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/version_info.h>
+#include <wsutil/wsjson.h>
 #include <app/application_flavor.h>
 #include <wsutil/path_config.h>
 #include <wsutil/strtoi.h>
@@ -67,8 +68,8 @@
  */
 static GHashTable * _loaded_interfaces;
 
-/* Internal container, which maps each ifname to the tool providing it, for faster
- * lookup. The key and string value are owned by this table.
+/* Internal container, which maps each ifname or bookmark to the tool providing it,
+ * for faster lookup. The key and string value are owned by this table.
  */
 static GHashTable * _tool_for_ifname;
 
@@ -668,6 +669,18 @@ static bool cb_dlt(extcap_callback_info_t cb_info)
     return false;
 }
 
+/*
+ * Given an interface name which might contain an appended bookmark
+ * name, return the name without the bookmark.
+ */
+static char *get_plain_ifname(const char *ifname) {
+    const char *slash = strchr(ifname, '/');
+    if (slash) {
+        return g_strndup(ifname, slash - ifname);
+    }
+    return g_strdup(ifname);
+}
+
 if_capabilities_t *
 extcap_get_if_dlts(const char *ifname, char **err_str)
 {
@@ -687,7 +700,7 @@ extcap_get_if_dlts(const char *ifname, char **err_str)
     {
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_LIST_DLTS));
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
-        arguments = g_list_append(arguments, g_strdup(ifname));
+        arguments = g_list_append(arguments, get_plain_ifname(ifname));
 
         extcap_run_one(interface, arguments, cb_dlt, &caps, err_str, NULL, NULL);
 
@@ -746,10 +759,12 @@ extcap_get_if_list_dlts(GList *queries, GHashTable *caps_hash)
             local_queries = g_list_prepend(local_queries, query);
             continue;
         }
+        /* Bookmarks are ours alone; the extcap only knows the plain name. */
+        char *plain_ifname = get_plain_ifname(query->name);
         const char *argv[] = {
             EXTCAP_ARGUMENT_LIST_DLTS,
             EXTCAP_ARGUMENT_INTERFACE,
-            query->name,
+            plain_ifname,
             NULL
         };
         extcap_run_task_t *task = g_new0(extcap_run_task_t, 1);
@@ -762,6 +777,7 @@ extcap_get_if_list_dlts(GList *queries, GHashTable *caps_hash)
         task->argv = g_strdupv((char **)argv);
         task->output_cb = extcap_if_list_dlts_cb;
         task->data = dlt_info;
+        g_free(plain_ifname);
 
         thread_pool_push(&pool, task, NULL);
     }
@@ -895,14 +911,12 @@ append_extcap_interface_list(GList *list)
     return list;
 }
 
+// Prior to 4.4, extcap preferences were saved in the main preferences file.
+// In 4.4 and 4.6, they were saved in both the main preferences and a per-profile extcap.cfg.
+// In 5.0 and later, they are saved in the top-level personal extcap.cfg.
+
 void extcap_register_preferences(register_cb cb, void *client_data)
 {
-    /* Unconditionally register the extcap configuration file, so that
-     * it is copied if we copy the profile even if we're not going to
-     * read it because extcaps are disabled.
-     */
-    profile_register_persconffile("extcap.cfg");
-
     if (prefs.capture_no_extcap)
         return;
 
@@ -921,6 +935,31 @@ void extcap_register_preferences(register_cb cb, void *client_data)
 
     _extcap_progress_cb = NULL;
     _extcap_progress_data = NULL;
+}
+
+void extcap_read_preferences(void)
+{
+    if (prefs.capture_no_extcap)
+        return;
+
+    /* extcap.cfg is shared by all of our configuration profiles. */
+    prefs_read_module("extcap", false, application_configuration_environment_prefix());
+}
+
+void extcap_write_preferences(void)
+{
+    if (prefs.capture_no_extcap)
+        return;
+
+    if (!_loaded_interfaces || g_hash_table_size(_loaded_interfaces) == 0) {
+        /* Our interface preferences aren't registered, so all we would write
+         * is a set of default values. */
+        ws_debug("Not writing extcap preferences; our interfaces aren't loaded");
+        return;
+    }
+
+    /* extcap.cfg is shared by all of our configuration profiles. */
+    prefs_write_module("extcap", false, application_configuration_environment_prefix());
 }
 
 /**
@@ -991,6 +1030,28 @@ void extcap_free_if_configuration(GList *list, bool free_args)
     g_list_free(list);
 }
 
+/*
+ * Given an interface name, return the name that we use for its preferences,
+ * e.g. "randpkt/Random test" becomes "randpkt_random_test".
+ */
+static char *
+extcap_pref_ifname(const char *ifname)
+{
+    char *pref_ifname = NULL;
+
+    GRegex *regex_ifname = g_regex_new("(?![a-zA-Z0-9_]).", G_REGEX_RAW, (GRegexMatchFlags) 0, NULL);
+    if (regex_ifname)
+    {
+        char *ifname_underscore = g_regex_replace(regex_ifname, ifname, strlen(ifname), 0, "_", (GRegexMatchFlags) 0, NULL);
+        pref_ifname = g_ascii_strdown(ifname_underscore, -1);
+
+        g_free(ifname_underscore);
+        g_regex_unref(regex_ifname);
+    }
+
+    return pref_ifname;
+}
+
 pref_t *
 extcap_pref_for_argument(const char *ifname, struct _extcap_arg *arg)
 {
@@ -999,33 +1060,26 @@ extcap_pref_for_argument(const char *ifname, struct _extcap_arg *arg)
     extcap_ensure_all_interfaces_loaded();
 
     GRegex *regex_name = g_regex_new("[-]+", G_REGEX_RAW, (GRegexMatchFlags) 0, NULL);
-    GRegex *regex_ifname = g_regex_new("(?![a-zA-Z0-9_]).", G_REGEX_RAW, (GRegexMatchFlags) 0, NULL);
-    if (regex_name && regex_ifname)
+    char *pref_ifname = extcap_pref_ifname(ifname);
+    if (regex_name && pref_ifname)
     {
         module_t *extcap_module = prefs_find_module("extcap");
         if (extcap_module)
         {
             char *pref_name = g_regex_replace(regex_name, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL);
-            char *ifname_underscore = g_regex_replace(regex_ifname, ifname, strlen(ifname), 0, "_", (GRegexMatchFlags) 0, NULL);
-            char *ifname_lowercase = g_ascii_strdown(ifname_underscore, -1);
-            char *pref_ifname = g_strconcat(ifname_lowercase, ".", pref_name, NULL);
+            char *pref_id = g_strconcat(pref_ifname, ".", pref_name, NULL);
 
-            pref = prefs_find_preference(extcap_module, pref_ifname);
+            pref = prefs_find_preference(extcap_module, pref_id);
 
             g_free(pref_name);
-            g_free(ifname_underscore);
-            g_free(ifname_lowercase);
-            g_free(pref_ifname);
+            g_free(pref_id);
         }
     }
     if (regex_name)
     {
         g_regex_unref(regex_name);
     }
-    if (regex_ifname)
-    {
-        g_regex_unref(regex_ifname);
-    }
+    g_free(pref_ifname);
 
     return pref;
 }
@@ -1145,7 +1199,7 @@ extcap_get_if_configuration(const char *ifname)
 
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CONFIG));
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
-        arguments = g_list_append(arguments, g_strdup(ifname));
+        arguments = g_list_append(arguments, get_plain_ifname(ifname));
 
         extcap_run_one(interface, arguments, cb_preference, &ret, NULL, NULL, NULL);
 
@@ -1166,10 +1220,10 @@ extcap_get_if_configuration_option(const char* ifname, const char* argname, cons
     extcap_interface* interface = extcap_find_interface_for_ifname(ifname);
     if (interface)
     {
-        ws_info("(get_if_configuration) Extcap path %s", interface->extcap_path);
+        ws_info("(get_if_configuration_option) Extcap path %s", interface->extcap_path);
 
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
-        arguments = g_list_append(arguments, g_strdup(ifname));
+        arguments = g_list_append(arguments, get_plain_ifname(ifname));
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CONFIG_OPTION_NAME));
         arguments = g_list_append(arguments, g_strdup(argname));
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CONFIG_OPTION_VALUE));
@@ -1217,7 +1271,7 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
 
         args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_CONFIG));
         args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
-        args = g_list_append(args, g_strdup(ifname));
+        args = g_list_append(args, get_plain_ifname(ifname));
         args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_RELOAD_OPTION));
         args = g_list_append(args, g_strdup(argname));
 
@@ -1379,7 +1433,7 @@ extcap_verify_capture_filter(const char *ifname, const char *filter, char **err_
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CAPTURE_FILTER));
         arguments = g_list_append(arguments, g_strdup(filter));
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
-        arguments = g_list_append(arguments, g_strdup(ifname));
+        arguments = g_list_append(arguments, get_plain_ifname(ifname));
 
         extcap_run_one(interface, arguments, cb_verify_filter, &status, err_str, NULL, NULL);
         g_list_free_full(arguments, g_free);
@@ -2220,7 +2274,10 @@ GPtrArray *extcap_prepare_arguments(interface_options *interface_opts)
         add_arg(interface_opts->extcap);
         add_arg(EXTCAP_ARGUMENT_RUN_CAPTURE);
         add_arg(EXTCAP_ARGUMENT_INTERFACE);
-        add_arg(interface_opts->name);
+        /* Bookmarks are our problem; extcaps only know the plain name. */
+        char *plain_ifname = get_plain_ifname(interface_opts->name);
+        add_arg(plain_ifname);
+        g_free(plain_ifname);
         if (interface_opts->cfilter && strlen(interface_opts->cfilter) > 0)
         {
             add_arg(EXTCAP_ARGUMENT_CAPTURE_FILTER);
@@ -2329,7 +2386,10 @@ static bool extcap_create_pipe(const char *ifname, char **fifo, HANDLE *handle_o
      * so we won't get a null pointer back from localtime().
      */
     strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
-    pipename = g_strconcat("\\\\.\\pipe\\", pipe_prefix, "_", ifname, "_", timestr, NULL);
+    /* Interface names can't be trusted. */
+    char *safe_ifname = g_uri_escape_string(ifname, NULL, false);
+    pipename = g_strconcat("\\\\.\\pipe\\", pipe_prefix, "_", safe_ifname, "_", timestr, NULL);
+    g_free(safe_ifname);
 
     /* Security struct to enable Inheritable HANDLE */
     memset(&security, 0, sizeof(SECURITY_ATTRIBUTES));
@@ -2363,9 +2423,12 @@ static bool extcap_create_pipe(const char *ifname, char **fifo, HANDLE *handle_o
 #else
 static bool extcap_create_pipe(const char *ifname, char **fifo, const char *temp_dir, const char *pipe_prefix)
 {
-    char *subdir_tmpl = g_strdup_printf("%s_%s_XXXXXX", pipe_prefix, ifname);
+    /* Interface names can't be trusted. */
+    char *safe_ifname = g_uri_escape_string(ifname, NULL, false);
+    char *subdir_tmpl = g_strdup_printf("%s_%s_XXXXXX", pipe_prefix, safe_ifname);
     char *temp_subdir = create_tempdir(temp_dir, subdir_tmpl, NULL);
 
+    g_free(safe_ifname);
     g_free(subdir_tmpl);
     if (temp_subdir == NULL)
     {
@@ -2825,7 +2888,8 @@ process_new_extcap(const char *extcap, char *output)
 
     if (toolbar_entry && toolbar_entry->menu_title)
     {
-        iface_toolbar_add(toolbar_entry);
+        /* Don't show the toolbar yet; extcap_load_interface_list() does that
+         * once bookmarks have been added to its interface list. */
         if (extcap_iface_toolbar_add(extcap, toolbar_entry))
         {
             toolbar_entry = NULL;
@@ -2942,6 +3006,458 @@ extcap_list_interfaces_cb(thread_pool_t *pool, void *data, char *output)
     }
 }
 
+// This is currently only used for extcaps, but we might want to expand
+// it to general interface information in the future.
+#define INTERFACES_JSON_FILE "interfaces.json"
+
+/**
+ * Add a bookmark for an extcap interface.
+ *
+ * Create a new extcap interface from a parent interface, with the
+ provided bookmark name and a generated call name of the form
+ * "<ifname>/<bookmark_name>". Preferences are registered under the call
+ * name, which gives each bookmark its own configuration.
+ *
+ * @param parent_iface The interface that the bookmark is an alias for.
+ * @param toolname The name of the extcap that provides the parent interface.
+ * @param bookmark_name The bookmark name.
+ * @param dirname The extcap directory.
+ * @return true if we registered new preferences, false otherwise.
+ */
+static bool
+extcap_add_bookmark(const extcap_interface *parent_iface, const char *toolname,
+                    const char *bookmark_name, const char *dirname)
+{
+    const char *ifname = parent_iface->call;
+    bool new_prefs = false;
+
+    extcap_info *tool_element = (extcap_info *)g_hash_table_lookup(_loaded_interfaces, toolname);
+    if (!tool_element) {
+        return false;
+    }
+
+    /* <extcap interface>/<bookmark name> */
+    char *bookmark_call = ws_strdup_printf("%s/%s", ifname, bookmark_name);
+
+    /* Check that this bookmark interface hasn't already been registered. */
+    if (extcap_find_interface_for_ifname(bookmark_call)) {
+        ws_debug("Bookmark interface \"%s\" already exists, skipping", bookmark_call);
+        g_free(bookmark_call);
+        return false;
+    }
+
+    /* Create a new interface entry for the bookmark. */
+    extcap_interface *bookmark_iface = g_new0(extcap_interface, 1);
+    bookmark_iface->call = bookmark_call;
+    bookmark_iface->display = g_strdup(bookmark_name);
+    bookmark_iface->version = g_strdup(parent_iface->version);
+    bookmark_iface->help = g_strdup(parent_iface->help);
+    bookmark_iface->extcap_path = g_strdup(parent_iface->extcap_path);
+    bookmark_iface->control = parent_iface->control;
+    bookmark_iface->if_type = EXTCAP_SENTENCE_INTERFACE;
+
+    tool_element->interfaces = g_list_append(tool_element->interfaces, bookmark_iface);
+    g_hash_table_insert(_tool_for_ifname, g_strdup(bookmark_call), g_strdup(toolname));
+
+    /* If our parent interface has a toolbar, share it. */
+    iface_toolbar *toolbar = (iface_toolbar *)g_hash_table_lookup(_toolbars, toolname);
+    if (toolbar && g_list_find_custom(toolbar->ifnames, ifname, (GCompareFunc) g_strcmp0)) {
+        toolbar->ifnames = g_list_append(toolbar->ifnames, g_strdup(bookmark_call));
+    }
+
+    /* Run --extcap-config for the parent interface and register
+     * preferences under the bookmark's call name. */
+    const char *argv[] = {
+        EXTCAP_ARGUMENT_CONFIG,
+        EXTCAP_ARGUMENT_INTERFACE,
+        ifname,
+        NULL
+    };
+    char **args = g_strdupv((char **)argv);
+    char *command_output;
+    if (ws_pipe_spawn_sync(dirname, parent_iface->extcap_path,
+                           g_strv_length(args), args, &command_output)) {
+        extcap_callback_info_t cb_info = {
+            .ifname = bookmark_call,
+            .option_name = NULL,
+            .option_value = NULL,
+            .output = command_output,
+            .data = NULL,
+        };
+        if (cb_preference(cb_info)) {
+            new_prefs = true;
+        }
+        g_free(command_output);
+    }
+    g_strfreev(args);
+
+    ws_debug("Loaded extcap bookmark \"%s\" -> \"%s\"", bookmark_name, ifname);
+
+    return new_prefs;
+}
+
+/**
+ * Add the info for one element of an extcap's "extcap-interfaces" array.
+ *
+ * The element is an object with a single key, which is the interface name.
+ * Its value is an object with a key named "bookmarks", whose value is an
+ * array of bookmark names.
+ *
+ * @param contents The contents of the bookmarks file. Modified in place.
+ * @param element The "extcap-interfaces" array element.
+ * @param extcap_name The name of the extcap that we expect to provide the
+ * interface.
+ * @param dirname The extcap directory.
+ * @return true if we registered new preferences, false otherwise.
+ */
+static bool
+extcap_add_interface_info(char *contents, jsmntok_t *element,
+                          const char *extcap_name, const char *dirname)
+{
+    bool new_prefs = false;
+
+    if (element->type != JSMN_OBJECT || element->size < 1) {
+        return false;
+    }
+
+    jsmntok_t *iface_tok = element + 1;
+    jsmntok_t *iface_val_tok = element + 2;
+
+    if (iface_tok->type != JSMN_STRING || iface_val_tok->type != JSMN_OBJECT) {
+        return false;
+    }
+
+    contents[iface_tok->end] = '\0';
+    char *ifname = &contents[iface_tok->start];
+    if (!json_decode_string_inplace(ifname)) {
+        return false;
+    }
+
+    /* Make sure this extcap provides this interface. */
+    const char *toolname = (const char *)g_hash_table_lookup(_tool_for_ifname, ifname);
+    extcap_interface *parent_iface = extcap_find_interface_for_ifname(ifname);
+    if (!parent_iface || g_strcmp0(extcap_name, toolname) != 0) {
+        ws_debug("Extcap \"%s\" doesn't provide interface \"%s\", skipping its bookmarks",
+                extcap_name, ifname);
+        return false;
+    }
+
+    jsmntok_t *bookmarks_tok = json_get_array(contents, iface_val_tok, "bookmarks");
+    if (!bookmarks_tok) {
+        ws_debug("Extcap interface \"%s\": missing \"bookmarks\" array, skipping", ifname);
+        return false;
+    }
+
+    int bookmarks_len = json_get_array_len(bookmarks_tok);
+    jsmntok_t *bookmark_tok = json_get_array_index(bookmarks_tok, 0);
+
+    for (int i = 0; i < bookmarks_len; i++, bookmark_tok = json_get_next_object(bookmark_tok)) {
+        if (bookmark_tok->type != JSMN_STRING) {
+            continue;
+        }
+
+        contents[bookmark_tok->end] = '\0';
+        char *bookmark_name = &contents[bookmark_tok->start];
+        if (!json_decode_string_inplace(bookmark_name)) {
+            continue;
+        }
+
+        if (extcap_add_bookmark(parent_iface, toolname, bookmark_name, dirname)) {
+            new_prefs = true;
+        }
+    }
+
+    return new_prefs;
+}
+
+/**
+ * Load extcap information from the top level of the personal configuration
+ * directory (must match extcap.cfg).
+ *
+ * The info file (interfaces.json) contains a JSON array of objects.
+ * Each object has a single key, which is the name of an extcap as it appears
+ * on disk, including its extension if it has one. Its value is an object with
+ * a key named "extcap-interfaces", whose value is an array of interface
+ * objects.
+ * Each interface object has a single key, which is the interface name, and a
+ * value with a key named "bookmarks", whose value is an array of bookmark
+ * names. For example:
+ *
+ *   [
+ *     {"sshdump": {"extcap-interfaces": [
+ *       {"sshdump": {"bookmarks": ["My server", "My other server"]}}
+ *     ]}},
+ *     {"androiddump": {"extcap-interfaces": [
+ *       {"android-logcat-main-1234": {"bookmarks": ["My phone"]}},
+ *       {"android-logcat-main-5678": {"bookmarks": ["My tablet"]}}
+ *     ]}}
+ *   ]
+ *
+ * interfaces.json isn't strictly limited to extcaps, and we might want to
+ * use it to store information about other interface types in the future. We
+ * might want to move this somewhere else (capture_ifinfo.c?) at that point.
+ */
+
+static bool
+extcap_load_info(void)
+{
+    char *interfaces_path = get_persconffile_path(INTERFACES_JSON_FILE, false,
+                                                  application_configuration_environment_prefix());
+    char *contents = NULL;
+    gsize length = 0;
+
+    if (!g_file_get_contents(interfaces_path, &contents, &length, NULL)) {
+        /* File doesn't exist or can't be read – nothing to do. */
+        g_free(interfaces_path);
+        return false;
+    }
+    g_free(interfaces_path);
+
+    /* First pass: determine number of tokens needed. */
+    int ret = json_parse(contents, NULL, 0);
+    if (ret <= 0) {
+        ws_warning("Failed to parse %s", INTERFACES_JSON_FILE);
+        g_free(contents);
+        return false;
+    }
+
+    jsmntok_t *tokens = g_new0(jsmntok_t, ret);
+    ret = json_parse(contents, tokens, ret);
+    if (ret <= 0 || tokens[0].type != JSMN_ARRAY) {
+        ws_warning("%s: expected a JSON array at top level", INTERFACES_JSON_FILE);
+        g_free(tokens);
+        g_free(contents);
+        return false;
+    }
+
+    bool new_prefs = false;
+    const char *extcap_dir = application_extcap_dir();
+    const char *dirname = get_extcap_dir(application_configuration_environment_prefix(), extcap_dir);
+    int array_len = json_get_array_len(&tokens[0]);
+    jsmntok_t *element = json_get_array_index(&tokens[0], 0);
+
+    for (int i = 0; i < array_len; i++, element = json_get_next_object(element)) {
+        if (element->type != JSMN_OBJECT || element->size < 1) {
+            continue;
+        }
+
+        /* The first (and only expected) key is the extcap name, value is an
+         * object with an "extcap-interfaces" key. */
+        jsmntok_t *extcap_tok = element + 1;
+        jsmntok_t *extcap_val_tok = element + 2;
+
+        if (extcap_tok->type != JSMN_STRING || extcap_val_tok->type != JSMN_OBJECT) {
+            continue;
+        }
+
+        contents[extcap_tok->end] = '\0';
+        char *extcap_name = &contents[extcap_tok->start];
+        if (!json_decode_string_inplace(extcap_name)) {
+            continue;
+        }
+
+        jsmntok_t *interfaces_tok = json_get_array(contents, extcap_val_tok, "extcap-interfaces");
+        if (!interfaces_tok) {
+            ws_debug("Extcap \"%s\": missing \"extcap-interfaces\" array, skipping", extcap_name);
+            continue;
+        }
+
+        /* Add the info for each of the extcap's interfaces. */
+        int interfaces_len = json_get_array_len(interfaces_tok);
+        jsmntok_t *iface_element = json_get_array_index(interfaces_tok, 0);
+
+        for (int j = 0; j < interfaces_len; j++, iface_element = json_get_next_object(iface_element)) {
+            if (extcap_add_interface_info(contents, iface_element, extcap_name, dirname)) {
+                new_prefs = true;
+            }
+        }
+    }
+
+    g_free(tokens);
+    g_free(contents);
+    return new_prefs;
+}
+
+typedef struct extcap_profile_arg {
+    char *name;   /**< Preference name, minus the interface name. */
+    char *value;  /**< Preference value. */
+} extcap_profile_arg_t;
+
+typedef struct extcap_profile_config {
+    module_t *extcap_module;   /**< The extcap preferences module. */
+    GHashTable *pref_ifnames;  /**< Preference name -> extcap_interface. */
+    GHashTable *configs;       /**< extcap_interface -> GList of extcap_profile_arg_t. */
+} extcap_profile_config_t;
+
+static void
+extcap_free_profile_arg(void *data)
+{
+    extcap_profile_arg_t *arg = (extcap_profile_arg_t *)data;
+
+    g_free(arg->name);
+    g_free(arg->value);
+    g_free(arg);
+}
+
+/**
+ * Collect one preference from a profile's extcap.cfg.
+ *
+ * We're only interested in "extcap.<interface>.<argument>" preferences that
+ * belong to one of our interfaces and that the interface still offers.
+ * Preferences for the extcap module itself and for bookmarks are skipped, as
+ * are commented out (default) values, which read_prefs_file() doesn't pass to
+ * us in the first place.
+ */
+static prefs_set_pref_e
+extcap_profile_pref_cb(char *key, const char *value, void *private_data,
+                       bool return_range_errors _U_)
+{
+    extcap_profile_config_t *config = (extcap_profile_config_t *)private_data;
+
+    if (!g_str_has_prefix(key, "extcap.")) {
+        return PREFS_SET_OK;
+    }
+
+    const char *pref_name = key + strlen("extcap.");
+    const char *dot = strchr(pref_name, '.');
+    if (!dot) {
+        /* A preference for the extcap module itself. */
+        return PREFS_SET_OK;
+    }
+
+    char *pref_ifname = g_strndup(pref_name, dot - pref_name);
+    extcap_interface *iface = (extcap_interface *)g_hash_table_lookup(config->pref_ifnames, pref_ifname);
+    g_free(pref_ifname);
+    if (!iface) {
+        /* Not one of our interfaces, or a bookmark's configuration. */
+        return PREFS_SET_OK;
+    }
+
+    if (!prefs_find_preference(config->extcap_module, pref_name)) {
+        /* The interface no longer offers this option. */
+        return PREFS_SET_OK;
+    }
+
+    extcap_profile_arg_t *arg = g_new0(extcap_profile_arg_t, 1);
+    arg->name = g_strdup(dot + 1);
+    arg->value = g_strdup(value);
+
+    GList *args = (GList *)g_hash_table_lookup(config->configs, iface);
+    g_hash_table_insert(config->configs, iface, g_list_append(args, arg));
+
+    return PREFS_SET_OK;
+}
+
+/**
+ * Migrate the current profile's extcap configuration to a bookmark.
+ *
+ * In Wireshark 4.6 and 4.4 each configuration profile had its own
+ * extcap.cfg. In 5.0 and later, extcap.cfg is shared by every profile.
+ * Migrate by creating a bookmark for each interface that the profile
+ * configured, if it doesn't already exist.
+ *
+ * @return true if we registered new preferences, false otherwise.
+ */
+static bool
+extcap_migrate_profile_config(void)
+{
+    bool new_prefs = false;
+
+    if (is_default_profile()) { // aka the shared profile
+        return false;
+    }
+
+    module_t *extcap_module = prefs_find_module("extcap");
+    if (!extcap_module) {
+        return false;
+    }
+
+    const char *profile_name = get_profile_name();
+    char *profile_dir = get_profile_dir(application_configuration_environment_prefix(),
+                                        profile_name, false);
+    char *cfg_path = g_build_filename(profile_dir, "extcap.cfg", NULL);
+    g_free(profile_dir);
+
+    FILE *cfg_file;
+    if (!test_for_regular_file(cfg_path) || (cfg_file = ws_fopen(cfg_path, "r")) == NULL) {
+        g_free(cfg_path);
+        return false;
+    }
+
+    /* Map each of our interfaces' preference names back to the interface. */
+    extcap_profile_config_t config;
+    config.extcap_module = extcap_module;
+    config.pref_ifnames = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+    config.configs = g_hash_table_new(g_direct_hash, g_direct_equal);
+
+    GList *tools = g_hash_table_get_values(_loaded_interfaces);
+    for (GList *tool = tools; tool; tool = tool->next) {
+        extcap_info *tool_element = (extcap_info *)tool->data;
+        for (GList *walker = tool_element->interfaces; walker; walker = walker->next) {
+            extcap_interface *iface = (extcap_interface *)walker->data;
+            if (strchr(iface->call, '/')) {
+                /* A bookmark. */
+                continue;
+            }
+            g_hash_table_insert(config.pref_ifnames, extcap_pref_ifname(iface->call), iface);
+        }
+    }
+    g_list_free(tools);
+
+    read_prefs_file(cfg_path, cfg_file, extcap_profile_pref_cb, &config);
+    fclose(cfg_file);
+
+    const char *extcap_dir = application_extcap_dir();
+    const char *dirname = get_extcap_dir(application_configuration_environment_prefix(), extcap_dir);
+
+    // Create a bookmark named after the profile for each configured interface,
+    // and give the bookmark the profile's configuration.
+    GHashTableIter iter;
+    void *iface_p, *args_p;
+    g_hash_table_iter_init(&iter, config.configs);
+    while (g_hash_table_iter_next(&iter, &iface_p, &args_p)) {
+        extcap_interface *iface = (extcap_interface *)iface_p;
+        GList *args = (GList *)args_p;
+        char *bookmark_call = ws_strdup_printf("%s/%s", iface->call, profile_name);
+        const char *toolname = (const char *)g_hash_table_lookup(_tool_for_ifname, iface->call);
+
+        if (extcap_find_interface_for_ifname(bookmark_call) || !toolname) {
+            ws_debug("Not migrating %s to bookmark \"%s\"", cfg_path, bookmark_call);
+            g_list_free_full(args, extcap_free_profile_arg);
+            g_free(bookmark_call);
+            continue;
+        }
+
+        if (extcap_add_bookmark(iface, toolname, profile_name, dirname)) {
+            new_prefs = true;
+        }
+
+        char *pref_ifname = extcap_pref_ifname(bookmark_call);
+        for (GList *walker = args; walker; walker = walker->next) {
+            extcap_profile_arg_t *arg = (extcap_profile_arg_t *)walker->data;
+            char *pref_id = g_strconcat(pref_ifname, ".", arg->name, NULL);
+            pref_t *pref = prefs_find_preference(extcap_module, pref_id);
+            if (pref) {
+                prefs_set_string_value(pref, arg->value, pref_current);
+            } else {
+                ws_debug("Bookmark \"%s\" has no preference named \"%s\"", bookmark_call, pref_id);
+            }
+            g_free(pref_id);
+        }
+        g_free(pref_ifname);
+
+        ws_debug("Migrated %s to bookmark \"%s\"", cfg_path, bookmark_call);
+
+        g_list_free_full(args, extcap_free_profile_arg);
+        g_free(bookmark_call);
+    }
+
+    g_hash_table_destroy(config.configs);
+    g_hash_table_destroy(config.pref_ifnames);
+    g_free(cfg_path);
+
+    return new_prefs;
+}
 
 /* Handles loading of the interfaces. */
 static void
@@ -3027,9 +3543,31 @@ extcap_load_interface_list(void)
         g_free(arg_version);
     }
 
+    if (extcap_load_info()) {
+        prefs_registered = true;
+    }
+
+    /* Bring forward any configuration that predates our shared extcap.cfg. */
+    if (extcap_migrate_profile_config()) {
+        prefs_registered = true;
+    }
+
+    /* Show the interface toolbars now that bookmarks have been added to their
+     * interface lists. */
+    if (_toolbars)
+    {
+        GList *toolbar_list = g_hash_table_get_values (_toolbars);
+        for (GList *walker = toolbar_list; walker; walker = walker->next)
+        {
+            iface_toolbar_add((iface_toolbar *) walker->data);
+        }
+        g_list_free(toolbar_list);
+    }
+
     if (prefs_registered)
     {
-        prefs_read_module("extcap", application_configuration_environment_prefix());
+        /* extcap.cfg is shared by all of our configuration profiles. */
+        prefs_read_module("extcap", false, application_configuration_environment_prefix());
     }
 }
 

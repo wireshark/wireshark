@@ -226,6 +226,10 @@ static extcap_token_sentence *extcap_tokenize_sentence(const char *s) {
 }
 
 static GList *extcap_tokenize_sentences(const char *s) {
+    if (s == NULL) {
+        /* We have no output, e.g. because the extcap exited with an error. */
+        return NULL;
+    }
 
     GList *sentences = NULL;
     extcap_token_sentence *item = NULL;

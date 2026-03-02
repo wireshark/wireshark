@@ -8,6 +8,7 @@
 #
 '''extcap tests'''
 
+import os
 import re
 import subprocess
 import sys
@@ -101,3 +102,141 @@ class TestExtcaps:
     def test_udpdump(self, check_extcap_execution):
         ''' extcap interface tests for udpdump '''
         check_extcap_execution("udpdump")
+
+
+@pytest.fixture
+def bookmark_conf_path(conf_path):
+    '''A configuration directory with a bookmark for the randpkt interface.'''
+    with open(os.path.join(conf_path, 'interfaces.json'), 'w') as f:
+        f.write('[ {"randpktdump": {"extcap-interfaces": ['
+                '{"randpkt": {"bookmarks": ["Random test"]}}'
+                ']}} ]\n')
+    # The parent interface and the bookmark have different configurations.
+    with open(os.path.join(conf_path, 'extcap.cfg'), 'w') as f:
+        f.write('extcap.randpkt.type: arp\n')
+        f.write('extcap.randpkt.count: 2\n')
+        f.write('extcap.randpkt_random_test.type: dns\n')
+        f.write('extcap.randpkt_random_test.count: 5\n')
+    return conf_path
+
+
+class TestExtcapBookmarks:
+    def test_extcap_bookmark_list(self, cmd_tshark, program_path, bookmark_conf_path, base_env):
+        '''A bookmark is listed alongside its extcap interface'''
+        if sys.platform == 'win32':
+            pytest.skip('Test requires Npcap.')
+        iface_list = subprocess.check_output((cmd_tshark, '-D'),
+                cwd=program_path, encoding='utf-8', env=base_env)
+        assert re.search(r'^\d+\. randpkt \(Random packet generator\)$', iface_list, re.MULTILINE)
+        assert re.search(r'^\d+\. randpkt/Random test \(Random test\)$', iface_list, re.MULTILINE)
+
+    def test_extcap_bookmark_dlts(self, cmd_tshark, program_path, bookmark_conf_path, base_env):
+        '''A bookmark reports the same link-layer types as its extcap interface'''
+        if sys.platform == 'win32':
+            pytest.skip('Test requires Npcap.')
+        # Fetching capabilities for more than one interface uses a different
+        # code path than fetching them for a single interface.
+        dlt_list = subprocess.check_output((cmd_tshark, '-i', 'randpkt',
+                '-i', 'randpkt/Random test', '-L'),
+                cwd=program_path, encoding='utf-8', env=base_env)
+        assert dlt_list.count('randpkt (Generator dependent DLT)') == 2
+
+    def test_extcap_bookmark_capture(self, cmd_tshark, cmd_capinfos, program_path,
+            bookmark_conf_path, base_env, result_file):
+        '''Capturing from a bookmark uses the bookmark's own configuration'''
+        if sys.platform == 'win32':
+            pytest.skip("Test doesn't work on Windows.")
+        testout_file = result_file('testout.pcapng')
+        subprocess.check_call((cmd_tshark, '-i', 'randpkt/Random test',
+                '-a', 'packets:5', '-w', testout_file),
+                cwd=program_path, env=base_env)
+        tshark_stdout = subprocess.check_output((cmd_tshark, '-r', testout_file),
+                encoding='utf-8')
+        assert tshark_stdout.count('DNS') >= 5
+
+    def test_extcap_bookmark_other_profile(self, cmd_tshark, program_path,
+            bookmark_conf_path, base_env, result_file):
+        '''A bookmark's configuration is shared by all of our profiles'''
+        if sys.platform == 'win32':
+            pytest.skip("Test doesn't work on Windows.")
+        os.makedirs(os.path.join(bookmark_conf_path, 'profiles', 'Other'))
+        testout_file = result_file('testout.pcapng')
+        # Our shared extcap.cfg gives the bookmark five DNS packets.
+        subprocess.check_call((cmd_tshark, '-C', 'Other',
+                '-i', 'randpkt/Random test', '-a', 'duration:30', '-w', testout_file),
+                cwd=program_path, env=base_env)
+        protocols = subprocess.check_output((cmd_tshark, '-r', testout_file,
+                '-T', 'fields', '-e', 'frame.protocols'),
+                encoding='utf-8').splitlines()
+        assert len(protocols) == 5
+        assert all(':dns' in protocol for protocol in protocols)
+
+    def test_extcap_bookmark_config_preserved(self, cmd_tshark, program_path,
+            bookmark_conf_path, base_env, capture_file, features, result_file):
+        '''Saving preferences elsewhere leaves our extcap.cfg alone'''
+        if not features.have_lua:
+            pytest.skip('Test requires Lua.')
+        os.makedirs(os.path.join(bookmark_conf_path, 'profiles', 'Other'))
+        # Saving preferences is a GUI action, so have Lua do it for us. Our
+        # extcap preferences aren't registered here, so writing them would
+        # replace our configuration with a set of default values.
+        lua_script = result_file('apply_prefs.lua')
+        with open(lua_script, 'w') as f:
+            f.write('local tap = Listener.new("frame")\n'
+                    'function tap.packet(pinfo, tvb)\n'
+                    '    apply_preferences()\n'
+                    'end\n')
+        subprocess.check_call((cmd_tshark, '-C', 'Other',
+                '-X', 'lua_script:' + lua_script,
+                '-r', capture_file('dhcp.pcap'), '-c', '1', '-q'),
+                cwd=program_path, env=base_env)
+        with open(os.path.join(bookmark_conf_path, 'extcap.cfg')) as f:
+            shared_cfg = f.read()
+        assert 'extcap.randpkt.count: 2' in shared_cfg
+        assert 'extcap.randpkt_random_test.count: 5' in shared_cfg
+        assert not os.path.exists(os.path.join(bookmark_conf_path,
+                'profiles', 'Other', 'extcap.cfg'))
+
+
+@pytest.fixture
+def profile_conf_path(conf_path):
+    '''A configuration directory with a per-profile extcap.cfg.'''
+    profile_dir = os.path.join(conf_path, 'profiles', 'Test lab')
+    os.makedirs(profile_dir)
+    with open(os.path.join(profile_dir, 'extcap.cfg'), 'w') as f:
+        # Commented out preferences are at their default values.
+        f.write('#extcap.randpkt.maxbytes: 5000\n')
+        f.write('extcap.randpkt.count: 7\n')
+        f.write('extcap.randpkt.type: dns\n')
+    return conf_path
+
+
+class TestExtcapProfileConfig:
+    def test_extcap_profile_config_bookmark(self, cmd_tshark, program_path,
+            profile_conf_path, base_env):
+        '''A profile's extcap configuration becomes a bookmark named after the profile'''
+        if sys.platform == 'win32':
+            pytest.skip('Test requires Npcap.')
+        iface_list = subprocess.check_output((cmd_tshark, '-C', 'Test lab', '-D'),
+                cwd=program_path, encoding='utf-8', env=base_env)
+        assert re.search(r'^\d+\. randpkt/Test lab \(Test lab\)$', iface_list, re.MULTILINE)
+        # The default profile's extcap.cfg is the shared one.
+        iface_list = subprocess.check_output((cmd_tshark, '-D'),
+                cwd=program_path, encoding='utf-8', env=base_env)
+        assert 'randpkt/Test lab' not in iface_list
+
+    def test_extcap_profile_config_capture(self, cmd_tshark, program_path,
+            profile_conf_path, base_env, result_file):
+        '''Capturing from the bookmark uses the profile's configuration'''
+        if sys.platform == 'win32':
+            pytest.skip("Test doesn't work on Windows.")
+        testout_file = result_file('testout.pcapng')
+        # The packet count and type come from the profile, not the command line.
+        subprocess.check_call((cmd_tshark, '-C', 'Test lab',
+                '-i', 'randpkt/Test lab', '-a', 'duration:30', '-w', testout_file),
+                cwd=program_path, env=base_env)
+        protocols = subprocess.check_output((cmd_tshark, '-r', testout_file,
+                '-T', 'fields', '-e', 'frame.protocols'),
+                encoding='utf-8').splitlines()
+        assert len(protocols) == 7
+        assert all(':dns' in protocol for protocol in protocols)

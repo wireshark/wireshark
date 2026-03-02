@@ -4489,7 +4489,7 @@ read_registry(void)
 #endif
 
 void
-prefs_read_module(const char *module, const char* app_env_var_prefix)
+prefs_read_module(const char *module, bool from_profile, const char* app_env_var_prefix)
 {
     int         err;
     char        *pf_path;
@@ -4501,9 +4501,9 @@ prefs_read_module(const char *module, const char* app_env_var_prefix)
     }
 
     /* Construct the pathname of the user's preferences file for the module. */
-    char *pf_name = wmem_strdup_printf(NULL, "%s.cfg", module);
-    pf_path = get_persconffile_path(pf_name, true, app_env_var_prefix);
-    wmem_free(NULL, pf_name);
+    char *pf_name = g_strdup_printf("%s.cfg", module);
+    pf_path = get_persconffile_path(pf_name, from_profile, app_env_var_prefix);
+    g_free(pf_name);
 
     /* Read the user's module preferences file, if it exists and is not a dir. */
     if (!test_for_regular_file(pf_path) || ((pf = ws_fopen(pf_path, "r")) == NULL)) {
@@ -6756,14 +6756,62 @@ write_registry(void)
 }
 #endif
 
+int
+prefs_write_module(const char *module, bool from_profile, const char* app_env_var_prefix)
+{
+    write_gui_pref_arg_t write_pref_info;
+
+    module_t *target_module = prefs_find_module(module);
+    if (!target_module) {
+        return ENOENT;
+    }
+
+    char *pf_name = g_strdup_printf("%s.cfg", module);
+    char *pf_path = get_persconffile_path(pf_name, from_profile, app_env_var_prefix);
+    g_free(pf_name);
+
+    FILE *pf;
+    if ((pf = ws_fopen(pf_path, "w")) == NULL) {
+        int err = errno;
+        if (err != EISDIR) {
+            ws_warning("Unable to save %s preferences \"%s\": %s",
+                module, pf_path, g_strerror(err));
+        }
+        g_free(pf_path);
+        return err;
+    }
+    g_free(pf_path);
+
+    fprintf(pf, "# %s configuration file for Wireshark " VERSION ".\n"
+                "#\n"
+                "# This file is regenerated each time preferences are saved within\n"
+                "# Wireshark. Making manual changes should be safe, however.\n"
+                "# Preferences that have been commented out have not been\n"
+                "# changed from their default value.\n", target_module->title);
+
+    write_pref_info.pf = pf;
+    write_pref_info.is_gui_module = (target_module == gui_module);
+    write_pref_info.is_extcap_module = (target_module == extcap_module);
+
+    write_module_prefs(target_module, &write_pref_info);
+
+    fclose(pf);
+
+    return 0;
+}
+
 /* Write out "prefs" to the user's preferences file, and return 0.
 
    If the preferences file path is NULL, write to stdout.
 
-   If we got an error, stuff a pointer to the path of the preferences file
-   into "*pf_path_return", and return the errno. */
-int
-write_prefs(const char* app_env_var_prefix, char **pf_path_return)
+   If we got an error, stuff a pointer to the path of the preferences
+   file into "*pf_path_return", and return the errno.
+
+   Note that we don't write extcap.cfg here; that's done by
+   extcap_write_preferences().
+*/
+    int
+    write_prefs(const char *app_env_var_prefix, char **pf_path_return)
 {
     char        *pf_path;
     FILE        *pf;
@@ -6801,38 +6849,6 @@ write_prefs(const char* app_env_var_prefix, char **pf_path_return)
             if (!uat_save(uat_get_table_by_name("Display expressions"), app_env_var_prefix, &err)) {
                 ws_warning("Unable to save Display expressions: %s", err);
                 g_free(err);
-            }
-        }
-
-        if (extcap_module && !prefs.capture_no_extcap) {
-            /* We check prefs.capture_no_extcap so that we don't overwrite
-             * any existing extcap.cfg with a nearly empty entry if the extcaps
-             * aren't loaded and their preferences not registered and read. */
-            char *ext_path = get_persconffile_path("extcap.cfg", true, app_env_var_prefix);
-            FILE *extf;
-            if ((extf = ws_fopen(ext_path, "w")) == NULL) {
-                if (errno != EISDIR) {
-                    ws_warning("Unable to save extcap preferences \"%s\": %s",
-                        ext_path, g_strerror(errno));
-                }
-                g_free(ext_path);
-            } else {
-                g_free(ext_path);
-
-                fputs("# Extcap configuration file for Wireshark " VERSION ".\n"
-                      "#\n"
-                      "# This file is regenerated each time preferences are saved within\n"
-                      "# Wireshark. Making manual changes should be safe, however.\n"
-                      "# Preferences that have been commented out have not been\n"
-                      "# changed from their default value.\n", extf);
-
-                write_gui_pref_info.pf = extf;
-                write_gui_pref_info.is_gui_module = false;
-                write_gui_pref_info.is_extcap_module = true;
-
-                write_module_prefs(extcap_module, &write_gui_pref_info);
-
-                fclose(extf);
             }
         }
     }

@@ -106,6 +106,29 @@ void
 extcap_register_preferences(register_cb cb, void *client_data);
 
 /**
+ * Reads our preferences from extcap.cfg, which is shared by all of our
+ * configuration profiles.
+ *
+ * Our preferences must already be registered, which extcap_register_preferences()
+ * takes care of. Changing profiles resets every registered preference, including
+ * ours, so call this afterward to restore them.
+ */
+void
+extcap_read_preferences(void);
+
+/**
+ * Writes our preferences to extcap.cfg, which is shared by all of our
+ * configuration profiles.
+ *
+ * Does nothing if our interfaces haven't been loaded, since that means that
+ * our preferences aren't registered and writing them would leave us with a
+ * file that has nothing but default values in it. Call this after changing an
+ * extcap preference; write_prefs() doesn't write them for us.
+ */
+void
+extcap_write_preferences(void);
+
+/**
  * Fetches the interface capabilities for the named extcap interface.
  * Initializes the extcap interface list if that hasn't already been done.
  * @param ifname The interface name.

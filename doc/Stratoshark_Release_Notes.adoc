@@ -31,6 +31,9 @@ The following changes have been made since version 0.10.2:
 
 * The minimum supported Windows version is Windows 10 21H2 (build 19044) or
   Windows Server 2022.
+* Extcap interfaces now support "bookmarks," which let you have multiple configurations
+  for the same interfaces. Extcap configurations are now shared across profiles, and
+  existing per-profile configurations will be migrated to bookmarks. wsbuglink:14224[].
 
 The following changes have been made since version 0.10.1:
 

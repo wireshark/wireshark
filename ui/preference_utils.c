@@ -28,6 +28,8 @@
 #endif
 #include "ui/capture_globals.h"
 
+#include "extcap.h"
+
 #include "ui/preference_utils.h"
 #include "ui/simple_dialog.h"
 
@@ -76,6 +78,23 @@ prefs_main_write(void)
     }
 }
 
+/* Save the preferences for one module, in the file that holds them. */
+static void
+prefs_module_write(const char * module_name)
+{
+    if ( g_strcmp0(module_name, "extcap") == 0 )
+    {
+        /* Extcap preferences have a file of their own, so we don't have to
+         * rewrite every preference we have just because an extcap's arguments
+         * changed. */
+        extcap_write_preferences();
+    }
+    else
+    {
+        prefs_main_write();
+    }
+}
+
 static unsigned int
 prefs_store_ext_helper(const char * module_name, const char *pref_name, const char *pref_value)
 {
@@ -111,7 +130,7 @@ prefs_store_ext(const char * module_name, const char *pref_name, const char *pre
     unsigned int changed_flags = prefs_store_ext_helper(module_name, pref_name, pref_value);
     if ( changed_flags )
     {
-        prefs_main_write();
+        prefs_module_write(module_name);
         prefs_apply_all();
         prefs_to_capture_opts(&global_capture_opts);
         return changed_flags;
@@ -148,7 +167,7 @@ prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
 
     if ( pref_changed )
     {
-        prefs_main_write();
+        prefs_module_write(module);
         prefs_apply_all();
         prefs_to_capture_opts(&global_capture_opts);
     }
