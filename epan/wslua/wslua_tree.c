@@ -1126,6 +1126,563 @@ WSLUA_METHOD TreeItem_referenced(lua_State *L) {
     WSLUA_RETURN(1); /* A boolean indicating if the ProtoField/Dissector is referenced */
 }
 
+WSLUA_METHOD TreeItem_get_child_count(lua_State *L) {
+    /* Returns the number of direct child tree items.
+
+    This method counts and returns the number of direct children of this tree item.
+    Only immediate children are counted; grandchildren and deeper descendants are not included.
+
+    [source,lua]
+    ----
+    local tree = root:add(myproto, tvbuf())
+    tree:add("Child 1")
+    tree:add("Child 2")
+
+    local count = tree:get_child_count()
+    -- count is now 2
+    ----
+
+    @since 4.7.0
+    */
+
+    /* Retrieve and validate the TreeItem from Lua stack position 1 */
+    TreeItem ti = checkTreeItem(L, 1);
+    if (!ti) {
+        return 0;
+    }
+
+    int count = 0;
+    proto_tree *tree = ti->tree;
+
+    if (tree) {
+        /* Get the first child node from the proto_tree structure */
+        proto_node *current = ((proto_node *)tree)->first_child;
+
+        /* Iterate through the linked list of children using the 'next' pointer */
+        while (current) {
+            count++;
+            current = current->next;  /* Move to next sibling */
+        }
+    }
+
+    /* Push the count as an integer onto the Lua stack */
+    lua_pushinteger(L, count);
+    WSLUA_RETURN(1); /* The number of child tree items. */
+}
+
+WSLUA_METHOD TreeItem_get_parent(lua_State *L) {
+    /* Returns the parent tree item.
+
+    Returns the parent tree item of this item, or nil if this is a root item
+    (i.e., a top-level tree item added directly to the protocol tree).
+
+    [source,lua]
+    ----
+    local parent_tree = root:add(myproto, tvbuf())
+    local child_tree = parent_tree:add("Child")
+
+    local parent = child_tree:get_parent()
+    -- parent is the same as parent_tree
+
+    local root_parent = parent_tree:get_parent()
+    -- root_parent is nil (assuming parent_tree is a root item)
+    ----
+    @since 4.7.0
+    */
+
+    /* Retrieve and validate the TreeItem from Lua stack */
+    TreeItem ti = checkTreeItem(L, 1);
+    if (!ti) {
+        return 0;
+    }
+
+    proto_item *parent = NULL;
+
+    if (ti->item) {
+        /* Use Wireshark's built-in function to get the parent proto_item */
+        parent = proto_item_get_parent(ti->item);
+    }
+
+    if (parent) {
+        /* Parent exists - get its subtree (may be NULL if parent has no children) */
+        proto_tree *parent_tree = proto_item_get_subtree(parent);
+
+        /* Create a new Lua TreeItem object wrapping the parent and push it to Lua */
+        push_TreeItem(L, parent_tree, parent);
+    } else {
+        /* No parent exists - this is a root item, return nil */
+        lua_pushnil(L);
+    }
+
+    WSLUA_RETURN(1); /* The parent TreeItem, or nil if this is a root item. */
+}
+
+WSLUA_METHOD TreeItem_get_child(lua_State *L) {
+    /* Returns the child tree item at the specified index.
+
+    Returns the direct child TreeItem at the given index using 0-based indexing.
+    This provides random access to child items by their position.
+
+    [source,lua]
+    ----
+    local tree = root:add(myproto, tvbuf())
+    tree:add("First child")   -- index 0
+    tree:add("Second child")  -- index 1
+    tree:add("Third child")   -- index 2
+
+    local first = tree:get_child(0)   -- Returns first child
+    local second = tree:get_child(1)  -- Returns second child
+    local invalid = tree:get_child(5) -- Returns nil (out of range)
+    ----
+    @since 4.7.0
+    */
+
+#define WSLUA_ARG_TreeItem_get_child_INDEX 2 /* The index of the child (0-based). */
+    /* Retrieve and validate the TreeItem */
+    TreeItem ti = checkTreeItem(L, 1);
+    if (!ti)
+        return 0;
+
+    /* Get the index parameter from Lua (must be an integer) */
+    lua_Integer index = luaL_checkinteger(L, WSLUA_ARG_TreeItem_get_child_INDEX);
+
+    /* Validate index - must be non-negative for 0-based indexing */
+    if (index < 0) {
+        WSLUA_ARG_ERROR(TreeItem_get_child, INDEX, "index must be non-negative");
+    }
+
+    proto_node *current = NULL;
+
+    if (ti->tree) {
+        /* Get the first child in the linked list */
+        current = ((proto_node *)ti->tree)->first_child;
+    }
+
+    /* Navigate to the index-th child by following the 'next' pointers */
+    lua_Integer current_index = 0;
+    while (current && current_index < index) {
+        current = current->next;  /* Move to next sibling */
+        current_index++;
+    }
+
+    if (current) {
+        /* Child found at the specified index */
+        /* Get the subtree (may be NULL if this node has no children) */
+        proto_tree *child_tree = proto_item_get_subtree((proto_item *)current);
+
+        /* Create and push the TreeItem to Lua */
+        push_TreeItem(L, child_tree, (proto_item *)current);
+    } else {
+        /* Index out of range - no child exists at this position */
+        lua_pushnil(L);
+    }
+
+    WSLUA_RETURN(1); /* The child TreeItem at the specified index, or nil if out of range. */
+}
+
+/* Structure to hold iterator state with optional field name filters and recursion */
+typedef struct
+{
+    proto_node *current_node;  /* Current node being processed in iteration */
+    char **field_filters;      /* Array of field name strings to match (e.g., "tcp.port") */
+    int num_filters;           /* Number of filter strings in the array */
+    bool recursive;            /* If true, iterate through entire subtree depth-first */
+    proto_node **stack;        /* Stack for recursive depth-first traversal */
+    int stack_size;            /* Number of nodes currently on the stack */
+    int stack_capacity;        /* Maximum capacity of stack (grows dynamically) */
+} TreeItem_iterator_state;
+
+/* Helper function to push a node onto the stack for recursive iteration */
+static void push_node_to_stack(TreeItem_iterator_state *state, proto_node *node) {
+    if (!node)
+        return;
+
+    /* Dynamically expand stack capacity if needed */
+    if (state->stack_size >= state->stack_capacity) {
+        /* Double capacity plus initial buffer to reduce reallocation frequency */
+        state->stack_capacity = state->stack_capacity * 2 + 10;
+        state->stack = (proto_node **)g_realloc(state->stack,
+                                                state->stack_capacity * sizeof(proto_node *));
+    }
+
+    /* Add node to top of stack and increment size */
+    state->stack[state->stack_size++] = node;
+}
+
+/* Helper function to pop a node from the stack */
+static proto_node *pop_node_from_stack(TreeItem_iterator_state *state) {
+    /* Check if stack is empty */
+    if (state->stack_size <= 0)
+        return NULL;
+
+    /* Return top element and decrement stack size */
+    return state->stack[--state->stack_size];
+}
+
+/* Helper function for the children iterator with optional filtering and recursion */
+static int TreeItem_children_iterator(lua_State *L) {
+    /* Retrieve the iterator state from the closure's upvalue */
+    TreeItem_iterator_state *state = (TreeItem_iterator_state *)lua_touserdata(L, lua_upvalueindex(1));
+
+    /* Continue iterating while we have nodes to process */
+    /* Either from current sibling chain OR from recursive stack */
+    while (state->current_node || (state->recursive && state->stack_size > 0)) {
+        proto_node *node = NULL;
+
+        if (state->current_node) {
+            /* Process next node in current sibling chain */
+            node = state->current_node;
+            state->current_node = node->next;  /* Advance to next sibling for next iteration */
+        } else if (state->recursive && state->stack_size > 0) {
+            /* No more siblings - pop from stack for recursive traversal */
+            node = pop_node_from_stack(state);
+            if (!node)
+                continue;  /* Stack had invalid entry, skip */
+
+            /* Set current_node to first child of popped node */
+            /* This allows iteration through all siblings before going deeper */
+            proto_tree *subtree = proto_item_get_subtree((proto_item *)node);
+            if (subtree) {
+                state->current_node = ((proto_node *)subtree)->first_child;
+            }
+        }
+
+        if (!node)
+            continue;  /* Safety check - should not happen */
+
+        /* IMPORTANT: For recursive mode, always add children to stack regardless of filter match
+         * This ensures that even if the current node doesn't match the filter,
+         * its children are still searched recursively (depth-first traversal)
+         *
+         * Example: If we filter for "tcp.port" but current node is "tcp.flags",
+         * we still need to check if "tcp.flags" has "tcp.port" children
+         */
+        if (state->recursive) {
+            proto_tree *subtree = proto_item_get_subtree((proto_item *)node);
+            if (subtree) {
+                /* Collect all children first (needed for reverse-order pushing) */
+                proto_node *child = ((proto_node *)subtree)->first_child;
+                proto_node **children = NULL;
+                int child_count = 0;
+
+                /* Count and collect all children in forward order */
+                while (child) {
+                    child_count++;
+                    children = (proto_node **)g_realloc(children, child_count * sizeof(proto_node *));
+                    children[child_count - 1] = child;
+                    child = child->next;
+                }
+
+                /* Push children in REVERSE order to stack */
+                /* This ensures depth-first left-to-right traversal */
+                /* (first child is on top of stack, gets popped first) */
+                for (int i = child_count - 1; i >= 0; i--) {
+                    push_node_to_stack(state, children[i]);
+                }
+
+                /* Free temporary children array */
+                if (children)
+                    g_free(children);
+            }
+        }
+
+        /* Check if this node matches the filter criteria */
+        bool matches = false;
+        if (state->num_filters > 0) {
+            /* Filters are specified - check if node's field name matches any filter */
+            field_info *finfo = node->finfo;
+
+            /* Ensure node has valid field_info with abbreviated name */
+            if (finfo && finfo->hfinfo && finfo->hfinfo->abbrev) {
+                /* Check against all filter strings (OR logic) */
+                for (int i = 0; i < state->num_filters; i++) {
+                    if (strcmp(finfo->hfinfo->abbrev, state->field_filters[i]) == 0) {
+                        matches = true;
+                        break;  /* Found match, no need to check remaining filters */
+                    }
+                }
+            }
+            /* If finfo is NULL or has no abbrev, matches remains false */
+        } else {
+            /* No filters specified - return all children/descendants */
+            matches = true;
+        }
+
+        /* Only return matching nodes to Lua, but continue processing regardless
+         * (children were already added to stack above for recursive mode) */
+        if (matches) {
+            /* Get the subtree for this matching node (may be NULL) */
+            proto_tree *child_tree = proto_item_get_subtree((proto_item *)node);
+
+            /* Push matching TreeItem to Lua stack */
+            push_TreeItem(L, child_tree, (proto_item *)node);
+            return 1;  /* Return 1 value to Lua iterator */
+        }
+
+        /* If no match, continue to next node
+         * Children are already on stack for recursive mode,
+         * ensuring we don't miss matching descendants */
+    }
+
+    /* No more nodes to process - iteration complete */
+    return 0;  /* Return no values - signals end of iteration to Lua */
+}
+
+/* Garbage collector for the iterator state */
+static int TreeItem_iterator_state_gc(lua_State *L) {
+    /* Retrieve the iterator state userdata */
+    TreeItem_iterator_state *state = (TreeItem_iterator_state *)lua_touserdata(L, 1);
+
+    /* Free the filter strings array */
+    if (state->field_filters) {
+        /* Free each individual filter string */
+        for (int i = 0; i < state->num_filters; i++) {
+            g_free(state->field_filters[i]);
+        }
+        /* Free the array itself */
+        g_free(state->field_filters);
+    }
+
+    /* Free the recursion stack */
+    if (state->stack) {
+        g_free(state->stack);
+    }
+
+    /* Note: The state struct itself is freed by Lua's GC */
+    return 0;
+}
+
+WSLUA_METHOD TreeItem_children(lua_State *L) {
+    /* Returns an iterator function to iterate over child tree items.
+
+    Returns an iterator function that can be used in a Lua for loop to iterate
+    over children of this tree item. Supports optional filtering and recursive traversal.
+
+    The basic usage iterates over direct children only:
+    [source,lua]
+    ----
+    for child in tree:children() do
+        print("Child: " .. tostring(child))
+    end
+    ----
+
+    You can filter by field names to only get children with specific fields:
+    [source,lua]
+    ----
+    -- Single field filter
+    for child in tree:children("tcp.flags") do
+        print("TCP flags child: " .. tostring(child))
+    end
+
+    -- Multiple field filters
+    for child in tree:children({"tcp.port", "tcp.srcport", "tcp.dstport"}) do
+        print("TCP port child: " .. tostring(child))
+    end
+    ----
+
+    Enable recursive iteration to traverse the entire subtree in depth-first order:
+    [source,lua]
+    ----
+    -- Recursive iteration without filter
+    for child in tree:children(nil, true) do
+        print("Descendant: " .. tostring(child))
+    end
+
+    -- Recursive iteration with field filter
+    for child in tree:children("tcp.flags", true) do
+        print("TCP flags anywhere in subtree: " .. tostring(child))
+    end
+    ----
+
+    When using recursive mode with filters, the iterator searches through all descendants
+    even if parent nodes don't match the filter, ensuring no matching children are missed.
+
+    IMPORTANT: Field extractors must still be created for the fields you want to iterate over.
+    Wireshark optimizes dissection by only creating tree items for fields that are explicitly
+    requested through field extractors, display filters, or taps. Without proper field extractors,
+    the fields may not exist in the dissection tree and will not be found by this iterator.
+
+    Example of proper field extractor setup:
+    [source,lua]
+    ----
+    -- Define field extractors first
+    local tcp_flags_extractor = Field.new("tcp.flags")
+    local tcp_port_extractor = Field.new("tcp.port")
+
+    -- Then use tree navigation (extractors ensure fields exist in tree)
+    for child in tree:children("tcp.flags") do
+        local field_info = child:get_field_info()
+        print("TCP Flags:", field_info.value)
+    end
+    ----
+    @since 4.7.0
+    */
+
+#define WSLUA_OPTARG_TreeItem_children_FIELD_FILTER 2 /* Optional field name(s) to filter by (string or table of strings). */
+#define WSLUA_OPTARG_TreeItem_children_RECURSIVE 3    /* Optional boolean to enable recursive (depth-first) iteration. Default is false. */
+
+    /* Retrieve and validate the TreeItem */
+    TreeItem ti = checkTreeItem(L, 1);
+    if (!ti)
+        return 0;
+
+    if (lua_gettop(L) >= WSLUA_OPTARG_TreeItem_children_RECURSIVE &&
+        !lua_isnil(L, WSLUA_OPTARG_TreeItem_children_RECURSIVE) &&
+        !lua_isboolean(L, WSLUA_OPTARG_TreeItem_children_RECURSIVE)) {
+        luaL_error(L, "TreeItem:children() recursive argument must be a boolean");
+        return 0;
+    }
+
+    if (lua_gettop(L) >= WSLUA_OPTARG_TreeItem_children_FIELD_FILTER &&
+        !lua_isnil(L, WSLUA_OPTARG_TreeItem_children_FIELD_FILTER)) {
+        int filter_arg = WSLUA_OPTARG_TreeItem_children_FIELD_FILTER;
+
+        if (lua_type(L, filter_arg) != LUA_TSTRING && !lua_istable(L, filter_arg)) {
+            luaL_error(L, "TreeItem:children() field filter must be a string or table of strings");
+            return 0;
+        }
+
+        if (lua_istable(L, filter_arg)) {
+            int table_len = (int)lua_rawlen(L, filter_arg);
+            for (int i = 0; i < table_len; i++) {
+                lua_rawgeti(L, filter_arg, i + 1);
+                if (lua_type(L, -1) != LUA_TSTRING) {
+                    luaL_error(L, "TreeItem:children() field filter table entries must be strings");
+                    return 0;
+                }
+                lua_pop(L, 1);
+            }
+        }
+    }
+
+    proto_node *first_child = NULL;
+
+    if (ti->tree) {
+        /* Get the first child from the tree's linked list */
+        first_child = ((proto_node *)ti->tree)->first_child;
+    }
+
+    /* Create the iterator state userdata that will be used by the iterator closure */
+    /* This userdata will be garbage collected when the iterator is no longer referenced */
+    TreeItem_iterator_state *state = (TreeItem_iterator_state *)lua_newuserdata(L, sizeof(TreeItem_iterator_state));
+
+    /* Initialize all state fields to safe defaults */
+    state->current_node = first_child;     /* Start with first child */
+    state->field_filters = NULL;           /* No filters by default */
+    state->num_filters = 0;
+    state->recursive = false;              /* Non-recursive by default */
+    state->stack = NULL;                   /* Stack only allocated if recursive */
+    state->stack_size = 0;
+    state->stack_capacity = 0;
+
+    /* Set up garbage collection metatable for the state userdata */
+    /* This ensures proper cleanup when iterator is no longer referenced */
+    lua_newtable(L);                       /* Create metatable */
+    lua_pushcfunction(L, TreeItem_iterator_state_gc);
+    lua_setfield(L, -2, "__gc");          /* Set __gc metamethod */
+    lua_setmetatable(L, -2);              /* Apply metatable to userdata */
+
+    /* Check for recursive parameter (argument 3) */
+    if (lua_gettop(L) >= WSLUA_OPTARG_TreeItem_children_RECURSIVE &&
+        !lua_isnil(L, WSLUA_OPTARG_TreeItem_children_RECURSIVE)) {
+        /* Convert Lua boolean to C bool */
+        state->recursive = lua_toboolean(L, WSLUA_OPTARG_TreeItem_children_RECURSIVE);
+    }
+
+    /* Check if filter argument (argument 2) is provided */
+    if (lua_gettop(L) >= WSLUA_OPTARG_TreeItem_children_FIELD_FILTER &&
+        !lua_isnil(L, WSLUA_OPTARG_TreeItem_children_FIELD_FILTER)) {
+        int filter_arg = WSLUA_OPTARG_TreeItem_children_FIELD_FILTER;
+
+        if (lua_type(L, filter_arg) == LUA_TSTRING) {
+            /* Single filter string - allocate array of size 1 */
+            state->num_filters = 1;
+            state->field_filters = (char **)g_malloc(sizeof(char *));
+            /* Duplicate the string (Lua string becomes C string copy) */
+            state->field_filters[0] = g_strdup(lua_tostring(L, filter_arg));
+        } else if (lua_istable(L, filter_arg)) {
+            /* Table of filter strings - extract all strings from table */
+            int table_len = (int)lua_rawlen(L, filter_arg);
+            state->num_filters = table_len;
+            state->field_filters = (char **)g_malloc(sizeof(char *) * table_len);
+
+            /* Iterate through Lua table (1-based indexing) */
+            for (int i = 0; i < table_len; i++) {
+                lua_rawgeti(L, filter_arg, i + 1);  /* Get table[i+1] */
+                /* Valid string entry - duplicate it */
+                state->field_filters[i] = g_strdup(lua_tostring(L, -1));
+                lua_pop(L, 1);  /* Remove the value from stack */
+            }
+        }
+        /* If neither string nor table, filters remain NULL (no filtering) */
+    }
+
+    /* Push the iterator function as a closure with state as upvalue */
+    /* The state userdata is kept alive as long as the closure exists */
+    lua_pushcclosure(L, TreeItem_children_iterator, 1);
+
+    WSLUA_RETURN(1); /* An iterator function for use in Lua for loops. */
+}
+
+WSLUA_METHOD TreeItem_get_field_info(lua_State *L) {
+    /* Returns the FieldInfo object associated with this tree item.
+
+    Returns a FieldInfo object that provides access to the underlying field
+    information including name, abbreviated name, type, value, data offset,
+    length, and other protocol field properties.
+
+    This is particularly useful for extracting actual field values and
+    metadata from tree items during packet analysis.
+
+    [source,lua]
+    ----
+    for child in tree:children() do
+        local field_info = child:get_field_info()
+        if field_info then
+            print("Field name: " .. field_info.name)
+            print("Field abbrev: " .. field_info.abbrev)
+            print("Field type: " .. field_info.type)
+            print("Field value: " .. tostring(field_info.value))
+            print("Field offset: " .. field_info.offset)
+            print("Field len: " .. field_info.len)
+        else
+            print("No field info (text-only or generated item)")
+        end
+    end
+    ----
+
+    NOTE: Field extractors are still required to ensure fields exist in the dissection tree.
+    This method only provides access to field information for tree items that already exist.
+
+    @since 4.7.0
+    */
+
+    /* Retrieve and validate the TreeItem */
+    TreeItem ti = checkTreeItem(L, 1);
+    if (!ti)
+        return 0;
+
+    field_info *finfo = NULL;
+
+    /* Get field_info from the proto_item */
+    if (ti->item) {
+        /* Cast proto_item to proto_node to access finfo member */
+        proto_node *node = (proto_node *)ti->item;
+        finfo = node->finfo;  /* May be NULL for text-only tree items */
+    }
+
+    if (finfo) {
+        /* Valid field_info exists - create and push FieldInfo Lua object */
+        /* This makes all field properties accessible from Lua */
+        push_FieldInfo(L, finfo);
+    } else {
+        /* No field_info - this is a text-only tree item or generated content */
+        lua_pushnil(L);
+    }
+
+    WSLUA_RETURN(1); /* The FieldInfo object, or nil if not available. */
+}
+
 WSLUA_METAMETHOD TreeItem__tostring(lua_State* L) {
     /* Returns string debug information about the <<lua_class_TreeItem,`TreeItem`>>. */
     TreeItem ti = toTreeItem(L,1);
@@ -1166,21 +1723,25 @@ WSLUA_ATTRIBUTES TreeItem_attributes[] = {
 };
 
 WSLUA_METHODS TreeItem_methods[] = {
-    WSLUA_CLASS_FNREG(TreeItem,add_packet_field),
-    WSLUA_CLASS_FNREG(TreeItem,add),
-    WSLUA_CLASS_FNREG(TreeItem,add_le),
-    WSLUA_CLASS_FNREG(TreeItem,set_text),
-    WSLUA_CLASS_FNREG(TreeItem,append_text),
-    WSLUA_CLASS_FNREG(TreeItem,prepend_text),
-    WSLUA_CLASS_FNREG(TreeItem,add_expert_info),
-    WSLUA_CLASS_FNREG(TreeItem,add_proto_expert_info),
-    WSLUA_CLASS_FNREG(TreeItem,add_tvb_expert_info),
-    WSLUA_CLASS_FNREG(TreeItem,set_generated),
-    WSLUA_CLASS_FNREG(TreeItem,set_hidden),
-    WSLUA_CLASS_FNREG(TreeItem,set_len),
-    WSLUA_CLASS_FNREG(TreeItem,referenced),
-    { NULL, NULL }
-};
+    WSLUA_CLASS_FNREG(TreeItem, add_packet_field),
+    WSLUA_CLASS_FNREG(TreeItem, add),
+    WSLUA_CLASS_FNREG(TreeItem, add_le),
+    WSLUA_CLASS_FNREG(TreeItem, set_text),
+    WSLUA_CLASS_FNREG(TreeItem, append_text),
+    WSLUA_CLASS_FNREG(TreeItem, prepend_text),
+    WSLUA_CLASS_FNREG(TreeItem, add_expert_info),
+    WSLUA_CLASS_FNREG(TreeItem, add_proto_expert_info),
+    WSLUA_CLASS_FNREG(TreeItem, add_tvb_expert_info),
+    WSLUA_CLASS_FNREG(TreeItem, set_generated),
+    WSLUA_CLASS_FNREG(TreeItem, set_hidden),
+    WSLUA_CLASS_FNREG(TreeItem, set_len),
+    WSLUA_CLASS_FNREG(TreeItem, referenced),
+    WSLUA_CLASS_FNREG(TreeItem, get_child_count),
+    WSLUA_CLASS_FNREG(TreeItem, get_parent),
+    WSLUA_CLASS_FNREG(TreeItem, get_child),
+    WSLUA_CLASS_FNREG(TreeItem, children),
+    WSLUA_CLASS_FNREG(TreeItem, get_field_info),
+    {NULL, NULL}};
 
 WSLUA_META TreeItem_meta[] = {
     WSLUA_CLASS_MTREG(TreeItem,tostring),

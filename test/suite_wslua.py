@@ -319,6 +319,10 @@ class TestWslua:
         '''wslua tvb without a tree'''
         check_lua_script('tvb.lua', dns_port_pcap, True, '-c1')
 
+    def test_wslua_tree_api(self, check_lua_script):
+        '''wslua tree api'''
+        check_lua_script('tree_api.lua', dns_port_pcap, True, '-V', '-c1')
+
     def test_wslua_try_heuristics(self, check_lua_script):
         '''wslua try_heuristics'''
         check_lua_script('try_heuristics.lua', dns_port_pcap, True)
