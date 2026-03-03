@@ -785,7 +785,7 @@ static tvbuff_t*
 get_udp_hdr_tvb(packet_info *pinfo _U_, uint16_t pdu_size, const char *string)
 {
     tvbuff_t *udp_hdr_tvb;
-    uint8_t udp_bytes[8], *arr_ptr;
+    uint8_t *udp_bytes, *arr_ptr;
     uint16_t str_len, rlc_hdr_len, udp_hdr_len, udp_len;
 
     str_len = (uint16_t)strlen(string);
@@ -793,6 +793,8 @@ get_udp_hdr_tvb(packet_info *pinfo _U_, uint16_t pdu_size, const char *string)
 
     udp_hdr_len = 8;
     udp_len = udp_hdr_len + rlc_hdr_len + pdu_size;
+
+    udp_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, udp_hdr_len);
 
     arr_ptr = udp_bytes;
     store_uint16(&arr_ptr, UDP_SRC_PORT);  /* Source Port */
