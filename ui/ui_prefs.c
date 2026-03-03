@@ -12,6 +12,8 @@
 #include "ui/ui_prefs.h"
 #include "ui/init.h"
 
+#include <errno.h>
+
 #include <wsutil/wslog.h>
 #include <wsutil/strtoi.h>
 
