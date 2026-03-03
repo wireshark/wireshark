@@ -45,7 +45,7 @@ dissect_hbbak(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PA-HB-Bak");
 	col_clear(pinfo->cinfo, COL_INFO);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Palo Alto Heartbeat Backup");
+	col_add_str(pinfo->cinfo, COL_INFO, "Palo Alto Heartbeat Backup");
 
 	hbbak_tree = NULL;
 	ti = proto_tree_add_item(tree, proto_hbbak, tvb, offset, HBBAK_SIZE, ENC_NA);
