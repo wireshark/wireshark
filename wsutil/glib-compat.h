@@ -22,6 +22,35 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#if !GLIB_CHECK_VERSION(2, 57, 1)
+
+static inline gboolean
+g_hash_table_steal_extended (GHashTable    *hash_table,
+                             gconstpointer  lookup_key,
+                             gpointer      *stolen_key,
+                             gpointer      *stolen_value)
+{
+  gpointer key, value;
+  if (g_hash_table_lookup_extended (hash_table, lookup_key, &key, &value))
+  {
+    stolen_key = &key;
+    stolen_value = &value;
+
+    g_hash_table_steal (hash_table, key);
+
+    return TRUE;
+  } else {
+    if (stolen_key != NULL)
+        *stolen_key = NULL;
+    if (stolen_value != NULL)
+      *stolen_value = NULL;
+  }
+
+  return FALSE;
+}
+
+#endif
+
 #if !GLIB_CHECK_VERSION(2, 60, 0)
 
 #define g_queue_clear_full queue_clear_full
