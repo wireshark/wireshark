@@ -602,6 +602,8 @@ static void populate_drop_reason_details(void)
 
     DARWIN_DROP_REASON_LIST(DROP_REASON_ADD_DETAIL);
 #undef DROP_REASON_ADD_DETAIL
+
+    g_array_append_val(darwin_drop_reason_details, ((value_string){0, NULL}));
 }
 
 void
