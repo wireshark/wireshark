@@ -530,7 +530,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		}
 	}
 
-	tvb_find_line_end_remaining(tvb, tvb_sectionbegin, &sectionlen , &tvb_sectionend);
+	(void) tvb_find_line_end_remaining(tvb, tvb_sectionbegin, &sectionlen , &tvb_sectionend);
 	col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s",
 			tvb_format_text(pinfo->pool, tvb, tvb_sectionbegin, sectionlen));
 
@@ -598,7 +598,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		/* dissect first line */
 		tvb_sectionbegin = 0;
 		tvb_sectionend = tvb_sectionbegin;
-		sectionlen = tvb_find_line_end_remaining(tvb, 0, &sectionlen , &tvb_sectionend);
+		(void) tvb_find_line_end_remaining(tvb, 0, &sectionlen , &tvb_sectionend);
 		if (sectionlen > 0)
 		{
 			dissect_mgcp_firstline(tvb_new_subset_length(tvb, tvb_sectionbegin,
@@ -651,7 +651,7 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 
 	do
 	{
-		tvb_find_line_end_remaining(tvb, tvb_linebegin, NULL, &tvb_lineend);
+		(void) tvb_find_line_end_remaining(tvb, tvb_linebegin, NULL, &tvb_lineend);
 		linelen = tvb_lineend - tvb_linebegin;
 		proto_tree_add_format_text(tree, tvb, tvb_linebegin, linelen);
 		tvb_linebegin = tvb_lineend;
@@ -1226,7 +1226,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				{
 					if (tvb_current_offset < tvb_len)
 					{
-						tvb_find_line_end_remaining(tvb, tvb_previous_offset, &tokenlen , &tvb_current_offset);
+						(void) tvb_find_line_end_remaining(tvb, tvb_previous_offset, &tokenlen , &tvb_current_offset);
 					}
 					else
 					{
@@ -1244,7 +1244,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			{
 				if (tvb_current_offset < tvb_len )
 				{
-					tvb_find_line_end_remaining(tvb, tvb_previous_offset, &tokenlen, &tvb_current_offset);
+					(void) tvb_find_line_end_remaining(tvb, tvb_previous_offset, &tokenlen, &tvb_current_offset);
 				}
 				else
 				{
@@ -1528,12 +1528,12 @@ static void dissect_mgcp_params(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
 	while (tvb_offset_exists(tvb, tvb_lineend))
 	{
 		old_lineend = tvb_lineend;
-		tvb_find_line_end_remaining(tvb, tvb_linebegin, &linelen, &tvb_lineend);
+		(void) tvb_find_line_end_remaining(tvb, tvb_linebegin, &linelen, &tvb_lineend);
 		tvb_tokenbegin = tvb_parse_param(tvb, pinfo, tvb_linebegin, linelen, &my_param, mi);
 
 		if (my_param)
 		{
-			tvb_find_line_end_remaining(tvb, tvb_tokenbegin, &tokenlen, &tvb_lineend);
+			(void) tvb_find_line_end_remaining(tvb, tvb_tokenbegin, &tokenlen, &tvb_lineend);
 			if (*my_param == hf_mgcp_param_connectionparam) {
 				dissect_mgcp_connectionparams(mgcp_param_tree, pinfo, tvb, tvb_linebegin,
 							      tvb_tokenbegin - tvb_linebegin, tokenlen);
@@ -2168,7 +2168,7 @@ static unsigned tvb_find_null_line_remaining(tvbuff_t* tvb, unsigned offset, uns
 	do
 	{
 		tvb_linebegin = tvb_lineend;
-		tvb_find_line_end_remaining(tvb, tvb_linebegin, NULL, &tvb_lineend);
+		(void) tvb_find_line_end_remaining(tvb, tvb_linebegin, NULL, &tvb_lineend);
 		tempchar = tvb_get_uint8(tvb, tvb_linebegin);
 	} while (tempchar != '\r' && tempchar != '\n' && tvb_offset_exists(tvb, tvb_lineend));
 
