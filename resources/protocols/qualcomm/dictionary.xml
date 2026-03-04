@@ -11,6 +11,11 @@ https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/wlan/qcacld-2.
 https://patentimages.storage.googleapis.com/e0/64/79/5fbad30b707176/CN106789417A.pdf
 -->
 
+<!DOCTYPE dictionary SYSTEM "dictionary.dtd">
+
+<!-- Loading exerternal entities is disbaled due to a security risk -->
+
+<!-- 
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd" [
     <!ENTITY logcode_1x    SYSTEM "logcode_1x.xml">
     <!ENTITY logcode_gsm   SYSTEM "logcode_gsm.xml">
@@ -19,12 +24,13 @@ https://patentimages.storage.googleapis.com/e0/64/79/5fbad30b707176/CN106789417A
     <!ENTITY logcode_umts  SYSTEM "logcode_umts.xml">
     <!ENTITY logcode_wcdma SYSTEM "logcode_wcdma.xml">
 ]>
+-->
 
 <dictionary>
-    &logcode_1x;
-    &logcode_wcdma;
-    &logcode_gsm;
-    &logcode_umts;
-    &logcode_lte;
-    &logcode_nr;
+    <!-- &logcode_1x; -->
+    <!-- &logcode_wcdma; -->
+    <!-- &logcode_gsm; -->
+    <!-- &logcode_umts; -->
+    <!-- &logcode_lte; -->
+    <!-- &logcode_nr; -->
 </dictionary>

@@ -49,11 +49,10 @@
 #include <epan/unit_strings.h>
 
 #include <wsutil/filesystem.h>
+#include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/strtoi.h>
 #include <libxml/tree.h>
-#include <libxml/parser.h>
-#include <libxml/xpath.h>
 
 #include "packet-gsmtap.h"
 #include "packet-qcdiag.h"
@@ -408,14 +407,14 @@ static const value_string qcdiag_logcfg_ops[] = {
     { 0, NULL }
 };
 
-static const value_string qcdiag_logcfg_status[] = {
+static const value_string qcdiag_logcfg_status_vals[] = {
     { 0, "Success" },
     { 1, "Invalid Equipment ID" },
     { 2, "Reserved" },
     { 0, NULL }
 };
 
-static const value_string qcdiag_logcfg_equipid[] = {
+static const value_string qcdiag_logcfg_equipid_vals[] = {
     {  0, "OEM" },
     {  1, "1X" },
     {  2, "Reserved" },
@@ -1286,11 +1285,11 @@ dissect_qcdiag_log_config_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
 {
     proto_item *ti;
     uint32_t operation, logcode;
-    const char *text;
+    const char *cmd_str, *op_str;
 
     ti = proto_tree_get_parent(tree);
 
-    text = val_to_str_ext(pinfo->pool, cmd, &qcdiag_cmds_ext, "Unknown Command (0x%02x)");
+    cmd_str = val_to_str_ext(pinfo->pool, cmd, &qcdiag_cmds_ext, "Unknown Command (0x%02x)");
 
     /* Log Code value */
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
@@ -1298,7 +1297,7 @@ dissect_qcdiag_log_config_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
     offset = qcdiag_add_cmd_hdr(tvb, offset, pinfo, tree, cmd, logcode);
 
     /* Append parent item name */
-    proto_item_append_text(ti, ", %s", text);
+    proto_item_append_text(ti, ", %s", cmd_str);
 
     /* Reserved */
     proto_tree_add_item(tree, hf_qcdiag_logcfg_res, tvb, offset, 3, ENC_LITTLE_ENDIAN);
@@ -1308,16 +1307,16 @@ dissect_qcdiag_log_config_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
     proto_tree_add_item_ret_uint(tree, hf_qcdiag_logcfg_operation, tvb, offset, 4, ENC_LITTLE_ENDIAN, &operation);
     offset += 4;
 
-    text = val_to_str(pinfo->pool, operation, qcdiag_logcfg_ops, "Unknown Operation (0x%02x)");
+    op_str = val_to_str(pinfo->pool, operation, qcdiag_logcfg_ops, "Unknown Operation (0x%02x)");
 
     /* Set COL_INFO to Operation */
-    col_set_str(pinfo->cinfo, COL_INFO, text);
+    col_set_str(pinfo->cinfo, COL_INFO, op_str);
 
     /* Append COL_INFO and parent item name */
     qcdiag_append_type(tree, pinfo, request);
 
     /* Append parent item name */
-    proto_item_append_text(ti, ", %s", text);
+    proto_item_append_text(ti, ", %s", op_str);
 
     return offset;
 }
@@ -1890,29 +1889,35 @@ dissect_qcdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 }
 
 
-/*****************************************************
- *                                                   *
- * START OF QUALCOMM XML DATA DICTIONARY PROCESSSING *
- *                                                   *
- *****************************************************/
+/********************************************
+ *                                          *
+ * START OF XML DATA DICTIONARY PROCESSSING *
+ *                                          *
+ ********************************************/
 
-typedef struct qcdict_logcode {
-    xmlChar* name;
+typedef struct qcdict {
+    xmlChar *name;
     unsigned code;
-} qcdict_logcode_t;
+} qcdict_t;
+
+typedef struct xml_data {
+    xmlDocPtr doc;
+    const char *filename;
+} xml_data_t;
 
 static void
-qcdictionary_clean_logcode(qcdict_logcode_t* logcode)
+qcdictionary_clean_logcode(qcdict_t *logcode)
 {
     xmlFree(logcode->name);
     g_free(logcode);
 }
 
+/* Internal helper function with type-specific pointer */
 static void
 qcdictionary_populate_logcode(void* data, void* user_data)
 {
-    qcdict_logcode_t* logcode = (qcdict_logcode_t*)data;
-    wmem_array_t* array = (wmem_array_t*)user_data;
+    qcdict_t *logcode = (qcdict_t*)data;
+    wmem_array_t *array = (wmem_array_t*)user_data;
     value_string item;
 
     item.value = logcode->code;
@@ -1927,43 +1932,39 @@ qcdictionary_populate_logcode(void* data, void* user_data)
 }
 
 static void
-qualcomm_dict_print_logcode(void* data, void* user_data)
+qualcomm_dict_print_logcode(void *data, void *user_data)
 {
-    qcdict_logcode_t* logcode = (qcdict_logcode_t*)data;
-    FILE* fh = (FILE*)user_data;
+    qcdict_t *logcode = (qcdict_t*)data;
+    FILE *fh = (FILE*)user_data;
 
-    fprintf(fh, "\t0x%04x  %s\n",
-        logcode->code,
+    fprintf(fh, "\t0x%04x  %s\n", logcode->code,
         logcode->name ? (char*)logcode->name : "-");
 }
 
 static void
-qualcomm_dict_print(FILE* fh, GSList* logcodes)
+qualcomm_dict_print(FILE *fh, GSList *logcodes)
 {
     fprintf(fh, "\nLog Codes:\n");
-
     g_slist_foreach(logcodes, qualcomm_dict_print_logcode, fh);
 }
 
-struct xml_read_data
-{
-    xmlDocPtr doc;
-    const char* filename;
-};
-
 static void
-dictionary_read_xml_file(void* param)
+dictionary_read_xml_file(void *param)
 {
-    struct xml_read_data* data = (struct xml_read_data*)param;
-    data->doc = xmlReadFile(data->filename, NULL, XML_PARSE_NOENT | XML_PARSE_NONET);
+    xml_data_t *data = (xml_data_t*)param;
+    /* XML parse option should not have flag "XML_PARSE_NOENT" set,
+       which is vulnerable to XML external entity attack. */
+    data->doc = xmlReadFile(data->filename, NULL, XML_PARSE_NONET);
+
+    if (data->doc == NULL)
+        report_warning("Failed to parse: %s", data->filename);
 }
 
 static bool
-dictionary_process_file(const char* dir, const char* filename, GSList** logcodes)
+dictionary_process_file(const char *dir, const char *filename, GSList **logcodes)
 {
-    xmlNodePtr root_element = NULL;
-    bool status = true;
-    struct xml_read_data func_data = { NULL, filename };
+    xmlNodePtr root_element;
+    xml_data_t func_data = { NULL, filename };
 
     proto_execute_in_directory(dir, dictionary_read_xml_file, &func_data);
     if (func_data.doc == NULL)
@@ -1971,8 +1972,8 @@ dictionary_process_file(const char* dir, const char* filename, GSList** logcodes
 
     root_element = xmlDocGetRootElement(func_data.doc);
     if (root_element == NULL) {
-        status = false;
-        goto cleanup;
+        xmlFreeDoc(func_data.doc);
+        return false;
     }
 
     for (xmlNodePtr current_node = root_element->children; current_node != NULL; current_node = current_node->next) {
@@ -1980,7 +1981,7 @@ dictionary_process_file(const char* dir, const char* filename, GSList** logcodes
             continue;
 
         if (xmlStrcmp(current_node->name, (const xmlChar*)"logcode") == 0) {
-            qcdict_logcode_t* element = g_new0(qcdict_logcode_t, 1);
+            qcdict_t *element = g_new0(qcdict_t, 1);
             element->name = xmlGetProp(current_node, (const xmlChar*)"name");
             xmlChar* code = xmlGetProp(current_node, (const xmlChar*)"code");
             if (code != NULL) {
@@ -2006,17 +2007,16 @@ dictionary_process_file(const char* dir, const char* filename, GSList** logcodes
         }
     }
     (*logcodes) = g_slist_reverse(*logcodes);
-cleanup:
-    xmlFreeDoc(func_data.doc);
 
-    return status;
+    xmlFreeDoc(func_data.doc);
+    return true;
 }
 
-/***************************************************
- *                                                 *
- * END OF QUALCOMM XML DATA DICTIONARY PROCESSSING *
- *                                                 *
- ***************************************************/
+/******************************************
+ *                                        *
+ * END OF XML DATA DICTIONARY PROCESSSING *
+ *                                        *
+ ******************************************/
 
 static int
 compare_logcodes(const void *a, const void *b)
@@ -2033,30 +2033,46 @@ compare_logcodes(const void *a, const void *b)
 }
 
 static int
-qcdictionary_load(wmem_array_t* hf_array _U_, GPtrArray* ett_array _U_)
+qcdictionary_load(wmem_array_t *hf_array _U_, GPtrArray *ett_array _U_)
 {
     bool dump_dict = getenv("WIRESHARK_DUMP_QC_DICT");
-    GSList* all_logcodes = NULL;
+    GSList *all_logcodes = NULL;
     value_string end_value_string = { 0, NULL };
+    GDir *dir;
+    const char *file;
+    bool success = false;
 
-    /* load the dictionary */
-    char* dir = wmem_strdup_printf(NULL, "%s" G_DIR_SEPARATOR_S "qualcomm", get_datafile_dir(epan_get_environment_prefix()));
-    bool success = dictionary_process_file(dir, "./dictionary.xml", &all_logcodes);
-    wmem_free(NULL, dir);
+    const char *data_dir = get_datafile_dir(epan_get_environment_prefix());
+    const char *safe_dir = g_build_filename(data_dir, "qualcomm", NULL);
+
+    /* Reasoning for reading files in a particular folder
+     *
+     * XML_PARSE_NOENT: Expands entities and substitutes them with replacement text.
+     *
+     * The dictionary.xml could have had reference to external entities (xml files).
+     * Since XML parse option should not have flag "XML_PARSE_NOENT" set,
+     * which is vulnerable to XML XXE external entity attack, read thru the folder
+     * and look for all the files with 'xml' extension instead.
+     */
+
+    /* load all the dictionary xml files from the safe folder */
+    if ((dir = ws_dir_open(safe_dir, 0, NULL)) != NULL) {
+        while ((file = ws_dir_read_name(dir)) != NULL) {
+            if (!g_str_has_suffix(file, ".xml")) continue;
+            if(dictionary_process_file(safe_dir, ws_dir_get_name(file), &all_logcodes))
+                success = true;
+        }
+        ws_dir_close(dir);
+    }
 
     if (success && dump_dict)
         qualcomm_dict_print(stdout, all_logcodes);
 
     /* Convert the dictionary data to epan scoped data structures */
-    wmem_array_t* arr = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
+    wmem_array_t *arr = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
     g_slist_foreach(all_logcodes, qcdictionary_populate_logcode, arr);
-
     wmem_array_sort(arr, compare_logcodes);
-
-    /* Terminate the value_string list */
     wmem_array_append_one(arr, end_value_string);
-
-    /* TODO: Remove duplicates in arr */
 
     /* Clean up */
     g_slist_free_full(all_logcodes, (GDestroyNotify)qcdictionary_clean_logcode);
@@ -2068,11 +2084,13 @@ qcdictionary_load(wmem_array_t* hf_array _U_, GPtrArray* ett_array _U_)
         wmem_array_get_count(arr),
         wmem_strdup(wmem_epan_scope(), "qcdiag_logcodes_ext"));
 
+    /* If there are duplicates in the value_string_ext, the first occurence is used. */
+
     return success;
 }
 
 static void
-real_register_qualcomm_fields(wmem_array_t* hf_array, GPtrArray* ett_array)
+real_register_qualcomm_fields(wmem_array_t *hf_array, GPtrArray *ett_array)
 {
     unsigned i, ett_length;
 
@@ -2166,10 +2184,10 @@ real_register_qualcomm_fields(wmem_array_t* hf_array, GPtrArray* ett_array)
             FT_UINT32, BASE_DEC, VALS(qcdiag_logcfg_ops), 0, NULL, HFILL }},
         { &hf_qcdiag_logcfg_status,
           { "Status", "qcdiag.logcfg.status",
-            FT_UINT32, BASE_DEC, VALS(qcdiag_logcfg_status), 0, NULL, HFILL }},
+            FT_UINT32, BASE_DEC, VALS(qcdiag_logcfg_status_vals), 0, NULL, HFILL }},
         { &hf_qcdiag_logcfg_equip_id,
           { "Equipment ID", "qcdiag.logcfg.equip_id",
-            FT_UINT32, BASE_DEC, VALS(qcdiag_logcfg_equipid), 0, NULL, HFILL }},
+            FT_UINT32, BASE_DEC, VALS(qcdiag_logcfg_equipid_vals), 0, NULL, HFILL }},
         { &hf_qcdiag_logcfg_last_item,
           { "Last Item", "qcdiag.logcfg.last_item",
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
