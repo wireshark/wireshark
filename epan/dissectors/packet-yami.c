@@ -101,6 +101,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	yami_param = proto_item_add_subtree(ti, ett_yami_param);
 
 	name_offset = offset;
+	/* coverity[sanitize] */
 	name_len = tvb_get_letohl(tvb, offset);
 	offset += 4;
 
@@ -157,6 +158,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			uint32_t val_len;
 			char *val;
 
+			/* coverity[sanitize] */
 			val_len = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
@@ -309,6 +311,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 				uint32_t val_len;
 				char *val;
 
+				/* coverity[sanitize] */
 				val_len = tvb_get_letohl(tvb, offset);
 				offset += 4;
 
@@ -399,6 +402,7 @@ dissect_yami_data(tvbuff_t *tvb, packet_info *pinfo, bool data, proto_tree *tree
 	yami_data_tree = proto_item_add_subtree(ti, (data) ? ett_yami_msg_data : ett_yami_msg_hdr);
 
 	count = tvb_get_letohl(tvb, offset);
+
 	proto_tree_add_item(yami_data_tree, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
