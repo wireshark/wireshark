@@ -2061,6 +2061,11 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         NULL
     };
 
+    /* Testing for Ethernet Padding */
+    if (tvb_get_uint8(tvb, offset + 13) == 0) {
+        return 0;
+    }
+
     ti_msg_header = proto_tree_add_item(tree, hf_cmp_msg_header, tvb, offset, 8, ENC_BIG_ENDIAN);
     asam_cmp_data_msg_header_tree = proto_item_add_subtree(ti_msg_header, ett_asam_cmp_header);
     proto_item_append_text(ti_msg_header, " %s", "- Data Message");
@@ -2229,6 +2234,11 @@ dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
         &hf_cmp_common_flag_recal,
         NULL
     };
+
+    /* Testing for Ethernet Padding */
+    if (tvb_get_uint8(tvb, offset + 13) == 0) {
+        return 0;
+    }
 
     ti_msg_header = proto_tree_add_item(tree, hf_cmp_msg_header, tvb, offset, 8, ENC_BIG_ENDIAN);
     asam_cmp_ctrl_msg_header_tree = proto_item_add_subtree(ti_msg_header, ett_asam_cmp_header);
@@ -2446,6 +2456,11 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         &hf_cmp_timeloss_error_flags_ts,
         NULL
     };
+
+    /* Testing for Ethernet Padding */
+    if (tvb_get_uint8(tvb, offset + 13) == 0) {
+        return 0;
+    }
 
     ti_msg_header = proto_tree_add_item(tree, hf_cmp_msg_header, tvb, offset, 16, ENC_BIG_ENDIAN);
     asam_cmp_status_msg_header_tree = proto_item_add_subtree(ti_msg_header, ett_asam_cmp_header);
@@ -2821,27 +2836,38 @@ dissect_asam_cmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_item_append_text(ti_root, ", Device: 0x%04x, Type: %s", (uint16_t)device_id, val_to_str(pinfo->pool, msg_type, msg_type_names, "Unknown (0x%x)"));
 
     while (tvb_reported_length_remaining(tvb, offset) >= 16) {
+        unsigned bytes_parsed = 0;
+
         switch (msg_type) {
         case CMP_MSG_TYPE_CTRL_MSG:
             col_append_str(pinfo->cinfo, COL_INFO, ", Control Msg");
-            offset += dissect_asam_cmp_ctrl_msg(tvb, pinfo, asam_cmp_tree, offset);
+            bytes_parsed = dissect_asam_cmp_ctrl_msg(tvb, pinfo, asam_cmp_tree, offset);
             break;
         case CMP_MSG_TYPE_STATUS_MSG:
             col_append_str(pinfo->cinfo, COL_INFO, ", Status Msg");
-            offset += dissect_asam_cmp_status_msg(tvb, pinfo, asam_cmp_tree, offset);
+            bytes_parsed = dissect_asam_cmp_status_msg(tvb, pinfo, asam_cmp_tree, offset);
             break;
         case CMP_MSG_TYPE_VENDOR:
             col_append_str(pinfo->cinfo, COL_INFO, ", Vendor Msg");
-            offset += dissect_asam_cmp_vendor_msg(tvb, pinfo, asam_cmp_tree, offset);
+            bytes_parsed = dissect_asam_cmp_vendor_msg(tvb, pinfo, asam_cmp_tree, offset);
             break;
         case CMP_MSG_TYPE_DATA_MSG:
             col_append_str(pinfo->cinfo, COL_INFO, ", Data Msg");
-            offset += dissect_asam_cmp_data_msg(tvb, pinfo, tree, asam_cmp_tree, offset);
+            bytes_parsed = dissect_asam_cmp_data_msg(tvb, pinfo, tree, asam_cmp_tree, offset);
             break;
         default:
             proto_item_set_end(ti_root, tvb, offset);
             return offset;
         }
+
+        offset += bytes_parsed;
+
+        /* Bytes are not being parsed, if detected as Ethernet padding, so we need to bail out. */
+        if (bytes_parsed == 0) {
+            proto_item_set_end(ti_root, tvb, offset);
+            return offset;
+        }
+
     }
 
     proto_item_set_end(ti_root, tvb, offset);
