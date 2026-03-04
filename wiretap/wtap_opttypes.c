@@ -2196,38 +2196,38 @@ void wtap_opttypes_initialize(void)
         0
     };
     static const wtap_opttype_t pkt_darwin_flow_id = {
-        "darwin_md_flags",
-        "Darwin metadata flags",
+        "darwin_flow_id",
+        "Darwin flow id",
         WTAP_OPTTYPE_UINT32,
         0
     };
     static const wtap_opttype_t pkt_darwin_trace_tag = {
-        "darwin_md_flags",
-        "Darwin metadata flags",
+        "darwin_trace_tag",
+        "Darwin trace tag",
         WTAP_OPTTYPE_UINT32,
         0
     };
     static const wtap_opttype_t pkt_darwin_drop_reason = {
-        "darwin_md_flags",
-        "Darwin metadata flags",
+        "darwin_drop_reason",
+        "Darwin drop reason",
         WTAP_OPTTYPE_UINT32,
         0
     };
     static const wtap_opttype_t pkt_darwin_drop_line = {
-        "darwin_md_flags",
-        "Darwin metadata flags",
+        "darwin_drop_line",
+        "Darwin drop line",
         WTAP_OPTTYPE_UINT32,
         0
     };
     static const wtap_opttype_t pkt_darwin_drop_func = {
-        "darwin_md_flags",
-        "Darwin metadata flags",
+        "darwin_drop_func",
+        "Darwin drop function",
         WTAP_OPTTYPE_STRING,
         0
     };
     static const wtap_opttype_t pkt_darwin_comp_gencnt = {
-        "darwin_md_flags",
-        "Darwin metadata flags",
+        "darwin_com_gencount",
+        "Darwin compression generation count",
         WTAP_OPTTYPE_UINT32,
         0
     };

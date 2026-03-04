@@ -339,15 +339,20 @@ static const value_string option_code_interface_description_vals[] = {
  *    An Enhanced Packet Block (EPB) may be augmented with any or all of the
  *    following block options for Darwin process information:
  *
- *          +------------------+-------+--------+-------------------+
- *          | Name             | Code  | Length | Multiple allowed? |
- *          +------------------+-------+--------+-------------------+
- *          | darwin_dpib_id   | 32769 | 4      | no?               |
- *          | darwin_svc_class | 32770 | 4      | no?               |
- *          | darwin_edpib_id  | 32771 | 4      | no?               |
- *          | darwin_flags     | 32772 | 4      | no?               |
- *          | darwin_flow_id   | 32773 | 4      | no?               |
- *          +------------------+------+---------+-------------------+
+ *          +--------------------+-------+--------+-------------------+
+ *          | Name               | Code  | Length | Multiple allowed? |
+ *          +--------------------+-------+--------+-------------------+
+ *          | darwin_dpib_id     | 32769 | 4      | no                |
+ *          | darwin_svc_class   | 32770 | 4      | no                |
+ *          | darwin_edpib_id    | 32771 | 4      | no                |
+ *          | darwin_flags       | 32772 | 4      | no                |
+ *          | darwin_flow_id     | 32773 | 4      | no                |
+ *          | darwin_trace_tag   | 32774 | 4      | no                |
+ *          | darwin_drop_reason | 32775 | 4      | no                |
+ *          | darwin_drop_line   | 32776 | 4      | no                |
+ *          | darwin_drop_func   | 32773 | var    | no                |
+ *          | darwin_comp_gencnt | 32773 | 4      | no                |
+ *          +--------------------+------+---------+-------------------+
  *
  *           Table XXX.2: Darwin options for Enhanced Packet Blocks
  *
@@ -360,30 +365,6 @@ static const value_string option_code_interface_description_vals[] = {
  *            which means that a matching Darwin Process Info Block MUST
  *            exist.
  *
- *    darwin_srv_class:
- *            The darwin_svc_class option is a number that maps to a
- *            specific Darwin Service Class mnemonic that the packet is
- *            associated with.
- *
- *    The following Darwin Service Class values are defined:
- *
- *              +---------------------+------------------------+
- *              | Service Class Value | Service Class Mnemonic |
- *              +---------------------+------------------------+
- *              | 0                   | BE                     |
- *              | 100                 | BK_SYS                 |
- *              | 200                 | BK                     |
- *              | 300                 | RD                     |
- *              | 400                 | OAM                    |
- *              | 500                 | AV                     |
- *              | 600                 | RV                     |
- *              | 700                 | VI                     |
- *              | 800                 | VO                     |
- *              | 900                 | CTL                    |
- *              +---------------------+------------------------+
- *
- *              Table XXX.3: Darwin Service Class Option Values
- *
  *    darwin_edpib_id:
  *            The darwin_edpib_id option specifies the Darwin Process Info
  *            Block ID for the effective process (eproc) this packet is
@@ -393,35 +374,83 @@ static const value_string option_code_interface_description_vals[] = {
  *            ID MUST be valid, which means that a matching Darwin Process
  *            Info Block MUST exist.
  *
+ *    darwin_svc_class:
+ *            The darwin_svc_class option is a number that maps to a
+ *            specific Darwin Service Class mnemonic that the packet is
+ *            associated with. The Darwin Service Class is an internal
+ *            enumeration that generally follows the guildelines in
+ *            https://www.rfc-editor.org/rfc/rfc4594
+ *
+ *            The following Darwin Service Class values are defined:
+ *
+ *              +-------+-----------+--------------------------------------------+
+ *              | Value |  Mnemonic | Notes                                      |
+ *              +-------+-----------+--------------------------------------------+
+ *              | 0     | BE        | rfc 4594 section 4.9: Best Effort, User    |
+ *              | 100   | BE_SYS    | rfc 4594 section 4.10: Best Effort, System |
+ *              | 200   | BK        | rfc 4594 section 4.8: Bulk                 |
+ *              | 300   | RD        | rfc 4594 section 4.7: Low Latency          |
+ *              | 400   | OAM       | rfc 4594 section 3.3: Ops, Admin, Mgmt     |
+ *              | 500   | AV        | rfc 4594 section 4.5: Streaming            |
+ *              | 600   | RV        | rfc 4594 section 4.4: Interactive          |
+ *              | 700   | VI        | rfc 4594 section 4.3: Conferencing         |
+ *              | 800   | VO        | rfc 4594 section 4.1: Telephony            |
+ *              | 900   | CTL       | rfc 4594 section 3.2: Network Control      |
+ *              +-------+-----------+--------------------------------------------+
+ *
+ *              Table XXX.3: Darwin Service Class Option Values
+ *
  *    darwin_flags:
  *            The darwin_flags option is a 32 bit field for indicating
  *            various Darwin specific flags.
  *
- *    The following Darwin Flags are defined:
+ *            The following Darwin Flags are defined:
  *
- *                          +-------------------------+
- *                          |     FLAG_MASK    | Flag |
- *                          +-------------------------+
- *                          |    0x00000020    |  wk  |
- *                          |    0x00000010    |  ch  |
- *                          |    0x00000008    |  so  |
- *                          |    0x00000004    |  re  |
- *                          |    0x00000002    |  ka  |
- *                          |    0x00000001    |  nf  |
- *                          +-------------------------+
+ *              +------------+------+------------------------------------------------+
+ *              | Mask       | Flag | Notes (direction)                              |
+ *              +------------+------+------------------------------------------------+
+ *              | 0x00000020 |  wk  | Wake Packet: Will wake the OS from sleep (In)  |
+ *              | 0x00000010 |  ch  | Channel: User-space networking (In, Out)       |
+ *              | 0x00000008 |  so  | Socket: Kernel-space networking (In, Out)      |
+ *              | 0x00000004 |  re  | RExmit: Detected retransmit (In)               |
+ *              | 0x00000002 |  ka  | Keep Alive: Keep Alive (Out)                   |
+ *              | 0x00000001 |  nf  | New Flow: first packet on a new flow (In, Out) |
+ *              +------------+------+------------------------------------------------+
  *
- *                           Table XXX.4: Darwin Flags
+ *              Table XXX.4: Darwin Flags
  *
- *      wk = Wake Packet
- *      ch = Nexus Channel
- *      so = Socket
- *      re = ReXmit
- *      ka = Keep Alive
- *      nf = New Flow
  *
  *    darwin_flow_id:
  *            The darwin_flow_id option is a 32 bit value that
- *            identifies a specific flow this packet is a part of.
+ *            identifies a specific flow (5-tuple) this packet belongs to.
+ *
+ *    darwin_trace_tag:
+ *            The darwin_trace_tag option is a 32 bit value that
+ *            identifies a random tracing tag. NOTE: same tracing tag
+ *            value can be shared by multiple flows (see `darwin_flow_id` above)
+ *
+ *    darwin_drop_reason:
+ *            The darwin_drop_reason option is a 32 bit value that
+ *            is specific to the `droptap` pseudo interface.
+ *            This option identifies the reason for dropping the packet.
+ *
+ *    darwin_drop_line:
+ *            The darwin_drop_line option is a 32 bit value that
+ *            is specific to the `droptap` pseudo interface.
+ *            This option identifies the approximate source code
+ *            location of the packet processing logic that is responsible
+ *            for dropping the packet.
+ *
+ *    darwin_drop_func:
+ *            The darwin_drop_func option is a NUL-terminated value that
+ *            is specific to the `droptap` pseudo interface.
+ *            This option identifies the function name that is responsible
+ *            for dropping the packet.
+ *
+ *    darwin_comp_gencnt:
+ *            The darwin_comp_gencnt option is a 32 bit value that
+ *            specifies the generation count, which is used for
+ *            traffic compression.
  */
 
 
@@ -435,11 +464,17 @@ static const value_string option_code_enhanced_packet_vals[] = {
     { OPT_PKT_VERDICT,      "Verdict" },
     { OPT_PKT_PROCIDTHRDID, "Process ID thread ID" },
     OPTION_CODE_CUSTOM_OPTIONS,
-    { 32769,   "Darwin DPIB ID" },
-    { 32770,   "Darwin Service Class" },
-    { 32771,   "Darwin Effective DPIB ID" },
-    { 32772,   "Darwin Flags" },
-    { 32773,   "Darwin Flow ID" },
+    { OPT_PKT_DARWIN_PIB_ID,            "Darwin DPIB ID" },
+    { OPT_PKT_DARWIN_SVC_CODE,          "Darwin Service Class" },
+    { OPT_PKT_DARWIN_EFFECTIVE_PIB_ID,  "Darwin Effective DPIB ID" },
+    { OPT_PKT_DARWIN_MD_FLAGS,          "Darwin Flags" },
+    { OPT_PKT_DARWIN_FLOW_ID,           "Darwin Flow ID" },
+    { OPT_PKT_DARWIN_TRACE_TAG,         "Darwin Trace tag" },
+    { OPT_PKT_DARWIN_DROP_REASON,       "Darwin Drop Reason" },
+    { OPT_PKT_DARWIN_DROP_LINE,         "Darwin Drop Line" },
+    { OPT_PKT_DARWIN_DROP_FUNC,         "Darwin Drop Function" },
+    { OPT_PKT_DARWIN_COMP_GENCNT,       "Darwin Comp Gen Count" },
+
     { 0, NULL }
 };
 
