@@ -44,6 +44,12 @@
     </property>
     <item>
      <widget class="AccordionFrame" name="goToFrame">
+      <property name="accessibleName">
+       <string>Go to packet</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>Allows jumping to a specific packet by its number.</string>
+      </property>
       <layout class="QHBoxLayout" name="goToHB">
        <property name="topMargin">
         <number>0</number>
@@ -108,19 +114,54 @@
      </widget>
     </item>
     <item>
-     <widget class="StratosharkSearchFrame" name="searchFrame" native="true"/>
+     <widget class="StratosharkSearchFrame" name="searchFrame" native="true">
+      <property name="accessibleName">
+       <string>Search packet</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>Allows searching for packets based on different criteria like display filters or text.</string>
+      </property>
+     </widget>
     </item>
     <item>
-     <widget class="AddressEditorFrame" name="addressEditorFrame"/>
+     <widget class="AddressEditorFrame" name="addressEditorFrame">
+      <property name="accessibleName">
+       <string>Edit Address</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>Allows editing address resolution information for the current capture.</string>
+      </property>
+     </widget>
     </item>
     <item>
-     <widget class="ColumnEditorFrame" name="columnEditorFrame"/>
+     <widget class="ColumnEditorFrame" name="columnEditorFrame">
+      <property name="accessibleName">
+       <string>Edit Column</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>Allows adding, removing, or modifying columns in the packet list.</string>
+      </property>
+     </widget>
     </item>
     <item>
-     <widget class="PreferenceEditorFrame" name="preferenceEditorFrame"/>
+     <widget class="PreferenceEditorFrame" name="preferenceEditorFrame">
+      <property name="accessibleName">
+       <string>Edit Preference</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>Allows changing protocol or application preferences.</string>
+      </property>
+     </widget>
     </item>
     <item>
-     <widget class="FilterExpressionFrame" name="filterExpressionFrame"/>
+     <widget class="FilterExpressionFrame" name="filterExpressionFrame">
+      <property name="accessibleName">
+       <string>Edit Filter Expression</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>Allows creating or editing display filter buttons.</string>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QStackedWidget" name="mainStack">
@@ -515,6 +556,12 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="accessibleName">
+    <string>Main Toolbar</string>
+   </property>
+   <property name="accessibleDescription">
+    <string>Contains buttons for common actions like starting a capture or opening a file.</string>
+   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
      <horstretch>0</horstretch>
@@ -569,8 +616,21 @@
    <addaction name="actionViewResizeColumns"/>
    <addaction name="actionViewResetLayout"/>
   </widget>
-  <widget class="StratosharkMainStatusBar" name="statusBar"/>
+  <widget class="StratosharkMainStatusBar" name="statusBar">
+   <property name="accessibleName">
+    <string>Status Bar</string>
+   </property>
+   <property name="accessibleDescription">
+    <string>Shows information about the current capture file and application state.</string>
+   </property>
+  </widget>
   <widget class="QToolBar" name="displayFilterToolBar">
+   <property name="accessibleName">
+    <string>Display Filter Toolbar</string>
+   </property>
+   <property name="accessibleDescription">
+    <string>Contains the display filter edit box and expression buttons.</string>
+   </property>
    <property name="windowTitle">
     <string>Display Filter Toolbar</string>
    </property>

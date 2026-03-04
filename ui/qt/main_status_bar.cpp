@@ -119,6 +119,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     expert_button_ = new QToolButton(this);
     expert_button_->setIconSize(QSize(icon_size, icon_size));
     expert_button_->setStyleSheet(button_ss);
+    expert_button_->setAccessibleName(tr("Expert information"));
+    expert_button_->setAccessibleDescription(tr("Opens the expert information dialog, showing errors, warnings, and other relevant information about the capture."));
     expert_button_->hide();
 
     // We just want a clickable image. Using a QPushButton or QToolButton would require
@@ -128,6 +130,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     comment_button_->setIcon(comment_icon);
     comment_button_->setIconSize(QSize(icon_size, icon_size));
     comment_button_->setStyleSheet(button_ss);
+    comment_button_->setAccessibleName(tr("Capture comment"));
+    comment_button_->setAccessibleDescription(tr("Opens the Capture File Properties dialog to view or edit capture-level comments."));
 
     comment_button_->setToolTip(tr("Open the Capture File Properties dialog"));
     comment_button_->setEnabled(false);
@@ -138,12 +142,19 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 
     info_status_.setTemporaryContext(STATUS_CTX_TEMPORARY);
     info_status_.setShrinkable(true);
+    info_status_.setAccessibleName(tr("Information"));
+    info_status_.setAccessibleDescription(tr("Displays general information, status messages, and expert severity details."));
 
     info_progress_hb->addWidget(expert_button_);
     info_progress_hb->addWidget(comment_button_);
     info_progress_hb->addWidget(&info_status_);
     info_progress_hb->addWidget(&progress_frame_);
     info_progress_hb->addStretch(10);
+
+    packet_status_.setAccessibleName(tr("Packet statistics"));
+    packet_status_.setAccessibleDescription(tr("Shows the number of captured, displayed, and selected packets."));
+    profile_status_.setAccessibleName(tr("Configuration profile"));
+    profile_status_.setAccessibleDescription(tr("Displays the current configuration profile and allows switching between profiles."));
 
     splitter->addWidget(info_progress);
     splitter->addWidget(&packet_status_);

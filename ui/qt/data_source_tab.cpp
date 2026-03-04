@@ -73,8 +73,10 @@ DataSourceTab::DataSourceTab(QWidget *parent, epan_dissect_t *edt_fixed) :
 #endif
     if (application_flavor_is_wireshark()) {
         setAccessibleName(tr("Packet bytes"));
+        setAccessibleDescription(tr("Displays the raw bytes of the selected packet in hexadecimal and ASCII."));
     } else {
         setAccessibleName(tr("Event data"));
+        setAccessibleDescription(tr("Displays the raw data of the selected event."));
     }
     setTabPosition(QTabWidget::South);
     setDocumentMode(true);

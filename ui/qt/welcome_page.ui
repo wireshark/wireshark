@@ -130,6 +130,9 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="ClickableLabel" name="captureLabel">
+         <property name="accessibleName">
+          <string>Capture</string>
+         </property>
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>

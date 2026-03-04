@@ -60,6 +60,7 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     edt_(edt_fixed)
 {
     setAccessibleName(tr("Packet details"));
+    setAccessibleDescription(tr("Tree view of the selected packet's fields"));
     // Leave the uniformRowHeights property as-is (false) since items might have
     // have multiple lines (e.g. packet or event comments). If this slows things
     // down too much we should add a custom delegate which handles SizeHintRole.

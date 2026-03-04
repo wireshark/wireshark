@@ -349,6 +349,7 @@ PacketDiagram::PacketDiagram(QWidget *parent) :
     y_pos_(0)
 {
     setAccessibleName(tr("Packet diagram"));
+    setAccessibleDescription(tr("Displays a visual diagram of the selected packet's fields."));
 
     setRenderHint(QPainter::Antialiasing);
 

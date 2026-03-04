@@ -106,6 +106,14 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setAccessibleName(tr("Task progress"));
+    setAccessibleDescription(tr("Shows the progress of the current background task."));
+
+    ui->progressBar->setAccessibleName(tr("Progress bar"));
+    ui->progressBar->setAccessibleDescription(tr("Shows the percentage of the task that has been completed."));
+    ui->stopButton->setAccessibleName(tr("Stop"));
+    ui->stopButton->setAccessibleDescription(tr("Stops the current background task."));
+
     progress_dialog_.progress_frame = this;
     progress_dialog_.top_level_window = window();
 
