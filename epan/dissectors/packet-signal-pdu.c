@@ -1,7 +1,7 @@
 /* packet-signal-pdu.c
  * Signal PDU dissector.
  * By Dr. Lars Völker <lars.voelker@technica-engineering.de>
- * Copyright 2020-2025 Dr. Lars Völker
+ * Copyright 2020-2026 Dr. Lars Völker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -992,8 +992,12 @@ create_hf_entry(hf_register_info *dynamic_hf, unsigned i, uint32_t id, uint32_t 
     }
 
     if (hf_type == HF_TYPE_RAW && vs != NULL) {
-        dynamic_hf[i].hfinfo.strings = VALS64(vs);
-        dynamic_hf[i].hfinfo.display |= BASE_VAL64_STRING | BASE_SPECIAL_VALS;
+        if (data_type == SPDU_DATA_TYPE_STRING || data_type == SPDU_DATA_TYPE_STRINGZ || data_type == SPDU_DATA_TYPE_UINT_STRING) {
+            ws_warning("Preference Error: Signal_PDU_signal_list Signal PDU ID: 0x%04x Signal Position: %d. String based types must not define values in Signal_PDU_signal_values!\n", id, pos);
+        } else {
+            dynamic_hf[i].hfinfo.strings = VALS64(vs);
+            dynamic_hf[i].hfinfo.display |= BASE_VAL64_STRING | BASE_SPECIAL_VALS;
+        }
     } else {
         dynamic_hf[i].hfinfo.strings = NULL;
     }
