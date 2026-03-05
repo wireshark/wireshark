@@ -51,8 +51,13 @@ EsipaMessageFromEimToIpa VAL_PTR = &choice
   }
 
 #.REGISTER
+PrepareDownloadResponse                    N sgp32.response  0xBF21
+EUICCInfo2                                 N sgp32.response  0xBF22
+StoreMetadataRequest                       N sgp32.request   0xBF25
 RetrieveNotificationsListRequest           N sgp32.request   0xBF2B
 RetrieveNotificationsListResponse          N sgp32.response  0xBF2B
+ProfileInstallationResult                  N sgp32.response  0xBF37
+AuthenticateServerResponse                 N sgp32.response  0xBF38
 InitiateAuthenticationRequestEsipa         N sgp32.request   0xBF39
 InitiateAuthenticationResponseEsipa        N sgp32.response  0xBF39
 GetBoundProfilePackageRequestEsipa         N sgp32.request   0xBF3A
@@ -76,7 +81,7 @@ IpaEuiccDataRequest                        N sgp32.request   0xBF52
 IpaEuiccDataResponse                       N sgp32.response  0xBF52
 EimAcknowledgements                        N sgp32.request   0xBF53
 ProfileDownloadTriggerRequest              N sgp32.request   0xBF54
-ProfileDownloadData                        N sgp32.response  0xBF54
+ProfileDownloadTriggerResult               N sgp32.response  0xBF54
 GetEimConfigurationDataRequest             N sgp32.request   0xBF55
 GetEimConfigurationDataResponse            N sgp32.response  0xBF55
 GetCertsRequest                            N sgp32.request   0xBF56
@@ -103,8 +108,5 @@ EuiccMemoryResetRequest                    N sgp32.request   0xBF64
 EuiccMemoryResetResponse                   N sgp32.response  0xBF64
 SetDefaultDpAddressRequest                 N sgp32.request   0xBF65
 SetDefaultDpAddressResponse                N sgp32.response  0xBF65
-# fallbackAttribute                        N sgp32.request   0x9F26
-# fallbackAllowed                          N sgp32.request   0x9F67
-# ecallIndication                          N sgp32.request   0x9F7B
 
 #.END

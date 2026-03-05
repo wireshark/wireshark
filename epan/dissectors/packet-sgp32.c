@@ -34,13 +34,15 @@ static int proto_sgp32;
 static int hf_sgp32_EuiccPackageRequest_PDU;      /* EuiccPackageRequest */
 static int hf_sgp32_IpaEuiccDataRequest_PDU;      /* IpaEuiccDataRequest */
 static int hf_sgp32_ProfileDownloadTriggerRequest_PDU;  /* ProfileDownloadTriggerRequest */
-static int hf_sgp32_ProfileDownloadData_PDU;      /* ProfileDownloadData */
 static int hf_sgp32_EimAcknowledgements_PDU;      /* EimAcknowledgements */
 static int hf_sgp32_EuiccPackageResult_PDU;       /* EuiccPackageResult */
 static int hf_sgp32_IpaEuiccDataResponse_PDU;     /* IpaEuiccDataResponse */
+static int hf_sgp32_ProfileDownloadTriggerResult_PDU;  /* ProfileDownloadTriggerResult */
 static int hf_sgp32_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU;  /* ISDRProprietaryApplicationTemplateIoT */
 static int hf_sgp32_IpaeActivationRequest_PDU;    /* IpaeActivationRequest */
 static int hf_sgp32_IpaeActivationResponse_PDU;   /* IpaeActivationResponse */
+static int hf_sgp32_StoreMetadataRequest_PDU;     /* StoreMetadataRequest */
+static int hf_sgp32_EUICCInfo2_PDU;               /* EUICCInfo2 */
 static int hf_sgp32_AddInitialEimRequest_PDU;     /* AddInitialEimRequest */
 static int hf_sgp32_AddInitialEimResponse_PDU;    /* AddInitialEimResponse */
 static int hf_sgp32_EuiccMemoryResetRequest_PDU;  /* EuiccMemoryResetRequest */
@@ -69,6 +71,9 @@ static int hf_sgp32_GetConnectivityParametersRequest_PDU;  /* GetConnectivityPar
 static int hf_sgp32_GetConnectivityParametersResponse_PDU;  /* GetConnectivityParametersResponse */
 static int hf_sgp32_SetDefaultDpAddressRequest_PDU;  /* SetDefaultDpAddressRequest */
 static int hf_sgp32_SetDefaultDpAddressResponse_PDU;  /* SetDefaultDpAddressResponse */
+static int hf_sgp32_PrepareDownloadResponse_PDU;  /* PrepareDownloadResponse */
+static int hf_sgp32_AuthenticateServerResponse_PDU;  /* AuthenticateServerResponse */
+static int hf_sgp32_ProfileInstallationResult_PDU;  /* ProfileInstallationResult */
 static int hf_sgp32_EsipaMessageFromIpaToEim_PDU;  /* EsipaMessageFromIpaToEim */
 static int hf_sgp32_EsipaMessageFromEimToIpa_PDU;  /* EsipaMessageFromEimToIpa */
 static int hf_sgp32_InitiateAuthenticationRequestEsipa_PDU;  /* InitiateAuthenticationRequestEsipa */
@@ -4844,13 +4849,6 @@ static int dissect_ProfileDownloadTriggerRequest_PDU(tvbuff_t *tvb _U_, packet_i
   offset = dissect_sgp32_ProfileDownloadTriggerRequest(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_ProfileDownloadTriggerRequest_PDU);
   return offset;
 }
-static int dissect_ProfileDownloadData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_ProfileDownloadData(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_ProfileDownloadData_PDU);
-  return offset;
-}
 static int dissect_EimAcknowledgements_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -4872,6 +4870,13 @@ static int dissect_IpaEuiccDataResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   offset = dissect_sgp32_IpaEuiccDataResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_IpaEuiccDataResponse_PDU);
   return offset;
 }
+static int dissect_ProfileDownloadTriggerResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_sgp32_ProfileDownloadTriggerResult(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_ProfileDownloadTriggerResult_PDU);
+  return offset;
+}
 int dissect_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -4891,6 +4896,20 @@ static int dissect_IpaeActivationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pi
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_sgp32_IpaeActivationResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_IpaeActivationResponse_PDU);
+  return offset;
+}
+static int dissect_StoreMetadataRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_sgp32_StoreMetadataRequest(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_StoreMetadataRequest_PDU);
+  return offset;
+}
+static int dissect_EUICCInfo2_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_sgp32_EUICCInfo2(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_EUICCInfo2_PDU);
   return offset;
 }
 static int dissect_AddInitialEimRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -5087,6 +5106,27 @@ static int dissect_SetDefaultDpAddressResponse_PDU(tvbuff_t *tvb _U_, packet_inf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_sgp32_SetDefaultDpAddressResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_SetDefaultDpAddressResponse_PDU);
+  return offset;
+}
+static int dissect_PrepareDownloadResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_sgp32_PrepareDownloadResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_PrepareDownloadResponse_PDU);
+  return offset;
+}
+static int dissect_AuthenticateServerResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_sgp32_AuthenticateServerResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_AuthenticateServerResponse_PDU);
+  return offset;
+}
+static int dissect_ProfileInstallationResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_sgp32_ProfileInstallationResult(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_ProfileInstallationResult_PDU);
   return offset;
 }
 static int dissect_EsipaMessageFromIpaToEim_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -5350,10 +5390,6 @@ void proto_register_sgp32(void)
       { "ProfileDownloadTriggerRequest", "sgp32.ProfileDownloadTriggerRequest_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_sgp32_ProfileDownloadData_PDU,
-      { "ProfileDownloadData", "sgp32.ProfileDownloadData",
-        FT_UINT32, BASE_DEC, VALS(sgp32_ProfileDownloadData_vals), 0,
-        NULL, HFILL }},
     { &hf_sgp32_EimAcknowledgements_PDU,
       { "EimAcknowledgements", "sgp32.EimAcknowledgements",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5366,6 +5402,10 @@ void proto_register_sgp32(void)
       { "IpaEuiccDataResponse", "sgp32.IpaEuiccDataResponse",
         FT_UINT32, BASE_DEC, VALS(sgp32_IpaEuiccDataResponse_U_vals), 0,
         NULL, HFILL }},
+    { &hf_sgp32_ProfileDownloadTriggerResult_PDU,
+      { "ProfileDownloadTriggerResult", "sgp32.ProfileDownloadTriggerResult_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sgp32_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU,
       { "ISDRProprietaryApplicationTemplateIoT", "sgp32.ISDRProprietaryApplicationTemplateIoT_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5376,6 +5416,14 @@ void proto_register_sgp32(void)
         NULL, HFILL }},
     { &hf_sgp32_IpaeActivationResponse_PDU,
       { "IpaeActivationResponse", "sgp32.IpaeActivationResponse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sgp32_StoreMetadataRequest_PDU,
+      { "StoreMetadataRequest", "sgp32.StoreMetadataRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sgp32_EUICCInfo2_PDU,
+      { "EUICCInfo2", "sgp32.EUICCInfo2_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_AddInitialEimRequest_PDU,
@@ -5488,6 +5536,18 @@ void proto_register_sgp32(void)
         NULL, HFILL }},
     { &hf_sgp32_SetDefaultDpAddressResponse_PDU,
       { "SetDefaultDpAddressResponse", "sgp32.SetDefaultDpAddressResponse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sgp32_PrepareDownloadResponse_PDU,
+      { "PrepareDownloadResponse", "sgp32.PrepareDownloadResponse",
+        FT_UINT32, BASE_DEC, VALS(sgp32_PrepareDownloadResponse_U_vals), 0,
+        NULL, HFILL }},
+    { &hf_sgp32_AuthenticateServerResponse_PDU,
+      { "AuthenticateServerResponse", "sgp32.AuthenticateServerResponse",
+        FT_UINT32, BASE_DEC, VALS(sgp32_AuthenticateServerResponse_U_vals), 0,
+        NULL, HFILL }},
+    { &hf_sgp32_ProfileInstallationResult_PDU,
+      { "ProfileInstallationResult", "sgp32.ProfileInstallationResult_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_EsipaMessageFromIpaToEim_PDU,
@@ -7003,8 +7063,13 @@ void proto_reg_handoff_sgp32(void)
   dissector_add_string("media_type", "application/x-gsma-rsp-asn1", sgp32_handle);
   dissector_add_string("coap_uri_path", "/gsma/rsp2/asn1", sgp32_handle);
 
+  dissector_add_uint("sgp32.response", 0xBF21, create_dissector_handle(dissect_PrepareDownloadResponse_PDU, proto_sgp32));
+  dissector_add_uint("sgp32.response", 0xBF22, create_dissector_handle(dissect_EUICCInfo2_PDU, proto_sgp32));
+  dissector_add_uint("sgp32.request", 0xBF25, create_dissector_handle(dissect_StoreMetadataRequest_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF2B, create_dissector_handle(dissect_RetrieveNotificationsListRequest_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF2B, create_dissector_handle(dissect_RetrieveNotificationsListResponse_PDU, proto_sgp32));
+  dissector_add_uint("sgp32.response", 0xBF37, create_dissector_handle(dissect_ProfileInstallationResult_PDU, proto_sgp32));
+  dissector_add_uint("sgp32.response", 0xBF38, create_dissector_handle(dissect_AuthenticateServerResponse_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF39, create_dissector_handle(dissect_InitiateAuthenticationRequestEsipa_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF39, create_dissector_handle(dissect_InitiateAuthenticationResponseEsipa_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF3A, create_dissector_handle(dissect_GetBoundProfilePackageRequestEsipa_PDU, proto_sgp32));
@@ -7028,7 +7093,7 @@ void proto_reg_handoff_sgp32(void)
   dissector_add_uint("sgp32.response", 0xBF52, create_dissector_handle(dissect_IpaEuiccDataResponse_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF53, create_dissector_handle(dissect_EimAcknowledgements_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF54, create_dissector_handle(dissect_ProfileDownloadTriggerRequest_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.response", 0xBF54, create_dissector_handle(dissect_ProfileDownloadData_PDU, proto_sgp32));
+  dissector_add_uint("sgp32.response", 0xBF54, create_dissector_handle(dissect_ProfileDownloadTriggerResult_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF55, create_dissector_handle(dissect_GetEimConfigurationDataRequest_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF55, create_dissector_handle(dissect_GetEimConfigurationDataResponse_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF56, create_dissector_handle(dissect_GetCertsRequest_PDU, proto_sgp32));
