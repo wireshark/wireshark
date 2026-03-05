@@ -2981,7 +2981,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		p3 = tvb_get_uint8(next_tvb, offset+4);
 		p3_present = true;
 
-		if (p3 == 0 && tvb_reported_length_remaining(next_tvb, offset+5) >= 2) {
+		if (p3 == 0 && !isSIMtrace && tvb_reported_length_remaining(next_tvb, offset+5) >= 2) {
 			/* Extended length */
 			p3 = tvb_get_uint16(next_tvb, offset+5, ENC_BIG_ENDIAN);
 			extended_len = true;
