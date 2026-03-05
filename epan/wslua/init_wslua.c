@@ -1714,7 +1714,15 @@ void wslua_init(register_cb cb, void *client_data, const char* app_env_var_prefi
     }
 
     if (!L) {
+#if LUA_VERSION_NUM > 504
+        // This function now requires a hash seed for the JS hash function
+        // (by Justin Sobel) as used for Lua's string hashing function.
+        // However the seed is mangled with the string length before use,
+        // so it doesn't really matter what it is.
+        L = lua_newstate(wslua_allocf, NULL, 1315423911);
+#else
         L = lua_newstate(wslua_allocf, NULL);
+#endif
     }
 
     WSLUA_INIT(L);
