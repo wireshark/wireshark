@@ -104,6 +104,9 @@ void proto_reg_handoff_pkixalgs(void) {
 	register_ber_oid_dissector("1.3.101.112", dissect_ber_oid_NULL_callback, proto_pkixalgs, "id-Ed25519");
 	register_ber_oid_dissector("1.3.101.113", dissect_ber_oid_NULL_callback, proto_pkixalgs, "id-Ed448");
 
+	/* Unsigned "signature" algorithm from RFC 9925. */
+	register_ber_oid_dissector("1.3.6.1.5.5.7.6.36", dissect_ber_oid_NULL_callback, proto_pkixalgs, "id-alg-unsigned");
+
 	/* Curve identifiers from SECG SEC 2 */
 	oid_add_from_string("sect163k1","1.3.132.0.1");
 	oid_add_from_string("sect163r1","1.3.132.0.2");

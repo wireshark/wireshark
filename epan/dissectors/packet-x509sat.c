@@ -2843,6 +2843,7 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("1.3.6.1.4.1.311.60.2.1.1", dissect_DirectoryString_PDU, proto_x509sat, "jurisdictionOfIncorporationLocalityName");
   register_ber_oid_dissector("1.3.6.1.4.1.311.60.2.1.2", dissect_DirectoryString_PDU, proto_x509sat, "jurisdictionOfIncorporationStateOrProvinceName");
   register_ber_oid_dissector("1.3.6.1.4.1.311.60.2.1.3", dissect_CountryName_PDU, proto_x509sat, "jurisdictionOfIncorporationCountryName");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.25.1", dissect_SyntaxUTF8String_PDU, proto_x509sat, "id-rdna-unsigned");
 
 
   /* OBJECT CLASSES */
