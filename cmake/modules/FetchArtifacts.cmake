@@ -86,12 +86,13 @@ function(download_artifacts download_ok)
       ${DOWNLOAD_DIR}/${archive_file}
       EXPECTED_HASH SHA256=${sha256_hash}
       STATUS download_status
+      LOG download_log
       # SHOW_PROGRESS
     )
-    list(POP_FRONT download_status retval)
-    if (NOT ${retval} EQUAL 0)
+    list(POP_FRONT download_status download_retval download_error)
+    if (NOT ${download_retval} EQUAL 0)
       set(${download_ok} FALSE)
-      message(FATAL_ERROR "Unable to download ${archive_file}")
+      message(FATAL_ERROR "Unable to download ${archive_file}: ${download_error}.\nLog:\n${download_log}")
       return()
     endif()
     file(ARCHIVE_EXTRACT
