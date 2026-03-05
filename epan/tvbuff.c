@@ -736,6 +736,8 @@ tvb_bytes_exist(const tvbuff_t *tvb, const unsigned offset, const int length)
 /* Validates that 'length' bytes, where 'length' is a 64-bit unsigned
  * integer, are available starting from offset (pos/neg). Throws an
  * exception if they aren't. */
+/* coverity[ +taint_sanitize : arg-1 ] */
+/* coverity[ +taint_sanitize : arg-2 ] */
 void
 tvb_ensure_bytes_exist64(const tvbuff_t *tvb, const unsigned offset, const uint64_t length)
 {
@@ -753,8 +755,8 @@ tvb_ensure_bytes_exist64(const tvbuff_t *tvb, const unsigned offset, const uint6
 
 /* Validates that 'length' bytes are available starting from
  * offset (pos/neg). Throws an exception if they aren't. */
-/* coverity[ +tainted_data_sanitize : arg-1 ] */
-/* coverity[ +tainted_data_sanitize : arg-2 ] */
+/* coverity[ +taint_sanitize : arg-1 ] */
+/* coverity[ +taint_sanitize : arg-2 ] */
 void
 tvb_ensure_bytes_exist(const tvbuff_t *tvb, const unsigned offset, const int length)
 {

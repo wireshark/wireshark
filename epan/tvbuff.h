@@ -438,6 +438,8 @@ WS_DLL_PUBLIC bool tvb_bytes_exist(const tvbuff_t *tvb, const unsigned offset,
  *
  * @see tvb_ensure_bytes_exist()
  */
+/* coverity[ +taint_sanitize : arg-1 ] */
+/* coverity[ +taint_sanitize : arg-2 ] */
 WS_DLL_PUBLIC void tvb_ensure_bytes_exist64(const tvbuff_t *tvb,
     const unsigned offset, const uint64_t length);
 
@@ -452,6 +454,8 @@ WS_DLL_PUBLIC void tvb_ensure_bytes_exist64(const tvbuff_t *tvb,
  *
  * @see tvb_ensure_bytes_exist64()
  */
+/* coverity[ +taint_sanitize : arg-1 ] */
+/* coverity[ +taint_sanitize : arg-2 ] */
 WS_DLL_PUBLIC void tvb_ensure_bytes_exist(const tvbuff_t *tvb,
     const unsigned offset, const int length);
 
