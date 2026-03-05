@@ -6877,6 +6877,16 @@ static int hf_ieee80211_vs_aruba_gps_major_axis;
 static int hf_ieee80211_vs_aruba_gps_minor_axis;
 static int hf_ieee80211_vs_aruba_gps_orientation;
 static int hf_ieee80211_vs_aruba_gps_distance;
+static int hf_ieee80211_vs_aruba_ap_health;
+static int hf_ieee80211_vs_aruba_ap_health_version;
+static int hf_ieee80211_vs_aruba_ap_health_ip_protocol;
+static int hf_ieee80211_vs_aruba_ap_health_uplink;
+static int hf_ieee80211_vs_aruba_ap_health_uplink_type;
+static int hf_ieee80211_vs_aruba_ap_health_network_layer;
+static int hf_ieee80211_vs_aruba_ap_health_proxy_server;
+static int hf_ieee80211_vs_aruba_ap_health_activate;
+static int hf_ieee80211_vs_aruba_ap_health_central;
+static int hf_ieee80211_vs_aruba_ap_health_reserved;
 
 static int hf_ieee80211_vs_routerboard_unknown;
 static int hf_ieee80211_vs_routerboard_subitem;
@@ -8711,6 +8721,8 @@ static int ett_wfa_capa_attributes;
 static int ett_wfa_capa_supp_gene;
 static int ett_wfa_capa_cert_gene;
 
+static int ett_ieee80211_vs_aruba_ap_health;
+
 static expert_field ei_ieee80211_bad_length;
 static expert_field ei_ieee80211_inv_val;
 static expert_field ei_ieee80211_vht_tpe_pwr_info_count;
@@ -9093,6 +9105,102 @@ static const val64_string number_of_taps_values[] = {
   {0x2, "15 taps"},
   {0x3, "63 taps"},
   {0, NULL}
+};
+
+static const value_string aruba_vs_ap_health_version_vals[] = {
+  { 0, "1" },
+  { 1, "Reserved" },
+  { 2, "Reserved" },
+  { 3, "Reserved" },
+  { 4, "Reserved" },
+  { 5, "Reserved" },
+  { 6, "Reserved" },
+  { 7, "Reserved" },
+  { 0, NULL }
+};
+
+static const value_string aruba_vs_ap_health_ip_protocol_vals[] = {
+  { 0, "IPv4" },
+  { 1, "IPv6" },
+  { 0, NULL }
+};
+
+static const value_string aruba_vs_ap_health_uplink_vals[] = {
+    { 0, "Uplink existed" },
+    { 1, "No uplink" },
+    { 0, NULL }
+};
+
+static const value_string aruba_vs_ap_health_uplink_type_vals[] = {
+  { 0, "Ethernet" },
+  { 1, "Modem" },
+  { 2, "Mesh" },
+  { 3, "Wi-Fi uplink" },
+  { 4, "Reserved" },
+  { 5, "Reserved" },
+  { 6, "Reserved" },
+  { 7, "Reserved" },
+  { 0, NULL }
+};
+
+static const value_string aruba_vs_ap_health_network_layer_vals[] = {
+    {0, "Success"},
+    {1, "Missing IP"},
+    {2, "No IP address (PPPoE failure)"},
+    {3, "No IP address (DHCP failure)"},
+    {4, "Missing DGW IP address"},
+    {5, "Failed ARP/ND for DGW"},
+    {6, "NTP date & time sync failure"},
+    {7, "HCM status down"},
+    {8, "Reserved"},
+    {9, "Reserved"},
+    {10, "Reserved"},
+    {11, "Reserved"},
+    {12, "Reserved"},
+    {13, "Reserved"},
+    {14, "Reserved"},
+    {15, "Failure at previous layer"},
+    {0, NULL}
+};
+
+static const value_string aruba_vs_ap_health_proxy_server_vals[] = {
+    {0, "Success"},
+    {1, "Authentication failure"},
+    {2, "Proxy server connection error"},
+    {3, "Failure at previous layer"},
+    {0, NULL}
+};
+
+static const value_string aruba_vs_ap_health_activate_vals[] = {
+    {0, "Success"},
+    {1, "Unable to resolve A/AAAA"},
+    {2, "IP connection failure"},
+    {3, "HTTPS (TLS) failure"},
+    {4, "Mandatory upgrade failure"},
+    {5, "Slow mandatory upgrade"},
+    {6, "No provisioning rule"},
+    {7, "Invalid activate response"},
+    {8, "Reserved"},
+    {9, "Reserved"},
+    {10, "Reserved"},
+    {11, "Reserved"},
+    {12, "Reserved"},
+    {13, "Reserved"},
+    {14, "Reserved"},
+    {15, "Failure at previous layer"},
+    {0, NULL}
+};
+
+static const value_string aruba_vs_ap_health_central_vals[] = {
+    {0, "Success"},
+    {1, "Unable to resolve A/AAAA"},
+    {2, "IP connection failure"},
+    {3, "HTTPS (TLS) failure"},
+    {4, "Websocket (WSS) failure"},
+    {5, "No AP license"},
+    {6, "Other failure"},
+    {7, "Failure at previous layer"},
+    {0, NULL}
 };
 
 #define PSMP_STA_INFO_BROADCAST 0
@@ -21613,6 +21721,45 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
                         latitude, longitude, major_axis, minor_axis, orientation, distance);
     }
     break;
+
+
+  case ARUBA_AP_HEALTH:
+    {
+      static int * const ieee80211_vs_aruba_ap_health[] = {
+          &hf_ieee80211_vs_aruba_ap_health_version,
+          &hf_ieee80211_vs_aruba_ap_health_ip_protocol,
+          &hf_ieee80211_vs_aruba_ap_health_uplink,
+          &hf_ieee80211_vs_aruba_ap_health_uplink_type,
+          &hf_ieee80211_vs_aruba_ap_health_network_layer,
+          &hf_ieee80211_vs_aruba_ap_health_proxy_server,
+          &hf_ieee80211_vs_aruba_ap_health_activate,
+          &hf_ieee80211_vs_aruba_ap_health_central,
+          &hf_ieee80211_vs_aruba_ap_health_reserved,
+          NULL
+      };
+      if (tag_len < 5)
+          break;
+
+      /* Byte unknown Aruba */
+      proto_tree_add_item(ietree,
+                          hf_ieee80211_vs_aruba_data,
+                          tvb, offset, 1, ENC_NA);
+
+      offset += 1;
+      tag_len -= 1;
+
+      /* 4 bytes = AP Health */
+      proto_tree_add_bitmask(ietree, tvb, offset,
+          hf_ieee80211_vs_aruba_ap_health,
+          ett_ieee80211_vs_aruba_ap_health,
+          ieee80211_vs_aruba_ap_health,
+          ENC_BIG_ENDIAN);
+
+      offset += 4;
+      tag_len -= 4;
+
+      break;
+    }
 
   default:
     proto_tree_add_item(ietree, hf_ieee80211_vs_aruba_data, tvb, offset,
@@ -55359,7 +55506,66 @@ proto_register_ieee80211(void)
         FT_DOUBLE, BASE_DEC, NULL, 0,
         NULL, HFILL }},
 
-    /* Vendor Specific : Routerboard */
+    { &hf_ieee80211_vs_aruba_ap_health,
+      { "AP Health", "wlan.aruba.ap_health",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+
+    { &hf_ieee80211_vs_aruba_ap_health_version,
+      { "Version", "wlan.aruba.ap_health.version",
+        FT_UINT32, BASE_DEC, VALS(aruba_vs_ap_health_version_vals), 0x00000007,
+        NULL, HFILL }
+    },
+
+    { &hf_ieee80211_vs_aruba_ap_health_ip_protocol,
+      { "IP Protocol", "wlan.aruba.ap_health.ip_protocol",
+        FT_UINT32, BASE_DEC, VALS(aruba_vs_ap_health_ip_protocol_vals), 0x00000008,
+        NULL, HFILL }
+    },
+
+    { &hf_ieee80211_vs_aruba_ap_health_uplink,
+      { "Uplink", "wlan.aruba.ap_health.uplink",
+        FT_UINT32, BASE_DEC, VALS(aruba_vs_ap_health_uplink_vals), 0x00000010,
+        NULL, HFILL }
+    },
+
+    { &hf_ieee80211_vs_aruba_ap_health_uplink_type,
+      { "Uplink Type", "wlan.aruba.ap_health.uplink_type",
+        FT_UINT32, BASE_DEC, VALS(aruba_vs_ap_health_uplink_type_vals), 0x000000E0,
+        NULL, HFILL }
+    },
+
+    { &hf_ieee80211_vs_aruba_ap_health_network_layer,
+      { "Network Layer", "wlan.aruba.ap_health.network_layer",
+        FT_UINT32, BASE_DEC, VALS(aruba_vs_ap_health_network_layer_vals), 0x00000F00,
+        NULL, HFILL }
+    },
+
+    { &hf_ieee80211_vs_aruba_ap_health_proxy_server,
+      { "Proxy Server", "wlan.aruba.ap_health.proxy_server",
+        FT_UINT32, BASE_DEC, VALS(aruba_vs_ap_health_proxy_server_vals), 0x00003000,
+        NULL, HFILL }
+    },
+
+    { &hf_ieee80211_vs_aruba_ap_health_activate,
+      { "Activate", "wlan.aruba.ap_health.activate",
+        FT_UINT32, BASE_DEC, VALS(aruba_vs_ap_health_activate_vals), 0x0003C000,
+        NULL, HFILL }
+    },
+
+    { &hf_ieee80211_vs_aruba_ap_health_central,
+      { "Central", "wlan.aruba.ap_health.central",
+        FT_UINT32, BASE_DEC, VALS(aruba_vs_ap_health_central_vals), 0x001C0000,
+        NULL, HFILL }
+    },
+
+    { &hf_ieee80211_vs_aruba_ap_health_reserved,
+      { "Reserved", "wlan.aruba.ap_health.reserved",
+        FT_UINT32, BASE_HEX, NULL, 0xFFE00000,
+        NULL, HFILL }
+    },
+        /* Vendor Specific : Routerboard */
     {&hf_ieee80211_vs_routerboard_unknown,
      {"Unknown", "wlan.vs.routerboard.unknown",
       FT_BYTES, BASE_NONE, NULL, 0,
@@ -62313,6 +62519,8 @@ proto_register_ieee80211(void)
     &ett_wfa_capa_attributes,
     &ett_wfa_capa_supp_gene,
     &ett_wfa_capa_cert_gene,
+
+    &ett_ieee80211_vs_aruba_ap_health,
   };
 
   static ei_register_info ei[] = {
