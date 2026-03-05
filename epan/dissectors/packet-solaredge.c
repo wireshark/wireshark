@@ -1034,7 +1034,7 @@ bool solaredge_decrypt(wmem_allocator_t *scratch, const uint8_t *in, int length,
 	*out = (uint8_t *)wmem_alloc(scratch, payload_length);
 	*out_length = payload_length;
 	for (i  = 0; i < payload_length; i++) {
-		*out[i] = intermediate_decrypted_payload[i + 6] ^ intermediate_decrypted_payload[2+(i&3)];
+		(*out)[i] = intermediate_decrypted_payload[i + 6] ^ intermediate_decrypted_payload[2+(i&3)];
 	}
 	return true;
 }
