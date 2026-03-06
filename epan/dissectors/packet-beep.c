@@ -16,15 +16,14 @@
 
 #include "config.h"
 
+#define WS_LOG_DOMAIN "beep"
+
 #include <stdlib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
-#if defined(DEBUG_BEEP_HASH)
-#include <epan/ws_printf.h>
-#endif
 
 #define TCP_PORT_BEEP 10288 /* Don't think this is IANA registered */
 
@@ -156,10 +155,7 @@ beep_equal(const void *v, const void *w)
   const struct beep_request_key *v1 = (const struct beep_request_key *)v;
   const struct beep_request_key *v2 = (const struct beep_request_key *)w;
 
-#if defined(DEBUG_BEEP_HASH)
-  ws_debug_printf("Comparing %08X\n      and %08X\n",
-         v1->conversation, v2->conversation);
-#endif
+  ws_debug("Comparing %08X\n      and %08X\n", v1->conversation, v2->conversation);
 
   if (v1->conversation == v2->conversation)
     return 1;
@@ -176,9 +172,7 @@ beep_hash(const void *v)
 
   val = key->conversation;
 
-#if defined(DEBUG_BEEP_HASH)
-  ws_debug_printf("BEEP Hash calculated as %u\n", val);
-#endif
+  ws_debug("BEEP Hash calculated as %u\n", val);
 
   return val;
 

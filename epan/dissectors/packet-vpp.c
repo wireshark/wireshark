@@ -18,7 +18,6 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/etypes.h>
-#include <epan/ws_printf.h>
 #include <wiretap/wtap.h>
 #include "packet-osi.h"
 

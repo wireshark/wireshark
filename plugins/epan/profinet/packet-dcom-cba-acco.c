@@ -383,7 +383,7 @@ static void
 cba_connection_dump(wmem_allocator_t* scope, cba_connection_t *conn, const char *role)
 {
     if (conn->qostype != 0x30) {
-        ws_debug_printf("   %s#%5u: CID:0x%8x PID:0x%8x PItem:\"%s\" Type:%s QoS:%s/%u Ret:%s Data#%5u-#%5u",
+        ws_debug("   %s#%5u: CID:0x%8x PID:0x%8x PItem:\"%s\" Type:%s QoS:%s/%u Ret:%s Data#%5u-#%5u",
             role,
             conn->packet_connect,
             conn->consid, conn->provid, conn->provitem,
@@ -392,7 +392,7 @@ cba_connection_dump(wmem_allocator_t* scope, cba_connection_t *conn, const char 
             conn->connret==0xffffffff ? "[pending]" : val_to_str(scope, conn->connret, dcom_hresult_vals, "Unknown (0x%08x)"),
             conn->packet_first, conn->packet_last);
     } else {
-        ws_debug_printf("   %s#%5u: CID:0x%8x PID:0x%8x PItem:\"%s\" Type:%s QoS:%s/%u Ret:%s Off:%u",
+        ws_debug("   %s#%5u: CID:0x%8x PID:0x%8x PItem:\"%s\" Type:%s QoS:%s/%u Ret:%s Off:%u",
             role,
             conn->packet_connect,
             conn->consid, conn->provid, conn->provitem,
@@ -420,17 +420,17 @@ cba_object_dump(wmem_allocator_t* scope)
     for(pdevs = cba_pdevs; pdevs != NULL; pdevs = g_list_next(pdevs)) {
         pdev = pdevs->data;
         set_address(&addr, AT_IPv4, 4, pdev->ip);
-        ws_debug_printf("PDev #%5u: %s IFs:%u", pdev->first_packet, address_to_str(pinfo->pool, &addr),
+        ws_debug("PDev #%5u: %s IFs:%u", pdev->first_packet, address_to_str(pinfo->pool, &addr),
             pdev->object ? g_list_length(pdev->object->interfaces) : 0);
 
         for(ldevs = pdev->ldevs; ldevs != NULL; ldevs = g_list_next(ldevs)) {
             ldev = ldevs->data;
-            ws_debug_printf(" LDev#%5u: \"%s\" LDevIFs:%u AccoIFs:%u", ldev->first_packet, ldev->name,
+            ws_debug(" LDev#%5u: \"%s\" LDevIFs:%u AccoIFs:%u", ldev->first_packet, ldev->name,
                 ldev->ldev_object ? g_list_length(ldev->ldev_object->interfaces) : 0,
                 ldev->acco_object ? g_list_length(ldev->acco_object->interfaces) : 0);
             for(frames = ldev->consframes; frames != NULL; frames = g_list_next(frames)) {
                 frame = frames->data;
-                ws_debug_printf("  ConsFrame#%5u: CCRID:0x%x PCRID:0x%x Len:%u Ret:%s Data#%5u-#%5u",
+                ws_debug("  ConsFrame#%5u: CCRID:0x%x PCRID:0x%x Len:%u Ret:%s Data#%5u-#%5u",
                     frame->packet_connect, frame->conscrid, frame->provcrid, frame->length,
                     frame->conncrret==0xffffffff ? "[pending]" : val_to_str(scope, frame->conncrret, dcom_hresult_vals, "Unknown (0x%08x)"),
                     frame->packet_first, frame->packet_last);
@@ -440,7 +440,7 @@ cba_object_dump(wmem_allocator_t* scope)
             }
             for(frames = ldev->provframes; frames != NULL; frames = g_list_next(frames)) {
                 frame = frames->data;
-                ws_debug_printf("  ProvFrame#%5u: CCRID:0x%x PCRID:0x%x Len:%u Ret:%s Data#%5u-#%5u",
+                ws_debug("  ProvFrame#%5u: CCRID:0x%x PCRID:0x%x Len:%u Ret:%s Data#%5u-#%5u",
                     frame->packet_connect, frame->conscrid, frame->provcrid, frame->length,
                     frame->conncrret==0xffffffff ? "[pending]" : val_to_str(scope, frame->conncrret, dcom_hresult_vals, "Unknown (0x%08x)"),
                     frame->packet_first, frame->packet_last);

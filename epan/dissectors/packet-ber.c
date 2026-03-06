@@ -45,6 +45,8 @@
 
 #include "config.h"
 
+#define WS_LOG_DOMAIN "ber"
+
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/reassemble.h>
@@ -54,9 +56,6 @@
 #include <epan/decode_as.h>
 #include <epan/tfs.h>
 #include <wiretap/wtap.h>
-#ifdef DEBUG_BER
-#include <epan/ws_printf.h>
-#endif
 
 #include "packet-ber.h"
 
@@ -1171,9 +1170,8 @@ get_ber_identifier(tvbuff_t *tvb, unsigned offset, int8_t *ber_class, bool *pc, 
 
     id = tvb_get_uint8(tvb, offset);
     offset += 1;
-#ifdef DEBUG_BER
-ws_debug_printf("BER ID=%02x", id);
-#endif
+    ws_debug("BER ID=%02x", id);
+
     /* 8.1.2.2 */
     tmp_class = (id >> 6) & 0x03;
     tmp_pc = (id >> 5) & 0x01;
@@ -1181,11 +1179,11 @@ ws_debug_printf("BER ID=%02x", id);
     /* 8.1.2.4 */
     if (tmp_tag == 0x1F) {
         tmp_tag = 0;
+
+        unsigned int remaining = tvb_reported_length_remaining(tvb, offset);
+        ws_log_buffer(tvb_get_ptr(tvb, offset, remaining), remaining, "BER bytes");
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             t = tvb_get_uint8(tvb, offset);
-#ifdef DEBUG_BER
-ws_debug_printf(" %02x", t);
-#endif
             offset += 1;
             /* XXX - What to do on overflow (which is almost certainly
              * invalid data rather than a tag number > UINT32_MAX)? */
@@ -1196,9 +1194,6 @@ ws_debug_printf(" %02x", t);
         }
     }
 
-#ifdef DEBUG_BER
-ws_debug_printf("\n");
-#endif
     if (ber_class)
         *ber_class = tmp_class;
     if (pc)
@@ -1341,9 +1336,7 @@ try_get_ber_length(tvbuff_t *tvb, unsigned offset, uint32_t *length, bool *ind, 
     if (ind)
         *ind = tmp_ind;
 
-#ifdef DEBUG_BER
-ws_debug_printf("get BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_reported_length_remaining(tvb, offset));
-#endif
+    ws_debug("get BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_reported_length_remaining(tvb, offset));
 
     return offset;
 }

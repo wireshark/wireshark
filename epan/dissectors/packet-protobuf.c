@@ -40,7 +40,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/pint.h>
-#include <epan/ws_printf.h>
 #include <wsutil/report_message.h>
 
 #include "protobuf-helper.h"
