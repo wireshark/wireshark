@@ -279,7 +279,7 @@ static void lua_resetthread_cb(void *user_data) {
 
     ws_debug("freeing thread: %p", L1);
     clear_outstanding_FuncSavers(L1);
-#if LUA_VERSION_NUM > 503
+#if LUA_VERSION_RELEASE_NUM >= 50406
     // Lua 5.3 and earlier doesn't have a way to close a thread, and
     // relies on garbage collection only.
     //
@@ -296,10 +296,11 @@ static void lua_resetthread_cb(void *user_data) {
     //
     //    https://lists.wireshark.org/archives/wireshark-dev/202511/msg00031.html
     //
-    // Lua 5.4.6 revers that change, and introdues lua_closethread(..., NULL)
-    // to replacelua_resetthread(), but it's not yet mandatory to use
-    // lua_closethread() (maybe in 5.5?)
+    // Lua 5.4.6 reverts that change, and introduces lua_closethread(..., NULL)
+    // to replace lua_resetthread().
     //
+    lua_closethread(L1, NULL);
+#elif LUA_VERSION_NUM >= 504
   #ifdef HAVE_TWO_ARGUMENT_LUA_RESETTHREAD
     lua_resetthread(L1, NULL);
   #else
