@@ -370,8 +370,7 @@ static dissector_handle_t avb17221_handle;
 #define AECP_OFFSET_COUNTERS_STREAM_INPUT_UNSUPPORTED_FORMAT   64
 #define AECP_OFFSET_COUNTERS_STREAM_INPUT_LATE_TIMESTAMP       68
 #define AECP_OFFSET_COUNTERS_STREAM_INPUT_EARLY_TIMESTAMP      72
-#define AECP_OFFSET_COUNTERS_STREAM_INPUT_PACKETS_TX           76
-#define AECP_OFFSET_COUNTERS_STREAM_INPUT_PACKETS_RX           80
+#define AECP_OFFSET_COUNTERS_STREAM_INPUT_PACKETS_RX           76
 #define AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_8                 128
 #define AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_7                 132
 #define AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_6                 136
@@ -2104,8 +2103,6 @@ static int hf_aecp_stream_input_media_reset_valid;
 static int hf_aecp_stream_input_media_reset;
 static int hf_aecp_stream_input_packets_rx_valid;
 static int hf_aecp_stream_input_packets_rx;
-static int hf_aecp_stream_input_packets_tx_valid;
-static int hf_aecp_stream_input_packets_tx;
 static int hf_aecp_stream_input_seq_num_mismatch_valid;
 static int hf_aecp_stream_input_seq_num_mismatch;
 static int hf_aecp_stream_input_stream_reset_valid;
@@ -4243,8 +4240,6 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
                         AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
                   proto_tree_add_item(aecp_tree, hf_aecp_stream_input_early_timestamp_valid, tvb,
                         AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_packets_tx_valid, tvb,
-                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
                   proto_tree_add_item(aecp_tree, hf_aecp_stream_input_packets_rx_valid, tvb,
                         AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
                   break;
@@ -4319,8 +4314,6 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
                         AECP_OFFSET_COUNTERS_STREAM_INPUT_LATE_TIMESTAMP, 4, ENC_BIG_ENDIAN);
                   proto_tree_add_item(aecp_tree, hf_aecp_stream_input_early_timestamp, tvb,
                         AECP_OFFSET_COUNTERS_STREAM_INPUT_EARLY_TIMESTAMP, 4, ENC_BIG_ENDIAN);
-                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_packets_tx, tvb,
-                        AECP_OFFSET_COUNTERS_STREAM_INPUT_PACKETS_TX, 4, ENC_BIG_ENDIAN);
                   proto_tree_add_item(aecp_tree, hf_aecp_stream_input_packets_rx, tvb,
                         AECP_OFFSET_COUNTERS_STREAM_INPUT_PACKETS_RX, 4, ENC_BIG_ENDIAN);
                   break;
@@ -5671,10 +5664,6 @@ proto_register_17221(void)
          {"Early Timestamp Valid", "ieee17221.flags.early_timestamp_valid",
             FT_BOOLEAN, 32, NULL, AECP_COUNTERS_VALID_EARLY_TIMESTAMP, NULL, HFILL }
       },
-      { &hf_aecp_stream_input_packets_tx_valid,
-         {"Stream Packets TX Valid", "ieee17221.flags.stream_packets_tx_valid",
-            FT_BOOLEAN, 32, NULL, AECP_COUNTERS_VALID_STREAM_PACKETS_TX, NULL, HFILL }
-      },
       { &hf_aecp_stream_input_packets_rx_valid,
          {"Stream Packets RX Valid", "ieee17221.flags.stream_packets_rx_valid",
             FT_BOOLEAN, 32, NULL, AECP_COUNTERS_VALID_STREAM_PACKETS_RX, NULL, HFILL }
@@ -5790,10 +5779,6 @@ proto_register_17221(void)
       },
       { &hf_aecp_stream_input_early_timestamp,
          {"Early Timestamp", "ieee17221.early_timestamp",
-            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_aecp_stream_input_packets_tx,
-         {"Stream Packets TX", "ieee17221.stream_packets_tx",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_packets_rx,
