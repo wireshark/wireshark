@@ -124,7 +124,7 @@ static int hf_mle_tlv_hold_time;
 static int hf_mle_tlv_channel_page; /* v1.1-draft-2 */
 static int hf_mle_tlv_channel; /* v1.1-draft-2 */
 static int hf_mle_tlv_csl_accuracy; /* v1.2-draft-5 */
-static int hf_mle_tlv_csl_synchronied_timeout; /* v1.2-draft-5 */
+static int hf_mle_tlv_csl_synchronized_timeout; /* v1.2-draft-5 */
 static int hf_mle_tlv_csl_clock_accuracy; /* v1.2-draft-5 */
 static int hf_mle_tlv_csl_uncertainty;
 static int hf_mle_tlv_pan_id; /* v1.1-draft-2 */
@@ -153,7 +153,6 @@ static int hf_mle_tlv_link_status_sub_tlv;
 static int hf_mle_tlv_link_query_options;
 static int hf_mle_tlv_link_enh_ack_flags;
 static int hf_mle_tlv_link_requested_type_id_flags;
-static int hf_mle_tlv_csl_sychronized_timeout;
 static int hf_mle_tlv_link_forward_series;
 static int hf_mle_tlv_link_concatenation_link_metric_typeid_flags;
 static int hf_mle_tlv_link_timeout;
@@ -1430,7 +1429,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 } else {
                     /*  CSL synchronized timeout */
                     uint32_t to_data = 0;
-                    proto_tree_add_item_ret_uint(tlv_tree, hf_mle_tlv_csl_synchronied_timeout, payload_tvb, offset, 4, ENC_BIG_ENDIAN, &to_data);
+                    proto_tree_add_item_ret_uint(tlv_tree, hf_mle_tlv_csl_synchronized_timeout, payload_tvb, offset, 4, ENC_BIG_ENDIAN, &to_data);
                     proto_item_append_text(ti, " = %u", to_data);
                 }
                 proto_item_append_text(ti, ")");
@@ -2294,7 +2293,7 @@ proto_register_mle(void)
           HFILL
       }
     },
-    { &hf_mle_tlv_csl_sychronized_timeout,
+    { &hf_mle_tlv_csl_synchronized_timeout,
         { "CSL Synchronized Timeout",
           "mle.tlv.link_csl_synchronized_timeout",
           FT_UINT32, BASE_HEX, NULL, 0x0,
