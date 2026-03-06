@@ -5254,6 +5254,9 @@ proto_reg_handoff_ssl(void)
     dissector_add_string("http.upgrade", "TLS/1.1", tls_handle);
     dissector_add_string("http.upgrade", "TLS/1.2", tls_handle);
     dissector_add_string("http.upgrade", "TLS/1.3", tls_handle);
+
+    /* RFC 9934 */
+    dissector_add_string("rfc7468.preeb_label", "ECHCONFIG", create_dissector_handle(dissect_tls_echconfig, proto_tls));
 }
 
 void
