@@ -989,9 +989,8 @@ dissect_hl7_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
      * to continue the next processing from the beginning of the PDU
      * (desegment_offset = 0) because we did not consume/dissect
      * anything in this cycle. */
-    int llp_eob_offset = tvb_find_uint16(tvb, 0, -1, LLP_EOB);
 
-    if (llp_eob_offset == -1) {
+    if (!tvb_find_uint16_remaining(tvb, 0, LLP_EOB, NULL)) {
         pinfo->desegment_offset = 0;
         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
     }
