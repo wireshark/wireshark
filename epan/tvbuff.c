@@ -362,18 +362,6 @@ compute_offset(const tvbuff_t *tvb, const int offset, unsigned *offset_ptr)
 	return 0;
 }
 
-static inline int
-compute_offset_and_remaining(const tvbuff_t *tvb, const int offset, unsigned *offset_ptr, unsigned *rem_len)
-{
-	int exception;
-
-	exception = compute_offset(tvb, offset, offset_ptr);
-	if (!exception)
-		*rem_len = tvb->length - *offset_ptr;
-
-	return exception;
-}
-
 /* Computes the absolute offset and length based on a possibly-negative offset
  * and a length that is possible -1 (which means "to the end of the data").
  * Returns integer indicating whether the offset is in bounds (0) or
@@ -2589,54 +2577,6 @@ tvb_find_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8
 	return true;
 }
 
-/* Find first occurrence of needle in tvbuff, starting at offset. Searches
- * at most maxlength number of bytes; if maxlength is -1, searches to
- * end of tvbuff.
- * Returns the offset of the found needle, or -1 if not found.
- * Will not throw an exception, even if maxlength exceeds boundary of tvbuff;
- * in that case, -1 will be returned if the boundary is reached before
- * finding needle. */
-int
-tvb_find_uint8(tvbuff_t *tvb, const unsigned offset, const int maxlength, const uint8_t needle)
-{
-	const uint8_t *result;
-	unsigned      limit = 0, end_offset;
-	int           exception;
-
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	exception = validate_offset_and_remaining(tvb, offset, &limit);
-	if (exception)
-		THROW(exception);
-
-	/* Only search to end of tvbuff, w/o throwing exception. */
-	if (maxlength >= 0 && limit > (unsigned) maxlength) {
-		/* Maximum length doesn't go past end of tvbuff; search
-		   to that value. */
-		limit = (unsigned) maxlength;
-	}
-
-	/* If we have real data, perform our search now. */
-	if (tvb->real_data) {
-		result = (const uint8_t *)memchr(tvb->real_data + offset, needle, limit);
-		if (result == NULL) {
-			return -1;
-		}
-		else {
-			return (int) (result - tvb->real_data);
-		}
-	}
-
-	if (tvb->ops->tvb_find_uint8) {
-		if (!tvb->ops->tvb_find_uint8(tvb, offset, limit, needle, &end_offset)) {
-			return -1;
-		}
-	} else if (!tvb_find_uint8_generic(tvb, offset, limit, needle, &end_offset)) {
-		return -1;
-	}
-	return (int)end_offset;
-}
-
 static bool
 _tvb_find_uint8_length(tvbuff_t *tvb, const unsigned offset, const unsigned limit, const uint8_t needle, unsigned *end_offset)
 {
@@ -2741,34 +2681,6 @@ _tvb_find_uint16_length(tvbuff_t *tvb, const unsigned offset, const unsigned lim
 	return false;
 }
 
-/* Same as tvb_find_uint8() with 16bit needle. */
-int
-tvb_find_uint16(tvbuff_t *tvb, const int offset, const int maxlength,
-		 const uint16_t needle)
-{
-	unsigned      abs_offset = 0;
-	unsigned      limit = 0;
-	unsigned      end_offset;
-	int           exception;
-
-	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &limit);
-	if (exception)
-		THROW(exception);
-
-	/* Only search to end of tvbuff, w/o throwing exception. */
-	if (maxlength >= 0 && limit > (unsigned) maxlength) {
-		/* Maximum length doesn't go past end of tvbuff; search
-		   to that value. */
-		limit = (unsigned) maxlength;
-	}
-
-	if (!_tvb_find_uint16_length(tvb, abs_offset, limit, needle, &end_offset)) {
-		return -1;
-	}
-
-	return end_offset;
-}
-
 bool
 tvb_find_uint16_length(tvbuff_t *tvb, const unsigned offset, const unsigned maxlength, const uint16_t needle, unsigned *end_offset)
 {
@@ -2828,56 +2740,6 @@ tvb_ws_mempbrk_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit,
 		*found_offset = (unsigned)((result - ptr) + abs_offset);
 	}
 	return true;
-}
-
-
-/* Find first occurrence of any of the pattern chars in tvbuff, starting at offset.
- * Searches at most maxlength number of bytes; if maxlength is -1, searches
- * to end of tvbuff.
- * Returns the offset of the found needle, or -1 if not found.
- * Will not throw an exception, even if maxlength exceeds boundary of tvbuff;
- * in that case, -1 will be returned if the boundary is reached before
- * finding needle. */
-int
-tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const unsigned offset, const int maxlength,
-			const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
-{
-	const uint8_t *result;
-	unsigned      limit = 0, found_offset;
-	int           exception;
-
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	exception = validate_offset_and_remaining(tvb, offset, &limit);
-	if (exception)
-		THROW(exception);
-
-	/* Only search to end of tvbuff, w/o throwing exception. */
-	if (limit > (unsigned) maxlength) {
-		/* Maximum length doesn't go past end of tvbuff; search
-		   to that value. */
-		limit = maxlength;
-	}
-
-	/* If we have real data, perform our search now. */
-	if (tvb->real_data) {
-		result = ws_mempbrk_exec(tvb->real_data + offset, limit, pattern, found_needle);
-		if (result == NULL) {
-			return -1;
-		}
-		else {
-			return (int) (result - tvb->real_data);
-		}
-	}
-
-	if (tvb->ops->tvb_ws_mempbrk_pattern_uint8) {
-		if (!tvb->ops->tvb_ws_mempbrk_pattern_uint8(tvb, offset, limit, pattern, &found_offset, found_needle)) {
-			return -1;
-		}
-	} else if (!tvb_ws_mempbrk_uint8_generic(tvb, offset, limit, pattern, &found_offset, found_needle)) {
-		return -1;
-	}
-	return (int)found_offset;
 }
 
 static bool

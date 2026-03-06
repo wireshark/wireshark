@@ -125,8 +125,9 @@ the latter, use tvb_new_subset_remaining instead. Internally, tvbuffer lengths
 have long been unsigned; this change should simplify dealing with 32-bit
 unsigned length fields and checking for offsets overflowing.
 
-tvb find_line_end has been changed in a similar fashion. It now returns a boolean, true
-if the line end was found.
+tvb find_line_end, tvb_find_uint8, tvb_find_uint16 and tvb_ws_mempbrk_pattern_uint8
+has been changed in a similar fashion. They now return a boolean, true
+if found.
 
 === Plugin Development Changes
 

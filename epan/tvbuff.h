@@ -2241,52 +2241,6 @@ WS_DLL_PUBLIC bool tvb_find_uint8_length(tvbuff_t *tvb, const unsigned offset,
     const unsigned maxlength, const uint8_t needle, unsigned *found_offset);
 
 /**
- * @brief Find the first occurrence of a byte value in a tvbuff.
- *
- * Searches for the first occurrence of `needle` in the given tvbuff_t,
- * starting at `offset` and scanning up to `maxlength` bytes. If `maxlength` is -1,
- * the search continues to the end of the tvbuff.
- *
- * This function does not throw an exception, even if `maxlength` exceeds the
- * tvbuff boundary. In such cases, -1 is returned if the boundary is reached
- * before finding the needle.
- *
- * @param tvb         The tvbuff_t to search.
- * @param offset      The offset in the tvbuff to begin searching.
- * @param maxlength   The maximum number of bytes to search, or -1 to search to the end.
- * @param needle      The byte value to search for.
- *
- * @return The offset of the found needle, or -1 if not found.
- */
-WS_DLL_PUBLIC int tvb_find_uint8(tvbuff_t *tvb, const unsigned offset,
-    const int maxlength, const uint8_t needle);
-
-/**
- * @brief Deprecated accessor for finding a byte value in a tvbuff.
- *
- * This function is equivalent to @ref tvb_find_uint8 and should not be used in new code.
- * It searches for the first occurrence of `needle` starting at `offset`, scanning up to
- * `maxlength` bytes. If `maxlength` is -1, the search continues to the end of the tvbuff.
- *
- * This function does not throw exceptions, even if `maxlength` exceeds the tvbuff boundary.
- * In such cases, -1 is returned if the boundary is reached before finding the needle.
- *
- * @param tvb         The tvbuff_t to search.
- * @param offset      The offset in the tvbuff to begin searching.
- * @param maxlength   The maximum number of bytes to search, or -1 to search to the end.
- * @param needle      The byte value to search for.
- *
- * @return The offset of the found needle, or -1 if not found.
- *
- * @deprecated Use @ref tvb_find_uint8 instead.
- *
- * @see tvb_find_uint8
- */
-WS_DEPRECATED_X("Use tvb_find_uint8 instead")
-static inline int tvb_find_guint8(tvbuff_t* tvb, const unsigned offset,
-	const int maxlength, const uint8_t needle) { return tvb_find_uint8(tvb, offset, maxlength, needle); }
-
-/**
  * @brief Find the first occurrence of a 16-bit value in a tvbuff.
  *
  * Searches for the first occurrence of `needle` in the given tvbuff_t,
@@ -2345,60 +2299,6 @@ WS_DLL_PUBLIC bool tvb_find_uint16_length(tvbuff_t *tvb, const unsigned offset,
     const unsigned maxlength, const uint16_t needle, unsigned *found_offset);
 
 /**
- * @brief Find the first occurrence of a 16-bit value in a tvbuff.
- *
- * Searches for the first occurrence of the 16-bit `needle` in the given tvbuff_t,
- * starting at `offset` and scanning up to `maxlength` bytes. If `maxlength` is -1,
- * the search continues to the end of the tvbuff.
- *
- * This function does not throw an exception, even if `maxlength` exceeds the
- * tvbuff boundary. In such cases, -1 is returned if the boundary is reached
- * before finding the needle.
- *
- * @note This searches for the value on any byte alignment, not 2-byte alignment,
- * and is thus unsuited, e.g., for searching for a UCS-2 or UTF-16 character
- * without additional verification and possible follow-up searches.
- *
- * @param tvb         The tvbuff_t to search.
- * @param offset      The offset in the tvbuff to begin searching.
- * @param maxlength   The maximum number of bytes to search, or -1 to search to the end.
- * @param needle      The 16-bit value to search for.
- *
- * @return The offset of the found needle, or -1 if not found.
- *
- * @see tvb_find_uint8
- */
-WS_DLL_PUBLIC int tvb_find_uint16(tvbuff_t *tvb, const int offset,
-    const int maxlength, const uint16_t needle);
-
-/**
- * @brief Deprecated accessor for finding a 16-bit value in a tvbuff.
- *
- * This function is equivalent to @ref tvb_find_uint16 and should not be used in new code.
- * It searches for the first occurrence of `needle` starting at `offset`, scanning up to
- * `maxlength` bytes. If `maxlength` is -1, the search continues to the end of the tvbuff.
- *
- * This function does not throw exceptions, even if `maxlength` exceeds the tvbuff boundary.
- * In such cases, -1 is returned if the boundary is reached before finding the needle.
- *
- * @param tvb         The tvbuff_t to search.
- * @param offset      The offset in the tvbuff to begin searching.
- * @param maxlength   The maximum number of bytes to search, or -1 to search to the end.
- * @param needle      The 16-bit value to search for.
- *
- * @return The offset of the found needle, or -1 if not found.
- *
- * @deprecated Use @ref tvb_find_uint16 instead.
- *
- * @see tvb_find_uint16
- */
-WS_DEPRECATED_X("Use tvb_find_uint16 instead")
-static inline int tvb_find_guint16(tvbuff_t* tvb, const int offset,
-	const int maxlength, const uint16_t needle) {
-	return tvb_find_uint16(tvb, offset, maxlength, needle);
-}
-
-/**
  * @brief Find the first occurrence of any needle from a pre-compiled pattern in a tvbuff.
  *
  * Searches the given tvbuff_t starting at `offset` for any of the bytes defined in the
@@ -2451,58 +2351,6 @@ WS_DLL_PUBLIC bool tvb_ws_mempbrk_uint8_remaining(tvbuff_t *tvb, const unsigned 
 WS_DLL_PUBLIC bool tvb_ws_mempbrk_uint8_length(tvbuff_t *tvb, const unsigned offset,
     const unsigned maxlength, const ws_mempbrk_pattern* pattern,
     unsigned *found_offset, unsigned char *found_needle);
-
-/**
- * @brief Find the first occurrence of any needle from a pre-compiled pattern in a tvbuff.
- *
- * Searches the given tvbuff_t starting at `offset` for any of the bytes defined in the
- * pre-compiled `pattern` (compiled using `ws_mempbrk_compile()`).
- * The search scans at most `maxlength` bytes.
- *
- * This function will not throw an exception, even if `maxlength` exceeds the tvbuff boundary.
- * In such cases, -1 is returned if the boundary is reached before finding any needle.
- *
- * @param tvb          The tvbuff_t to search.
- * @param offset       The offset within the tvbuff to begin searching.
- * @param maxlength    The maximum number of bytes to search.
- * @param pattern      The pre-compiled pattern of needles to search for.
- * @param found_needle Pointer to an unsigned char that will be set to the found needle value.
- *
- * @return The offset of the found needle, or -1 if no needle was found.
- */
-WS_DLL_PUBLIC int tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const unsigned offset,
-    const int maxlength, const ws_mempbrk_pattern* pattern, unsigned char *found_needle);
-
-/**
- * @brief Deprecated accessor for finding the first occurrence of any needle from a pre-compiled pattern in a tvbuff.
- *
- * This function is equivalent to @ref tvb_ws_mempbrk_pattern_uint8 and should not be used in new code.
- * It searches for the first occurrence of any byte from the pre-compiled `pattern` in the given
- * tvbuff_t, starting at `offset` and scanning up to `maxlength` bytes.
- *
- * If `maxlength` is -1, the search continues to the end of the tvbuff.
- * The found byte is returned via `found_needle`, and the offset of the match is returned.
- * If no match is found, -1 is returned and `*found_needle` is not modified.
- *
- * This function does not throw exceptions, even if `maxlength` exceeds the tvbuff boundary.
- *
- * @param tvb            The tvbuff_t to search.
- * @param offset         The offset within the tvbuff to begin searching.
- * @param maxlength      The maximum number of bytes to search.
- * @param pattern        The pre-compiled pattern of needles to search for.
- * @param found_needle   Pointer to an unsigned char that will be set to the found needle value.
- *
- * @return The offset of the found needle, or -1 if not found.
- *
- * @deprecated Use @ref tvb_ws_mempbrk_pattern_uint8 instead.
- *
- * @see tvb_ws_mempbrk_pattern_uint8
- */
-WS_DEPRECATED_X("Use tvb_ws_mempbrk_pattern_uint8 instead")
-static inline int tvb_ws_mempbrk_pattern_guint8(tvbuff_t* tvb, const int offset,
-	const int maxlength, const ws_mempbrk_pattern* pattern, unsigned char* found_needle) {
-	return tvb_ws_mempbrk_pattern_uint8(tvb, offset, maxlength, pattern, found_needle);
-}
 
 /**
  * @brief Determine the size of a NUL-terminated string in a tvbuff.
