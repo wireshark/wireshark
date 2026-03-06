@@ -687,6 +687,8 @@ static expert_field ei_oran_port_list_index_zero;
 static expert_field ei_oran_ul_uplane_symbol_too_long;
 static expert_field ei_oran_reserved_not_zero;
 static expert_field ei_oran_too_many_symbols;
+static expert_field ei_oran_se30_not_ul;
+static expert_field ei_oran_se30_unknown_ueid;
 
 
 /* These are the message types handled by this dissector.  Others have handling in packet-ecpri.c */
@@ -4764,7 +4766,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             {
                 /* reserved (3 bits) */
                 add_reserved_field(extension_tree, hf_oran_reserved_3bits, tvb, offset, 1);
-                /* numUeSinrRpt */
+                /* numUeSinrRpt (5 bits) */
                 uint32_t num_ue_sinr_rpt;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_ue_sinr_rpt, tvb, offset, 1, ENC_BIG_ENDIAN, &num_ue_sinr_rpt);
                 offset += 1;
@@ -4803,7 +4805,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 30: /* SE 30: PUSCH repetition indication */
             {
-                /* TODO: only valid for UL (dataDir=0) */
+                /* Only valid for UL */
+                if (!tap_info->uplink) {
+                    expert_add_info(pinfo, extension_ti, &ei_oran_se30_not_ul);
+                }
 
                 /* ueids[], number_of_ueids may have been rewritten by SE10 */
 
@@ -4848,7 +4853,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         /* reserved (1 bit) */
                         add_reserved_field(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1);
                         /* isLastRep (1 bit) */
-
                         proto_tree_add_item_ret_boolean(extension_tree, hf_oran_is_last_rep, tvb, offset, 1, ENC_BIG_ENDIAN, &is_last_rep);
                         /* repIndex (6 bits) */
                         proto_tree_add_item(extension_tree, hf_oran_rep_index, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4858,8 +4862,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         add_reserved_field(extension_tree, hf_oran_reserved_2bits, tvb, offset, 1);
                         /* numReps (6 bits) */
                         uint8_t num_reps;
-                        proto_tree_add_item_ret_uint8(extension_tree, hf_oran_num_reps, tvb, offset, 1, ENC_BIG_ENDIAN, &num_reps);
+                        proto_item *num_reps_ti = proto_tree_add_item_ret_uint8(extension_tree, hf_oran_num_reps, tvb, offset, 1, ENC_BIG_ENDIAN, &num_reps);
                         /* TODO: values 33-63 are reserved */
+                        if (num_reps > 32) {
+                            proto_item_append_text(num_reps_ti, " (reserved)");
+                        }
                         offset += 1;
 
                         for (uint8_t rep=0; rep < num_reps; rep++) {
@@ -4867,7 +4874,19 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             add_reserved_field(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1);
                             /* repUeId (15 bits) */
                             /* TODO: should be fetching and comparing with ueids[] from SE10? */
-                            proto_tree_add_item(extension_tree, hf_oran_rep_ueid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            uint16_t ueid;
+                            proto_item *ueid_ti = proto_tree_add_item_ret_uint16(extension_tree, hf_oran_rep_ueid, tvb, offset, 2, ENC_BIG_ENDIAN, &ueid);
+
+                            /* Check that this ueid is recognised (among ueids[], number_of_ueids) */
+                            bool matched = false;
+                            for (unsigned u=0; u < number_of_ueids; u++) {
+                                if (ueid == ueids[u])
+                                    matched = true;
+                            }
+                            if (!matched) {
+                                expert_add_info_format(pinfo, ueid_ti, &ei_oran_se30_unknown_ueid,
+                                                       "SE 30 mentions UEId %u - not seen in SE10", ueid);
+                            }
                             offset += 2;
                         }
                     }
@@ -10177,7 +10196,9 @@ proto_register_oran(void)
         { &ei_oran_port_list_index_zero, { "oran_fh_cus.port_list_index.zero", PI_MALFORMED, PI_WARN, "portListIndex should not be zero", EXPFILL }},
         { &ei_oran_ul_uplane_symbol_too_long, { "oran_fh_cus.ul_uplane_symbol_tx_too_slow", PI_RECEIVE, PI_WARN, "UL U-Plane Tx took too long for symbol (limit set in preference)", EXPFILL }},
         { &ei_oran_reserved_not_zero, { "oran_fh_cus.reserved_not_zero", PI_MALFORMED, PI_WARN, "Reserved field is not zero", EXPFILL }},
-        { &ei_oran_too_many_symbols, { "oran_fh_cus.too_many_symbols", PI_MALFORMED, PI_ERROR, "Range of symbols in slot exceeds 14", EXPFILL }}
+        { &ei_oran_too_many_symbols, { "oran_fh_cus.too_many_symbols", PI_MALFORMED, PI_ERROR, "Range of symbols in slot exceeds 14", EXPFILL }},
+        { &ei_oran_se30_not_ul, { "oran_fh_cus.se30_not_ul", PI_MALFORMED, PI_WARN, "SE30 should only be sent in uplink direction", EXPFILL }},
+        { &ei_oran_se30_unknown_ueid, { "oran_fh_cus.se30_unknown_ue", PI_MALFORMED, PI_WARN, "SE30 UEId not recognised from SE10", EXPFILL }},
     };
 
     /* Register the protocol name and description */
