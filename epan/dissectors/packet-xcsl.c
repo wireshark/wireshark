@@ -69,7 +69,7 @@ static ws_mempbrk_pattern pbrk_param_end;
 static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     unsigned     offset = 0;
-    int          length_remaining;
+    unsigned     length_remaining;
     uint8_t      idx;
     bool         request;
     uint8_t      par;
@@ -77,7 +77,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     uint8_t      result;
     const char *code;
     unsigned     len;
-    int          next_offset;
+    unsigned     next_offset;
     proto_tree  *xcsl_tree = NULL;
 
     /* color support */
@@ -103,8 +103,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     while ((length_remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
 
         /* get next item */
-        next_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, length_remaining, &pbrk_param_end, NULL);
-        if (next_offset == -1) {
+        if (!tvb_ws_mempbrk_uint8_length(tvb, offset, length_remaining, &pbrk_param_end, &next_offset, NULL)) {
             len = length_remaining;
             next_offset = offset + len;
         } else {
