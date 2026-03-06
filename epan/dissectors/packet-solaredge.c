@@ -998,6 +998,65 @@ uint16_t calculate_crc(t_solaredge_packet_header *header, const uint8_t *data, i
 	return crc16_plain_update(crc, data, length);
 }
 
+static bool
+gcry_cipher_close_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
+{
+    gcry_cipher_hd_t hd = (gcry_cipher_hd_t)user_data;
+
+    gcry_cipher_close(hd);
+
+    return false;
+}
+
+static void
+solaredge_set_key(tvbuff_t *tvb, unsigned current_offset, conversation_t *conv)
+{
+	unsigned i;
+	t_solaredge_conversion_data *conv_data;
+	GByteArray *system_key;
+	bool system_key_valid;
+	uint8_t session_key_message_part1[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
+	uint8_t session_key_message_part2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
+
+	conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
+	if (conv_data && conv_data->session_key_found == false) {
+		if (!gcry_cipher_open(&cipher_hd_system, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
+			/* Load the system key to generate session key */
+			system_key = g_byte_array_new();
+			system_key_valid = hex_str_to_bytes(global_system_encryption_key, system_key, false);
+			if ((system_key_valid == true) && (system_key->len == SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+				if (!gcry_cipher_setkey(cipher_hd_system, system_key->data, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+					/* Read first part of message */
+					tvb_memcpy(tvb, session_key_message_part1, current_offset, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
+					current_offset += SOLAREDGE_ENCRYPTION_KEY_LENGTH;
+					/* Read second part of message */
+					tvb_memcpy(tvb, session_key_message_part2, current_offset, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
+					/* current_offset += SOLAREDGE_ENCRYPTION_KEY_LENGTH; */
+					/* Encrypt first part with system key */
+					if (!gcry_cipher_encrypt(cipher_hd_system, session_key_message_part1, SOLAREDGE_ENCRYPTION_KEY_LENGTH, NULL, 0)) {
+						/* XOR result with second part to obtain session key */
+						for (i = 0; i < SOLAREDGE_ENCRYPTION_KEY_LENGTH; i++) {
+							session_key_message_part2[i] ^= session_key_message_part1[i];
+						}
+						conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
+						if (!gcry_cipher_open(&conv_data->cipher_hd_session, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
+							/* Load the session key */
+							if (!gcry_cipher_setkey(conv_data->cipher_hd_session, session_key_message_part2, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+								conv_data->session_key_found = true;
+								wmem_register_callback(wmem_file_scope(),  gcry_cipher_close_cb, conv_data->cipher_hd_session);
+							} else {
+								gcry_cipher_close(conv_data->cipher_hd_session);
+							}
+						}
+					}
+				}
+				gcry_cipher_close(cipher_hd_system);
+			}
+			g_byte_array_unref(system_key);
+		}
+	}
+}
+
 static
 bool solaredge_decrypt(wmem_allocator_t *scratch, const uint8_t *in, int length, uint8_t **out, int *out_length, gcry_cipher_hd_t cipher)
 {
@@ -1253,13 +1312,7 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 	proto_tree *solaredge_payload_tree;
 	int32_t current_offset = 0;
 	t_solaredge_packet_header header;
-	GByteArray *system_key;
-	uint8_t session_key_message_part1[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
-	uint8_t session_key_message_part2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
-	uint8_t session_key_intermediate[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
-	unsigned i;
 	t_solaredge_conversion_data *conv_data;
-	bool system_key_valid;
 
 	/* Starts with magic number */
 	if ( tvb_get_uint32(tvb, 0, ENC_LITTLE_ENDIAN) != SOLAREDGE_MAGIC_NUMBER) {
@@ -1319,38 +1372,8 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 		break;
 		case SOLAREDGE_COMMAND_SERVER_SET_KEY:
 			proto_tree_add_item(solaredge_header_tree, hf_solaredge_session_key_type, tvb, current_offset, header.length, ENC_NA);
-			if (!gcry_cipher_open(&cipher_hd_system, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
-				/* Load the system key to generate session key */
-				system_key = g_byte_array_new();
-				system_key_valid = hex_str_to_bytes(global_system_encryption_key, system_key, false);
-				if ((system_key_valid == true) && (system_key->len == SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
-					if (!gcry_cipher_setkey(cipher_hd_system, system_key->data, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
-						/* Read first part of message */
-						tvb_memcpy(tvb, session_key_message_part1, current_offset, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
-						current_offset += SOLAREDGE_ENCRYPTION_KEY_LENGTH;
-						/* Read second part of message */
-						tvb_memcpy(tvb, session_key_message_part2, current_offset, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
-						current_offset += SOLAREDGE_ENCRYPTION_KEY_LENGTH;
-						/* Encrypt first part with system key */
-						if (!gcry_cipher_encrypt(cipher_hd_system, session_key_intermediate, SOLAREDGE_ENCRYPTION_KEY_LENGTH, session_key_message_part1, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
-							/* XOR result with second part to obtain session key */
-							for (i = 0; i < SOLAREDGE_ENCRYPTION_KEY_LENGTH; i++) {
-								session_key_message_part2[i] = session_key_intermediate[i] ^ session_key_message_part2[i];
-							}
-							conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
-							if (!gcry_cipher_open(&conv_data->cipher_hd_session, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
-								/* Load the session key */
-								if (!gcry_cipher_setkey(conv_data->cipher_hd_session, session_key_message_part2, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
-									conv_data->session_key_found = true;
-								} else {
-									gcry_cipher_close(conv_data->cipher_hd_session);
-								}
-							}
-						}
-					}
-					gcry_cipher_close(cipher_hd_system);
-				}
-			}
+			solaredge_set_key(tvb, current_offset, conv);
+			current_offset += header.length;
 		break;
 		default:
 			/* If not implemented, skip command */
