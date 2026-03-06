@@ -1412,11 +1412,17 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                       expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
                       proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                   } else {
+                      uint8_t page;
+                      uint16_t channel;
+
                       /* Channel page */
-                      proto_tree_add_item(tlv_tree, hf_mle_tlv_channel_page, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                      proto_tree_add_item_ret_uint8(tlv_tree, hf_mle_tlv_channel_page, payload_tvb, offset, 1, ENC_BIG_ENDIAN, &page);
                       /* Channel */
-                      proto_tree_add_item(tlv_tree, hf_mle_tlv_channel, payload_tvb, offset+1, 2, ENC_BIG_ENDIAN);
+                      proto_tree_add_item_ret_uint16(tlv_tree, hf_mle_tlv_channel, payload_tvb, offset+1, 2, ENC_BIG_ENDIAN, &channel);
+
+                      proto_item_append_text(ti, " = %u/%u", page, channel);
                   }
+                  proto_item_append_text(ti, ")");
                   offset += tlv_len;
               }
               break;
