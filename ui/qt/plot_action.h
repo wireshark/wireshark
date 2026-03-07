@@ -1,11 +1,11 @@
-/** @file
+/* @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Plots feature by Giovanni Musto <giovanni.musto@partner.italdesign.it>
- * Copyright (c) 2025
+ * Plots feature by Giovanni Musto <giovanni.musto@italdesign.it>
+ * Copyright (c) 2025-2026
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -29,6 +29,7 @@ signals:
 
 private:
     QString y_field_;
+    bool    filtered_;
 };
 
 #endif // PLOT_ACTION_H
