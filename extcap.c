@@ -422,7 +422,7 @@ extcap_convert_arguments_to_array(GList * arguments)
     return result;
 }
 
-static void extcap_free_array(char ** args, int argc)
+static void extcap_free_argument_array(char ** args, int argc)
 {
     int cnt = 0;
 
@@ -469,7 +469,7 @@ extcap_run_one(const extcap_interface *interface, GList *arguments, extcap_cb_t 
         cb(cb_info);
         g_free(command_output);
     }
-    extcap_free_array(args, cnt);
+    extcap_free_argument_array(args, cnt);
 }
 
 /** Thread callback to run an extcap program and pass its output. */
@@ -906,9 +906,9 @@ void extcap_register_preferences(register_cb cb, void *client_data)
     if (prefs.capture_no_extcap)
         return;
 
-    module_t *dev_module = prefs_find_module("extcap");
+    module_t *extcap_module = prefs_find_module("extcap");
 
-    if (!dev_module)
+    if (!extcap_module)
     {
         return;
     }
@@ -1035,13 +1035,11 @@ static bool cb_preference(extcap_callback_info_t cb_info)
     bool new_pref = false;
     GList *arguments = NULL;
     GList **il = (GList **) cb_info.data;
-    module_t *dev_module = NULL;
+    module_t *extcap_module = prefs_find_module("extcap");
 
     arguments = extcap_parse_args(cb_info.output);
 
-    dev_module = prefs_find_module("extcap");
-
-    if (dev_module)
+    if (extcap_module)
     {
         GList *walker = arguments;
 
@@ -1074,7 +1072,7 @@ static bool cb_preference(extcap_callback_info_t cb_info)
                         pref_id = g_strconcat(ifname_lowercase, ".", pref_name, NULL);
                     }
 
-                    if (prefs_find_preference(dev_module, pref_id) == NULL)
+                    if (prefs_find_preference(extcap_module, pref_id) == NULL)
                     {
                         char *pref_name_for_prefs;
                         char *pref_title = wmem_strdup(wmem_epan_scope(), arg->display);
@@ -1088,10 +1086,10 @@ static bool cb_preference(extcap_callback_info_t cb_info)
 
                         if (arg->arg_type == EXTCAP_ARG_PASSWORD)
                         {
-                            prefs_register_password_preference(dev_module, pref_name_for_prefs,
+                            prefs_register_password_preference(extcap_module, pref_name_for_prefs,
                                                          pref_title, pref_title, (const char **)arg->pref_valptr);
                         } else {
-                            prefs_register_string_preference(dev_module, pref_name_for_prefs,
+                            prefs_register_string_preference(extcap_module, pref_name_for_prefs,
                                                          pref_title, pref_title, (const char **)arg->pref_valptr);
                         }
                     }
