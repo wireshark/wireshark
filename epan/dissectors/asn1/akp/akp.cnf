@@ -17,6 +17,10 @@ AsymmetricKeyPackage B "2.16.840.1.101.2.1.2.78.5" "id-ct-KP-aKeyPackage"
 # PKCS#9 Attributes - see master list in x509sat.cnf
 EncryptedPrivateKeyInfo B "1.2.840.113549.1.9.25.2" "pkcs-9-at-encryptedPrivateKeyInfo"
 
+# RFC 9939
+PrivateKeyInfo B "1.2.840.113549.1.9.16.1.52" "id-ct-privateKeyInfo"
+EncryptedPrivateKeyInfo B "1.2.840.113549.1.9.16.1.53" "id-ct-encrPrivateKeyInfo"
+
 #.PDU
 PrivateKeyInfo
 

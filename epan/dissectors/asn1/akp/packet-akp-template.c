@@ -25,6 +25,9 @@
 void proto_register_akp(void);
 void proto_reg_handoff_akp(void);
 
+static dissector_handle_t private_key_dissector_handle;
+static dissector_handle_t encrypted_private_key_dissector_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_akp;
 
@@ -56,6 +59,11 @@ void proto_register_akp(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_akp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  private_key_dissector_handle = register_dissector_with_description(
+    "akp_private_key", "AKP Private Key", dissect_PrivateKeyInfo_PDU, proto_akp);
+  encrypted_private_key_dissector_handle = register_dissector_with_description(
+    "akp_encrypted_private_key", "AKP Encrypted Private Key", dissect_EncryptedPrivateKeyInfo_PDU, proto_akp);
 }
 
 
@@ -67,11 +75,10 @@ void proto_reg_handoff_akp(void) {
   register_ber_syntax_dissector("EncryptedPrivateKeyInfo", proto_akp, dissect_EncryptedPrivateKeyInfo_PDU);
 
   register_ber_oid_syntax(".p8", NULL, "PrivateKeyInfo");
-  dissector_add_string("media_type", "application/pkcs8",
-    create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_akp));
+  register_ber_oid_syntax(".p8e", NULL, "EncryptedPrivateKeyInfo");
+  dissector_add_string("media_type", "application/pkcs8", private_key_dissector_handle);
+  dissector_add_string("media_type", "application/pkcs8-encrypted", encrypted_private_key_dissector_handle);
 
-  dissector_add_string("rfc7468.preeb_label", "PRIVATE KEY",
-    create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_akp));
-  dissector_add_string("rfc7468.preeb_label", "ENCRYPTED PRIVATE KEY",
-    create_dissector_handle(dissect_EncryptedPrivateKeyInfo_PDU, proto_akp));
+  dissector_add_string("rfc7468.preeb_label", "PRIVATE KEY", private_key_dissector_handle);
+  dissector_add_string("rfc7468.preeb_label", "ENCRYPTED PRIVATE KEY", encrypted_private_key_dissector_handle);
 }

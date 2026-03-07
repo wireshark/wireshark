@@ -103,7 +103,7 @@ void application_file_extensions(const struct file_extension_info** file_extensi
             { "MP4 file", false, "mp4" },
             { "RTPDump file", false, "rtp;rtpdump" },
             { "EMS file", false, "ems" },
-            { "ASN.1 Basic Encoding Rules", false, "cer;crl;csr;p10;p12;p772;p7c;p7s;p7m;p8;pfx;tsq;tsr" },
+            { "ASN.1 Basic Encoding Rules", false, "cer;crl;csr;p10;p12;p772;p7c;p7s;p7m;p8;p8e;pfx;tsq;tsr" },
             { "RFC 7468 files", false, "crt;pem" },
             { "PEAK CAN TRC log", true, "trc" },
     };
