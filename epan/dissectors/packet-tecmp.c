@@ -2744,16 +2744,20 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 length2 = length;
 
                 if (data_type == TECMP_DATA_TYPE_ETH_10BASE_T1S) {
-                    uint64_t ns = tvb_get_uint64(sub_tvb, offset2, ENC_BIG_ENDIAN);
+                    uint64_t ns;
+                    int64_t ns_delta;
 
-                    nstime_t timestamp;
-                    timestamp.secs = (time_t)(ns / 1000000000);
-                    timestamp.nsecs = (int)(ns % 1000000000);
-                    proto_tree_add_time(tecmp_tree, hf_tecmp_payload_data_beacon_timestamp, sub_tvb, offset2, 8, &timestamp);
-                    ti = proto_tree_add_uint64(tecmp_tree, hf_tecmp_payload_data_beacon_timestamp_ns, sub_tvb, offset2, 8, ns);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_beacon_timestamp, sub_tvb, offset2, 8, ENC_TIME_NSECS|ENC_BIG_ENDIAN);
+                    ti = proto_tree_add_item_ret_uint64(tecmp_tree, hf_tecmp_payload_data_beacon_timestamp_ns, sub_tvb, offset2, 8, ENC_BIG_ENDIAN, &ns);
                     proto_item_set_hidden(ti);
 
-                    ti = proto_tree_add_int64(tecmp_tree, hf_tecmp_payload_data_beacon_to_timestamp_ns, sub_tvb, offset2, 8, (int64_t)timestamp_ns - (int64_t)ns);
+                    if (ckd_sub(&ns_delta, timestamp_ns, ns)) {
+                        /* This indicates that the beacon timestamp must be past
+                         * 2262-04-12, which is unlikely. We could add an expert
+                         * warning that the delta overflowed, but the delta item
+                         * is hidden anyway. So we'll just ignore it. */
+                    }
+                    ti = proto_tree_add_int64(tecmp_tree, hf_tecmp_payload_data_beacon_to_timestamp_ns, sub_tvb, offset2, 8, ns_delta);
                     proto_item_set_generated(ti);
                     proto_item_set_hidden(ti);
 
