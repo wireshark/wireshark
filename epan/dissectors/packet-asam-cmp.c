@@ -2909,7 +2909,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
     };
 
     /* Testing for Ethernet Padding */
-    if (tvb_get_uint8(tvb, offset + 13) == 0) {
+    if ( (!tx && tvb_get_uint8(tvb, offset + 13) == 0) || (tx && tvb_get_uint8(tvb, offset + 21) == 0)) {
         return 0;
     }
 
