@@ -213,6 +213,12 @@ g_memdup2(const void *mem, size_t byte_size)
 #endif
 #endif
 
+#if !GLIB_CHECK_VERSION(2, 74, 0)
+#ifndef G_REGEX_MATCH_DEFAULT
+#define G_REGEX_MATCH_DEFAULT ((GRegexMatchFlags)0)
+#endif
+#endif
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
