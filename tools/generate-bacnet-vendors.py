@@ -78,7 +78,7 @@ def retrieve_vendors():
                 entry = "    { %4s" % text
             else:
                 entry += ", \"%s\" },\n" % text.rstrip()
-        if entry:
+        if entry.endswith(" },\n"):
             vendors.append(entry)
 
     vendors.append("    { 0, NULL }\n")
