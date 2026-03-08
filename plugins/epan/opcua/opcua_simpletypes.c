@@ -673,7 +673,7 @@ proto_item* parseString_ret_string_and_length(proto_tree *tree, tvbuff_t *tvb, p
     }
     else if (iLen > 0)
     {
-        item = proto_tree_add_item_ret_string_and_length(tree, hfIndex, tvb, iOffset, iLen, ENC_UTF_8|ENC_NA, NULL, retval, lenretval);
+        item = proto_tree_add_item_ret_string(tree, hfIndex, tvb, iOffset, iLen, ENC_UTF_8|ENC_NA, NULL, retval);
         iOffset += iLen; /* eat the whole string */
     }
     else
