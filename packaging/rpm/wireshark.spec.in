@@ -147,7 +147,7 @@ BuildRequires:	bcg729-devel
 %endif
 
 %if %{with amrnb}
-BuildRequires:	opencore-amr-devel
+BuildRequires:	(opencore-amr-devel or libopencore-amr-devel)
 %endif
 
 BuildRequires:	(c-ares-devel or libcares-devel)
