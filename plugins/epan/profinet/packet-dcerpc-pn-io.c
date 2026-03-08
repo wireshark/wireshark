@@ -1163,7 +1163,7 @@ static const enum_val_t pnio_method_enum[] = {
 };
 
 static uint8_t* stateflag = NULL;
-wmem_list_t* conversation_address_list;
+static wmem_list_t* conversation_address_list;
 
 static wmem_allocator_t *pnio_pref_scope;
 
@@ -5390,30 +5390,28 @@ static void extract_pnio_objects_withoutAR(packet_info* pinfo)
             station_info = (stationInfo*)conversation_get_proto_data(conversation, current_fake_aruuid);
         }
         if (conversation == NULL || station_info == NULL) {
-            if (conversation_address_list != NULL) {
-                for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
-                    frame != NULL;
-                    frame = wmem_list_frame_next(frame))
-                {
-                    /* Verify packet as input or output */
-                    stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
-                    if (stored_conversation != NULL) {
-                        if (memcmp(stored_conversation->device->data, pinfo->dl_src.data, 6) == 0 &&
-                            memcmp(stored_conversation->controller->data, pinfo->dl_dst.data, 6) == 0) {
-                            conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
-                            station_info = wmem_new0(wmem_file_scope(), stationInfo);
-                            init_pnio_rtc1_station(station_info);
-                            station_info->filled_with_objects = false;
-                            conversation_add_proto_data(conversation, current_fake_aruuid, station_info);
-                        }
-                        else if (memcmp(stored_conversation->device->data, pinfo->dl_dst.data, 6) == 0 &&
-                            memcmp(stored_conversation->controller->data, pinfo->dl_src.data, 6) == 0) {
-                            conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, CONVERSATION_NONE, 0, 0, 0);
-                            station_info = wmem_new0(wmem_file_scope(), stationInfo);
-                            init_pnio_rtc1_station(station_info);
-                            station_info->filled_with_objects = false;
-                            conversation_add_proto_data(conversation, current_fake_aruuid, station_info);
-                        }
+            for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
+                frame != NULL;
+                frame = wmem_list_frame_next(frame))
+            {
+                /* Verify packet as input or output */
+                stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+                if (stored_conversation != NULL) {
+                    if (memcmp(stored_conversation->device->data, pinfo->dl_src.data, 6) == 0 &&
+                        memcmp(stored_conversation->controller->data, pinfo->dl_dst.data, 6) == 0) {
+                        conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
+                        station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                        init_pnio_rtc1_station(station_info);
+                        station_info->filled_with_objects = false;
+                        conversation_add_proto_data(conversation, current_fake_aruuid, station_info);
+                    }
+                    else if (memcmp(stored_conversation->device->data, pinfo->dl_dst.data, 6) == 0 &&
+                        memcmp(stored_conversation->controller->data, pinfo->dl_src.data, 6) == 0) {
+                        conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, CONVERSATION_NONE, 0, 0, 0);
+                        station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                        init_pnio_rtc1_station(station_info);
+                        station_info->filled_with_objects = false;
+                        conversation_add_proto_data(conversation, current_fake_aruuid, station_info);
                     }
                 }
             }
@@ -7874,17 +7872,15 @@ dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
     }
     /* Stores mac addresses */
     if (extract_method == HEURISTIC_EXTRACTION) {
-        if (conversation_address_list != NULL) {
-            for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
-                frame != NULL;
-                frame = wmem_list_frame_next(frame))
-            {
-                stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
-                if (memcmp(stored_conversation->device->data, pinfo->dl_dst.data, 6) == 0 &&
-                    memcmp(stored_conversation->controller->data, pinfo->dl_src.data, 6) == 0) {
-                    flag = true;
-                    break;
-                }
+        for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
+            frame != NULL;
+            frame = wmem_list_frame_next(frame))
+        {
+            stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+            if (memcmp(stored_conversation->device->data, pinfo->dl_dst.data, 6) == 0 &&
+                memcmp(stored_conversation->controller->data, pinfo->dl_src.data, 6) == 0) {
+                flag = true;
+                break;
             }
         }
         if (!flag) {
@@ -7943,17 +7939,15 @@ dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
     }
     /* Stores mac addresses */
     if (extract_method == HEURISTIC_EXTRACTION) {
-        if (conversation_address_list != NULL) {
-            for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
-                frame != NULL;
-                frame = wmem_list_frame_next(frame))
-            {
-                stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
-                if (memcmp(stored_conversation->device->data, pinfo->dl_dst.data, 6) == 0 &&
-                    memcmp(stored_conversation->controller->data, pinfo->dl_src.data, 6) == 0) {
-                    flag = true;
-                    break;
-                }
+        for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
+            frame != NULL;
+            frame = wmem_list_frame_next(frame))
+        {
+            stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+            if (memcmp(stored_conversation->device->data, pinfo->dl_dst.data, 6) == 0 &&
+                memcmp(stored_conversation->controller->data, pinfo->dl_src.data, 6) == 0) {
+                flag = true;
+                break;
             }
         }
         if (!flag) {
@@ -8016,18 +8010,16 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
     }
     /* Stores mac addresses */
     if (extract_method == HEURISTIC_EXTRACTION) {
-        if (conversation_address_list != NULL) {
-            for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
-                frame != NULL;
-                frame = wmem_list_frame_next(frame))
-            {
-                stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
-                if (memcmp(stored_conversation->device->data, pinfo->dl_src.data, 6) == 0 &&
-                    memcmp(stored_conversation->controller->data, pinfo->dl_dst.data, 6) == 0) {
-                    flag = true;
-                    break;
+        for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
+            frame != NULL;
+            frame = wmem_list_frame_next(frame))
+        {
+            stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+            if (memcmp(stored_conversation->device->data, pinfo->dl_src.data, 6) == 0 &&
+                memcmp(stored_conversation->controller->data, pinfo->dl_dst.data, 6) == 0) {
+                flag = true;
+                break;
 
-                }
             }
         }
         if (!flag) {
@@ -8095,17 +8087,15 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
     }
     /* Stores mac addresses */
     if (extract_method == HEURISTIC_EXTRACTION) {
-        if (conversation_address_list != NULL) {
-            for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
-                frame != NULL;
-                frame = wmem_list_frame_next(frame))
-            {
-                stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
-                if (memcmp(stored_conversation->device->data, pinfo->dl_src.data, 6) == 0 &&
-                    memcmp(stored_conversation->controller->data, pinfo->dl_dst.data, 6) == 0) {
-                    flag = true;
-                    break;
-                }
+        for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
+            frame != NULL;
+            frame = wmem_list_frame_next(frame))
+        {
+            stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+            if (memcmp(stored_conversation->device->data, pinfo->dl_src.data, 6) == 0 &&
+                memcmp(stored_conversation->controller->data, pinfo->dl_dst.data, 6) == 0) {
+                flag = true;
+                break;
             }
         }
         if (!flag) {
