@@ -6,8 +6,8 @@
  *
  * List of PCI IDs
  *
- * Version: 2026.03.01
- * Date:    2026-03-01 03:15:02
+ * Version: 2026.03.08
+ * Date:    2026-03-08 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -503,6 +503,11 @@ static pci_id_t const pci_vid_0E11[] = {
 static pci_id_t const pci_vid_0E55[] = {
 {0x0E55, 0xFFFF, 0xFFFF, 0xFFFF, "HaSoTec GmbH(0x0E55)"},
 }; /* pci_vid_0E55[] */
+
+static pci_id_t const pci_vid_0E8D[] = {
+{0x0E8D, 0xFFFF, 0xFFFF, 0xFFFF, "MediaTek Inc. (Wrong ID)(0x0E8D)"},
+{0x0E8D, 0x0801, 0xFFFF, 0xFFFF, "MT7621 PCIe Bridge(0x0801)"},
+}; /* pci_vid_0E8D[] */
 
 static pci_id_t const pci_vid_0EAC[] = {
 {0x0EAC, 0xFFFF, 0xFFFF, 0xFFFF, "SHF Communication Technologies AG(0x0EAC)"},
@@ -4244,7 +4249,7 @@ static pci_id_t const pci_vid_1002[] = {
 {0x1002, 0x74B9, 0xFFFF, 0xFFFF, "Aqua Vanjaram [Instinct MI325X VF](0x74B9)"},
 {0x1002, 0x74BD, 0xFFFF, 0xFFFF, "Aqua Vanjaram [Instinct MI300X HF](0x74BD)"},
 {0x1002, 0x7550, 0xFFFF, 0xFFFF, "Navi 48 [Radeon RX 9070/9070 XT/9070 GRE](0x7550)"},
-{0x1002, 0x7550, 0x148C, 0x2435, "Reaper Radeon RX 9070 XT 16GB GDDR6 (RX9070XT 16G-A)(0x148C-0x2435)"},
+{0x1002, 0x7550, 0x148C, 0x2435, "Radeon RX 9070 XT 16GB(0x148C-0x2435)"},
 {0x1002, 0x7550, 0x1DA2, 0xE490, "Navi 48 XTX [Sapphire Pulse Radeon RX 9070 XT](0x1DA2-0xE490)"},
 {0x1002, 0x7551, 0xFFFF, 0xFFFF, "Navi 48 [Radeon AI PRO R9700](0x7551)"},
 {0x1002, 0x7590, 0xFFFF, 0xFFFF, "Navi 44 [Radeon RX 9060 XT](0x7590)"},
@@ -8224,6 +8229,7 @@ static pci_id_t const pci_vid_1077[] = {
 {0x1077, 0x1020, 0xFFFF, 0xFFFF, "ISP1020/1040 Fast-wide SCSI(0x1020)"},
 {0x1077, 0x1022, 0xFFFF, 0xFFFF, "ISP1022 Fast-wide SCSI(0x1022)"},
 {0x1077, 0x1080, 0xFFFF, 0xFFFF, "ISP1080 SCSI Host Adapter(0x1080)"},
+{0x1077, 0x1080, 0x1077, 0x0001, "QLA1080(0x1077-0x0001)"},
 {0x1077, 0x1216, 0xFFFF, 0xFFFF, "ISP12160 Dual Channel Ultra3 SCSI Processor(0x1216)"},
 {0x1077, 0x1216, 0x101E, 0x8471, "QLA12160 on AMI MegaRAID(0x101E-0x8471)"},
 {0x1077, 0x1216, 0x101E, 0x8493, "QLA12160 on AMI MegaRAID(0x101E-0x8493)"},
@@ -14186,7 +14192,7 @@ static pci_id_t const pci_vid_10DE[] = {
 {0x10DE, 0x2C34, 0xFFFF, 0xFFFF, "GB203GL [RTX PRO 4000 Blackwell](0x2C34)"},
 {0x10DE, 0x2C38, 0xFFFF, 0xFFFF, "GB203GLM [RTX PRO 5000 Blackwell Generation Laptop GPU](0x2C38)"},
 {0x10DE, 0x2C39, 0xFFFF, 0xFFFF, "GB203GLM [RTX PRO 4000 Blackwell Generation Laptop GPU](0x2C39)"},
-{0x10DE, 0x2C3A, 0xFFFF, 0xFFFF, "GB203GL [RTX PRO 4500 Blackwell](0x2C3A)"},
+{0x10DE, 0x2C3A, 0xFFFF, 0xFFFF, "GB203GL [RTX PRO 4500 Blackwell Server Edition](0x2C3A)"},
 {0x10DE, 0x2C58, 0xFFFF, 0xFFFF, "GB203M / GN22-X11 [GeForce RTX 5090 Max-Q / Mobile](0x2C58)"},
 {0x10DE, 0x2C59, 0xFFFF, 0xFFFF, "GB203M / GN22-X9 [GeForce RTX 5080 Max-Q / Mobile](0x2C59)"},
 {0x10DE, 0x2C77, 0xFFFF, 0xFFFF, "GB203GLM [RTX PRO 5000 Blackwell Embedded GPU](0x2C77)"},
@@ -21071,6 +21077,19 @@ static pci_id_t const pci_vid_1344[] = {
 {0x1344, 0x51CB, 0x1028, 0x23A6, "MTFDLBQ30T7THL-1BK1JABDA(0x1028-0x23A6)"},
 {0x1344, 0x51CB, 0x1028, 0x23A7, "MTFDLAL61T4THL-1BK1JABDA(0x1028-0x23A7)"},
 {0x1344, 0x51CB, 0x1028, 0x23A8, "MTFDLAL30T7THL-1BK1JABDA(0x1028-0x23A8)"},
+{0x1344, 0x51CC, 0xFFFF, 0xFFFF, "6600 ION NVMe SSD(0x51CC)"},
+{0x1344, 0x51CC, 0x1028, 0x2453, "MTFDLBQ122T8QHF-1BQ1JABDA(0x1028-0x2453)"},
+{0x1344, 0x51CC, 0x1028, 0x2483, "MTFDLBQ61T4QHF-1BQ1JABDA(0x1028-0x2483)"},
+{0x1344, 0x51CC, 0x1028, 0x2484, "MTFDLBQ30T7QHF-1BQ1JABDA(0x1028-0x2484)"},
+{0x1344, 0x51CC, 0x1028, 0x2485, "MTFDLBQ122T8QHF-1BQ1DFCDA(0x1028-0x2485)"},
+{0x1344, 0x51CC, 0x1028, 0x2486, "MTFDLBQ61T4QHF-1BQ1DFCDA(0x1028-0x2486)"},
+{0x1344, 0x51CC, 0x1028, 0x2487, "MTFDLBQ30T7QHF-1BQ1DFCDA(0x1028-0x2487)"},
+{0x1344, 0x51CC, 0x1028, 0x2489, "MTFDLAL122T8QHF-1BQ1JABDA(0x1028-0x2489)"},
+{0x1344, 0x51CC, 0x1028, 0x248A, "MTFDLAL61T4QHF-1BQ1JABDA(0x1028-0x248A)"},
+{0x1344, 0x51CC, 0x1028, 0x248B, "MTFDLAL30T7QHF-1BQ1JABDA(0x1028-0x248B)"},
+{0x1344, 0x51CC, 0x1028, 0x248D, "MTFDLAL122T8QHF-1BQ1DFCDA(0x1028-0x248D)"},
+{0x1344, 0x51CC, 0x1028, 0x248E, "MTFDLAL61T4QHF-1BQ1DFCDA(0x1028-0x248E)"},
+{0x1344, 0x51CC, 0x1028, 0x248F, "MTFDLAL30T7QHF-1BQ1DFCDA(0x1028-0x248F)"},
 {0x1344, 0x51CD, 0xFFFF, 0xFFFF, "9650 PRO NVMe SSD(0x51CD)"},
 {0x1344, 0x5404, 0xFFFF, 0xFFFF, "2210 NVMe SSD [Cobain](0x5404)"},
 {0x1344, 0x5405, 0xFFFF, 0xFFFF, "2300 NVMe SSD [Santana](0x5405)"},
@@ -24389,6 +24408,7 @@ static pci_id_t const pci_vid_14C3[] = {
 {0x14C3, 0x7662, 0xFFFF, 0xFFFF, "MT7662E 802.11ac PCI Express Wireless Network Adapter(0x7662)"},
 {0x14C3, 0x7663, 0xFFFF, 0xFFFF, "MT7663 802.11ac PCI Express Wireless Network Adapter(0x7663)"},
 {0x14C3, 0x7902, 0xFFFF, 0xFFFF, "MT7902 802.11ax PCIe Wireless Network Adapter [Filogic 310](0x7902)"},
+{0x14C3, 0x7906, 0xFFFF, 0xFFFF, "MT7916A/MT7916D normal link PCIe Wi-Fi 6(802.11ax) 160MHz 2x2 Wireless Network Adapter [Filogic 630](0x7906)"},
 {0x14C3, 0x7915, 0xFFFF, 0xFFFF, "MT7915A/MT7915D normal link PCIe Wi-Fi 6(802.11ax) 80MHz 4x4/2x2 Wireless Network Adapter [Filogic 615](0x7915)"},
 {0x14C3, 0x7916, 0xFFFF, 0xFFFF, "MT7915A/MT7915D hif link PCIe Wi-Fi 6(802.11ax) 80MHz 4x4/2x2 Wireless Network Adapter [Filogic 615](0x7916)"},
 {0x14C3, 0x7922, 0xFFFF, 0xFFFF, "MT7922 802.11ax PCI Express Wireless Network Adapter(0x7922)"},
@@ -25416,6 +25436,7 @@ static pci_id_t const pci_vid_14E4[] = {
 {0x14E4, 0x5F71, 0xFFFF, 0xFFFF, "BRCM4387 Bluetooth Controller(0x5F71)"},
 {0x14E4, 0x5F72, 0xFFFF, 0xFFFF, "BCM4388 Bluetooth Controller(0x5F72)"},
 {0x14E4, 0x5FA0, 0xFFFF, 0xFFFF, "BRCM4377 Bluetooth Controller(0x5FA0)"},
+{0x14E4, 0x6865, 0xFFFF, 0xFFFF, "BCM68650 [Aspen] XGSPON OLT(0x6865)"},
 {0x14E4, 0x8411, 0xFFFF, 0xFFFF, "BCM47xx PCIe Bridge(0x8411)"},
 {0x14E4, 0x8602, 0xFFFF, 0xFFFF, "BCM7400/BCM7405 Serial ATA Controller(0x8602)"},
 {0x14E4, 0x9026, 0xFFFF, 0xFFFF, "CN99xx [ThunderX2] Integrated USB 3.0 xHCI Host Controller(0x9026)"},
@@ -30442,6 +30463,7 @@ static pci_id_t const pci_vid_1A03[] = {
 {0x1A03, 0x2000, 0x15D9, 0x0821, "X10DRW-i (AST2400 BMC)(0x15D9-0x0821)"},
 {0x1A03, 0x2000, 0x15D9, 0x0832, "X10SRL-F (AST2400 BMC)(0x15D9-0x0832)"},
 {0x1A03, 0x2000, 0x15D9, 0x086B, "X10DRS (AST2400 BMC)(0x15D9-0x086B)"},
+{0x1A03, 0x2000, 0x15D9, 0x086D, "X10SDV (AST2400 BMC)(0x15D9-0x086D)"},
 {0x1A03, 0x2000, 0x15D9, 0x1B95, "H12SSL-i (AST2500 BMC)(0x15D9-0x1B95)"},
 {0x1A03, 0x2000, 0x15D9, 0x1D50, "X14DBG-AP (AST2600 BMC)(0x15D9-0x1D50)"},
 {0x1A03, 0x2000, 0x1849, 0x2000, "Onboard Graphics(0x1849-0x2000)"},
@@ -32021,6 +32043,7 @@ static pci_id_t const pci_vid_1CC1[] = {
 {0x1CC1, 0x33F3, 0xFFFF, 0xFFFF, "IM2P33F3 NVMe SSD (DRAM-less)(0x33F3)"},
 {0x1CC1, 0x33F4, 0xFFFF, 0xFFFF, "IM2P33F4 NVMe SSD (DRAM-less)(0x33F4)"},
 {0x1CC1, 0x33F8, 0xFFFF, 0xFFFF, "IM2P33F8 series NVMe SSD (DRAM-less)(0x33F8)"},
+{0x1CC1, 0x413D, 0xFFFF, 0xFFFF, "SM2P41D3Q NVMe SSD (DRAM-less)(0x413D)"},
 {0x1CC1, 0x41C3, 0xFFFF, 0xFFFF, "SM2P41C3 NVMe SSD (DRAM-less)(0x41C3)"},
 {0x1CC1, 0x41C8, 0xFFFF, 0xFFFF, "SM2P41C8 NVMe SSD (DRAM-less)(0x41C8)"},
 {0x1CC1, 0x41D3, 0xFFFF, 0xFFFF, "SM2P41D3 NVMe SSD (DRAM-less)(0x41D3)"},
@@ -34095,7 +34118,7 @@ static pci_id_t const pci_vid_1E95[] = {
 {0x1E95, 0x1003, 0xFFFF, 0xFFFF, "CLR-8W512 NVMe SSD M.2 (DRAM-less)(0x1003)"},
 {0x1E95, 0x1005, 0xFFFF, 0xFFFF, "PLEXTOR M10P(GN) NVMe SSD M.2(0x1005)"},
 {0x1E95, 0x1006, 0xFFFF, 0xFFFF, "CA8 Series NVMe SSD M.2(0x1006)"},
-{0x1E95, 0x1007, 0xFFFF, 0xFFFF, "CL4-8D512 NVMe SSD M.2 (DRAM-less)(0x1007)"},
+{0x1E95, 0x1007, 0xFFFF, 0xFFFF, "CL4 Series NVMe SSD M.2 (DRAM-less)(0x1007)"},
 {0x1E95, 0x1008, 0xFFFF, 0xFFFF, "CL5-8D512 NVMe SSD M.2 (DRAM-less)(0x1008)"},
 {0x1E95, 0x100B, 0xFFFF, 0xFFFF, "XB2-311024 NVMe SSD M.2 (DRAM-less)(0x100B)"},
 {0x1E95, 0x100C, 0xFFFF, 0xFFFF, "CL6 Series NVMe SSD M.2 (DRAM-less)(0x100C)"},
@@ -34794,6 +34817,11 @@ static pci_id_t const pci_vid_1F31[] = {
 {0x1F31, 0x451B, 0xFFFF, 0xFFFF, "NN4LE NVMe SSD (DRAM-less)(0x451B)"},
 {0x1F31, 0x4622, 0xFFFF, 0xFFFF, "NEM-PAC NVMe SSD (DRAM-less)(0x4622)"},
 }; /* pci_vid_1F31[] */
+
+static pci_id_t const pci_vid_1F32[] = {
+{0x1F32, 0xFFFF, 0xFFFF, 0xFFFF, "Wuhan YuXin Semiconductor Co., Ltd.(0x1F32)"},
+{0x1F32, 0xED55, 0xFFFF, 0xFFFF, "U800G NVMe SSD(0xED55)"},
+}; /* pci_vid_1F32[] */
 
 static pci_id_t const pci_vid_1F3F[] = {
 {0x1F3F, 0xFFFF, 0xFFFF, 0xFFFF, "3SNIC Ltd(0x1F3F)"},
@@ -35752,11 +35780,19 @@ static pci_id_t const pci_vid_20F9[] = {
 {0x20F9, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen Silicon Dynamic Networks Co., Ltd.(0x20F9)"},
 }; /* pci_vid_20F9[] */
 
+static pci_id_t const pci_vid_2105[] = {
+{0x2105, 0xFFFF, 0xFFFF, 0xFFFF, "Shanghai Timar Integrated Circuit Co., LTD(0x2105)"},
+}; /* pci_vid_2105[] */
+
 static pci_id_t const pci_vid_2106[] = {
 {0x2106, 0xFFFF, 0xFFFF, 0xFFFF, "ZCHL Technology Co., Ltd(0x2106)"},
 {0x2106, 0x0001, 0xFFFF, 0xFFFF, "HL100 Accelerator Controller(0x0001)"},
 {0x2106, 0x0001, 0x2106, 0x0001, "HLC100 Accelerator Card(0x2106-0x0001)"},
 }; /* pci_vid_2106[] */
+
+static pci_id_t const pci_vid_2108[] = {
+{0x2108, 0xFFFF, 0xFFFF, 0xFFFF, "HuiLink Technologies (Xiamen) Co., Ltd.(0x2108)"},
+}; /* pci_vid_2108[] */
 
 static pci_id_t const pci_vid_2116[] = {
 {0x2116, 0xFFFF, 0xFFFF, 0xFFFF, "ZyDAS Technology Corp.(0x2116)"},
@@ -46461,6 +46497,15 @@ static pci_id_t const pci_vid_8086[] = {
 {0x8086, 0xD743, 0xFFFF, 0xFFFF, "NVL-HX(0xD743)"},
 {0x8086, 0xD744, 0xFFFF, 0xFFFF, "NVL-UL(0xD744)"},
 {0x8086, 0xD745, 0xFFFF, 0xFFFF, "NVL-HX(0xD745)"},
+{0x8086, 0xD750, 0xFFFF, 0xFFFF, "NVL-P(0xD750)"},
+{0x8086, 0xD751, 0xFFFF, 0xFFFF, "NVL-P(0xD751)"},
+{0x8086, 0xD752, 0xFFFF, 0xFFFF, "NVL-P(0xD752)"},
+{0x8086, 0xD753, 0xFFFF, 0xFFFF, "NVL-P(0xD753)"},
+{0x8086, 0xD754, 0xFFFF, 0xFFFF, "NVL-P(0xD754)"},
+{0x8086, 0xD755, 0xFFFF, 0xFFFF, "NVL-P(0xD755)"},
+{0x8086, 0xD756, 0xFFFF, 0xFFFF, "NVL-P(0xD756)"},
+{0x8086, 0xD757, 0xFFFF, 0xFFFF, "NVL-P(0xD757)"},
+{0x8086, 0xD75F, 0xFFFF, 0xFFFF, "NVL-P(0xD75F)"},
 {0x8086, 0xE202, 0xFFFF, 0xFFFF, "Battlemage G21 [Intel Graphics](0xE202)"},
 {0x8086, 0xE20B, 0xFFFF, 0xFFFF, "Battlemage G21 [Arc B580](0xE20B)"},
 {0x8086, 0xE20C, 0xFFFF, 0xFFFF, "Battlemage G21 [Arc B570](0xE20C)"},
@@ -48200,6 +48245,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x0CCD, 7, pci_vid_0CCD },
 {0x0E11, 70, pci_vid_0E11 },
 {0x0E55, 1, pci_vid_0E55 },
+{0x0E8D, 2, pci_vid_0E8D },
 {0x0EAC, 2, pci_vid_0EAC },
 {0x0F62, 1, pci_vid_0F62 },
 {0x1000, 840, pci_vid_1000 },
@@ -48316,7 +48362,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1074, 2, pci_vid_1074 },
 {0x1075, 1, pci_vid_1075 },
 {0x1076, 1, pci_vid_1076 },
-{0x1077, 267, pci_vid_1077 },
+{0x1077, 268, pci_vid_1077 },
 {0x1078, 13, pci_vid_1078 },
 {0x1079, 1, pci_vid_1079 },
 {0x107A, 1, pci_vid_107A },
@@ -49014,7 +49060,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1341, 1, pci_vid_1341 },
 {0x1342, 1, pci_vid_1342 },
 {0x1343, 1, pci_vid_1343 },
-{0x1344, 217, pci_vid_1344 },
+{0x1344, 230, pci_vid_1344 },
 {0x1345, 1, pci_vid_1345 },
 {0x1347, 1, pci_vid_1347 },
 {0x1349, 1, pci_vid_1349 },
@@ -49385,7 +49431,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x14C0, 2, pci_vid_14C0 },
 {0x14C1, 7, pci_vid_14C1 },
 {0x14C2, 1, pci_vid_14C2 },
-{0x14C3, 26, pci_vid_14C3 },
+{0x14C3, 27, pci_vid_14C3 },
 {0x14C4, 1, pci_vid_14C4 },
 {0x14C5, 1, pci_vid_14C5 },
 {0x14C6, 1, pci_vid_14C6 },
@@ -49417,7 +49463,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x14E1, 1, pci_vid_14E1 },
 {0x14E2, 1, pci_vid_14E2 },
 {0x14E3, 1, pci_vid_14E3 },
-{0x14E4, 891, pci_vid_14E4 },
+{0x14E4, 892, pci_vid_14E4 },
 {0x14E5, 1, pci_vid_14E5 },
 {0x14E6, 1, pci_vid_14E6 },
 {0x14E7, 1, pci_vid_14E7 },
@@ -49951,7 +49997,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x19F1, 1, pci_vid_19F1 },
 {0x19FE, 2, pci_vid_19FE },
 {0x19FF, 1, pci_vid_19FF },
-{0x1A03, 12, pci_vid_1A03 },
+{0x1A03, 13, pci_vid_1A03 },
 {0x1A05, 1, pci_vid_1A05 },
 {0x1A07, 5, pci_vid_1A07 },
 {0x1A08, 2, pci_vid_1A08 },
@@ -50090,7 +50136,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1CB1, 1, pci_vid_1CB1 },
 {0x1CB5, 2, pci_vid_1CB5 },
 {0x1CB8, 1, pci_vid_1CB8 },
-{0x1CC1, 40, pci_vid_1CC1 },
+{0x1CC1, 41, pci_vid_1CC1 },
 {0x1CC4, 109, pci_vid_1CC4 },
 {0x1CC5, 3, pci_vid_1CC5 },
 {0x1CC7, 3, pci_vid_1CC7 },
@@ -50263,6 +50309,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1F2E, 4, pci_vid_1F2E },
 {0x1F2F, 7, pci_vid_1F2F },
 {0x1F31, 4, pci_vid_1F31 },
+{0x1F32, 2, pci_vid_1F32 },
 {0x1F3F, 38, pci_vid_1F3F },
 {0x1F40, 9, pci_vid_1F40 },
 {0x1F44, 1, pci_vid_1F44 },
@@ -50352,7 +50399,9 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x20F4, 1, pci_vid_20F4 },
 {0x20F6, 2, pci_vid_20F6 },
 {0x20F9, 1, pci_vid_20F9 },
+{0x2105, 1, pci_vid_2105 },
 {0x2106, 3, pci_vid_2106 },
+{0x2108, 1, pci_vid_2108 },
 {0x2116, 1, pci_vid_2116 },
 {0x21B4, 1, pci_vid_21B4 },
 {0x21C3, 1, pci_vid_21C3 },
@@ -50498,7 +50547,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x8008, 4, pci_vid_8008 },
 {0x807D, 1, pci_vid_807D },
 {0x8080, 2, pci_vid_8080 },
-{0x8086, 9523, pci_vid_8086 },
+{0x8086, 9532, pci_vid_8086 },
 {0x8088, 90, pci_vid_8088 },
 {0x80EE, 3, pci_vid_80EE },
 {0x8164, 2, pci_vid_8164 },
@@ -50641,7 +50690,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2492 VIDs */
+}; /* We have 2496 VIDs */
 
 static int vid_search(const void *key, const void *tbl_entry)
 {

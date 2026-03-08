@@ -1603,6 +1603,9 @@ BACnetVendorIdentifiers[] = {
     { 1592, "Andivi" },
     { 1593, "Chyi Lee Industry Co., Ltd." },
     { 1594, "Allbee B.V." },
+    { 1598, "Databridge Dynamic Pvt Ltd" },
+    { 1599, "Evolo Technologies AS" },
+    { 1600, "EnergyPlus Teknoloji Imalat Ithalat ve Ihracat Sanayi AS" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
