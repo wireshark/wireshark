@@ -1,0 +1,15 @@
+{
+  "version": 4,
+  "configurePresets": [
+    {
+      "name": "ninja_ccache",
+      "displayName": "Ninja + ccache",
+      "description": "Build with Ninja and ccache",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "ENABLE_CCACHE": "ON"
+      }
+    }
+  ]
+}
