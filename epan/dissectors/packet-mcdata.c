@@ -248,7 +248,7 @@ static unsigned dissect_payload(unsigned offset, tvbuff_t *tvb, packet_info *pin
     return len + 2;
 }
 
-static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, unsigned decoded_len ) {
+static void dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, unsigned decoded_len ) {
     unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_mcdata_message_auth, tvb,  offset, 1, ENC_BIG_ENDIAN);
@@ -326,7 +326,6 @@ static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  pack
                     proto_tree_add_item_ret_uint16 (tree, hf_mcdata_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len) ;
                     if (tvb_reported_length_remaining(tvb, offset + 2) < (unsigned) len) {
                         expert_add_info(pinfo, tree, &ei_malformed_length);
-                        return len;
                     }
                     proto_tree_add_item(tree, hf_mcdata_user_ID,  tvb, offset + 2, len , ENC_UTF_8);
                     offset += len + 2;
@@ -336,7 +335,6 @@ static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  pack
                     proto_tree_add_item_ret_uint16 (tree, hf_mcdata_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
                     if (tvb_reported_length_remaining(tvb, offset + 2) < (unsigned) len) {
                         expert_add_info(pinfo, tree, &ei_malformed_length);
-                        return len;
                     }
                     proto_tree_add_item(tree, hf_mcdata_deffered_fd_sig_payload,  tvb, offset + 2, len , ENC_NA);
                     offset += len + 2;
@@ -346,7 +344,6 @@ static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  pack
                     proto_tree_add_item_ret_uint16 (tree, hf_mcdata_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
                     if (tvb_reported_length_remaining(tvb, offset + 2) < (unsigned) len) {
                         expert_add_info(pinfo, tree, &ei_malformed_length);
-                        return len;
                     }
                     proto_tree_add_item(tree, hf_mcdata_app_metadata_container,  tvb, offset + 2, len , ENC_UTF_8);
                     offset += len + 2;
@@ -360,7 +357,6 @@ static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  pack
                     proto_tree_add_item_ret_uint16 (tree, hf_mcdata_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
                     if (tvb_reported_length_remaining(tvb, offset + 2) < (unsigned) len) {
                         expert_add_info(pinfo, tree, &ei_malformed_length);
-                        return len;
                     }
                     proto_tree_add_item(tree, hf_mcdata_metadata,  tvb, offset + 2, len , ENC_UTF_8);
                     offset += len + 2;
@@ -370,7 +366,6 @@ static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  pack
                     proto_tree_add_item_ret_uint16 (tree, hf_mcdata_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
                     if (tvb_reported_length_remaining(tvb, offset + 2) < (unsigned) len) {
                         expert_add_info(pinfo, tree, &ei_malformed_length);
-                        return len;
                     }
                     proto_tree_add_item(tree, hf_mcdata_group_id,  tvb, offset + 2, len , ENC_NA);
                     offset += len + 2;
@@ -380,7 +375,6 @@ static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  pack
                     proto_tree_add_item_ret_uint16 (tree, hf_mcdata_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
                     if (tvb_reported_length_remaining(tvb, offset + 2) < (unsigned) len) {
                         expert_add_info(pinfo, tree, &ei_malformed_length);
-                        return len;
                     }
                     proto_tree_add_item(tree, hf_mcdata_user_ID,  tvb, offset + 2, len , ENC_UTF_8);
                     offset += len + 2;
@@ -390,7 +384,6 @@ static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  pack
                     proto_tree_add_item_ret_uint16 (tree, hf_mcdata_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
                     if (tvb_reported_length_remaining(tvb, offset + 3) < (unsigned) len) {
                         expert_add_info(pinfo, tree, &ei_malformed_length);
-                        return len;
                     }
                     proto_tree_add_item(tree, hf_mcdata_ext_app_id_cont_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tree, hf_mcdata_ext_app_id_data, tvb, offset + 3, len - 1, ENC_UTF_8);
@@ -401,7 +394,6 @@ static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  pack
                     proto_tree_add_item_ret_uint16 (tree, hf_mcdata_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
                     if (tvb_reported_length_remaining(tvb, offset + 2) < (unsigned) len) {
                         expert_add_info(pinfo, tree, &ei_malformed_length);
-                        return len;
                     }
                     // Todo: The User location information element contains the LocationInfo structure defined in clause 7.4 of 3GPP TS 29.199-09
                     proto_tree_add_item(tree, hf_mcdata_user_location, tvb, offset + 2, len , ENC_NA);
@@ -412,7 +404,6 @@ static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  pack
                     proto_tree_add_item_ret_uint16 (tree, hf_mcdata_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
                     if (tvb_reported_length_remaining(tvb, offset + 2) < (unsigned) len) {
                         expert_add_info(pinfo, tree, &ei_malformed_length);
-                        return len;
                     }
                     proto_tree_add_item(tree, hf_mcdata_org_name,  tvb, offset + 2, len , ENC_UTF_8);
                     offset += len + 2;
@@ -423,7 +414,6 @@ static int dissect_signalling_payload(uint8_t message_type, tvbuff_t *tvb,  pack
 
     }
 
-    return offset;
 }
 
 /* Dissector Implementation */
@@ -439,11 +429,11 @@ static int dissect_mcdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     switch (message_type) {
         case 1: // SDS SIGNALLING PAYLOAD
             col_append_str(pinfo->cinfo, COL_INFO, "| SDS Signalling Payload");
-            offset += dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
+            dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
             break;
         case 2: // FD SIGNALLING PAYLOAD
             col_append_str(pinfo->cinfo, COL_INFO, "| FD Signalling Payload");
-            offset += dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
+            dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
             break;
         case 3: // DATA PAYLOAD
             col_append_str(pinfo->cinfo, COL_INFO, "| Data Payload");
@@ -462,11 +452,11 @@ static int dissect_mcdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             break;
         case 5: // SDS NOTIFICATION
             col_append_str(pinfo->cinfo, COL_INFO, "| SDS Notification");
-            offset += dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
+            dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
             break;
         case 6: // FD NOTIFICATION
             col_append_str(pinfo->cinfo, COL_INFO, "| FD Notification");
-            offset += dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
+            dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
             break;
         case 7: // SDS OFF-NETWORK MESSAGE
             col_append_str(pinfo->cinfo, COL_INFO, "| SDS Off-Network Message");
@@ -476,7 +466,7 @@ static int dissect_mcdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             break;
         case 9: // FD NETWORK NOTIFICATION
             col_append_str(pinfo->cinfo, COL_INFO, "| FD Network Notification");
-            offset += dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
+            dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
             break;
         case 10: // COMMUNICATION RELEASE
             col_append_str(pinfo->cinfo, COL_INFO, "| Communication Release");
@@ -489,7 +479,7 @@ static int dissect_mcdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             break;
         case 13: // FD HTTP TERMINATION
             col_append_str(pinfo->cinfo, COL_INFO, "| FD HTTP termination");
-            offset += dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
+            dissect_signalling_payload(message_type, tvb, pinfo, mcdata_tree, decoded_len);
             break;
         case 17: // GROUP EMERGENCY ALERT
             col_append_str(pinfo->cinfo, COL_INFO, "| Group emergency alert");
