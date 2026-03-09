@@ -69,17 +69,16 @@ def retrieve_vendors():
 
     vendors = ["static const value_string\n", "BACnetVendorIdentifiers[] = {\n"]
 
-    for tr in rows:
+    for row,tr in enumerate(rows):
         cols = tr.find_all('td')
-        entry = ""
-        for index,td in enumerate(cols[0:2]):
-            text = ''.join(td.find(string=True))
-            if index == 0:
-                entry = "    { %4s" % text
-            else:
-                entry += ", \"%s\" },\n" % text.rstrip()
-        if entry.endswith(" },\n"):
+        try:
+            vendor_id = int(''.join(cols[0].find(string=True)))
+            organization = ''.join(cols[1].find(string=True)).replace('"', '').strip()
+            entry = f'    {{ {vendor_id:>4}, "{organization}" }},\n'
             vendors.append(entry)
+        except IndexError:
+            print(f'Row {row} has {len(cols)} column{"" if len(cols) == 1 else "s"}. Skipping')
+            continue
 
     vendors.append("    { 0, NULL }\n")
     vendors.append("};\n")
