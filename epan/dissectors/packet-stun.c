@@ -1174,6 +1174,20 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
         stun_trans->req_time=pinfo->abs_ts;
     }
 
+    /*
+     * MS-TURN uses a type value 0x0115 for DATA-INDICATION, which does not fit
+     * the RFC5389 bit layout and would otherwise look like an "Unknown Error Response".
+     * If it looks like MS-TURN based on the first attribute being MS MAGIC-COOKIE,
+     * remap 0x0115 to Data Indication with class INDICATION.
+     */
+    unsigned int first_attr_off = tcp_framing_offset + STUN_HDR_LEN;
+    if (reported_length >= (first_attr_off + 2)) {
+        uint16_t first_attr = tvb_get_ntohs(tvb, first_attr_off);
+        if ((first_attr == MAGIC_COOKIE) && (msg_type == 0x0115)) {
+            msg_type_class = INDICATION;
+            msg_type_method = DATA_IND;
+        }
+    }
 
     msg_class_str  = val_to_str_const(msg_type_class, classes, "Unknown");
     msg_method_str = val_to_str_const(msg_type_method, methods, "Unknown");
