@@ -21,9 +21,9 @@ FrequencyInfo/modeSpecificInfo  modeSpecificFrequencyInfo
 FrequencyInfo/modeSpecificInfo/fdd  fdd_fr
 FrequencyInfo/modeSpecificInfo/tdd  tdd_fr
 SETId/min  minsi
-LocationDataLCI/latitude LocationDataLCI_latitude
-LocationDataLCI/longitude LocationDataLCI_longitude
-LocationDataLCI/altitude LocationDataLCI_altitude
+LocationDataLCI/latitude locationDataLCI_latitude
+LocationDataLCI/longitude locationDataLCI_longitude
+LocationDataLCI/altitude locationDataLCI_altitude
 CellGlobalIdEUTRA/cellIdentity eutra_cellIdentity
 
 #.FIELD_ATTR
