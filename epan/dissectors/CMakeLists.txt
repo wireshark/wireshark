@@ -1322,6 +1322,12 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-netfilter.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-net_dm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-mac80211-hwsim.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-ovs_ct_limit.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-ovs_datapath.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-ovs_flow.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-ovs_meter.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-ovs_packet.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-ovs_vport.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-psample.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-route.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-sock_diag.c
