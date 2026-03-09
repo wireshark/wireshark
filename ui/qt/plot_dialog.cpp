@@ -171,6 +171,10 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf) :
     ctx_menu_.addAction(ui->actionMoveLeft1);
     ctx_menu_.addAction(ui->actionMoveUp1);
     ctx_menu_.addAction(ui->actionMoveDown1);
+    ctx_menu_.addAction(ui->actionMoveRight100);
+    ctx_menu_.addAction(ui->actionMoveLeft100);
+    ctx_menu_.addAction(ui->actionMoveUp100);
+    ctx_menu_.addAction(ui->actionMoveDown100);
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionGoToPacket);
     ctx_menu_.addSeparator();
@@ -1495,7 +1499,8 @@ void PlotDialog::setTracerColor()
 
 void PlotDialog::keyPressEvent(QKeyEvent* event)
 {
-    bool shift_pressed = event->modifiers() & Qt::ShiftModifier;
+    Qt::KeyboardModifiers modifiers = event->modifiers();
+    int pan_pixels = (modifiers & Qt::ShiftModifier) ? 1 : (modifiers & Qt::AltModifier) ? 100 : 10;
 
     switch (event->key()) {
     case Qt::Key_Minus:
@@ -1510,7 +1515,7 @@ void PlotDialog::keyPressEvent(QKeyEvent* event)
         zoomAxes(true);
         break;
     case Qt::Key_X:             // Zoom X axis only
-        if (event->modifiers() & Qt::ShiftModifier) {
+        if (modifiers & Qt::ShiftModifier) {
             zoomXAxis(false);   // upper case X -> Zoom out
         }
         else {
@@ -1518,7 +1523,7 @@ void PlotDialog::keyPressEvent(QKeyEvent* event)
         }
         break;
     case Qt::Key_Y:             // Zoom Y axis only
-        if (event->modifiers() & Qt::ShiftModifier) {
+        if (modifiers & Qt::ShiftModifier) {
             zoomYAxis(false);   // upper case Y -> Zoom out
         }
         else {
@@ -1527,19 +1532,19 @@ void PlotDialog::keyPressEvent(QKeyEvent* event)
         break;
     case Qt::Key_Right:
     case Qt::Key_L:
-        panAxes(shift_pressed ? 1 : 10, 0);
+        panAxes(pan_pixels, 0);
         break;
     case Qt::Key_Left:
     case Qt::Key_H:
-        panAxes(shift_pressed ? -1 : -10, 0);
+        panAxes(-pan_pixels, 0);
         break;
     case Qt::Key_Up:
     case Qt::Key_K:
-        panAxes(0, shift_pressed ? 1 : 10);
+        panAxes(0, pan_pixels);
         break;
     case Qt::Key_Down:
     case Qt::Key_J:
-        panAxes(0, shift_pressed ? -1 : -10);
+        panAxes(0, -pan_pixels);
         break;
     case Qt::Key_Space:
         ui->actionCrosshairs->trigger();

@@ -225,6 +225,10 @@ private slots:
     void on_actionMoveLeft1_triggered() { panAxes(-1, 0); }
     void on_actionMoveRight1_triggered() { panAxes(1, 0); }
     void on_actionMoveDown1_triggered() { panAxes(0, -1); }
+    void on_actionMoveUp100_triggered() { panAxes(0, 100); }
+    void on_actionMoveLeft100_triggered() { panAxes(-100, 0); }
+    void on_actionMoveRight100_triggered() { panAxes(100, 0); }
+    void on_actionMoveDown100_triggered() { panAxes(0, -100); }
     void on_actionToggleTimeOrigin_triggered();
     void on_rightButtonBox_accepted();
     void on_actionAutoScroll_triggered(bool checked);
