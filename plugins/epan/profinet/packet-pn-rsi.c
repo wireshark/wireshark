@@ -352,7 +352,7 @@ dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, unsigned offset, packet_
     }
 
     /* multiple segments */
-    if (!pinfo->fd->visited && conv != NULL) {
+    if (!pinfo->fd->visited) {
         /* we haven't seen it before, add to list of segments */
         fragment_add_seq_next(&pn_rsi_reassembly_table, tvb, offset, pinfo, conv->conv_index,
             NULL /*Data comes from tvb as in packet-icmp-template.c */,
