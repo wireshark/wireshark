@@ -538,10 +538,8 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *ti;
   proto_tree *sub_tree;
   bool        tohex;
-  const char *val;
+  const char *val = "";
   unsigned    orig_offset = offset;
-
-  val = NULL;
 
   ti       = proto_tree_add_item(tree, hf_bencoded_dict_entry, tvb, offset, 0, ENC_NA);
   sub_tree = proto_item_add_subtree(ti, ett_bencoded_dict_entry);
@@ -662,7 +660,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   const char * printable_key = *key;
   if (strlen(*key) == 1)
     printable_key = val_to_str_const((*key)[0], short_key_name_value_string, *key);
-  if (val && strlen(val) == 1)
+  if (strlen(val) == 1)
     val = val_to_str_const(val[0], short_val_name_value_string, val);
 
   proto_item_set_text(ti, "%s: %s", printable_key, val);
