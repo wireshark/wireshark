@@ -3051,6 +3051,8 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree_add_uint(frag_tree, hf_6lowpan_frag_dgram_tag, tvb, offset, 2, dgram_tag);
     offset += 2;
 
+    col_add_fstr(pinfo->cinfo, COL_INFO, "6LoWPAN fragment (off=0 tag=0x%04x)", dgram_tag);
+
     /* Adjust the fragmentation header length. */
     proto_item_set_end(ti, tvb, offset);
 
@@ -3141,6 +3143,9 @@ dissect_6lowpan_frag_middle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dgram_offset = tvb_get_uint8(tvb, offset) * 8;
     proto_tree_add_uint(frag_tree, hf_6lowpan_frag_dgram_offset, tvb, offset, 1, dgram_offset);
     offset += 1;
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "6LoWPAN fragment (off=%u tag=0x%04x)",
+                 dgram_offset, dgram_tag);
 
     /* Adjust the fragmentation header length. */
     frag_size = tvb_reported_length_remaining(tvb, offset);

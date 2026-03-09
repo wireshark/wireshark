@@ -883,9 +883,11 @@ dissect_wisun_eaie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
 static int
 dissect_wisun_luttie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
+    const char *str = col_get_text(pinfo->cinfo, COL_INFO);
     uint8_t frame_type = tvb_get_uint8(tvb, offset);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wi-SUN");
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(frame_type, wisun_frame_type_vals, "Unknown LFN Wi-SUN Frame"));
+    if (str && strncmp(str, "EDFE", 4))
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(frame_type, wisun_frame_type_vals, "Unknown LFN Wi-SUN Frame"));
     proto_tree_add_item(tree, hf_wisun_uttie_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_luttie_usn, tvb, offset+1, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_luttie_uio, tvb, offset+3, 3, ENC_LITTLE_ENDIAN);
