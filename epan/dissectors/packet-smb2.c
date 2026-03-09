@@ -3403,7 +3403,11 @@ dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 			break;
 		}
 
-		offset = start_offset+next_offset;
+		if (ckd_add(&offset, start_offset, next_offset)) {
+			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+				    "Invalid offset/length. Malformed packet");
+			break;
+		}
 	}
 
 	return offset;
@@ -4803,7 +4807,11 @@ dissect_smb2_notify_data_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			break;
 		}
 
-		offset = start_offset+next_offset;
+		if (ckd_add(&offset, start_offset, next_offset)) {
+			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+				    "Invalid offset/length. Malformed packet");
+			break;
+		}
 	}
 }
 
