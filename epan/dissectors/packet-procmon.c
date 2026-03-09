@@ -764,21 +764,22 @@ static int procmon_read_registry_data(proto_tree* tree, packet_info* pinfo, tvbu
         break;
     case PROCMON_REGISTRY_VALUE_REG_TYPE_MULTI_SZ:
     {
-        unsigned str_length;
+        unsigned str_length, total_length = 0;
         int start_offset = offset;
         const char* substring;
         wmem_strbuf_t* full_string = wmem_strbuf_new(pinfo->pool, "");
 
-        while (((substring = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &str_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN)) != NULL) && (strlen(substring) > 0))
+        while ((total_length < length) && ((substring = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &str_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN)) != NULL))
         {
-            wmem_strbuf_append_printf(full_string, " %s", substring);
             offset += str_length;
+            total_length += str_length;
+            if (strlen(substring) > 0)
+                wmem_strbuf_append_printf(full_string, " %s", substring);
+            else
+                break;
         }
-        //Include the NULL string at the end of the list
-        offset += 2;
 
         proto_tree_add_string(tree, hf_procmon_registry_value_multi_sz, tvb, start_offset, offset - start_offset, wmem_strbuf_get_str(full_string));
-        offset += length;
         break;
     }
     }
@@ -1069,8 +1070,8 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
                 hf_procmon_registry_new_key_size, hf_procmon_registry_new_key_is_ascii, hf_procmon_registry_new_key_char_count, ett_procmon_registry_new_key,
                 &is_new_value_ascii, &new_value_char_count);
             offset += 2;
-            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
-            extra_offset += dissect_procmon_detail_string(extra_details_tvb, registry_tree, extra_offset, is_new_value_ascii, new_value_char_count, hf_procmon_registry_new_key);
+            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
+            /* offset += */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_new_value_ascii, new_value_char_count, hf_procmon_registry_new_key);
             break;
 
         case PROCMON_REGISTRY_OPERATION_QUERY_MULTIPLE_VALUE:
@@ -2190,6 +2191,12 @@ static bool dissect_procmon_filesystem_event(tvbuff_t* tvb, packet_info* pinfo, 
                                 proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_name, extra_details_tvb, extra_offset, name_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
                                 extra_offset += name_length;
                                 proto_item_set_len(information_item, extra_offset-start_extra_offset);
+                                if ((int)next_entry_offset > extra_offset - start_extra_offset)
+                                {
+                                    uint32_t next_extry_padding_length = next_entry_offset - (extra_offset - start_extra_offset);
+                                    proto_tree_add_item(filesystem_tree, hf_procmon_filesystem_padding, extra_details_tvb, extra_offset, next_extry_padding_length, ENC_NA);
+                                    extra_offset += next_extry_padding_length;
+                                }
                                 continue;
                             }
 
@@ -2218,6 +2225,12 @@ static bool dissect_procmon_filesystem_event(tvbuff_t* tvb, packet_info* pinfo, 
                                 proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_name, extra_details_tvb, extra_offset, name_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
                                 extra_offset += name_length;
                                 proto_item_set_len(information_item, extra_offset - start_extra_offset);
+                                if ((int)next_entry_offset > extra_offset - start_extra_offset)
+                                {
+                                    uint32_t next_extry_padding_length = next_entry_offset - (extra_offset - start_extra_offset);
+                                    proto_tree_add_item(filesystem_tree, hf_procmon_filesystem_padding, extra_details_tvb, extra_offset, next_extry_padding_length, ENC_NA);
+                                    extra_offset += next_extry_padding_length;
+                                }
                                 continue;
                             }
                             proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_file_ea_size, extra_details_tvb, extra_offset, 4, ENC_LITTLE_ENDIAN);
@@ -2227,6 +2240,12 @@ static bool dissect_procmon_filesystem_event(tvbuff_t* tvb, packet_info* pinfo, 
                                 proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_name, extra_details_tvb, extra_offset, name_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
                                 extra_offset += name_length;
                                 proto_item_set_len(information_item, extra_offset - start_extra_offset);
+                                if ((int)next_entry_offset > extra_offset - start_extra_offset)
+                                {
+                                    uint32_t next_extry_padding_length = next_entry_offset - (extra_offset - start_extra_offset);
+                                    proto_tree_add_item(filesystem_tree, hf_procmon_filesystem_padding, extra_details_tvb, extra_offset, next_extry_padding_length, ENC_NA);
+                                    extra_offset += next_extry_padding_length;
+                                }
                                 continue;
                             }
                             if (file_information_class == 38)
@@ -2236,6 +2255,12 @@ static bool dissect_procmon_filesystem_event(tvbuff_t* tvb, packet_info* pinfo, 
                                 proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_name, extra_details_tvb, extra_offset, name_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
                                 extra_offset += name_length;
                                 proto_item_set_len(information_item, extra_offset - start_extra_offset);
+                                if ((int)next_entry_offset > extra_offset - start_extra_offset)
+                                {
+                                    uint32_t next_extry_padding_length = next_entry_offset - (extra_offset - start_extra_offset);
+                                    proto_tree_add_item(filesystem_tree, hf_procmon_filesystem_padding, extra_details_tvb, extra_offset, next_extry_padding_length, ENC_NA);
+                                    extra_offset += next_extry_padding_length;
+                                }
                                 continue;
                             }
                             proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_short_name_length, extra_details_tvb, extra_offset, 1, ENC_LITTLE_ENDIAN);
@@ -2249,6 +2274,12 @@ static bool dissect_procmon_filesystem_event(tvbuff_t* tvb, packet_info* pinfo, 
                                 proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_name, extra_details_tvb, extra_offset, name_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
                                 extra_offset += name_length;
                                 proto_item_set_len(information_item, extra_offset - start_extra_offset);
+                                if ((int)next_entry_offset > extra_offset - start_extra_offset)
+                                {
+                                    uint32_t next_extry_padding_length = next_entry_offset - (extra_offset - start_extra_offset);
+                                    proto_tree_add_item(filesystem_tree, hf_procmon_filesystem_padding, extra_details_tvb, extra_offset, next_extry_padding_length, ENC_NA);
+                                    extra_offset += next_extry_padding_length;
+                                }
                                 continue;
                             }
                             proto_tree_add_item(information_tree, hf_procmon_filesystem_padding, extra_details_tvb, extra_offset, 2, ENC_NA);
@@ -2256,6 +2287,12 @@ static bool dissect_procmon_filesystem_event(tvbuff_t* tvb, packet_info* pinfo, 
                             proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_name, extra_details_tvb, extra_offset, name_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
                             extra_offset += name_length;
                             proto_item_set_len(information_item, extra_offset - start_extra_offset);
+                            if ((int)next_entry_offset > extra_offset - start_extra_offset)
+                            {
+                                uint32_t next_extry_padding_length = next_entry_offset - (extra_offset - start_extra_offset);
+                                proto_tree_add_item(filesystem_tree, hf_procmon_filesystem_padding, extra_details_tvb, extra_offset, next_extry_padding_length, ENC_NA);
+                                extra_offset += next_extry_padding_length;
+                            }
                         }
                         while ((tvb_reported_length_remaining(extra_details_tvb, extra_offset) > 0) && (next_entry_offset != 0));
                         break;
@@ -2368,13 +2405,30 @@ static bool dissect_procmon_filesystem_event(tvbuff_t* tvb, packet_info* pinfo, 
             break;
 
         case PROCMON_FILESYSTEM_OPERATION_DIRECTORY_CONTROL:
-            dissect_procmon_detail_string_info(tvb, filesystem_tree, offset,
-                hf_procmon_filesystem_directory_size, hf_procmon_filesystem_directory_is_ascii, hf_procmon_filesystem_directory_char_count, ett_procmon_filesystem_directory,
-                &is_path_ascii, &path_char_count);
-            offset += 2;
-            /* offset = */ dissect_procmon_detail_string(tvb, filesystem_tree, offset, is_path_ascii, path_char_count, hf_procmon_filesystem_directory);
-            break;
+        {
+            int control_offset = offset;
+            switch (sub_operation)
+            {
+            case PROCMON_FILESYSTEM_OPERATION_DIRECTORY_CONTROL_QUERY:
+            {
+                dissect_procmon_detail_string_info(tvb, filesystem_tree, control_offset,
+                    hf_procmon_filesystem_directory_size, hf_procmon_filesystem_directory_is_ascii, hf_procmon_filesystem_directory_char_count, ett_procmon_filesystem_directory,
+                    &is_path_ascii, &path_char_count);
+                control_offset += 2;
+                /* control_offset = */ dissect_procmon_detail_string(tvb, filesystem_tree, control_offset, is_path_ascii, path_char_count, hf_procmon_filesystem_directory);
+                break;
+            }
+            case PROCMON_FILESYSTEM_OPERATION_DIRECTORY_CONTROL_NOTIFY_CHANGE:
+            {
+                proto_tree_add_item(filesystem_tree, hf_procmon_filesystem_padding, tvb, control_offset, 2, ENC_NA);
+                /* control_offset += 2; */
+                break;
+            }
+            }
 
+
+            break;
+        }
         case PROCMON_FILESYSTEM_OPERATION_SET_INFORMATION_FILE:
             switch (sub_operation)
             {
@@ -3367,11 +3421,11 @@ event_register_procmon(void)
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_filesystem_directory_control_query_name_length,
-          { "Name Length", "procmon.filesystem.directory_control.query.name_length",
+          { "Query Name Length", "procmon.filesystem.directory_control.query.name_length",
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_filesystem_directory_control_query_name,
-          { "Name", "procmon.filesystem.directory_control.query.name",
+          { "Query Name", "procmon.filesystem.directory_control.query.name",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_filesystem_directory_control_query_creation_time,
@@ -3411,11 +3465,11 @@ event_register_procmon(void)
             FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_filesystem_directory_control_query_short_name_length,
-          { "Name Length", "procmon.filesystem.directory_control.query.short_name_length",
+          { "Short Name Length", "procmon.filesystem.directory_control.query.short_name_length",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_filesystem_directory_control_query_short_name,
-          { "Name", "procmon.filesystem.directory_control.short_name",
+          { "Short Name", "procmon.filesystem.directory_control.short_name",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_profiling_operation,
