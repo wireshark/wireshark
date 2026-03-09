@@ -46,6 +46,7 @@ GList * edited_profile_list(void) {
 
 static void load_profile_settings(profile_def *profile);
 static void save_profile_settings(profile_def *profile);
+static char* profile_name_is_valid(const char* name);
 
 static GList *
 add_profile_entry(GList *fl, const char *profilename, const char *reference, int status,
@@ -343,7 +344,7 @@ init_profile_list(void)
     GList         *local_profiles = NULL;
     GList         *global_profiles = NULL;
     GList         *iter, *item;
-    char          *profiles_dir, *filename;
+    char          *profiles_dir, *filename, *err_msg;
 
     empty_profile_list(true);
 
@@ -356,6 +357,13 @@ init_profile_list(void)
     if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
             name = ws_dir_get_name(file);
+            err_msg = profile_name_is_valid(name);
+            if (err_msg != NULL) {
+                /* Skip directories that are not valid profile names */
+                g_free(err_msg);
+                continue;
+            }
+
             filename = ws_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
 
             if (test_for_directory(filename) == EISDIR) {
@@ -380,6 +388,13 @@ init_profile_list(void)
     if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
             name = ws_dir_get_name(file);
+            err_msg = profile_name_is_valid(name);
+            if (err_msg != NULL) {
+                /* Skip directories that are not valid profile names */
+                g_free(err_msg);
+                continue;
+            }
+
             filename = ws_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
 
             if (test_for_directory(filename) == EISDIR) {
@@ -403,7 +418,12 @@ init_profile_list(void)
     copy_profile_list ();
 }
 
-char *
+/** Check the validity of a profile name.
+ *
+ * @param name Profile name
+ * @return NULL if the name is valid or an error message otherwise.
+ */
+static char *
 profile_name_is_valid(const char *name)
 {
     char *reason = NULL;

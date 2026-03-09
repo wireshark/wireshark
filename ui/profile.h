@@ -108,12 +108,6 @@ char *apply_profile_changes(void);
  */
 const char *get_profile_parent(const char *profilename);
 
-/** Check the validity of a profile name.
- *
- * @param name Profile name
- * @return NULL if the name is valid or an error message otherwise.
- */
-char *profile_name_is_valid(const char *name);
 
 /** Remove the current profile.
  *
