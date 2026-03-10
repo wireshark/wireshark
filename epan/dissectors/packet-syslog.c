@@ -214,8 +214,15 @@ static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinf
 
   /* Search the end */
   unsigned sd_end;
-  if (!tvb_find_uint16_remaining(tvb, *offset, SD_STOP, &sd_end))
-    return false;
+  if (!tvb_find_uint16_remaining(tvb, *offset, SD_STOP, &sd_end)) {
+    unsigned length = tvb_reported_length(tvb);
+    if (length > 0 && tvb_get_uint8(tvb, length - 1) == SD_END) {
+      sd_end = length;
+    }
+    else {
+      return false;
+    }
+  }
 
   ti = proto_tree_add_item(tree, hf_syslog_sd, tvb, *offset, sd_end - *offset + 1, ENC_NA);
   sd_tree = proto_item_add_subtree(ti, ett_syslog_sd);
@@ -296,8 +303,9 @@ static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinf
 
   proto_item_append_text(ti, " (%d element%s)", counter_elements, plurality(counter_elements, "", "s"));
 
-  /* Move offset by one byte because space char is expected */
-  *offset = *offset + 1;
+  if (tvb_reported_length(tvb) != sd_end)
+    /* Move offset by one byte because space char is expected */
+    *offset = *offset + 1;
   return true;
 
 }
