@@ -4952,7 +4952,7 @@ static bool blf_dump_interface_setup_by_blf_based_idb_desc(wtap_dumper *wdh, int
         }
 
         char *iface_descr = NULL;
-        iface_descr_found = wtap_block_get_string_option_value(idb, OPT_IDB_DESCRIPTION, &iface_descr);
+        iface_descr_found = wtap_block_get_string_option_value(idb, OPT_IDB_DESCRIPTION, &iface_descr) == WTAP_OPTTYPE_SUCCESS;
 
         if (!iface_descr_found) {
             /* This cannot be reached but it removes a warning. */
