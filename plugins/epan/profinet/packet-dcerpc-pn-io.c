@@ -498,8 +498,8 @@ static int hf_pn_io_own_port_id;
 static int hf_pn_io_peer_macadd;
 static int hf_pn_io_media_type;
 static int hf_pn_io_macadd;
-static int hf_pn_io_length_own_chassis_id;
-static int hf_pn_io_own_chassis_id;
+static int hf_pn_io_length_own_station_name;
+static int hf_pn_io_own_station_name;
 static int hf_pn_io_rtclass3_port_status;
 
 static int hf_pn_io_ethertype;
@@ -11536,7 +11536,7 @@ static int
 dissect_PDInterfaceDataReal_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint8_t *drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
-    uint8_t  u8LengthOwnChassisID;
+    uint8_t  u8LengthOwnStationName;
     uint8_t  mac[6];
     uint32_t ip;
 
@@ -11547,12 +11547,12 @@ dissect_PDInterfaceDataReal_block(tvbuff_t *tvb, int offset,
         return offset;
     }
 
-    /* LengthOwnChassisID */
+    /* LengthOwnStationName */
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_length_own_chassis_id, &u8LengthOwnChassisID);
-    /* OwnChassisID */
-    proto_tree_add_item (tree, hf_pn_io_own_chassis_id, tvb, offset, u8LengthOwnChassisID, ENC_ASCII);
-    offset += u8LengthOwnChassisID;
+                        hf_pn_io_length_own_station_name, &u8LengthOwnStationName);
+    /* OwnStationName */
+    proto_tree_add_item (tree, hf_pn_io_own_station_name, tvb, offset, u8LengthOwnStationName, ENC_ASCII);
+    offset += u8LengthOwnStationName;
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
@@ -20336,13 +20336,13 @@ proto_register_pn_io (void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_length_own_chassis_id,
-      { "LengthOwnChassisID", "pn_io.length_own_chassis_id",
+    { &hf_pn_io_length_own_station_name,
+      { "LengthOwnStationName", "pn_io.length_own_station_name",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_own_chassis_id,
-      { "OwnChassisID", "pn_io.own_chassis_id",
+    { &hf_pn_io_own_station_name,
+      { "OwnStationName", "pn_io.own_station_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
