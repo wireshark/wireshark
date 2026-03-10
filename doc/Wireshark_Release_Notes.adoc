@@ -52,7 +52,10 @@ The following bugs have been fixed:
 
 // == Known Bugs
 
-// === New and Updated Features
+=== New and Updated Features
+
+* The Windows installers now ship with Npcap 1.87.
+  They previously shipped with Npcap 1.86.
 
 // === Removed Features and Support
 
