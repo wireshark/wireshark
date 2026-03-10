@@ -144,6 +144,8 @@ static bool fc_reassemble = true;
 static uint32_t fc_max_frame_size = 1024;
 static reassembly_table fc_reassembly_table;
 
+REASSEMBLE_ITEMS_DEFINE(fc, "Fibre Channel");
+
 typedef struct _fcseq_conv_key {
     uint32_t conv_idx;
 } fcseq_conv_key_t;
@@ -1037,7 +1039,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
     if ((ftype != FC_FTYPE_LINKCTL) && (ftype != FC_FTYPE_BLS) &&
         (ftype != FC_FTYPE_OHMS) &&
         (!is_lastframe_inseq || !is_1frame_inseq) && fc_reassemble &&
-        tvb_bytes_exist(tvb, FC_HEADER_SIZE, frag_size) && tree) {
+        tvb_bytes_exist(tvb, FC_HEADER_SIZE, frag_size)) {
         /* Add this to the list of fragments */
 
         /* In certain cases such as FICON, the SEQ_CNT is streaming
@@ -1087,34 +1089,39 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
              col_append_str (pinfo->cinfo, COL_INFO, " (Bogus Fragment)");
         } else {
 
-             frag_id = ((fchdr->oxid << 16) ^ seq_id) | is_exchg_resp ;
+            frag_id = ((fchdr->oxid << 16) ^ seq_id) | is_exchg_resp ;
 
-             /* We assume that all frames are of the same max size */
-             fcfrag_head = fragment_add (&fc_reassembly_table,
-                                         tvb, FC_HEADER_SIZE,
-                                         pinfo, frag_id, NULL,
-                                         real_seqcnt * fc_max_frame_size,
-                                         frag_size,
-                                         !is_lastframe_inseq);
+            /* We assume that all frames are of the same max size */
+            fcfrag_head = fragment_add (&fc_reassembly_table,
+                                        tvb, FC_HEADER_SIZE,
+                                        pinfo, frag_id, NULL,
+                                        real_seqcnt * fc_max_frame_size,
+                                        frag_size,
+                                        !is_lastframe_inseq);
 
-             if (fcfrag_head) {
-                  next_tvb = tvb_new_chain(tvb, fcfrag_head->tvb_data);
+            if (fcfrag_head) {
+                next_tvb = process_reassembled_data(tvb, FC_HEADER_SIZE, pinfo,
+                                                      "Reasssembled FC", fcfrag_head,
+                                                      &fc_fragment_items, NULL, fc_tree);
 
-                  /* Add the defragmented data to the data source list. */
-                  add_new_data_source(pinfo, next_tvb, "Reassembled FC");
-
-                  hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
-                          tvb, offset+9, 1, 1);
-                  proto_item_set_hidden(hidden_item);
-             }
-             else {
-                 hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
-                         tvb, offset+9, 1, 0);
-                 proto_item_set_hidden(hidden_item);
-                 next_tvb = tvb_new_subset_remaining (tvb, next_offset);
-                 call_data_dissector(next_tvb, pinfo, tree);
-                 return;
-             }
+                hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
+                         tvb, offset+9, 1, 1);
+                proto_item_set_hidden(hidden_item);
+                if (!next_tvb) {
+                    col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]",
+                        fcfrag_head->reassembled_in);
+                    proto_tree_add_item(fc_tree, hf_fc_segment, tvb, FC_HEADER_SIZE, frag_size, ENC_NA);
+                    return;
+                }
+            }
+            else {
+                hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
+                        tvb, offset+9, 1, 0);
+                proto_item_set_hidden(hidden_item);
+                next_tvb = tvb_new_subset_remaining (tvb, next_offset);
+                call_data_dissector(next_tvb, pinfo, tree);
+                return;
+            }
         }
     } else {
         hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
@@ -1362,6 +1369,7 @@ proto_register_fc(void)
           {"Parameter", "fc.parameter", FT_UINT32, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},
 
+        REASSEMBLE_INIT_HF_ITEMS(fc, "Fibre Channel", "fc"),
         { &hf_fc_reassembled,
           {"Reassembled Frame", "fc.reassembled", FT_BOOLEAN, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
@@ -1479,7 +1487,8 @@ proto_register_fc(void)
         &ett_fc,
         &ett_fcbls,
         &ett_fc_vft,
-        &ett_fctl
+        &ett_fctl,
+        REASSEMBLE_INIT_ETT_ITEMS(fc),
     };
 
     static ei_register_info ei[] = {
