@@ -935,14 +935,15 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, unsigned offset,
         case(4):    /* ERR-RTA */
             col_append_str(pinfo->cinfo, COL_INFO, "ERR-RTA");
             offset = dissect_PNIO_status(tvb, offset, pinfo, rta_tree, drep);
-            if (tvb_captured_length_remaining(tvb, offset) > 0)
+            if (tvb_captured_length(tvb) - offset - u8LengthSecurityChecksum - 4 > 0 ||
+                tvb_get_int32(tvb, offset + u8LengthSecurityChecksum, ENC_NA) != 0)
             {
                 /* VendorDeviceErrorInfo */
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
                     hf_pn_rsi_vendor_id, &u16VendorId);
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
                     hf_pn_rsi_device_id, &u16DeviceId);
-                offset = dissect_pn_user_data(tvb, offset, pinfo, rta_tree, tvb_captured_length(tvb) - offset - 16, "Data");
+                offset = dissect_pn_user_data(tvb, offset, pinfo, rta_tree, tvb_captured_length(tvb) - offset - u8LengthSecurityChecksum, "Data");
             }
             break;
         case(5):    /* FREQ-RTA */
@@ -959,6 +960,11 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, unsigned offset,
         /* SecurityChecksum */
         proto_tree_add_item(rta_tree, hf_pn_rsi_security_checksum, tvb, offset, u8LengthSecurityChecksum, ENC_NA);
         offset += u8LengthSecurityChecksum;
+
+        if (tvb_captured_length_remaining(tvb, offset) > 0) {
+            dissect_pn_padding(tvb, offset, pinfo, rta_tree, 4);
+            offset += 4;
+        }
     }
 
     else if (u8ProtectionMode == 0x01) // Authenticated encryption
