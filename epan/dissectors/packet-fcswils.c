@@ -1229,8 +1229,11 @@ dissect_swils_zone_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zobj_tree,
     offset += 8 + ZONENAME_LEN(tvb, offset+4);
     for (i = 0; i < numrec; i++) {
         if (objtype == FC_SWILS_ZONEOBJ_ZONESET) {
-            // We recurse here, but we'll run out of packet before we run out of stack.
+            increment_dissection_depth(pinfo);
+            /* XXX - Is it legal to have more than one level of nesting here?
+             * get_zoneobj_len assumes one at most. Should there be a subtree? */
             dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
+            decrement_dissection_depth(pinfo);
             offset += get_zoneobj_len(tvb, offset);
         }
         else {
