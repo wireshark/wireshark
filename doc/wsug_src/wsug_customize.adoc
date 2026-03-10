@@ -1877,4 +1877,41 @@ For example:
 
 the `helloworld` is package name, `HelloRequest` is message type.
 
+[#ChCustWelcomeSlides]
+
+=== Welcome Page Banner Slides
+
+The welcome page displays a rotating banner carousel with slides for events,
+sponsorship information, and tips. These slides are loaded from JSON resource
+files embedded in the application at build time.
+
+==== Slide Types
+
+Each slide has a type that determines its color scheme and category:
+
+[cols="1,2"]
+|===
+|Type |Description
+
+|Events
+|Conference announcements, meetups, and other community events.
+
+|Sponsorship
+|Information about supporting the Wireshark project.
+
+|Tips
+|Usage tips and feature highlights.
+|===
+
+Slide visibility can be toggled per type in the welcome page sidebar
+preferences.
+
+==== Time-Limited Slides
+
+Slides can be configured with start and end dates. Event-specific slides (such
+as conference announcements) automatically appear and disappear based on these
+dates. Slides without date constraints are always visible.
+
+
+
 // End of WSUG Chapter Customizing

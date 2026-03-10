@@ -17,11 +17,10 @@
 #include <QWidget>
 #include <QElapsedTimer>
 
-void splash_update(register_action_e action, const char *message, void *dummy);
+class QGraphicsOpacityEffect;
+class QPropertyAnimation;
 
-namespace Ui {
-class SplashOverlay;
-}
+void splash_update(register_action_e action, const char *message, void *dummy);
 
 class SplashOverlay : public QWidget
 {
@@ -29,13 +28,21 @@ class SplashOverlay : public QWidget
 
 public:
     explicit SplashOverlay(QWidget *parent = 0);
-    ~SplashOverlay();
+
+    void fadeOut();
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
 
 private:
-    Ui::SplashOverlay *so_ui_;
     register_action_e last_action_;
     int register_cur_;
+    int register_max_;
+    QString action_text_;
     QElapsedTimer elapsed_timer_;
+
+    QGraphicsOpacityEffect *opacity_effect_;
+    QPropertyAnimation *fade_animation_;
 
 private slots:
     void splashUpdate(register_action_e action, const char *message);

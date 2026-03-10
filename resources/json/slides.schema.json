@@ -1,0 +1,168 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://www.wireshark.org/schemas/slides.schema.json",
+	"title": "Wireshark Banner Slides",
+	"description": "Schema for Wireshark welcome page banner slide configuration files (slides.json and slides_custom.json).",
+	"type": "object",
+	"required": ["schema_version", "slides"],
+	"properties": {
+		"schema_version": {
+			"type": "integer",
+			"minimum": 1,
+			"description": "Schema version. Must be 1 or higher."
+		},
+		"$schema": {
+			"type": "string",
+			"description": "Optional JSON Schema reference for editor validation."
+		},
+		"config": {
+			"type": "object",
+			"description": "Optional configuration for slide display behavior and colors.",
+			"properties": {
+				"colors": {
+					"type": "object",
+					"description": "Gradient color overrides per slide type. Each entry defines start and end colors for the card background gradient.",
+					"properties": {
+						"default": { "$ref": "#/$defs/colorPair" },
+						"events": { "$ref": "#/$defs/colorPair" },
+						"sponsorship": { "$ref": "#/$defs/colorPair" },
+						"tips": { "$ref": "#/$defs/colorPair" }
+					},
+					"additionalProperties": false
+				},
+				"types": {
+					"type": "object",
+					"description": "Per-type display configuration.",
+					"properties": {
+						"events": { "$ref": "#/$defs/typeConfig" },
+						"sponsorship": { "$ref": "#/$defs/typeConfig" },
+						"tips": { "$ref": "#/$defs/typeConfig" }
+					},
+					"additionalProperties": false
+				}
+			},
+			"additionalProperties": false
+		},
+		"slides": {
+			"type": "array",
+			"description": "Array of slide objects to display in the banner carousel.",
+			"items": { "$ref": "#/$defs/slide" }
+		}
+	},
+	"additionalProperties": false,
+	"$defs": {
+		"colorPair": {
+			"type": "object",
+			"description": "A gradient color pair with start and end CSS hex colors.",
+			"properties": {
+				"start": {
+					"type": "string",
+					"pattern": "^#[0-9a-fA-F]{6}$",
+					"description": "Gradient start color in #RRGGBB hex format."
+				},
+				"end": {
+					"type": "string",
+					"pattern": "^#[0-9a-fA-F]{6}$",
+					"description": "Gradient end color in #RRGGBB hex format."
+				}
+			},
+			"required": ["start", "end"],
+			"additionalProperties": false
+		},
+		"typeConfig": {
+			"type": "object",
+			"description": "Display configuration for a slide type.",
+			"properties": {
+				"randomized": {
+					"type": "boolean",
+					"default": false,
+					"description": "Shuffle slides of this type at startup before maxdisplay windowing."
+				},
+				"maxdisplay": {
+					"type": "integer",
+					"minimum": 0,
+					"default": 0,
+					"description": "Maximum slides of this type shown per rotation cycle. 0 means show all."
+				},
+				"only": {
+					"type": "boolean",
+					"default": false,
+					"description": "When true, only slides from this file are used for this type. In slides.json this takes priority over custom files."
+				},
+				"hidden": {
+					"type": "boolean",
+					"default": false,
+					"description": "When true, suppresses this type entirely. Only valid in custom files."
+				}
+			},
+			"additionalProperties": false
+		},
+		"slide": {
+			"type": "object",
+			"required": ["type", "title", "description", "url"],
+			"properties": {
+				"type": {
+					"type": "string",
+					"enum": ["events", "sponsorship", "tips"],
+					"description": "Slide category. Determines color scheme and grouping."
+				},
+				"tag": {
+					"type": "string",
+					"description": "Short label shown as a pill/badge above the title."
+				},
+				"title": {
+					"type": "string",
+					"description": "Main heading text."
+				},
+				"description": {
+					"type": "string",
+					"description": "Primary text shown in the highlight box."
+				},
+				"description_sub": {
+					"type": "string",
+					"description": "Secondary line in the highlight box."
+				},
+				"body_text": {
+					"type": "string",
+					"description": "Additional paragraph below the highlight box. Only visible in non-compact mode."
+				},
+				"button_label": {
+					"type": "string",
+					"description": "Text for the action button."
+				},
+				"url": {
+					"type": "string",
+					"format": "uri",
+					"description": "Target URL opened when the slide or button is clicked."
+				},
+				"image": {
+					"type": "string",
+					"description": "Banner image filename, resolved under :/json/banners/ at runtime."
+				},
+				"date_from": {
+					"type": "string",
+					"format": "date",
+					"description": "ISO 8601 date (YYYY-MM-DD). Slide is hidden before this date."
+				},
+				"date_until": {
+					"type": "string",
+					"format": "date",
+					"description": "ISO 8601 date (YYYY-MM-DD). Slide is hidden after this date."
+				},
+				"tag_i18n": { "$ref": "#/$defs/i18nMap" },
+				"title_i18n": { "$ref": "#/$defs/i18nMap" },
+				"description_i18n": { "$ref": "#/$defs/i18nMap" },
+				"description_sub_i18n": { "$ref": "#/$defs/i18nMap" },
+				"body_text_i18n": { "$ref": "#/$defs/i18nMap" },
+				"button_label_i18n": { "$ref": "#/$defs/i18nMap" },
+				"url_i18n": { "$ref": "#/$defs/i18nMap" }
+			},
+			"additionalProperties": false
+		},
+		"i18nMap": {
+			"type": "object",
+			"description": "Locale-keyed translations (e.g. {\"de\": \"...\", \"fr\": \"...\"}). Used by custom slides as a fallback when Qt translations are not available.",
+			"additionalProperties": { "type": "string" }
+		}
+	}
+}

@@ -89,6 +89,12 @@
 #define RECENT_GUI_TSD_MA_WINDOW_SIZE           "gui.tsd_ma_window_size"
 #define RECENT_GUI_TSD_THROUGHPUT_SHOW          "gui.tsd_throughput_show"
 #define RECENT_GUI_TSD_GOODPUT_SHOW             "gui.tsd_goodput_show"
+#define RECENT_KEY_SIDEBAR_LEARN_VISIBLE        "gui.welcome_page.sidebar.learn_visible"
+#define RECENT_KEY_SIDEBAR_TIPS_VISIBLE         "gui.welcome_page.sidebar.tips_visible"
+#define RECENT_KEY_SIDEBAR_TIPS_EVENTS          "gui.welcome_page.sidebar.tips_events"
+#define RECENT_KEY_SIDEBAR_TIPS_SPONSORSHIP     "gui.welcome_page.sidebar.tips_sponsorship"
+#define RECENT_KEY_SIDEBAR_TIPS_TIPS            "gui.welcome_page.sidebar.tips_tips"
+#define RECENT_KEY_SIDEBAR_TIPS_INTERVAL        "gui.welcome_page.sidebar.tips_interval"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
@@ -1253,6 +1259,30 @@ write_profile_recent(void)
             RECENT_GUI_TSD_GOODPUT_SHOW,
             recent.gui_tsgd_goodput_show);
 
+    write_recent_boolean(rf, "Welcome page sidebar Learn section visible",
+            RECENT_KEY_SIDEBAR_LEARN_VISIBLE,
+            recent.gui_welcome_page_sidebar_learn_visible);
+
+    write_recent_boolean(rf, "Welcome page sidebar Tips section visible",
+            RECENT_KEY_SIDEBAR_TIPS_VISIBLE,
+            recent.gui_welcome_page_sidebar_tips_visible);
+
+    write_recent_boolean(rf, "Welcome page sidebar Tips event slides",
+            RECENT_KEY_SIDEBAR_TIPS_EVENTS,
+            recent.gui_welcome_page_sidebar_tips_events);
+
+    write_recent_boolean(rf, "Welcome page sidebar Tips sponsorship slides",
+            RECENT_KEY_SIDEBAR_TIPS_SPONSORSHIP,
+            recent.gui_welcome_page_sidebar_tips_sponsorship);
+
+    write_recent_boolean(rf, "Welcome page sidebar Tips tip-of-the-day slides",
+            RECENT_KEY_SIDEBAR_TIPS_TIPS,
+            recent.gui_welcome_page_sidebar_tips_tips);
+
+    fprintf(rf, "\n# Welcome page sidebar Tips slide auto-advance interval in seconds.\n");
+    fprintf(rf, RECENT_KEY_SIDEBAR_TIPS_INTERVAL ": %u\n",
+            recent.gui_welcome_page_sidebar_tips_interval);
+
     fclose(rf);
 
     /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
@@ -1531,6 +1561,23 @@ read_set_recent_pair_static(char *key, const char *value,
             return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
         }
         recent.gui_tsgd_ma_window_size = val_as_dbl;
+    } else if (strcmp(key, RECENT_KEY_SIDEBAR_LEARN_VISIBLE) == 0) {
+        parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_learn_visible);
+    } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_VISIBLE) == 0) {
+        parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_tips_visible);
+    } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_EVENTS) == 0) {
+        parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_tips_events);
+    } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_SPONSORSHIP) == 0) {
+        parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_tips_sponsorship);
+    } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_TIPS) == 0) {
+        parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_tips_tips);
+    } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_INTERVAL) == 0) {
+        num = strtol(value, &p, 0);
+        if (p == value || *p != '\0')
+            return PREFS_SET_SYNTAX_ERR;
+        if (num < 1)
+            num = 1;
+        recent.gui_welcome_page_sidebar_tips_interval = (unsigned)num;
     } else {
         return PREFS_SET_NO_SUCH_PREF;
     }
@@ -1693,6 +1740,14 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_tsgd_ma_window_size = 1.0;
     recent.gui_tsgd_throughput_show = true;
     recent.gui_tsgd_goodput_show = false;
+
+    /* defaults for the welcome page sidebar */
+    recent.gui_welcome_page_sidebar_learn_visible = true;
+    recent.gui_welcome_page_sidebar_tips_visible = true;
+    recent.gui_welcome_page_sidebar_tips_events = true;
+    recent.gui_welcome_page_sidebar_tips_sponsorship = true;
+    recent.gui_welcome_page_sidebar_tips_tips = true;
+    recent.gui_welcome_page_sidebar_tips_interval = 8;
 
     /* pane size of zero will autodetect */
     recent.gui_geometry_main_upper_pane   = 0;

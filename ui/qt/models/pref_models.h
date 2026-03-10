@@ -35,6 +35,7 @@ public:
         Layout,
         Columns,
         FontAndColors,
+        WelcomePage,
         Capture,
         Expert,
         FilterButtons,

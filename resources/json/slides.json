@@ -1,0 +1,111 @@
+{
+	"schema_version": 1,
+	"$schema": "slides.schema.json",
+	"config": {
+		"colors": {
+			"default": { "start": "#333333", "end": "#222222" },
+			"events": { "start": "#1a4a6e", "end": "#234d6e" },
+			"sponsorship": { "start": "#2d4a3e", "end": "#1e3a32" },
+			"tips": { "start": "#4a3d6e", "end": "#3a2d5e" }
+		},
+		"types": {
+			"events": { "randomized": false, "maxdisplay": 1, "only": false },
+			"sponsorship": { "randomized": true, "maxdisplay": 1 },
+			"tips": { "randomized": true, "maxdisplay": 3, "only": false }
+		}
+	},
+	"slides": [
+		{
+			"type": "events",
+			"tag": "Conference",
+			"title": "SharkFest'26 US",
+			"description": "Nashville, Tennessee",
+			"description_sub": "July 18-23, 2026",
+			"body_text": "Join the annual Wireshark developer and user conference for talks, training, and community.",
+			"button_label": "Learn More",
+			"url": "https://sharkfest.wireshark.org/sfus/",
+			"image": "sharkfestus.png",
+			"date_from": "2025-12-01",
+			"date_until": "2026-07-23"
+		},
+		{
+			"type": "events",
+			"tag": "Conference",
+			"title": "SharkFest'26 EU",
+			"description": "Brussels, Belgium",
+			"description_sub": "November 2-6, 2026",
+			"body_text": "Join the annual Wireshark developer and user conference for talks, training, and community.",
+			"button_label": "Learn More",
+			"url": "https://sharkfest.wireshark.org/sfeu/",
+			"image": "sharkfesteu.png",
+			"date_from": "2026-03-01",
+			"date_until": "2026-11-06"
+		},
+		{
+			"type": "sponsorship",
+			"tag": "Sponsors",
+			"title": "Support Wireshark",
+			"description": "Help keep Wireshark free",
+			"description_sub": "and open source",
+			"body_text": "Your sponsorship funds development, infrastructure, and community events.",
+			"button_label": "Become a Sponsor",
+			"url": "https://wiresharkfoundation.org/donate/",
+			"image": "sponsors.png"
+		},
+		{
+			"type": "tips",
+			"tag": "Tip of the Day",
+			"title": "Quick Filter Shortcut",
+			"description": "Right-click any field to apply as filter",
+			"description_sub": "Press Ctrl+/ for more shortcuts",
+			"body_text": "You can also middle-click to append to the current filter, or Shift+click to create a negated filter.",
+			"button_label": "More Tips",
+			"url": "https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html",
+			"image": "tipstricks.png"
+		},
+		{
+			"type": "tips",
+			"tag": "Tip of the Day",
+			"title": "Follow the Stream",
+			"description": "Right-click a packet and select Follow > TCP Stream",
+			"description_sub": "Works with UDP, TLS, and HTTP too",
+			"body_text": "Following a stream reassembles the full conversation between two endpoints, making it easy to read application-layer data.",
+			"button_label": "More Tips",
+			"url": "https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStreamSection.html",
+			"image": "tipstricks.png"
+		},
+		{
+			"type": "tips",
+			"tag": "Tip of the Day",
+			"title": "Coloring Rules",
+			"description": "Customize packet colors by protocol or filter",
+			"description_sub": "View > Coloring Rules",
+			"body_text": "Coloring rules highlight packets that match a display filter, making patterns and anomalies easy to spot at a glance.",
+			"button_label": "More Tips",
+			"url": "https://www.wireshark.org/docs/wsug_html_chunked/ChCustColorizationSection.html",
+			"image": "tipstricks.png"
+		},
+		{
+			"type": "tips",
+			"tag": "Tip of the Day",
+			"title": "Export Specific Packets",
+			"description": "File > Export Specified Packets to save a subset",
+			"description_sub": "Filter first, then export only what you need",
+			"body_text": "Combine display filters with packet export to create small, focused capture files — perfect for sharing in bug reports or with colleagues.",
+			"button_label": "More Tips",
+			"url": "https://www.wireshark.org/docs/wsug_html_chunked/ChIOExportSection.html",
+			"image": "tipstricks.png"
+		},
+		{
+			"type": "tips",
+			"tag": "Tip of the Day",
+			"title": "Protocol Statistics",
+			"description": "Statistics > Protocol Hierarchy for traffic overview",
+			"description_sub": "See which protocols dominate your capture",
+			"body_text": "The Protocol Hierarchy window breaks down your capture by protocol, showing packet counts and byte percentages at each layer.",
+			"button_label": "More Tips",
+			"url": "https://www.wireshark.org/docs/wsug_html_chunked/ChStatHierarchy.html",
+			"image": "tipstricks.png"
+		}
+	]
+}

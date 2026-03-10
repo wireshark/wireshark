@@ -312,6 +312,8 @@ void PrefsModel::populate()
     appearance_item->prependChild(appearance_subitem);
     appearance_subitem = new PrefsItem(PrefsModel::FontAndColors, appearance_item);
     appearance_item->prependChild(appearance_subitem);
+    appearance_subitem = new PrefsItem(PrefsModel::WelcomePage, appearance_item);
+    appearance_item->prependChild(appearance_subitem);
 
     special_item = new PrefsItem(PrefsModel::Capture, root_);
     root_->prependChild(special_item);
@@ -338,6 +340,7 @@ QString PrefsModel::typeToString(PrefsModelType type)
         case Layout: typeStr = tr("Layout"); break;
         case Columns: typeStr = tr("Columns"); break;
         case FontAndColors: typeStr = tr("Font and Colors"); break;
+        case WelcomePage: typeStr = tr("Welcome Page"); break;
         case Capture: typeStr = tr("Capture"); break;
         case Expert: typeStr = tr("Expert"); break;
         case FilterButtons: typeStr = tr("Filter Buttons"); break;
@@ -364,6 +367,8 @@ QString PrefsModel::typeToHelp(PrefsModelType type)
             break;
         case Layout:
             helpStr = QStringLiteral("ChCustPreferencesSection.html#_layout");
+            break;
+        case WelcomePage:
             break;
         case Capture:
             helpStr = QStringLiteral("ChCustPreferencesSection.html#_capture");

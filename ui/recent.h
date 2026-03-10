@@ -178,6 +178,13 @@ typedef struct recent_settings_tag {
     bool        gui_tsgd_throughput_show;            /* tcp_stream_dialog throughput checkbox */
     bool        gui_tsgd_goodput_show;               /* tcp_stream_dialog goodput checkbox */
     double      gui_tsgd_ma_window_size;             /* tcp_stream_dialog ma_window_size */
+
+    bool        gui_welcome_page_sidebar_learn_visible;
+    bool        gui_welcome_page_sidebar_tips_visible;
+    bool        gui_welcome_page_sidebar_tips_events;
+    bool        gui_welcome_page_sidebar_tips_sponsorship;
+    bool        gui_welcome_page_sidebar_tips_tips;
+    unsigned    gui_welcome_page_sidebar_tips_interval;
 } recent_settings_t;
 
 /** Global recent settings. */

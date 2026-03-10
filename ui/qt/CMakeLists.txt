@@ -43,6 +43,8 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/interface_toolbar_lineedit.h
 	widgets/json_data_source_view.h
 	widgets/label_stack.h
+	widgets/info_banner_widget.h
+	widgets/learn_card_widget.h
 	widgets/overlay_scroll_bar.h
 	widgets/packet_list_header.h
 	widgets/path_selection_edit.h
@@ -277,6 +279,7 @@ set(WIRESHARK_QT_HEADERS
 	uat_frame.h
 	voip_calls_dialog.h
 	welcome_page.h
+	welcome_page_preferences_frame.h
 	wireless_frame.h
 	wireshark_application.h
 	wireshark_dialog.h
@@ -324,6 +327,8 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/interface_toolbar_lineedit.cpp
 	widgets/json_data_source_view.cpp
 	widgets/label_stack.cpp
+	widgets/info_banner_widget.cpp
+	widgets/learn_card_widget.cpp
 	widgets/overlay_scroll_bar.cpp
 	widgets/packet_list_header.cpp
 	widgets/path_selection_edit.cpp
@@ -544,6 +549,7 @@ set(WIRESHARK_QT_SRC
 	uat_frame.cpp
 	voip_calls_dialog.cpp
 	welcome_page.cpp
+	welcome_page_preferences_frame.cpp
 	wireless_frame.cpp
 	wireshark_application.cpp
 	wireshark_dialog.cpp
@@ -685,7 +691,7 @@ set(WIRESHARK_QT_UI
 	uat_frame.ui
 	voip_calls_dialog.ui
 	welcome_page.ui
-	widgets/splash_overlay.ui
+	welcome_page_preferences_frame.ui
 	wireless_frame.ui
 	wireshark_main_window.ui
 )
@@ -743,6 +749,37 @@ add_custom_command(
 		${CMAKE_SOURCE_DIR}/AUTHORS
 )
 
+# Generate translatable strings from slides.json for lupdate
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/slide_tr_strings.cpp
+	COMMAND ${Python3_EXECUTABLE}
+		${CMAKE_SOURCE_DIR}/resources/json/generate_slide_translations.py
+		${CMAKE_SOURCE_DIR}/resources/json/slides.json
+		${CMAKE_CURRENT_BINARY_DIR}/slide_tr_strings.cpp
+		InfoBannerWidget
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/resources/json/slides.json
+		${CMAKE_SOURCE_DIR}/resources/json/generate_slide_translations.py
+	COMMENT "Generating slide translation strings for lupdate"
+)
+
+# JSON data resources
+set(_json_qrc_files
+	"        <file alias=\"slides.json\">${CMAKE_SOURCE_DIR}/resources/json/slides.json</file>\n")
+if(CUSTOM_SLIDES_JSON AND EXISTS "${CUSTOM_SLIDES_JSON}")
+	string(APPEND _json_qrc_files
+		"        <file alias=\"slides_custom.json\">${CUSTOM_SLIDES_JSON}</file>\n")
+	message(STATUS "Custom banner slides: ${CUSTOM_SLIDES_JSON}")
+endif()
+file(GLOB _banner_images "${CMAKE_SOURCE_DIR}/resources/json/banners/*")
+foreach(_img ${_banner_images})
+	get_filename_component(_img_name "${_img}" NAME)
+	string(APPEND _json_qrc_files
+		"        <file alias=\"banners/${_img_name}\">${_img}</file>\n")
+endforeach()
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/json_resource.qrc"
+	"<RCC>\n    <qresource prefix=\"/json\">\n${_json_qrc_files}    </qresource>\n</RCC>\n")
+
 # Drop the file modification time of source files from generated files
 # to help with reproducible builds. We do not use QFileInfo.lastModified
 # so this has no unwanted side effects. This mtime started appearing in
@@ -767,6 +804,7 @@ qt_add_resources(WIRESHARK_QT_QRC
 	${WSICON_QRC}
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
+	${CMAKE_CURRENT_BINARY_DIR}/json_resource.qrc
 	OPTIONS ${CMAKE_AUTORCC_OPTIONS}
 )
 
@@ -834,6 +872,9 @@ add_library(qtui OBJECT
 
 	${WIRESHARK_QT_NONGENERATED_SRC}
 	${WIRESHARK_3RD_PARTY_WIDGET_SRCS}
+
+	# Generated translation markers for slides.json (lupdate only)
+	${CMAKE_CURRENT_BINARY_DIR}/slide_tr_strings.cpp
 
 	# For AUTOUIC and AUTORCC.
 	${WIRESHARK_QT_UI}

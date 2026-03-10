@@ -1,0 +1,250 @@
+Welcome Page Banner Slides
+==========================
+
+The welcome page in Wireshark and Stratoshark displays a rotating banner
+carousel with slides for events, sponsorship, and tips. Slide content is
+loaded from JSON resource files at startup rather than being hardcoded.
+
+This document explains how the system works and how distributors or
+developers can add custom slides.
+
+
+Source Files
+------------
+
+  resources/json/slides.json          Default slide deck (shipped in source tree)
+  resources/json/slides.schema.json   JSON Schema for validation
+  resources/json/banners/             Banner images referenced by slides
+  ui/qt/widgets/info_banner_widget.h      BannerSlide struct and widget
+  ui/qt/widgets/info_banner_widget.cpp    JSON loading and rendering logic
+  ui/qt/CMakeLists.txt                QRC generation (Wireshark)
+  ui/stratoshark/CMakeLists.txt       QRC generation (Stratoshark)
+
+
+JSON Schema
+-----------
+
+Slide files use the following structure:
+
+  {
+      "schema_version": 1,
+      "$schema": "slides.schema.json",
+      "config": {
+          "colors": {
+              "default": { "start": "#333333", "end": "#222222" },
+              "events": { "start": "#1a4a6e", "end": "#234d6e" },
+              "sponsorship": { "start": "#2d4a3e", "end": "#1e3a32" },
+              "tips": { "start": "#4a3d6e", "end": "#3a2d5e" }
+          },
+          "types": {
+              "events": { "randomized": false, "maxdisplay": 0, "only": false },
+              "sponsorship": { "randomized": false, "maxdisplay": 0 },
+              "tips": { "randomized": true, "maxdisplay": 3, "only": false }
+          }
+      },
+      "slides": [
+          {
+              "type": "events",
+              "tag": "Conference",
+              "title": "SharkFest'26 US",
+              "description": "Nashville, Tennessee",
+              "description_sub": "July 18-23, 2026",
+              "body_text": "Join the annual Wireshark developer...",
+              "button_label": "Learn More",
+              "url": "https://sharkfest.wireshark.org/sfus/",
+              "image": "sharkfestus.png",
+              "date_from": "2025-12-01",
+              "date_until": "2026-07-23"
+          }
+      ]
+  }
+
+A formal JSON Schema is available in resources/json/slides.schema.json
+for editor-based and CI validation.
+
+
+Top-level fields:
+
+  schema_version  Required. Must be 1 (or higher for future extensions).
+  config          Optional. Configuration section (see below).
+  slides          Required. Array of slide objects.
+
+
+Config Section
+--------------
+
+The optional "config" section controls slide display behavior.
+
+config.colors:
+
+  Per-type gradient color overrides. Each entry has "start" and "end"
+  color strings in #RRGGBB format. The "default" entry provides fallback
+  colors for types without explicit colors.
+
+  Available keys: "default", "events", "sponsorship", "tips".
+
+config.types:
+
+  Per-type display settings. Available keys: "events", "sponsorship",
+  "tips". Each entry supports:
+
+  randomized    Boolean (default false). When true, slides of this type
+                are shuffled at startup before maxdisplay windowing.
+                Mixes custom and predefined slides.
+
+  maxdisplay    Integer (default 0 = show all). Maximum slides of this
+                type shown per rotation cycle. After one full cycle
+                through all displayed slides, the window advances.
+                Example: maxdisplay=2 with 5 slides shows slides 1-2
+                in cycle 1, slides 3-4 in cycle 2, slides 5-1 in
+                cycle 3, etc.
+
+  only          Boolean (default false). When true, only slides from
+                this file are used for this type. Priority rules:
+                slides.json always wins — if slides.json sets only=true,
+                custom slides of that type are ignored. Only if
+                slides.json does NOT set only=true can a custom file's
+                only=true take effect (using only custom slides).
+
+  hidden        Boolean (default false). Only valid in custom files.
+                When true, that type is suppressed entirely (no slides
+                shown for it). Allows company builds to hide predefined
+                types like sponsorship.
+
+All config fields are optional. Missing values use defaults.
+
+
+Per-slide fields:
+
+  type            Required. One of: "events", "sponsorship", "tips".
+                  Maps to BannerSlideType enum. Unknown types are skipped
+                  with a warning. Note that "sponsorship" is reserved for
+                  the predefined slides.json and cannot be used in custom
+                  slide files.
+  title           Required. Main heading text.
+  description     Required. Primary text shown in the highlight box.
+  url             Required. Target URL opened when the slide or button
+                  is clicked.
+  tag             Optional. Short label shown as a pill/badge above the
+                  title (e.g. "Conference", "Tip of the Day").
+  description_sub Optional. Secondary line in the highlight box.
+  body_text       Optional. Additional paragraph below the highlight box.
+                  Only visible in non-compact mode.
+  button_label    Optional. Text for the action button.
+  image           Optional. Filename of a banner image, resolved at
+                  runtime under :/json/banners/. If empty or missing,
+                  a generic semi-transparent overlay is shown instead.
+  date_from       Optional. ISO 8601 date (YYYY-MM-DD). The slide is
+                  hidden before this date.
+  date_until      Optional. ISO 8601 date (YYYY-MM-DD). The slide is
+                  hidden after this date.
+
+Slides missing any required field (type, title, description, url) are
+skipped with a warning. Omitted optional fields default to empty strings
+(or no date constraint for date_from/date_until). Slides without date
+fields are always visible.
+
+Slide strings are intentionally not translatable. Content changes
+frequently and translation lag would be worse than untranslated text.
+
+
+Banner Images
+-------------
+
+Place image files in resources/json/banners/. All files in this
+directory are automatically picked up by CMake (via file(GLOB)) and
+embedded in the Qt resource system under the :/json/banners/ prefix.
+
+No CMake changes are needed when adding or removing images.
+
+Recommended image dimensions: 900x360 pixels (3x the logical 300x120
+display area, suitable for HiDPI/Retina). The image is scaled to fill
+the illustration area and center-cropped. Top corners are rounded with
+an 8px radius, so avoid placing critical content in the top ~10px
+corners.
+
+
+Custom Slides for Distributors
+------------------------------
+
+Distributors and packagers can inject additional slides at build time
+without modifying the source tree. Custom slides are merged with the
+default slides per type, respecting config flags.
+
+CMake cache variable:
+
+  CUSTOM_SLIDES_JSON    Path to a custom slides JSON file.
+
+Usage:
+
+  cmake -DCUSTOM_SLIDES_JSON=/path/to/my_slides.json ..
+
+The custom file must use the same JSON schema as slides.json. It is
+embedded as :/json/slides_custom.json and loaded after the default
+slides. If the path does not exist, it is silently ignored and the
+build proceeds with default slides only.
+
+Custom slides can reference images that are already in
+resources/json/banners/, or distributors can add their own images
+to that directory before building.
+
+Restrictions for custom files:
+
+  - Sponsorship slides are not allowed in custom files. Any sponsorship
+    slides are skipped with a warning during loading.
+  - The "hidden" flag in config.types is only valid in custom files.
+  - The "only" flag in a custom file only takes effect for a type if
+    the predefined slides.json does NOT set only=true for that type.
+
+Content policy: Custom slides in publicly distributed binaries (e.g.
+Linux distribution packages) must adhere to the Wireshark Code of
+Conduct. Slides must not link to deceptive downloads, trick users
+into purchasing unrelated products, or otherwise exploit or mislead
+users. The welcome page is a trust surface — users expect its content
+to be relevant and honest.
+
+Example custom_slides.json:
+
+  {
+      "schema_version": 1,
+      "config": {
+          "colors": {
+              "tips": { "start": "#5a4d7e", "end": "#4a3d6e" }
+          },
+          "types": {
+              "tips": { "maxdisplay": 2 },
+              "sponsorship": { "hidden": true }
+          }
+      },
+      "slides": [
+          {
+              "type": "events",
+              "tag": "Local Event",
+              "title": "Wireshark Meetup",
+              "description": "Your City, Your Country",
+              "description_sub": "March 15, 2026",
+              "body_text": "Join us for a local Wireshark user group meeting.",
+              "button_label": "RSVP",
+              "url": "https://example.com/meetup",
+              "image": "",
+              "date_from": "2026-02-01",
+              "date_until": "2026-03-15"
+          }
+      ]
+  }
+
+
+Adding a New Default Slide
+--------------------------
+
+1. Edit resources/json/slides.json and add a new entry to the
+   "slides" array.
+
+2. If the slide needs a banner image, place it in
+   resources/json/banners/. Set the "image" field to the filename.
+
+3. Use date_from and date_until to time-limit the slide if it is
+   for a specific event.
+
+4. Rebuild. The CMake glob picks up new images automatically.
+   No other file changes are needed.

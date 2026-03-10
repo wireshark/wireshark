@@ -142,6 +142,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Layout)] = pd_ui_->layoutFrame;
     prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Columns)] = pd_ui_->columnFrame;
     prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::FontAndColors)] = pd_ui_->fontandcolorFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::WelcomePage)] = pd_ui_->welcomePageFrame;
     prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Capture)] = pd_ui_->captureFrame;
     prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Expert)] = pd_ui_->expertFrame;
     prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::FilterButtons)] = pd_ui_->filterExpressonsFrame;
@@ -400,6 +401,7 @@ void PreferencesDialog::apply()
     }
 
     pd_ui_->columnFrame->unstash();
+    pd_ui_->welcomePageFrame->unstash();
     pd_ui_->filterExpressonsFrame->acceptChanges();
     pd_ui_->expertFrame->acceptChanges();
 #ifdef HAVE_LIBGNUTLS
@@ -455,9 +457,9 @@ void PreferencesDialog::apply()
         mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
     }
 
-    if (redissect_flags) {
-        mainApp->emitAppSignal(MainApplication::PreferencesChanged);
-    }
+    write_profile_recent();
+
+    mainApp->emitAppSignal(MainApplication::PreferencesChanged);
 
     if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
         mainApp->emitAppSignal(MainApplication::RecentPreferencesRead);

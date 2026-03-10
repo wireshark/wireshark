@@ -45,9 +45,8 @@ protected:
     virtual QString getReleaseLabelGlue();
 
 protected slots:
-    void on_recentLabel_clicked();
-    void on_captureLabel_clicked();
-    void on_helpLabel_clicked();
+    void on_openFileSectionLabel_clicked();
+    void on_captureSectionLabel_clicked();
 
 private:
     Ui::WelcomePage *welcome_ui_;
@@ -55,6 +54,8 @@ private:
     QString show_in_str_;
 
     SplashOverlay *splash_overlay_;
+
+    void updateSidebarLayout();
 
 signals:
     void startCapture(QStringList ifaces);
@@ -73,9 +74,10 @@ private slots:
     void captureFilterTextEdited(const QString capture_filter);
     void showCaptureFilesContextMenu(QPoint pos);
 
-    void on_interfaceFrame_showExtcapOptions(QString device_name, bool startCaptureOnClose);
-    void on_interfaceFrame_startCapture(QStringList);
+    void on_captureSectionInterfaceFrame_showExtcapOptions(QString device_name, bool startCaptureOnClose);
+    void on_captureSectionInterfaceFrame_startCapture(QStringList);
     void captureStarting();
+    void applySidebarPreferences();
 };
 
 #endif // WELCOME_PAGE_H

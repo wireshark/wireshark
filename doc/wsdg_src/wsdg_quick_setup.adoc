@@ -234,7 +234,16 @@ If you need to build with a non-standard configuration, you can run
 cmake -LH ../{source directory}
 ----
 
-to see what options you have.
+to see what options you have. Some notable options include:
+
+[cols="1,2"]
+|===
+|Option |Description
+
+|`-DCUSTOM_SLIDES_JSON=/path/to/slides.json`
+|Inject custom welcome page banner slides at build time. See
+<<ChUIBannerSlides>>.
+|===
 
 You can then run Ninja or make to build Wireshark.
 
