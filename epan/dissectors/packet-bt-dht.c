@@ -247,11 +247,15 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
       break;
     /* a sub-list */
     case 'l':
+      increment_dissection_depth(pinfo);
       offset = dissect_bencoded_list(tvb, pinfo, sub_tree, offset, "Sub-list");
+      decrement_dissection_depth(pinfo);
       break;
     /* a dictionary */
     case 'd':
+      increment_dissection_depth(pinfo);
       offset = dissect_bencoded_dict(tvb, pinfo, sub_tree, offset, "Sub-dict");
+      decrement_dissection_depth(pinfo);
       break;
     /* a string */
     default:
@@ -560,7 +564,9 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   switch (tvb_get_uint8(tvb, offset))
   {
   case 'd':
+    increment_dissection_depth(pinfo);
     offset = dissect_bencoded_dict(tvb, pinfo, sub_tree, offset, "Value");
+    decrement_dissection_depth(pinfo);
     val    = dict_str;
     break;
   case 'l':
@@ -571,7 +577,9 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* other unfamiliar lists */
     else
     {
+      increment_dissection_depth(pinfo);
       offset = dissect_bencoded_list(tvb, pinfo, sub_tree, offset, "Value");
+      decrement_dissection_depth(pinfo);
       val = list_str;
     }
     break;
@@ -949,7 +957,6 @@ proto_reg_handoff_bt_dht(void)
 {
   heur_dissector_add("udp", dissect_bt_dht_heur, "BitTorrent DHT over UDP", "bittorrent_dht_udp", proto_bt_dht, HEURISTIC_DISABLE);
 
-  // If this is ever streamed (transported over TCP) we need to add recursion checks.
   dissector_add_for_decode_as_with_preference("udp.port", bt_dht_handle);
 }
 
