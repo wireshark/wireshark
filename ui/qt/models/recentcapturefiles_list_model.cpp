@@ -65,6 +65,12 @@ QVariant RecentCaptureFilesListModel::data(const QModelIndex &index, int role) c
         return info.size;
     case AccessibleRole:
         return info.accessible;
+    case Qt::AccessibleTextRole:
+        if (info.accessible) {
+            return info.filename;
+        } else {
+            return tr("%1 (file no longer found at path)").arg(info.filename);
+        }
     default:
         return QVariant();
     }

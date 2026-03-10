@@ -14,8 +14,6 @@
 StratosharkWelcomePage::StratosharkWelcomePage(QWidget *parent) :
     WelcomePage(parent)
 {
-    setAccessibleName(tr("Welcome page"));
-    setAccessibleDescription(tr("The Stratoshark welcome page provides access to recent files and capture interfaces."));
 }
 
 StratosharkWelcomePage::~StratosharkWelcomePage()

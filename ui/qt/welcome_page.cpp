@@ -56,6 +56,9 @@ WelcomePage::WelcomePage(QWidget *parent) :
 {
     welcome_ui_->setupUi(this);
 
+    setAccessibleName(tr("Welcome page"));
+    setAccessibleDescription(tr("The %1 welcome page provides access to recent files, capture interfaces, and learning resources.").arg(mainApp->applicationName()));
+
     welcome_ui_->tipsSectionCard->setVisible(true);
 
     welcome_ui_->captureSectionFilterComboBox->setEnabled(false);
@@ -75,6 +78,8 @@ WelcomePage::WelcomePage(QWidget *parent) :
     welcome_ui_->openFileSectionRecentList->setModel(proxyModel);
     welcome_ui_->openFileSectionRecentList->setItemDelegate(new RecentCaptureFilesDelegate(welcome_ui_->openFileSectionRecentList));
     welcome_ui_->openFileSectionRecentList->setContextMenuPolicy(Qt::CustomContextMenu);
+    welcome_ui_->openFileSectionRecentList->setAccessibleName(tr("Recent capture files"));
+    welcome_ui_->openFileSectionRecentList->setAccessibleDescription(tr("List of recently opened capture files. Double-click or press Enter to open."));
     connect(welcome_ui_->openFileSectionRecentList, &QListView::activated,
         this, [this]() {
             QModelIndex index = welcome_ui_->openFileSectionRecentList->currentIndex();
@@ -107,6 +112,13 @@ WelcomePage::WelcomePage(QWidget *parent) :
     connect(mainApp, &MainApplication::scanLocalInterfaces,
             welcome_ui_->captureSectionInterfaceFrame, &InterfaceFrame::scanLocalInterfaces);
 #endif
+    welcome_ui_->captureSectionInterfaceTypeButton->setAccessibleName(tr("Interface type filter"));
+    welcome_ui_->captureSectionInterfaceTypeButton->setAccessibleDescription(tr("Filters the capture source list by type. Shows how many sources are currently visible and how many are hidden by the active filter."));
+    welcome_ui_->captureSectionInterfaceFrame->setAccessibleName(tr("Capture sources"));
+    welcome_ui_->captureSectionInterfaceFrame->setAccessibleDescription(tr("Lists available capture sources. Select one or more to capture from."));
+    welcome_ui_->captureSectionFilterComboBox->setAccessibleName(tr("Capture filter"));
+    welcome_ui_->captureSectionFilterComboBox->setAccessibleDescription(tr("Enter a capture filter expression to limit which data is recorded during live capture."));
+
     connect(welcome_ui_->captureSectionInterfaceFrame, &InterfaceFrame::itemSelectionChanged,
             welcome_ui_->captureSectionFilterComboBox, &CaptureFilterCombo::interfacesChanged);
     connect(welcome_ui_->captureSectionInterfaceFrame, &InterfaceFrame::typeSelectionChanged,
