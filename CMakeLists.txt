@@ -3521,7 +3521,7 @@ if(BUILD_sharkd)
 	add_executable(sharkd ${sharkd_FILES})
 	set_extra_executable_properties(sharkd "Executables")
 	target_link_libraries(sharkd ${sharkd_LIBS})
-	target_include_directories(sharkd SYSTEM PUBLIC ${SPEEXDSP_INCLUDE_DIRS})
+	target_include_directories(sharkd SYSTEM PUBLIC ${SPEEXDSP_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
 
 	install(TARGETS sharkd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()

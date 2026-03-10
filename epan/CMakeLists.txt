@@ -316,11 +316,6 @@ target_link_libraries(epan
 )
 
 target_include_directories(epan
-	SYSTEM PUBLIC
-		${GLIB2_INCLUDE_DIRS}
-)
-
-target_include_directories(epan
 	INTERFACE
 		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
 		$<INSTALL_INTERFACE:include/wireshark>

@@ -53,6 +53,10 @@ add_wireshark_plugin_library(opcua epan)
 
 target_link_libraries(opcua epan ${GCRYPT_LIBRARIES})
 
+target_include_directories(opcua SYSTEM
+	PRIVATE
+	    ${GCRYPT_INCLUDE_DIRS}
+)
 install_plugin(opcua epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")

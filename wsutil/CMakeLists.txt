@@ -424,12 +424,11 @@ target_link_libraries(wsutil
 )
 
 target_include_directories(wsutil SYSTEM
-	PUBLIC
+	PRIVATE
 		${GLIB2_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
 		${XXHASH_INCLUDE_DIRS}
-	PRIVATE
 		${GMODULE2_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
 		${ZLIBNG_INCLUDE_DIRS}
@@ -487,11 +486,10 @@ target_link_libraries(wsutil_static
 )
 
 target_include_directories(wsutil_static SYSTEM
-	PUBLIC
+	PRIVATE
 		${GLIB2_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
-	PRIVATE
 		${GMODULE2_INCLUDE_DIRS}
 		${XXHASH_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
@@ -508,6 +506,7 @@ endif()
 add_executable(wmem_test EXCLUDE_FROM_ALL wmem/wmem_test.c ${WMEM_FILES})
 
 target_link_libraries(wmem_test wsutil)
+target_include_directories(wmem_test SYSTEM PRIVATE ${XXHASH_INCLUDE_DIRS})
 
 set_target_properties(wmem_test PROPERTIES
 	FOLDER "Tests"
@@ -521,6 +520,7 @@ add_executable(test_wsutil EXCLUDE_FROM_ALL
 )
 
 target_link_libraries(test_wsutil ${M_LIBRARIES} ${GLIB2_LIBRARIES} wsutil)
+target_include_directories(test_wsutil SYSTEM PRIVATE ${XXHASH_INCLUDE_DIRS})
 
 set_target_properties(test_wsutil PROPERTIES
 	FOLDER "Tests"
