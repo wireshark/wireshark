@@ -63,6 +63,7 @@ WelcomePage::WelcomePage(QWidget *parent) :
     welcome_ui_->titleSectionBannerLabel->setText(tr("Welcome to %1").arg(mainApp->applicationName()));
 
     updateStyleSheets();
+    applySidebarPreferences();
 
     /* Handle Recent Capture Files List */
     // In welcome_page.cpp or wherever the list is created
