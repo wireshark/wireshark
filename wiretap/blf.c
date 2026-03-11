@@ -5149,7 +5149,7 @@ static bool blf_add_idb(wtap_dumper *wdh, wtap_block_t idb _U_, int *err _U_, ch
      * A new IDB was added to the list of itnerfaces for the file to
      * which we're writing; update hte interface mapping.
      */
-    blf_dump_expand_interface_mapping(wdh, wdh->interface_data->len);
+    blf_dump_interface_setup(wdh, err); // Expands and populates the interface mapping
 
     return true;
 }
