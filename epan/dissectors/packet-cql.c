@@ -763,6 +763,68 @@ static int parse_option(proto_tree* metadata_subtree, packet_info *pinfo, tvbuff
 	return offset;
 }
 
+/*
+ * Advance *offset_metadata past a complete type descriptor in the metadata
+ * stream, without reading any row data.  This mirrors the structure of
+ * parse_option() but only moves the metadata cursor.  It is needed whenever
+ * the column/element value is absent (NULL, "not set", or empty collection)
+ * so that subsequent columns stay in sync with the metadata.
+ */
+// NOLINTNEXTLINE(misc-no-recursion)
+static void skip_metadata_type(tvbuff_t* tvb, int* offset_metadata)
+{
+	uint32_t data_type;
+	uint32_t string_length;
+	uint32_t count;
+	uint32_t i;
+
+	data_type = tvb_get_ntohs(tvb, *offset_metadata);
+	*offset_metadata += 2;
+
+	switch (data_type) {
+		case CQL_RESULT_ROW_TYPE_LIST:
+		case CQL_RESULT_ROW_TYPE_SET:
+			skip_metadata_type(tvb, offset_metadata);  /* element type */
+			break;
+		case CQL_RESULT_ROW_TYPE_MAP:
+			skip_metadata_type(tvb, offset_metadata);  /* key type */
+			skip_metadata_type(tvb, offset_metadata);  /* value type */
+			break;
+		case CQL_RESULT_ROW_TYPE_UDT:
+			/* keyspace name */
+			string_length = tvb_get_ntohs(tvb, *offset_metadata);
+			*offset_metadata += 2 + string_length;
+			/* UDT name */
+			string_length = tvb_get_ntohs(tvb, *offset_metadata);
+			*offset_metadata += 2 + string_length;
+			/* fields */
+			count = tvb_get_ntohs(tvb, *offset_metadata);
+			*offset_metadata += 2;
+			for (i = 0; i < count; i++) {
+				/* field name */
+				string_length = tvb_get_ntohs(tvb, *offset_metadata);
+				*offset_metadata += 2 + string_length;
+				/* field type (recursive) */
+				skip_metadata_type(tvb, offset_metadata);
+			}
+			break;
+		case CQL_RESULT_ROW_TYPE_TUPLE:
+			count = tvb_get_ntohs(tvb, *offset_metadata);
+			*offset_metadata += 2;
+			for (i = 0; i < count; i++) {
+				skip_metadata_type(tvb, offset_metadata);
+			}
+			break;
+		case CQL_RESULT_ROW_TYPE_CUSTOM:
+			string_length = tvb_get_ntohs(tvb, *offset_metadata);
+			*offset_metadata += 2 + string_length;
+			break;
+		default:
+			/* Simple types: the 2-byte type ID is all the metadata there is. */
+			break;
+	}
+}
+
 static void add_varint_item(proto_tree *tree, tvbuff_t *tvb, const int offset, const int length)
 {
 	switch (length)
@@ -841,12 +903,37 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 	proto_item_set_hidden(item);
 	*offset_metadata += 2;
 
-	if (bytes_length == -1) { // value is NULL, but need to skip metadata offsets
+	if (bytes_length == -1 || bytes_length == -2) {
+		/*
+		 * -1 means NULL, -2 means "not set" (CQL protocol v4+).
+		 * No data bytes follow, but we must advance the metadata
+		 * offset past any sub-type descriptors so that subsequent
+		 * columns stay in sync.
+		 *
+		 * The 2-byte type ID was already consumed above
+		 * (offset_metadata += 2).  Back up and let
+		 * skip_metadata_type() walk the complete type descriptor
+		 * (type ID + any sub-types) in one call.
+		 */
 		proto_tree_add_item(columns_subtree, hf_cql_null_value, tvb, offset, 0, ENC_NA);
-		if (data_type == CQL_RESULT_ROW_TYPE_MAP) {
-			*offset_metadata += 4; /* skip the type fields of *both* key and value in the map in the metadata */
-		} else if (data_type == CQL_RESULT_ROW_TYPE_SET) {
-			*offset_metadata += 2; /* skip the type field of the elements in the set in the metadata */
+		{
+			int meta_rewind = *offset_metadata - 2;
+			skip_metadata_type(tvb, &meta_rewind);
+			*offset_metadata = meta_rewind;
+		}
+		return offset;
+	}
+
+	if (bytes_length < -2) {
+		/*
+		 * Invalid length value -- flag it and skip the metadata to
+		 * keep subsequent columns in sync.
+		 */
+		expert_add_info(pinfo, item, &ei_cql_unexpected_negative_value);
+		{
+			int meta_rewind = *offset_metadata - 2;
+			skip_metadata_type(tvb, &meta_rewind);
+			*offset_metadata = meta_rewind;
 		}
 		return offset;
 	}
@@ -953,10 +1040,14 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 				return tvb_reported_length(tvb);
 			}
 			offset += 4;
-			offset_metadata_backup = *offset_metadata;
-			for (j = 0; j < list_size; j++) {
-				*offset_metadata = offset_metadata_backup;
-				offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
+			if (list_size == 0) {
+				skip_metadata_type(tvb, offset_metadata); /* skip element type */
+			} else {
+				offset_metadata_backup = *offset_metadata;
+				for (j = 0; j < list_size; j++) {
+					*offset_metadata = offset_metadata_backup;
+					offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
+				}
 			}
 			break;
 		case CQL_RESULT_ROW_TYPE_MAP:
@@ -969,7 +1060,8 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 				decrement_dissection_depth(pinfo);
 				return tvb_reported_length(tvb);
 			} else if (map_size == 0) {
-				*offset_metadata += 4; /* skip the type fields of *both* key and value in the map in the metadata */
+				skip_metadata_type(tvb, offset_metadata); /* skip key type */
+				skip_metadata_type(tvb, offset_metadata); /* skip value type */
 			} else {
 				offset_metadata_backup = *offset_metadata;
 				for (j = 0; j < map_size; j++) {
@@ -988,7 +1080,7 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 				decrement_dissection_depth(pinfo);
 				return tvb_reported_length(tvb);
 			} else if (set_size == 0) {
-				*offset_metadata += 2; /* skip the type field of the elements in the set in the metadata */
+				skip_metadata_type(tvb, offset_metadata); /* skip element type */
 			} else {
 				offset_metadata_backup = *offset_metadata;
 				for (j = 0; j < set_size; j++) {
