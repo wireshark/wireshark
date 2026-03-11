@@ -2469,33 +2469,49 @@ if(USE_REPOSITORY)
 		list (APPEND THIRD_PARTY_DLLS "${SMI_DLL_DIR}/${SMI_DLL}")
 		# Wireshark.nsi wants SMI_DIR which is the base SMI directory
 		get_filename_component(SMI_DIR ${SMI_DLL_DIR} DIRECTORY)
+
+		#Make the necessary output directories for the SMI MIBs.
 		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E make_directory
 				"${_dll_output_dir}/snmp"
 			COMMAND ${CMAKE_COMMAND} -E make_directory
 				"${_dll_output_dir}/snmp/mibs"
+		)
+
+		set (SMI_MIBS)
+
+		#List of the subdirectories in the SMI share directory that contain desired MIBs.
+		set(MIB_DIRS "mibs/ietf" "mibs/iana" "mibs/irtf" "mibs/site" "mibs/tubs" "pibs" "yang")
+
+		foreach( _mib_dir ${MIB_DIRS} )
+
+			#Grab everything in the subdirectory, but only keep the files.
+			set(MIBS_FILES "")
+			file(GLOB POTENTIAL_MIBS_FILES
+				CONFIGURE_DEPENDS 
+				"${SMI_SHARE_DIR}/${_mib_dir}/*"
+			)
+			foreach(_path ${POTENTIAL_MIBS_FILES})
+				if(NOT IS_DIRECTORY "${_path}")
+					list(APPEND MIBS_FILES "${_path}")
+				endif()
+			endforeach()
+
+			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/mibs/iana"
+				"${SMI_SHARE_DIR}/${_mib_dir}"
 				"${_dll_output_dir}/snmp/mibs"
-			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/mibs/ietf"
-				"${_dll_output_dir}/snmp/mibs"
-			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/mibs/irtf"
-				"${_dll_output_dir}/snmp/mibs"
-			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/mibs/site"
-				"${_dll_output_dir}/snmp/mibs"
-			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/mibs/tubs"
-				"${_dll_output_dir}/snmp/mibs"
-			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/pibs"
-				"${_dll_output_dir}/snmp/mibs"
-			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/yang"
-				"${_dll_output_dir}/snmp/mibs"
-			#remove the extra directories copied (shallow copying the above would remove the need for this)
+			)
+
+			#Keep track of the MIBs for packaging and installation.
+			list (APPEND SMI_MIBS ${MIBS_FILES})
+
+		endforeach(_mib_dir)
+
+		#remove the extra directories copied
+		#Shallow copying the above would remove the need for this, but there is a character limit (Windows)
+		#on the length of the command, and the SMI_MIBS list can get quite long.
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove_directory
 				"${_dll_output_dir}/snmp/mibs/iana"
 			COMMAND ${CMAKE_COMMAND} -E remove_directory
@@ -2505,6 +2521,11 @@ if(USE_REPOSITORY)
 			COMMAND ${CMAKE_COMMAND} -E remove_directory
 				"${_dll_output_dir}/snmp/mibs/tubs"
 		)
+
+		#Add the MIBs to the list of files to be installed.
+		cmake_path(SET MIBS_INSTALL_DIR NORMALIZE "${CMAKE_INSTALL_BINDIR}/snmp/mibs")
+		install(FILES ${SMI_MIBS} DESTINATION "${MIBS_INSTALL_DIR}")
+
 	endif(SMI_FOUND)
 	if (SNAPPY_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${SNAPPY_DLL_DIR}/${SNAPPY_DLL}")
