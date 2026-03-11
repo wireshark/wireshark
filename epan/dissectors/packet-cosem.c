@@ -272,6 +272,7 @@ static expert_field ei_dlms_not_implemented;
 static expert_field ei_dlms_check_sequence;
 static expert_field ei_dlms_access_req_choice;
 static expert_field ei_dlms_planar_type;
+static expert_field ei_dlms_compact_array_bad;
 
 static dissector_handle_t cosem_handle;
 static dissector_handle_t dlms_handle;
@@ -2076,6 +2077,9 @@ dlms_set_data_value(tvbuff_t* tvb, packet_info *pinfo, proto_item* item, int cho
         }
         default: {
             expert_add_info(pinfo, item, &ei_dlms_planar_type);
+            /* Unknown type, so unknown length. Advance the
+             * offset to avoid infinite loops. */
+            offset = tvb_reported_length(tvb);
         }
     }
 
@@ -2190,20 +2194,39 @@ static proto_item* dlms_dissect_data(tvbuff_t* tvb, packet_info* pinfo, proto_tr
         }
     }
     else if (choice == 19) { /* compact-array */
+        /* contents-description [0] TypeDescription,
+         * array-contents       [1] IMPLICIT OCTET STRING
+         */
+        proto_item *description_item;
         int description_offset = *offset;
         int description_length = dlms_get_type_description_length(tvb, pinfo, *offset);
-        int content_end;
+        tvbuff_t *contents_tvb;
+        int contents_offset = 0;
         unsigned elements;
         subtree = proto_item_add_subtree(item, ett_dlms_composite_data);
-        proto_tree_add_item(subtree, hf_dlms_type_description, tvb, description_offset, description_length, ENC_NA);
+        description_item = proto_tree_add_item(subtree, hf_dlms_type_description, tvb, description_offset, description_length, ENC_NA);
         *offset += description_length;
         length = dlms_dissect_length(tvb, subtree, offset);
         elements = 0;
-        content_end = *offset + length;
-        while (*offset < content_end) {
-            subitem = dlms_dissect_compact_array_content(tvb, pinfo, subtree, description_offset, offset);
+        contents_tvb = tvb_new_subset_length(tvb, *offset, length);
+        /* The length here is an actual byte length instead of a number
+         * of array elements matching the description. Due to this, the
+         * compact array can be syntatically valid according to the ASN.1
+         * but semantically impossible when interpreting the array-contents
+         * according to the description. If the description contains no
+         * non-null scalar types then the contents length MUST be zero as
+         * the offset could never advance. It also might not end at the
+         * proper offset.
+         */
+        while (tvb_reported_length_remaining(contents_tvb, contents_offset)) {
+            subitem = dlms_dissect_compact_array_content(contents_tvb, pinfo, subtree, 0, &contents_offset);
             proto_item_prepend_text(subitem, "[%u] ", ++elements);
+            if (contents_offset == 0) {
+                expert_add_info(pinfo, description_item, &ei_dlms_compact_array_bad);
+                break;
+            }
         }
+        *offset += length;
         proto_item_set_text(item, "Compact Array (%u elements)", elements);
     }
     else { /* planar type */
@@ -3657,6 +3680,7 @@ void proto_register_cosem(void) {
         { &ei_dlms_check_sequence, { "dlms.check_sequence", PI_CHECKSUM, PI_WARN, "Bad HDLC check sequence field value", EXPFILL } },
         { &ei_dlms_access_req_choice, { "dlms.access_request_choice", PI_PROTOCOL, PI_WARN, "Invalid Access-Request-Specification CHOICE", EXPFILL } },
         { &ei_dlms_planar_type, { "dlms.planar_type", PI_PROTOCOL, PI_WARN, "Invalid planar data type", EXPFILL } },
+        { &ei_dlms_compact_array_bad, { "dlms.compact_array.bad", PI_PROTOCOL, PI_WARN, "Compact array description and contents are inconsistent", EXPFILL } },
     };
 
     expert_module_t* expert_dlms = expert_register_protocol(proto_dlms);
