@@ -20,6 +20,14 @@ WelcomePagePreferencesFrame::WelcomePagePreferencesFrame(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    connect(ui->learnVisibleCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::learnVisibleToggled);
+    connect(ui->tipsVisibleCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::tipsVisibleToggled);
+    connect(ui->tipsEventsCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::tipsEventsToggled);
+    connect(ui->tipsSponsorshipCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::tipsSponsorshipToggled);
+    connect(ui->tipsTipsCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::tipsTipsToggled);
+    connect(ui->tipsIntervalSpinBox, qOverload<int>(&QSpinBox::valueChanged), this, &WelcomePagePreferencesFrame::tipsIntervalValueChanged);
+    connect(ui->restoreButtonBox, &QDialogButtonBox::clicked, this, &WelcomePagePreferencesFrame::restoreButtonBoxClicked);
+
     stashed_learn_visible_ = recent.gui_welcome_page_sidebar_learn_visible;
     stashed_tips_visible_ = recent.gui_welcome_page_sidebar_tips_visible;
     stashed_tips_events_ = recent.gui_welcome_page_sidebar_tips_events;
@@ -60,39 +68,39 @@ void WelcomePagePreferencesFrame::updateTipsSubCheckboxes()
     ui->tipsTipsCheckBox->setEnabled(tips_enabled);
 }
 
-void WelcomePagePreferencesFrame::on_learnVisibleCheckBox_toggled(bool checked)
+void WelcomePagePreferencesFrame::learnVisibleToggled(bool checked)
 {
     stashed_learn_visible_ = checked;
 }
 
-void WelcomePagePreferencesFrame::on_tipsVisibleCheckBox_toggled(bool checked)
+void WelcomePagePreferencesFrame::tipsVisibleToggled(bool checked)
 {
     stashed_tips_visible_ = checked;
     ui->tipsSlidesSectionLayout->setEnabled(checked);
     updateTipsSubCheckboxes();
 }
 
-void WelcomePagePreferencesFrame::on_tipsEventsCheckBox_toggled(bool checked)
+void WelcomePagePreferencesFrame::tipsEventsToggled(bool checked)
 {
     stashed_tips_events_ = checked;
 }
 
-void WelcomePagePreferencesFrame::on_tipsSponsorshipCheckBox_toggled(bool checked)
+void WelcomePagePreferencesFrame::tipsSponsorshipToggled(bool checked)
 {
     stashed_tips_sponsorship_ = checked;
 }
 
-void WelcomePagePreferencesFrame::on_tipsTipsCheckBox_toggled(bool checked)
+void WelcomePagePreferencesFrame::tipsTipsToggled(bool checked)
 {
     stashed_tips_tips_ = checked;
 }
 
-void WelcomePagePreferencesFrame::on_tipsIntervalSpinBox_valueChanged(int value)
+void WelcomePagePreferencesFrame::tipsIntervalValueChanged(int value)
 {
     stashed_tips_interval_ = static_cast<unsigned>(value);
 }
 
-void WelcomePagePreferencesFrame::on_restoreButtonBox_clicked(QAbstractButton *)
+void WelcomePagePreferencesFrame::restoreButtonBoxClicked(QAbstractButton *)
 {
     stashed_learn_visible_ = true;
     stashed_tips_visible_ = true;

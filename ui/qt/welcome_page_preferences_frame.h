@@ -40,13 +40,13 @@ private:
     void updateTipsSubCheckboxes();
 
 private slots:
-    void on_learnVisibleCheckBox_toggled(bool checked);
-    void on_tipsVisibleCheckBox_toggled(bool checked);
-    void on_tipsEventsCheckBox_toggled(bool checked);
-    void on_tipsSponsorshipCheckBox_toggled(bool checked);
-    void on_tipsTipsCheckBox_toggled(bool checked);
-    void on_tipsIntervalSpinBox_valueChanged(int value);
-    void on_restoreButtonBox_clicked(QAbstractButton *button);
+    void learnVisibleToggled(bool checked);
+    void tipsVisibleToggled(bool checked);
+    void tipsEventsToggled(bool checked);
+    void tipsSponsorshipToggled(bool checked);
+    void tipsTipsToggled(bool checked);
+    void tipsIntervalValueChanged(int value);
+    void restoreButtonBoxClicked(QAbstractButton *button);
 };
 
 #endif // WELCOME_PAGE_PREFERENCES_FRAME_H
