@@ -233,6 +233,12 @@ void WelcomePage::applySidebarPreferences()
     welcome_ui_->tipsSectionCard->setVisible(recent.gui_welcome_page_sidebar_tips_visible);
 
     welcome_ui_->learnSectionCard->setVisible(recent.gui_welcome_page_sidebar_learn_visible);
+
+    // Hide the entire sidebar container when all sidebar widgets are disabled,
+    // so the main content area can expand to fill the full window width.
+    bool sidebar_visible = recent.gui_welcome_page_sidebar_tips_visible ||
+                           recent.gui_welcome_page_sidebar_learn_visible;
+    welcome_ui_->sidebarContainer->setVisible(sidebar_visible);
 }
 
 #ifdef HAVE_LIBPCAP
