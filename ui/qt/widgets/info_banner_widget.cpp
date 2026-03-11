@@ -26,6 +26,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QAccessible>
+#ifdef Q_OS_MAC
+#include <QOperatingSystemVersion>
+#endif
 
 #include <ui/recent.h>
 
@@ -504,8 +507,19 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
     if (slides_.isEmpty()) return;
 
     QPainter painter(this);
+#ifdef Q_OS_MAC
+    // On macOS < 26.4, setjmp doesn't completely initialize jmp_buf,
+    // which can cause problems if we're loading plugins written in Go.
+    // https://gitlab.com/wireshark/wireshark/-/work_items/21083
+    // https://github.com/golang/go/issues/75887
+    QOperatingSystemVersion os_ver = QOperatingSystemVersion::current();
+    if (os_ver.majorVersion() > 26 || (os_ver.majorVersion() == 26 && os_ver.minorVersion() >= 4)) {
+#endif
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::TextAntialiasing);
+#ifdef Q_OS_MAC
+    }
+#endif
 
     const BannerSlide &slide = slides_[current_slide_];
     const QRectF r = rect();
