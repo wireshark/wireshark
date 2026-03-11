@@ -9,6 +9,8 @@
  */
 
 #include "config.h"
+
+#define WS_LOG_DOMAIN "nettrace_3gpp"
 #include "nettrace_3gpp_32_423.h"
 
 #include <sys/types.h>
@@ -698,6 +700,10 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 
 	doc = xmlReadFile(wth->pathname, NULL, XML_PARSE_NONET | XML_PARSE_NOERROR);
 	if (doc == NULL) {
+		//const xmlError * error = xmlGetLastError();
+		//if (error) {
+		//	ws_warning("Failed to parse =%s", error->message);
+		//}
 		return WTAP_OPEN_NOT_MINE;
 	}
 
@@ -709,6 +715,8 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 
 	//Sanity check
 	if (xmlStrcmp(root_element->name, (const xmlChar*)"traceCollecFile") != 0) {
+		//traceCollecFile note no t(Collec t )
+		ws_debug("traceCollecFile did not match root_element->name %s", root_element->name);
 		xmlFreeDoc(doc);
 		return WTAP_OPEN_NOT_MINE;
 	}
