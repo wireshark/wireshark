@@ -58,6 +58,8 @@ _tvb_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset);
 static inline const uint8_t*
 ensure_contiguous(tvbuff_t *tvb, const int offset, const int length);
 
+/* coverity[ +taint_sanitize : arg-1 ] */
+/* coverity[ +taint_sanitize : arg-2 ] */
 static inline const uint8_t*
 ensure_contiguous_unsigned(tvbuff_t *tvb, const unsigned offset, const unsigned length);
 
@@ -932,8 +934,6 @@ ensure_contiguous_unsigned_no_exception(tvbuff_t *tvb, const unsigned offset, co
 	return NULL;
 }
 
-/* coverity[ +tainted_data_sanitize : arg-1 ] */
-/* coverity[ +tainted_data_sanitize : arg-2 ] */
 static inline const uint8_t*
 ensure_contiguous_unsigned(tvbuff_t *tvb, const unsigned offset, const unsigned length)
 {
