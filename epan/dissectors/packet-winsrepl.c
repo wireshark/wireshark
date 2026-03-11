@@ -410,6 +410,10 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	netbios_add_name("Name", name_tvb, 0, name_tree);
 	name_type = get_netbios_name(name_tvb, 0, name_str, (NETBIOS_NAME_LEN - 1)*4 + 1);
 	proto_item_append_text(name_item, ": %s<%02x>", name_str, name_type);
+	/* name_len, in fuzzed data, can be much larger than NETBIOS_NAME_LEN,
+	 * which is all that get_netbios_name examines in the tvb.
+	 * So verify that the bytes exist before advancing the offset. */
+	tvb_ensure_bytes_exist(winsrepl_tvb, winsrepl_offset, name_len);
 	winsrepl_offset += name_len;
 
 	/* ALIGN to 4 Byte */
