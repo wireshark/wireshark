@@ -34,6 +34,7 @@
 static int proto_btle;
 static int proto_btle_rf;
 static int proto_nordic_ble;
+static int proto_silabs_dch;
 
 static int hf_access_address;
 static int hf_coding_indicator;
@@ -2610,10 +2611,10 @@ static const btle_context_t * get_btle_context(packet_info *pinfo,
     ubertooth_data_t *ubertooth_data = NULL;
 
     wmem_list_frame_t * list_data = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
-    if (list_data) {
+    if (list_data && data) {
         int previous_proto = GPOINTER_TO_INT(wmem_list_frame_data(list_data));
 
-        if ((previous_proto == proto_btle_rf)||(previous_proto == proto_nordic_ble)) {
+        if ((previous_proto == proto_btle_rf)||(previous_proto == proto_nordic_ble)||(previous_proto == proto_silabs_dch)) {
             btle_context = (const btle_context_t *) data;
             bluetooth_data = btle_context->previous_protocol_data.bluetooth_data;
         } else if (previous_proto == proto_bluetooth) {
@@ -7999,6 +8000,7 @@ proto_reg_handoff_btle(void)
 
     proto_btle_rf = proto_get_id_by_filter_name("btle_rf");
     proto_nordic_ble = proto_get_id_by_filter_name("nordic_ble");
+    proto_silabs_dch = proto_get_id_by_filter_name("silabs-dch");
 
     dissector_add_uint("bluetooth.encap", WTAP_ENCAP_BLUETOOTH_LE_LL, btle_handle);
 }
