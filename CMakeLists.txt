@@ -999,6 +999,7 @@ else() # ! MSVC
 	set(WIRESHARK_LD_FLAGS
 		# See also CheckCLinkerFlag.cmake
 		-Wl,--as-needed
+		-Wl,--stack,8388608 # For Windows, e.g. MSYS2/mingw
 		# -flto
 		# -fwhopr
 		# -fwhole-program
