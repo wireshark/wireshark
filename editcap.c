@@ -2648,7 +2648,6 @@ main(int argc, char *argv[])
         count++;
         wtap_rec_reset(&read_rec);
     }
-    wtap_rec_cleanup(&read_rec);
 
     if (verbose)
         fprintf(stderr, "Total selected: %" PRIu64 "\n", written_count);
@@ -2741,7 +2740,7 @@ clean_exit:
     wtap_dump_params_cleanup(&params);
     if (wth != NULL)
         wtap_close(wth);
-    wtap_rec_reset(&read_rec);
+    wtap_rec_cleanup(&read_rec);
     wtap_cleanup();
     free_progdirs();
     if (capture_comments != NULL) {
