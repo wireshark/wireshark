@@ -2396,7 +2396,7 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
                 if (opt_offset < offset + opt_len) {
                     // Don't dissect options in the main body.
                     opt_tvb = tvb_new_subset_length(tvb, opt_offset, offset + opt_len - opt_offset);
-                    opt_offset += dissect_icmpv6_nd_opt(tvb, 0, pinfo, icmp6opt_tree, icmpv6_type);
+                    opt_offset += dissect_icmpv6_nd_opt(opt_tvb, 0, pinfo, icmp6opt_tree, icmpv6_type);
                 }
 
                 break;
