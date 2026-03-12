@@ -145,6 +145,10 @@ DOC_DEPS_LIST=(
     docbook-xsl
 )
 
+DMG_DEPS_LIST=(
+    pipx
+)
+
 STRATOSHARK_LIST=(
     jsoncpp
     onetbb
@@ -167,6 +171,10 @@ if [ $INSTALL_DOC_DEPS -ne 0 ] ; then
     ACTUAL_LIST+=( "${DOC_DEPS_LIST[@]}" )
 fi
 
+if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
+    ACTUAL_LIST+=( "${DMG_DEPS_LIST[@]}" )
+fi
+
 if [ $INSTALL_STRATOSHARK -ne 0 ] ; then
     ACTUAL_LIST+=( "${STRATOSHARK_LIST[@]}" )
 fi
@@ -178,8 +186,7 @@ fi
 install_formulae "${ACTUAL_LIST[@]}"
 
 if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
-    printf "Sorry, you'll have to install dmgbuild yourself for the time being.\\n"
-    # pip3 install "dmgbuild[badge_icons]"
+    pipx install dmgbuild
 fi
 
 if [ $INSTALL_SPARKLE_DEPS -ne 0 ] ; then
