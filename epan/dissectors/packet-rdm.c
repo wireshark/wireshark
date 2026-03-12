@@ -2997,6 +2997,8 @@ dissect_rdm_pd_queued_message_sensor_subscribe(tvbuff_t *tvb, unsigned offset, p
   case RDM_CC_SET_COMMAND:
     proto_tree_add_item(tree, hf_rdm_pd_sensor_subscribe_action, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
+    len -= 1;
+    /* FALLTHROUGH */
   case RDM_CC_GET_COMMAND_RESPONSE:
     while (len >= 1) {
       proto_tree_add_item(tree, hf_rdm_pd_sensor_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
