@@ -458,16 +458,20 @@ bool FilterExpressionToolBar::filter_expression_add_action(const void *key _U_, 
     dfb_action->setProperty(dfe_property_label_, QString(fe->label));
     dfb_action->setProperty(dfe_property_expression_, QString(fe->expression));
 
-    if (data->actions_added) {
-        QFrame *sep = new QFrame();
-        sep->setEnabled(false);
-        data->toolbar->addWidget(sep);
-    }
-
-    if (parentMenu)
+    if (parentMenu) {
         parentMenu->addAction(dfb_action);
-    else
+    } else {
+        /* Only add a visual separator between toolbar-level buttons.
+         * Submenu items must not create separators because disabled
+         * QFrame widgets still occupy ~1 px on the toolbar, causing
+         * progressively wider gaps when many submenu entries exist. */
+        if (data->actions_added) {
+            QFrame *sep = new QFrame();
+            sep->setEnabled(false);
+            data->toolbar->addWidget(sep);
+        }
         data->toolbar->addAction(dfb_action);
+    }
 
     connect(dfb_action, &QAction::triggered, data->toolbar, &FilterExpressionToolBar::filterClicked);
     data->actions_added = true;
