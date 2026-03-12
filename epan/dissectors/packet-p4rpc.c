@@ -1102,8 +1102,8 @@ register_prefs(void)
 
     // Clear INFO field preference
     prefs_register_bool_preference( prefs_mod, "clear_info",
-        "Clear the INFO column and show the message count and the request names",
-        "If not set then just prepend the message count",
+        "Clear the INFO column and show the message counts and the request names",
+        "If not set then just prepend the message counts",
         &p4prefs.clear_info );
 
     // show_nul preference
