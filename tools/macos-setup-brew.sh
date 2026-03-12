@@ -86,6 +86,7 @@ for arg; do
             INSTALL_STRATOSHARK=1
             ;;
         --install-all)
+            INSTALL_REQUIRED=1
             INSTALL_OPTIONAL=1
             INSTALL_DOC_DEPS=1
             INSTALL_DMG_DEPS=1
