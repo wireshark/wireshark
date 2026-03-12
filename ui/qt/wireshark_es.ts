@@ -1011,6 +1011,10 @@
         <translation>Interfaz</translation>
     </message>
     <message>
+        <source>Interface Description</source>
+	<translation>Descripción de la interfaz</translation>
+    </message>
+    <message>
         <source>Dropped packets</source>
         <translation>Paquetes perdidos</translation>
     </message>

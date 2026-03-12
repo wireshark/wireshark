@@ -1034,6 +1034,10 @@
         <translation>Gränssnitt</translation>
     </message>
     <message>
+        <source>Interface Description</source>
+        <translation>Gränssnittsbeskrivning</translation>
+    </message>
+    <message>
         <source>Dropped packets</source>
         <translation>Släppta paket</translation>
     </message>

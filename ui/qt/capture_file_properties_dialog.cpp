@@ -155,7 +155,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
     QString table_begin, table_end;
     QString table_row_begin, table_ul_row_begin, table_row_end;
-    QString table_vheader_tmpl, table_hheader20_tmpl, table_hheader25_tmpl;
+    QString table_vheader_tmpl, table_hheader16_tmpl, table_hheader25_tmpl;
     QString table_data_tmpl;
 
     table_begin = "<p><table>\n";
@@ -163,8 +163,8 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     table_row_begin = "<tr>\n";
     table_ul_row_begin = "<tr style=\"border-bottom: 1px solid gray;\">\n";
     table_row_end = "</tr>\n";
-    table_vheader_tmpl = "<td width=\"20%\">%1:</td>"; // <th align="left"> looked odd
-    table_hheader20_tmpl = "<td width=\"20%\"><u>%1</u></td>";
+    table_vheader_tmpl = "<td width=\"16%\">%1:</td>"; // <th align="left"> looked odd
+    table_hheader16_tmpl = "<td width=\"16%\"><u>%1</u></td>";
     table_hheader25_tmpl = "<td width=\"25%\"><u>%1</u></td>";
     table_data_tmpl = "<td>%1</td>";
 
@@ -390,11 +390,12 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             out << table_begin;
 
             out << table_ul_row_begin
-                << table_hheader20_tmpl.arg(tr("Interface"))
-                << table_hheader20_tmpl.arg(getDroppedItemString())
-                << table_hheader20_tmpl.arg(tr("Capture filter"))
-                << table_hheader20_tmpl.arg(tr("Link type"))
-                << table_hheader20_tmpl.arg(getItemSizeLimitString())
+                << table_hheader16_tmpl.arg(tr("Interface"))
+                << table_hheader16_tmpl.arg(tr("Interface Description"))
+                << table_hheader16_tmpl.arg(getDroppedItemString())
+                << table_hheader16_tmpl.arg(tr("Capture filter"))
+                << table_hheader16_tmpl.arg(tr("Link type"))
+                << table_hheader16_tmpl.arg(getItemSizeLimitString())
                 << table_row_end;
         }
 
@@ -406,10 +407,13 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
             /* interface */
             QString interface_name(unknown);
-            if (iface.descr) {
-                interface_name = iface.descr;
-            } else if (iface.name) {
+            if (iface.name) {
                 interface_name = iface.name;
+            }
+
+            QString interface_description(unknown);
+            if (iface.descr) {
+                interface_description = iface.descr;
             }
 
             /* Dropped count */
@@ -432,6 +436,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
             out << table_row_begin
                 << table_data_tmpl.arg(interface_name)
+                << table_data_tmpl.arg(interface_description)
                 << table_data_tmpl.arg(interface_drops)
                 << table_data_tmpl.arg(interface_cfilter)
                 << table_data_tmpl.arg(wtap_encap_description(iface.encap_type))
@@ -476,8 +481,8 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         out << section_tmpl_.arg(tr("Decryption Secrets"));
         out << table_begin;
         out << table_ul_row_begin
-            << table_hheader20_tmpl.arg(tr("Type"))
-            << table_hheader20_tmpl.arg(tr("Size"))
+            << table_hheader16_tmpl.arg(tr("Type"))
+            << table_hheader16_tmpl.arg(tr("Size"))
             << table_row_end;
         // XXX: A DSB can have (multiple) comments, we could add that too.
         for (unsigned section_number = 0;

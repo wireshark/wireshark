@@ -1017,6 +1017,10 @@
         <translation>Інтерфейс</translation>
     </message>
     <message>
+        <source>Interface Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Dropped packets</source>
         <translation>Відкинуті пакети</translation>
     </message>

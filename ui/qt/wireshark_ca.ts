@@ -1034,6 +1034,10 @@
         <translation>Interfície</translation>
     </message>
     <message>
+        <source>Interface Description</source>
+        <translation>Descripció de la interfície</translation>
+    </message>
+    <message>
         <source>Dropped packets</source>
         <translation>Paquets descartats</translation>
     </message>

@@ -1025,6 +1025,10 @@
         <translation>인터페이스</translation>
     </message>
     <message>
+        <source>Interface Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Dropped packets</source>
         <translation>누락된 패킷</translation>
     </message>
