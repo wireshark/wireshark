@@ -1017,6 +1017,10 @@
         <translation>接口</translation>
     </message>
     <message>
+        <source>Interface Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Dropped packets</source>
         <translation>丢弃分组</translation>
     </message>

@@ -1046,6 +1046,10 @@
         <translation>Schnittstelle</translation>
     </message>
     <message>
+        <source>Interface Description</source>
+        <translation>Schnittstellenbeschreibung</translation>
+    </message>
+    <message>
         <source>Dropped packets</source>
         <translation>Verworfene Pakete</translation>
     </message>
