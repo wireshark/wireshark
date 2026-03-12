@@ -99,7 +99,7 @@
 
 // Normally set by Wireshark builds
 #ifndef VERSION
-# define VERSION        "1.0.6"
+# define VERSION        "1.0.7"
 #endif
 
 /*
@@ -836,15 +836,19 @@ dissect_p4rpc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     if( p4prefs.clear_info )
         col_clear( pinfo->cinfo, COL_INFO );
 
+    // group all of the messages in this set of frames
+    col_append_str( pinfo->cinfo, COL_INFO, " {" );
     // reassemble TCP packets and call dissect_p4rpc_pdu on each pdu
     tcp_dissect_pdus( tvb, pinfo, tree, true, MSG_HEADER_LEN,
                      get_p4rpc_pdu_len, dissect_p4rpc_pdu, &info );
+    col_append_str( pinfo->cinfo, COL_INFO, "}" );
 
     /*
      * Add [msgs=NN] to the INFO of the packet tree where NN
      * is the number of messages in the packet
      */
-    col_prepend_fstr( pinfo->cinfo, COL_INFO, "[msgs=%d] ", info.num_msgs );
+    col_prepend_fstr( pinfo->cinfo, COL_INFO,
+        (p4prefs.clear_info ? "[msgs=%d]" : "[msgs=%d] "), info.num_msgs );
 
     /*
      * Similar to "func" and "hidden", allow filtering by number
