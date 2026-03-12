@@ -4375,9 +4375,16 @@ if(CLEAN_C_FILES)
 	)
 endif()
 
-# CMake 3.31 and later warn, if normalization changes a path (CMP0177).
-# As we want to normalize without the warning, we do it explicitly.
-cmake_path(SET TMP_DST_PATH NORMALIZE "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
+# macOS and Windows bundle Wireshark and Stratoshark separately, so they don't need
+# a "project specific" subdirectory to hold the differences between them.
+# XXX - Maybe this should be its own variable to handle separate or together installations?
+if (WIN32 OR APPLE)
+    set(TMP_DST_PATH "${CMAKE_INSTALL_DATADIR}")
+else()
+    # CMake 3.31 and later warn, if normalization changes a path (CMP0177).
+    # As we want to normalize without the warning, we do it explicitly.
+    cmake_path(SET TMP_DST_PATH NORMALIZE "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
+endif()
 install(
 	FILES
 		${INSTALL_FILES}
@@ -4495,7 +4502,13 @@ install(FILES "${CMAKE_BINARY_DIR}/resources/wireshark.pc"
 	EXCLUDE_FROM_ALL
 )
 
-cmake_path(SET TMP_DST_PATH NORMALIZE "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
+# macOS and Windows bundle Wireshark and Stratoshark separately, so they don't need
+# a "project specific" subdirectory to hold the differences between them.
+if (WIN32 OR APPLE)
+    set(TMP_DST_PATH "${CMAKE_INSTALL_DATADIR}")
+else()
+    cmake_path(SET TMP_DST_PATH NORMALIZE "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
+endif()
 install(
 	DIRECTORY
 		${INSTALL_DIRS}
