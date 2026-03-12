@@ -857,7 +857,7 @@ de_bssgp_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
     curr_offset+=2;
     if (add_string) {
         char *str = ws_strdup_printf("%s, CI %u", add_string, ci);
-        g_strlcpy(add_string, str, string_len);
+        (void) g_strlcpy(add_string, str, string_len);
         g_free(str);
     }
 
@@ -2309,7 +2309,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, ui
 
             if (add_string) {
                 char *str = ws_strdup_printf(" %s, RNC-ID %u", add_string, rnc_id);
-                g_strlcpy(add_string, str, string_len);
+                (void) g_strlcpy(add_string, str, string_len);
                 g_free(str);
             }
             break;
@@ -2764,7 +2764,7 @@ de_bssgp_rnc_identifier(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uin
 
     if (add_string) {
         char *str = ws_strdup_printf(" %s, RNC-ID %u", add_string, rnc_id);
-        g_strlcpy(add_string, str, string_len);
+        (void) g_strlcpy(add_string, str, string_len);
         g_free(str);
     }
 

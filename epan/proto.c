@@ -7632,7 +7632,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, int occurrence, bool displ
 					size_t offset = 0;
 
 					if (finfo->rep && finfo->rep->value_len) {
-						g_strlcpy(representation, &finfo->rep->representation[finfo->rep->value_pos],
+						(void) g_strlcpy(representation, &finfo->rep->representation[finfo->rep->value_pos],
 							  MIN(finfo->rep->value_len + 1, ITEM_LABEL_LENGTH));
 					} else {
 						proto_item_fill_label(finfo, representation, &offset);

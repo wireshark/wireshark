@@ -2325,7 +2325,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Setting new command's info in the Last Command field */
         last_command = get_current_role_last_command(at_info, role);
         if (last_command) {
-            g_strlcpy(last_command->name, name, STORE_COMMAND_MAX_LEN);
+            (void) g_strlcpy(last_command->name, name, STORE_COMMAND_MAX_LEN);
             last_command->type = type;
             last_command->expected_data_parts = 0;
             last_command->consumed_data_parts = 0;

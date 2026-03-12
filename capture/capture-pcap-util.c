@@ -1709,7 +1709,7 @@ get_if_capabilities(interface_options *interface_opts,
 			 * URL, treat that as meaning "remote capture
 			 * not supported".
 			 */
-			g_strlcpy(errbuf, "Remote capture not supported",
+			(void) g_strlcpy(errbuf, "Remote capture not supported",
 			    PCAP_ERRBUF_SIZE);
 		}
 		*status_str = g_strdup(errbuf[0] == '\0' ? "Unknown error (pcap bug; actual error cause not reported)" : errbuf);
@@ -1812,7 +1812,7 @@ open_capture_device(capture_options *capture_opts,
 				 * URL, treat that as meaning "remote capture
 				 * not supported".
 				 */
-				g_strlcpy(*open_status_str,
+				(void) g_strlcpy(*open_status_str,
 				    "Remote capture not supported",
 				    PCAP_ERRBUF_SIZE);
 			}

@@ -1413,7 +1413,7 @@ static int detect_host_prompt(ssh_channel channel)
 			return EXIT_FAILURE;
 	}
 	if (len > 0) {
-		g_strlcpy(prompt_str, line, SSH_READ_BLOCK_SIZE + 1);
+		(void) g_strlcpy(prompt_str, line, SSH_READ_BLOCK_SIZE + 1);
 
 		/* Is there hashtag at the end => enabled mode? */
 		if (prompt_str[strlen(prompt_str)-1] != '#') {
@@ -1438,7 +1438,7 @@ static int detect_host_prompt(ssh_channel channel)
 			return EXIT_FAILURE;
 	}
 	if (len > 0) {
-		g_strlcpy(prompt_2, line, SSH_READ_BLOCK_SIZE + 1);
+		(void) g_strlcpy(prompt_2, line, SSH_READ_BLOCK_SIZE + 1);
 		/* Does second prompt_str match first one? */
 		if (0 == g_strcmp0(prompt_str, prompt_2)) {
 			ws_debug("Detected prompt %s", prompt_str);

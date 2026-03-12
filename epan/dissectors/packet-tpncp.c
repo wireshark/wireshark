@@ -508,7 +508,7 @@ fill_enums_id_vals(char ***enum_names, value_string ***enum_value_strings, FILE 
 
                 char *enum_name_alloc = wmem_strdup(wmem_epan_scope(), enum_name);
                 wmem_array_append_one(enum_name_arr, enum_name_alloc);
-                g_strlcpy(enum_type, enum_name, sizeof enum_type);
+                (void) g_strlcpy(enum_type, enum_name, sizeof enum_type);
             }
             value_string const vs = {
                 .value  = enum_id,
