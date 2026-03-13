@@ -142,30 +142,6 @@ if(ASCIIDOCTOR_EXECUTABLE)
         # set_asciidoctor_target_properties(generate_${_output_target}_html)
     endfunction()
 
-    function(ASCIIDOCTOR2TXT _asciidocsource)
-        cmake_parse_arguments(arg "CONVERT_UNDERSCORES" "" "" ${ARGN})
-        get_filename_component(_source_base_name ${_asciidocsource} NAME_WE)
-        if (arg_CONVERT_UNDERSCORES)
-            string(REPLACE "_" " " _source_base_name ${_source_base_name})
-        endif()
-        set(_input_html ${_source_base_name}.html)
-        set(_output_txt ${_source_base_name}.txt)
-
-        ADD_CUSTOM_COMMAND(
-            OUTPUT
-                ${_output_txt}
-            COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
-                ${_input_html}
-                > ${_output_txt}
-            DEPENDS
-                ${MAN_INCLUDES}
-                ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
-                ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-                ${_input_html}
-                ${_asciidocsource}
-        )
-    endfunction()
-
     # Generate one or more ROFF man pages
     function(ASCIIDOCTOR2ROFFMAN _man_section)
         set(_input_adoc)

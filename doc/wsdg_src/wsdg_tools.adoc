@@ -498,7 +498,6 @@ Guide HTML:: Asciidoctor → _DocBook XML_ → xsltproc + DocBook XSL
 Guide PDF:: Asciidoctor
 
 Release notes HTML:: Asciidoctor
-Release notes text:: Asciidoctor → _HTML_ → html2text.py
 
 ==== Asciidoctor
 
