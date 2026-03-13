@@ -200,7 +200,7 @@ if(APPLE)
   add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 etc/xml)
 
   file(MAKE_DIRECTORY ${ARTIFACTS_DIR}/sparkle)
-  add_external_artifact(https://github.com/sparkle-project/Sparkle/releases/download/2.7.1/Sparkle-2.7.1.tar.xz f7385c3e8c70c37e5928939e6246ac9070757b4b37a5cb558afa1b0d5ef189de sparkle)
+  add_external_artifact(https://github.com/sparkle-project/Sparkle/releases/download/2.7.3/Sparkle-2.7.3.tar.xz 4146b751cf53f54ad0bacb63b4d2fa412d8edc10bd0939dd25b5866f0c8c5094 sparkle)
 
   if(need_falco_libs)
     add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.23.1-1-macos-universal.tar.xz de2f0b8952483393b3994eb09cdf52cb9b36fb9c4e8f6308bea8ff318d80de10)
