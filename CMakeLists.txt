@@ -499,8 +499,8 @@ endif()
 # be reduced further by setting "job pools" to a lower number.
 #
 if(CMAKE_MAKE_PROGRAM MATCHES "ninja" AND OSS_FUZZ)
-	# Assume oss-fuzz linker jobs do not require more than 1.2G per task
-	set(per_job_memory_mb 1200)
+	# Assume oss-fuzz linker jobs do not require more than 2G per task
+	set(per_job_memory_mb 2000)
 	cmake_host_system_information(RESULT total_memory_mb QUERY TOTAL_PHYSICAL_MEMORY)
 	math(EXPR parallel_link_jobs "${total_memory_mb} / ${per_job_memory_mb}")
 	if(parallel_link_jobs LESS 1)
@@ -2488,7 +2488,7 @@ if(USE_REPOSITORY)
 			#Grab everything in the subdirectory, but only keep the files.
 			set(MIBS_FILES "")
 			file(GLOB POTENTIAL_MIBS_FILES
-				CONFIGURE_DEPENDS 
+				CONFIGURE_DEPENDS
 				"${SMI_SHARE_DIR}/${_mib_dir}/*"
 			)
 			foreach(_path ${POTENTIAL_MIBS_FILES})
