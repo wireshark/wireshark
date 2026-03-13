@@ -170,7 +170,7 @@ static int hf_isakmp_notify_data_fortinet_forticlient_connect_osver;
 static int hf_isakmp_notify_data_fortinet_forticlient_connect_reg_status;
 static int hf_isakmp_notify_data_fortinet_forticlient_connect_emssn;
 static int hf_isakmp_notify_data_fortinet_forticlient_connect_emsid;
-static int hf_isakmp_notify_data_accepted_dh_group;
+static int hf_isakmp_notify_data_accepted_ke_method;
 static int hf_isakmp_notify_data_ipcomp_cpi;
 static int hf_isakmp_notify_data_ipcomp_transform_id;
 static int hf_isakmp_notify_data_auth_lifetime;
@@ -321,7 +321,7 @@ static int hf_isakmp_trans_type;
 static int hf_isakmp_trans_encr;
 static int hf_isakmp_trans_prf;
 static int hf_isakmp_trans_integ;
-static int hf_isakmp_trans_dh;
+static int hf_isakmp_trans_ke;
 static int hf_isakmp_trans_esn;
 static int hf_isakmp_trans_id_v2;
 
@@ -346,7 +346,7 @@ static int hf_isakmp_cisco_frag_packetid;
 static int hf_isakmp_cisco_frag_seq;
 static int hf_isakmp_cisco_frag_last;
 
-static int hf_isakmp_key_exch_dh_group;
+static int hf_isakmp_key_exch_method;
 static int hf_isakmp_key_exch_data;
 static int hf_isakmp_eap_data;
 
@@ -1140,6 +1140,16 @@ static const value_string ike_attr_authmeth_china[] = {
   { 0,     NULL },
 };
 
+/* This value string is used both by IKEv1 Group Description (Value 4)
+ * and IKEv2 Transform Type 4, formerly "Diffie-Hellman Group (D-H)",
+ * renamed by RFC 9370 to "Key Exchange Method (KE)". Unlike other IKE
+ * registries, the two are compatible. 3-4 are assigned in IKEv1 and
+ * Reserved in IKEv2. 6-13 were reserved per draft-ipsec-ike-ecc-groups
+ * but that I-D expired without being adopted and they are deprecated
+ * in IKEv1 and Unassigned in IKEv2. All entries starting with 31 are
+ * defined for IKEv2 only. This value string prefers the defined value
+ * over unassigned values when the two registries differ. That may
+ * change as RFC 9395 deprecated IKEv1. */
 static const value_string dh_group[] = {
   { 0,  "UNDEFINED - 0" },
   { 1,  "Default 768-bit MODP group" },
@@ -1193,7 +1203,7 @@ static const value_string ike_attr_grp_type[] = {
 #define TF_IKE2_ENCR    1
 #define TF_IKE2_PRF     2
 #define TF_IKE2_INTEG   3
-#define TF_IKE2_DH      4
+#define TF_IKE2_KE      4
 #define TF_IKE2_ESN     5
 #define TF_IKE2_ADDKE1  6
 #define TF_IKE2_ADDKE2  7
@@ -1208,7 +1218,7 @@ static const range_string transform_ike2_type[] = {
   { TF_IKE2_ENCR,TF_IKE2_ENCR,  "Encryption Algorithm (ENCR)" },
   { TF_IKE2_PRF,TF_IKE2_PRF,    "Pseudo-random Function (PRF)"},
   { TF_IKE2_INTEG,TF_IKE2_INTEG,"Integrity Algorithm (INTEG)"},
-  { TF_IKE2_DH,TF_IKE2_DH,      "Diffie-Hellman Group (D-H)"},
+  { TF_IKE2_KE,TF_IKE2_KE,      "Key Exchange Method (KE)"},
   { TF_IKE2_ESN,TF_IKE2_ESN,    "Extended Sequence Numbers (ESN)"},
   { TF_IKE2_ADDKE1,TF_IKE2_ADDKE1, "ADDKE1"},
   { TF_IKE2_ADDKE2,TF_IKE2_ADDKE2, "ADDKE2"},
@@ -1455,9 +1465,10 @@ static const range_string notifmsg_v2_type[] = {
   { 42,42,      "USE_ASSIGNED_HoA" },                           /* RFC5026 */
   { 43,43,      "TEMPORARY_FAILURE" },                          /* RFC5996 */
   { 44,44,      "CHILD_SA_NOT_FOUND" },                         /* RFC5996 */
-  { 45,45,      "INVALID_GROUP_ID" },                           /* draft-yeung-g-ikev2 */
-  { 46,46,      "CHILD_SA_NOT_FOUND" },                         /* draft-yeung-g-ikev2 */
-  { 47,8191,    "RESERVED TO IANA - Error types" },
+  { 45,45,      "INVALID_GROUP_ID" },                           /* RFC9838 */
+  { 46,46,      "CHILD_SA_NOT_FOUND" },                         /* RFC9838 */
+  { 47,47,      "STATE_NOT_FOUND" },                            /* RFC9370 */
+  { 48,8191,    "RESERVED TO IANA - Error types" },
   { 8192,16383,         "Private Use - Errors" },
   { 16384,16384,        "INITIAL_CONTACT" },
   { 16385,16385,        "SET_WINDOW_SIZE" },
@@ -4369,8 +4380,8 @@ dissect_transform(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned l
     case TF_IKE2_INTEG:
       proto_tree_add_item(tree, hf_isakmp_trans_integ, tvb, offset, 2, ENC_BIG_ENDIAN);
       break;
-    case TF_IKE2_DH:
-      proto_tree_add_item(tree, hf_isakmp_trans_dh, tvb, offset, 2, ENC_BIG_ENDIAN);
+    case TF_IKE2_KE:
+      proto_tree_add_item(tree, hf_isakmp_trans_ke, tvb, offset, 2, ENC_BIG_ENDIAN);
       break;
     case TF_IKE2_ESN:
       proto_tree_add_item(tree, hf_isakmp_trans_esn, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4392,7 +4403,7 @@ dissect_key_exch(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tr
                  packet_info* pinfo, void* decr_data)
 {
   if (isakmp_version == 2) {
-    proto_tree_add_item(tree, hf_isakmp_key_exch_dh_group, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_isakmp_key_exch_method, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     length -= 2;
 
@@ -5002,7 +5013,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned lengt
   {
     switch(msgtype){
       case 17: /* INVALID_KE_PAYLOAD */
-        proto_tree_add_item(tree, hf_isakmp_notify_data_accepted_dh_group, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_isakmp_notify_data_accepted_ke_method, tvb, offset, 2, ENC_BIG_ENDIAN);
         break;
       case 16387: /* IPCOMP_SUPPORTED */
         proto_tree_add_item(tree, hf_isakmp_notify_data_ipcomp_cpi, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -7302,8 +7313,8 @@ proto_register_isakmp(void)
       { "EMS ID", "isakmp.notify.data.fortinet.forticlient_connect.emsid",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_isakmp_notify_data_accepted_dh_group,
-      { "Accepted DH group number", "isakmp.notify.data.accepted_dh_group",
+    { &hf_isakmp_notify_data_accepted_ke_method,
+      { "Accepted KE method", "isakmp.notify.data.accepted_dh_group",
         FT_UINT16, BASE_DEC, VALS(dh_group), 0x0,
         NULL, HFILL }},
     { &hf_isakmp_notify_data_ipcomp_cpi,
@@ -7998,8 +8009,8 @@ proto_register_isakmp(void)
       { "Transform ID (INTEG)", "isakmp.tf.id.integ",
         FT_UINT16, BASE_DEC, VALS(transform_ike2_integ_type), 0x00,
         NULL, HFILL }},
-    { &hf_isakmp_trans_dh,
-      { "Transform ID (D-H)", "isakmp.tf.id.dh",
+    { &hf_isakmp_trans_ke,
+      { "Transform ID (KE)", "isakmp.tf.id.dh",
         FT_UINT16, BASE_DEC, VALS(dh_group), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_trans_esn,
@@ -8038,8 +8049,8 @@ proto_register_isakmp(void)
         NULL, HFILL }},
 
 
-    { &hf_isakmp_key_exch_dh_group,
-      { "DH Group #", "isakmp.key_exchange.dh_group",
+    { &hf_isakmp_key_exch_method,
+      { "Key Exchange Method", "isakmp.key_exchange.dh_group",
         FT_UINT16, BASE_DEC, VALS(dh_group), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_key_exch_data,
