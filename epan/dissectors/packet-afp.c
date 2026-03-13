@@ -4327,7 +4327,9 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			}
 
 			offset += 8;
+			increment_dissection_depth(pinfo);
 			offset = spotlight_dissect_query_loop(tvb, pinfo, sub_tree, offset, complex_query_type, subquery_count, toc_offset, encoding);
+			decrement_dissection_depth(pinfo);
 			count--;
 			break;
 		case SQ_TYPE_NULL:
