@@ -54,9 +54,12 @@ static int hf_lin_err_invalidid;
 static int hf_lin_err_overflow;
 static int hf_lin_event_id;
 static int hf_lin_bus_id;
+static int hf_lin_sleep_req;
+static int hf_lin_sleep_req_data;
 
 static int ett_lin;
 static int ett_lin_pid;
+static int ett_lin_sleep_req;
 static int ett_errors;
 
 static int * const error_fields[] = {
@@ -367,20 +370,29 @@ lin_set_source_and_destination_columns(packet_info* pinfo, lin_info_t *lininfo) 
     return false;
 }
 
+static int
+dissect_lin_sleep_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+    proto_item* ti_root = proto_tree_add_item(tree, hf_lin_sleep_req, tvb, 0, -1, ENC_NA);
+    proto_tree* sleep_tree = proto_item_add_subtree(ti_root, ett_lin_sleep_req);
+    proto_tree_add_item(sleep_tree, hf_lin_sleep_req_data, tvb, 0, -1, ENC_NA);
+    col_append_str(pinfo->cinfo, COL_INFO, " - Go-to-sleep Command");
+    return tvb_captured_length(tvb);
+}
+
 int
 dissect_lin_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, lin_info_t *lininfo) {
     /* LIN encodes a sleep frame by setting ID to LIN_DIAG_MASTER_REQUEST_FRAME and the first byte to 0x00 */
-    bool ignore_lin_payload = (lininfo->id == LIN_DIAG_MASTER_REQUEST_FRAME && tvb_get_uint8(tvb, 0) == 0x00);
+    if (lininfo->id == LIN_DIAG_MASTER_REQUEST_FRAME && tvb_get_uint8(tvb, 0) == 0x00) {
+        return dissect_lin_sleep_request(tvb, pinfo, tree);
+    }
 
     int ret = 0;
-    if (!ignore_lin_payload) {
-        uint32_t bus_frame_id = lininfo->id | (lininfo->bus_id << 16);
-        ret = dissector_try_uint_with_data(subdissector_table, bus_frame_id, tvb, pinfo, tree, true, lininfo);
+    uint32_t bus_frame_id = lininfo->id | (lininfo->bus_id << 16);
+    ret = dissector_try_uint_with_data(subdissector_table, bus_frame_id, tvb, pinfo, tree, true, lininfo);
+    if (ret == 0) {
+        ret = dissector_try_uint_with_data(subdissector_table, lininfo->id, tvb, pinfo, tree, true, lininfo);
         if (ret == 0) {
-            ret = dissector_try_uint_with_data(subdissector_table, lininfo->id, tvb, pinfo, tree, true, lininfo);
-            if (ret == 0) {
-                ret = dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, lininfo);
-            }
+            ret = dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, lininfo);
         }
     }
 
@@ -535,11 +547,18 @@ proto_register_lin(void) {
         { &hf_lin_bus_id,
             { "Bus ID", "lin.bus_id",
             FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_lin_sleep_req,
+            { "Go-to-sleep Command", "lin.go_to_sleep",
+            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_lin_sleep_req_data,
+            { "Go-to-sleep Payload", "lin.go_to_sleep.data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
     };
 
     static int *ett[] = {
         &ett_lin,
         &ett_lin_pid,
+        &ett_lin_sleep_req,
         &ett_errors,
     };
 
