@@ -264,8 +264,8 @@ void InterfaceTreeCacheModel::save()
     {
         char ** key = it.key();
 
-        g_free(*key);
-        *key = qstring_strdup(it.value().join(","));
+        wmem_free(wmem_epan_scope(), *key);
+        *key = wmem_strdup(wmem_epan_scope(), it.value().join(",").toUtf8().constData());
 
         ++it;
     }
