@@ -950,6 +950,17 @@ CreateDirectory $INSTDIR\extcap
 SetOutPath $INSTDIR\protobuf
 File "${STAGING_DIR}\protobuf\*.proto"
 
+;
+; Install the JSON XML configuration files in the "json" subdirectory
+;
+SetOutPath $INSTDIR\json
+File "${STAGING_DIR}\json\config.txt"
+File "${STAGING_DIR}\json\DICTIONARY-GUIDE.txt"
+File "${STAGING_DIR}\json\example-api.xml"
+File "${STAGING_DIR}\json\jsonmain.xml"
+File "${STAGING_DIR}\json\README.txt"
+SetOutPath $INSTDIR
+
 ; Install the TPNCP DAT file in the "tpncp" subdirectory
 ; of the installation directory.
 SetOutPath $INSTDIR\tpncp
@@ -1435,6 +1446,7 @@ Delete "$INSTDIR\generic\*.*"
 Delete "$INSTDIR\help\*.*"
 Delete "$INSTDIR\iconengines\*.*"
 Delete "$INSTDIR\imageformats\*.*"
+Delete "$INSTDIR\json\*.*"
 Delete "$INSTDIR\mediaservice\*.*"
 Delete "$INSTDIR\multimedia\*.*"
 Delete "$INSTDIR\networkinformation\*.*"
@@ -1485,6 +1497,7 @@ RMDir "$INSTDIR\extcap"
 RMDir "$INSTDIR\extcap"
 RMDir "$INSTDIR\iconengines"
 RMDir "$INSTDIR\imageformats"
+RMDir "$INSTDIR\json"
 RMDir "$INSTDIR\mediaservice"
 RMDir "$INSTDIR\multimedia"
 RMDir "$INSTDIR\networkinformation"
