@@ -4548,6 +4548,7 @@ install(
 	PATTERN ".git" EXCLUDE
 	PATTERN ".svn" EXCLUDE
 	PATTERN "Makefile.*" EXCLUDE
+	PATTERN ".editorconfig" EXCLUDE
 )
 
 
