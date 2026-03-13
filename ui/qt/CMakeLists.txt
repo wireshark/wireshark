@@ -724,10 +724,14 @@ set(WIRESHARK_QT_TS
 	wireshark_zh_CN.ts
 )
 
+cmake_path(SET TRANSLATION_INSTALL_DIR NORMALIZE "${CMAKE_INSTALL_BINDIR}/translations")
+
 foreach(_file ${WIRESHARK_QT_TS})
+
 	get_filename_component(_qresource ${_file} NAME_WE)
 	set(_qresource_qm "${_qresource}.qm")
 	set(i18n_qresource "${i18n_qresource}\n    <file>${_qresource_qm}</file>")
+	install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${_qresource_qm}" DESTINATION "${TRANSLATION_INSTALL_DIR}")
 endforeach()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/i18n.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc)
 
