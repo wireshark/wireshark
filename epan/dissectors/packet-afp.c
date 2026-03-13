@@ -1154,32 +1154,6 @@ static wmem_map_t *afp_request_hash;
 static unsigned Vol;      /* volume */
 static unsigned Did;      /* parent directory ID */
 
-/*
-* Returns the UTF-16 byte order, as an ENC_xxx_ENDIAN value,
-* by checking the 2-byte byte order mark.
-* If there is no byte order mark, 0xFFFFFFFF is returned.
-*/
-static unsigned
-spotlight_get_utf16_string_byte_order(tvbuff_t *tvb, int offset, int query_length, unsigned encoding) {
-	unsigned byte_order;
-
-	/* check for byte order mark */
-	byte_order = 0xFFFFFFFF;
-	if (query_length >= 2) {
-		uint16_t byte_order_mark;
-		byte_order_mark = tvb_get_uint16(tvb, offset, encoding);
-
-		if (byte_order_mark == 0xFFFE) {
-			byte_order = ENC_BIG_ENDIAN;
-		}
-		else if (byte_order_mark == 0xFEFF) {
-			byte_order = ENC_LITTLE_ENDIAN;
-		}
-	}
-
-	return byte_order;
-}
-
 /* Hash Functions */
 static int   afp_equal (const void *v, const void *v2)
 {
@@ -4226,8 +4200,6 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	int query_length;
 	uint64_t query_type;
 	uint64_t complex_query_type;
-	unsigned byte_order;
-	bool mark_exists;
 	tvbuff_t *spotlight_tvb;
 	char *str_tmp;
 
@@ -4294,20 +4266,13 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				query_data64 = tvb_get_uint64(tvb, offset + 8, encoding);
 				query_length = ((int)query_data64 & 0xffff) * 8;
 
-				byte_order = spotlight_get_utf16_string_byte_order(tvb, offset + 16, query_length - 8, encoding);
-				if (byte_order == 0xFFFFFFFF) {
-					byte_order = ENC_BIG_ENDIAN;
-					mark_exists = false;
-				} else
-					mark_exists = true;
-
 				sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, query_length + 8,
 								 ett_afp_spotlight_query_line, NULL,
 								 "%s, toc index: %u, utf-16 string: '%s'",
 								 val64_to_str_const(complex_query_type, cpx_qtype_string_values, "Unknown"),
 								 toc_index + 1,
-								 tvb_get_string_enc(pinfo->pool, tvb, offset + (mark_exists ? 18 : 16),
-								 query_length - (mark_exists? 10 : 8), ENC_UTF_16 | byte_order));
+								 tvb_get_string_enc(pinfo->pool, tvb, offset + 16,
+								 query_length - 8, ENC_UTF_16|ENC_BIG_ENDIAN|ENC_BOM));
 				break;
 			default:
 				subquery_count = 1;
@@ -4376,15 +4341,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				break;
 			case SQ_CPX_TYPE_UTF16_STRING: {
 				/* description see above */
-				byte_order = spotlight_get_utf16_string_byte_order(tvb, offset + 16, query_length - 8, encoding);
-				if (byte_order == 0xFFFFFFFF) {
-					byte_order = ENC_BIG_ENDIAN;
-					mark_exists = false;
-				} else
-					mark_exists = true;
-
-				str_tmp = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + (mark_exists ? 10 : 8),
-								query_length - (mark_exists? 10 : 8), ENC_UTF_16 | byte_order);
+				str_tmp = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 8, query_length - 8, ENC_UTF_16|ENC_BIG_ENDIAN|ENC_BOM);
 				proto_tree_add_string(tree, hf_afp_utf_16_string, tvb, offset, query_length, str_tmp);
 				break;
 			}
