@@ -207,7 +207,7 @@ static const value_string pn_io_error_code1_pnio[] = {
     { 0x0B /* 11*/, "Connect: Faulty ARFSUBlock" },
     { 0x0C /* 12*/, "Connect: Faulty ARVendorBlockReq" },
     { 0x0D /* 13*/, "Connect: Faulty RSInfoBlock" },
-    { 0x0E /* 14*/, "Connect: ARAlgorithmInfoBlock"},
+    { 0x0E /* 14*/, "Connect: Faulty ARAlgorithmInfoBlock"},
     { 0x14 /* 20*/, "IODControl: Faulty ControlBlockConnect" },
     { 0x15 /* 21*/, "IODControl: Faulty ControlBlockPlug" },
     { 0x16 /* 22*/, "IOXControl: Faulty ControlBlock after a connect est." },
@@ -277,6 +277,9 @@ static const value_string pn_io_error_code1_pnio[] = {
     { 0xd2 /*210*/, "CMSRL" },
     { 0xd3 /*211*/, "CMDMC" },
     { 0xd4 /*212*/, "CMSAM" },
+
+    { 0xe0 /*224*/, "SXP Protocol Error" },
+    { 0xe1 /*225*/, "RTAv3 Protocol Error" },
 
     { 0xfd /*253*/, "RTA_ERR_CLS_PROTOCOL" },
     { 0xff /*255*/, "User specific" },
@@ -1053,8 +1056,8 @@ dissect_pn_undecoded(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
     proto_item *item;
 
 
-    item = proto_tree_add_string_format(tree, hf_pn_undecoded_data, tvb, offset, length, "data",
-        "Undecoded Data: %d bytes", length);
+    item = proto_tree_add_string_format_value(tree, hf_pn_undecoded_data, tvb, offset, length, "data",
+        "%d bytes", length);
 
     expert_add_info_format(pinfo, item, &ei_pn_undecoded_data,
                            "Undecoded Data, %u bytes", length);
@@ -1102,8 +1105,8 @@ unsigned
 dissect_pn_padding(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
                     proto_tree *tree, unsigned length)
 {
-    proto_tree_add_string_format(tree, hf_pn_padding, tvb, offset, length, "data",
-        "Padding: %u byte", length);
+    proto_tree_add_string_format_value(tree, hf_pn_padding, tvb, offset, length, "data",
+        "%u byte", length);
 
     return offset + length;
 }
@@ -1116,8 +1119,8 @@ dissect_pn_align4(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_
 
     padding = WS_PADDING_TO_4(offset);
     if (padding != 0) {
-        proto_tree_add_string_format(tree, hf_pn_padding, tvb, offset, padding, "data",
-            "Padding: %u byte", padding);
+        proto_tree_add_string_format_value(tree, hf_pn_padding, tvb, offset, padding, "data",
+            "%u byte", padding);
     }
 
     return offset + padding;

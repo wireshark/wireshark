@@ -219,9 +219,9 @@ dissect_DataStatus(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info
             offset, 0, "Output", "Output Frame (IO_Controller -> IO_Device)");
     }
 
-    sub_item = proto_tree_add_uint_format(tree, hf_pn_rt_data_status,
+    sub_item = proto_tree_add_uint_format_value(tree, hf_pn_rt_data_status,
         tvb, offset, 1, u8DataStatus,
-        "DataStatus: 0x%02x (Frame: %s and %s, Provider: %s and %s)",
+        "0x%02x (Frame: %s and %s, Provider: %s and %s)",
         u8DataStatus,
         (u8DataStatus & 0x04) ? "Valid"   : "Invalid",
         (u8DataStatus & 0x01) ? "Primary" : "Backup",
@@ -942,6 +942,12 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             pszProtSummary = "acyclic Real-Time";
             pszProtComment = "Real-Time: Acyclic PN-IO RSI";
         }
+        if (u16FrameID == 0xFE03) {
+            pszProtShort = "PN-SXP";
+            pszProtAddInfo = "";
+            pszProtSummary = "SXP via RTAv3";
+            pszProtComment = "Real-Time: Acyclic PN-IO SXP via RTAv3";
+        }
         if (u16FrameID == 0xFE42) {
             pszProtShort = "PNIO-RSIsec";
             pszProtAddInfo = "";
@@ -1104,8 +1110,8 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         pn_rt_tree = proto_item_add_subtree(ti, ett_pn_rt);
 
         /* add frame ID */
-        proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_frame_id, tvb,
-          0, 2, u16FrameID, "FrameID: 0x%04x (%s)", u16FrameID, pszProtComment);
+                proto_tree_add_uint_format_value(pn_rt_tree, hf_pn_rt_frame_id, tvb,
+                    0, 2, u16FrameID, "0x%04x (%s)", u16FrameID, pszProtComment);
 
         /* APDU_Status for RTA frames with security. If AE, APDU_Status Info will not show because it is encrypted. */
         if ((u16SecurityLength == security_data) && bCyclic)
@@ -1113,42 +1119,42 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             if (u8ProtectionMode == 0x00)
             {
                 /* add cycle counter */
-                proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_cycle_counter, tvb,
-                    pdu_len - 20, 2, u16CycleCounter, "CycleCounter: %u", u16CycleCounter);
+                proto_tree_add_uint_format_value(pn_rt_tree, hf_pn_rt_cycle_counter, tvb,
+                    pdu_len - 20, 2, u16CycleCounter, "%u", u16CycleCounter);
 
                 /* add data status subtree */
                 dissect_DataStatus(tvb, pdu_len - 18, pn_rt_tree, pinfo, u8DataStatus);
 
                 /* add transfer status */
                 if (u8TransferStatus) {
-                    proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
+                    proto_tree_add_uint_format_value(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
                         pdu_len - 17, 1, u8TransferStatus,
-                        "TransferStatus: 0x%02x (ignore this frame)", u8TransferStatus);
+                        "0x%02x (ignore this frame)", u8TransferStatus);
                 }
                 else {
-                    proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
+                    proto_tree_add_uint_format_value(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
                         pdu_len - 17, 1, u8TransferStatus,
-                        "TransferStatus: 0x%02x (OK)", u8TransferStatus);
+                        "0x%02x (OK)", u8TransferStatus);
                 }
             }
         }
         else if (bCyclic) {
             /* add cycle counter */
-            proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_cycle_counter, tvb,
-              pdu_len - 4, 2, u16CycleCounter, "CycleCounter: %u", u16CycleCounter);
+                        proto_tree_add_uint_format_value(pn_rt_tree, hf_pn_rt_cycle_counter, tvb,
+                            pdu_len - 4, 2, u16CycleCounter, "%u", u16CycleCounter);
 
             /* add data status subtree */
             dissect_DataStatus(tvb, pdu_len - 2, pn_rt_tree, pinfo, u8DataStatus);
 
             /* add transfer status */
             if (u8TransferStatus) {
-                proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
+                proto_tree_add_uint_format_value(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
                     pdu_len - 1, 1, u8TransferStatus,
-                    "TransferStatus: 0x%02x (ignore this frame)", u8TransferStatus);
+                    "0x%02x (ignore this frame)", u8TransferStatus);
             } else {
-                proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
+                proto_tree_add_uint_format_value(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
                     pdu_len - 1, 1, u8TransferStatus,
-                    "TransferStatus: 0x%02x (OK)", u8TransferStatus);
+                    "0x%02x (OK)", u8TransferStatus);
             }
         }
     }

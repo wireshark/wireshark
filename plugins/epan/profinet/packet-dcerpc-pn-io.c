@@ -18068,22 +18068,18 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return true;
     }
 
-    /* is this a Remote Service Interface (RSI) or SXP packet? */
+    /* is this a Remote Service Interface (RSI) packet? */
     if (u16FrameID == 0xfe02) {
-        if (tvb_captured_length(tvb) >= 5) {
-            uint8_t u8PDUType = tvb_get_uint8(tvb, 4);
-            uint8_t u8PDUTypeType = u8PDUType & 0x0F;
-            uint8_t u8PDUTypeVersion = (u8PDUType >> 4) & 0x0F;
-
-            if (u8PDUTypeType == 0x01 && u8PDUTypeVersion == 0x03) {
-                /* this is an SXP packet */
-                return false;
-            }
-        }
-
         dissect_PNIO_RSI(tvb, 0, pinfo, tree, drep);
         return true;
     }
+
+    /* is this a Service eXchange Protocol (SXP) packet? */
+    if (u16FrameID == 0xfe03) {
+        /* SXP can come via Layer 2 (RTAv3) or Layer 3 (TCP) so its entry points are all in packet-pn-sxp.c */
+        return false;
+    }
+
     /* is this a PNIO high priority alarm packet? */
     if (u16FrameID == 0xfc41) {
         col_set_str(pinfo->cinfo, COL_INFO, "Alarm High");
