@@ -3880,10 +3880,12 @@ static void rtps_generate_public_salt(
     int rtps_header_tvb_offset)
 {
   size_t offset = 0;
+  size_t prefix_len = strlen(prefix);
 
   /* Copy the 8-byte prefix. */
-  memcpy(output, prefix, strlen(prefix));
-  offset += strlen(prefix);
+  ws_assert(prefix_len == 8);
+  memcpy(output, prefix, prefix_len);
+  offset += prefix_len;
 
   /* Copy the 4-byte sender's key id. */
   memcpy(output + offset, &sender_key_id, sizeof(uint32_t));
