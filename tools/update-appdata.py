@@ -48,7 +48,7 @@ def main():
         raise
 
     try:
-        ver_m = re.match('v(\d+\.\d+)\.(\d+)rc0.*', cur_rc0)
+        ver_m = re.match(r'v(\d+\.\d+)\.(\d+)rc0.*', cur_rc0)
         maj_min = ver_m.group(1)
         next_micro = ver_m.group(2)
     except Exception:
