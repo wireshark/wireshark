@@ -7314,7 +7314,7 @@ proto_register_isakmp(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_notify_data_accepted_ke_method,
-      { "Accepted KE method", "isakmp.notify.data.accepted_dh_group",
+      { "Accepted KE method", "isakmp.notify.data.accepted_ke_method",
         FT_UINT16, BASE_DEC, VALS(dh_group), 0x0,
         NULL, HFILL }},
     { &hf_isakmp_notify_data_ipcomp_cpi,
@@ -8010,7 +8010,7 @@ proto_register_isakmp(void)
         FT_UINT16, BASE_DEC, VALS(transform_ike2_integ_type), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_trans_ke,
-      { "Transform ID (KE)", "isakmp.tf.id.dh",
+      { "Transform ID (KE)", "isakmp.tf.id.ke",
         FT_UINT16, BASE_DEC, VALS(dh_group), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_trans_esn,
@@ -8050,7 +8050,7 @@ proto_register_isakmp(void)
 
 
     { &hf_isakmp_key_exch_method,
-      { "Key Exchange Method", "isakmp.key_exchange.dh_group",
+      { "Key Exchange Method", "isakmp.key_exchange.method",
         FT_UINT16, BASE_DEC, VALS(dh_group), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_key_exch_data,
