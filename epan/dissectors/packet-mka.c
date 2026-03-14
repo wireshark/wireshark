@@ -17,7 +17,9 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/uat.h>
+#include <epan/etypes.h>
 
+#include <wsutil/pint.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/ws_padding_to.h>
 
@@ -48,13 +50,15 @@
 #define DISTRIBUTED_SAK_AES128_BODY_LEN 28
 #define DISTRIBUTED_SAK_AES256_BODY_LEN 52
 
-/* key for p_[add|get]_proto_data */
+/* keys for p_[add|get]_proto_data */
 #define CKN_KEY 0
+#define ICV_KEY 1
 
 void proto_register_mka(void);
 void proto_reg_handoff_mka(void);
 
 static int proto_mka;
+static int proto_eapol;
 
 static int hf_mka_version_id;
 static int hf_mka_basic_param_set;
@@ -1014,7 +1018,7 @@ dissect_unknown_param_set(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t
 }
 
 static uint8_t*
-calculate_icv(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, size_t icv_len)
+calculate_icv(packet_info *pinfo, size_t icv_len)
 {
   /* IEEE Std 802.1X-2020 9.4.1 Message authentication
    *
@@ -1039,17 +1043,19 @@ calculate_icv(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, size_t icv_len
    * the ICV, and would be removed prior to MKPDU reception by a peer PAE.
    */
 
-  /* XXX - If we were doing this from the EAPOL dissector, we would have the
-   * Ethertype (passed in as data by the Ethertype dissector) and the
-   * source and destination addresses, and the entire rest of the PDU.
-   * Here in MKA we don't have the Ethertype or EAPOL bytes. The EAPOL
-   * dissector should store proto data for a EAPOL-MKA packet type similar
-   * to what is stored for a EAPOL-KEY packet type for the IEEE 802.11
-   * dissector. */
+  if (PINFO_FD_VISITED(pinfo)) {
+    return p_get_proto_data(wmem_file_scope(), pinfo, proto_mka, ICV_KEY);
+  }
+
   gcry_error_t err;
   mka_ckn_info_t *rec = p_get_proto_data(pinfo->pool, pinfo, proto_mka, CKN_KEY);
+  proto_eapol_key_frame_t *eapol_frame = p_get_proto_data(pinfo->pool, pinfo, proto_eapol, EAPOL_KEY_FRAME_KEY);
 
-  if (rec == NULL) {
+  if (rec == NULL || eapol_frame == NULL || pinfo->dl_dst.type != AT_ETHER || pinfo->dl_src.type != AT_ETHER) {
+    return NULL;
+  }
+
+  if (eapol_frame->len < icv_len) {
     return NULL;
   }
 
@@ -1074,15 +1080,18 @@ calculate_icv(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, size_t icv_len
     goto failed;
   }
 
-  uint8_t *icv_calc = (uint8_t*)wmem_alloc(pinfo->pool, icv_len);
-
-  /* XXX - Temporary hack until the EAPOL dissector is changed: Get the frame
-   * from the data source tvb. */
-  tvbuff_t *ds_tvb = tvb_get_ds_tvb(tvb);
-  unsigned ds_offset = offset + tvb_raw_offset(tvb);
-  //gcry_mac_write(hd, (const uint8_t*)pinfo->dst.data, pinfo->dst.len);
-  //gcry_mac_write(hd, (const uint8_t*)pinfo->src.data, pinfo->src.len);
-  if ((err = gcry_mac_write(hd, tvb_get_ptr(ds_tvb, 0, ds_offset), ds_offset))) {
+  uint8_t *icv_calc = (uint8_t*)wmem_alloc0(wmem_file_scope(), icv_len);
+  uint8_t eapol_ethertype[2];
+  phtonu16(eapol_ethertype, ETHERTYPE_EAPOL);
+  wmem_array_t *ethhdr = wmem_array_sized_new(pinfo->pool, sizeof(uint8_t), pinfo->dst.len + pinfo->src.len + 2);
+  wmem_array_append(ethhdr, pinfo->dst.data, pinfo->dst.len);
+  wmem_array_append(ethhdr, pinfo->src.data, pinfo->src.len);
+  wmem_array_append(ethhdr, eapol_ethertype, sizeof(eapol_ethertype));
+  if ((err = gcry_mac_write(hd, wmem_array_get_raw(ethhdr), wmem_array_get_count(ethhdr)))) {
+    ws_warning("failed to update MAC: %s", gcry_strerror(err));
+    goto failed;
+  }
+  if ((err = gcry_mac_write(hd, eapol_frame->data, eapol_frame->len - icv_len))) {
     ws_warning("failed to update MAC: %s", gcry_strerror(err));
     goto failed;
   }
@@ -1093,6 +1102,7 @@ calculate_icv(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, size_t icv_len
 
   /* Close the MAC context. */
   gcry_mac_close(hd);
+  p_add_proto_data(wmem_file_scope(), pinfo, proto_mka, ICV_KEY, icv_calc);
   return icv_calc;
 
 failed:
@@ -1173,7 +1183,7 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
   }
 
-  const uint8_t *icv_calc = calculate_icv(tvb, pinfo, offset, icv_len);
+  const uint8_t *icv_calc = calculate_icv(pinfo, icv_len);
   proto_tree_add_checksum_bytes(mka_tree, tvb, offset, hf_mka_icv, hf_mka_icv_status, &ei_mka_icv_bad, pinfo, icv_calc, icv_len, icv_calc ? PROTO_CHECKSUM_VERIFY : PROTO_CHECKSUM_NO_FLAGS);
 
   return tvb_captured_length(tvb);
@@ -1333,6 +1343,8 @@ proto_reg_handoff_mka(void) {
 
   mka_handle = create_dissector_handle(dissect_mka, proto_mka);
   dissector_add_uint("eapol.type", EAPOL_MKA, mka_handle);
+
+  proto_eapol = proto_get_id_by_filter_name("eapol");
 }
 
 /*

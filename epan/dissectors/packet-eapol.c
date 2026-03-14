@@ -117,8 +117,9 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   }
   offset += 2;
 
-  /* Save eapol key type packets for IEEE 802.11 dissector */
-  if (!pinfo->fd->visited && eapol_type == EAPOL_KEY) {
+  /* Save eapol key type packets for IEEE 802.11 dissector and
+   * MKA type packets for the MKA dissector */
+  if (!pinfo->fd->visited && (eapol_type == EAPOL_KEY || eapol_type == EAPOL_MKA)) {
     proto_eapol_key_frame_t *key_frame = wmem_new(pinfo->pool, proto_eapol_key_frame_t);
     key_frame->type = 0;
     key_frame->len = len;
