@@ -23,8 +23,6 @@
  */
 
 #include "config.h"
-
-/* Start with WIRESHARK_LOG_DOMAINS=sftp and WIRESHARK_LOG_LEVEL=debug to see messages. */
 #define WS_LOG_DOMAIN "sftp"
 
 #include <epan/packet.h>

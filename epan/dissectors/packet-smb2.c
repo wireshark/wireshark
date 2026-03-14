@@ -17,8 +17,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define WS_LOG_DOMAIN "packet-smb2"
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-smb2"
 #include <wireshark.h>
 
 #include <epan/packet.h>

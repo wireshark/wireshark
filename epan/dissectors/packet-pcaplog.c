@@ -11,7 +11,6 @@
 
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN "pcaplog"
 
 #define PEN_VCTR 46254

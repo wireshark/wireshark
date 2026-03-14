@@ -15,6 +15,8 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-mtp2"
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -231,11 +233,6 @@ start_dissect_bitstream_packet: 2120
  * under the development it can be very helpful to see RTP packet content like this
  * to identify and solve problems regarding bitstream parsing*/
 /*#define MTP2_BITSTREAM_DEBUG    1*/
-
-#ifdef MTP2_BITSTREAM_DEBUG
-#define WS_LOG_DOMAIN "packet-mtp2"
-#include <wireshark.h>
-#endif
 
 static void
 dissect_mtp2_header(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree, bool use_extended_sequence_numbers, bool validate_crc, uint32_t *li)

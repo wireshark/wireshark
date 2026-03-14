@@ -12,7 +12,6 @@
 
 /*  Include Files */
 #include "config.h"
-
 #define WS_LOG_DOMAIN "zcl"
 
 #include <wireshark.h>

@@ -11,8 +11,8 @@
  * Ref: 3GPP TS 25.433 version 6.6.0 Release 6
  */
 
-#define WS_LOG_DOMAIN "packet-nbap"
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-nbap"
 #include <wireshark.h>
 
 #include <epan/to_str.h>

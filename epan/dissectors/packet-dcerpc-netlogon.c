@@ -11,7 +11,6 @@
  */
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN "packet-dcerpc-netlogon"
 
 #include <epan/packet.h>

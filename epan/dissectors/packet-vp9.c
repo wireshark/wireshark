@@ -15,10 +15,7 @@
  */
 
 #include "config.h"
-/* Define the name for the logging domain (try to avoid collisions with existing domains) */
 #define WS_LOG_DOMAIN "vp9"
-
-/* Global header providing a minimum base set of required macros and APIs */
 #include <wireshark.h>
 
 #include <epan/packet.h> /* Required dissection API header */

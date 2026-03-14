@@ -15,6 +15,8 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "NetLog"
+
 #include "netlog.h"
 
 #include <string.h>
@@ -27,8 +29,6 @@
 #include <epan/iana-info.h>
 
 #include <wsutil/wsjson.h>
-
-#define WS_LOG_DOMAIN "NetLog"
 
 /* This is to avoid having large files overload the JSON parser. Adjust as appropriate. */
 #define MAX_FILE_SIZE (1024*1024*1024)

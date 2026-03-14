@@ -9,11 +9,12 @@
  */
 
 #include "config.h"
-#include "vcs_version.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 
 #include <app/application_flavor.h>
 #include <wsutil/path_config.h>
+
+#include "vcs_version.h"
 
 const char *application_flavor_name_proper(void)
 {

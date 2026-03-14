@@ -26,13 +26,12 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "falcodump"
 
 #include <libsinsp/sinsp.h>
 #include <libsinsp/plugin_manager.h>
 
 #include <libscap/scap_engines.h>
-
-#define WS_LOG_DOMAIN "falcodump"
 
 #include <extcap/extcap-base.h>
 

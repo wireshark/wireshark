@@ -20,7 +20,7 @@
  * - Prints a status line, followed by fields from a specified list.
  */
 
-#include <config.h>
+#include "config.h"
 #define WS_LOG_DOMAIN  LOG_DOMAIN_MAIN
 
 #include <stdlib.h>

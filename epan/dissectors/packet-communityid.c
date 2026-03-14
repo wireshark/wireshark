@@ -23,9 +23,8 @@
  * This module provides a stand-alone implementation of the spec.
  */
 
+#include "config.h"
 #define WS_LOG_DOMAIN "packet-communityid"
-
-#include <config.h>
 #include <wireshark.h>
 
 #include <epan/packet.h>

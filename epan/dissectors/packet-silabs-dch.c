@@ -24,6 +24,7 @@
 
 /* Include files */
 #include "config.h"
+#define WS_LOG_DOMAIN "silabs_dch"
 #include <wireshark.h>
 #include <wiretap/wtap.h>
 #include <wsutil/bitswap.h>
@@ -34,8 +35,6 @@
 #include <epan/prefs.h>  /* Include only as needed */
 #include "packet-ieee802154.h"
 #include "packet-tls.h"
-
-#define WS_LOG_DOMAIN "silabs_dch"
 
 /* Protocol identifier, populated by registration */
 static int proto_silabs_dch;

@@ -36,8 +36,8 @@
 /* "SSH" prefixes are for version 2, whereas "SSH1" is for version 1 */
 
 #include "config.h"
-/* Start with WIRESHARK_LOG_DOMAINS=packet-ssh and WIRESHARK_LOG_LEVEL=debug to see messages. */
 #define WS_LOG_DOMAIN "packet-ssh"
+/* Start with WIRESHARK_LOG_DOMAINS=packet-ssh and WIRESHARK_LOG_LEVEL=debug to see messages. */
 
 // Define this to get hex dumps more similar to what you get in openssh. If not defined, dumps look more like what you get with other dissectors.
 #define OPENSSH_STYLE

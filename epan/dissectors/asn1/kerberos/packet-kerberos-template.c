@@ -40,8 +40,8 @@
  * information.
  */
 
+#include "config.h"
 #define WS_LOG_DOMAIN "packet-kerberos"
-#include <config.h>
 #include <wireshark.h>
 
 // krb5.h needs to be included before the defines in packet-kerberos.h

@@ -38,10 +38,9 @@
  */
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN "sctp"
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>

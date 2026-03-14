@@ -11,6 +11,7 @@
 
 #include "config.h"
 #define WS_LOG_DOMAIN "MACsec"
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
@@ -19,8 +20,6 @@
 
 #include "packet-mka.h"
 
-
-#include <wireshark.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/pint.h>
 

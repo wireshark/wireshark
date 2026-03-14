@@ -24,9 +24,8 @@
   2) Information about Ice can be found here: http://www.zeroc.com
 */
 
-#define WS_LOG_DOMAIN "packet-icep"
-
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-icep"
 #include <wireshark.h>
 
 #include <epan/packet.h>

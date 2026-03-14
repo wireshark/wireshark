@@ -64,7 +64,7 @@
  * set to WTAP_MAX_PACKET_SIZE_STANDARD.
  */
 
-#include <config.h>
+#include "config.h"
 #define WS_LOG_DOMAIN  LOG_DOMAIN_MAIN
 
 #include <stdio.h>

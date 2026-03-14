@@ -48,9 +48,8 @@
  * the Wireshark conversation functionality.
  */
 
-#define WS_LOG_DOMAIN "packet-selfm"
-
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-selfm"
 #include <wireshark.h>
 
 #include <epan/packet.h>

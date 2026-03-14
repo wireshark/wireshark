@@ -9,7 +9,6 @@
  */
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN "nettrace_3gpp"
 #include "nettrace_3gpp_32_423.h"
 

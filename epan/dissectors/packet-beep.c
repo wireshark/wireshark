@@ -15,7 +15,6 @@
  */
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN "beep"
 
 #include <stdlib.h>

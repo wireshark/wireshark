@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#include <config.h>
+#include "config.h"
 #define WS_LOG_DOMAIN "packet-cose"
 
 #include "packet-cose.h"

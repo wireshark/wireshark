@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define WS_LOG_DOMAIN "busmaster"
 #include "config.h"
+#define WS_LOG_DOMAIN "busmaster"
 #include <wireshark.h>
 #include <assert.h>
 #include <string.h>

@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define WS_LOG_DOMAIN "packet-rpc"
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-rpc"
 #include <wireshark.h>
 
 #include <epan/packet.h>

@@ -27,8 +27,8 @@
  */
 
 
-#define WS_LOG_DOMAIN "packet-snort"
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-snort"
 #include <wireshark.h>
 
 #include <epan/packet.h>

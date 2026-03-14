@@ -12,8 +12,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define WS_LOG_DOMAIN "packet-ntlmssp"
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-ntlmssp"
 #include <wireshark.h>
 #include <string.h>
 

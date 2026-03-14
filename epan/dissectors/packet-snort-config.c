@@ -9,8 +9,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define WS_LOG_DOMAIN "packet-snort-config"
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-snort-config"
 #include <wireshark.h>
 
 #include <stdlib.h>

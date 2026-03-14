@@ -22,16 +22,12 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-nmea2000"
 #include <wireshark.h>
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 
- /* Define the name for the logging domain (try to avoid collisions with existing domains) */
-#define WS_LOG_DOMAIN "packet-nmea2000"
-
-
-/* (Required to prevent [-Wmissing-prototypes] warnings */
 void proto_reg_handoff_nmea2000(void);
 void proto_register_nmea2000(void);
 

@@ -18,12 +18,11 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "dumpcalls"
 
 #include <libsinsp/sinsp.h>
 
 #include <libscap/scap_engines.h>
-
-#define WS_LOG_DOMAIN "dumpcalls"
 
 #include <extcap/extcap-base.h>
 

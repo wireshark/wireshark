@@ -41,9 +41,8 @@
  *   https://www.dds-foundation.org/dds-rtps-vendor-and-product-ids/
  */
 
-#define WS_LOG_DOMAIN "packet-rtps"
-
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-rtps"
 #include <wireshark.h>
 
 #include <epan/packet.h>

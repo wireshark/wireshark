@@ -13,9 +13,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define WS_LOG_DOMAIN "packet-wap"
-
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-wap"
 #include <wireshark.h>
 
 #include <epan/packet.h>

@@ -12,8 +12,8 @@
 
 /*---------------------------------------------------------------------------*/
 
-#define WS_LOG_DOMAIN "TPNCP"
 #include "config.h"
+#define WS_LOG_DOMAIN "TPNCP"
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>

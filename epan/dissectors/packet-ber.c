@@ -44,7 +44,6 @@
 //#define DEBUG_BER 1
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN "ber"
 
 #include <epan/packet.h>

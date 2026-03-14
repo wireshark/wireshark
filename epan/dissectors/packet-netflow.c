@@ -124,8 +124,8 @@
  * Includes updates for RFC8549
  */
 
-#define WS_LOG_DOMAIN "packet-netflow"
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-netflow"
 #include <wireshark.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>

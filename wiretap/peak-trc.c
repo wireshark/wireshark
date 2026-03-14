@@ -12,8 +12,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
 #define WS_LOG_DOMAIN "peak-trc"
-#include <config.h>
 #include <wireshark.h>
 #include <file_wrappers.h>
 #include <epan/dissectors/packet-socketcan.h>

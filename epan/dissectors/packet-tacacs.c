@@ -21,7 +21,6 @@
  */
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN "tacacs"
 
 #include <epan/packet.h>

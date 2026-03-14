@@ -11,7 +11,7 @@
  * Updated 1 Dec 10 jjm
  */
 
-#include <config.h>
+#include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <glib.h>

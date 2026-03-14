@@ -19,8 +19,8 @@
  * Nothing in the standard explicitly prevents an IPv6 implementation...
  */
 
-#define WS_LOG_DOMAIN "packet-vjc-comp"
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-vjc-comp"
 #include <wireshark.h>
 
 #include <epan/conversation.h>

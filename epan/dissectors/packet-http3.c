@@ -20,14 +20,13 @@
  * Currently supported HTTP/3 versions: h3-23 up to and including h3-29.
  */
 
-#include <config.h>
-#include <wmem_scopes.h>
-
+#include "config.h"
 #define WS_LOG_DOMAIN "HTTP3"
 
 #include <stdint.h>
 #include <string.h>
 
+#include <epan/wmem_scopes.h>
 #include <epan/conversation_table.h>
 #include <epan/decode_as.h>
 #include <epan/exceptions.h>

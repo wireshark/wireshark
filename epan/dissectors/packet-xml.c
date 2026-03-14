@@ -14,7 +14,6 @@
  */
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN "XML"
 
 #include <string.h>

@@ -55,9 +55,8 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 
 */
 
-#define WS_LOG_DOMAIN "packet-ipsec"
-
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-ipsec"
 #include <wireshark.h>
 
 #include <epan/packet.h>

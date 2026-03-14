@@ -7,7 +7,6 @@
  */
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 
 #include <string.h>

@@ -12,10 +12,9 @@
  *
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
-#define WS_LOG_DOMAIN "packet-edhoc"
-#define EDHOC_LOG_DATA 1
 
-#include <config.h>
+#include "config.h"
+#define WS_LOG_DOMAIN "packet-edhoc"
 #include "packet-edhoc.h"
 #include "packet-cbor.h"
 #include "packet-media-type.h"
@@ -38,6 +37,9 @@
 #include <wsutil/wslog.h>
 #include <wsutil/wmem/wmem_list.h>
 #include <wsutil/wmem/wmem_map.h>
+
+#define EDHOC_LOG_DATA 1
+
 
 #if EDHOC_LOG_DATA
 /** Duplicate logic of packet-tls-util.c

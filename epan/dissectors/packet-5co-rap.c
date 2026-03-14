@@ -23,7 +23,7 @@
 
 //#define DEBUG_5co-rap
 
-#include <config.h>
+#include "config.h"
 #define WS_LOG_DOMAIN "5co-rap"
 
 #include <epan/packet.h>

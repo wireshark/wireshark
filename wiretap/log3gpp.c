@@ -11,9 +11,9 @@
  */
 
 #include "config.h"
-#include "log3gpp.h"
-
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
+
+#include "log3gpp.h"
 
 #include <errno.h>
 #include <string.h>

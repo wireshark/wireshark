@@ -14,10 +14,9 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN "packet-wireguard"
 
 #include <errno.h>
-
-#define WS_LOG_DOMAIN "packet-wireguard"
 
 #include <epan/packet.h>
 #include <epan/expert.h>

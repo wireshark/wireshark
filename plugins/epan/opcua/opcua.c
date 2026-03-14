@@ -14,8 +14,8 @@
 ** Author: Gerhard Gappmeier <gerhard.gappmeier@ascolab.com>
 ******************************************************************************/
 
-#define WS_LOG_DOMAIN "opcua"
 #include "config.h"
+#define WS_LOG_DOMAIN "opcua"
 #include <wireshark.h>
 
 #include <epan/dissectors/packet-tcp.h>

@@ -47,7 +47,6 @@
  */
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
 #include "ipfix.h"
 

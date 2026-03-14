@@ -264,8 +264,8 @@
  */
 
 
-#define WS_LOG_DOMAIN "packet-giop"
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-giop"
 #include <wireshark.h>
 
 #include <errno.h>

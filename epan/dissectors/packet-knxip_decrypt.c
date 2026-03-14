@@ -10,7 +10,6 @@
  */
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN "packet-knxip"
 
 #include <wsutil/file_util.h>

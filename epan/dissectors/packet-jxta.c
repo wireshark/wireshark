@@ -18,7 +18,6 @@
  */
 
 #include "config.h"
-
 #define WS_LOG_DOMAIN "jxta"
 
 #include <epan/packet.h>
