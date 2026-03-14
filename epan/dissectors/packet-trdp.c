@@ -1223,14 +1223,14 @@ void proto_register_trdp(void) {
     while (ElBasics[bitset_offset].id              != TRDP_BITSET8) bitset_offset++;
     while (ElBasics[bitset_offset+bitset_types].id == TRDP_BITSET8) bitset_types++;
 
-    bitsetenumvals = g_new0(enum_val_t, bitset_types + 1);
+    bitsetenumvals = wmem_alloc0_array(wmem_epan_scope(),enum_val_t, bitset_types + 1);
     for (gsize i = 0; i < bitset_types; i++) {
         bitsetenumvals[i].description = ElBasics[i].name;
         bitsetenumvals[i].name = g_ascii_strdown(ElBasics[i].name, -1);
         bitsetenumvals[i].value = (int)ElBasics[i].subtype;
     }
 
-    enum_val_t *endianenumvals = g_new0(enum_val_t, 2 + 1);
+    enum_val_t *endianenumvals = wmem_alloc0_array(wmem_epan_scope(), enum_val_t, 2 + 1);
     endianenumvals[0].description = "BE";
     endianenumvals[0].name = "be";
     endianenumvals[0].value = TRDP_ENDSUBTYPE_BIG;
