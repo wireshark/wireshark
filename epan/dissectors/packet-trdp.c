@@ -26,6 +26,7 @@
 #include <epan/column-utils.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include <wsutil/report_message.h>
 #include <wsutil/filesystem.h>
 #include "packet-trdp-dict.h"
@@ -1226,7 +1227,7 @@ void proto_register_trdp(void) {
     bitsetenumvals = wmem_alloc0_array(wmem_epan_scope(),enum_val_t, bitset_types + 1);
     for (gsize i = 0; i < bitset_types; i++) {
         bitsetenumvals[i].description = ElBasics[i].name;
-        bitsetenumvals[i].name = g_ascii_strdown(ElBasics[i].name, -1);
+        bitsetenumvals[i].name = wmem_ascii_strdown(wmem_epan_scope(), ElBasics[i].name, -1);
         bitsetenumvals[i].value = (int)ElBasics[i].subtype;
     }
 
