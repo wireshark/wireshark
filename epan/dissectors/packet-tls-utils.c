@@ -10075,7 +10075,7 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                     ech_offset += 1 + tvb_get_uint8(ech_tvb, ech_offset);
                     uint32_t ech_extensions_len_offset = ssl->ech_transcript.data_len;
                     ssl->ech_transcript.data_len += 2;
-                    uint16_t extensions_end = ech_offset + tvb_get_ntohs(ech_tvb, ech_offset) + 2;
+                    uint32_t extensions_end = ech_offset + tvb_get_ntohs(ech_tvb, ech_offset) + 2;
                     ech_offset += 2;
                     while (extensions_end - ech_offset >= 4) {
                         if (tvb_get_ntohs(ech_tvb, ech_offset) != SSL_HND_HELLO_EXT_ECH_OUTER_EXTENSIONS) {
@@ -10084,9 +10084,9 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                             ssl->ech_transcript.data_len += 4 + tvb_get_ntohs(ech_tvb, ech_offset + 2);
                             ech_offset += 4 + tvb_get_ntohs(ech_tvb, ech_offset + 2);
                         } else if (tvb_get_ntohs(ech_tvb, ech_offset + 2) > 0) {
-                            uint8_t outer_extensions_end = tvb_get_uint8(ech_tvb, ech_offset + 4) + ech_offset + 5;
+                            uint32_t outer_extensions_end = tvb_get_uint8(ech_tvb, ech_offset + 4) + ech_offset + 5;
                             ech_offset += 5;
-                            uint16_t outer_offset = initial_offset + 35 + tvb_get_uint8(tvb, initial_offset + 34);
+                            uint32_t outer_offset = initial_offset + 35 + tvb_get_uint8(tvb, initial_offset + 34);
                             outer_offset += tvb_get_ntohs(tvb, outer_offset) + 2;
                             outer_offset += tvb_get_uint8(tvb, outer_offset) + 3;
                             while (outer_extensions_end - ech_offset >= 2) {
@@ -11087,7 +11087,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 hrr_offset += tvb_get_uint8(tvb, hrr_offset) + 1;
                 ssl_md_update(&mc, tvb_get_ptr(tvb, hrr_offset, 3), 3);
                 hrr_offset += 3;
-                uint16_t extensions_end = hrr_offset + tvb_get_ntohs(tvb, hrr_offset) + 2;
+                uint32_t extensions_end = hrr_offset + tvb_get_ntohs(tvb, hrr_offset) + 2;
                 ssl_md_update(&mc, tvb_get_ptr(tvb, hrr_offset, 2), 2);
                 hrr_offset += 2;
                 while (extensions_end - hrr_offset >= 4) {
