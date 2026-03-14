@@ -246,17 +246,15 @@ function(_lua_get_header_version)
       set(LUA_VERSION_MINOR "${Lua_VERSION_MINOR}")
       set(LUA_VERSION_PATCH "${Lua_VERSION_PATCH}")
 
-      return(
-        PROPAGATE
-          Lua_VERSION
-          Lua_VERSION_MAJOR
-          Lua_VERSION_MINOR
-          Lua_VERSION_PATCH
-          LUA_VERSION_STRING
-          LUA_VERSION_MAJOR
-          LUA_VERSION_MINOR
-          LUA_VERSION_PATCH
-      )
+      set(Lua_VERSION "${Lua_VERSION}" PARENT_SCOPE)
+      set(Lua_VERSION_MAJOR "${Lua_VERSION_MAJOR}" PARENT_SCOPE)
+      set(Lua_VERSION_MINOR "${Lua_VERSION_MINOR}" PARENT_SCOPE)
+      set(Lua_VERSION_PATCH "${Lua_VERSION_PATCH}" PARENT_SCOPE)
+      set(LUA_VERSION_STRING "${LUA_VERSION_STRING}" PARENT_SCOPE)
+      set(LUA_VERSION_MAJOR "${LUA_VERSION_MAJOR}" PARENT_SCOPE)
+      set(LUA_VERSION_MINOR "${LUA_VERSION_MINOR}" PARENT_SCOPE)
+      set(LUA_VERSION_PATCH "${LUA_VERSION_PATCH}" PARENT_SCOPE)
+      return()
     endif ()
   endforeach ()
 endfunction()
