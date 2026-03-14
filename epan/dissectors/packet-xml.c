@@ -768,16 +768,24 @@ static void P_SHA1(const uint8_t *Secret, size_t Secret_len,
 {
     gcry_md_hd_t hd = NULL;
     uint8_t *digest = NULL;
+    gcry_error_t err;
 
-    /*
-     * https://social.microsoft.com/Forums/en-US/c485d98b-6e0b-49e7-ab34-8ecf8d694d31/signing-soap-message-request-via-adfs?forum=crmdevelopment#6cee9fa8-dc24-4524-a5a2-c3d17e05d50e
-     */
-    gcry_md_open(&hd, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC);
-    gcry_md_setkey(hd, Secret, Secret_len);
+    err = gcry_md_open(&hd, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC);
+    if (err != 0) {
+        ws_warning("error opening sha1 message digest handle: %s", gcry_strerror(err));
+        return;
+    }
+
+    err = gcry_md_setkey(hd, Secret, Secret_len);
+    if (err != 0) {
+        gcry_md_close(hd);
+        ws_warning("error setting key: %s", gcry_strerror(err));
+        return;
+    }
+
     gcry_md_write(hd, Seed, Seed_len);
     digest = gcry_md_read(hd, GCRY_MD_SHA1);
     memcpy(Result, digest, HASH_SHA1_LENGTH);
-
     gcry_md_close(hd);
 }
 #endif /* HAVE_KERBEROS */
