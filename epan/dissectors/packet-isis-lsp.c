@@ -3248,12 +3248,11 @@ dissect_subclv_admin_group (tvbuff_t *tvb, proto_tree *tree, int offset) {
                 ett_isis_lsp_subclv_admin_group, NULL, "Administrative group(s):");
 
     clv_value = tvb_get_ntohl(tvb, offset);
-    mask = 1;
-    for (i = 0 ; i < 32 ; i++) {
+
+    for (i = 0, mask = 1; i < 32; i++, mask <<= 1) {
         if ( (clv_value & mask) != 0 ) {
             proto_tree_add_uint_format(ntree, hf_isis_lsp_group, tvb, offset, 4, clv_value & mask, "group %d", i);
         }
-        mask <<= 1;
     }
 }
 
