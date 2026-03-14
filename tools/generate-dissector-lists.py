@@ -26,12 +26,16 @@ DISSECTORS_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), '..',
 CMAKELISTS_TXT = os.path.join(DISSECTORS_PATH, 'CMakeLists.txt')
 THIS_FILE = os.path.basename(__file__)
 
-PACKET_SOURCE_FILE_PATTERN = r'^(data|packet)-.*\.c$'
-ASN1_SOURCE_PATTERN = r'Generated automatically by the ASN.1 to Wireshark dissector compiler'
+PACKET_SOURCE_FILE_PATTERN = re.compile(r'^(data|packet)-.*\.c$')
+ASN1_SOURCE_PATTERN = re.compile(r'Generated automatically by the ASN.1 to Wireshark dissector compiler', re.MULTILINE)
 
-PACKET_HEADER_FILE_PATTERN = r'^(data|file|packet)-.*\.h$'
-PUBLIC_HEADER_PATTERN = r'(^\s*WS_DLL_PUBLIC\b|\bstruct\s.*tap_|\bPUBLIC_HEADER\b)'
-PACKET_HEADER_INCLUDE_PATTERN = r'^\s*#\s*include\s.*\b(packet-.*\.h)\b'
+PACKET_HEADER_FILE_PATTERN = re.compile(r'^(data|file|packet)-.*\.h$')
+PUBLIC_HEADER_PATTERN = re.compile(r'(^\s*WS_DLL_PUBLIC\b|\bstruct\s.*tap_|\bPUBLIC_HEADER\b)', re.MULTILINE)
+PACKET_HEADER_INCLUDE_PATTERN = re.compile(r'^\s*#\s*include\s.*\b(packet-.*\.h)\b', re.MULTILINE)
+
+CMAKE_SET_PUBLIC_HEADER_PATTERN = re.compile(r'^\s*set\s*\(\s*DISSECTOR_PUBLIC_HEADERS')
+CMAKE_SET_CLEAN_ASN1_DISSECTORS_PATTERN = re.compile(r'^\s*set\s*\(\s*CLEAN_ASN1_DISSECTOR_SRC')
+CMAKE_CLOSING_PARENTHESIS_PATTERN = re.compile(r'^\s*\)')
 
 MIN_ASN1_SOURCE_COUNT = 130 # 130 on 2025-12-03
 MIN_HEADER_COUNT = 120 # 121 on 2025-12-03
@@ -43,8 +47,8 @@ def exit_msg(msg=None, status=1):
     sys.exit(status)
 
 def search_asn1_source(source_file):
-    with open (os.path.join(DISSECTORS_PATH, source_file)) as f:
-        if re.search(ASN1_SOURCE_PATTERN, f.read(512), re.MULTILINE):
+    with open (os.path.join(DISSECTORS_PATH, source_file), encoding="utf-8") as f:
+        if ASN1_SOURCE_PATTERN.search(f.read(512)):
             return source_file
     return None
 
@@ -52,7 +56,7 @@ def get_asn1_sources():
     '''Search for public packet-*.h headers.
     Returns a list of filenames.
     '''
-    packet_sources = [e.name for e in os.scandir(DISSECTORS_PATH) if e.is_file() and re.match(PACKET_SOURCE_FILE_PATTERN, e.name) ]
+    packet_sources = [e.name for e in os.scandir(DISSECTORS_PATH) if e.is_file() and PACKET_SOURCE_FILE_PATTERN.match(e.name) ]
 
     asn1_sources = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -70,14 +74,14 @@ def get_packet_includes(header_file, depth=0):
         return []
     includes = []
     with open (os.path.join(DISSECTORS_PATH, header_file)) as f:
-        for include in re.findall(PACKET_HEADER_INCLUDE_PATTERN, f.read(), re.MULTILINE):
+        for include in PACKET_HEADER_INCLUDE_PATTERN.findall(f.read()):
             includes.append(include)
             includes.extend(get_packet_includes(include, depth+1))
     return includes
 
 def search_packet_header(header_file):
-    with open (os.path.join(DISSECTORS_PATH, header_file)) as f:
-        if re.search(PUBLIC_HEADER_PATTERN, f.read(), re.MULTILINE):
+    with open (os.path.join(DISSECTORS_PATH, header_file), encoding="utf-8") as f:
+        if PUBLIC_HEADER_PATTERN.search(f.read()):
             header_files = [header_file]
             header_files.extend(get_packet_includes(header_file))
             return header_files
@@ -87,7 +91,7 @@ def get_public_headers():
     '''Search for public packet-*.h headers.
     Returns a list of filenames.
     '''
-    packet_headers = [e.name for e in os.scandir(DISSECTORS_PATH) if e.is_file() and re.match(PACKET_HEADER_FILE_PATTERN, e.name) ]
+    packet_headers = [e.name for e in os.scandir(DISSECTORS_PATH) if e.is_file() and PACKET_HEADER_FILE_PATTERN.match(e.name) ]
 
     public_headers = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -116,14 +120,14 @@ def main():
     for line in cm_lines:
         if state == State.Normal:
             cm_out += line
-            if re.match(r'^\s*set\s*\(\s*DISSECTOR_PUBLIC_HEADERS', line):
+            if CMAKE_SET_PUBLIC_HEADER_PATTERN.match(line):
                 state = State.InPublicHeaders
                 cm_out += ''.join([f'\t{ph}\n' for ph in public_headers])
-            elif re.match(r'^\s*set\s*\(\s*CLEAN_ASN1_DISSECTOR_SRC', line):
+            elif CMAKE_SET_CLEAN_ASN1_DISSECTORS_PATTERN.match(line):
                 state = State.InAsn1Dissectors
                 cm_out += f'\t{warning}\n'
                 cm_out += ''.join([f'\t${{CMAKE_CURRENT_SOURCE_DIR}}/{af}\n' for af in asn1_sources])
-        elif re.match(r'^\s*\)', line):
+        elif CMAKE_CLOSING_PARENTHESIS_PATTERN.match(line):
             state = State.Normal
             cm_out += line
 
