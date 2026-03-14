@@ -674,11 +674,11 @@ static int dissect_iuup_control(tvbuff_t* tvb, packet_info* pinfo,
         case PROC_INIT:
             add_payload_crc(tvb, pinfo, iuup_tree);
             dissect_iuup_init(tvb,pinfo,iuup_tree);
-            return tvb_captured_length(tvb);
+            break;
         case PROC_RATE:
             add_payload_crc(tvb, pinfo, iuup_tree);
             dissect_iuup_ratectl(tvb,pinfo,iuup_tree);
-            return tvb_captured_length(tvb);
+            break;
         case PROC_TIME:
         {
             proto_tree* time_tree;
@@ -704,7 +704,7 @@ static int dissect_iuup_control(tvbuff_t* tvb, packet_info* pinfo,
             }
 
             proto_tree_add_item(iuup_tree,hf_iuup_spare_bytes,tvb,5,-1,ENC_NA);
-            return tvb_captured_length(tvb);
+            break;
         }
         case PROC_ERROR:
             col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, tvb_get_uint8(tvb,4) & 0x3f,iuup_error_causes,"Unknown (%u)"));
@@ -716,7 +716,7 @@ static int dissect_iuup_control(tvbuff_t* tvb, packet_info* pinfo,
             return tvb_captured_length(tvb);
         default: /* bad */
             expert_add_info(pinfo, proc_item, &ei_iuup_procedure_indicator);
-            return tvb_captured_length(tvb);
+            break;
     }
     return tvb_captured_length(tvb);
 }
