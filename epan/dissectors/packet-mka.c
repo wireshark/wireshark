@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "MKA"
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -22,8 +23,6 @@
 
 #include "packet-eapol.h"
 #include "packet-mka.h"
-
-#define WS_LOG_DOMAIN "MKA"
 
 /*** UAT: CKN INFO ***/
 #define DATAFILE_CKN_INFO "mka_ckn_info"
@@ -328,7 +327,7 @@ mka_derive_ick(void * k) {
   mka_ckn_info_t *rec = (mka_ckn_info_t *)k;
 
   uint8_t *label = (uint8_t*)"IEEE8021 ICK";
-  rec->key.kek_len = mka_derive_key(label, rec->key.kek, rec);
+  rec->key.ick_len = mka_derive_key(label, rec->key.ick, rec);
 }
 
 static unsigned
