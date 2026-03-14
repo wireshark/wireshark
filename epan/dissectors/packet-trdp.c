@@ -689,15 +689,15 @@ static uint32_t dissect_trdp_generic_body(
                     switch (el->type.id) {
                     case TRDP_TIMEDATE32:
                         proto_tree_add_time_format_value(userdata_element, el->hf_id, tvb, offset, el->width, &nstime,
-                                                         "%ld seconds", nstime.secs);
+                                                         "%ji seconds", (intmax_t)nstime.secs);
                     break;
                     case TRDP_TIMEDATE48:
                         proto_tree_add_time_format_value(userdata_element, el->hf_id, tvb, offset, el->width, &nstime,
-                                                         "%ld.%05ld seconds (=%" G_GUINT64_FORMAT " ticks)", nstime.secs, (nstime.nsecs + 5000L) / 10000L, valu);
+                                                         "%ji.%05ld seconds (=%" G_GUINT64_FORMAT " ticks)", (intmax_t)nstime.secs, (nstime.nsecs + 5000L) / 10000L, valu);
                     break;
                     case TRDP_TIMEDATE64:
                         proto_tree_add_time_format_value(userdata_element, el->hf_id, tvb, offset, el->width, &nstime,
-                                                         "%ld.%06ld seconds", nstime.secs, nstime.nsecs / 1000L);
+                                                         "%ji.%06ld seconds", (intmax_t)nstime.secs, nstime.nsecs / 1000L);
                     break;
 
                     }
