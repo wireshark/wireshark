@@ -3098,7 +3098,7 @@ static void dissect_vertexcom_mmtype_vs(tvbuff_t* vendor_tvb, packet_info* pinfo
                                         proto_tree* vendor_tree,
                                         homeplug_av_vertexcom_context_t* context) {
     heur_dtbl_entry_t* hdtbl_entry = NULL;
-    dissector_try_heuristic(vertexcom_mmtype_vs_heur_dissector_list, vendor_tvb,
+    (void) dissector_try_heuristic(vertexcom_mmtype_vs_heur_dissector_list, vendor_tvb,
                             pinfo, vendor_tree, &hdtbl_entry, context);
 }
 
