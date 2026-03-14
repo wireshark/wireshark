@@ -1121,13 +1121,10 @@ static bool k12_dump_record(wtap_dumper *wdh, uint32_t len,  uint8_t* buffer, in
     return true;
 }
 
-static void k12_dump_src_setting(void *k _U_, void *v, void *p) {
-    k12_src_desc_t* src_desc = (k12_src_desc_t*)v;
-    wtap_dumper *wdh = (wtap_dumper *)p;
+static bool k12_dump_src_setting(k12_src_desc_t *src_desc, wtap_dumper *wdh, int *err, char **err_info) {
     uint32_t len;
     unsigned offset;
     unsigned i;
-    int   errxxx; /* dummy */
 
     union {
         uint8_t buffer[K12_RECORD_SIZE];
@@ -1211,6 +1208,15 @@ static void k12_dump_src_setting(void *k _U_, void *v, void *p) {
             break;
     }
 
+    size_t total_len = (size_t)offset + obj.record.name_len + obj.record.stack_len;
+
+    if (total_len > K12_RECORD_SIZE) {
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+        *err_info = ws_strdup_printf("k12: source descriptor record length %zu > %u",
+                                    total_len, K12_RECORD_SIZE);
+        return false;
+    }
+
     memcpy(obj.buffer + offset,
            src_desc->input_name,
            obj.record.name_len);
@@ -1226,7 +1232,7 @@ static void k12_dump_src_setting(void *k _U_, void *v, void *p) {
     obj.record.name_len =  g_htons(obj.record.name_len);
     obj.record.stack_len = g_htons(obj.record.stack_len);
 
-    k12_dump_record(wdh,len,obj.buffer, &errxxx); /* fwrite errs ignored: see k12_dump below */
+    return k12_dump_record(wdh,len,obj.buffer, err);
 }
 
 static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
@@ -1268,12 +1274,16 @@ static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
     if (k12->num_of_records == 0) {
         k12_t* file_data = (k12_t*)pseudo_header->k12.stuff;
-        /* XXX: We'll assume that any fwrite errors in k12_dump_src_setting will    */
-        /*      repeat during the final k12_dump_record at the end of k12_dump      */
-        /*      (and thus cause an error return from k12_dump).                     */
-        /*      (I don't see a reasonably clean way to handle any fwrite errors     */
-        /*       encountered in k12_dump_src_setting).                              */
-        g_hash_table_foreach(file_data->src_by_id,k12_dump_src_setting,wdh);
+        GHashTableIter iter;
+        void *value;
+        k12_src_desc_t *src_desc;
+        g_hash_table_iter_init(&iter, file_data->src_by_id);
+        while (g_hash_table_iter_next(&iter, NULL, &value)) {
+            src_desc = (k12_src_desc_t*)value;
+            if (!k12_dump_src_setting(src_desc, wdh, err, err_info)) {
+                return false;
+            }
+        }
     }
     obj.record.len = 0x20 + rec->rec_header.packet_header.caplen;
     obj.record.len = WS_ROUNDUP_4(obj.record.len);
