@@ -890,6 +890,9 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C37,   "Voice Assistant Supported Languages" },
     { 0x2C38,   "Voice Assistant Supported Features" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC39,   "Harman International" },
+    { 0xFC3A,   "C.O.B.O. SpA" },
+    { 0xFC3B,   "BONX INC." },
     { 0xFC3C,   "Eforthink Technology Co., Ltd." },
     { 0xFC3D,   "Reelables, Inc." },
     { 0xFC3E,   "Google LLC" },
@@ -5527,7 +5530,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x104F,   "Safety Lighting Research Pty Ltd" },
     { 0x1050,   "Hangzhou Sneuro Medical Co., Ltd." },
     { 0x1051,   "UnlimitedIRL LLC" },
-    { 0x1052,   "MAXTA TECH INC." },
+    { 0x1052,   "CHOZEN International CO., LTD." },
     { 0x1053,   "Sensorworx, Inc." },
     { 0x1054,   "Romcor Pty Ltd" },
     { 0x1055,   "NewNet, Inc." },
@@ -5611,6 +5614,9 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10A3,   "BQT Solutions (NZ) Limited" },
     { 0x10A4,   "RAPIDISE TECHNOLOGY PRIVATE LIMITED" },
     { 0x10A5,   "Cebreo Medical A/S" },
+    { 0x10A6,   "Lightnovo ApS" },
+    { 0x10A7,   "Pedigree Technologies, LLC" },
+    { 0x10A8,   "Zhejiang Wanyou Intelligent Technology Co., Ltd." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6380,6 +6386,9 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c37,   "Bluetooth GATT Attribute Voice Assistant Supported Languages (UUID 0x2c37)", "BT GATT Voice Assistant Supported Languages (UUID 0x2c37)", "btgatt.uuid0x2c37" },
     { 0x2c38,   "Bluetooth GATT Attribute Voice Assistant Supported Features (UUID 0x2c38)", "BT GATT Voice Assistant Supported Features (UUID 0x2c38)", "btgatt.uuid0x2c38" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc39,   "Bluetooth GATT Attribute Harman International (UUID 0xfc39)", "BT GATT Harman International (UUID 0xfc39)", "btgatt.uuid0xfc39" },
+    { 0xfc3a,   "Bluetooth GATT Attribute C.O.B.O. SpA (UUID 0xfc3a)", "BT GATT C.O.B.O. SpA (UUID 0xfc3a)", "btgatt.uuid0xfc3a" },
+    { 0xfc3b,   "Bluetooth GATT Attribute BONX INC. (UUID 0xfc3b)", "BT GATT BONX INC. (UUID 0xfc3b)", "btgatt.uuid0xfc3b" },
     { 0xfc3c,   "Bluetooth GATT Attribute Eforthink Technology Co., Ltd. (UUID 0xfc3c)", "BT GATT Eforthink Technology Co., Ltd. (UUID 0xfc3c)", "btgatt.uuid0xfc3c" },
     { 0xfc3d,   "Bluetooth GATT Attribute Reelables, Inc. (UUID 0xfc3d)", "BT GATT Reelables, Inc. (UUID 0xfc3d)", "btgatt.uuid0xfc3d" },
     { 0xfc3e,   "Bluetooth GATT Attribute Google LLC (UUID 0xfc3e)", "BT GATT Google LLC (UUID 0xfc3e)", "btgatt.uuid0xfc3e" },

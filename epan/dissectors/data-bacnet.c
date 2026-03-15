@@ -1603,9 +1603,17 @@ BACnetVendorIdentifiers[] = {
     { 1592, "Andivi" },
     { 1593, "Chyi Lee Industry Co., Ltd." },
     { 1594, "Allbee B.V." },
+    { 1595, "Kampmann GmbH & Co. KG" },
+    { 1596, "Cosel Elektronik Otomasyon Sistemleri San. Tic. Ltd. Sti." },
+    { 1597, "Ractl Designs" },
     { 1598, "Databridge Dynamic Pvt Ltd" },
     { 1599, "Evolo Technologies AS" },
     { 1600, "EnergyPlus Teknoloji Imalat Ithalat ve Ihracat Sanayi AS" },
+    { 1601, "Gaiamesh Inc." },
+    { 1602, "Lovato Electric S.P.A." },
+    { 1603, "Q-PAC Systems, Inc." },
+    { 1604, "Yobiiq Intelligence B.V." },
+    { 1605, "Camfil USA Inc." },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

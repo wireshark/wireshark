@@ -6,8 +6,8 @@
  *
  * List of PCI IDs
  *
- * Version: 2026.03.08
- * Date:    2026-03-08 03:15:02
+ * Version: 2026.03.12
+ * Date:    2026-03-12 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -34110,7 +34110,7 @@ static pci_id_t const pci_vid_1E94[] = {
 
 static pci_id_t const pci_vid_1E95[] = {
 {0x1E95, 0xFFFF, 0xFFFF, 0xFFFF, "Solid State Storage Technology Corporation(0x1E95)"},
-{0x1E95, 0x1000, 0xFFFF, 0xFFFF, "XA1-311024 NVMe SSD M.2(0x1000)"},
+{0x1E95, 0x1000, 0xFFFF, 0xFFFF, "XA1 Series NVMe SSD M.2 (DRAM-less)(0x1000)"},
 {0x1E95, 0x1001, 0xFFFF, 0xFFFF, "CA6-8D512 NVMe SSD M.2(0x1001)"},
 {0x1E95, 0x1002, 0xFFFF, 0xFFFF, "NVMe SSD [3DNAND] 2.5\" U.2 (LJ1)(0x1002)"},
 {0x1E95, 0x1002, 0x1E95, 0x1101, "NVMe SSD [3DNAND] 2.5\" U.2 (LJ1)(0x1E95-0x1101)"},
@@ -35351,6 +35351,10 @@ static pci_id_t const pci_vid_1FF2[] = {
 {0x1FF2, 0x10A1, 0xFFFF, 0xFFFF, "NIC1160 Ethernet Controller Family(0x10A1)"},
 {0x1FF2, 0x10A1, 0x1FF2, 0x0C11, "10GE Ethernet Adapter 1160-2X(0x1FF2-0x0C11)"},
 {0x1FF2, 0x10A2, 0xFFFF, 0xFFFF, "NIC1160 Ethernet Controller Virtual Function Family(0x10A2)"},
+{0x1FF2, 0x10B1, 0xFFFF, 0xFFFF, "NIC 1260 Ethernet Controller Family(0x10B1)"},
+{0x1FF2, 0x10B2, 0xFFFF, 0xFFFF, "NIC 1260 Ethernet Controller Virtual Function Family(0x10B2)"},
+{0x1FF2, 0x10B3, 0xFFFF, 0xFFFF, "NIC 1260C Ethernet Controller Family(0x10B3)"},
+{0x1FF2, 0x10B4, 0xFFFF, 0xFFFF, "NIC 1260C Ethernet Controller Virtual Function Family(0x10B4)"},
 {0x1FF2, 0x20A1, 0xFFFF, 0xFFFF, "IOC2110 Storage Controller(0x20A1)"},
 {0x1FF2, 0x20A1, 0x1FF2, 0x0A11, "2120-16i SATA3/SAS3 HBA Adapter(0x1FF2-0x0A11)"},
 {0x1FF2, 0x20A1, 0x1FF2, 0x0A12, "2120-8i SATA3/SAS3 HBA Adapter(0x1FF2-0x0A12)"},
@@ -35757,6 +35761,10 @@ static pci_id_t const pci_vid_20E1[] = {
 {0x20E1, 0x7101, 0xFFFF, 0xFFFF, "LS X710-E(0x7101)"},
 {0x20E1, 0x7103, 0xFFFF, 0xFFFF, "LS X710-M(0x7103)"},
 {0x20E1, 0x7104, 0xFFFF, 0xFFFF, "LS X710-P(0x7104)"},
+{0x20E1, 0x7180, 0xFFFF, 0xFFFF, "LS X718(0x7180)"},
+{0x20E1, 0x7211, 0xFFFF, 0xFFFF, "LS X721-E(0x7211)"},
+{0x20E1, 0x7223, 0xFFFF, 0xFFFF, "LS X722-M(0x7223)"},
+{0x20E1, 0x7224, 0xFFFF, 0xFFFF, "LS X722-P(0x7224)"},
 }; /* pci_vid_20E1[] */
 
 static pci_id_t const pci_vid_20E3[] = {
@@ -46486,6 +46494,24 @@ static pci_id_t const pci_vid_8086[] = {
 {0x8086, 0xD156, 0xFFFF, 0xFFFF, "Core Processor Semaphore and Scratchpad Registers(0xD156)"},
 {0x8086, 0xD157, 0xFFFF, 0xFFFF, "Core Processor System Control and Status Registers(0xD157)"},
 {0x8086, 0xD158, 0xFFFF, 0xFFFF, "Core Processor Miscellaneous Registers(0xD158)"},
+{0x8086, 0xD323, 0xFFFF, 0xFFFF, "Nova Lake PCD-H SPI Controller(0xD323)"},
+{0x8086, 0xD325, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO UART Controller #0(0xD325)"},
+{0x8086, 0xD326, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO UART Controller #1(0xD326)"},
+{0x8086, 0xD327, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO SPI Controller #0(0xD327)"},
+{0x8086, 0xD330, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO SPI Controller #1(0xD330)"},
+{0x8086, 0xD331, 0xFFFF, 0xFFFF, "Nova Lake-H Thunderbolt 5 USB Controller(0xD331)"},
+{0x8086, 0xD333, 0xFFFF, 0xFFFF, "Nova Lake-H Thunderbolt 5 NHI #0(0xD333)"},
+{0x8086, 0xD347, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO SPI Controller #2(0xD347)"},
+{0x8086, 0xD34E, 0xFFFF, 0xFFFF, "Nova Lake-H Thunderbolt 5 PCI Express Root Port #0(0xD34E)"},
+{0x8086, 0xD34F, 0xFFFF, 0xFFFF, "Nova Lake-H Thunderbolt 5 PCI Express Root Port #1(0xD34F)"},
+{0x8086, 0xD350, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO I2C Controller #4(0xD350)"},
+{0x8086, 0xD351, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO I2C Controller #5(0xD351)"},
+{0x8086, 0xD352, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO UART Controller #2(0xD352)"},
+{0x8086, 0xD360, 0xFFFF, 0xFFFF, "Nova Lake-H Thunderbolt 5 PCI Express Root Port #2(0xD360)"},
+{0x8086, 0xD378, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO I2C Controller #0(0xD378)"},
+{0x8086, 0xD379, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO I2C Controller #1(0xD379)"},
+{0x8086, 0xD37A, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO I2C Controller #2(0xD37A)"},
+{0x8086, 0xD37B, 0xFFFF, 0xFFFF, "Nova Lake PCD-H Serial IO I2C Controller #3(0xD37B)"},
 {0x8086, 0xD431, 0xFFFF, 0xFFFF, "Nova Lake-S Thunderbolt 5 USB Controller(0xD431)"},
 {0x8086, 0xD433, 0xFFFF, 0xFFFF, "Nova Lake-S Thunderbolt 5 NHI #0(0xD433)"},
 {0x8086, 0xD44E, 0xFFFF, 0xFFFF, "Nova Lake-S Thunderbolt 5 PCI Express Root Port #0(0xD44E)"},
@@ -50346,7 +50372,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1FE1, 2, pci_vid_1FE1 },
 {0x1FE4, 10, pci_vid_1FE4 },
 {0x1FE9, 2, pci_vid_1FE9 },
-{0x1FF2, 18, pci_vid_1FF2 },
+{0x1FF2, 22, pci_vid_1FF2 },
 {0x1FF4, 6, pci_vid_1FF4 },
 {0x1FF8, 3, pci_vid_1FF8 },
 {0x1FF9, 1, pci_vid_1FF9 },
@@ -50393,7 +50419,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x20D2, 2, pci_vid_20D2 },
 {0x20D8, 14, pci_vid_20D8 },
 {0x20DC, 2, pci_vid_20DC },
-{0x20E1, 4, pci_vid_20E1 },
+{0x20E1, 8, pci_vid_20E1 },
 {0x20E3, 1, pci_vid_20E3 },
 {0x20E7, 1, pci_vid_20E7 },
 {0x20F4, 1, pci_vid_20F4 },
@@ -50547,7 +50573,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x8008, 4, pci_vid_8008 },
 {0x807D, 1, pci_vid_807D },
 {0x8080, 2, pci_vid_8080 },
-{0x8086, 9532, pci_vid_8086 },
+{0x8086, 9550, pci_vid_8086 },
 {0x8088, 90, pci_vid_8088 },
 {0x80EE, 3, pci_vid_80EE },
 {0x8164, 2, pci_vid_8164 },
