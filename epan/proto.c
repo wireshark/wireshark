@@ -14165,6 +14165,8 @@ const value_string proto_checksum_vals[] = {
 	{ 0,        NULL }
 };
 
+#define PROTO_CHECKSUM_COMPUTED_USED (PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_GENERATED|PROTO_CHECKSUM_NOT_PRESENT)
+
 proto_item *
 proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
 		const int hf_checksum, const int hf_checksum_status, struct expert_field* bad_checksum_expert,
@@ -14288,10 +14290,16 @@ proto_tree_add_checksum_bytes(proto_tree *tree, tvbuff_t *tvb, const unsigned of
 
 	PROTO_REGISTRAR_GET_NTH(hf_checksum, hfinfo);
 
-	if (hfinfo->type != FT_BYTES) {
-		REPORT_DISSECTOR_BUG("field %s is not of type FT_BYTES",
-			hfinfo->abbrev);
-	}
+	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_BYTES);
+
+	/* Make sure a NULL computed_checksum isn't dereferenced.
+	 * If checksum_len is 0 it probably won't crash, but in the VERIFY
+	 * case memcmp(NULL, checksum, 0) is UB until C2y, and in the other
+	 * cases the behavior is unexpected and still a programmer error;
+	 * proto_tree_add_bytes retrieves it from the tvb, thus neither
+	 * _NOT_PRESENT nor _GENERATED is correct.
+	 */
+	DISSECTOR_ASSERT(computed_checksum || ((flags & PROTO_CHECKSUM_COMPUTED_USED) == PROTO_CHECKSUM_NO_FLAGS));
 
 	if (flags & PROTO_CHECKSUM_NOT_PRESENT) {
 		ti = proto_tree_add_bytes_format_value(tree, hf_checksum, tvb, offset, (int)checksum_len, 0, "[missing]");
