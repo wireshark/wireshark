@@ -22,7 +22,7 @@
  * - The application name (variable, "Wireshark" or "Stratoshark")
  * - The application version ("<major>.<minor>.<micro>")
  * - The operating system (variable, one of "Windows" or "macOS")
- * - The architecture name (variable, one of "x86", "x86-64", or "arm64")
+ * - The architecture name (variable, one of "x86-64", or "arm64")
  * - The locale (fixed, "en-US")
  * - The update channel (variable, one of "development" or "stable") + .xml
  *
@@ -52,15 +52,13 @@
 #error HAVE_SOFTWARE_UPDATE can only be defined for Windows or macOS.
 #endif
 
-// https://sourceforge.net/p/predef/wiki/Architectures/
+// https://github.com/cpredef/predef/blob/master/Architectures.md
 #if defined(__x86_64__) || defined(_M_X64)
 #define SU_ARCH "x86-64"
-#elif defined(__i386__) || defined(_M_IX86)
-#define SU_ARCH "x86"
 #elif defined(__arm64__) || defined(_M_ARM64)
 #define SU_ARCH "arm64"
 #else
-#error HAVE_SOFTWARE_UPDATE can only be defined for x86-64 or x86 or arm64.
+#error HAVE_SOFTWARE_UPDATE can only be defined for x86-64 or arm64.
 #endif
 
 static char *get_appcast_update_url(software_update_channel_e chan, const char* su_application, const char* su_version) {
