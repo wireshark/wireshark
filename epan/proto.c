@@ -14200,7 +14200,8 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
 	if (flags & PROTO_CHECKSUM_NOT_PRESENT) {
 		ti = proto_tree_add_uint_format_value(tree, hf_checksum, tvb, offset, len, 0, "[missing]");
 		proto_item_set_generated(ti);
-		if (hf_checksum_status != -1) {
+		// Backward compatible with use of -1
+		if (hf_checksum_status > 0) {
 			ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, len, PROTO_CHECKSUM_E_NOT_PRESENT);
 			proto_item_set_generated(ti2);
 		}
@@ -14216,7 +14217,8 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
 			if (flags & (PROTO_CHECKSUM_IN_CKSUM|PROTO_CHECKSUM_ZERO)) {
 				if (computed_checksum == 0) {
 					proto_item_append_text(ti, " [correct]");
-					if (hf_checksum_status != -1) {
+					// Backward compatible with use of -1
+					if (hf_checksum_status > 0) {
 						ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_GOOD);
 						proto_item_set_generated(ti2);
 					}
@@ -14235,7 +14237,8 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
 			} else {
 				if (checksum == computed_checksum) {
 					proto_item_append_text(ti, " [correct]");
-					if (hf_checksum_status != -1) {
+					// Backward compatible with use of -1
+					if (hf_checksum_status > 0) {
 						ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_GOOD);
 						proto_item_set_generated(ti2);
 					}
@@ -14244,7 +14247,8 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
 			}
 
 			if (incorrect_checksum) {
-				if (hf_checksum_status != -1) {
+				// Backward compatible with use of -1
+				if (hf_checksum_status > 0) {
 					ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_BAD);
 					proto_item_set_generated(ti2);
 				}
@@ -14259,7 +14263,8 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
 				}
 			}
 		} else {
-			if (hf_checksum_status != -1) {
+			// Backward compatible with use of -1
+			if (hf_checksum_status > 0) {
 				proto_item_append_text(ti, " [unverified]");
 				ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_UNVERIFIED);
 				proto_item_set_generated(ti2);
@@ -14291,7 +14296,8 @@ proto_tree_add_checksum_bytes(proto_tree *tree, tvbuff_t *tvb, const unsigned of
 	if (flags & PROTO_CHECKSUM_NOT_PRESENT) {
 		ti = proto_tree_add_bytes_format_value(tree, hf_checksum, tvb, offset, (int)checksum_len, 0, "[missing]");
 		proto_item_set_generated(ti);
-		if (hf_checksum_status != -1) {
+		// Backward compatible with use of -1
+		if (hf_checksum_status > 0) {
 			ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, (int)checksum_len, PROTO_CHECKSUM_E_NOT_PRESENT);
 			proto_item_set_generated(ti2);
 		}
@@ -14301,62 +14307,64 @@ proto_tree_add_checksum_bytes(proto_tree *tree, tvbuff_t *tvb, const unsigned of
 	if (flags & PROTO_CHECKSUM_GENERATED) {
 		ti = proto_tree_add_bytes(tree, hf_checksum, tvb, offset, (int)checksum_len, computed_checksum);
 		proto_item_set_generated(ti);
-	} else {
-		checksum = (uint8_t*)wmem_alloc0_array(pinfo->pool, uint8_t, checksum_len);
-		tvb_memcpy(tvb, checksum, offset, checksum_len);
-		ti = proto_tree_add_bytes(tree, hf_checksum, tvb, offset, (int)checksum_len, checksum);
-		if (flags & PROTO_CHECKSUM_VERIFY) {
-			if (flags & (PROTO_CHECKSUM_IN_CKSUM|PROTO_CHECKSUM_ZERO)) {
-				if (computed_checksum == 0) {
-					proto_item_append_text(ti, " [correct]");
-					if (hf_checksum_status != -1) {
-						ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_GOOD);
-						proto_item_set_generated(ti2);
-					}
-					incorrect_checksum = false;
-				}
-			} else {
-				if (memcmp(computed_checksum, checksum, checksum_len) == 0) {
-					proto_item_append_text(ti, " [correct]");
-					if (hf_checksum_status != -1) {
-						ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_GOOD);
-						proto_item_set_generated(ti2);
-					}
-					incorrect_checksum = false;
+		return ti;
+	}
+
+	checksum = tvb_memdup(pinfo->pool, tvb, offset, checksum_len);
+	ti = proto_tree_add_bytes(tree, hf_checksum, tvb, offset, (int)checksum_len, checksum);
+	if (flags & PROTO_CHECKSUM_VERIFY) {
+		if (flags & (PROTO_CHECKSUM_IN_CKSUM|PROTO_CHECKSUM_ZERO)) {
+			bool non_zero_flag = false;
+			for (size_t index = 0; index < checksum_len; index++) {
+				if (computed_checksum[index]) {
+					non_zero_flag = true;
+					break;
 				}
 			}
-
-			if (incorrect_checksum) {
-				if (hf_checksum_status != -1) {
-					ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_BAD);
+			if (!non_zero_flag) {
+				proto_item_append_text(ti, " [correct]");
+				// Backward compatible with use of -1
+				if (hf_checksum_status > 0) {
+					ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_GOOD);
 					proto_item_set_generated(ti2);
 				}
-				if (flags & PROTO_CHECKSUM_ZERO) {
-					proto_item_append_text(ti, " [incorrect]");
-					if (bad_checksum_expert != NULL)
-						expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s", expert_get_summary(bad_checksum_expert));
-				} else {
-					size_t computed_checksum_str_len = (2 * checksum_len * sizeof(char)) + 1;
-					char *computed_checksum_str = (char*)wmem_alloc0_array(pinfo->pool, char, computed_checksum_str_len);
-					for (size_t counter = 0; counter < checksum_len; ++counter) {
-						snprintf(
-							/* On ecah iteration inserts two characters */
-							(char*)&computed_checksum_str[counter << 1],
-							computed_checksum_str_len - (counter << 1),
-							"%02x",
-							computed_checksum[counter]);
-					}
-					proto_item_append_text(ti, " incorrect, should be 0x%s", computed_checksum_str);
-					if (bad_checksum_expert != NULL)
-						expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s [should be 0x%s]", expert_get_summary(bad_checksum_expert), computed_checksum_str);
-				}
+				incorrect_checksum = false;
 			}
 		} else {
-			if (hf_checksum_status != -1) {
-				proto_item_append_text(ti, " [unverified]");
-				ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_UNVERIFIED);
+			if (memcmp(computed_checksum, checksum, checksum_len) == 0) {
+				proto_item_append_text(ti, " [correct]");
+				// Backward compatible with use of -1
+				if (hf_checksum_status > 0) {
+					ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_GOOD);
+					proto_item_set_generated(ti2);
+				}
+				incorrect_checksum = false;
+			}
+		}
+
+		if (incorrect_checksum) {
+			// Backward compatible with use of -1
+			if (hf_checksum_status > 0) {
+				ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_BAD);
 				proto_item_set_generated(ti2);
 			}
+			if (flags & PROTO_CHECKSUM_ZERO) {
+				proto_item_append_text(ti, " [incorrect]");
+				if (bad_checksum_expert != NULL)
+					expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s", expert_get_summary(bad_checksum_expert));
+			} else {
+				char *computed_checksum_str = bytes_to_str_maxlen(pinfo->pool, computed_checksum, checksum_len, 0);
+				proto_item_append_text(ti, " incorrect, should be 0x%s", computed_checksum_str);
+				if (bad_checksum_expert != NULL)
+					expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s [should be 0x%s]", expert_get_summary(bad_checksum_expert), computed_checksum_str);
+			}
+		}
+	} else {
+		// Backward compatible with use of -1
+		if (hf_checksum_status > 0) {
+			proto_item_append_text(ti, " [unverified]");
+			ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_UNVERIFIED);
+			proto_item_set_generated(ti2);
 		}
 	}
 
