@@ -2087,7 +2087,7 @@ dissect_sick_cola_answer_san(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 			}
 			else
 			{
-				proto_tree_add_uint(tree, hf_sick_cola_startmeas_status_code, tvb, offset, parameter_length, status_code);
+				proto_tree_add_uint(tree, hf_sick_cola_startmeas_status_code, tvb, offset, parameter_length, 0xFFFFFFFF);
 			}
 		}
 	}
