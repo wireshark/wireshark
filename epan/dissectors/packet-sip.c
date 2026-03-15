@@ -5944,6 +5944,9 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
         stat_tap_table_item_type *item_data;
         unsigned element;
 
+        if (!req_table)
+            return TAP_PACKET_DONT_REDRAW;
+
         cur_table = req_table;
         for (element = 0; element < req_table->num_elements; element++) {
             item_data = stat_tap_get_field_data(req_table, element, REQ_RESP_METHOD_COLUMN);
@@ -5959,6 +5962,9 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
         unsigned response_code = info_value->response_code;
         stat_tap_table_item_type *item_data;
         unsigned element;
+
+        if (!resp_table)
+            return TAP_PACKET_DONT_REDRAW;
 
         cur_table = resp_table;
         if (response_code < RESPONSE_CODE_MIN || response_code > RESPONSE_CODE_MAX) {
