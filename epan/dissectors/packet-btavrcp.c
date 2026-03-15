@@ -1195,17 +1195,20 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 for (i_frame = 1; i_frame <= fragment->count; ++i_frame) {
                     data_fragment = (data_fragment_t *)wmem_tree_lookup32_le(fragment->fragments, i_frame);
-                    length += data_fragment->length;
+                    if (data_fragment)
+                        length += data_fragment->length;
                 }
 
                 reassembled = (uint8_t *) wmem_alloc(pinfo->pool, length);
 
                 for (i_frame = 1; i_frame <= fragment->count; ++i_frame) {
                     data_fragment = (data_fragment_t *)wmem_tree_lookup32_le(fragment->fragments, i_frame);
-                    memcpy(reassembled + i_length,
-                            data_fragment->data,
-                            data_fragment->length);
-                    i_length += data_fragment->length;
+                    if (data_fragment) {
+                        memcpy(reassembled + i_length,
+                                data_fragment->data,
+                                data_fragment->length);
+                        i_length += data_fragment->length;
+                    }
                 }
 
                 next_tvb = tvb_new_child_real_data(tvb, reassembled, length, length);
