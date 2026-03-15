@@ -7312,7 +7312,8 @@ proto_item_fill_display_label(const field_info *finfo, char *display_label_str, 
 					number_out = hfinfo_numeric_value_format(hfinfo, number_buf, number);
 					label_len = proto_strlcpy(display_label_str, number_out, label_str_size);
 					hf_str_val = hf_try_val_to_str(number, hfinfo);
-					label_len += proto_strlcpy(display_label_str+label_len, hf_str_val, label_str_size-label_len);
+					if (hf_str_val)
+						label_len += proto_strlcpy(display_label_str+label_len, hf_str_val, label_str_size-label_len);
 				} else {
 					number_out = hf_try_val_to_str(number, hfinfo);
 
@@ -7356,7 +7357,8 @@ proto_item_fill_display_label(const field_info *finfo, char *display_label_str, 
 					number_out = hfinfo_numeric_value_format64(hfinfo, number_buf, number64);
 					label_len = proto_strlcpy(display_label_str, number_out, label_str_size);
 					hf_str_val = hf_try_val64_to_str(number64, hfinfo);
-					label_len += proto_strlcpy(display_label_str+label_len, hf_str_val, label_str_size-label_len);
+					if (hf_str_val)
+						label_len += proto_strlcpy(display_label_str+label_len, hf_str_val, label_str_size-label_len);
 				} else {
 					number_out = hf_try_val64_to_str(number64, hfinfo);
 
