@@ -451,9 +451,11 @@ nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, i
 				}
 
 				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_COL_PROT_BIT) {
-					wtap_buffer_append_epdu_string(&rec->data, EXP_PDU_TAG_COL_PROT_TEXT, exported_pdu_info.proto_col_str);
-					g_free(exported_pdu_info.proto_col_str);
-					exported_pdu_info.proto_col_str = NULL;
+					if (exported_pdu_info.proto_col_str) {
+						wtap_buffer_append_epdu_string(&rec->data, EXP_PDU_TAG_COL_PROT_TEXT, exported_pdu_info.proto_col_str);
+						g_free(exported_pdu_info.proto_col_str);
+						exported_pdu_info.proto_col_str = NULL;
+					}
 				}
 
 				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_SRC_BIT) {
