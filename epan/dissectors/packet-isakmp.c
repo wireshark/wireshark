@@ -322,7 +322,9 @@ static int hf_isakmp_trans_encr;
 static int hf_isakmp_trans_prf;
 static int hf_isakmp_trans_integ;
 static int hf_isakmp_trans_ke;
-static int hf_isakmp_trans_esn;
+static int hf_isakmp_trans_sn;
+static int hf_isakmp_trans_kwa;
+static int hf_isakmp_trans_gcauth;
 static int hf_isakmp_trans_id_v2;
 
 static attribute_common_fields hf_isakmp_ike2_attr;
@@ -527,6 +529,7 @@ static const fragment_items isakmp_frag_items = {
  *   RFC3554 for ID_LIST
  *   RFC4306 for IKEv2
  *   RFC4595 for ID_FC_NAME
+ *   RFC7619 for ID_NULL
  */
 #define IKE_ID_IPV4_ADDR                1
 #define IKE_ID_FQDN                     2
@@ -541,6 +544,7 @@ static const fragment_items isakmp_frag_items = {
 #define IKE_ID_KEY_ID                   11
 #define IKE_ID_LIST                     12
 #define IKE_ID_FC_NAME                  12
+#define IKE_ID_NULL                     13
 #define IKE_ID_RFC822_ADDR              3
 /*
  * Traffic Selector Type
@@ -661,6 +665,7 @@ static const fragment_items isakmp_frag_items = {
 #define PLOAD_IKE2_GSA                  51
 #define PLOAD_IKE2_KD                   52
 #define PLOAD_IKE2_SKF                  53
+#define PLOAD_IKE2_PS                   54
 #define PLOAD_IKE_SK                    128
 #define PLOAD_IKE_NAT_D13               130
 #define PLOAD_IKE_NAT_OA14              131
@@ -692,10 +697,10 @@ static const value_string exchange_v2_type[] = {
   { 36, "CREATE_CHILD_SA" },
   { 37, "INFORMATIONAL" },
   { 38, "IKE_SESSION_RESUME" }, /* RFC5723 */
-  { 39, "GSA_AUTH" },           /* draft-yeung-g-ikev2 */
-  { 40, "GSA_REGISTRATION" },   /* draft-yeung-g-ikev2 */
-  { 41, "GSA_REKEY	" },    /* draft-yeung-g-ikev2 */
-  { 42, "Unassigned" },
+  { 39, "GSA_AUTH" },           /* RFC9838 */
+  { 40, "GSA_REGISTRATION" },   /* RFC9838 */
+  { 41, "GSA_REKEY" },          /* RFC9838 */
+  { 42, "GSA_INBAND_REKEY" },   /* RFC9838 */
   { 43, "IKE_INTERMEDIATE" },  /* [RFC9242] */
   { 44, "IKE_FOLLOWUP_KE" },   /* [RFC9370] */
   { 0,  NULL },
@@ -724,6 +729,11 @@ static const value_string protoid_v2_type[] = {
   { 3,  "ESP" },
   { 4,  "FC_ESP_HEADER" },
   { 5,  "FC_CT_AUTHENTICATION" },
+  { 6,  "GIKE_UPDATE" },          /* [RFC9838] */
+/*
+ 7-200      UNASSIGNED               [RFC7296]
+ 201-255    PRIVATE USE              [RFC7296]
+*/
   { 0,  NULL },
 };
 
@@ -772,7 +782,8 @@ static const range_string payload_type[] = {
   { PLOAD_IKE2_GSA,PLOAD_IKE2_GSA,             "Group Security Association"},
   { PLOAD_IKE2_KD,PLOAD_IKE2_KD,               "Key Download"},
   { PLOAD_IKE2_SKF,PLOAD_IKE2_SKF,             "Encrypted and Authenticated Fragment"},
-  { 54,127,                                    "Unassigned"     },
+  { PLOAD_IKE2_PS,PLOAD_IKE2_PS,               "Puzzle Solution"},
+  { 55,127,                                    "Unassigned"     },
   { PLOAD_IKE_SK,PLOAD_IKE_SK,                 "Symmetric-key"},
   { 129,129,                                   "Private Use"   },
   { PLOAD_IKE_NAT_D13,PLOAD_IKE_NAT_D13,       "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
@@ -953,12 +964,20 @@ static const value_string transform_id_ipcomp[] = {
   { 2,  "DEFLATE" },
   { 3,  "LZS" },
   { 4,  "LZJH" },
+/*
+ 5-240      UNASSIGNED                  [RFC7296]
+ 241-255    PRIVATE USE                 [RFC7296]
+*/
   { 0,  NULL },
 };
 static const value_string redirect_gateway_identity_type[] = {
   { 1,  "IPv4 address" },
   { 2,  "IPv6 address" },
   { 3,  "FQDN" },
+/*
+ 4-240      UNASSIGNED                  [RFC5685]
+ 241-255    PRIVATE USE                 [RFC5685]
+*/
   { 0,  NULL },
 };
 static const value_string attr_life_type[] = {
@@ -1152,7 +1171,7 @@ static const value_string ike_attr_authmeth_china[] = {
  * change as RFC 9395 deprecated IKEv1. */
 static const value_string dh_group[] = {
   { 0,  "UNDEFINED - 0" },
-  { 1,  "Default 768-bit MODP group" },
+  { 1,  "Default 768-bit MODP group" },     /* DEPRECATED [RFC8247] */
   { 2,  "Alternate 1024-bit MODP group" },
   { 3,  "EC2N group on GP[2^155] group" },
   { 4,  "EC2N group on GP[2^185] group" },
@@ -1204,7 +1223,7 @@ static const value_string ike_attr_grp_type[] = {
 #define TF_IKE2_PRF     2
 #define TF_IKE2_INTEG   3
 #define TF_IKE2_KE      4
-#define TF_IKE2_ESN     5
+#define TF_IKE2_SN      5
 #define TF_IKE2_ADDKE1  6
 #define TF_IKE2_ADDKE2  7
 #define TF_IKE2_ADDKE3  8
@@ -1212,14 +1231,16 @@ static const value_string ike_attr_grp_type[] = {
 #define TF_IKE2_ADDKE5  10
 #define TF_IKE2_ADDKE6  11
 #define TF_IKE2_ADDKE7  12
+#define TF_IKE2_KWA     13
+#define TF_IKE2_GCAUTH  14
 
 static const range_string transform_ike2_type[] = {
   { 0,0,        "RESERVED" },
-  { TF_IKE2_ENCR,TF_IKE2_ENCR,  "Encryption Algorithm (ENCR)" },
-  { TF_IKE2_PRF,TF_IKE2_PRF,    "Pseudo-random Function (PRF)"},
-  { TF_IKE2_INTEG,TF_IKE2_INTEG,"Integrity Algorithm (INTEG)"},
-  { TF_IKE2_KE,TF_IKE2_KE,      "Key Exchange Method (KE)"},
-  { TF_IKE2_ESN,TF_IKE2_ESN,    "Extended Sequence Numbers (ESN)"},
+  { TF_IKE2_ENCR,TF_IKE2_ENCR,     "Encryption Algorithm (ENCR)" },
+  { TF_IKE2_PRF,TF_IKE2_PRF,       "Pseudo-random Function (PRF)"},
+  { TF_IKE2_INTEG,TF_IKE2_INTEG,   "Integrity Algorithm (INTEG)"},
+  { TF_IKE2_KE,TF_IKE2_KE,         "Key Exchange Method (KE)"},
+  { TF_IKE2_SN,TF_IKE2_SN,         "Sequence Numbers (SN)"},
   { TF_IKE2_ADDKE1,TF_IKE2_ADDKE1, "ADDKE1"},
   { TF_IKE2_ADDKE2,TF_IKE2_ADDKE2, "ADDKE2"},
   { TF_IKE2_ADDKE3,TF_IKE2_ADDKE3, "ADDKE3"},
@@ -1227,24 +1248,28 @@ static const range_string transform_ike2_type[] = {
   { TF_IKE2_ADDKE5,TF_IKE2_ADDKE5, "ADDKE5"},
   { TF_IKE2_ADDKE6,TF_IKE2_ADDKE6, "ADDKE6"},
   { TF_IKE2_ADDKE7,TF_IKE2_ADDKE7, "ADDKE7"},
+  { TF_IKE2_KWA,TF_IKE2_KWA,       "Key Wrap Algorithm (KWA)"},
+  { TF_IKE2_GCAUTH,TF_IKE2_GCAUTH, "Group Controller Authentication Method (GCAUTH)"},
   { 13,240,      "Reserved to IANA"},
   { 241,255,    "Private Use"},
   { 0,0,                NULL },
 };
-/* For Transform Type 1 (Encryption Algorithm), defined Transform IDs */
+/* For Transform Type 1 (Encryption Algorithm), defined Transform IDs
+ * Some algorithms are deprecated in general; others are allowed to
+ * be negotiated for ESP but MUST NOT be used for IKE itself. */
 static const value_string transform_ike2_encr_type[] = {
   { 0,  "RESERVED" },
-  { 1,  "ENCR_DES_IV64" },
-  { 2,  "ENCR_DES" },
+  { 1,  "ENCR_DES_IV64" },                              /* DEPRECATED [RFC9395] */
+  { 2,  "ENCR_DES" },                                   /* DEPRECATED [RFC9395] */
   { 3,  "ENCR_3DES" },
-  { 4,  "ENCR_RC5" },
-  { 5,  "ENCR_IDEA" },
-  { 6,  "ENCR_CAST" },
-  { 7,  "ENCR_BLOWFISH" },
-  { 8,  "ENCR_3IDEA" },
-  { 9,  "ENCR_DES_IV32" },
+  { 4,  "ENCR_RC5" },                                   /* DEPRECATED [RFC9395] */
+  { 5,  "ENCR_IDEA" },                                  /* DEPRECATED [RFC9395] */
+  { 6,  "ENCR_CAST" },                                  /* DEPRECATED [RFC9395] */
+  { 7,  "ENCR_BLOWFISH" },                              /* DEPRECATED [RFC9395] */
+  { 8,  "ENCR_3IDEA" },                                 /* DEPRECATED [RFC9395] */
+  { 9,  "ENCR_DES_IV32" },                              /* DEPRECATED [RFC9395] */
   { 10, "RESERVED" },
-  { 11, "ENCR_NULL" },
+  { 11, "ENCR_NULL" },                                  /* IKE MUST NOT */
   { 12, "ENCR_AES_CBC" },
   { 13, "ENCR_AES_CTR" },                               /* [RFC3686] */
   { 14, "ENCR_AES-CCM_8" },                             /* [RFC4309] */
@@ -1254,7 +1279,7 @@ static const value_string transform_ike2_encr_type[] = {
   { 18, "AES-GCM with a 8 octet ICV" },                 /* [RFC4106] */
   { 19, "AES-GCM with a 12 octet ICV" },                /* [RFC4106] */
   { 20, "AES-GCM with a 16 octet ICV" },                /* [RFC4106] */
-  { 21, "ENCR_NULL_AUTH_AES_GMAC" },                    /* [RFC4543] */
+  { 21, "ENCR_NULL_AUTH_AES_GMAC" },                    /* [RFC4543] IKE MUST NOT */
   { 22, "Reserved for IEEE P1619 XTS-AES" },            /* [Ball] */
   { 23, "ENCR_CAMELLIA_CBC" },                          /* [RFC5529] */
   { 24, "ENCR_CAMELLIA_CTR" },                          /* [RFC5529] */
@@ -1262,8 +1287,15 @@ static const value_string transform_ike2_encr_type[] = {
   { 26, "ENCR_CAMELLIA_CCM with a 12-octet ICV" },      /* [RFC5529] */
   { 27, "ENCR_CAMELLIA_CCM with a 16-octet ICV" },      /* [RFC5529] */
   { 28, "ENCR_CHACHA20_POLY1305" },                     /* [RFC7634] */
+  { 29, "ENCR_AES_CCM_8_IIV" },                         /* [RFC8750] IKE MUST NOT */
+  { 30, "ENCR_AES_GCM_16_IIV" },                        /* [RFC8750] IKE MUST NOT */
+  { 31, "ENCR_CHACHA20_POLY1305_IIV" },                 /* [RFC8750] IKE MUST NOT */
+  { 32, "ENCR_KUZNYECHIK_MGM_KTREE" },                  /* [RFC9227] */
+  { 33, "ENCR_MAGMA_MGM_KTREE" },                       /* [RFC9227] */
+  { 34, "ENCR_KUZNYECHIK_MGM_MAC_KTREE" },              /* [RFC9227] IKE MUST NOT */
+  { 35, "ENCR_MAGMA_MGM_MAC_KTREE" },                   /* [RFC9227] IKE MUST NOT */
 /*
- *              29-1023    RESERVED TO IANA         [RFC4306]
+ *              36-1023    RESERVED TO IANA         [RFC4306]
  *              1024-65535    PRIVATE USE           [RFC4306]
  */
     { 0,        NULL },
@@ -1272,16 +1304,17 @@ static const value_string transform_ike2_encr_type[] = {
 /* For Transform Type 2 (Pseudo-random Function), defined Transform IDs */
 static const value_string transform_ike2_prf_type[] = {
   { 0,  "RESERVED" },
-  { 1,  "PRF_HMAC_MD5" },
+  { 1,  "PRF_HMAC_MD5" },               /* DEPRECATED [RFC8247] */
   { 2,  "PRF_HMAC_SHA1" },
-  { 3,  "PRF_HMAC_TIGER" },
+  { 3,  "PRF_HMAC_TIGER" },             /* DEPRECATED [RFC9395] */
   { 4,  "PRF_AES128_CBC" },
   { 5,  "PRF_HMAC_SHA2_256" },          /* [RFC4868] */
   { 6,  "PRF_HMAC_SHA2_384" },          /* [RFC4868] */
   { 7,  "PRF_HMAC_SHA2_512" },          /* [RFC4868] */
   { 8,  "PRF_AES128_CMAC6" },           /* [RFC4615] */
+  { 9,  "PRF_HMAC_STREEBOG_512" },      /* [RFC9385] */
 /*
-     9-1023    RESERVED TO IANA            [RFC4306]
+     10-1023    RESERVED TO IANA           [RFC4306]
      1024-65535    PRIVATE USE             [RFC4306]
 */
   { 0,  NULL },
@@ -1290,13 +1323,13 @@ static const value_string transform_ike2_prf_type[] = {
 /* For Transform Type 3 (Integrity Algorithm), defined Transform IDs */
 static const value_string transform_ike2_integ_type[] = {
   { 0,  "NONE" },
-  { 1,  "AUTH_HMAC_MD5_96" },
+  { 1,  "AUTH_HMAC_MD5_96" },           /* DEPRECATED [RFC8247] */
   { 2,  "AUTH_HMAC_SHA1_96" },
-  { 3,  "AUTH_DES_MAC" },
-  { 4,  "AUTH_KPDK_MD5" },
+  { 3,  "AUTH_DES_MAC" },               /* DEPRECATED [RFC8247] */
+  { 4,  "AUTH_KPDK_MD5" },              /* DEPRECATED [RFC8247] */
   { 5,  "AUTH_AES_XCBC_96" },
-  { 6,  "AUTH_HMAC_MD5_128" },          /* [RFC4595] */
-  { 7,  "AUTH_HMAC_SHA1_160" },         /* [RFC4595] */
+  { 6,  "AUTH_HMAC_MD5_128" },          /* [RFC4595] DEPRECATED [RFC9395] */
+  { 7,  "AUTH_HMAC_SHA1_160" },         /* [RFC4595] DEPRECATED [RFC9395] */
   { 8,  "AUTH_AES_CMAC_96" },           /* [RFC4494] */
   { 9,  "AUTH_AES_128_GMAC" },          /* [RFC4543] */
   { 10, "AUTH_AES_192_GMAC" },          /* [RFC4543] */
@@ -1310,10 +1343,41 @@ static const value_string transform_ike2_integ_type[] = {
 */
   { 0,  NULL },
 };
-/* For Transform Type 5 (Extended Sequence Numbers), defined Transform */
-static const value_string transform_ike2_esn_type[] = {
-  { 0,  "No Extended Sequence Numbers" },
-  { 1,  "Extended Sequence Numbers" },
+/* For Transform Type 5 (Sequence Numbers, formerly known as Extended
+ * Sequence Numbers, renamed in RFC 9827), defined Transform IDs */
+static const value_string transform_ike2_sn_type[] = {
+  { 0,  "32-bit Sequential Numbers" },
+  { 1,  "Partially Transmitted 64-bit Sequential Numbers" },
+  { 2,  "32-bit Unspecified Numbers" }, /* [RFC9827] */
+/*
+ 3-1023        UNASSIGNED                  [RFC9827]
+ 1024-65535    PRIVATE USE                 [RFC9827]
+*/
+  { 0,  NULL },
+};
+/* For Transform Type 13 (Key Wrap Algorithm), defined Transform IDs [RFC 9838] */
+static const value_string transform_ike2_kwa_type[] = {
+  { 0,  "Reserved" },
+  { 1,  "KW_5649_128" },
+  { 2,  "KW_5649_192" },
+  { 3,  "KW_5649_256" },
+  { 4,  "KW_ARX" },
+/*
+ 5-1023        UNASSIGNED
+ 1024-65535    PRIVATE USE
+*/
+  { 0,  NULL },
+};
+/* For Transform Type 14 (Group Controller Authentication Method),
+ * defined Transform IDs [RFC 9838] */
+static const value_string transform_ike2_gcauth_type[] = {
+  { 0,  "Reserved" },
+  { 1,  "Implicit" },
+  { 2,  "Digital Signature" },
+/*
+ 3-1023        UNASSIGNED
+ 1024-65535    PRIVATE USE
+*/
   { 0,  NULL },
 };
 /* Transform IKE2 Type */
@@ -1323,7 +1387,8 @@ static const range_string transform_ike2_attr_type[] = {
   { 0,13,        "Reserved" },
   { 14,14,       "Key Length" },
   { 15,17,       "Reserved" },
-  { 18,16383,    "Unassigned (Future use)" },
+  { 18,18,       "Signature Algorithm Identifier" },
+  { 19,16383,    "Unassigned (Future use)" },
   { 16384,32767, "Private use" },
   { 0,0,         NULL },
 };
@@ -1356,11 +1421,12 @@ static const range_string cert_v2_type[] = {
   { 8,8,        "Authority Revocation List (ARL)" },
   { 9,9,        "SPKI Certificate" },
   { 10,10,      "X.509 Certificate - Attribute" },
-  { 11,11,      "Raw RSA Key" },
+  { 11,11,      "Raw RSA Key (DEPRECATED)" },
   { 12,12,      "Hash and URL of X.509 certificate" },
   { 13,13,      "Hash and URL of X.509 bundle" },
   { 14,14,      "OCSP Content" },                       /* [RFC4806] */
-  { 15,200,     "RESERVED to IANA" },
+  { 15,15,      "Raw Public Key" },                     /* [RFC7670] */
+  { 16,200,     "RESERVED to IANA" },
   { 201,255,    "PRIVATE USE" },
   { 0,0,        NULL },
 };
@@ -1452,6 +1518,7 @@ static const range_string notifmsg_v2_type[] = {
   { 14,14,      "NO_PROPOSAL_CHOSEN" },
   { 15,16,      "RESERVED" },
   { 17,17,      "INVALID_KE_PAYLOAD" },
+  { 18,23,      "RESERVED" },
   { 24,24,      "AUTHENTICATION_FAILED" },
   { 25,33,      "RESERVED" },
   { 34,34,      "SINGLE_PAIR_REQUIRED" },
@@ -1466,9 +1533,11 @@ static const range_string notifmsg_v2_type[] = {
   { 43,43,      "TEMPORARY_FAILURE" },                          /* RFC5996 */
   { 44,44,      "CHILD_SA_NOT_FOUND" },                         /* RFC5996 */
   { 45,45,      "INVALID_GROUP_ID" },                           /* RFC9838 */
-  { 46,46,      "CHILD_SA_NOT_FOUND" },                         /* RFC9838 */
+  { 46,46,      "AUTHORIZATION_FAILED"},                        /* RFC9838 */
   { 47,47,      "STATE_NOT_FOUND" },                            /* RFC9370 */
-  { 48,8191,    "RESERVED TO IANA - Error types" },
+  { 48,48,      "TS_MAX_QUEUE" },                               /* RFC9611 */
+  { 49,49,      "REGISTRATION_FAILED"},                         /* RFC9838 */
+  { 50,8191,    "RESERVED TO IANA - Error types" },
   { 8192,16383,         "Private Use - Errors" },
   { 16384,16384,        "INITIAL_CONTACT" },
   { 16385,16385,        "SET_WINDOW_SIZE" },
@@ -1529,7 +1598,11 @@ static const range_string notifmsg_v2_type[] = {
   { 16440,16440,        "IP4_ALLOWED" },                        /* RFC8983 */
   { 16441,16441,        "ADDITIONAL_KEY_EXCHANGE" },            /* RFC9370 */
   { 16442,16442,        "USE_AGGFRAG" },                        /* RFC9347 */
-  { 16443,40959,        "RESERVED TO IANA - STATUS TYPES" },
+  { 16443,16443,        "SUPPORTED_AUTH_METHODS" },             /* RFC9593 */
+  { 16444,16444,        "SA_RESOURCE_INFO" },                   /* RFC9611 */
+  { 16445,16445,        "USE_PPK_INIT" },                       /* RFC9867 */
+  { 16446,16446,        "PPK_IDENTITY_KEY" },                   /* RFC9867 */
+  { 16447,40959,        "RESERVED TO IANA - STATUS TYPES" },
   { 40960,65535,        "Private Use - STATUS TYPES" },
   { 0,0,        NULL },
 };
@@ -1642,8 +1715,8 @@ static const range_string vs_v2_cfgtype[] = {
   { 2,2,        "CFG_REPLY" },
   { 3,3,        "CFG_SET" },
   { 4,4,        "CFG_ACK" },
-  { 5,127,      "Future use"    },
-  { 128,256,    "Private Use"   },
+  { 5,127,      "Unassigned"    },
+  { 128,256,    "Reserved for Private Use"   },
   { 0,0,        NULL },
   };
 
@@ -1705,13 +1778,13 @@ static const range_string vs_v2_cfgattr[] = {
   { 2,2,         "INTERNAL_IP4_NETMASK" },
   { 3,3,         "INTERNAL_IP4_DNS" },
   { 4,4,         "INTERNAL_IP4_NBNS" },
-  { 5,5,         "INTERNAL_ADDRESS_EXPIRY" },   /* OBSO */
+  { 5,5,         "RESERVED" },                  /* [RFC7296] */
   { 6,6,         "INTERNAL_IP4_DHCP" },
   { 7,7,         "APPLICATION_VERSION" },
   { 8,8,         "INTERNAL_IP6_ADDRESS" },
   { 9,9,         "RESERVED" },
   { 10,10,       "INTERNAL_IP6_DNS" },
-  { 11,11,       "INTERNAL_IP6_NBNS" },         /* OBSO */
+  { 11,11,       "RESERVED" },                  /* [RFC7296] */
   { 12,12,       "INTERNAL_IP6_DHCP" },
   { 13,13,       "INTERNAL_IP4_SUBNET" },
   { 14,14,       "SUPPORTED_ATTRIBUTES" },
@@ -1720,27 +1793,27 @@ static const range_string vs_v2_cfgattr[] = {
   { 17,17,       "INTERNAL_IP6_LINK" },
   { 18,18,       "INTERNAL_IP6_PREFIX" },
   { 19,19,       "HOME_AGENT_ADDRESS" },        /* 3GPP TS 24.302 http://www.3gpp.org/ftp/Specs/html-info/24302.htm */
-  { 20,20,       "P_CSCF_IP4_ADDRESS" },        /* 3GPP IMS Option for IKEv2 https://datatracker.ietf.org/doc/draft-gundavelli-ipsecme-3gpp-ims-options/ */
-  { 21,21,       "P_CSCF_IP6_ADDRESS" },
-  { 22,22,       "FTT_KAT" },
-  { 23,23,       "EXTERNAL_SOURCE_IP4_NAT_INFO" },
-  { 24,24,       "TIMEOUT_PERIOD_FOR_LIVENESS_CHECK" },
-  { 25,25,       "INTERNAL_DNS_DOMAIN" },
-  { 26,26,       "INTERNAL_DNSSEC_TA" },
-  { 27,27,       "ENCDNS_IP4" },
-  { 28,28,       "ENCDNS_IP6" },
-  { 29,29,       "ENCDNS_DIGEST_INFO" },
-  { 30,16383,    "RESERVED TO IANA"},
-  { 16384,21513, "PRIVATE USE"},
+  { 20,20,       "P_CSCF_IP4_ADDRESS" },        /* 3GPP IMS Option for IKEv2 [RFC7651] */
+  { 21,21,       "P_CSCF_IP6_ADDRESS" },        /* [RFC7651] */
+  { 22,22,       "FTT_KAT" },                   /* 3GPP TS 24.302 12.6.0 */
+  { 23,23,       "EXTERNAL_SOURCE_IP4_NAT_INFO" },      /* 3GPP TS 29.139 */
+  { 24,24,       "TIMEOUT_PERIOD_FOR_LIVENESS_CHECK" }, /* 3GPP TS 24.302 13.4.0 */
+  { 25,25,       "INTERNAL_DNS_DOMAIN" },       /* [RFC8598] */
+  { 26,26,       "INTERNAL_DNSSEC_TA" },        /* [RFC8598] */
+  { 27,27,       "ENCDNS_IP4" },                /* [RFC8464] */
+  { 28,28,       "ENCDNS_IP6" },                /* [RFC8464] */
+  { 29,29,       "ENCDNS_DIGEST_INFO" },        /* [RFC8464] */
+  { 30,16383,    "Unassigned"},
+  { 16384,21513, "Reserved for Private Use"},
   { 21514,21514, "FORTINET_AUTO_NEGOTIATE" },
   { 21515,21515, "FORTINET_KEEP_ALIVE" },
   { 21516,21516, "FORTINET_DNS_SUFFIX" },
-  { 21517,28671, "PRIVATE USE"},
+  { 21517,28671, "Reserved for Private Use"},
   { 28672,28672, "UNITY_BANNER" }, /* Fortinet use UNITY for IKEv2 too...*/
   { 28673,28673, "UNITY_SAVE_PASSWD" }, /* Fortinet use UNITY for IKEv2 too...*/
-  { 28674,28677, "PRIVATE USE"},
+  { 28674,28677, "Reserved for Private Use"},
   { 28678,28678, "UNITY_SPLIT_EXCLUDE" }, /* Fortinet use UNITY for IKEv2 too...*/
-  { 28679,32767, "PRIVATE USE"},
+  { 28679,32767, "Reserved for Private Use"},
   { 0,0,          NULL },
   };
 
@@ -1785,8 +1858,9 @@ static const range_string traffic_selector_type[] = {
   { 7,7,        "TS_IPV4_ADDR_RANGE" },
   { 8,8,        "TS_IPV6_ADDR_RANGE" },
   { 9,9,        "TS_FC_ADDR_RANGE" },
-  { 10,240,     "Future use" },
-  { 241,255,    "Private use" },
+  { 10,10,      "TS_SECLABEL" },              /* [RFC9478] */
+  { 11,240,     "Unassigned" },
+  { 241,255,    "Reserved for Private use" }, /* [RFC7296] */
   { 0,0,          NULL },
   };
 static const value_string ms_nt5_isakmpoakley_type[] = {
@@ -1826,7 +1900,8 @@ static const range_string vs_v2_id_type[] = {
   { IKE_ID_DER_ASN1_GN,IKE_ID_DER_ASN1_GN,              "DER_ASN1_GN" },
   { IKE_ID_KEY_ID,IKE_ID_KEY_ID,                        "KEY_ID" },
   { IKE_ID_FC_NAME,IKE_ID_FC_NAME,                      "KEY_LIST" },
-  { 13,200,                                             "Future use" },
+  { IKE_ID_NULL,IKE_ID_NULL,                            "NULL" },
+  { 14,200,                                             "Future use" },
   { 201,255,                                            "Private Use" },
   { 0,0,          NULL },
   };
@@ -1892,17 +1967,83 @@ static const range_string rohc_attr_type[] = {
   { 0,0,         NULL },
 };
 
+#if 0
+static const range_string secure_password_methods[] = {
+  { 0,0,        "Reserved" },                 /* [RFC6467] */
+  { 1,1,        "PACE" },                     /* [RFC6631] */
+  { 2,2,        "AugPAKE" },                  /* [RFC6628] */
+  { 3,3,        "Secure PSK Authentication" },/* [RFC6617] */
+  { 4,1023,     "Unassigned" },
+  { 1024,65535, "Reserved for Private Use" },
+  {0,0,         NULL },
+};
+#endif
+
 static const range_string signature_hash_algorithms[] = {
   { 0,0,        "Reserved" },
   { 1,1,        "SHA1" },
   { 2,2,        "SHA2-256" },
   { 3,3,        "SHA2-384" },
   { 4,4,        "SHA2-512" },
-  { 5,5,        "Identity" },
-  { 6,1023,     "Unassigned" },
+  { 5,5,        "Identity" },     /* [RFC8420] */
+  { 6,6,        "STREEBOG_256" }, /* [RFC9385] */
+  { 7,7,        "STREEBOG_512" }, /* [RFC9385] */
+  { 8,1023,     "Unassigned" },
   { 1024,65535, "Reserved for Private Use" },
   {0,0,         NULL },
 };
+
+#if 0
+/* Used in the PPK_IDENTITY notification */
+static const range_string post_quantum_preshared_key_id_types[] = {
+  { 0,0,       "Reserved" },                 /* [RFC8784] */
+  { 1,1,       "PPK_ID_OPAQUE" },            /* [RFC8784] */
+  { 2,2,       "PPK_ID_FIXED" },             /* [RFC8784] */
+  { 3,127,     "Unassigned" },
+  { 128,255,   "Reserved for Private Use" },
+  {0,0,         NULL },
+};
+
+/* Used in the Group Security Association payload (51) */
+static const range_string group_sa_attributes[] = {
+  { 0,0,         "Reserved" },                 /* [RFC9838] */
+  { 1,1,         "GSA_KEY_LIFETIME" },         /* [RFC9838] */
+  { 2,2,         "GSA_INITIAL_MESSAGE_ID" },   /* [RFC9838] */
+  { 3,3,         "GSA_NEXT_SPI" },             /* [RFC9838] */
+  { 4,16383,     "Unassigned" },
+  { 16384,32767, "Reserved for Private Use" },
+  {0,0,         NULL },
+};
+
+static const range_string group_wide_policy_attributes[] = {
+  { 0,0,         "Reserved" },                 /* [RFC9838] */
+  { 1,1,         "GWP_ATD" },                  /* [RFC9838] */
+  { 2,2,         "GWP_DTD" },                  /* [RFC9838] */
+  { 3,3,         "GWP_SENDER_ID_BITS" },       /* [RFC9838] */
+  { 4,16383,     "Unassigned" },
+  { 16384,32767, "Reserved for Private Use" },
+  {0,0,         NULL },
+};
+
+/* Used in the Key Download payload (52) */
+static const range_string group_key_bag_attributes[] = {
+  { 0,0,         "Reserved" },                /* [RFC9838] */
+  { 1,1,         "SA_KEY" },                  /* [RFC9838] */
+  { 2,16383,     "Unassigned" },
+  { 16384,32767, "Reserved for Private Use" },
+  {0,0,         NULL },
+};
+
+static const range_string member_key_bag_attributes[] = {
+  { 0,0,         "Reserved" },                /* [RFC9838] */
+  { 1,1,         "WRAP_KEY" },                /* [RFC9838] */
+  { 2,2,         "AUTH_KEY" },                /* [RFC9838] */
+  { 3,3,         "GM_SENDER_ID" },            /* [RFC9838] */
+  { 4,16383,     "Unassigned" },
+  { 16384,32767, "Reserved for Private Use" },
+  {0,0,         NULL },
+};
+#endif
 
 static const range_string sat_protocol_ids[] = {
   { 0,0,      "Reserved" },
@@ -4383,8 +4524,14 @@ dissect_transform(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned l
     case TF_IKE2_KE:
       proto_tree_add_item(tree, hf_isakmp_trans_ke, tvb, offset, 2, ENC_BIG_ENDIAN);
       break;
-    case TF_IKE2_ESN:
-      proto_tree_add_item(tree, hf_isakmp_trans_esn, tvb, offset, 2, ENC_BIG_ENDIAN);
+    case TF_IKE2_SN:
+      proto_tree_add_item(tree, hf_isakmp_trans_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
+      break;
+    case TF_IKE2_KWA:
+      proto_tree_add_item(tree, hf_isakmp_trans_kwa, tvb, offset, 2, ENC_BIG_ENDIAN);
+      break;
+    case TF_IKE2_GCAUTH:
+      proto_tree_add_item(tree, hf_isakmp_trans_gcauth, tvb, offset, 2, ENC_BIG_ENDIAN);
       break;
     default:
       proto_tree_add_item(tree, hf_isakmp_trans_id_v2, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -8013,9 +8160,17 @@ proto_register_isakmp(void)
       { "Transform ID (KE)", "isakmp.tf.id.ke",
         FT_UINT16, BASE_DEC, VALS(dh_group), 0x00,
         NULL, HFILL }},
-    { &hf_isakmp_trans_esn,
-      { "Transform ID (ESN)", "isakmp.tf.id.esn",
-        FT_UINT16, BASE_DEC, VALS(transform_ike2_esn_type), 0x00,
+    { &hf_isakmp_trans_sn,
+      { "Transform ID (SN)", "isakmp.tf.id.esn",
+        FT_UINT16, BASE_DEC, VALS(transform_ike2_sn_type), 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_trans_kwa,
+      { "Transform ID (KWA)", "isakmp.tf.id.kwa",
+        FT_UINT16, BASE_DEC, VALS(transform_ike2_kwa_type), 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_trans_gcauth,
+      { "Transform ID (GCAUTH)", "isakmp.tf.id.gcauth",
+        FT_UINT16, BASE_DEC, VALS(transform_ike2_gcauth_type), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_trans_id_v2,
       { "Transform ID", "isakmp.tf.id",
