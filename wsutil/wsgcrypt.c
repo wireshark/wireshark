@@ -291,7 +291,7 @@ uint16_t
 hpke_aead_key_len(uint16_t aead_id)
 {
     switch (aead_id) {
-	case HPKE_AEAD_AES_128_GCM:
+        case HPKE_AEAD_AES_128_GCM:
             return AEAD_AES_128_GCM_KEY_LENGTH;
         case HPKE_AEAD_AES_256_GCM:
             return AEAD_AES_256_GCM_KEY_LENGTH;
@@ -306,10 +306,23 @@ uint16_t
 hpke_aead_nonce_len(uint16_t aead_id)
 {
     switch (aead_id) {
-	case HPKE_AEAD_AES_128_GCM:
+        case HPKE_AEAD_AES_128_GCM:
         case HPKE_AEAD_AES_256_GCM:
         case HPKE_AEAD_CHACHA20POLY1305:
             return HPKE_AEAD_NONCE_LENGTH;
+        default:
+            return 0;
+    }
+}
+
+uint16_t
+hpke_aead_auth_tag_len(uint16_t aead_id)
+{
+    switch (aead_id) {
+        case HPKE_AEAD_AES_128_GCM:
+        case HPKE_AEAD_AES_256_GCM:
+        case HPKE_AEAD_CHACHA20POLY1305:
+            return HPKE_AEAD_AUTH_TAG_LENGTH;
         default:
             return 0;
     }

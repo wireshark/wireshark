@@ -29,6 +29,7 @@
 #define AEAD_CHACHA20POLY1305_KEY_LENGTH   32
 #define AEAD_MAX_KEY_LENGTH                32
 #define HPKE_AEAD_NONCE_LENGTH             12
+#define HPKE_AEAD_AUTH_TAG_LENGTH          16
 #define HPKE_HKDF_SHA256                    1
 #define HPKE_HKDF_SHA384                    2
 #define HPKE_HKDF_SHA512                    3
@@ -203,11 +204,12 @@ hpke_hkdf_len(uint16_t kdf_id);
 /**
  * @brief Return the key length for a given AEAD algorithm identifier.
  *
- * Convenience function for Hybrid Public Key Encryption (HPKE) as specified in RFC 9180.
- * Returns the length in bytes of the symmetric key required by the AEAD algorithm.
+ * Convenience function for Hybrid Public Key Encryption (HPKE) as specified in
+ * RFC 9180. Returns the length in bytes of the symmetric key required by the
+ * AEAD algorithm (Nk).
  *
  * @param aead_id  AEAD algorithm identifier (e.g., HPKE_AEAD_AES_GCM_128).
- * @return         Key length in bytes.
+ * @return         Key length in bytes. Zero indicates an unknown algorithm ID.
  */
 WS_DLL_PUBLIC uint16_t
 hpke_aead_key_len(uint16_t aead_id);
@@ -217,13 +219,28 @@ hpke_aead_key_len(uint16_t aead_id);
  * @brief Return the nonce length for a given AEAD algorithm identifier.
  *
  * Returns the length in bytes of the nonce required by the AEAD algorithm,
- * as specified in RFC 9180 for HPKE.
+ * as specified in RFC 9180 for HPKE (Nn).
  *
  * @param aead_id  AEAD algorithm identifier.
- * @return         Nonce length in bytes.
+ * @return         Nonce length in bytes. Zero indicates an unknown algorithm.
  */
 WS_DLL_PUBLIC uint16_t
 hpke_aead_nonce_len(uint16_t aead_id);
+
+
+/**
+ * @brief Return the authentication tag length for a given AEAD algorithm
+ * identifier.
+ *
+ * Returns the length in bytes of the authentication tag required by the
+ * AEAD algorithm, as specified in RFC 9180 for HPKE (Nt). This is the
+ * length by which the ciphertext is longer than the plaintext.
+ *
+ * @param aead_id  AEAD algorithm identifier.
+ * @return         Authentication tag length in bytes. Zero indicates unknown.
+ */
+WS_DLL_PUBLIC uint16_t
+hpke_aead_auth_tag_len(uint16_t aead_id);
 
 
 /**

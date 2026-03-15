@@ -9982,6 +9982,13 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
 
             size_t aead_nonce_len = hpke_aead_nonce_len(aead_id);
 
+            unsigned aead_auth_tag_len = hpke_aead_auth_tag_len(aead_id);
+            if (length < aead_auth_tag_len) {
+                ssl_debug_printf("Encrypted payload length %u < Cipher suite authentication tag length %u.\n", length, aead_auth_tag_len);
+                break;
+            }
+            unsigned decrypted_len = length - aead_auth_tag_len;
+
             uint16_t version = GUINT16_FROM_BE(*(uint16_t *)ech_config->data);
             if (version != SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO) {
                 ssl_debug_printf("Unexpected version in ECH Config\n");
@@ -10029,25 +10036,25 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                 break;
             }
             wmem_free(NULL, ech_aad);
-            uint8_t *ech_decrypted_data = (uint8_t *)wmem_alloc(pinfo->pool, length - 16);
-            if (gcry_cipher_decrypt(cipher, ech_decrypted_data, length - 16, payload, length - 16)) {
+            uint8_t *ech_decrypted_data = (uint8_t *)wmem_alloc(pinfo->pool, decrypted_len);
+            if (gcry_cipher_decrypt(cipher, ech_decrypted_data, decrypted_len, payload, decrypted_len)) {
                 gcry_cipher_close(cipher);
                 break;
             }
-            unsigned char ech_auth_tag_calc[16];
-            if (gcry_cipher_gettag(cipher, ech_auth_tag_calc, 16)) {
+            unsigned char *ech_auth_tag_calc = wmem_alloc0(pinfo->pool, aead_auth_tag_len);
+            if (gcry_cipher_gettag(cipher, ech_auth_tag_calc, aead_auth_tag_len)) {
                 gcry_cipher_close(cipher);
                 break;
             }
             if (ssl && !session->hrr_ech_declined && session->first_ch_ech_frame == pinfo->num)
-                memcpy(session->first_ech_auth_tag, ech_auth_tag_calc, 16);
+                memcpy(session->first_ech_auth_tag, ech_auth_tag_calc, aead_auth_tag_len);
             gcry_cipher_close(cipher);
             if (memcmp(pinfo->num > session->first_ch_ech_frame ? ech_auth_tag_calc : session->first_ech_auth_tag,
-                       payload + length - 16, 16)) {
+                       payload + decrypted_len, aead_auth_tag_len)) {
                 ssl_debug_printf("%s ECH auth tag mismatch\n", G_STRFUNC);
             } else {
                 payload_tree = proto_item_add_subtree(payload_ti, hf->ett.ech_decrypt);
-                tvbuff_t *ech_tvb = tvb_new_child_real_data(tvb, ech_decrypted_data, length - 16, length - 16);
+                tvbuff_t *ech_tvb = tvb_new_child_real_data(tvb, ech_decrypted_data, decrypted_len, decrypted_len);
                 add_new_data_source(pinfo, ech_tvb, "Client Hello Inner");
                 if (ssl) {
                     tvb_memcpy(ech_tvb, ssl->client_random.data, 2, 32);
@@ -10111,10 +10118,10 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                     *(ssl->ech_transcript.data + len_offset + 2) = ((ssl->ech_transcript.data_len - len_offset - 4) >> 8);
                     *(ssl->ech_transcript.data + len_offset + 3) = (ssl->ech_transcript.data_len - len_offset - 4) & 0xff;
                 }
-                uint32_t ech_padding_begin = (uint32_t)ssl_dissect_hnd_cli_hello(hf, ech_tvb, pinfo, payload_tree, 0, length - 16, session,
+                uint32_t ech_padding_begin = (uint32_t)ssl_dissect_hnd_cli_hello(hf, ech_tvb, pinfo, payload_tree, 0, decrypted_len, session,
                                                                                ssl, NULL, mk_map);
-                if (ech_padding_begin < length - 16) {
-                    proto_tree_add_item(payload_tree, hf->hf.ech_padding_data, ech_tvb, ech_padding_begin, length - 16 - ech_padding_begin,
+                if (ech_padding_begin < decrypted_len) {
+                    proto_tree_add_item(payload_tree, hf->hf.ech_padding_data, ech_tvb, ech_padding_begin, decrypted_len - ech_padding_begin,
                                         ENC_NA);
                 }
             }
