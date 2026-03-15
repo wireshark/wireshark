@@ -22,6 +22,7 @@
 
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/pint.h>
+#include <wsutil/to_str.h>
 
 void proto_register_macsec(void);
 void proto_reg_handoff_macsec(void);
@@ -149,7 +150,6 @@ static bool
 update_psk_config(void *r, char **err) {
     psk_config_t *rec = (psk_config_t *)r;
 
-    ws_debug("update_psk_config\n");
     ws_debug("psk_config_data_count :%u\n", psk_config_data_count);
 
     // Validate the key input
@@ -173,7 +173,6 @@ static void
 free_psk_config_cb(void *r) {
     psk_config_t *rec = (psk_config_t *)r;
 
-    ws_debug("free_psk_config_cb\n");
     ws_debug("psk_config_data_count :%u\n", psk_config_data_count);
 
     g_free(rec->keydata.key);
@@ -182,7 +181,6 @@ free_psk_config_cb(void *r) {
 
 static void
 post_update_psk_config_cb(void) {
-    ws_debug("post_update_psk_config_cb\n");
     ws_debug("psk_config_data_count :%u\n", psk_config_data_count);
 
     if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
@@ -191,17 +189,9 @@ post_update_psk_config_cb(void) {
             unsigned char *key = c->keydata.key;
             ws_debug("id: %s\n", c->name);
 
-            if (PSK256_LEN == c->keydata.key_len) {
-                ws_debug("psk: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                                key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7],
-                                key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15],
-                                key[16], key[17], key[18], key[19], key[20], key[21], key[22], key[23],
-                                key[24], key[25], key[26], key[27], key[28], key[29], key[30], key[31]);
-            } else {
-                ws_debug("psk: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                        key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7],
-                        key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15]);
-            }
+            char *psk_str = bytes_to_str_maxlen(NULL, key, c->keydata.key_len, 0);
+            ws_debug("psk: %s", psk_str);
+            g_free(psk_str);
         }
     }
 }
@@ -228,26 +218,18 @@ macsec_is_valid_key(const uint8_t *sak_to_check) {
 }
 
 /* Common decode routine */
-static int
+static proto_checksum_enum_e
 attempt_packet_decode(bool encrypted, uint8_t *key, unsigned key_len, const uint8_t *payload, unsigned payload_len) {
-    int result = PROTO_CHECKSUM_E_GOOD;
+    proto_checksum_enum_e result = PROTO_CHECKSUM_E_GOOD;
     gcry_cipher_hd_t handle = NULL;
 
     if (gcry_cipher_open(&handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_GCM, 0)) {
         ws_warning("failed to open cipher context");
     } else {
         if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
-            if (PSK256_LEN == key_len) {
-                ws_debug("key    : %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                                key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7],
-                                key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15],
-                                key[16], key[17], key[18], key[19], key[20], key[21], key[22], key[23],
-                                key[24], key[25], key[26], key[27], key[28], key[29], key[30], key[31]);
-            } else {
-                ws_debug("key    : %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                        key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7],
-                        key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15]);
-            }
+            char *key_str = bytes_to_str_maxlen(NULL, key, key_len, 0);
+            ws_debug("key    : %s", key_str);
+            g_free(key_str);
         }
 
         if (false == macsec_is_valid_key(key)) {
@@ -278,8 +260,11 @@ attempt_packet_decode(bool encrypted, uint8_t *key, unsigned key_len, const uint
         }
 
         if ((PROTO_CHECKSUM_E_GOOD == result) && (true == encrypted)) {
-            ws_debug("payload: %02x%02x%02x%02x%02x%02x%02x%02x",
-                            payload[0], payload[1], payload[2], payload[3], payload[4], payload[5], payload[6], payload[7]);
+            if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
+                char *payload_str = bytes_to_str_maxlen(NULL, payload, payload_len, 16);
+                ws_debug("payload : %s (len: %u)", payload_str, payload_len);
+                g_free(payload_str);
+            }
 
             /* Attempt to decrypt the data from the payload buffer into the decode buffer. */
             if (gcry_cipher_decrypt(handle, macsec_payload, payload_len, payload, payload_len)) {
@@ -287,8 +272,11 @@ attempt_packet_decode(bool encrypted, uint8_t *key, unsigned key_len, const uint
                 result = PROTO_CHECKSUM_E_BAD;
             }
 
-            ws_debug("decrypt: %02x%02x%02x%02x%02x%02x%02x%02x",
-                macsec_payload[0], macsec_payload[1], macsec_payload[2], macsec_payload[3], macsec_payload[4], macsec_payload[5], macsec_payload[6], macsec_payload[7]);
+            if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
+                char *payload_str = bytes_to_str_maxlen(NULL, macsec_payload, payload_len, 16);
+                ws_debug("payload : %s (len: %u)", payload_str, payload_len);
+                g_free(payload_str);
+            }
         }
 
         if (PROTO_CHECKSUM_E_GOOD == result) {
@@ -313,7 +301,7 @@ attempt_packet_decode(bool encrypted, uint8_t *key, unsigned key_len, const uint
 /* Attempt to decode the packet using PSKs from the PSK table */
 static int
 attempt_packet_decode_with_psks(bool encrypted, const uint8_t *payload, unsigned payload_len) {
-    int result = PROTO_CHECKSUM_E_UNVERIFIED;
+    proto_checksum_enum_e result = PROTO_CHECKSUM_E_UNVERIFIED;
     int table_index = 0;
 
     /* Get the PSK table and its size. */
@@ -326,7 +314,7 @@ attempt_packet_decode_with_psks(bool encrypted, const uint8_t *payload, unsigned
         const psk_info_t *info = &psk_table[table_index].keydata;
 
         sak_for_decode = (uint8_t *)info->key;
-        sak_for_decode_len = psk_table[table_index].keydata.key_len;
+        sak_for_decode_len = info->key_len;
 
         result = attempt_packet_decode(encrypted, sak_for_decode, sak_for_decode_len, payload, payload_len);
         if (PROTO_CHECKSUM_E_GOOD == result) {
@@ -350,7 +338,7 @@ attempt_packet_decode_with_psks(bool encrypted, const uint8_t *payload, unsigned
 /* Attempt to decode the packet using SAKs from the CKN table */
 static int
 attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payload, unsigned payload_len) {
-    int result = PROTO_CHECKSUM_E_UNVERIFIED;
+    proto_checksum_enum_e result = PROTO_CHECKSUM_E_UNVERIFIED;
     int table_index = 0;
 
     /* Get the CKN table and its size. */
@@ -362,10 +350,10 @@ attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payl
 
     /* Iterate through the CKN table and use each SAK for the given AN to attempt to decode the packet. */
     for (table_index = 0; table_index < ckn_table_count; table_index++) {
-        const mka_ckn_info_key_t *key = &ckn_table[table_index].key;
+        const mka_ckn_info_t *info = &ckn_table[table_index];
 
-        sak_for_decode = (uint8_t *)key->saks[an];
-        sak_for_decode_len = ckn_table[table_index].cak_len;
+        sak_for_decode = (uint8_t *)info->key.saks[an];
+        sak_for_decode_len = info->cak_len;
 
         result = attempt_packet_decode(encrypted, sak_for_decode, sak_for_decode_len, payload, payload_len);
         if (PROTO_CHECKSUM_E_GOOD == result) {
@@ -431,7 +419,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     an = tci_an_field & AN_MASK;
-    ws_debug("an : %u", an);
+    ws_debug("AN : %u", an);
 
     /* short length field: 1..47 bytes, 0 means 48 bytes or more */
     short_length = (uint32_t)tvb_get_uint8(tvb, 1);
@@ -850,7 +838,7 @@ proto_register_macsec(void)
     module = prefs_register_protocol(proto_macsec, NULL);
 
     static uat_field_t psk_macsec_uat_fields[] = {
-        UAT_FLD_BUFFER(psk_config_data, key, "Key", "Pre-Shared Key (AES-GCM-128 only) as byte array"),
+        UAT_FLD_BUFFER(psk_config_data, key, "Key", "Pre-Shared Key (AES-GCM-128 or AES-GCM-256) as byte array"),
         UAT_FLD_CSTRING(psk_config_data, name, "Info", "PSK info to display"),
         UAT_END_FIELDS
     };

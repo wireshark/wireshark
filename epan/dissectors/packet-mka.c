@@ -22,6 +22,7 @@
 #include <wsutil/pint.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/ws_padding_to.h>
+#include <wsutil/to_str.h>
 
 #include "packet-eapol.h"
 #include "packet-mka.h"
@@ -45,6 +46,11 @@
 #define WRAPPED_KEY_LEN(kl)          ((kl) + WRAPPED_KEY_IV_LEN)
 
 #define MKA_MAX_CKN_LEN              32
+
+#define KDF_LABEL_LEN                12
+#define KDF_CTX_LEN                  16
+
+#define DEFAULT_ICV_LEN              16
 
 #define BASIC_PARAMSET_BODY_LENGTH   28
 #define DISTRIBUTED_SAK_AES128_BODY_LEN 28
@@ -219,7 +225,7 @@ UAT_CSTRING_CB_DEF(mka_ckn_uat_data, name, mka_ckn_info_t)
 
 /* Derive the ICK or KEK from the CAK and label. */
 static unsigned
-mka_derive_key(uint8_t * label, uint8_t *out, void * k) {
+mka_derive_key(const uint8_t *label, uint8_t *out, void *k) {
   mka_ckn_info_t *rec = (mka_ckn_info_t *)k;
   uint8_t *cak = (uint8_t *)rec->cak;
   uint8_t *ckn = (uint8_t *)rec->ckn;
@@ -230,35 +236,27 @@ mka_derive_key(uint8_t * label, uint8_t *out, void * k) {
   /* Build context. */
   /* Context is the first 16 bytes of the CAK name. */
   uint8_t context[16] = {0};
-  memcpy(context, ckn, (ckn_len > 16) ? 16 : ckn_len);
+  memcpy(context, ckn, MIN(ckn_len, 16));
 
   gcry_mac_hd_t hd;
 
   if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
-    if (AES256_KEY_LEN == cak_len) {
-        ws_debug("cak: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                        cak[0], cak[1], cak[2], cak[3], cak[4], cak[5], cak[6], cak[7],
-                        cak[8], cak[9], cak[10], cak[11], cak[12], cak[13], cak[14], cak[15],
-                        cak[16], cak[17], cak[18], cak[19], cak[20], cak[21], cak[22], cak[23],
-                        cak[24], cak[25], cak[26], cak[27], cak[28], cak[29], cak[30], cak[31]);
-    } else {
-        ws_debug("cak: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                cak[0], cak[1], cak[2], cak[3], cak[4], cak[5], cak[6], cak[7],
-                cak[8], cak[9], cak[10], cak[11], cak[12], cak[13], cak[14], cak[15]);
-    }
+    char *cak_str = bytes_to_str_maxlen(NULL, cak, cak_len, 0);
+    ws_debug("cak: %s", cak_str);
+    g_free(cak_str);
 
-    ws_debug("lbl: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                    label[0], label[1], label[2], label[3], label[4], label[5], label[6], label[7],
-                    label[8], label[9], label[10], label[11]);
+    char *lbl_str = bytes_to_str_maxlen(NULL, label, KDF_LABEL_LEN, 0);
+    ws_debug("lbl: %s", lbl_str);
+    g_free(lbl_str);
 
-    ws_debug("ctx: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                    context[0], context[1], context[2], context[3], context[4], context[5], context[6], context[7],
-                    context[8], context[9], context[10], context[11], context[12], context[13], context[14], context[15]);
+    char *ctx_str = bytes_to_str_maxlen(NULL, context, KDF_CTX_LEN, 0);
+    ws_debug("ctx: %s", ctx_str);
+    g_free(ctx_str);
   }
 
   /* Format input data for cmac.
      Input data length is (1 byte counter + 12 bytes label + 1 byte for 0x00 + 16 bytes for context + 2 bytes for length) = 32 */
-  #define INPUT_DATA_LENGTH (1 + 12 + 1 + 16 + 2)
+  #define INPUT_DATA_LENGTH (1 + KDF_LABEL_LEN + 1 + KDF_CTX_LEN + 2)
   uint8_t inputdata[INPUT_DATA_LENGTH];
 
   size_t clen = AES_CMAC_LEN;
@@ -266,27 +264,34 @@ mka_derive_key(uint8_t * label, uint8_t *out, void * k) {
   unsigned iterations = cak_len / AES_CMAC_LEN;
   unsigned outlen = 0;
 
+  /* Open the cmac context. */
+  if (gcry_mac_open(&hd, GCRY_MAC_CMAC_AES, 0, NULL)) {
+    ws_warning("failed to open CMAC context");
+    return 0;
+  }
+
+  /* Set key to use. */
+  if (gcry_mac_setkey(hd, cak, cak_len)) {
+    ws_warning("failed to set CMAC key");
+    gcry_mac_close(hd);
+    return 0;
+  }
+
   for (unsigned i = 0; i < iterations; i++)
   {
-    /* Open the cmac context. */
-    if (gcry_mac_open(&hd, GCRY_MAC_CMAC_AES, 0, NULL)) {
-      ws_warning("failed to open CMAC context");
-      return 0;
-    }
-
-    /* Set key to use. */
-    if (gcry_mac_setkey(hd, cak, cak_len)) {
-      ws_warning("failed to set CMAC key");
+    /* Reset cmac context, if needed */
+    if ((i > 0) && gcry_mac_reset(hd)) {
+      ws_warning("failed CMAC reset");
       gcry_mac_close(hd);
       return 0;
     }
 
-    inputdata[0] = (i + 1);               // Iteration
-    memcpy(&inputdata[1], label, 12);     // Key label - must be 12 bytes
-    inputdata[13] = 0x00;                 // Always 0x00
-    memcpy(&inputdata[14], context, 16);  // Context data
-    inputdata[30] = (klen & 0xFF00) >> 8; // MSB of key length in bits
-    inputdata[31] = (klen & 0xFF);        // LSB of key length in bits
+    inputdata[0] = (i + 1);                       // Iteration
+    memcpy(&inputdata[1], label, KDF_LABEL_LEN);  // Key label - must be 12 bytes
+    inputdata[13] = 0x00;                         // Always 0x00
+    memcpy(&inputdata[14], context, KDF_CTX_LEN); // Context data - must be 16 bytes
+    inputdata[30] = (klen & 0xFF00) >> 8;         // MSB of key length in bits
+    inputdata[31] = (klen & 0xFF);                // LSB of key length in bits
 
     /* Write the formatted input data to the CMAC. */
     if (gcry_mac_write(hd, inputdata, INPUT_DATA_LENGTH)) {
@@ -298,23 +303,15 @@ mka_derive_key(uint8_t * label, uint8_t *out, void * k) {
     /* Read the CMAC result. */
     gcry_mac_read(hd, (out + (i * clen)), &clen);
     outlen += (unsigned)clen;
-
-    /* Close the context. */
-    gcry_mac_close(hd);
   }
 
+  /* Close the context. */
+  gcry_mac_close(hd);
+
   if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
-    if (AES256_KEY_LEN == cak_len) {
-      ws_debug("key: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                      out[0], out[1], out[2], out[3], out[4], out[5], out[6], out[7],
-                      out[8], out[9], out[10], out[11], out[12], out[13], out[14], out[15],
-                      out[16], out[17], out[18], out[19], out[20], out[21], out[22], out[23],
-                      out[24], out[25], out[26], out[27], out[28], out[29], out[30], out[31]);
-    } else {
-        ws_debug("key: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                out[0], out[1], out[2], out[3], out[4], out[5], out[6], out[7],
-                out[8], out[9], out[10], out[11], out[12], out[13], out[14], out[15]);
-    }
+    char *key_str = bytes_to_str_maxlen(NULL, out, cak_len, 0);
+    ws_debug("key: %s", key_str);
+    g_free(key_str);
   }
 
   return outlen;
@@ -324,7 +321,7 @@ static void
 mka_derive_kek(void * k) {
   mka_ckn_info_t *rec = (mka_ckn_info_t *)k;
 
-  uint8_t *label = (uint8_t*)"IEEE8021 KEK";
+  const uint8_t label[KDF_LABEL_LEN + 1] = "IEEE8021 KEK";
   rec->key.kek_len = mka_derive_key(label, rec->key.kek, rec);
 }
 
@@ -332,7 +329,7 @@ static void
 mka_derive_ick(void * k) {
   mka_ckn_info_t *rec = (mka_ckn_info_t *)k;
 
-  uint8_t *label = (uint8_t*)"IEEE8021 ICK";
+  const uint8_t label[KDF_LABEL_LEN + 1] = "IEEE8021 ICK";
   rec->key.ick_len = mka_derive_key(label, rec->key.ick, rec);
 }
 
@@ -384,8 +381,8 @@ ckn_info_update_cb(void *r, char **err) {
     return false;
   }
 
-  if ((0 == rec->ckn_len) || (rec->ckn_len > 32)) {
-    *err = ws_strdup("Invalid CKN length! CKNs need to be between 1 and 32 bytes.");
+  if ((0 == rec->ckn_len) || (rec->ckn_len > MKA_MAX_CKN_LEN)) {
+    *err = ws_strdup("Invalid CKN length! CKNs need to be from 1 to 32 bytes.");
     return false;
   }
 
@@ -416,18 +413,16 @@ ckn_info_reset_cb(void) {
 
 static void
 ckn_info_post_update_cb(void) {
-  unsigned i;
-
   ckn_info_reset_cb();
 
   ht_mka_ckn = g_hash_table_new(&ckn_key_hash_func, &ckn_key_equal_func);
 
-  for (i = 0; i < num_mka_ckn_uat_data; i++) {
+  for (size_t i = 0; i < num_mka_ckn_uat_data; i++) {
     /* Derive the KEK and ICK and store with the CAK/CKN for this table entry. */
-    ws_info("deriving ICK for CKN table entry %u (%s)", i, mka_ckn_uat_data[i].name);
+    ws_info("deriving ICK for CKN table entry %zu (%s)", i, mka_ckn_uat_data[i].name);
     mka_derive_ick(&(mka_ckn_uat_data[i]));
 
-    ws_info("deriving KEK for CKN table entry %u (%s)", i, mka_ckn_uat_data[i].name);
+    ws_info("deriving KEK for CKN table entry %zu (%s)", i, mka_ckn_uat_data[i].name);
     mka_derive_kek(&(mka_ckn_uat_data[i]));
 
     g_hash_table_insert(ht_mka_ckn, &(mka_ckn_uat_data[i]), &(mka_ckn_uat_data[i]));
@@ -707,7 +702,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     offset += 4;
 
     /* For AES256, the wrapped key is longer and an 8 byte cipher suite is inserted before the wrapped key data. */
-    if (distributed_sak_len == DISTRIBUTED_SAK_AES256_BODY_LEN) {
+    if (DISTRIBUTED_SAK_AES256_BODY_LEN == distributed_sak_len) {
       wrappedlen = WRAPPED_KEY_LEN(AES256_KEY_LEN);
 
       proto_tree_add_item(distributed_sak_tree, hf_mka_macsec_cipher_suite, tvb, offset, CIPHER_SUITE_LEN, ENC_BIG_ENDIAN);
@@ -715,7 +710,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     }
 
     /* Add the wrapped key data. */
-    const uint8_t *wrappedkey = tvb_get_ptr(tvb, offset, wrappedlen);
+    const uint8_t *wrappedkey = tvb_memdup(pinfo->pool, tvb, offset, wrappedlen);
     proto_tree_add_item(distributed_sak_tree, hf_mka_aes_key_wrap_sak, tvb, offset, wrappedlen, ENC_NA);
     offset += wrappedlen;
 
@@ -762,17 +757,8 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     gcry_cipher_close(hd);
 
     if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
-      if (WRAPPED_KEY_LEN(AES256_KEY_LEN) == wrappedlen) {
-        ws_debug("unwrapped sak: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                        sak[0], sak[1], sak[2], sak[3], sak[4], sak[5], sak[6], sak[7],
-                        sak[8], sak[9], sak[10], sak[11], sak[12], sak[13], sak[14], sak[15],
-                        sak[16], sak[17], sak[18], sak[19], sak[20], sak[21], sak[22], sak[23],
-                        sak[24], sak[25], sak[26], sak[27], sak[28], sak[29], sak[30], sak[31]);
-      } else {
-          ws_debug("unwrapped sak: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                  sak[0], sak[1], sak[2], sak[3], sak[4], sak[5], sak[6], sak[7],
-                  sak[8], sak[9], sak[10], sak[11], sak[12], sak[13], sak[14], sak[15]);
-      }
+      char *sak_str = bytes_to_str_maxlen(pinfo->pool, sak, wrappedlen - WRAPPED_KEY_IV_LEN, 0);
+      ws_debug("unwrapped sak: %s", sak_str);
     }
 
     /* Add the unwrapped SAK to the output. */
@@ -878,7 +864,6 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
     proto_tree *tlv_tree;
     uint8_t tlv_type = ((tvb_get_uint8(tvb, offset + offset2)) & 0xfe ) >> 1;
     uint16_t tlv_length = (tvb_get_ntohs(tvb, offset + offset2)) & 0x01ff;
-    uint16_t tlv_item_offset;
 
     if (offset2 + 2 + tlv_length > announcement_len) {
       break;
@@ -895,8 +880,7 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
     if (tlv_length > 0) {
       switch (tlv_type) {
       case 112: // MACsec Cipher Suites
-        tlv_item_offset = 0;
-        while (tlv_item_offset + 10 <= tlv_length) {
+        for (uint16_t tlv_item_offset = 0; tlv_item_offset + 10 <= tlv_length; tlv_item_offset += 8) {
           proto_tree *cipher_suite_entry;
           uint64_t cipher_suite_id = tvb_get_uint64(tvb, offset + offset2 + tlv_item_offset + 2, ENC_BIG_ENDIAN);
           uint16_t cipher_suite_cap = tvb_get_uint16(tvb, offset + offset2 + tlv_item_offset, ENC_BIG_ENDIAN) & 0x0003;
@@ -909,7 +893,6 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
           proto_tree_add_item(cipher_suite_entry, hf_mka_tlv_cipher_suite_impl_cap, tvb, offset + offset2 + tlv_item_offset, 2, ENC_BIG_ENDIAN);
           tlv_item_offset += 2;
           proto_tree_add_item(cipher_suite_entry, hf_mka_macsec_cipher_suite, tvb, offset + offset2 + tlv_item_offset, 8, ENC_BIG_ENDIAN);
-          tlv_item_offset += 8;
         }
         break;
 
@@ -1114,7 +1097,7 @@ static int
 dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   int         offset = 0;
   uint8_t     mka_version_type;
-  uint16_t    icv_len = 16; // Default ICV length, see IEEE 802.1X-2010, Section 11.11
+  uint16_t    icv_len = DEFAULT_ICV_LEN;
   proto_item *ti;
   proto_tree *mka_tree;
 
