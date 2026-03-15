@@ -409,7 +409,8 @@ init_logical_channel( uint32_t start_frame, h223_call_info* call_info, int vc, i
     } else {
         vc_info = (h223_vc_info *)conversation_get_proto_data( subcircuit, proto_h223 );
     }
-    add_h223_lc_params( vc_info, direction, params, start_frame );
+    if (vc_info)
+        add_h223_lc_params( vc_info, direction, params, start_frame );
 }
 
 /* create a brand-new h223_call_info structure */
