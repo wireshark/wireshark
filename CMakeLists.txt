@@ -304,7 +304,11 @@ if(WIN32 AND NOT USE_MSYSTEM)
 endif()
 include(GNUInstallDirs)
 
-set(PROJECT_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
+if (ENABLE_SEPARATE_PROJECT_NAME)
+	set(PROJECT_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
+else()
+	set(PROJECT_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}")
+endif()
 
 # Make sure our executables can load our libraries if we install into
 # a non-default directory on Unix-like systems other than macOS.
@@ -1750,14 +1754,28 @@ include( UseCheckAPI )
 # If you change the nesting level be sure to check also the INSTALL_RPATH
 # target property.
 if(WIN32 AND NOT USE_MSYSTEM)
-	set(EXTCAP_INSTALL_LIBDIR "extcap/${PROJECT_NAME}" CACHE INTERNAL "The Wireshark extcap dir")
-	if (BUILD_stratoshark)
-		set(STRATOSHARK_EXTCAP_INSTALL_LIBDIR "extcap/${STRATOSHARK_NAME}" CACHE INTERNAL "The Stratoshark extcap dir")
+	if (ENABLE_SEPARATE_PROJECT_NAME)
+		set(EXTCAP_INSTALL_LIBDIR "extcap/${PROJECT_NAME}" CACHE INTERNAL "The Wireshark extcap dir")
+		if (BUILD_stratoshark)
+			set(STRATOSHARK_EXTCAP_INSTALL_LIBDIR "extcap/${STRATOSHARK_NAME}" CACHE INTERNAL "The Stratoshark extcap dir")
+		endif()
+	else()
+		set(EXTCAP_INSTALL_LIBDIR "extcap" CACHE INTERNAL "The Wireshark extcap dir")
+		if (BUILD_stratoshark)
+			set(STRATOSHARK_EXTCAP_INSTALL_LIBDIR "extcap" CACHE INTERNAL "The Stratoshark extcap dir")
+		endif()
 	endif()
 else()
+	if (ENABLE_SEPARATE_PROJECT_NAME)
 	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBEXECDIR}/${PROJECT_NAME}/extcap" CACHE INTERNAL "The Wireshark extcap dir")
 	if (BUILD_stratoshark)
 		set(STRATOSHARK_EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBEXECDIR}/${STRATOSHARK_NAME}/extcap" CACHE INTERNAL "The Stratoshark extcap dir")
+	endif()
+	else()
+		set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBEXECDIR}/extcap" CACHE INTERNAL "The Wireshark extcap dir")
+		if (BUILD_stratoshark)
+			set(STRATOSHARK_EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBEXECDIR}/extcap" CACHE INTERNAL "The Stratoshark extcap dir")
+		endif()
 	endif()
 endif()
 
@@ -1783,7 +1801,11 @@ endif()
 if(WIN32 AND NOT USE_MSYSTEM)
 	set(PLUGIN_INSTALL_LIBDIR "plugins" CACHE INTERNAL "The plugin dir")
 else()
-	set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/plugins" CACHE INTERNAL "The plugin dir")
+	if (ENABLE_SEPARATE_PROJECT_NAME)
+		set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/plugins" CACHE INTERNAL "The plugin dir")
+	else()
+		set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/plugins" CACHE INTERNAL "The plugin dir")
+	endif()
 endif()
 set(PLUGIN_INSTALL_FULL_LIBDIR "${CMAKE_INSTALL_PREFIX}/${PLUGIN_INSTALL_LIBDIR}")
 set(PLUGIN_INSTALL_VERSION_LIBDIR "${PLUGIN_INSTALL_LIBDIR}/${PLUGIN_PATH_ID}")
@@ -4401,15 +4423,12 @@ if(CLEAN_C_FILES)
 	)
 endif()
 
-# macOS and Windows bundle Wireshark and Stratoshark separately, so they don't need
-# a "project specific" subdirectory to hold the differences between them.
-# XXX - Maybe this should be its own variable to handle separate or together installations?
-if (WIN32 OR APPLE)
-    set(TMP_DST_PATH "${CMAKE_INSTALL_DATADIR}")
-else()
+if (ENABLE_SEPARATE_PROJECT_NAME)
     # CMake 3.31 and later warn, if normalization changes a path (CMP0177).
     # As we want to normalize without the warning, we do it explicitly.
     cmake_path(SET TMP_DST_PATH NORMALIZE "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
+else()
+    set(TMP_DST_PATH "${CMAKE_INSTALL_DATADIR}")
 endif()
 install(
 	FILES
@@ -4528,12 +4547,12 @@ install(FILES "${CMAKE_BINARY_DIR}/resources/wireshark.pc"
 	EXCLUDE_FROM_ALL
 )
 
-# macOS and Windows bundle Wireshark and Stratoshark separately, so they don't need
-# a "project specific" subdirectory to hold the differences between them.
-if (WIN32 OR APPLE)
-    set(TMP_DST_PATH "${CMAKE_INSTALL_DATADIR}")
-else()
+if (ENABLE_SEPARATE_PROJECT_NAME)
+    # CMake 3.31 and later warn, if normalization changes a path (CMP0177).
+    # As we want to normalize without the warning, we do it explicitly.
     cmake_path(SET TMP_DST_PATH NORMALIZE "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
+else()
+    set(TMP_DST_PATH "${CMAKE_INSTALL_DATADIR}")
 endif()
 install(
 	DIRECTORY
@@ -4581,7 +4600,11 @@ if(WIN32 AND NOT USE_MSYSTEM)
 	# path (incorrect relative path computation).
 	set(WIRESHARK_INSTALL_CMAKEDIR "cmake")
 else()
-	set(WIRESHARK_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+	if (ENABLE_SEPARATE_PROJECT_NAME)
+		set(WIRESHARK_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+	else()
+		set(WIRESHARK_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake")
+	endif()
 endif()
 
 include(CMakePackageConfigHelpers)

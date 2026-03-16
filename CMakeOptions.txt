@@ -165,3 +165,10 @@ if(WIN32)
 	option(SKIP_NSIS_QT_DLLS    "Skip deploying Qt runtime DLLs with installer" OFF)
 	mark_as_advanced(SKIP_NSIS_QT_DLLS)
 endif()
+# macOS and Windows bundle Wireshark and Stratoshark separately, so they don't need
+# a "project specific" subdirectory to hold the differences between them.
+if (WIN32 OR APPLE)
+	option(ENABLE_SEPARATE_PROJECT_NAME         "Use project name as a subdirectory in the installation" OFF)
+else()
+	option(ENABLE_SEPARATE_PROJECT_NAME         "Use project name as a subdirectory in the installation" ON)
+endif()
