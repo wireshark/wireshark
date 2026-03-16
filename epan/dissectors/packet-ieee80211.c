@@ -21746,7 +21746,6 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
                           tvb, offset, 1, ENC_NA);
 
       offset += 1;
-      tag_len -= 1;
 
       /* 4 bytes = AP Health */
       proto_tree_add_bitmask(ietree, tvb, offset,
@@ -21755,8 +21754,7 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
           ieee80211_vs_aruba_ap_health,
           ENC_BIG_ENDIAN);
 
-      offset += 4;
-      tag_len -= 4;
+      /* offset += 4; */
 
       break;
     }
