@@ -110,6 +110,15 @@ WS_DLL_PUBLIC uint32_t crc32_mpeg2_tvb_offset_seed(tvbuff_t *tvb, unsigned offse
 WS_DLL_PUBLIC uint32_t crc32_0x0AA725CF_tvb_offset_seed(tvbuff_t *tvb,
                                             unsigned offset, unsigned len, uint32_t seed);
 
+/** Compute SC-32 CRC32 checksum of a buffer of data.
+ * @param tvb The tv buffer containing the data.
+ * @param offset The offset into the tv buffer.
+ * @param len The number of bytes to include in the computation.
+ * @param seed The seed to use.
+ * @return The CRC32 SC-32 checksum (using the given seed). */
+WS_DLL_PUBLIC uint32_t crc32_sc32_tvb_offset_seed(tvbuff_t *tvb, unsigned offset,
+						   unsigned len, uint32_t seed);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

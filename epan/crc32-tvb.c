@@ -140,6 +140,18 @@ uint32_t crc32_0x0AA725CF_tvb_offset_seed(tvbuff_t *tvb,
 	return crc32_0x0AA725CF_seed(buf, len, seed);
 }
 
+uint32_t
+crc32_sc32_tvb_offset_seed(tvbuff_t *tvb, unsigned offset,
+			    unsigned len, uint32_t seed)
+{
+	const uint8_t* buf;
+
+	tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
+	buf = tvb_get_ptr(tvb, offset, len);
+
+	return ( crc32_sc32_seed(buf, len, seed) );
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

@@ -109,6 +109,14 @@ WS_DLL_PUBLIC uint32_t crc32_0x0AA725CF_seed(const uint8_t *buf, unsigned len, u
  */
 WS_DLL_PUBLIC uint32_t crc32_0x5D6DCB_seed(const uint8_t *buf, unsigned len, uint32_t seed);
 
+/**
+ * @brief Compute SC-32 CRC32 checksum of a buffer of data.
+ * @param buf The buffer containing the data.
+ * @param len The number of bytes to include in the computation.
+ * @param seed The seed to use.
+ * @return The CRC32 SC-32 checksum (using the given seed). */
+WS_DLL_PUBLIC uint32_t crc32_sc32_seed(const uint8_t *buf, unsigned len, uint32_t seed);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

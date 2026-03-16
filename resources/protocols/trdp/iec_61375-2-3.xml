@@ -5,74 +5,113 @@ Note: Following dataset-Ids are offset to free space, plus com-id*100 + incremen
 Author: Thorsten <thorsten.schulz@stadlerrail.com>
 SPDX-License-Identifier: GPL-2.0-or-later
 -->
-<device xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="trdp-config.xsd" host-name="irrelevant" leader-name="irrelevant" type="metro">
+<device xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="trdp-config.xsd" host-name="generic" leader-name="generic" type="train">
 	<bus-interface-list>
-		<bus-interface network-id="1" name="irrelevant" host-ip="127.0.0.1">
-			<telegram com-id="1" name="ETBCTRL" data-set-id="2000000100"/>
-			<telegram com-id="2" name="CSTINFO notification" data-set-id="2000000200"/>
-			<telegram com-id="3" name="CSTINFOCTRL notification" data-set-id="2000000300"/>
+		<bus-interface network-id="1" name="generic" host-ip="0.0.0.0">
+			<pd-com-parameter timeout-value="100000"/><!-- the standard's default value -->
+			<md-com-parameter confirm-timeout="1000000" reply-timeout="5000000"/><!-- the standard's default values -->
+
+			<telegram com-id="1" name="ETBCTRL" data-set-id="ETBCTRL_TELEGRAM"><!--UDP/Pd-->
+				<pd-parameter cycle="500000" timeout="3000000"/>
+				<destination uri="grpECSP.anyVeh.aCst.aClTrn.lTrn"><sdt-parameter smi1="1" udv="1"/></destination>
+				<!-- SID-parameter safeTopoCount = 0 -->
+			</telegram>
+			    <telegram com-id="2" name="CSTINFO notification" data-set-id="CSTINFO"/><!--UDP/Mn-->
+			<telegram com-id="3" name="CSTINFOCTRL notification" data-set-id="CSTINFOCTRL"><!--UDP/Mn-->
+				<destination uri="grpECSP.anyVeh.aCst.aClTrn.lTrn"><sdt-parameter smi1="3" udv="1"/></destination>
+				<!-- SID-parameter safeTopoCount = 0 -->
+			</telegram>
 			<telegram com-id="10" name="TRDP Echo"/>
 			<!-- there are conflicting definitions in the IEC 61375-2-3:2017 for the com-ids 30..40 (p. 121 vs p.218) here the latter is used, as it seems more specific. -->
 			<telegram com-id="30" name="TRDP: global statistics request"/>
-			<telegram com-id="31" name="TRDP: global statistics reply" data-set-id="2000003100"/>
+			<telegram com-id="31" name="TRDP: global statistics reply" data-set-id="TRDP_STATISTICS_T"/>
 			<telegram com-id="32" name="TRDP: subscription statistics request"/>
-			<telegram com-id="33" name="TRDP: subscription statistics reply" data-set-id="2000003300"/>
+			<telegram com-id="33" name="TRDP: subscription statistics reply" data-set-id="TRDP_SUBS_STATISTICS_T"/>
 			<telegram com-id="34" name="TRDP: publishing statistics request"/>
-			<telegram com-id="35" name="TRDP: publishing statistics reply" data-set-id="2000003500"/>
+			<telegram com-id="35" name="TRDP: publishing statistics reply" data-set-id="TRDP_PUB_STATISTICS_T"/>
 			<telegram com-id="36" name="TRDP: redundancy statistics request"/>
-			<telegram com-id="37" name="TRDP: redundancy statistics reply" data-set-id="2000003700"/>
+			<telegram com-id="37" name="TRDP: redundancy statistics reply" data-set-id="TRDP_RED_STATISTICS_T"/>
 			<telegram com-id="38" name="TRDP: UDP listener statistics request"/>
-			<telegram com-id="39" name="TRDP: UDP listener statistics reply" data-set-id="2000003900"/>
+			<telegram com-id="39" name="TRDP: UDP listener statistics reply" data-set-id="TRDP_LIST_STATISTICS_T"/>
 			<telegram com-id="40" name="TRDP: TCP listener statistics request"/>
-			<telegram com-id="41" name="TRDP: TCP listener statistics reply" data-set-id="2000003900"/>
-			<telegram com-id="80" name="Test: control" data-set-id="2000008000"/>
-			<telegram com-id="81" name="Test: status" data-set-id="2000008100"/>
-			<telegram com-id="82" name="Test: confirmation request" data-set-id="2000008200"/>
-			<telegram com-id="83" name="Test: confirmation reply" data-set-id="2000008300"/>
-			<telegram com-id="84" name="Test: opTrnDir request" data-set-id="2000008400"/>
-			<telegram com-id="85" name="Test: opTrnDir reply" data-set-id="2000008500"/>
+			<telegram com-id="41" name="TRDP: TCP listener statistics reply" data-set-id="TRDP_LIST_STATISTICS_T"/>
+			<telegram com-id="80" name="Test: control" data-set-id="CONFTEST_CTRL"/>
+			<telegram com-id="81" name="Test: status" data-set-id="CONFTEST_STATUS"/>
+			<telegram com-id="82" name="Test: confirmation request" data-set-id="CONFTEST_CONF_REQUEST"/>
+			<telegram com-id="83" name="Test: confirmation reply" data-set-id="CONFTEST_CONF_REPLY"/>
+			<telegram com-id="84" name="Test: opTrnDir request" data-set-id="CONFTEST_OPTRAIN_REQUEST"/>
+			<telegram com-id="85" name="Test: opTrnDir reply" data-set-id="CONFTEST_OPTRAIN_REPLY"/>
 			<telegram com-id="86" name="Test: echo request"/>
 			<telegram com-id="87" name="Test: echo reply"/>
-			<telegram com-id="88" name="Test: echo notification" data-set-id="2000008800"/>
-			<telegram com-id="100" name="TTDB: operational train directory status" data-set-id="2000010000"/>
-			<telegram com-id="101" name="TTDB: operational train directory notification" data-set-id="2000010100"/>
-			<telegram com-id="102" name="TTDB: train directory information request" data-set-id="2000010200"/>
-			<telegram com-id="103" name="TTDB: train directory information reply" data-set-id="2000010300"/>
-			<telegram com-id="104" name="TTDB: consist information request" data-set-id="2000010400"/>
-			<telegram com-id="105" name="TTDB: consist information reply" data-set-id="2000010500"/>
-			<telegram com-id="106" name="TTDB: train network directory information request" data-set-id="2000010600"/>
-			<telegram com-id="107" name="TTDB: train network directory information reply" data-set-id="2000010700"/>
+			<telegram com-id="88" name="Test: echo notification" data-set-id="CONFTEST_MDTRIG_MD"/>
+			<telegram com-id="100" name="TTDB: operational train directory status" data-set-id="TTDB_OP_TRAIN_DIRECTORY_STATUS_INFO">
+				<pd-parameter cycle="1000000" timeout="5000000"/>
+				<destination uri="grpAll.aVeh.lCst.lClTrn.lTrn"><sdt-parameter smi1="100" udv="1"/></destination>
+			</telegram>
+			<telegram com-id="101" name="TTDB: operational train directory notification" data-set-id="TTDB_OP_TRAIN_DIRECTORY_INFO"/>
+			<telegram com-id="102" name="TTDB: train directory information request" data-set-id="TTDB_TRAIN_DIRECTORY_INFO_REQUEST"/>
+			<telegram com-id="103" name="TTDB: train directory information reply" data-set-id="TTDB_TRAIN_DIRECTORY_INFO_REPLY"/>
+			<telegram com-id="104" name="TTDB: consist information request" data-set-id="TTDB_STATIC_CONSIST_INFO_REQUEST"/>
+			<telegram com-id="105" name="TTDB: consist information reply" data-set-id="TTDB_STATIC_CONSIST_INFO_REPLY"/>
+			<telegram com-id="106" name="TTDB: train network directory information request" data-set-id="TTDB_TRAIN_NETWORK_DIRECTORY_INFO_REQUEST"/>
+			<telegram com-id="107" name="TTDB: train network directory information reply" data-set-id="TTDB_TRAIN_NETWORK_DIRECTORY_INFO_REPLY"/>
 			<telegram com-id="108" name="TTDB: operational train directory information request"/>
-			<telegram com-id="109" name="TTDB: operational train directory information reply" data-set-id="2000010900"/>
-			<telegram com-id="110" name="TTDB: train information complete request" data-set-id="2000011000"/>
-			<telegram com-id="111" name="TTDB: train information complete reply" data-set-id="2000011100"/>
-			<telegram com-id="120" name="ECSP: control" data-set-id="2000012000"/>
-			<telegram com-id="121" name="ECSP: status" data-set-id="2000012100"/>
-			<telegram com-id="122" name="ECSP: Confirmation/Correction request" data-set-id="2000012200"/>
-			<telegram com-id="123" name="ECSP: Confirmation/Correction reply" data-set-id="2000012300"/>
-			<telegram com-id="130" name="ETBN: control request" data-set-id="2000013000"/>
-			<telegram com-id="131" name="ETBN: status reply" data-set-id="2000013100"/>
-			<telegram com-id="132" name="ETBN: train network directory request"/>
-			<telegram com-id="133" name="ETBN: train network directory reply" data-set-id="2000013300"/>
-			<telegram com-id="140" name="TCN-DNS: resolving request (query)" data-set-id="2000014000"/>
-			<telegram com-id="141" name="TCN-DNS: resolving reply" data-set-id="2000014100"/>
+			<telegram com-id="109" name="TTDB: operational train directory information reply" data-set-id="TTDB_OP_TRAIN_DIRECTORY_INFO_REPLY"/>
+			<telegram com-id="110" name="TTDB: train information complete request" data-set-id="TTDB_READ_COMPLETE_REQUEST"/>
+			<telegram com-id="111" name="TTDB: train information complete reply" data-set-id="TTDB_READ_COMPLETE_REPLY"/>
+			<telegram com-id="120" name="ECSP: control" data-set-id="ECSP_CTRL">
+				<pd-parameter cycle="1000000" timeout="5000000"/>
+				<destination uri="devECSP.anyVeh.lCst.lClTrn.lTrn"><sdt-parameter smi1="120" udv="1"/></destination>
+			</telegram>
+			<telegram com-id="121" name="ECSP: status" data-set-id="ECSP_STATUS">
+				<pd-parameter cycle="1000000"/>
+				<destination uri="devECSC.anyVeh.lCst.lClTrn.lTrn"><sdt-parameter smi1="121" udv="1"/></destination>
+			</telegram>
+			<telegram com-id="122" name="ECSP: Confirmation/Correction request" data-set-id="ECSP_CONF_REQUEST">
+				<md-parameter reply-timeout="3000000"/>
+				<destination uri="devECSC.anyVeh.lCst.lClTrn.lTrn"><sdt-parameter smi1="122" udv="1"/></destination>
+			</telegram>
+			<telegram com-id="123" name="ECSP: Confirmation/Correction reply" data-set-id="ECSP_CONF_REPLY">
+				<destination uri="devECSC.anyVeh.lCst.lClTrn.lTrn"><sdt-parameter smi1="123" udv="1"/></destination>
+			</telegram>
+			<telegram com-id="130" name="ETBN: control request" data-set-id="ETBN_CTRL">
+				<md-parameter reply-timeout="3000000"/>
+				<destination><sdt-parameter smi1="130" udv="1"/></destination>
+			</telegram>
+			<telegram com-id="131" name="ETBN: status reply" data-set-id="ETBN_STATUS">
+				<destination><sdt-parameter smi1="131" udv="1"/></destination>
+			</telegram>
+			<telegram com-id="132" name="ETBN: train network directory request">
+				<md-parameter reply-timeout="3000000"/>
+				<destination><sdt-parameter smi1="132" udv="1"/></destination>
+			</telegram>
+			<telegram com-id="133" name="ETBN: train network directory reply" data-set-id="ETBN_TRAIN_NETWORK_DIRECTORY_INFO_REPLY">
+				<destination><sdt-parameter smi1="133" udv="1"/></destination>
+			</telegram>
+			<telegram com-id="140" name="TCN-DNS: resolving request (query)" data-set-id="DNS_REQUEST">
+				<md-parameter reply-timeout="3000000"/>
+				<destination uri="devDNS.anyVeh.lCst.lClTrn.lTrn"><sdt-parameter smi1="140" udv="1"/></destination>
+			</telegram>
+			<telegram com-id="141" name="TCN-DNS: resolving reply" data-set-id="DNS_REPLY">
+				<destination uri="devDNS.anyVeh.lCst.lClTrn.lTrn"><sdt-parameter smi1="141" udv="1"/></destination>
+			</telegram>
 		</bus-interface>
 	</bus-interface-list>
 	<data-set-list>
-		<data-set name="CONFIRMED_VEHICLE" id="2000000101">
+		<data-set id="VDP_TRAILER">
+			<element name="reserved01"      type="UINT32" unit="hide0"/>
+			<element name="reserved02"      type="UINT16" unit="hide0"/>
+			<element name="userDataVersion" type="UINT16" unit="version"/><!-- this is actually only 8bit and shifted up in applications -->
+			<element name="safeSequCount"   type="UINT32" unit="ssc"/><!-- inc per packet and per sender -->
+			<element name="safetyCode"      type="UINT32" unit="sc32"/>
+		</data-set>
+		<data-set id="CONFIRMED_VEHICLE">
 			<element name="trnVehNo" type="UINT8"/>
 			<element name="isLead" type="ANTIVALENT8"/>
 			<element name="leadDir" type="UINT8"/>
 			<element name="vehOrient" type="UINT8"/>
 		</data-set>
-		<data-set name="ETBCTRL_VDP" id="2000000102">
-			<element name="reserved01" unit="hide0" type="UINT32"/>
-			<element name="reserved02" unit="hide0" type="UINT16"/>
-			<element name="userDataVersion" type="UINT16" unit="version"/>
-			<element name="safeSequCount" type="UINT32"/>
-			<element name="safetyCode" type="UINT32"/>
-		</data-set>
-		<data-set name="ETBCTRL_TELEGRAM" id="2000000100">
+		<data-set id="ETBCTRL_TELEGRAM">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 			<element name="trnCstNo" type="UINT8"/>
@@ -97,26 +136,26 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="reserved05" unit="hide0" type="UINT16"/>
 			<element name="reserved06" unit="hide0" type="UINT8"/>
 			<element name="confVehCnt" type="UINT8"/>
-			<element name="confVehList" type="2000000101" array-size="0"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="confVehList" type="CONFIRMED_VEHICLE" array-size="0"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
-		<data-set name="ETB_INFO" id="2000010503">
+		<data-set id="ETB_INFO">
 			<element name="etbId" type="UINT8"/>
 			<element name="cnCnt" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 		</data-set>
-		<data-set name="CLTR_CST_INFO" id="2000010506">
+		<data-set id="CLTR_CST_INFO">
 			<element name="cltrCstUUID" type="UUID"/>
 			<element name="cltrCstOrient" type="UINT8"/>
 			<element name="cltrCstNo" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 		</data-set>
-		<data-set name="PROPERTIES" id="2000010502">
-			<element name="version" type="UINT16" unit="version"/>
+		<data-set id="PROPERTIES">
+			<element name="version" type="UINT16" unit="version"/><!-- this is the only occurance that is not locked to 01-00 or 01-xx -->
 			<element name="len" type="UINT16"/>
 			<element name="prop" type="UINT8" array-size="0"/>
 		</data-set>
-		<data-set name="FUNCTION_INFO" id="2000010505">
+		<data-set id="FUNCTION_INFO">
 			<element name="fctName" type="CHAR8" array-size="16"/>
 			<element name="fctId" type="UINT16"/>
 			<element name="grp" type="BOOL8"/>
@@ -126,16 +165,16 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="cnId" type="UINT8"/>
 			<element name="reserved02" unit="hide0" type="UINT8"/>
 		</data-set>
-		<data-set name="VEHICLE_INFO" id="2000010504">
+		<data-set id="VEHICLE_INFO">
 			<element name="vehId" type="CHAR8" array-size="16"/>
 			<element name="vehType" type="CHAR8" array-size="16"/>
 			<element name="vehOrient" type="UINT8"/>
 			<element name="cstVehNo" type="UINT8"/>
 			<element name="tractVeh" type="ANTIVALENT8"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
-			<element name="vehProp" type="2000010502"/>
+			<element name="vehProp" type="PROPERTIES"/>
 		</data-set>
-		<data-set name="CONSIST_INFO" id="2000010501">
+		<data-set id="CONSIST_INFO">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="cstClass" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
@@ -144,52 +183,52 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="cstOwner" type="CHAR8" array-size="16"/>
 			<element name="cstUUID" type="UUID"/>
 			<element name="reserved02" unit="hide0" type="UINT32"/>
-			<element name="cstProp" type="2000010502"/>
+			<element name="cstProp" type="PROPERTIES"/>
 			<element name="reserved03" unit="hide0" type="UINT16"/>
 			<element name="etbCnt" type="UINT16"/>
-			<element name="etbInfoList" type="2000010503" array-size="0"/>
+			<element name="etbInfoList" type="ETB_INFO" array-size="0"/>
 			<element name="reserved04" unit="hide0" type="UINT16"/>
 			<element name="vehCnt" type="UINT16"/>
-			<element name="vehInfoList" type="2000010504" array-size="0"/>
+			<element name="vehInfoList" type="VEHICLE_INFO" array-size="0"/>
 			<element name="reserved05" unit="hide0" type="UINT16"/>
 			<element name="fctCnt" type="UINT16"/>
-			<element name="fctInfoList" type="2000010505" array-size="0"/>
+			<element name="fctInfoList" type="FUNCTION_INFO" array-size="0"/>
 			<element name="reserved06" unit="hide0" type="UINT16"/>
 			<element name="cltrCstCnt" type="UINT16"/>
-			<element name="cltrCstInfoList" type="2000010506" array-size="0"/>
+			<element name="cltrCstInfoList" type="CLTR_CST_INFO" array-size="0"/>
 			<element name="cstTopoCnt" type="UINT32"/>
 		</data-set>
-		<data-set name="CONSIST_INFO_LIST" id="2000010508">
+		<data-set id="CONSIST_INFO_LIST">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="cstInfoCnt" type="UINT16"/>
-			<element name="cstInfoList" type="2000010501" array-size="0"/>
+			<element name="cstInfoList" type="CONSIST_INFO" array-size="0"/>
 		</data-set>
-		<data-set name="CSTINFO" id="2000000200">
-			<element name="cstInfo" type="2000010501"/>
+		<data-set id="CSTINFO">
+			<element name="cstInfo" type="CONSIST_INFO"/>
 		</data-set>
-		<data-set name="CSTINFOCTRL" id="2000000300">
+		<data-set id="CSTINFOCTRL">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="trnCstNo" type="UINT8"/>
 			<element name="cstCnt" type="UINT8"/>
-			<element name="cstList" type="2000011103" array-size="0"/>
+			<element name="cstList" type="CONSIST" array-size="0"/>
 			<element name="trnTopoCnt" type="UINT32"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
-		<data-set name="CONSIST" id="2000011103">
+		<data-set id="CONSIST">
 			<element name="cstUUID" type="UUID"/>
 			<element name="cstTopoCnt" type="UINT32"/>
 			<element name="trnCstNo" type="UINT8"/>
 			<element name="cstOrient" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 		</data-set>
-		<data-set name="TRAIN_DIRECTORY" id="2000011102">
+		<data-set id="TRAIN_DIRECTORY">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="etbId" type="UINT8"/>
 			<element name="cstCnt" type="UINT8"/>
-			<element name="cstList" type="2000011103" array-size="0"/>
+			<element name="cstList" type="CONSIST" array-size="0"/>
 			<element name="trnTopoCnt" type="UINT32"/>
 		</data-set>
-		<data-set name="OP_VEHICLE" id="2000010903">
+		<data-set id="OP_VEHICLE">
 			<element name="vehId" type="CHAR8" array-size="16"/>
 			<element name="opVehNo" type="UINT8"/>
 			<element name="isLead" type="ANTIVALENT8"/>
@@ -200,14 +239,14 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="reserved01" unit="hide0" type="UINT8"/>
 			<element name="reserved02" unit="hide0" type="UINT8"/>
 		</data-set>
-		<data-set name="OP_CONSIST" id="2000010902">
+		<data-set id="OP_CONSIST">
 			<element name="cstUUID" type="UUID"/>
 			<element name="opCstNo" type="UINT8"/>
 			<element name="opCstOrient" type="UINT8"/>
 			<element name="trnCstNo" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
 		</data-set>
-		<data-set name="OP_TRAIN_DIRECTORY_STATE" id="2000011101">
+		<data-set id="OP_TRAIN_DIRECTORY_STATE">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
 			<element name="reserved02" unit="hide0" type="UINT8"/>
@@ -220,7 +259,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="opTrnTopoCnt" type="UINT32"/>
 			<element name="crc" type="UINT32"/>
 		</data-set>
-		<data-set name="OP_TRAIN_DIRECTORY" id="2000010901">
+		<data-set id="OP_TRAIN_DIRECTORY">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="etbId" type="UINT8"/>
 			<element name="opTrnOrient" type="UINT8"/>
@@ -228,66 +267,66 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="reserved02" unit="hide0" type="UINT8"/>
 			<element name="reserved03" unit="hide0" type="UINT8"/>
 			<element name="opCstCnt" type="UINT8"/>
-			<element name="opCstList" type="2000010902" array-size="0"/>
+			<element name="opCstList" type="OP_CONSIST" array-size="0"/>
 			<element name="reserved04" unit="hide0" type="UINT8"/>
 			<element name="reserved05" unit="hide0" type="UINT8"/>
 			<element name="reserved06" unit="hide0" type="UINT8"/>
 			<element name="opVehCnt" type="UINT8"/>
-			<element name="opVehList" type="2000010903" array-size="0"/>
+			<element name="opVehList" type="OP_VEHICLE" array-size="0"/>
 			<element name="opTrnTopoCnt" type="UINT32"/>
 		</data-set>
-		<data-set name="TRAIN_NETWORK_DIRECTORY_ENTRY" id="2000010702">
+		<data-set id="TRAIN_NETWORK_DIRECTORY_ENTRY">
 			<element name="cstUUID" type="UUID"/>
 			<element name="cstNetProp" type="UINT32"/>
 		</data-set>
-		<data-set name="TRAIN_NETWORK_DIRECTORY" id="2000010701">
+		<data-set id="TRAIN_NETWORK_DIRECTORY">
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 			<element name="entryCnt" type="UINT16"/>
-			<element name="trnNetDir" type="2000010702" array-size="0"/>
+			<element name="trnNetDir" type="TRAIN_NETWORK_DIRECTORY_ENTRY" array-size="0"/>
 			<element name="etbTopoCnt" type="UINT32"/>
 		</data-set>
-		<data-set name="TTDB_OP_TRAIN_DIRECTORY_STATUS_INFO" id="2000010000">
-			<element name="state" type="2000011101"/>
+		<data-set id="TTDB_OP_TRAIN_DIRECTORY_STATUS_INFO">
+			<element name="state" type="OP_TRAIN_DIRECTORY_STATE"/>
 			<element name="etbTopoCnt" type="UINT32"/>
 			<element name="ownOpCstNo" type="UINT8"/>
 			<element name="ownTrnCstNo" type="UINT8"/>
 			<element name="reserved02" unit="hide0" type="UINT16"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
-		<data-set name="TTDB_OP_TRAIN_DIRECTORY_INFO" id="2000010100">
-			<element name="opTrnDir" type="2000010901"/>
+		<data-set id="TTDB_OP_TRAIN_DIRECTORY_INFO">
+			<element name="opTrnDir" type="OP_TRAIN_DIRECTORY"/>
 		</data-set>
-		<data-set name="TTDB_TRAIN_DIRECTORY_INFO_REQUEST" id="2000010200">
+		<data-set id="TTDB_TRAIN_DIRECTORY_INFO_REQUEST">
 			<element name="etbId" type="UINT8"/>
 		</data-set>
-		<data-set name="TTDB_TRAIN_DIRECTORY_INFO_REPLY" id="2000010300">
-			<element name="trnDir" type="2000011102"/>
+		<data-set id="TTDB_TRAIN_DIRECTORY_INFO_REPLY">
+			<element name="trnDir" type="TRAIN_DIRECTORY"/>
 		</data-set>
-		<data-set name="TTDB_STATIC_CONSIST_INFO_REQUEST" id="2000010400">
+		<data-set id="TTDB_STATIC_CONSIST_INFO_REQUEST">
 			<element name="cstUUID" type="UUID"/>
 		</data-set>
-		<data-set name="TTDB_STATIC_CONSIST_INFO_REPLY" id="2000010500">
-			<element name="cstInfo" type="2000010501"/>
+		<data-set id="TTDB_STATIC_CONSIST_INFO_REPLY">
+			<element name="cstInfo" type="CONSIST_INFO"/>
 		</data-set>
-		<data-set name="TTDB_TRAIN_NETWORK_DIRECTORY_INFO_REQUEST" id="2000010600">
+		<data-set id="TTDB_TRAIN_NETWORK_DIRECTORY_INFO_REQUEST">
 			<element name="etbId" type="UINT8"/>
 		</data-set>
-		<data-set name="TTDB_TRAIN_NETWORK_DIRECTORY_INFO_REPLY" id="2000010700">
-			<element name="trnNetDir" type="2000010701"/>
+		<data-set id="TTDB_TRAIN_NETWORK_DIRECTORY_INFO_REPLY">
+			<element name="trnNetDir" type="TRAIN_NETWORK_DIRECTORY"/>
 		</data-set>
-		<data-set name="TTDB_OP_TRAIN_DIRECTORY_INFO_REPLY" id="2000010900">
-			<element name="opTrnDir" type="2000010901"/>
+		<data-set id="TTDB_OP_TRAIN_DIRECTORY_INFO_REPLY">
+			<element name="opTrnDir" type="OP_TRAIN_DIRECTORY"/>
 		</data-set>
-		<data-set name="TTDB_READ_COMPLETE_REQUEST" id="2000011000">
+		<data-set id="TTDB_READ_COMPLETE_REQUEST">
 			<element name="etbId" type="UINT8"/>
 		</data-set>
-		<data-set name="TTDB_READ_COMPLETE_REPLY" id="2000011100">
-			<element name="state" type="2000011101"/>
-			<element name="opTrnDir" type="2000010901"/>
-			<element name="trnDir" type="2000011102"/>
-			<element name="trnNetDir" type="2000010701"/>
+		<data-set id="TTDB_READ_COMPLETE_REPLY">
+			<element name="state" type="OP_TRAIN_DIRECTORY_STATE"/>
+			<element name="opTrnDir" type="OP_TRAIN_DIRECTORY"/>
+			<element name="trnDir" type="TRAIN_DIRECTORY"/>
+			<element name="trnNetDir" type="TRAIN_NETWORK_DIRECTORY"/>
 		</data-set>
-		<data-set name="TRDP_MEM_STATISTICS_T" id="2000003103">
+		<data-set id="TRDP_MEM_STATISTICS_T">
 			<element name="total" type="UINT32"/>
 			<element name="free" type="UINT32"/>
 			<element name="minFree" type="UINT32"/>
@@ -297,7 +336,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="blockSize" type="UINT32" array-size="15" unit="b"/>
 			<element name="usedBlockSize" type="UINT32" array-size="15"/>
 		</data-set>
-		<data-set name="TRDP_PD_STATISTICS_T" id="2000003102">
+		<data-set id="TRDP_PD_STATISTICS_T">
 			<element name="defQos" type="UINT32"/>
 			<element name="defTtl" type="UINT32"/>
 			<element name="defTimeout" type="UINT32" unit="s" scale="0.001"/>
@@ -312,7 +351,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="numTimeout" type="UINT32"/>
 			<element name="numSend" type="UINT32"/>
 		</data-set>
-		<data-set name="TRDP_MD_STATISTICS_T" id="2000003101">
+		<data-set id="TRDP_MD_STATISTICS_T">
 			<element name="defQos" type="UINT32"/>
 			<element name="defTtl" type="UINT32"/>
 			<element name="defReplyTimeout" type="UINT32" unit="s" scale="0.001"/>
@@ -327,7 +366,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="numConfirmTimeout" type="UINT32"/>
 			<element name="numSend" type="UINT32"/>
 		</data-set>
-		<data-set name="TRDP_STATISTICS_T" id="2000003100">
+		<data-set id="TRDP_STATISTICS_T">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="timestamp" type="UINT64" unit="s"/>
 			<element name="uptime" type="UINT32" unit="s"/>
@@ -340,12 +379,12 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="processCycle" type="UINT32" unit="s" scale="0.000001"/>
 			<element name="numJoin" type="UINT32"/>
 			<element name="numRed" type="UINT32"/>
-			<element name="mem" type="2000003103"/>
-			<element name="pd" type="2000003102"/>
-			<element name="udpMd" type="2000003101"/>
-			<element name="tcpMd" type="2000003101"/>
+			<element name="mem" type="TRDP_MEM_STATISTICS_T"/>
+			<element name="pd" type="TRDP_PD_STATISTICS_T"/>
+			<element name="udpMd" type="TRDP_MD_STATISTICS_T"/>
+			<element name="tcpMd" type="TRDP_MD_STATISTICS_T"/>
 		</data-set>
-		<data-set name="TRDP_SUBS_STATISTICS_T" id="2000003300">
+		<data-set id="TRDP_SUBS_STATISTICS_T">
 			<element name="comId" type="UINT32"/>
 			<element name="joinedAddr" type="UINT32" unit="IPv4"/>
 			<element name="filterAddr" type="UINT32" unit="IPv4"/>
@@ -355,7 +394,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="toBehav" type="UINT32"/>
 			<element name="numRecv" type="UINT32"/>
 		</data-set>
-		<data-set name="TRDP_PUB_STATISTICS_T" id="2000003500">
+		<data-set id="TRDP_PUB_STATISTICS_T">
 			<element name="comId" type="UINT32"/>
 			<element name="destAddr" type="UINT32" unit="IPv4"/>
 			<element name="cycle" type="UINT32" unit="s" scale="0.000001"/>
@@ -364,11 +403,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="numPut" type="UINT32"/>
 			<element name="numSend" type="UINT32"/>
 		</data-set>
-		<data-set name="TRDP_RED_STATISTICS_T" id="2000003700">
+		<data-set id="TRDP_RED_STATISTICS_T">
 			<element name="id" type="UINT32"/>
 			<element name="state" type="UINT32"/>
 		</data-set>
-		<data-set name="TRDP_LIST_STATISTICS_T" id="2000003900">
+		<data-set id="TRDP_LIST_STATISTICS_T">
 			<element name="comId" type="UINT32"/>
 			<element name="uri" type="CHAR8" array-size="32"/>
 			<element name="joinedAddr" type="UINT32" unit="IPv4"/>
@@ -377,7 +416,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="userRef" type="UINT32"/>
 			<element name="numRecv" type="UINT32"/>
 		</data-set>
-		<data-set name="CONFTEST_CTRL" id="2000008000">
+		<data-set id="CONFTEST_CTRL">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 			<element name="deviceName" type="CHAR8" array-size="16"/>
@@ -389,13 +428,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="reserved03" unit="hide0" type="UINT8"/>
 			<element name="reserved04" unit="hide0" type="UINT16"/>
 		</data-set>
-		<data-set name="CONFTEST_STATUS" id="2000008100">
+		<data-set id="CONFTEST_STATUS">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="status" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
 			<element name="deviceName" type="CHAR8" array-size="16"/>
 		</data-set>
-		<data-set name="CONFTEST_CONF_REQUEST" id="2000008200">
+		<data-set id="CONFTEST_CONF_REQUEST">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="command" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
@@ -403,34 +442,34 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="reserved02" unit="hide0" type="UINT16"/>
 			<element name="reserved03" unit="hide0" type="UINT8"/>
 			<element name="confVehCnt" type="UINT16"/>
-			<element name="confVehList" type="2000010903"/>
+			<element name="confVehList" type="OP_VEHICLE" array-size="0"/>
 		</data-set>
-		<data-set name="CONFTEST_CONF_REPLY" id="2000008300">
+		<data-set id="CONFTEST_CONF_REPLY">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="status" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
 			<element name="deviceName" type="CHAR8" array-size="16"/>
 		</data-set>
-		<data-set name="CONFTEST_OPTRAIN_REQUEST" id="2000008400">
+		<data-set id="CONFTEST_OPTRAIN_REQUEST">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="command" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
 			<element name="deviceName" type="CHAR8" array-size="16"/>
 		</data-set>
-		<data-set name="CONFTEST_OPTRAIN_REPLY" id="2000008500">
+		<data-set id="CONFTEST_OPTRAIN_REPLY">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 			<element name="deviceName" type="CHAR8" array-size="16"/>
-			<element name="opTrnDir" type="2000010901"/>
+			<element name="opTrnDir" type="OP_TRAIN_DIRECTORY"/>
 		</data-set>
-		<data-set name="CONFTEST_MDTRIG_MD" id="2000008800">
+		<data-set id="CONFTEST_MDTRIG_MD">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="protocol" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
 			<element name="destIpAddr" type="UINT32" unit="IPv4"/>
 			<element name="uri" type="CHAR8" array-size="128"/>
 		</data-set>
-		<data-set name="ECSP_CTRL" id="2000012000">
+		<data-set id="ECSP_CTRL">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
 			<element name="leadVehOfCst" type="UINT8"/>
@@ -439,9 +478,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="leadingReq" type="BOOL8"/>
 			<element name="leadingDir" type="BITSET8" bits="leadingReqDir1,leadingReqDir2"/>
 			<element name="sleepReq" type="BOOL8"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
-		<data-set name="ECSP_STATUS" id="2000012100">
+		<data-set id="ECSP_STATUS">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 			<element name="lifesign" type="UINT16"/>
@@ -459,9 +498,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="sleepCtrlState" type="UINT8"/>
 			<element name="sleepReqCnt" type="UINT8"/>
 			<element name="opTrnTopoCnt" type="UINT32"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
-		<data-set name="ECSP_CONF_REQUEST" id="2000012200">
+		<data-set id="ECSP_CONF_REQUEST">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="command" type="BITSET8" bits="ConfirmationCorrection,Unconfirmation"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
@@ -469,18 +508,18 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="opTrnTopoCnt" type="UINT32"/>
 			<element name="reserved02" unit="hide0" type="UINT16"/>
 			<element name="confVehCnt" type="UINT16"/>
-			<element name="confVehList" type="2000010903"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="confVehList" type="OP_VEHICLE" array-size="0"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
-		<data-set name="ECSP_CONF_REPLY" id="2000012300">
+		<data-set id="ECSP_CONF_REPLY">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="status" type="UINT8"/>
 			<element name="reserved01" unit="hide0" type="UINT8"/>
 			<element name="deviceName" type="CHAR8" array-size="16"/>
 			<element name="reqSafetyCode" type="UINT32"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
-		<data-set name="ETBN_CTRL" id="2000013000">
+		<data-set id="ETBN_CTRL">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 			<element name="deviceName" type="CHAR8" array-size="16"/>
@@ -488,9 +527,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="byPassCtrl" type="BITSET8" bits="noBypass,activateBypass"/>
 			<element name="txCtrl" type="BITSET8" bits="activateSendingOnETB,stopSendingOnETB"/>
 			<element name="slCtrl" type="BITSET8" bits="wakeUp,sleep"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
-		<data-set name="ETBN_STATUS" id="2000013100">
+		<data-set id="ETBN_STATUS">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 			<element name="deviceName" type="CHAR8" array-size="16"/>
@@ -506,19 +545,19 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="slState" type="BITSET8" bits="sleeping"/>
 			<element name="reserved02" unit="hide0" type="UINT16"/>
 			<element name="etbTopoCnt" type="UINT32"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
-		<data-set name="ETBN_TRAIN_NETWORK_DIRECTORY_INFO_REPLY" id="2000013300">
-			<element name="trnNetDir" type="2000010701"/>
+		<data-set id="ETBN_TRAIN_NETWORK_DIRECTORY_INFO_REPLY">
+			<element name="trnNetDir" type="TRAIN_NETWORK_DIRECTORY"/>
 		</data-set>
-		<data-set name="TCN_URI" id="2000014001">
+		<data-set id="TCN_URI">
 			<element name="tcnUriStr" type="CHAR8" array-size="80"/>
 			<element name="reserved01" unit="hide0" type="INT16"/>
 			<element name="resolvState" type="INT16"/>
 			<element name="tcnUriIpAddr" type="UINT32" unit="IPv4"/>
 			<element name="tcnUriIpAddr2" type="UINT32" unit="IPv4"/>
 		</data-set>
-		<data-set name="DNS_REQUEST" id="2000014000">
+		<data-set id="DNS_REQUEST">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="reserved01" unit="hide0" type="INT16"/>
 			<element name="deviceName" type="CHAR8" array-size="16"/>
@@ -528,10 +567,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="reserved02" unit="hide0" type="UINT8"/>
 			<element name="reserved03" unit="hide0" type="UINT8"/>
 			<element name="tcnUriCnt" type="UINT8"/>
-			<element name="tcnUriList" type="2000014001" array-size="0"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="tcnUriList" type="TCN_URI" array-size="0"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
-		<data-set name="DNS_REPLY" id="2000014100">
+		<data-set id="DNS_REPLY">
 			<element name="version" type="UINT16" unit="version"/>
 			<element name="reserved01" unit="hide0" type="UINT16"/>
 			<element name="deviceName" type="CHAR8" array-size="16"/>
@@ -541,8 +580,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 			<element name="replyStatus" type="INT8"/>
 			<element name="reserved02" unit="hide0" type="UINT8"/>
 			<element name="tcnUriCnt" type="UINT8"/>
-			<element name="tcnUriList" type="2000014001" array-size="0"/>
-			<element name="safetyTrail" type="2000000102"/>
+			<element name="tcnUriList" type="TCN_URI" array-size="0"/>
+			<element name="safetyTrail" type="VDP_TRAILER" unit="fold0"/>
 		</data-set>
 	</data-set-list>
 </device>
