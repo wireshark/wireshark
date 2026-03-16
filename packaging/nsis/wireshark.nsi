@@ -1137,6 +1137,7 @@ SectionEnd
 Section "-Plugins & Extensions"
 
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs'
+File "${STAGING_DIR}\plugins\wireshark\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\l24.dll"
 File "${STAGING_DIR}\plugins\wireshark\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\g711.dll"
 !ifdef SPANDSP_FOUND
 File "${STAGING_DIR}\plugins\wireshark\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\g722.dll"
@@ -1157,6 +1158,9 @@ File "${STAGING_DIR}\plugins\wireshark\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\
 !endif
 !ifdef AMRNB_FOUND
 File "${STAGING_DIR}\plugins\wireshark\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\amrnb.dll"
+!endif
+!ifdef AMRWB_FOUND
+File "${STAGING_DIR}\plugins\wireshark\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\amrwb.dll"
 !endif
 
 !include wireshark-profile-manifest.nsh
