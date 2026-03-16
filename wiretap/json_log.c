@@ -260,8 +260,8 @@ static bool json_log_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, 
     }
     const char *log_end = log_data + bytes_read - 1;
 
-
     size_t entry_size = json_object_size(log_data, log_end);
+    ws_buffer_increase_length(&rec->data, entry_size);
 
     nstime_t ts = get_entry_timestamp(log_data, entry_size);
     if (nstime_is_zero(&ts)) {

@@ -71,7 +71,7 @@ static bool read_new_line(FILE_T fh, int* length,
     char** err_info);
 
 static bool parse_line_into_record(wtap* wth, wtap_rec *rec, log3gpp_t *log3gpp, int line_length);
-static int write_stub_header(log3gpp_protocol_t const *protocol, unsigned char *frame_buffer, char *timestamp_string,
+static unsigned write_stub_header(log3gpp_protocol_t const *protocol, Buffer *buf, char *timestamp_string,
                              packet_direction_t direction);
 static unsigned char hex_from_char(char c);
 /*not used static char char_from_hex(unsigned char hex);*/
@@ -213,7 +213,7 @@ build_packet_record(wtap* wth, wtap_rec *rec, log3gpp_t const *log3gpp,
 {
     unsigned char *frame_buffer;
     int n;
-    int stub_offset = 0;
+    unsigned stub_offset = 0;
     char timestamp_string[MAX_TIMESTAMP_LEN+1];
 
     snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
@@ -236,11 +236,9 @@ build_packet_record(wtap* wth, wtap_rec *rec, log3gpp_t const *log3gpp,
                           strlen(log3gpp->protocol.parameters)+1 +
                           (size_t)(data_chars/2));
 
-      frame_buffer = ws_buffer_start_ptr(&rec->data);
-
       /*********************/
       /* Write stub header */
-      stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
+      stub_offset = write_stub_header(&log3gpp->protocol, &rec->data, timestamp_string,
                                       direction);
 
       /* Binary data length is half bytestring length + stub header */
@@ -248,11 +246,13 @@ build_packet_record(wtap* wth, wtap_rec *rec, log3gpp_t const *log3gpp,
       rec->rec_header.packet_header.caplen = data_chars/2 + stub_offset;
       /********************************/
       /* Copy packet data into buffer */
+      frame_buffer = ws_buffer_end_ptr(&rec->data);
       for (n=0; n <= data_chars; n+=2)
       {
-        frame_buffer[stub_offset + n/2] = (hex_from_char(log3gpp->linebuff[data_offset+n]) << 4) |
-                                           hex_from_char(log3gpp->linebuff[data_offset+n+1]);
+        frame_buffer[n/2] = (hex_from_char(log3gpp->linebuff[data_offset+n]) << 4) |
+                             hex_from_char(log3gpp->linebuff[data_offset+n+1]);
       }
+      ws_buffer_increase_length(&rec->data, data_chars/2);
     }
     else
     {
@@ -263,11 +263,10 @@ build_packet_record(wtap* wth, wtap_rec *rec, log3gpp_t const *log3gpp,
                           1 +                                /* direction */
                           strlen(log3gpp->protocol.parameters)+1 +
                           data_chars);
-      frame_buffer = ws_buffer_start_ptr(&rec->data);
 
       /*********************/
       /* Write stub header */
-      stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
+      stub_offset = write_stub_header(&log3gpp->protocol, &rec->data, timestamp_string,
                                       direction);
 
       /* Binary data length is bytestring length + stub header */
@@ -275,8 +274,9 @@ build_packet_record(wtap* wth, wtap_rec *rec, log3gpp_t const *log3gpp,
       rec->rec_header.packet_header.caplen = data_chars + stub_offset;
 
       /* do not convert the ascii char */
-      memcpy(&frame_buffer[stub_offset],&log3gpp->linebuff[data_offset],data_chars);
-      frame_buffer[stub_offset+data_chars-1] = '\0';
+      ws_buffer_append(&rec->data, (const uint8_t*)&log3gpp->linebuff[data_offset], data_chars);
+      /* XXX - Does this really need to be null terminated? */
+      ws_buffer_start_ptr(&rec->data)[stub_offset+data_chars-1] = '\0';
     }
 }
 
@@ -611,26 +611,29 @@ bool parse_line_into_record(wtap* wth, wtap_rec *rec, log3gpp_t *log3gpp, int li
 /*****************************************************************/
 /* Write the stub info to the data buffer while reading a packet */
 /*****************************************************************/
-int write_stub_header(log3gpp_protocol_t const *protocol, unsigned char *frame_buffer, char *timestamp_string,
+unsigned write_stub_header(log3gpp_protocol_t const *protocol, Buffer *buf, char *timestamp_string,
                       packet_direction_t direction)
 {
-    int stub_offset = 0;
+    unsigned stub_offset = 0;
+    uint8_t *frame_buffer = ws_buffer_end_ptr(buf);
+    size_t retval;
 
     /* Timestamp within file */
-    (void) g_strlcpy((char*)&frame_buffer[stub_offset], timestamp_string, MAX_TIMESTAMP_LEN+1);
-    stub_offset += (int)(strlen(timestamp_string) + 1);
+    retval = g_strlcpy((char*)&frame_buffer[stub_offset], timestamp_string, MAX_TIMESTAMP_LEN+1);
+    stub_offset += (unsigned)MIN(retval, MAX_TIMESTAMP_LEN) + 1;
 
     /* Protocol name */
-    (void) g_strlcpy((char*)&frame_buffer[stub_offset], protocol->name, MAX_PROTOCOL_NAME+1);
-    stub_offset += (int)(strlen(protocol->name) + 1);
+    retval = g_strlcpy((char*)&frame_buffer[stub_offset], protocol->name, MAX_PROTOCOL_NAME+1);
+    stub_offset += (unsigned)MIN(retval, MAX_PROTOCOL_NAME) + 1;
 
     /* Direction */
     frame_buffer[stub_offset] = direction;
     stub_offset++;
 
     /* Option string (might be string of length 0) */
-    (void) g_strlcpy((char*)&frame_buffer[stub_offset], protocol->parameters,MAX_PROTOCOL_PAR_STRING+1);
-    stub_offset += (int)(strlen(protocol->parameters) + 1);
+    retval = g_strlcpy((char*)&frame_buffer[stub_offset], protocol->parameters, MAX_PROTOCOL_PAR_STRING+1);
+    stub_offset += (unsigned)MIN(retval, MAX_PROTOCOL_PAR_STRING) + 1;
+    ws_buffer_increase_length(buf, stub_offset);
     return stub_offset;
 }
 

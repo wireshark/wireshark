@@ -108,8 +108,8 @@ static bool toshiba_read(wtap *wth, wtap_rec *rec, int *err,
 	char **err_info, int64_t *data_offset);
 static bool toshiba_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	int *err, char **err_info);
-static bool parse_single_hex_dump_line(char* rec, uint8_t *buf,
-	unsigned byte_offset, unsigned remaining_groups);
+static bool parse_single_hex_dump_line(char* rec, Buffer *buf,
+	unsigned remaining_groups);
 static bool parse_toshiba_packet(FILE_T fh, wtap_rec *rec, int *err,
 	char **err_info);
 
@@ -258,7 +258,6 @@ parse_toshiba_packet(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 	int	pkt_len, pktnum, hr, min, sec, csec;
 	char	channel[10], direction[10];
 	int	i, hex_lines;
-	uint8_t	*pd;
 
 	/* Our file pointer should be on the line containing the
 	 * summary information for a packet. Read in that line and
@@ -362,7 +361,6 @@ parse_toshiba_packet(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 	/* Round up because the format writes in groups of 2 bytes (4 hex). */
 	unsigned rounded_len = WS_ROUNDUP_2(pkt_len);
 	ws_buffer_assure_space(&rec->data, rounded_len);
-	pd = ws_buffer_start_ptr(&rec->data);
 
 	/* Calculate the number of hex dump lines, each
 	 * containing 16 bytes of data */
@@ -376,7 +374,7 @@ parse_toshiba_packet(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 			}
 			return false;
 		}
-		if (!parse_single_hex_dump_line(line, pd, i * 16, rounded_len/2 - i * 8)) {
+		if (!parse_single_hex_dump_line(line, &rec->data, rounded_len/2 - i * 8)) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("toshiba: hex dump not valid");
 			return false;
@@ -405,13 +403,14 @@ parse_toshiba_packet(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
  * Returns true if good hex dump, false if bad.
  */
 static bool
-parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset, unsigned remaining_groups) {
+parse_single_hex_dump_line(char* rec, Buffer *buf, unsigned remaining_groups) {
 
 	unsigned	pos, i;
 	char		*s;
 	unsigned long	value;
 	uint16_t	word_value;
 	unsigned	hex_len;
+	uint8_t		*pd;
 
 	if (remaining_groups > 8) {
 		remaining_groups = 8;
@@ -431,7 +430,7 @@ parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset, unsign
 	s = rec;
 	value = strtoul(s, NULL, 16);
 
-	if (value != byte_offset) {
+	if (value != ws_buffer_length(buf)) {
 		return false;
 	}
 
@@ -448,14 +447,16 @@ parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset, unsign
 		}
 	}
 
+	pd = ws_buffer_end_ptr(buf);
 	pos = START_POS;
 	for (i = 0; i < remaining_groups; i++) {
 		rec[pos+4] = '\0';
 
 		word_value = (uint16_t) strtoul(&rec[pos], NULL, 16);
-		phtonu16(&buf[byte_offset + i * 2], word_value);
+		phtonu16(&pd[i * 2], word_value);
 		pos += 5;
 	}
+	ws_buffer_increase_length(buf, remaining_groups * 2);
 
 	return true;
 }

@@ -157,8 +157,6 @@ static bool systemd_journal_seek_read(wtap *wth, int64_t seek_off,
 static bool systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
         int *err, char **err_info)
 {
-    size_t fld_end = 0;
-    char *buf_ptr;
     char *entry_line = NULL;
     bool got_cursor = false;
     bool got_rt_ts = false;
@@ -168,14 +166,14 @@ static bool systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
     size_t rt_ts_len = strlen(FLD__REALTIME_TIMESTAMP);
 
     ws_buffer_assure_space(&rec->data, MAX_EXPORT_ENTRY_LENGTH);
-    buf_ptr = (char *) ws_buffer_start_ptr(&rec->data);
 
     for (line_num = 0; line_num < MAX_EXPORT_ENTRY_LINES; line_num++) {
-        entry_line = file_gets(buf_ptr + fld_end, MAX_EXPORT_ENTRY_LENGTH - (int) fld_end, fh);
+        // XXX - Should there be a file_gets_buffer() ?
+        entry_line = file_gets((char*)ws_buffer_end_ptr(&rec->data), MAX_EXPORT_ENTRY_LENGTH - (int) ws_buffer_length(&rec->data), fh);
         if (!entry_line) {
             break;
         }
-        fld_end += strlen(entry_line);
+        ws_buffer_increase_length(&rec->data, strlen(entry_line));
         if (entry_line[0] == '\n') {
             got_double_newline = true;
             break;
@@ -194,30 +192,27 @@ static bool systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
             got_mt_ts = true;
         } else if (!strstr(entry_line, "=")) {
             // Start of binary data.
-            if (fld_end >= MAX_EXPORT_ENTRY_LENGTH - 8) {
+            if (ws_buffer_length(&rec->data) >= MAX_EXPORT_ENTRY_LENGTH - 8) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("systemd: binary length too long");
                 return false;
             }
-            uint64_t data_len, le_data_len;
-            if (!wtap_read_bytes(fh, &le_data_len, 8, err, err_info)) {
+            uint64_t data_len;
+            if (!wtap_read_bytes_buffer(fh, &rec->data, 8, err, err_info)) {
                 return false;
             }
-            memcpy(buf_ptr + fld_end, &le_data_len, 8);
-            fld_end += 8;
-            data_len = pletohu64(&le_data_len);
-            if (data_len < 1 || data_len - 1 >= MAX_EXPORT_ENTRY_LENGTH - fld_end) {
+            data_len = pletohu64(&ws_buffer_end_ptr(&rec->data)[-8]);
+            if (data_len < 1 || data_len - 1 >= MAX_EXPORT_ENTRY_LENGTH - ws_buffer_length(&rec->data)) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("systemd: binary data too long");
                 return false;
             }
             // Data + trailing \n
-            if (!wtap_read_bytes(fh, buf_ptr + fld_end, (unsigned) data_len + 1, err, err_info)) {
+            if (!wtap_read_bytes_buffer(fh, &rec->data, (unsigned) data_len + 1, err, err_info)) {
                 return false;
             }
-            fld_end += (size_t) data_len + 1;
         }
-        if (MAX_EXPORT_ENTRY_LENGTH < fld_end + 2) { // \n\0
+        if (MAX_EXPORT_ENTRY_LENGTH < ws_buffer_length(&rec->data) + 2) { // \n\0
             break;
         }
     }
@@ -233,7 +228,7 @@ static bool systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
     wtap_setup_systemd_journal_export_rec(rec);
     rec->block = wtap_block_create(WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    rec->rec_header.systemd_journal_export_header.record_len = (uint32_t) fld_end;
+    rec->rec_header.systemd_journal_export_header.record_len = (uint32_t) ws_buffer_length(&rec->data);
 
     return true;
 }

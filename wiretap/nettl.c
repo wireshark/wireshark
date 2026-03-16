@@ -355,7 +355,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
     int datalen;
     uint8_t dummyc[16];
     int bytes_to_read;
-    uint8_t *pd;
+    const uint8_t *pd;
 
     if (!wtap_read_bytes_or_eof(fh, &rec_hdr.hdr_len, sizeof rec_hdr.hdr_len,
                                 err, err_info))
@@ -604,19 +604,19 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
      * Read the packet data.
      */
     ws_buffer_assure_space(&rec->data, datalen);
-    pd = ws_buffer_start_ptr(&rec->data);
     if (fddihack) {
         /* read in FC, dest, src, DSAP and SSAP */
         bytes_to_read = 15;
         if (bytes_to_read > datalen)
             bytes_to_read = datalen;
-        if (!wtap_read_bytes(fh, pd, bytes_to_read, err, err_info))
+        if (!wtap_read_bytes_buffer(fh, &rec->data, bytes_to_read, err, err_info))
             return false;
         datalen -= bytes_to_read;
         if (datalen == 0) {
             /* There's nothing past the FC, dest, src, DSAP and SSAP */
             return true;
         }
+        pd = ws_buffer_start_ptr(&rec->data);
         if (pd[13] == 0xAA) {
             /* it's SNAP, have to eat 3 bytes??? */
             bytes_to_read = 3;
@@ -630,10 +630,10 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
                 return true;
             }
         }
-        if (!wtap_read_bytes(fh, pd + 15, datalen, err, err_info))
+        if (!wtap_read_bytes_buffer(fh, &rec->data, datalen, err, err_info))
             return false;
     } else {
-        if (!wtap_read_bytes(fh, pd, datalen, err, err_info))
+        if (!wtap_read_bytes_buffer(fh, &rec->data, datalen, err, err_info))
             return false;
     }
 

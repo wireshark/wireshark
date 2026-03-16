@@ -1403,6 +1403,9 @@ static bool vwr_read_s1_W_rec(wtap *wth, wtap_rec *record,
     phtoleu32(&data_ptr[bytes_written], errors);
     bytes_written += 4;
 
+    /* Update the end of the valid data in the Buffer with what we've written */
+    ws_buffer_increase_length(&record->data, bytes_written);
+
     /*
      * Finally, copy the whole MAC frame to the packet buffer as-is.
      * This does not include the PLCP; the MPDU starts at 4 or 6
@@ -1410,7 +1413,7 @@ static bool vwr_read_s1_W_rec(wtap *wth, wtap_rec *record,
      * This also does not include the last 4 bytes, as those don't
      * contain an FCS, they just contain junk.
      */
-    memcpy(&data_ptr[bytes_written], &rec[plcp_hdr_len], actual_octets);
+    ws_buffer_append(&record->data, &rec[plcp_hdr_len], actual_octets);
 
     return true;
 }

@@ -58,8 +58,7 @@ static bool netscreen_seek_read(wtap *wth, int64_t seek_off,
 	wtap_rec *rec, int *err, char **err_info);
 static bool parse_netscreen_packet(FILE_T fh, wtap_rec *rec,
 	char *line, int *err, char **err_info);
-static int parse_single_hex_dump_line(char* rec, uint8_t *buf,
-	unsigned byte_offset, unsigned pkt_len);
+static int parse_single_hex_dump_line(char* rec, Buffer *buf);
 
 /* Error returns from parse_single_hex_dump_line() */
 #define PARSE_LINE_INVALID_CHARACTER	-1
@@ -290,7 +289,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, char *line,
 	char		direction[2];
 	char		cap_src[13];
 	char		cap_dst[13];
-	uint8_t		*pd;
+	const uint8_t	*pd;
 	char		*p;
 	int		n, i = 0;
 	int		offset = 0;
@@ -331,7 +330,6 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, char *line,
 
 	/* Make sure we have enough room for the packet */
 	ws_buffer_assure_space(&rec->data, pkt_len);
-	pd = ws_buffer_start_ptr(&rec->data);
 
 	while(1) {
 
@@ -355,7 +353,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, char *line,
 			break;
 		}
 
-		n = parse_single_hex_dump_line(p, pd, offset, pkt_len);
+		n = parse_single_hex_dump_line(p, &rec->data);
 
 		/*
 		 * The smallest packet has a length of 6 bytes.
@@ -429,6 +427,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, char *line,
 	 * XXX	convert this to a 'case' structure when adding more
 	 *	(non-ethernet) interfacetypes
 	 */
+	pd = ws_buffer_start_ptr(&rec->data);
 	if (strncmp(cap_int, "adsl", 4) == 0) {
 		/* The ADSL interface can be bridged with or without
 		 * PPP encapsulation. Check whether the first six bytes
@@ -454,17 +453,20 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, char *line,
 }
 
 /* Take a string representing one line from a hex dump, with leading white
- * space removed, and converts the text to binary data. We place the bytes
- * in the buffer at the specified offset.
+ * space removed, and converts the text to binary data. We append the bytes
+ * to the Buffer. The Buffer should already be large enough to contain the
+ * entire packet data, i.e. ws_buffer_assure_space(buf, pkt_len) has been
+ * called.
  *
  * Returns number of bytes successfully read, -1 if bad.  */
 static int
-parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset, unsigned pkt_len)
+parse_single_hex_dump_line(char* rec, Buffer *buf)
 {
-	int num_items_scanned;
+	unsigned num_items_scanned;
 	uint8_t character;
 	uint8_t byte;
-
+	size_t buf_available = buf->allocated - buf->first_free;
+	uint8_t *pd = ws_buffer_end_ptr(buf);
 
 	for (num_items_scanned = 0; num_items_scanned < 16; num_items_scanned++) {
 		character = *rec++;
@@ -494,11 +496,12 @@ parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset, unsign
 		 * header, then there must be an error in the file; quit
 		 * now, as adding this byte will overflow the buffer.
 		 */
-		if (byte_offset + num_items_scanned >= pkt_len) {
+		if (num_items_scanned >= buf_available) {
 			return PARSE_LINE_TOO_MANY_BYTES_SEEN;
 		}
 
-		buf[byte_offset + num_items_scanned] = byte;
+		pd[num_items_scanned] = byte;
+		ws_buffer_increase_length(buf, 1);
 		character = *rec++ & 0xFF;
 		if (character == '\0' || character == '\r' || character == '\n') {
 			/* Nothing more to parse */

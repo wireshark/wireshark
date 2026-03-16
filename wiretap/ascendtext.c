@@ -372,6 +372,7 @@ parse_ascend(ascend_t *ascend, wtap *wth, FILE_T fh, wtap_rec *rec,
         rec->ts.nsecs = parser_state.usecs * 1000;
         rec->rec_header.packet_header.caplen = parser_state.caplen;
         rec->rec_header.packet_header.len = parser_state.wirelen;
+        ws_buffer_increase_length(&rec->data, parser_state.caplen);
 
         return true;
     }

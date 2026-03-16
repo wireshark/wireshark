@@ -118,6 +118,7 @@ static bool mplog_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     /* leave space for the iso14443 pseudo header
        we can't create it until we've seen the entire packet */
     p += ISO14443_PSEUDO_HDR_LEN;
+    ws_buffer_increase_length(&rec->data, ISO14443_PSEUDO_HDR_LEN);
 
     do {
         if (!wtap_read_bytes_or_eof(fh, block, sizeof(block), err, err_info)) {
@@ -170,6 +171,7 @@ static bool mplog_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     if (pkt_type == TYPE_UNKNOWN)
         return false;
 
+    ws_buffer_increase_length(&rec->data, pkt_bytes);
     start_p[0] = ISO14443_PSEUDO_HDR_VER;
 
     if (pkt_type==TYPE_PCD_PICC_A || pkt_type==TYPE_PCD_PICC_B)
