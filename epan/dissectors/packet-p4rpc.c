@@ -187,7 +187,7 @@ static int hf_p4rpc_func; // func value
 static int hf_p4rpc_handle; // handle value
 static int hf_p4rpc_action; // action value
 static int hf_p4rpc_confirm; // confirm value
-static int hf_p4rpc_num_msgs; // num mgs in packet
+static int hf_p4rpc_num_msgs; // num msgs in packet
 static int hf_p4rpc_nul; // NUL terminator byte after param value
 
 // expert fields (for packet warnings, errors, etc)
@@ -558,12 +558,16 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
         // make our "var=val" string
         char *argbuf = wmem_alloc( pinfo->pool, ARGBUF_SZ );
         int bytes_written;
-        /* Pass in bufsz-1 to save space for closing bracket. */
+        // Pass in bufsz-1 to save space for closing bracket.
         bytes_written = snprintf( argbuf, ARGBUF_SZ-1, "%s = {%s",
             (*varname ? varname : (const uint8_t *)"<none>"), varval );
-        /* Returns number of bytes that would have been written (not including
-         * the null terminator) if not for the  buffer size limit. */
-        if (bytes_written > ARGBUF_SZ - 2) { // Possibly truncated
+
+        /*
+         * Returns number of bytes that would have been written
+         * (not including the null terminator) if not for the
+         * buffer size limit.
+         */
+        if( bytes_written > ARGBUF_SZ - 2 ) { // Possibly truncated
             ws_utf8_truncate( argbuf, ARGBUF_SZ-2 ); // ensure no partial char at the end
         }
         (void) g_strlcat( argbuf, "}", ARGBUF_SZ ); // close our bracket
@@ -819,11 +823,8 @@ get_p4rpc_pdu_len( packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
  * - "data" is a pointer to a pdu_info that is a count
  *   of the numbers of messages and PDUs that have been dissected.
  *   Because there is exactly one message in a PDU, these counts
- *   are always equal, but if we ever allow bundling multiple
- *   messages in a PDU then the counts can differ.
- *   I don't expect this will ever happen but it's cheap
- *   to count each of them, so USE_NUM_PDUS and SHOW_NUM_PDUS
- *   default to undefined.
+ *   are always equal, but if the protocol ever allows bundling
+ *   multiple messages in a PDU then the counts can differ.
  */
 static int
 dissect_p4rpc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
@@ -844,8 +845,10 @@ dissect_p4rpc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     col_append_str( pinfo->cinfo, COL_INFO, "}" );
 
     /*
-     * Add [msgs=NN] to the INFO of the packet tree where NN
-     * is the number of messages in the packet
+     * Prefix {msgs=NN} to the INFO of the packet tree where NN
+     * is the number of messages in the packet.
+     * Note: If there are multiple sets of messages then the message
+     * counts will be in reverse order.
      */
     col_prepend_fstr( pinfo->cinfo, COL_INFO,
         (p4prefs.clear_info ? "[msgs=%d]" : "[msgs=%d] "), info.num_msgs );
@@ -927,7 +930,7 @@ dissect_p4rpc_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     /*
      * Assume that this is a P4RPC packet and set p4rpc as the dissector
-     * for the rest of the packets in this conversion.
+     * for the rest of the packets in this conversation.
      */
     conversation_t *conversation = find_or_create_conversation( pinfo );
     if( conversation )
