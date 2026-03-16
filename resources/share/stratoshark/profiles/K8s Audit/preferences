@@ -1,0 +1,12 @@
+# Configuration file for Stratoshark
+#
+# Packet list column format
+# Each pair of strings consists of a column title and its format
+gui.column.format:
+	"No.", "%m",
+	"Time", "%t",
+	"Target", "%Cus:ka.target.name:0:U",
+	"Resource", "%Cus:ka.target.resource:0:U",
+	"User Name", "%Cus:ka.user.name:0:U",
+	"Decision", "%Cus:ka.auth.decision:0:U",
+	"Info", "%i"
