@@ -321,7 +321,7 @@ static bool visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     struct visual_atm_hdr vatm_hdr;
     uint32_t relmsecs;
     uint32_t packet_status;
-    uint8_t *pd;
+    const uint8_t *pd;
 
     /* Read the packet header. */
     if (!wtap_read_bytes_or_eof(fh, &vpkt_hdr, (unsigned int)sizeof vpkt_hdr, err, err_info))

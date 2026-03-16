@@ -189,9 +189,8 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
              * value to the data of the block, and use times from
              * the option to set the time stamp.
              */
-            ws_buffer_assure_space(&wblock->rec->data, length);
             wblock->rec->rec_header.custom_block_header.length = length + 4;
-            memcpy(ws_buffer_start_ptr(&wblock->rec->data), value, length);
+            ws_buffer_append(&wblock->rec->data, value, length);
             memcpy(&temp, value, sizeof(uint64_t));
             temp = GUINT64_FROM_LE(temp);
             nflx_per_section_info = get_nflx_custom_blocK_data(section_info);

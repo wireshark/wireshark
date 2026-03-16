@@ -145,8 +145,8 @@ static bool vms_read(wtap *wth, wtap_rec *rec, int *err,
     char **err_info, int64_t *data_offset);
 static bool vms_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     int *err, char **err_info);
-static bool parse_single_hex_dump_line(char* rec, uint8_t *buf,
-    long byte_offset, int in_off, int remaining_bytes);
+static bool parse_single_hex_dump_line(char* rec, Buffer *buf,
+    int in_off, int remaining_bytes);
 static bool parse_vms_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err,
     char **err_info);
 
@@ -347,7 +347,6 @@ parse_vms_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
     static const char months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
     uint32_t i;
     int     offset = 0;
-    uint8_t *pd;
 
     tm.tm_year = 1970;
     tm.tm_mon = 0;
@@ -446,7 +445,6 @@ parse_vms_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 
     /* Make sure we have enough room for the packet */
     ws_buffer_assure_space(&rec->data, pkt_len);
-    pd = ws_buffer_start_ptr(&rec->data);
 
     /* Convert the ASCII hex dump to binary data */
     for (i = 0; i < pkt_len; i += 16) {
@@ -472,7 +470,7 @@ parse_vms_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
             while (line[offset] && !g_ascii_isxdigit(line[offset]))
                 offset++;
         }
-        if (!parse_single_hex_dump_line(line, pd, i,
+        if (!parse_single_hex_dump_line(line, &rec->data,
                                         offset, pkt_len - i)) {
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup("vms: hex dump not valid");
@@ -515,21 +513,21 @@ parse_vms_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
  * Returns true if good hex dump, false if bad.
  */
 static bool
-parse_single_hex_dump_line(char* rec, uint8_t *buf, long byte_offset,
-               int in_off, int remaining_bytes) {
+parse_single_hex_dump_line(char* rec, Buffer *buf, int in_off,
+                           int remaining_bytes) {
 
     int        i;
     char        *s;
-    int        value;
+    unsigned long value;
     static const int offsets[16] = {39,37,35,33,28,26,24,22,17,15,13,11,6,4,2,0};
     char lbuf[3] = {0,0,0};
-
+    uint8_t *pd;
 
     /* Get the byte_offset directly from the record */
     s = rec;
-    value = (int)strtoul(s + 45 + in_off, NULL, 16);    /* XXX - error check? */
+    value = strtoul(s + 45 + in_off, NULL, 16);    /* XXX - error check? */
 
-    if (value != byte_offset) {
+    if (value != ws_buffer_length(buf)) {
         return false;
     }
 
@@ -539,13 +537,14 @@ parse_single_hex_dump_line(char* rec, uint8_t *buf, long byte_offset,
     /* Read the octets right to left, as that is how they are displayed
      * in VMS.
      */
-
+    pd = ws_buffer_end_ptr(buf);
     for (i = 0; i < remaining_bytes; i++) {
         lbuf[0] = rec[offsets[i] + in_off];
         lbuf[1] = rec[offsets[i] + 1 + in_off];
 
-        buf[byte_offset + i] = (uint8_t) strtoul(lbuf, NULL, 16);
+        pd[i] = (uint8_t) strtoul(lbuf, NULL, 16);
     }
+    ws_buffer_increase_length(buf, remaining_bytes);
 
     return true;
 }

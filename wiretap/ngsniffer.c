@@ -534,6 +534,8 @@ static bool ng_read_bytes_or_eof(wtap *wth, void *buffer,
     unsigned int nbytes, bool is_random, int *err, char **err_info);
 static bool ng_read_bytes(wtap *wth, void *buffer, unsigned int nbytes,
     bool is_random, int *err, char **err_info);
+static bool ng_read_append_buffer(wtap *wth, Buffer *buffer, unsigned int nbytes,
+    bool is_random, int *err, char **err_info);
 static bool read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
     int *err, char **err_info);
 static bool ng_skip_bytes_seq(wtap *wth, unsigned int count, int *err,
@@ -1360,8 +1362,7 @@ process_frame_record(wtap *wth, bool is_random, unsigned *padding,
 	/*
 	 * Read the packet data.
 	 */
-	ws_buffer_assure_space(&rec->data, size);
-	if (!ng_read_bytes(wth, ws_buffer_start_ptr(&rec->data), size, is_random,
+	if (!ng_read_append_buffer(wth, &rec->data, size, is_random,
 	    err, err_info))
 		return false;
 
@@ -2618,6 +2619,18 @@ ng_read_bytes(wtap *wth, void *buffer, unsigned int nbytes, bool is_random,
 			*err = WTAP_ERR_SHORT_READ;
 		return false;
 	}
+	return true;
+}
+
+static bool
+ng_read_append_buffer(wtap *wth, Buffer *buf, unsigned int nbytes, bool is_random,
+    int *err, char **err_info)
+{
+	ws_buffer_assure_space(buf, nbytes);
+	if (!ng_read_bytes(wth, ws_buffer_end_ptr(buf), nbytes, is_random,
+	    err, err_info))
+		return false;
+	ws_buffer_increase_length(buf, nbytes);
 	return true;
 }
 

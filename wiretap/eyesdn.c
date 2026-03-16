@@ -305,6 +305,7 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 	pd = ws_buffer_start_ptr(&rec->data);
 	if (!esc_read(fh, pd, pkt_len, err, err_info))
 		return false;
+	ws_buffer_increase_length(&rec->data, pkt_len);
 	return true;
 }
 
