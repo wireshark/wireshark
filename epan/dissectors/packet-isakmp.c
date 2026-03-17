@@ -1778,13 +1778,13 @@ static const range_string vs_v2_cfgattr[] = {
   { 2,2,         "INTERNAL_IP4_NETMASK" },
   { 3,3,         "INTERNAL_IP4_DNS" },
   { 4,4,         "INTERNAL_IP4_NBNS" },
-  { 5,5,         "RESERVED" },                  /* [RFC7296] */
+  { 5,5,         "INTERNAL_ADDRESS_EXPIRY" },   /* OBSO [RFC5996] */
   { 6,6,         "INTERNAL_IP4_DHCP" },
   { 7,7,         "APPLICATION_VERSION" },
   { 8,8,         "INTERNAL_IP6_ADDRESS" },
   { 9,9,         "RESERVED" },
   { 10,10,       "INTERNAL_IP6_DNS" },
-  { 11,11,       "RESERVED" },                  /* [RFC7296] */
+  { 11,11,       "INTERNAL_IP6_NBNS" },         /* OBSO [RFC5996] */
   { 12,12,       "INTERNAL_IP6_DHCP" },
   { 13,13,       "INTERNAL_IP4_SUBNET" },
   { 14,14,       "SUPPORTED_ATTRIBUTES" },
