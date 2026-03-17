@@ -139,6 +139,9 @@
             <Component Id="cmpAMRNB_dll" Guid="*">
                 <File Id="filAMRNB_dec_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\amrnb.dll" />
             </Component>
+            <Component Id="cmpAMRWB_dll" Guid="*">
+                <File Id="filAMRWB_dec_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\amrwb.dll" />
+            </Component>
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -152,6 +155,7 @@
             <ComponentRef Id="cmpILBC_dll" />
             <ComponentRef Id="cmpOPUS_dll" />
             <ComponentRef Id="cmpAMRNB_dll" />
+            <ComponentRef Id="cmpAMRWB_dll" />
         </ComponentGroup>
     </Fragment>
 
