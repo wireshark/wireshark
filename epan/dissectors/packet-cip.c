@@ -3557,6 +3557,8 @@ const value_string cip_class_names_vals[] = {
    { 0x10F,    "Select Line Link"               },
    { 0x110,    "In-Cabinet Actual Topology"     },
    { 0x111,    "In-Cabinet Commissioning"       },
+   { 0x112,    "Process Measurement Value"      },
+   { 0x113,    "Process Totalized Value"        },
 
    { 0,        NULL                             }
 };
