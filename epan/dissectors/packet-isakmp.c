@@ -5202,7 +5202,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned lengt
         offset_buf += 2;
 
         /* SHA1 hash of the concatenated fields. */
-        unsigned char sha1_buf[HASH_SHA1_LENGTH];
+        unsigned char sha1_buf[HASH_SHA1_LENGTH] = {0};
         gcry_md_hash_buffer(GCRY_MD_SHA1, sha1_buf, buf, offset_buf);
 
         /* Notification_data in tvb*/

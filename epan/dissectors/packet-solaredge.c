@@ -1063,7 +1063,7 @@ bool solaredge_decrypt(wmem_allocator_t *scratch, const uint8_t *in, int length,
 	if (length < SOLAREDGE_ENCRYPTION_KEY_LENGTH + 6) {
 		return false;
 	}
-	uint8_t rand1[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
+	uint8_t rand1[SOLAREDGE_ENCRYPTION_KEY_LENGTH] = {0};
 	uint8_t rand2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
 	int payload_length = length - SOLAREDGE_ENCRYPTION_KEY_LENGTH;
 	const uint8_t *payload = in + SOLAREDGE_ENCRYPTION_KEY_LENGTH;
