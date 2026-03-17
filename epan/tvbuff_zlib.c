@@ -34,6 +34,8 @@ tvbuff_t *
 tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 {
 	int        err;
+	/* bytes_out is an unsigned because tvb_new_real_data does not accept
+	 * more than an unsigned. */
 	unsigned   bytes_out      = 0;
 	uint8_t   *compr;
 	uint8_t   *uncompr        = NULL;
@@ -60,8 +62,11 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 	 * Assume that the uncompressed data is at least twice as big as
 	 * the compressed size.
 	 */
-	bufsiz = tvb_captured_length_remaining(tvb, offset) * 2;
-	bufsiz = CLAMP(bufsiz, TVB_Z_MIN_BUFSIZ, TVB_Z_MAX_BUFSIZ);
+	if (ckd_mul(&bufsiz, bytes_in, 2)) {
+		bufsiz = TVB_Z_MAX_BUFSIZ;
+	} else {
+		bufsiz = CLAMP(bufsiz, TVB_Z_MIN_BUFSIZ, TVB_Z_MAX_BUFSIZ);
+	}
 
 	ws_debug("bufsiz: %u bytes\n", bufsiz);
 
@@ -95,6 +100,19 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 		if (err == Z_OK || err == Z_STREAM_END) {
 			unsigned bytes_pass = bufsiz - strm->avail_out;
 
+			// This is an unsigned long, but won't overflow even
+			// on platforms where that is 32-bit, because bufsize
+			// is clamped, if we break when it reaches INT_MAX.
+			if (strm->total_out > INT_MAX) {
+				// Qt uses signed ints in various classes, so
+				// the GUI can't really handle anything
+				ws_debug("overflow, returning what we have");
+				ZLIB_PREFIX(inflateEnd)(strm);
+				g_free(strm);
+				g_free(strmbuf);
+				break;
+			}
+
 			++inflate_passes;
 
 			if (uncompr == NULL) {
@@ -115,6 +133,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 			}
 
 			bytes_out += bytes_pass;
+			ws_assert(bytes_out == strm->total_out);
 
 			if (err == Z_STREAM_END) {
 				ZLIB_PREFIX(inflateEnd)(strm);
@@ -297,7 +316,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 	ws_debug("bytes  in: %u\nbytes out: %u\n\n", bytes_in, bytes_out);
 
 	if (uncompr != NULL) {
-		uncompr_tvb =  tvb_new_real_data(uncompr, bytes_out, bytes_out);
+		uncompr_tvb = tvb_new_real_data(uncompr, bytes_out, bytes_out);
 		tvb_set_free_cb(uncompr_tvb, g_free);
 	}
 	wmem_free(NULL, compr);

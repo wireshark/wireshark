@@ -851,7 +851,11 @@ ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len)
          * adds at least another 128 bytes, which is more than enough \
          * for one more character plus a terminating '\0'. \
          */ \
-        fmtbuf_len *= 2; \
+        if (ckd_mul(&fmtbuf_len, fmtbuf_len, 2)) { \
+            ws_debug("overflow!"); \
+            FMTBUF_ENDSTR; \
+            return fmtbuf; \
+        } \
         fmtbuf = (char *)wmem_realloc(allocator, fmtbuf, fmtbuf_len); \
     }
 
