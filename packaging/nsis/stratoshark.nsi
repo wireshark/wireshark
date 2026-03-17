@@ -946,7 +946,7 @@ File "${STAGING_DIR}\plugins\wireshark\${MAJOR_VERSION}.${MINOR_VERSION}\epan\st
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
 File "${STAGING_DIR}\plugins\wireshark\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
 
-!include wireshark-profile-manifest.nsh
+!include stratoshark-profile-manifest.nsh
 
 !ifdef SMI_DIR
 ;-------------------------------------------
