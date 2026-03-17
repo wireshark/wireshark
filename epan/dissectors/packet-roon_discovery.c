@@ -71,6 +71,7 @@ static int roon_tap;
 
 // Initialize the protocol and registered fields
 static int proto_roon_discover;
+static int hf_roon_disco_code_signing_keys;
 static int hf_roon_disco_config_version;
 static int hf_roon_disco_device_type;
 static int hf_roon_disco_device_class;
@@ -106,7 +107,7 @@ static int hf_roon_disco_no_resp;
 #define ROON_QUERY 0x0251 // Q(uery)
 #define ROON_REPLY 0x0252 // R(eply)
 #define ROON_DISCOVERY_UDP_PORT 9003 // Not IANA-assigned
-#define ROON_DISCOVERY_MIN_LENGTH 98 // empirically defined
+#define ROON_DISCOVERY_MIN_LENGTH 96 // empirically defined
 
 // Initialize the subtree pointers
 static int ett_roon_discover;
@@ -115,6 +116,7 @@ static int ett_roon_discover;
 // must be sorted by they key field.
 static const roon_map roon_disco_string_fields[] = {
     { "_tid"             , "TransactionID"    , &hf_roon_disco_tid }              ,
+    { "code_signing_keys", "Code Signing Keys", &hf_roon_disco_code_signing_keys },
     { "config_version"   , "Config Version"   , &hf_roon_disco_config_version }   ,
     { "device_class"     , "Device Class"     , &hf_roon_disco_device_class }     ,
     { "device_type"      , "Device Type"      , &hf_roon_disco_device_type }      ,
@@ -459,6 +461,10 @@ proto_register_roon_discover(void)
           { "UniqueID", "roon_disco.unique_id",
               FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 
+        { &hf_roon_disco_code_signing_keys,
+            { "Code Signing Keys", "roon_disco.code_signing_keys",
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+
         // Transaction tracking fields
         { &hf_roon_disco_resp_in,
           { "Response frame", "roon_disco.resp_in",
@@ -478,7 +484,7 @@ proto_register_roon_discover(void)
         { &hf_roon_disco_resptime,
           { "Response time", "roon_disco.resptime",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
-            "The time between the request and the response, in ms.", HFILL } },
+            "The time between the request and the response, in ms", HFILL } },
     };
 
     // Setup protocol subtree array
