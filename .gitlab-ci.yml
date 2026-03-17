@@ -1040,7 +1040,7 @@ AI Trailer Reminder:
   needs: []
   allow_failure: true
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - !reference [.if-plain-merge-request]
     - if: '$CI_PIPELINE_SOURCE == "push"'
   script:
     - |
