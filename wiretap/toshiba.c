@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <wsutil/ws_roundup.h>
+
 /* This module reads the output of the 'snoop' command in the Toshiba
  * TR-600 and TR-650 "Compact" ISDN Routers. You can telnet to the
  * router and run 'snoop' on the different channels, and at different
@@ -91,7 +93,7 @@ static bool toshiba_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 static bool toshiba_seek_read(wtap *wth, int64_t seek_off,
 	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 static bool parse_single_hex_dump_line(char* rec, uint8_t *buf,
-	unsigned byte_offset);
+	unsigned byte_offset, unsigned remaining_groups);
 static bool parse_toshiba_packet(FILE_T fh, wtap_rec *rec,
 	Buffer *buf, int *err, char **err_info);
 
@@ -343,7 +345,9 @@ parse_toshiba_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	}
 
 	/* Make sure we have enough room for the packet */
-	ws_buffer_assure_space(buf, pkt_len);
+	/* Round up because the format writes in groups of 2 bytes (4 hex). */
+	unsigned rounded_len = WS_ROUNDUP_2(pkt_len);
+	ws_buffer_assure_space(buf, rounded_len);
 	pd = ws_buffer_start_ptr(buf);
 
 	/* Calculate the number of hex dump lines, each
@@ -358,7 +362,7 @@ parse_toshiba_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 			}
 			return false;
 		}
-		if (!parse_single_hex_dump_line(line, pd, i * 16)) {
+		if (!parse_single_hex_dump_line(line, pd, i * 16, rounded_len/2 - i * 8)) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("toshiba: hex dump not valid");
 			return false;
@@ -372,11 +376,10 @@ parse_toshiba_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 0123456789012345678901234567890123456789012345
 0000 : FF03 003D C000 0008 2145 0000 3A12 6500 ...=....!E..:.e.
 0010 : 003F 11E6 58CF C11A 8897 A401 0804 0400 .?..X...........
-0020 : 0100 01                                 ...
+0020 : 0100 0100                               ....
 */
 
 #define START_POS	7
-#define HEX_LENGTH	((8 * 4) + 7) /* eight clumps of 4 bytes with 7 inner spaces */
 
 /* Take a string representing one line from a hex dump and converts the
  * text to binary data. We check the printed offset with the offset
@@ -388,12 +391,26 @@ parse_toshiba_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
  * Returns true if good hex dump, false if bad.
  */
 static bool
-parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset) {
+parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset, unsigned remaining_groups) {
 
-	int		pos, i;
+	unsigned	pos, i;
 	char		*s;
 	unsigned long	value;
-	uint16_t		word_value;
+	uint16_t	word_value;
+	unsigned	hex_len;
+
+	if (remaining_groups > 8) {
+		remaining_groups = 8;
+	}
+
+	/* Samples of the format show that it always writes groups of 4 hex
+	 * characters; when the number of bytes in the packet is odd, 00 is
+	 * placed at the end of the last group, so there should be 4 bytes
+	 * plus a space for each group except the last can end with '\0'. */
+	hex_len = remaining_groups*5 - 1;
+	if (strlen(rec) < START_POS + hex_len) {
+		return false;
+	}
 
 	/* Get the byte_offset directly from the record */
 	rec[4] = '\0';
@@ -411,14 +428,14 @@ parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset) {
 	 * Then read the eight sets of hex bytes
 	 */
 
-	for (pos = START_POS; pos < START_POS + HEX_LENGTH; pos++) {
+	for (pos = START_POS; pos < START_POS + hex_len; pos++) {
 		if (rec[pos] == ' ') {
 			rec[pos] = '0';
 		}
 	}
 
 	pos = START_POS;
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < remaining_groups; i++) {
 		rec[pos+4] = '\0';
 
 		word_value = (uint16_t) strtoul(&rec[pos], NULL, 16);
