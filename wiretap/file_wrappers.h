@@ -98,14 +98,15 @@ WS_DLL_PUBLIC int file_getc(FILE_T stream);
 WS_DLL_PUBLIC char *file_gets(char *buf, int len, FILE_T stream);
 
 /**
- * @brief Read a line from the file, skipping leading whitespace.
+ * @brief Read a line from the file, returning a pointer to the end.
  *
- * Similar to file_gets(), but trims leading spaces before reading.
+ * Similar to file_gets(), but returns a pointer to the terminating '\0'
+ * in buf on success.
  *
  * @param buf Destination buffer.
  * @param len Buffer size.
  * @param stream File handle.
- * @return @p buf on success, or NULL on error or EOF.
+ * @return @p to the terminating '\0' on success, or NULL on error or EOF.
  */
 WS_DLL_PUBLIC char *file_getsp(char *buf, int len, FILE_T stream);
 
