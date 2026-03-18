@@ -204,7 +204,7 @@ if(APPLE)
 
   if(need_falco_libs)
     add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.23.1-1-macos-universal.tar.xz de2f0b8952483393b3994eb09cdf52cb9b36fb9c4e8f6308bea8ff318d80de10)
-    add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-11-24-1-macos-universal.tar.xz 18909fb6dc197a125f6e21c22a08414bb43fef1474b8ed8664784321ef9b65eb)
+    add_artifact(falcosecurity-libs/falcosecurity-plugins-2026-03-16-1-macos-universal.tar.xz e571bceed45bbeb514d71e9078a0d39c9f1f814ccd70d3abdad355115add4805)
   endif()
 elseif(WIN32)
   if(WIRESHARK_TARGET_PLATFORM STREQUAL "x64")

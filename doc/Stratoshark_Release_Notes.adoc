@@ -40,6 +40,8 @@ The following changes have been made since version 0.9.3:
 
 * Stratoshark and strato can now read plain Kubernetes Audit logs and Google Cloud Audit logs, and CloudTrail logs.
 
+* The CloudTrail and Google Cloud Audit log plugins have been translated to Rust on macOS. wsbuglink:20869[]
+
 The following changes have been made since version 0.9.2:
 
 * The Windows installers now ship with Qt 6.8.3.
