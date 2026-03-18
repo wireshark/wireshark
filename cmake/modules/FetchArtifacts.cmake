@@ -240,7 +240,7 @@ elseif(WIN32)
 
     if(need_falco_libs)
       add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.23.1-1-x64-ws.7z 61f9dc5fc580b4d9941fbbc40fab31b5239acdd376fe5c7a861ef799bcb59eb7)
-      add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-11-24-1-x64-ws.7z 6e233a488fc2f95f1fc112fcb4eccb9847262fc3c4fa44bc08b05e1034f92ccd)
+      add_artifact(falcosecurity-libs/falcosecurity-plugins-2026-03-16-2-x64-ws.7z 3a90c406e1c8e62175ac138f12046554b4c49a2303012e2c9680bd1f48fdc114)
     endif()
   else() # Arm64
     add_artifact(bcg729/bcg729-1.1.1-1-win64armws.zip f4d76b9acf0d0e12e87a020e9805d136a0e8775e061eeec23910a10828153625)
@@ -272,7 +272,7 @@ elseif(WIN32)
 
     if(need_falco_libs)
       add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.23.1-1-arm64-ws.7z 5d1c9588538c4b20c92eeaaba2e255077cbbbe643a75d3c152335b40ba9e22fc)
-      add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-11-24-1-arm64-ws.7z 0ac66e74fa21cdcc26e2e03f7bf3802f57f44b831c26c1a621e8d89f09c6bf8a)
+      add_artifact(falcosecurity-libs/falcosecurity-plugins-2026-03-16-2-arm64-ws.7z 46912192dde43b47f97038fbe64415f25fbbe4416b96ca7cdaa0c9039c0a8f1e)
     endif()
   endif()
   add_artifact(asciidoctor/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws.7z d1dae73dd61ded005b8f1f2d7d19bd08e6edbeed216428e8ab898267229d150b)

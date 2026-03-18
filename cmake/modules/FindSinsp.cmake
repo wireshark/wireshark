@@ -16,6 +16,7 @@
 
 # You must manually set the following variables:
 #  FALCO_PLUGINS        - Paths to plugins built from https://github.com/falcosecurity/plugins/.
+#  FALCO_PLUGIN_DLLS    - Paths to DLLs that plugins depend on.
 
 # To do:
 #  SINSP_DLL_DIR        - (Windows) Path to the libsinsp and libscap DLLs

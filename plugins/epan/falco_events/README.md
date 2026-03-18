@@ -18,6 +18,10 @@ cmake \
     [other cmake args]
 ```
 
+If your plugins were written in Rust, on Windows you will have to add
+`-DFALCO_PLUGIN_DLLS="C:\path\to\libunwind.dll`
+as well.
+
 ## Quick Start
 
 1. Create a directory named "falco" one level above the "epan" plugin folder.
