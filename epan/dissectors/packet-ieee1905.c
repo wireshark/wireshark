@@ -139,7 +139,7 @@ static int hf_ieee1905_ipv6_type_count;
 static int hf_ieee1905_ipv6_addr_count;
 static int hf_ieee1905_ipv6_addr_type;
 static int hf_ieee1905_ipv6_addr;
-static int hf_ieee1905_ipv6_dhcp_server;
+static int hf_ieee1905_ipv6_address_origin;
 static int hf_ieee1905_generic_phy_media_types;
 static int hf_ieee1905_profile_version;
 static int hf_ieee1905_power_off_intf_count;
@@ -2518,11 +2518,11 @@ dissect_ipv4_type(tvbuff_t *tvb, packet_info *pinfo _U_,
             offset++;
 
             proto_tree_add_item(addr_tree, hf_ieee1905_ipv4_addr, tvb,
-                        offset, 4, ENC_LITTLE_ENDIAN);
+                        offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             proto_tree_add_item(addr_tree, hf_ieee1905_dhcp_server, tvb,
-                        offset, 4, ENC_LITTLE_ENDIAN);
+                        offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             addr_index++;
@@ -2618,7 +2618,7 @@ dissect_ipv6_type(tvbuff_t *tvb, packet_info *pinfo _U_,
                         offset, 16, ENC_NA);
             offset += 16;
 
-            proto_tree_add_item(addr_tree, hf_ieee1905_ipv6_dhcp_server, tvb,
+            proto_tree_add_item(addr_tree, hf_ieee1905_ipv6_address_origin, tvb,
                         offset, 16, ENC_NA);
             offset += 16;
 
@@ -10180,8 +10180,8 @@ proto_register_ieee1905(void)
           { "IPv6 address", "ieee1905.ipv6_type.ipv6_addr",
             FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1905_ipv6_dhcp_server,
-          { "DHCP server", "ieee1905.ipv6_type.dhcp_server",
+        { &hf_ieee1905_ipv6_address_origin,
+          { "Address origin", "ieee1905.ipv6_type.address_origin",
             FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_generic_phy_media_types,
