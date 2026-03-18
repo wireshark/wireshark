@@ -2668,7 +2668,7 @@ void proto_register_trdp(void) {
     bitsetenumvals = wmem_alloc0_array(wmem_epan_scope(), enum_val_t, bitset_types + 1);
     for (gsize i = 0; i < bitset_types; i++) {
         bitsetenumvals[i].description = ElBasics[bitset_offset+i].name;
-        bitsetenumvals[i].name = g_ascii_strdown(ElBasics[bitset_offset+i].name, -1);
+        bitsetenumvals[i].name = wmem_ascii_strdown(wmem_epan_scope(), ElBasics[bitset_offset+i].name, -1);
         bitsetenumvals[i].value = (int)ElBasics[bitset_offset+i].subtype;
     }
 
