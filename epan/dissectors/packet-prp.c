@@ -69,7 +69,7 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
      * Is there enough data in the packet to every try to search for a
      * trailer?
      */
-    if (!tvb_bytes_exist(tvb, (length-4)+2, 2))
+    if (length < 4 || !tvb_bytes_exist(tvb, (length-4)+2, 2))
         return 0;  /* no */
 
     if (data == NULL) {
