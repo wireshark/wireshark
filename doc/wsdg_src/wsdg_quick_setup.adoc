@@ -844,7 +844,7 @@ If successful the installer can be found in `$CMAKE_BINARY_DIR/packaging/nsis`.
 
 * Some optional dependencies are missing from Fedora repositories and must be
   compiled from source if desired. An up-to-date complete list can be found in
-  the bug tracker (https://gitlab.com/wireshark/wireshark/-/issues/19108[issue 19108]).
+  the bug tracker (https://gitlab.com/wireshark/wireshark/-/work_items/19108[issue 19108]).
 
 * Lua does not have https://github.com/Lekensteyn/lua-unicode[custom UTF-8 patches].
 

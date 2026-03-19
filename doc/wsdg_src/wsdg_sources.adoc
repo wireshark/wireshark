@@ -926,7 +926,7 @@ Limit each line to 80 characters.
 
 Keep in mind that the commit's diffs will show precisely _what_ was changed.  The most useful commit messages provide a concise _overview_, explain _why_ the change was made (if it is not obvious), and give more in-depth explanation _where needed_.
 
-You can also reference and close issues in a commit message by prefixing the issue number with a https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically[number sign].
+You can also reference and close issues in a commit message by prefixing the issue number with a https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically[number sign].
 For example, “closes #5” will close issue number 5.
 
 Other https://docs.gitlab.com/user/markdown/#gitlab-specific-references[GitLab-specific references] are `!` for a merge request and the short (8 character) hash for a commit.

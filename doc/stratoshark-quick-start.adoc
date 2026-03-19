@@ -3,7 +3,7 @@
 Stratoshark is a sibling application for Wireshark which focuses on system calls and log messages.
 It helps people understand, troubleshoot, and secure their systems via system calls and log messages similar to the way Wireshark helps people understand, troubleshoot, and secure their networks via packets.
 
-This document provides brief instructions for obtaining, using, and building Stratoshark until more complete documentation https://gitlab.com/wireshark/wireshark/-/issues/20303[comparable to the Wireshark Developer’s and User’s Guides can be written].
+This document provides brief instructions for obtaining, using, and building Stratoshark until more complete documentation https://gitlab.com/wireshark/wireshark/-/work_items/20303[comparable to the Wireshark Developer’s and User’s Guides can be written].
 
 == Getting Stratoshark
 

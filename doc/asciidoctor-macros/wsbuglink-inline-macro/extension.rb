@@ -19,7 +19,7 @@ class WSBugLinkInlineMacro < Extensions::InlineMacroProcessor
 
   def process(parent, issueid, attrs)
     bugtext = !attrs['text'].nil_or_empty? ? attrs['text'] : %(Issue #{issueid})
-    target = %(https://gitlab.com/wireshark/wireshark/-/issues/#{issueid})
+    target = %(https://gitlab.com/wireshark/wireshark/-/work_items/#{issueid})
     create_doc_links(parent, target, bugtext)
   end
 end

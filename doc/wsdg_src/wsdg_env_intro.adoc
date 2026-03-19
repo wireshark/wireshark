@@ -198,7 +198,7 @@ We currently offer the following types of precompiled packages as part of each o
 
 * Windows .msi installer.
   This installs Wireshark using Microsoft’s https://docs.microsoft.com/en-us/windows/win32/msi/installer-database[Installer Database], created using the https://wixtoolset.org/[WiX toolset].
-  It does not yet include Npcap or USBPcap and is somewhat https://gitlab.com/wireshark/wireshark/-/issues/8814[experimental].
+  It does not yet include Npcap or USBPcap and is somewhat https://gitlab.com/wireshark/wireshark/-/work_items/8814[experimental].
 
 * macOS .dmg.
   This is a disk image which includes a drag-installable Wireshark application bundle along with utility packages for installing ChmodBPF and adding Wireshark to your PATH environment variable.
