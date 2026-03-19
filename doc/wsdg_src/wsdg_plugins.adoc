@@ -44,9 +44,69 @@ Examples of these files can be found in plugins/epan/gryphon.
 
 ==== CMakeLists.txt
 
-For your _plugins/epan/foo/CMakeLists.txt_ file, see the corresponding file in
+Your _plugins/epan/foo/CMakeLists.txt_ file gives directions to
+<<ChToolsCMake,CMake>> for compiling and linking your plugin.
+For simple cases, you can copy the corresponding file in
 _plugins/epan/gryphon_.  Replace all occurrences of "gryphon" in those files
 with "foo" and add your source files to the DISSECTOR_SRC variable.
+
+The important elements of this file are, in order of appearance:
+
+include(WiresharkPlugin)::
+Defines some important macros.
+Must be the first non-comment line in the file.
+
+set_module_info(foo 0 0 1 0)::
+Defines the name of your library and its major, minor, micro, and extra version numbers.
+
+set(DISSECTOR_SRC ...)::
+Defines all source code files that are directly involved in your plugin.
+Typically these are the files which include the actual registration of your dissector.
+
+set(DISSECTOR_SUPPORT_SRC ...)::
+Defines source code files which provide support functions used by your plugin.
+This is only needed if you have support functions are separate files from those in _DISSECTOR_SRC_.
+
+set(DISSECTOR_HEADERS ...)::
+If your dissector exposes any of its functions in header files, you can list those here.
+Alternatively, you can use this snippet to automatically find and include all header files:
+
+.CMake snippet
+----
+file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
+----
+
+set(PLUGIN_FILES ...)::
+This should include _plugin.c_ (which is automatically generated)
+and _${DISSECTOR_SRC}_, as well as _${DISSECTOR_SUPPORT_SRC}_ if applicable.
+
+set_source_files_properties(...)::
+// XXX: This seems like needless boilerplate since it's the same in every CMakeLists.txt,
+// could it be incorporated in one of our functions/macros?
+This should match what's in _plugins/epan/gryphon/CMakeLists.txt_.
+
+register_plugin_files(...)::
+// XXX: This seems like needless boilerplate since it's the same in every CMakeLists.txt,
+// could it be incorporated in one of our functions/macros?
+This should match what's in _plugins/epan/gryphon/CMakeLists.txt_.
+If your plugin uses _DISSECTOR_SUPPORT_SRC_ then it should also be included here.
+
+add_wireshark_plugin_library(foo epan)::
+Informs CMake that your _foo_ plugin is a dissector plugin (ie, epan).
+
+target_link_libraries(foo epan ...)::
+Lists libraries that your plugin should be linked against.
+This must be _epan_ at a minimum.
+If your plugin uses other libraries such as _gcrypt_ or _libxml2_ then you will also need
+to list the appropriate CMake variable names here.
+See <<ChToolsCMakeIdioms>> for information about depending on specific libraries.
+
+CHECKAPI(NAME foo ...)::
+// XXX: This seems like needless boilerplate since it's the same in every CMakeLists.txt,
+// could it be incorporated in one of our functions/macros?
+This should match what's in _plugins/epan/gryphon/CMakeLists.txt_.
+If your plugin uses _DISSECTOR_SUPPORT_SRC_ or _DISSECTOR_HEADERS_
+then they should also be included here.
 
 ==== plugin.rc.in
 

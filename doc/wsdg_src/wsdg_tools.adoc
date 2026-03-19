@@ -170,6 +170,39 @@ Useful variables: https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/Use
 
 Frequently Asked Questions: https://gitlab.kitware.com/cmake/community/wikis/FAQ
 
+[#ChToolsCMakeIdioms]
+
+==== CMake Idioms
+
+If you will be creating or editing CMake files,
+you will need to be aware of some idioms in use in the Wireshark source code.
+
+[NOTE]
+.When in doubt, check the source
+====
+As with most open-source software, this documentation can fall behind what's actually in use.
+Check the root _CMakeLists.txt_ file and the files in _cmake/modules/_
+to see the most current information.
+====
+
+.Library dependencies.
+Most dependencies are imported via the CMake _find_package()_ command.
+The mechanics of finding a particular package _foo_ are often specified in the relevant
+_cmake/modules/FindFoo.cmake_ file, but they will usually define a variable
+_FOO_INCLUDE_DIRS_ for helping future CMake commands find the _foo_ header files,
+along with a _FOO_LIBRARIES_ variable listing the compiled library files for linking.
+Both variables will be empty if the corresponding dependency is not found.
+
+Most dependencies are intuitively named, but there are some exceptions:
+
+* **_Lib_ prefix:** Most libraries do not have any added prefix to their names.
+_LIBXML2_ and _LIBSSH_ are two notable exceptions.
+
+* **Mathematics:** The name of this library is simply _M_ (_M_INCLUDE_DIRS_, _M_LIBRARIES_).
+
+* **Netlink:** The name of this library is _NL_.
+
+
 [#ChToolsGNUChain]
 
 === GNU Compiler Toolchain (UNIX And UNIX-like Platforms)
