@@ -6867,6 +6867,7 @@ static int hf_ieee80211_vs_nintendo_unknown;
 
 static int hf_ieee80211_vs_aruba_subtype;
 static int hf_ieee80211_vs_aruba_apname;
+static int hf_ieee80211_vs_aruba_arm;
 static int hf_ieee80211_vs_aruba_data;
 static int hf_ieee80211_vs_aruba_gps_length;
 static int hf_ieee80211_vs_aruba_gps_subversion;
@@ -21618,6 +21619,13 @@ static const value_string ieee80211_vs_aruba_subtype_vals[] = {
   { ARUBA_AP_HEALTH, "AP Health"},
   { 0,                 NULL }
 };
+
+static void
+vs_aruba_arm_custom(char *result, uint32_t arm)
+{
+  snprintf(result, ITEM_LABEL_LENGTH, "%d dBm", (4 * arm));
+}
+
 static void
 dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
                           tvbuff_t *tvb, int offset, uint32_t tag_len, packet_info *pinfo)
@@ -21641,6 +21649,17 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
     proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_aruba_apname, tvb,
                          offset, tag_len, ENC_ASCII|ENC_NA, pinfo->pool, &name);
     proto_item_append_text(item, " (%s)", name);
+    break;
+
+  case ARUBA_ARM:
+    //offset += 1;
+
+    proto_tree_add_item(ietree, hf_ieee80211_vs_aruba_data, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(ietree, hf_ieee80211_vs_aruba_arm, tvb,
+                        offset, 1, ENC_NA);
     break;
 
   case ARUBA_GPS:
@@ -55452,6 +55471,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_vs_aruba_apname,
      {"AP Name", "wlan.vs.aruba.ap_name",
       FT_STRINGZ, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_aruba_arm,
+     {"ARM", "wlan.vs.aruba.arm",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(vs_aruba_arm_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vs_aruba_data,
