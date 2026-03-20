@@ -54,6 +54,52 @@
 #define UDP_SRC_PORT                ((uint16_t) 13337)  /* Based on SCAT (assumingly P2P related) */
 #define UDP_DST_PORT                ((uint16_t) 47290)  /* User plane UDP port based on GSMTAP port 4729 */
 
+#define NR_PDU_BCCH_BCH             "BCCH-BCH-Message"
+#define NR_PDU_BCCH_DL_SCH          "BCCH-DL-SCH-Message"
+#define NR_PDU_DL_CCCH              "DL-CCCH-Message"
+#define NR_PDU_DL_DCCH              "DL-DCCH-Message"
+#define NR_PDU_MCCH                 "MCCH-Message"
+#define NR_PDU_PCCH                 "PCCH-Message"
+#define NR_PDU_UL_CCCH              "UL-CCCH-Message"
+#define NR_PDU_UL_CCCH1             "UL-CCCH1-Message"
+#define NR_PDU_UL_DCCH              "UL-DCCH-Message"
+#define NR_PDU_RRC_RECONF           "RRC Reconfiguration"
+#define NR_PDU_RRC_RECONF_COMPL     "RRC Reconfiguration Complete"
+#define NR_PDU_SIB2                 "SIB2"
+#define NR_PDU_SIB3                 "SIB3"
+#define NR_PDU_SIB4                 "SIB4"
+#define NR_PDU_SIB5                 "SIB5"
+#define NR_PDU_SIB6                 "SIB6"
+#define NR_PDU_SIB7                 "SIB7"
+#define NR_PDU_SIB8                 "SIB8"
+#define NR_PDU_SIB9                 "SIB9"
+#define NR_PDU_RADIOBEARERCONF      "RadioBearerConfig"
+#define NR_PDU_UE_MRDC_CAP          "UE-MRDC-Capability"
+#define NR_PDU_UE_NR_CAP            "UE-NR-Capability"
+#define NR_PDU_CG_CF_INFO           "CG-ConfigInfo"
+#define NR_PDU_UE_CAP_RAT_CL        "UE-CapabilityRAT-ContainerList"
+#define NR_PDU_CELL_GRP_CFG         "CellGroupConfig"
+#define NR_PDU_UE_RA_CAP_INF        "UERadioAccessCapabilityInformation"
+#define NR_PDU_MEAS_CFG             "MeasConfig"
+#define NR_PDU_MEAS_GAP_CFG         "MeasGapConfig"
+#define NR_PDU_HO_CMD               "HandoverCommand"
+#define NR_PDU_HO_PREP_INFO         "HandoverPreparationInformation"
+#define NR_PDU_BCCH_BCH_MBMS        "BCCH-BCH-MBMS-Message"
+#define NR_PDU_BCCH_DL_SCH_BR       "BCCH-DL-SCH-BR-Message"
+#define NR_PDU_BCCH_DL_SCH_MBMS     "BCCH-DL-SCH-MBMS-Message"
+#define NR_PDU_SC_MCCH              "SC-MCCH-Message"
+#define NR_PDU_SBCCH_SL_BCH         "SBCCH-SL-BCH-Message"
+#define NR_PDU_SBCCH_SL_BCH_V2X     "SBCCH-SL-BCH-V2X-Message"
+#define NR_PDU_DL_CCCH_NB           "DL-CCCH-NB-Message"
+#define NR_PDU_DL_DCCH_NB           "DL-DCCH-NB-Message"
+#define NR_PDU_UL_CCCH_NB           "UL-CCCH-NB-Message"
+#define NR_PDU_UL_DCCH_NB           "UL-DCCH-NB-Message"
+#define NR_PDU_BCCH_BCH_NB          "BCCH-BCH-NB-Message"
+#define NR_PDU_BCCH_BCH_TDD_NB      "BCCH-BCH-TDD-NB-Message"
+#define NR_PDU_BCCH_DL_SCH_NB       "BCCH-DL-SCH-NB-Message"
+#define NR_PDU_PCCH_NB              "PCCH-NB-Message"
+#define NR_PDU_SC_MCCH_NB           "SC_MCCH-NB-Message"
+
 void proto_register_qcdiag_log(void);
 void proto_reg_handoff_qcdiag_log(void);
 
@@ -61,6 +107,28 @@ static dissector_handle_t data_handle;
 static dissector_handle_t text_lines_handle;
 static dissector_handle_t udp_handle;
 static dissector_handle_t gsmtap_handle;
+static dissector_handle_t nas5gs_handle;
+static dissector_handle_t nr_rrc_bcch_bch_handle;
+static dissector_handle_t nr_rrc_bcch_dl_sch_handle;
+static dissector_handle_t nr_rrc_pcch_handle;
+static dissector_handle_t nr_rrc_ul_dcch_handle;
+static dissector_handle_t nr_rrc_dl_dcch_handle;
+static dissector_handle_t nr_rrc_ul_ccch_handle;
+static dissector_handle_t nr_rrc_dl_ccch_handle;
+static dissector_handle_t nr_rrc_ul_ccch1_handle;
+static dissector_handle_t nr_rrc_reconf_handle;
+static dissector_handle_t nr_rrc_reconf_compl_handle;
+static dissector_handle_t nr_rrc_radiobearerconfig_handle;
+static dissector_handle_t nr_rrc_ue_mrdc_cap_handle;
+static dissector_handle_t nr_rrc_ue_nr_cap_handle;
+static dissector_handle_t nr_rrc_sib2_handle;
+static dissector_handle_t nr_rrc_sib3_handle;
+static dissector_handle_t nr_rrc_sib4_handle;
+static dissector_handle_t nr_rrc_sib5_handle;
+static dissector_handle_t nr_rrc_sib6_handle;
+static dissector_handle_t nr_rrc_sib7_handle;
+static dissector_handle_t nr_rrc_sib8_handle;
+static dissector_handle_t nr_rrc_sib9_handle;
 
 static dissector_table_t qcdiag_log_code_dissector_table;
 
@@ -80,6 +148,7 @@ static int hf_qcdiag_packet_ver;
 static int hf_qcdiag_lte_rrc_rel;
 static int hf_qcdiag_nr_rrc_rel;
 static int hf_qcdiag_lte_nas_rel;
+static int hf_qcdiag_nr_nas_rel;
 static int hf_qcdiag_log_len;
 static int hf_qcdiag_log_more;
 static int hf_qcdiag_log_timestamp;
@@ -165,6 +234,21 @@ static int hf_qcdiag_lte_rrc_earfcn_v8;
 static int hf_qcdiag_lte_rrc_sfn;
 static int hf_qcdiag_lte_rrc_pdu;
 static int hf_qcdiag_lte_rrc_sib;
+
+static int hf_qcdiag_nr_rrc_rb_id;
+static int hf_qcdiag_nr_rrc_pci;
+static int hf_qcdiag_nr_rrc_ncgi;
+static int hf_qcdiag_nr_rrc_arfcn;
+static int hf_qcdiag_nr_rrc_sfn_v9;
+static int hf_qcdiag_nr_rrc_sfn;
+static int hf_qcdiag_nr_rrc_pdu_v9;
+static int hf_qcdiag_nr_rrc_pdu_v14;
+static int hf_qcdiag_nr_rrc_pdu_v17;
+static int hf_qcdiag_nr_rrc_pdu_v20;
+static int hf_qcdiag_nr_rrc_pdu_v26;
+static int hf_qcdiag_nr_rrc_pdu_v28;
+static int hf_qcdiag_nr_rrc_sib;
+static int hf_qcdiag_nr_rrc_segment_id;
 
 static int ett_qcdiag_log;
 static int ett_qcdiag_log_wcdma_crr_wcmda;
@@ -706,6 +790,350 @@ static const value_string wcdma_freq_scan_type_vals[] = {
     { 0, NULL }
 };
 
+enum {
+    MSG_BCCH_BCH          =  0,
+    MSG_BCCH_DL_SCH       =  1,
+    MSG_DL_CCCH           =  2,
+    MSG_DL_DCCH           =  3,
+    MSG_MCCH              =  4,
+    MSG_PCCH              =  5,
+    MSG_UL_CCCH           =  6,
+    MSG_UL_CCCH1          =  7,
+    MSG_UL_DCCH           =  8,
+    MSG_RRC_RECONF        =  9,
+    MSG_RRC_RECONF_COMPL  = 10,
+    MSG_SIB2              = 11,
+    MSG_SIB3              = 12,
+    MSG_SIB4              = 13,
+    MSG_SIB5              = 14,
+    MSG_SIB6              = 15,
+    MSG_SIB7              = 16,
+    MSG_SIB8              = 17,
+    MSG_SIB9              = 18,
+    MSG_RADIOBEARERCONF   = 19,
+    MSG_UE_MRDC_CAP       = 20,
+    MSG_UE_NR_CAP         = 21,
+    MSG_CG_CF_INFO        = 22,
+    MSG_UE_CAP_RAT_CL     = 23,
+    MSG_CELL_GRP_CFG      = 24,
+    MSG_UE_RA_CAP_INF     = 25,
+    MSG_MEAS_CFG          = 26,
+    MSG_MEAS_GAP_CFG      = 27,
+    MSG_HO_CMD            = 28,
+    MSG_HO_PREP_INFO      = 29,
+    MSG_BCCH_BCH_MBMS     = 30,
+    MSG_BCCH_DL_SCH_BR    = 31,
+    MSG_BCCH_DL_SCH_MBMS  = 32,
+    MSG_SC_MCCH           = 33,
+    MSG_SBCCH_SL_BCH      = 34,
+    MSG_SBCCH_SL_BCH_V2X  = 35,
+    MSG_DL_CCCH_NB        = 36,
+    MSG_DL_DCCH_NB        = 37,
+    MSG_UL_CCCH_NB        = 38,
+    MSG_UL_DCCH_NB        = 39,
+    MSG_BCCH_BCH_NB       = 40,
+    MSG_BCCH_BCH_TDD_NB   = 41,
+    MSG_BCCH_DL_SCH_NB    = 42,
+    MSG_PCCH_NB           = 43,
+    MSG_SC_MCCH_NB        = 44,
+};
+
+/* Packet Version 9, 12 */
+static const value_string nr_rrc_pdu_type_v9_vals[] = {
+    { 0x01, NR_PDU_BCCH_BCH },
+    { 0x02, NR_PDU_BCCH_DL_SCH },
+    { 0x03, NR_PDU_DL_CCCH },
+    { 0x04, NR_PDU_DL_DCCH },
+    { 0x05, NR_PDU_PCCH },
+    { 0x06, NR_PDU_UL_CCCH },
+    { 0x07, NR_PDU_UL_CCCH1 },
+    { 0x08, NR_PDU_UL_DCCH },
+    { 0x09, NR_PDU_RRC_RECONF },
+    { 0x0a, NR_PDU_RRC_RECONF_COMPL },
+    { 0x0e, NR_PDU_SIB2 },               // cellReselectionInfoCommon
+    { 0x0f, NR_PDU_SIB3 },
+    { 0x10, NR_PDU_SIB4 },               // interFreqCarrierFreqList
+    { 0x11, NR_PDU_SIB5 },               // carrierFreqListEUTRA
+    { 0x18, NR_PDU_RADIOBEARERCONF },
+    { 0x19, NR_PDU_RADIOBEARERCONF },
+    { 0x1a, NR_PDU_RADIOBEARERCONF },
+    { 0x1c, NR_PDU_UE_MRDC_CAP },
+    { 0x1d, NR_PDU_UE_NR_CAP },
+    { 0, NULL }
+};
+
+/* Packet Version 14 */
+static const value_string nr_rrc_pdu_type_v14_vals[] = {
+    { 0x01, NR_PDU_BCCH_BCH },
+    { 0x02, NR_PDU_BCCH_DL_SCH },
+    { 0x03, NR_PDU_DL_CCCH },
+    { 0x04, NR_PDU_DL_DCCH },
+    { 0x05, NR_PDU_PCCH },
+    { 0x06, NR_PDU_UL_CCCH },
+    { 0x07, NR_PDU_UL_CCCH1 },
+    { 0x08, NR_PDU_UL_DCCH },
+    { 0x09, NR_PDU_RRC_RECONF },
+    { 0x0a, NR_PDU_RRC_RECONF_COMPL },
+    { 0x0e, NR_PDU_SIB2 },               // cellReselectionInfoCommon
+    { 0x0f, NR_PDU_SIB3 },
+    { 0x10, NR_PDU_SIB4 },               // interFreqCarrierFreqList
+    { 0x11, NR_PDU_SIB5 },               // carrierFreqListEUTRA
+    { 0x18, NR_PDU_RADIOBEARERCONF },
+    { 0x19, NR_PDU_RADIOBEARERCONF },
+    { 0x1a, NR_PDU_RADIOBEARERCONF },
+    { 0x1f, NR_PDU_UE_MRDC_CAP },
+    { 0x20, NR_PDU_UE_NR_CAP },
+    { 0x21, NR_PDU_UE_NR_CAP },
+    { 0, NULL }
+};
+
+/* Packet Version 17, 19 */
+static const value_string nr_rrc_pdu_type_v17_vals[] = {
+    { 0x01, NR_PDU_BCCH_BCH },
+    { 0x02, NR_PDU_BCCH_DL_SCH },
+    { 0x03, NR_PDU_DL_CCCH },
+    { 0x04, NR_PDU_DL_DCCH },
+    { 0x05, NR_PDU_PCCH },
+    { 0x06, NR_PDU_UL_CCCH },
+    { 0x07, NR_PDU_UL_CCCH1 },
+    { 0x08, NR_PDU_UL_DCCH },
+    { 0x09, NR_PDU_RRC_RECONF },
+    { 0x0a, NR_PDU_RRC_RECONF_COMPL },
+    { 0x0f, NR_PDU_SIB2 },               // cellReselectionInfoCommon
+    { 0x10, NR_PDU_SIB3 },
+    { 0x11, NR_PDU_SIB4 },               // interFreqCarrierFreqList
+    { 0x12, NR_PDU_SIB5 },               // carrierFreqListEUTRA
+    //{ 0x13: NR_PDU_SIB6 },
+    //{ 0x14: NR_PDU_SIB7 },
+    //{ 0x15: NR_PDU_SIB8 },
+    //{ 0x16: NR_PDU_SIB9 },
+    { 0x1d, NR_PDU_RADIOBEARERCONF },
+    { 0, NULL }
+};
+
+/* Packet Version 20, 23, 24 */
+static const value_string nr_rrc_pdu_type_v20_vals[] = {
+    { 0x01, NR_PDU_BCCH_BCH },
+    { 0x02, NR_PDU_BCCH_DL_SCH },
+    { 0x03, NR_PDU_DL_CCCH },
+    { 0x04, NR_PDU_DL_DCCH },
+    { 0x05, NR_PDU_MCCH },
+    { 0x06, NR_PDU_PCCH },
+    { 0x07, NR_PDU_UL_CCCH },
+    { 0x08, NR_PDU_UL_CCCH1 },
+    { 0x09, NR_PDU_UL_DCCH },
+    { 0x0a, NR_PDU_RRC_RECONF },
+    { 0x0b, NR_PDU_RRC_RECONF_COMPL },
+    { 0x13, NR_PDU_SIB2 },               // cellReselectionInfoCommon
+    { 0x14, NR_PDU_SIB3 },
+    { 0x15, NR_PDU_SIB4 },               // interFreqCarrierFreqList
+    { 0x16, NR_PDU_SIB5 },               // carrierFreqListEUTRA
+    { 0x17, NR_PDU_SIB6 },               // ETWS primary notification, Earthquake and Tsunami Warning System (ETWS)
+    { 0x18, NR_PDU_SIB7 },               // ETWS secondary notification
+    { 0x19, NR_PDU_SIB8 },               // CMAS warning notification, Commercial Mobile Alert System (CMAS)
+    { 0x1a, NR_PDU_SIB9 },               // GPS time and Coordinated Universal Time (UTC)
+    { 0x24, NR_PDU_RADIOBEARERCONF },
+    { 0, NULL }
+};
+
+/* Packet Version 26 */
+static const value_string nr_rrc_pdu_type_v26_vals[] = {
+    { 0x01, NR_PDU_BCCH_BCH },
+    { 0x02, NR_PDU_BCCH_DL_SCH },
+    { 0x03, NR_PDU_DL_CCCH },
+    { 0x04, NR_PDU_DL_DCCH },
+    { 0x05, NR_PDU_MCCH },
+    { 0x06, NR_PDU_PCCH },
+    { 0x07, NR_PDU_UL_CCCH },
+    { 0x08, NR_PDU_UL_CCCH1 },
+    { 0x09, NR_PDU_UL_DCCH },
+    { 0x0b, NR_PDU_RRC_RECONF },
+    { 0x0c, NR_PDU_RRC_RECONF_COMPL },
+    { 0x13, NR_PDU_SIB2 },               // cellReselectionInfoCommon
+    { 0x14, NR_PDU_SIB3 },
+    { 0x15, NR_PDU_SIB4 },               // interFreqCarrierFreqList
+    { 0x16, NR_PDU_SIB5 },               // carrierFreqListEUTRA
+    { 0x17, NR_PDU_SIB6 },               // ETWS primary notification, Earthquake and Tsunami Warning System (ETWS)
+    { 0x18, NR_PDU_SIB7 },               // ETWS secondary notification
+    { 0x19, NR_PDU_SIB8 },               // CMAS warning notification, Commercial Mobile Alert System (CMAS)
+    { 0x1a, NR_PDU_SIB9 },               // GPS time and Coordinated Universal Time (UTC)
+    { 0x24, NR_PDU_RADIOBEARERCONF },
+    { 0, NULL }
+};
+
+/* Packet Version 28 */
+static const value_string nr_rrc_pdu_type_v28_vals[] = {
+    { 0x01, NR_PDU_BCCH_BCH },
+    { 0x02, NR_PDU_BCCH_DL_SCH },
+    { 0x03, NR_PDU_DL_CCCH },
+    { 0x04, NR_PDU_DL_DCCH },
+    { 0x05, NR_PDU_MCCH },
+    { 0x06, NR_PDU_PCCH },
+    { 0x07, NR_PDU_UL_CCCH },
+    { 0x08, NR_PDU_UL_CCCH1 },
+    { 0x0a, NR_PDU_UL_DCCH },
+    { 0x0b, NR_PDU_RRC_RECONF },
+    { 0x0c, NR_PDU_RRC_RECONF_COMPL },
+    { 0x13, NR_PDU_SIB2 },               // cellReselectionInfoCommon
+    { 0x14, NR_PDU_SIB3 },
+    { 0x15, NR_PDU_SIB4 },              // interFreqCarrierFreqList
+    { 0x16, NR_PDU_SIB5 },              // carrierFreqListEUTRA
+    { 0x17, NR_PDU_SIB6 },              // ETWS primary notification, Earthquake and Tsunami Warning System (ETWS)
+    { 0x18, NR_PDU_SIB7 },              // ETWS secondary notification
+    { 0x19, NR_PDU_SIB8 },              // CMAS warning notification, Commercial Mobile Alert System (CMAS)
+    { 0x1a, NR_PDU_SIB9 },              // GPS time and Coordinated Universal Time (UTC)
+    { 0x24, NR_PDU_RADIOBEARERCONF },
+    { 0, NULL }
+};
+
+/* Packet Version 9, 12 */
+static const value_number nr_rrc_map_v9[] = {
+    { 0x01, MSG_BCCH_BCH },
+    { 0x02, MSG_BCCH_DL_SCH },
+    { 0x03, MSG_DL_CCCH },
+    { 0x04, MSG_DL_DCCH },
+    { 0x05, MSG_PCCH },
+    { 0x06, MSG_UL_CCCH },
+    { 0x07, MSG_UL_CCCH1 },
+    { 0x08, MSG_UL_DCCH },
+    { 0x09, MSG_RRC_RECONF },
+    { 0x0a, MSG_RRC_RECONF_COMPL },
+    { 0x0e, MSG_SIB2 },               // cellReselectionInfoCommon
+    { 0x0f, MSG_SIB3 },
+    { 0x10, MSG_SIB4 },               // interFreqCarrierFreqList
+    { 0x11, MSG_SIB5 },               // carrierFreqListEUTRA
+    { 0x18, MSG_RADIOBEARERCONF },
+    { 0x19, MSG_RADIOBEARERCONF },
+    { 0x1a, MSG_RADIOBEARERCONF },
+    { 0x1c, MSG_UE_MRDC_CAP },
+    { 0x1d, MSG_UE_NR_CAP },
+    { 0, UINT32_MAX }
+};
+
+/* Packet Version 14 */
+static const value_number nr_rrc_map_v14[] = {
+    { 0x01, MSG_BCCH_BCH },
+    { 0x02, MSG_BCCH_DL_SCH },
+    { 0x03, MSG_DL_CCCH },
+    { 0x04, MSG_DL_DCCH },
+    { 0x05, MSG_PCCH },
+    { 0x06, MSG_UL_CCCH },
+    { 0x07, MSG_UL_CCCH1 },
+    { 0x08, MSG_UL_DCCH },
+    { 0x09, MSG_RRC_RECONF },
+    { 0x0a, MSG_RRC_RECONF_COMPL },
+    { 0x0e, MSG_SIB2 },               // cellReselectionInfoCommon
+    { 0x0f, MSG_SIB3 },
+    { 0x10, MSG_SIB4 },               // interFreqCarrierFreqList
+    { 0x11, MSG_SIB5 },               // carrierFreqListEUTRA
+    { 0x18, MSG_RADIOBEARERCONF },
+    { 0x19, MSG_RADIOBEARERCONF },
+    { 0x1a, MSG_RADIOBEARERCONF },
+    { 0x1f, MSG_UE_MRDC_CAP },
+    { 0x20, MSG_UE_NR_CAP },
+    { 0x21, MSG_UE_NR_CAP },
+    { 0, UINT32_MAX }
+};
+
+/* Packet Version 17, 19 */
+static const value_number nr_rrc_map_v17[] = {
+    { 0x01, MSG_BCCH_BCH },
+    { 0x02, MSG_BCCH_DL_SCH },
+    { 0x03, MSG_DL_CCCH },
+    { 0x04, MSG_DL_DCCH },
+    { 0x05, MSG_PCCH },
+    { 0x06, MSG_UL_CCCH },
+    { 0x07, MSG_UL_CCCH1 },
+    { 0x08, MSG_UL_DCCH },
+    { 0x09, MSG_RRC_RECONF },
+    { 0x0a, MSG_RRC_RECONF_COMPL },
+    { 0x0f, MSG_SIB2 },               // cellReselectionInfoCommon
+    { 0x10, MSG_SIB3 },
+    { 0x11, MSG_SIB4 },               // interFreqCarrierFreqList
+    { 0x12, MSG_SIB5 },               // carrierFreqListEUTRA
+    //{ 0x13: MSG_SIB6 },
+    //{ 0x14: MSG_SIB7 },
+    //{ 0x15: MSG_SIB8 },
+    //{ 0x16: MSG_SIB9 },
+    { 0x1d, MSG_RADIOBEARERCONF },
+    { 0, UINT32_MAX }
+};
+
+/* Packet Version 20, 23, 24 */
+static const value_number nr_rrc_map_v20[] = {
+    { 0x01, MSG_BCCH_BCH },
+    { 0x02, MSG_BCCH_DL_SCH },
+    { 0x03, MSG_DL_CCCH },
+    { 0x04, MSG_DL_DCCH },
+    { 0x05, MSG_MCCH },
+    { 0x06, MSG_PCCH },
+    { 0x07, MSG_UL_CCCH },
+    { 0x08, MSG_UL_CCCH1 },
+    { 0x09, MSG_UL_DCCH },
+    { 0x0a, MSG_RRC_RECONF },
+    { 0x0b, MSG_RRC_RECONF_COMPL },
+    { 0x13, MSG_SIB2 },               // cellReselectionInfoCommon
+    { 0x14, MSG_SIB3 },
+    { 0x15, MSG_SIB4 },               // interFreqCarrierFreqList
+    { 0x16, MSG_SIB5 },               // carrierFreqListEUTRA
+    { 0x17, MSG_SIB6 },               // ETWS primary notification, Earthquake and Tsunami Warning System (ETWS)
+    { 0x18, MSG_SIB7 },               // ETWS secondary notification
+    { 0x19, MSG_SIB8 },               // CMAS warning notification, Commercial Mobile Alert System (CMAS)
+    { 0x1a, MSG_SIB9 },               // GPS time and Coordinated Universal Time (UTC)
+    { 0x24, MSG_RADIOBEARERCONF },
+    { 0, UINT32_MAX }
+};
+
+/* Packet Version 26 */
+static const value_number nr_rrc_map_v26[] = {
+    { 0x01, MSG_BCCH_BCH },
+    { 0x02, MSG_BCCH_DL_SCH },
+    { 0x03, MSG_DL_CCCH },
+    { 0x04, MSG_DL_DCCH },
+    { 0x05, MSG_MCCH },
+    { 0x06, MSG_PCCH },
+    { 0x07, MSG_UL_CCCH },
+    { 0x08, MSG_UL_CCCH1 },
+    { 0x09, MSG_UL_DCCH },
+    { 0x0b, MSG_RRC_RECONF },
+    { 0x0c, MSG_RRC_RECONF_COMPL },
+    { 0x13, MSG_SIB2 },               // cellReselectionInfoCommon
+    { 0x14, MSG_SIB3 },
+    { 0x15, MSG_SIB4 },               // interFreqCarrierFreqList
+    { 0x16, MSG_SIB5 },               // carrierFreqListEUTRA
+    { 0x17, MSG_SIB6 },               // ETWS primary notification, Earthquake and Tsunami Warning System (ETWS)
+    { 0x18, MSG_SIB7 },               // ETWS secondary notification
+    { 0x19, MSG_SIB8 },               // CMAS warning notification, Commercial Mobile Alert System (CMAS)
+    { 0x1a, MSG_SIB9 },               // GPS time and Coordinated Universal Time (UTC)
+    { 0x24, MSG_RADIOBEARERCONF },
+    { 0, UINT32_MAX }
+};
+
+/* Packet Version 28 */
+static const value_number nr_rrc_map_v28[] = {
+    { 0x01, MSG_BCCH_BCH },
+    { 0x02, MSG_BCCH_DL_SCH },
+    { 0x03, MSG_DL_CCCH },
+    { 0x04, MSG_DL_DCCH },
+    { 0x05, MSG_MCCH },
+    { 0x06, MSG_PCCH },
+    { 0x07, MSG_UL_CCCH },
+    { 0x08, MSG_UL_CCCH1 },
+    { 0x0a, MSG_UL_DCCH },
+    { 0x0b, MSG_RRC_RECONF },
+    { 0x0c, MSG_RRC_RECONF_COMPL },
+    { 0x13, MSG_SIB2 },               // cellReselectionInfoCommon
+    { 0x14, MSG_SIB3 },
+    { 0x15, MSG_SIB4 },              // interFreqCarrierFreqList
+    { 0x16, MSG_SIB5 },              // carrierFreqListEUTRA
+    { 0x17, MSG_SIB6 },              // ETWS primary notification, Earthquake and Tsunami Warning System (ETWS)
+    { 0x18, MSG_SIB7 },              // ETWS secondary notification
+    { 0x19, MSG_SIB8 },              // CMAS warning notification, Commercial Mobile Alert System (CMAS)
+    { 0x1a, MSG_SIB9 },              // GPS time and Coordinated Universal Time (UTC)
+    { 0x24, MSG_RADIOBEARERCONF },
+    { 0, UINT32_MAX }
+};
+
 static uint32_t
 try_val_to_int(const uint32_t val, const value_number *cm)
 {
@@ -726,13 +1154,14 @@ try_val_to_int(const uint32_t val, const value_number *cm)
 static void
 try_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  TRY {
-    call_dissector(handle, tvb, pinfo, tree);
-  }
-  CATCH_BOUNDS_ERRORS {
-    show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-  }
-  ENDTRY;
+    if (!handle) return;
+    TRY {
+      call_dissector(handle, tvb, pinfo, tree);
+    }
+    CATCH_BOUNDS_ERRORS {
+      show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+    }
+    ENDTRY;
 }
 
 static void
@@ -901,6 +1330,148 @@ get_lte_rrc_subtype(uint32_t pkt_ver, uint32_t pdu)
     }
 
     return try_val_to_int(pdu, selected_map);
+}
+
+static uint32_t
+get_nr_rrc_hf_pdu(uint32_t pkt_ver)
+{
+    int hf_pdu;
+
+    switch (pkt_ver) {
+        case 9:
+        case 12:
+            hf_pdu = hf_qcdiag_nr_rrc_pdu_v9;
+            break;
+        case 14:
+            hf_pdu = hf_qcdiag_nr_rrc_pdu_v14;
+            break;
+        case 17:
+        case 19:
+            hf_pdu = hf_qcdiag_nr_rrc_pdu_v17;
+            break;
+        case 20:
+        case 23:
+        case 24:
+            hf_pdu = hf_qcdiag_nr_rrc_pdu_v20;
+            break;
+        case 26:
+            hf_pdu = hf_qcdiag_nr_rrc_pdu_v26;
+            break;
+        case 28:
+            hf_pdu = hf_qcdiag_nr_rrc_pdu_v28;
+            break;
+        default:
+            hf_pdu = -1;
+    }
+
+    return hf_pdu;
+}
+
+static dissector_handle_t
+get_nr_rrc_dissector(uint32_t pkt_ver, uint8_t pkt_pdu)
+{
+    const value_number* selected_map = NULL;
+    dissector_handle_t handle;
+    uint32_t pdu;
+
+    switch (pkt_ver) {
+        case 9:
+        case 12:
+            selected_map = nr_rrc_map_v9;
+            break;
+        case 14:
+            selected_map = nr_rrc_map_v14;
+            break;
+        case 17:
+        case 19:
+            selected_map = nr_rrc_map_v17;
+            break;
+        case 20:
+        case 23:
+        case 24:
+            selected_map = nr_rrc_map_v20;
+            break;
+        case 26:
+            selected_map = nr_rrc_map_v26;
+            break;
+        case 28:
+            selected_map = nr_rrc_map_v28;
+            break;
+        default:
+            return NULL;
+    }
+
+    pdu = try_val_to_int(pkt_pdu, selected_map);
+
+    switch (pdu) {
+        case MSG_BCCH_BCH:
+            handle = nr_rrc_bcch_bch_handle;
+            break;
+        case MSG_BCCH_DL_SCH:
+            handle = nr_rrc_bcch_dl_sch_handle;
+            break;
+        case MSG_PCCH:
+            handle = nr_rrc_pcch_handle;
+            break;
+        case MSG_UL_DCCH:
+            handle = nr_rrc_ul_dcch_handle;
+            break;
+        case MSG_DL_DCCH:
+            handle = nr_rrc_dl_dcch_handle;
+            break;
+        case MSG_UL_CCCH:
+            handle = nr_rrc_ul_ccch_handle;
+            break;
+        case MSG_DL_CCCH:
+            handle = nr_rrc_dl_ccch_handle;
+            break;
+        case MSG_UL_CCCH1:
+            handle = nr_rrc_ul_ccch1_handle;
+            break;
+        case MSG_RRC_RECONF:
+            handle = nr_rrc_reconf_handle;
+            break;
+        case MSG_RRC_RECONF_COMPL:
+            handle = nr_rrc_reconf_compl_handle;
+            break;
+        case MSG_RADIOBEARERCONF:
+            handle = nr_rrc_radiobearerconfig_handle;
+            break;
+        case MSG_UE_MRDC_CAP:
+            handle = nr_rrc_ue_mrdc_cap_handle;
+            break;
+        case MSG_UE_NR_CAP:
+            handle = nr_rrc_ue_nr_cap_handle;
+            break;
+        case MSG_SIB2:
+            handle = nr_rrc_sib2_handle;
+            break;
+        case MSG_SIB3:
+            handle = nr_rrc_sib3_handle;
+            break;
+        case MSG_SIB4:
+            handle = nr_rrc_sib4_handle;
+            break;
+        case MSG_SIB5:
+            handle = nr_rrc_sib5_handle;
+            break;
+        case MSG_SIB6:
+            handle = nr_rrc_sib6_handle;
+            break;
+        case MSG_SIB7:
+            handle = nr_rrc_sib7_handle;
+            break;
+        case MSG_SIB8:
+            handle = nr_rrc_sib8_handle;
+            break;
+        case MSG_SIB9:
+            handle = nr_rrc_sib9_handle;
+            break;
+        default:
+            handle = NULL;
+    }
+
+    return handle;
 }
 
 static void
@@ -1945,7 +2516,7 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
         proto_tree_add_item_ret_uint(log_tree, hf_qcdiag_lte_rrc_earfcn_v2, tvb, offset, 2, ENC_LITTLE_ENDIAN, &earfcn);
         offset += 2;
     } else {
-       proto_tree_add_item_ret_uint(log_tree, hf_qcdiag_lte_rrc_earfcn_v8, tvb, offset, 4, ENC_LITTLE_ENDIAN, &earfcn);
+        proto_tree_add_item_ret_uint(log_tree, hf_qcdiag_lte_rrc_earfcn_v8, tvb, offset, 4, ENC_LITTLE_ENDIAN, &earfcn);
         offset += 4;
     }
 
@@ -1959,7 +2530,7 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
 
     /* SIB */
     if (version > 4) {
-       proto_tree_add_item(log_tree, hf_qcdiag_lte_rrc_sib, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(log_tree, hf_qcdiag_lte_rrc_sib, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
     }
 
@@ -2057,6 +2628,146 @@ dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
 
     add_new_data_source(pinfo, gsmtap_tvb, "LTE NAS");
     try_call_dissector(gsmtap_handle, gsmtap_tvb, pinfo, proto_tree_get_parent_tree(tree));
+}
+
+static void
+dissect_qcdiag_log_nr_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
+{
+    tvbuff_t *payload_tvb, *nr5g_tvb;
+    dissector_handle_t handle;
+    uint32_t version;
+    uint8_t pdu, nr_rnum, nr_rmajmin;
+    uint64_t ncgi;
+    wmem_strbuf_t *buf;
+    int hf_pdu;
+
+    /* Packet Version */
+    proto_tree_add_item_ret_uint(log_tree, hf_qcdiag_log_ver_4, tvb, offset, 4, ENC_LITTLE_ENDIAN, &version);
+    offset += 4;
+
+    /* Known Packet Versions: 9, 12, 14, 17, 19, 20, 23, 24, 26, 28 */
+
+    nr_rnum    = tvb_get_uint8(tvb, offset);
+    nr_rmajmin = tvb_get_uint8(tvb, offset+1);
+
+    buf = wmem_strbuf_new(NULL, "");
+    wmem_strbuf_append_printf(buf, "%u.%u.%u", nr_rnum, nr_rmajmin / 16, nr_rmajmin % 16);
+
+    /* NR Release Number */
+    proto_tree_add_string(log_tree, hf_qcdiag_nr_rrc_rel, tvb, offset, 2, wmem_strbuf_get_str(buf));
+    wmem_free(NULL, buf);
+    offset += 2;
+
+    /* Radio Bearer Id */
+    proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_rb_id, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* Physical Cell Id */
+    proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_pci, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* NR Cell Global Identifier */
+    if (version > 16) {
+        ncgi = tvb_get_letoh64(tvb, offset);
+
+        if (ncgi > 0) {
+            (void) proto_tree_add_bits_item(log_tree, hf_qcdiag_nr_rrc_ncgi, tvb, offset * 8, 60, ENC_LITTLE_ENDIAN);
+        }
+        offset += 8;
+    }
+
+    /* Frequency */
+    proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_arfcn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* System Frame Number */
+    if (version < 12) {
+        proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_sfn_v9, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    } else {
+        proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_sfn, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        offset += 3;
+    }
+
+    pdu = tvb_get_uint8(tvb, offset);
+    hf_pdu = get_nr_rrc_hf_pdu(version);
+
+    /* PDU */
+    if (hf_pdu > 0)
+        proto_tree_add_item(log_tree, hf_pdu, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* SIB */
+    proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_sib, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* Message Length */
+    proto_tree_add_item(log_tree, hf_qcdiag_msg_len_2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* From Version 19 there is 1 byte here (so far unknown) */
+    if (version > 18)
+        offset += 1;
+
+    /* From Version 23 there are 2 bytes here (so far unknown) */
+    if (version > 22)
+        offset += 2;
+
+    /* Segment Id */
+    if (version > 22) {
+        proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_segment_id, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    }
+
+    /* Version 28 is the last known version */
+    if (version > 28)
+        return;
+
+    payload_tvb = tvb_new_subset_remaining(tvb, offset);
+
+    nr5g_tvb = tvb_new_composite();
+    tvb_composite_append(nr5g_tvb, payload_tvb);
+    tvb_composite_finalize(nr5g_tvb);
+
+    handle = get_nr_rrc_dissector(version, pdu);
+
+    add_new_data_source(pinfo, nr5g_tvb, "NR RRC");
+    try_call_dissector(handle, nr5g_tvb, pinfo, proto_tree_get_parent_tree(tree));
+}
+
+static void
+dissect_qcdiag_log_nr_nas(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree)
+{
+    tvbuff_t *payload_tvb, *nr5g_tvb;
+    uint8_t nr_maj, nr_min, nr_patch;
+    wmem_strbuf_t *buf;
+
+    /* Version */
+    proto_tree_add_item(log_tree, hf_qcdiag_log_ver_4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    nr_maj   = tvb_get_uint8(tvb, offset);
+    nr_min   = tvb_get_uint8(tvb, offset+1);
+    nr_patch = tvb_get_uint8(tvb, offset+2);
+
+    buf = wmem_strbuf_new(NULL, "");
+    wmem_strbuf_append_printf(buf, "%u.%u.%u", nr_maj, nr_min, nr_patch);
+
+    /* Release Version */
+    proto_tree_add_string(log_tree, hf_qcdiag_nr_nas_rel, tvb, offset, 3, wmem_strbuf_get_str(buf));
+    wmem_free(NULL, buf);
+    offset += 3;
+
+    payload_tvb = tvb_new_subset_remaining(tvb, offset);
+
+    nr5g_tvb = tvb_new_composite();
+    tvb_composite_append(nr5g_tvb, payload_tvb);
+    tvb_composite_finalize(nr5g_tvb);
+
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    add_new_data_source(pinfo, nr5g_tvb, "NAS-5GS");
+    try_call_dissector(nas5gs_handle, nr5g_tvb, pinfo, proto_tree_get_parent_tree(tree));
 }
 
 
@@ -2256,6 +2967,30 @@ dissect_qcdiag_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         break;
 
     /* NR - 0xB800 log code base (0xB800 - 0xB9FF ) */
+    case 0xb800:
+        dissect_qcdiag_log_nr_nas(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0xb801:
+        dissect_qcdiag_log_nr_nas(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0xb808:
+        dissect_qcdiag_log_nr_nas(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0xb809:
+        dissect_qcdiag_log_nr_nas(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0xb80a:
+        dissect_qcdiag_log_nr_nas(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0xb80b:
+        dissect_qcdiag_log_nr_nas(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0xb814:
+        dissect_qcdiag_log_nr_nas(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
+    case 0xb821:
+        dissect_qcdiag_log_nr_rrc(tvb, offset, pinfo, diag_log_tree, tree);
+        break;
 
     default:
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -2532,9 +3267,6 @@ proto_register_qcdiag_log(void)
         { &hf_qcdiag_lte_rrc_rel,
           { "LTE RRC Release", "qcdiag_log.lte_rrc_rel",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_qcdiag_nr_rrc_rel,
-          { "NR RRC Release", "qcdiag_log.nr_rrc_rel",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_qcdiag_lte_rrc_rb_id,
           {"Radio Bearer Id", "qcdiag_log.lte_rrc.rb_id",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2552,7 +3284,7 @@ proto_register_qcdiag_log(void)
             FT_UINT16, BASE_DEC, NULL, 0, "SFN", HFILL } },
         { &hf_qcdiag_lte_rrc_pdu,
           { "PDU Number", "qcdiag_log.lte_rrc.pdu",
-            FT_UINT8, BASE_DEC, NULL, 0, "SFN", HFILL } },
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_qcdiag_lte_rrc_sib,
           { "SIB Mask in SI", "qcdiag_log.lte_rrc.sib",
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2560,6 +3292,58 @@ proto_register_qcdiag_log(void)
         /* LTE NAS */
         { &hf_qcdiag_lte_nas_rel,
           { "Release Version", "qcdiag_log.lte_nas_rel",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+
+        /* NR RRC */
+        { &hf_qcdiag_nr_rrc_rel,
+          { "NR RRC Release", "qcdiag_log.nr_rrc_rel",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_rb_id,
+          {"Radio Bearer Id", "qcdiag_log.nr_rrc.rb_id",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_pci,
+          {"Physical Cell Id", "qcdiag_log.nr_rrc.pci",
+            FT_UINT16, BASE_DEC, NULL, 0, "PCI", HFILL } },
+        { &hf_qcdiag_nr_rrc_ncgi,
+          { "NR Cell Global Identifier", "qcdiag_log.nr_rrc.ncgi",
+            FT_UINT64, BASE_DEC, NULL, 0, "NCGI", HFILL } },
+        { &hf_qcdiag_nr_rrc_arfcn,
+          { "Frequency", "qcdiag_log.nr_rrc.arfcn",
+            FT_UINT32, BASE_DEC, NULL, 0, "ARFCN", HFILL } },
+        { &hf_qcdiag_nr_rrc_sfn_v9,
+          { "System Frame Number", "qcdiag_log.nr_rrc.sfn",
+            FT_UINT32, BASE_DEC, NULL, 0, "SFN", HFILL } },
+        { &hf_qcdiag_nr_rrc_sfn,
+          { "System Frame Number", "qcdiag_log.nr_rrc.sfn",
+            FT_UINT24, BASE_DEC, NULL, 0, "SFN", HFILL } },
+        { &hf_qcdiag_nr_rrc_pdu_v9,
+          { "PDU Number", "qcdiag_log.nr_rrc.pdu",
+            FT_UINT8, BASE_DEC, VALS(nr_rrc_pdu_type_v9_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_pdu_v14,
+          { "PDU Number", "qcdiag_log.nr_rrc.pdu",
+            FT_UINT8, BASE_DEC, VALS(nr_rrc_pdu_type_v14_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_pdu_v17,
+          { "PDU Number", "qcdiag_log.nr_rrc.pdu",
+            FT_UINT8, BASE_DEC, VALS(nr_rrc_pdu_type_v17_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_pdu_v20,
+          { "PDU Number", "qcdiag_log.nr_rrc.pdu",
+            FT_UINT8, BASE_DEC, VALS(nr_rrc_pdu_type_v20_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_pdu_v26,
+          { "PDU Number", "qcdiag_log.nr_rrc.pdu",
+            FT_UINT8, BASE_DEC, VALS(nr_rrc_pdu_type_v26_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_pdu_v28,
+          { "PDU Number", "qcdiag_log.nr_rrc.pdu",
+            FT_UINT8, BASE_DEC, VALS(nr_rrc_pdu_type_v28_vals), 0, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_sib,
+          { "SIB Mask in SI", "qcdiag_log.nr_rrc.sib",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_segment_id,
+          { "Segment Id", "qcdiag_log.nr_rrc.seg_id",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+
+        /* NR NAS */
+        { &hf_qcdiag_nr_nas_rel,
+          { "Release Version", "qcdiag_log.nr_nas_rel",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     };
 
@@ -2603,6 +3387,29 @@ proto_reg_handoff_qcdiag_log(void)
     text_lines_handle = find_dissector("data-text-lines");
     udp_handle = find_dissector("udp");
     gsmtap_handle = find_dissector("gsmtap");
+    nas5gs_handle = find_dissector("nas-5gs");
+
+    nr_rrc_bcch_bch_handle          = find_dissector("nr-rrc.bcch.bch");
+    nr_rrc_bcch_dl_sch_handle       = find_dissector("nr-rrc.bcch.dl.sch");
+    nr_rrc_pcch_handle              = find_dissector("nr-rrc.pcch");
+    nr_rrc_ul_dcch_handle           = find_dissector("nr-rrc.ul.dcch");
+    nr_rrc_dl_dcch_handle           = find_dissector("nr-rrc.dl.dcch");
+    nr_rrc_ul_ccch_handle           = find_dissector("nr-rrc.ul.ccch");
+    nr_rrc_dl_ccch_handle           = find_dissector("nr-rrc.dl.ccch");
+    nr_rrc_ul_ccch1_handle          = find_dissector("nr-rrc.ul.ccch1");
+    nr_rrc_reconf_handle            = find_dissector("nr-rrc.rrc_reconf");
+    nr_rrc_reconf_compl_handle      = find_dissector("nr-rrc.rrc_reconf_compl");
+    nr_rrc_radiobearerconfig_handle = find_dissector("nr-rrc.radiobearerconfig");
+    nr_rrc_ue_mrdc_cap_handle       = find_dissector("nr-rrc.ue_mrdc_cap");
+    nr_rrc_ue_nr_cap_handle         = find_dissector("nr-rrc.ue_nr_cap");
+    nr_rrc_sib2_handle              = find_dissector("nr-rrc.sib2");
+    nr_rrc_sib3_handle              = find_dissector("nr-rrc.sib3");
+    nr_rrc_sib4_handle              = find_dissector("nr-rrc.sib4");
+    nr_rrc_sib5_handle              = find_dissector("nr-rrc.sib5");
+    nr_rrc_sib6_handle              = find_dissector("nr-rrc.sib6");
+    nr_rrc_sib7_handle              = find_dissector("nr-rrc.sib7");
+    nr_rrc_sib8_handle              = find_dissector("nr-rrc.sib8");
+    nr_rrc_sib9_handle              = find_dissector("nr-rrc.sib9");
 
     hdtbl_entry = find_heur_dissector_by_unique_short_name("rlc_udp");
 
