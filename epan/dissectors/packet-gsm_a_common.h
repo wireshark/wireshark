@@ -1890,6 +1890,7 @@ typedef enum
     DE_NAS_5GS_MM_ON_DEMAND_NSSAI,           /* 9.11.3.108   On-demand NSSAI */
     DE_NAS_5GS_MM_EXT_5GMM_CAUSE,            /* 9.11.3.109   Extended 5GMM cause */
     DE_NAS_5GS_MM_LP_WUSPS_ASSIST_INFO,      /* 9.11.3.111   LP-WUSPS assistance information */
+    DE_NAS_5GS_MM_LP_WUS_STATUS,             /* 9.11.3.112   LP-WUS status */
     DE_NAS_5GS_MM_NONE        /* NONE */
 }
 nas_5gs_mm_elem_idx_t;
