@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V19.1.0 (2025-12)
+-- 3GPP TS 38.331 V19.2.0 (2026-03)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -3694,7 +3694,7 @@ ULInformationTransferMRDC-IEs::=           SEQUENCE {
 -- TAG-SETUPRELEASE-START
 
 -- WS modification: asn2wrs does not support this syntax; replace all occurrences
--- CHOICE {release NULL, setup ElementTypeParam } ::= CHOICE {
+-- SetupRelease { ElementTypeParam } ::= CHOICE {
 --     release         NULL,
 --     setup           ElementTypeParam
 -- }
@@ -3728,8 +3728,8 @@ SIB2 ::=                            SEQUENCE {
         cellReselectionSubPriority          CellReselectionSubPriority                      OPTIONAL,       -- Need R
         ...,
         [[
-        od-sib1-CellReselectionPriority-r19             CellReselectionPriority             OPTIONAL,       -- Need R
-        od-sib1-CellReselectionSubPriority-r19          CellReselectionSubPriority          OPTIONAL        -- Need R
+        od-SIB1-CellReselectionPriority-r19             CellReselectionPriority             OPTIONAL,       -- Need R
+        od-SIB1-CellReselectionSubPriority-r19          CellReselectionSubPriority          OPTIONAL        -- Need R
         ]]
     },
     intraFreqCellReselectionInfo        SEQUENCE {
@@ -3768,7 +3768,7 @@ SIB2 ::=                            SEQUENCE {
         frequencyBandListAerial-r18         MultiFrequencyBandListNR-Aerial-SIB-r18         OPTIONAL        -- Need S
         ]],
         [[
-        refLocMapList-r19                   SEQUENCE (SIZE (1..7)) OF RefLocMap-r19         OPTIONAL,        -- Need R
+        refLocMapList-r19                   SEQUENCE (SIZE (1..7)) OF RefLocMap-r19         OPTIONAL,        -- Need S
         smtc5list-r19                       SEQUENCE (SIZE (1..6)) OF SSB-MTC5-r19          OPTIONAL         -- Need R
         ]]
     },
@@ -4058,9 +4058,9 @@ InterFreqCarrierFreqInfo-v1900 ::=  SEQUENCE {
        emptyList-r19                                   NULL,
        excludedCells-r19                               InterFreqExcludedCellList
     }                                                                                               OPTIONAL,    -- Need R
-    od-sib1-cellReselectionPriority-r19            CellReselectionPriority                          OPTIONAL,    -- Need R
-    od-sib1-cellReselectionSubPriority-r19         CellReselectionSubPriority                       OPTIONAL,    -- Need R
-    refLocMapList-r19                              SEQUENCE (SIZE (1..7)) OF RefLocMap-r19          OPTIONAL,    -- Need R
+    od-SIB1-cellReselectionPriority-r19            CellReselectionPriority                          OPTIONAL,    -- Need R
+    od-SIB1-cellReselectionSubPriority-r19         CellReselectionSubPriority                       OPTIONAL,    -- Need R
+    refLocMapList-r19                              SEQUENCE (SIZE (1..7)) OF RefLocMap-r19          OPTIONAL,    -- Need S
     refLocOffset-r19                               RefLocOffset-r19                                 OPTIONAL,    -- Need R
     smtc5list-r19                                  SEQUENCE (SIZE(1..6)) OF SSB-MTC5-r19            OPTIONAL     -- Need R
 }
@@ -4688,7 +4688,7 @@ CoverageAreaInfo-r18 ::=       SEQUENCE {
 -- TAG-SIB26-START
 
 SIB26-r19 ::=                  SEQUENCE {
-    od-sib1-ConfigList-r19         SEQUENCE (SIZE(1..maxNrofOD-SIB1-r19))  OF OD-SIB1-Config-r19,
+    od-SIB1-ConfigList-r19         SEQUENCE (SIZE(1..maxNrofOD-SIB1-r19))  OF OD-SIB1-Config-r19,
     lateNonCriticalExtension       OCTET STRING                                                     OPTIONAL,
     ...
 }
@@ -4759,7 +4759,7 @@ SIB27-r19 ::=                     SEQUENCE {
 
 IntendedServiceAreaList-r19 ::=   SEQUENCE (SIZE (1..maxNrofMBS-Area-r19)) OF IntendedServiceAreaInfo-r19
 
--- ws modification: define a dedicated type
+-- WS modification: define a dedicated type
 IntendedServiceAreaInfo-areaCoordinates-r19 ::= CHOICE {
     polygonArea-r19                   OCTET STRING,
     circleArea-r19                    SEQUENCE {
@@ -4770,7 +4770,7 @@ IntendedServiceAreaInfo-areaCoordinates-r19 ::= CHOICE {
 
 IntendedServiceAreaInfo-r19 ::=   SEQUENCE {
     intendedServiceAreaId-r19       MBS-IntendedAreaID-r19,
--- ws modification: define a dedicated type
+-- WS modification: define a dedicated type
 --    areaCoordinates-r19             CHOICE {
 --        polygonArea-r19                   OCTET STRING,
 --        circleArea-r19                    SEQUENCE {
@@ -8890,7 +8890,7 @@ LTM-CandidateReportConfig-r19 ::=            SEQUENCE {
 }
 
 LTM-ReportContent-v1900  ::=                SEQUENCE {
-    reportQuantity-r19                             ENUMERATED {cri-RSRP, ssb-index-RSRP, cri-RI-PMI-CQI, value1} DEFAULT ssb-index-RSRP,
+    reportQuantity-r19                             ENUMERATED {cri-RSRP, ssb-index-RSRP, dummy, value1} DEFAULT ssb-index-RSRP,
     ...
 }
 
@@ -13064,7 +13064,7 @@ RA-AdaptConfig-r19 ::=                      SEQUENCE {
     prach-ConfigurationIndex-r19                INTEGER (0..255),
     msg1-FDM-r19                                ENUMERATED {one, two, four, eight},
     msg1-FrequencyStart-r19                     INTEGER (0..maxNrofPhysicalResourceBlocks-1),
-    prach-SubsetMaskIndexAdaptation-r19       ENUMERATED {one, two, three, four}                               OPTIONAL,   -- Need R
+    prach-SubsetMaskIndexAdaptation-r19       ENUMERATED {zero, one, two, three}                                  OPTIONAL,   -- Need R
     ssb-PerRACH-OccasionAndCB-PreamblesPerSSB-r19   CHOICE {
         oneEighth                                   ENUMERATED {n4,n8,n12,n16,n20,n24,n28,n32,n36,n40,n44,n48,n52,n56,n60,n64},
         oneFourth                                   ENUMERATED {n4,n8,n12,n16,n20,n24,n28,n32,n36,n40,n44,n48,n52,n56,n60,n64},
@@ -18625,7 +18625,7 @@ CodebookComboParameterMixedType-r17 ::= SEQUENCE {
                                                                OPTIONAL,
     type1SP-feType2PS-M2R1-null-r17         SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                                OPTIONAL,
-    type1SP-feType2PS-M2R2-null-r1          SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
+    type1SP-feType2PS-M2R2-null-r17         SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                                OPTIONAL,
     type1SP-Type2-feType2-PS-M1-r17         SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                                OPTIONAL,
@@ -18706,7 +18706,7 @@ CodebookComboParameterMultiTRP-r17::= SEQUENCE {
                                                                OPTIONAL,
     nCJT1SP-feType2PS-M2R1-null-r17       SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                                OPTIONAL,
-    nCJT1SP-feType2PS-M2R2-null-r1        SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
+    nCJT1SP-feType2PS-M2R2-null-r17       SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                                OPTIONAL,
     nCJT1SP-Type2-feType2-PS-M1-r17       SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                                OPTIONAL,
@@ -18863,7 +18863,7 @@ CodebookComboParameterMultiTRP-PerBC-r17::= SEQUENCE {
                                                                OPTIONAL,
     nCJT1SP-feType2PS-M2R1-null-r17 SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                                OPTIONAL,
-    nCJT1SP-feType2PS-M2R2-null-r1  SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
+    nCJT1SP-feType2PS-M2R2-null-r17 SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                                OPTIONAL,
     nCJT1SP-Type2-feType2-PS-M1-r17 SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                                OPTIONAL,
@@ -20429,7 +20429,7 @@ FeatureSetUplink-v1900 ::=                             SEQUENCE {
     srs-AntennaSwitching3T3R2SP-1Periodic-r19                   ENUMERATED {supported}                              OPTIONAL,
     -- R1 59-3-4: M-TRP PUSCH repetition (type A) of 3-antenna-port PUSCH transmission - codebook based
     mTRP-PUSCH-TypeA-CB-3Port-r19                         INTEGER (1..2)                                            OPTIONAL,
-     -- R1 59-3-4a: M-TRP PUSCH repetition (type A) of 3-antenna-port PUSCH transmission - codebook based
+     -- R1 59-3-4a: M-TRP PUSCH repetition (type A) of 3-antenna-port PUSCH transmission - non-codebook based
     mTRP-PUSCH-RepetitionTypeA-3Port-r19                  INTEGER (1..3)                                            OPTIONAL,
     -- R1 59-3-6: PTRS of 3-antenna-port PUSCH transmission
     threePortsPTRS-PUSCH-r19                              INTEGER (1..2)                                            OPTIONAL,
@@ -22161,7 +22161,7 @@ MIMO-ParametersPerBand ::=          SEQUENCE {
         maxNumberOfPredictedBeamPerPerTimeInstance-r19   INTEGER (1..4),
         maxNumberOfPredictedTimeInstance-r19          ENUMERATED {n1,n2,n4,n8},
         maxTotalNumberOfPredictedBeamPerReport-r19    ENUMERATED {n1,n2,n4,n6,n8,n12,n16,n32},
-        timeGap-r19                                   ENUMERATED {ms10,ms20,ms40,ms80,ms160},
+        dummy-TimeGap-r19                             ENUMERATED {ms10,ms20,ms40,ms80,ms160},
         numberOfOccupiedCPU-r19                       INTEGER (0..8),
         numberOfOccupiedCPUx-r19                      INTEGER (0..8),
         relaxationTimelineD-r19                       SEQUENCE {
@@ -22394,6 +22394,11 @@ MIMO-ParametersPerBand ::=          SEQUENCE {
     -- R1 59-4-11: Support of including PL offset in the calculation of Type 1 PHR based on actual PUSCH transmission
     -- and Type 1 PHR based on reference PUSCH
     pathlossOffsetPHR-r19                         ENUMERATED {supported}                                         OPTIONAL
+    ]],
+    [[
+    aiml-BM-Case2-v1920                           SEQUENCE {
+        timeGap-r19                                   BIT STRING (SIZE (5))
+    }                                                                                                            OPTIONAL
     ]]
 }
 
@@ -23041,8 +23046,7 @@ Phy-ParametersCommon ::=            SEQUENCE {
     codebookVariantsListExt-r19                             CodebookVariantsListExt-r19                   OPTIONAL,
     codebookVariantsListAggregate-r19                       CodebookVariantsListAggregate-r19             OPTIONAL,
     codebookVariantsListHybrid-r19                          CodebookVariantsListHybrid-r19                OPTIONAL,
-    -- R1 64-1: Enabling TX/RX during measurement gap scheduling restriction
-    enableTx-RxDuringMeasGap-r19                            SEQUENCE {
+    dummy-EnableTx-RxDuringMeasGap-r19                      SEQUENCE {
         additionalDCI-r19                                       BIT STRING (SIZE (3)),
         indicationField-r19                                     ENUMERATED {option1,option2},
         minimumTimeOffset-r19                                   ENUMERATED {ms5,ms3}
@@ -24453,7 +24457,7 @@ BandNR ::=                          SEQUENCE {
     -- R1 60-7b: Separate UL resource muting for Type-1 CG PUSCH for CP-OFDM waveform
     ul-ResourceMutingCP-OFDM-CG-Type1-r19                           ENUMERATED {n2,n4}                                         OPTIONAL,
     -- R1 60-7c: Separate UL resource muting for Type-1 CG PUSCH for DFT-s-OFDM waveform
-    ul-ResourceMultingDFTS-OFDM-CG-Type1-r19                        ENUMERATED {n2,n4}                                         OPTIONAL,
+    ul-ResourceMutingDFTS-OFDM-CG-Type1-r19                        ENUMERATED {n2,n4}                                         OPTIONAL,
     -- R1 60-8: L1 CLI-RSSI measurement and aperiodic reporting
     l1-CLI-RSSI-MeasAndAperiodicReporting-r19                       SEQUENCE {
         maxNumberOfConfiguredMeasResourceAcrossCC-r19                   ENUMERATED {n8,n16,n32,n64},
@@ -24647,6 +24651,14 @@ BandNR ::=                          SEQUENCE {
     -- CSI-RS measurement and CSI reporting without CSI-IM reception to support early CSI acquisition for reconfiguration with sync
     -- based on periodic CSI-RS only
     earlyCSI-AcquisitionWithoutCSI-IM-r19                        ENUMERATED {supported}                                        OPTIONAL
+    ]],
+    [[
+    -- R1 64-1: Enabling TX/RX during measurement gap scheduling restriction
+    enableTx-RxDuringMeasGap-r19                             SEQUENCE {
+        additionalDCI-r19                                        BIT STRING (SIZE (3)),
+        indicationField-r19                                      ENUMERATED {option1,option2},
+        minimumTimeOffset-r19                                    ENUMERATED {ms5,ms3}
+    }                                                                                                                          OPTIONAL
     ]]
 }
 
@@ -25888,6 +25900,11 @@ UE-NR-Capability-v1900 ::=               SEQUENCE {
     drx-PreferenceCellDTX-DRX-r19            ENUMERATED {supported}                                       OPTIONAL,
     lpwus-SupportedBandsIdleInactiveOFDM-r19 SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicatorNR         OPTIONAL,
     lpwus-SupportedBandsIdleInactiveOOK-r19  SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicatorNR         OPTIONAL,
+    nonCriticalExtension                     UE-NR-Capability-v1920                                       OPTIONAL
+}
+
+UE-NR-Capability-v1920 ::=               SEQUENCE {
+    ntn-RedirectionWithSatelliteInfo-r19     ENUMERATED {supported}                                       OPTIONAL,
     nonCriticalExtension                     SEQUENCE{}                                                   OPTIONAL
 }
 
@@ -25941,7 +25958,7 @@ UE-RadioPagingInfo-r17 ::=            SEQUENCE {
 UE-RadioPagingInfo-r19 ::=            SEQUENCE {
     lpwus-SupportedBandList-r19           SEQUENCE (SIZE (1..maxBands)) OF LPWUS-SupportedBandInfo-r19        OPTIONAL,
     pagingAdaptation-r19                  ENUMERATED {supported}                                              OPTIONAL,
-    pagingAdaptionPEI-SupportBandList-r19 SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicatorNR                OPTIONAL,
+    pagingAdaptationPEI-SupportBandList-r19 SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicatorNR                OPTIONAL,
     ...
 }
 
@@ -26847,7 +26864,7 @@ SL-BWP-PRS-PoolConfig-r18 ::=     SEQUENCE {
 }
 
 SL-PRS-TxPoolDedicated-r18 ::=    SEQUENCE {
-    sl-PRS-PoolToReleaseList-r1       SEQUENCE (SIZE (1..maxNrofSL-PRS-TxPool-r18)) OF SL-PRS-ResourcePoolID-r18     OPTIONAL, -- Need N
+    sl-PRS-PoolToReleaseList-r18      SEQUENCE (SIZE (1..maxNrofSL-PRS-TxPool-r18)) OF SL-PRS-ResourcePoolID-r18     OPTIONAL, -- Need N
     sl-PRS-PoolToAddModList-r18       SEQUENCE (SIZE (1..maxNrofSL-PRS-TxPool-r18)) OF SL-PRS-ResourcePoolConfig-r18 OPTIONAL  -- Need N
 }
 

@@ -803,6 +803,7 @@ BandSidelink-r16/sl-TransmissionMode1-r16/scs-CP-PatternTxSidelinkModeOne-r16/fr
 BandSidelinkPC5-r16/sl-Reception-r16/scs-CP-PatternRxSidelink-r16/fr2-r16/scs-120kHz-r16            ABBREV=bandSidelinkPC5_r16.sl_Reception_r16.scs_CP_PatternRxSidelink_r16.fr2_r16.scs_120kHz_r16
 SL-MeasReportQuantity-r16/sl-RSRP-r16                                                               ABBREV=sL_MeasReportQuantity_r16.sl_RSRP_r16
 MasterInformationBlockSidelink/slotIndex-r16                                                        ABBREV=bmasterInformationBlockSidelink.slotIndex_r16
+MIMO-ParametersPerBand/eag_13/aiml-BM-Case2-v1920/timeGap-r19                                       ABBREV=aiml_BM_Case2_v1920.timeGap_r19
 
 #.NO_EMIT ONLY_VALS
 
