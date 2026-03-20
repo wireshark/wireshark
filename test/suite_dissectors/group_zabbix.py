@@ -11,7 +11,7 @@ from typing import List
 import pytest
 
 
-def _tshark_outputs(tshark: str, capture_file: Path) -> List[str]:
+def _tshark_outputs(tshark: str, capture_file: Path, env: dict) -> List[str]:
     res = subprocess.run(
         (
             tshark,
@@ -23,6 +23,7 @@ def _tshark_outputs(tshark: str, capture_file: Path) -> List[str]:
         check=True,
         encoding="utf-8",
         text=True,
+        env=env
     )
     return [line.strip() for line in res.stdout.splitlines()]
 
@@ -59,7 +60,7 @@ class TestZabbix:
         _get_zabbix_capture_files(),
         ids=_get_zabbix_capture_files_names_only(),
     )
-    def test_zabbix_capture(self, cmd_tshark, zabbix_capture_file):
+    def test_zabbix_capture(self, cmd_tshark, zabbix_capture_file, test_env):
         """This test is run separately for each capture file found in captures/zabbix,
         to provide readable output when a test fails.
 
@@ -67,7 +68,7 @@ class TestZabbix:
         it are compared to the tshark output.
         """
         expected_outputs = _get_output_file_contents(zabbix_capture_file)
-        tshark_outputs = _tshark_outputs(cmd_tshark, zabbix_capture_file)
+        tshark_outputs = _tshark_outputs(cmd_tshark, zabbix_capture_file, test_env)
         assert len(expected_outputs) == len(tshark_outputs), "Output length mismatch"
         # Let's do the checks line by line to provide readable output in case of error
         for i in range(len(expected_outputs)):
