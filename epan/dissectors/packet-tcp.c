@@ -521,6 +521,8 @@ static expert_field ei_tcp_connection_synack;
 static expert_field ei_tcp_connection_syn;
 static expert_field ei_tcp_connection_fin;
 static expert_field ei_tcp_connection_rst;
+static expert_field ei_tcp_connection_rst_client;
+static expert_field ei_tcp_connection_rst_server;
 static expert_field ei_tcp_connection_fin_active;
 static expert_field ei_tcp_connection_fin_passive;
 static expert_field ei_tcp_checksum_ffff;
@@ -2139,10 +2141,6 @@ init_tcp_conversation_data(packet_info *pinfo, int direction)
     {
         tcpd->flow1.tcp_analyze_seq_info = wmem_new0(wmem_file_scope(), struct tcp_analyze_seq_flow_info_t);
         tcpd->flow2.tcp_analyze_seq_info = wmem_new0(wmem_file_scope(), struct tcp_analyze_seq_flow_info_t);
-        tcpd->flow1.tcp_analyze_seq_info->num_sack_ranges = 0;
-        tcpd->flow2.tcp_analyze_seq_info->num_sack_ranges = 0;
-        tcpd->flow1.tcp_analyze_seq_info->num_contiguous_ranges = 0;
-        tcpd->flow2.tcp_analyze_seq_info->num_contiguous_ranges = 0;
     }
     /* Only allocate the data if its actually going to be displayed */
     if (tcp_display_process_info)
@@ -2154,18 +2152,10 @@ init_tcp_conversation_data(packet_info *pinfo, int direction)
     tcpd->acked_table=wmem_tree_new(wmem_file_scope());
     tcpd->ts_first.secs=pinfo->abs_ts.secs;
     tcpd->ts_first.nsecs=pinfo->abs_ts.nsecs;
-    nstime_set_zero(&tcpd->ts_mru_syn);
-    nstime_set_zero(&tcpd->ts_first_rtt);
     tcpd->ts_prev.secs=pinfo->abs_ts.secs;
     tcpd->ts_prev.nsecs=pinfo->abs_ts.nsecs;
-    tcpd->flow1.closing_initiator = false;
-    tcpd->flow2.closing_initiator = false;
     tcpd->stream = tcp_stream_count++;
-    tcpd->server_port = 0;
     tcpd->tfo_syn_data = false;
-    tcpd->flow_direction = 0;
-    tcpd->flow1.flow_count = 0;
-    tcpd->flow2.flow_count = 0;
     tcpd->flow1.mss = -1;
     tcpd->flow2.mss = -1;
 
@@ -9563,6 +9553,17 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* XXX - find a way to know the server port and output only that one */
         expert_add_info(pinfo, tf_rst, &ei_tcp_connection_rst);
 
+        if (!PINFO_FD_VISITED(pinfo) && !tcpd->fwd->closing_initiator && !tcpd->rev->closing_initiator
+                && !tcpd->fwd->closing_initiator_rst && !tcpd->rev->closing_initiator_rst
+                && ((tcpd->fwd->static_flags & TCP_S_SAW_SYN) == TCP_S_SAW_SYN || (tcpd->rev->static_flags & TCP_S_SAW_SYN) == TCP_S_SAW_SYN)) {
+            tcpd->fwd->closing_initiator_rst = true;
+        }
+        if (!tcpd->rev->closing_initiator_rst && tcpd->fwd->closing_initiator_rst) {
+            if ((tcpd->fwd->static_flags & TCP_S_SAW_SYN) == TCP_S_SAW_SYN)
+                expert_add_info(pinfo, tf_rst, &ei_tcp_connection_rst_client);
+            else
+                expert_add_info(pinfo, tf_rst, &ei_tcp_connection_rst_server);
+        }
     }
     if(tcp_analyze_seq
             && (tcph->th_flags & (TH_SYN|TH_ACK)) == TH_ACK
@@ -11202,6 +11203,8 @@ proto_register_tcp(void)
          * to terminate a connection as well, which is a misbehavior (see e.g. rfc3360)
          */
         { &ei_tcp_connection_rst, { "tcp.connection.rst", PI_SEQUENCE, PI_WARN, "Connection reset (RST)", EXPFILL }},
+        { &ei_tcp_connection_rst_client, { "tcp.connection.rst_client", PI_SEQUENCE, PI_CHAT, "Connection reset (RST) initiated by the client", EXPFILL }},
+        { &ei_tcp_connection_rst_server, { "tcp.connection.rst_server", PI_SEQUENCE, PI_CHAT, "Connection reset (RST) initiated by the server", EXPFILL }},
         { &ei_tcp_checksum_ffff, { "tcp.checksum.ffff", PI_CHECKSUM, PI_WARN, "TCP Checksum 0xffff instead of 0x0000 (see RFC 1624)", EXPFILL }},
         { &ei_tcp_checksum_partial, { "tcp.checksum.partial", PI_CHECKSUM, PI_NOTE, "Partial (pseudo header) checksum (likely caused by \"TCP checksum offload\")", EXPFILL }},
         { &ei_tcp_checksum_bad, { "tcp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
