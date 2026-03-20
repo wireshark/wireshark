@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V19.1.0 (2025-12)
+-- 3GPP TS 36.331 V19.2.0 (2026-03)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1055,7 +1055,12 @@ SystemInformationBlockType1-NB-v1700 ::= SEQUENCE {
 
 SystemInformationBlockType1-NB-v1900 ::= SEQUENCE {
 	sf-OperationMode-r19				ENUMERATED {barred, notBarred}	OPTIONAL,	-- Need OP
-	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+	nonCriticalExtension				SystemInformationBlockType1-NB-v1920		OPTIONAL
+}
+
+SystemInformationBlockType1-NB-v1920 ::= SEQUENCE {
+	pws-Support-r19							ENUMERATED {true}	OPTIONAL,	-- Need OR
+	nonCriticalExtension						SEQUENCE {}						OPTIONAL
 }
 
 PLMN-IdentityList-NB-r13 ::=		SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-IdentityInfo-NB-r13
@@ -1764,14 +1769,18 @@ SystemInformationBlockType31-NB-r17 ::= SEQUENCE {
 	...,
 	[[	servingSatelliteInfo-v1820	ServingSatelliteInfo-v1820		OPTIONAL	-- Need OR
 	]],
-	[[	servingSatelliteInfo-v1900	ServingSatelliteInfo-v1900		OPTIONAL	-- Need OR
+-- WS modification: rename to avoid the collision incompatible definition in EUTRA-RRC-Definitions.asn
+--	[[	servingSatelliteInfo-v1900	ServingSatelliteInfo-v1900		OPTIONAL	-- -- Need OR
+	[[	servingSatelliteInfo-v1900	ServingSatelliteInfo-NB-v1900		OPTIONAL	-- Need OR
 	]]
 }
 
--- WS modification: already defined in EUTRA-RRC-Definitions.asn
+-- WS modification: rename to avoid the collision with incompatible definition in EUTRA-RRC-Definitions.asn
 -- ServingSatelliteInfo-v1900 ::=	SEQUENCE {
--- 	t-ModeSwitching-r19				TimeOffsetUTC-r17				OPTIONAL	Need OR
--- }
+ServingSatelliteInfo-NB-v1900 ::=	SEQUENCE {
+	t-ModeSwitching-r19				TimeOffsetUTC-r17				OPTIONAL,	-- Need OR
+	k-Mac-r19						INTEGER (1..1024)				OPTIONAL	-- Need OP
+}
 
 
 SystemInformationBlockType32-NB-r17 ::= SEQUENCE {
@@ -1929,11 +1938,11 @@ CB-Msg3-Config-NB-r19 ::=			SEQUENCE {
 			windowPeriodicity-NB-r19			ENUMERATED {n16, n32, n64, n128, n256, n512,
 															n1024, n1536, n2048, n3072, n4096,
 															n5120, n6144, n7168, n8192, n8704}
-		}															OPTIONAL,	-- Cond SIB2
+		}															OPTIONAL,	-- Need OP
 		cb-Msg3-ResponseWindow-NB-r19			ENUMERATED {pp1, pp2, pp3, pp4, pp8, pp16, pp32,
 																pp64}	OPTIONAL,	-- Cond SIB2
 		cb-Msg3-MaxAttemptNum-NB-r19			ENUMERATED {n2, n3, n4, n5, n6, n7, n8, n10}
-																	OPTIONAL	-- Cond SIB2
+																	OPTIONAL	-- Need OP
 }
 
 CB-Msg3-RSRP-CE-Levels-NB-r19 ::=	SEQUENCE (SIZE(1..2)) OF RSRP-Range
@@ -3102,7 +3111,12 @@ UE-Capability-NB-v1900-IEs ::=	SEQUENCE {
 	pws-Support-r19						ENUMERATED {supported}		OPTIONAL,
 	ntn-Parameters-v1900				NTN-Parameters-NB-v1900		OPTIONAL,
 	other-Parameters-r19				Other-Parameters-NB-r19,
-	nonCriticalExtension				SEQUENCE {}					OPTIONAL
+	nonCriticalExtension				UE-Capability-NB-v1920-IEs	OPTIONAL
+}
+
+UE-Capability-NB-v1920-IEs ::=	SEQUENCE {
+	rf-Parameters-v1920				RF-Parameters-NB-v1920,
+	nonCriticalExtension			SEQUENCE {}						OPTIONAL
 }
 
 TDD-UE-Capability-NB-r15 ::=		SEQUENCE {
@@ -3270,9 +3284,15 @@ RF-Parameters-NB-v1710 ::=			SEQUENCE {
 	supportedBandList-v1710				SupportedBandList-NB-v1710	OPTIONAL
 }
 
+RF-Parameters-NB-v1920 ::=			SEQUENCE {
+	supportedBandList-v1920				SupportedBandList-NB-v1920	OPTIONAL
+}
+
 SupportedBandList-NB-r13 ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBand-NB-r13
 
 SupportedBandList-NB-v1710 ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBand-NB-v1710
+
+SupportedBandList-NB-v1920 ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBand-NB-v1920
 
 SupportedBand-NB-r13	::=			SEQUENCE {
 	band-r13							FreqBandIndicator-NB-r13,
@@ -3281,6 +3301,10 @@ SupportedBand-NB-r13	::=			SEQUENCE {
 
 SupportedBand-NB-v1710	::=		SEQUENCE {
 	npusch-16QAM-r17					ENUMERATED {supported}		OPTIONAL
+}
+
+SupportedBand-NB-v1920	::=		SEQUENCE {
+	powerBoostingNB-r19				ENUMERATED {supported}		OPTIONAL
 }
 
 SON-Parameters-NB-r16 ::=			SEQUENCE {
