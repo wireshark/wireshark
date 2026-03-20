@@ -290,9 +290,8 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    char          *szInfo;
+    wmem_strbuf_t *szInfo;
     int            offCur        = 0;   /* current offset from start of WTP data */
-    int            returned_length, str_index = 0;
 
     unsigned char  b0;
 
@@ -317,9 +316,6 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     uint16_t       TID = 0;        /* Transaction-Id    */
     int            dataOffset;
     int            dataLen;
-
-#define SZINFO_SIZE 256
-    szInfo=(char *)wmem_alloc(pinfo->pool, SZINFO_SIZE);
 
     b0 = tvb_get_uint8 (tvb, offCur + 0);
     /* Discover Concatenated PDUs */
@@ -380,10 +376,11 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             val_to_str(pinfo->pool,pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"),
             pdut, tvb_captured_length(tvb));
 
+    szInfo = wmem_strbuf_new(pinfo->pool, "");
+
     /* Develop the string to put in the Info column */
-    returned_length =  snprintf(szInfo, SZINFO_SIZE, "WTP %s",
+    wmem_strbuf_append_printf(szInfo, "WTP %s",
             val_to_str(pinfo->pool,pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"));
-    str_index += MIN(returned_length, SZINFO_SIZE-str_index);
 
     switch (pdut) {
         case INVOKE:
@@ -391,9 +388,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             TID = tvb_get_ntohs(tvb, offCur + 1);
             psn = 0;
             clsTransaction = transaction_class(tvb_get_uint8(tvb, offCur + 3));
-            returned_length = snprintf(&szInfo[str_index], SZINFO_SIZE-str_index,
-                    " Class %d", clsTransaction);
-            str_index += MIN(returned_length, SZINFO_SIZE-str_index);
+            wmem_strbuf_append_printf(szInfo, " Class %d", clsTransaction);
             cbHeader = 4;
             break;
 
@@ -403,9 +398,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             TID = tvb_get_ntohs(tvb, offCur + 1);
             psn = tvb_get_uint8(tvb, offCur + 3);
             if (psn != 0) {
-                returned_length = snprintf(&szInfo[str_index], SZINFO_SIZE-str_index,
-                        " (%u)", psn);
-                str_index += MIN(returned_length, SZINFO_SIZE-str_index);
+                wmem_strbuf_append_printf(szInfo, " (%u)", psn);
             }
             cbHeader = 4;
             break;
@@ -435,7 +428,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     };
     if (fRID) {
-        /*returned_length =*/ snprintf(&szInfo[str_index], SZINFO_SIZE-str_index, " R" );
+        wmem_strbuf_append(szInfo, " R" );
         /*str_index += MIN(returned_length, SZINFO_SIZE-str_index);*/
     };
     /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -698,7 +691,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* Not reassembled in this packet */
                     col_append_fstr(pinfo->cinfo, COL_INFO,
                             "%s (WTP payload reassembled in packet %u)",
-                            szInfo, fd_wtp->reassembled_in);
+                            wmem_strbuf_get_str(szInfo), fd_wtp->reassembled_in);
 
                     proto_tree_add_item(wtp_tree, hf_wtp_payload, tvb, dataOffset, -1, ENC_NA);
                 }
@@ -706,7 +699,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Not reassembled yet, or not reassembled at all */
                 col_append_fstr(pinfo->cinfo, COL_INFO,
                         "%s (Unreassembled fragment %u)",
-                        szInfo, psn);
+                        wmem_strbuf_get_str(szInfo), psn);
                 proto_tree_add_item(wtp_tree, hf_wtp_payload, tvb, dataOffset, -1, ENC_NA);
             }
             /* Now reset fragmentation information in pinfo */
@@ -722,13 +715,13 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else
         {
             /* Nothing to hand to subdissector */
-            col_append_str(pinfo->cinfo, COL_INFO, szInfo);
+            col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(szInfo));
         }
     }
     else
     {
         /* Nothing to hand to subdissector */
-        col_append_str(pinfo->cinfo, COL_INFO, szInfo);
+        col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(szInfo));
     }
 }
 
