@@ -20,6 +20,7 @@
 #include <epan/proto.h>
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
+#include <epan/decode_as.h>
 
 #include <wsutil/strtoi.h>
 #include <wsutil/utf8_entities.h>
@@ -108,6 +109,7 @@ typedef struct _nats_request_token
 typedef struct _nats_dissector_search_context
 {
     const char* subject;
+    int subject_length;
     dissector_handle_t dissector;
 } nats_dissector_search_context_t;
 
@@ -309,8 +311,13 @@ static void nats_dissector_search(const char* table_name _U_, ftenum_t selector_
 
     // TODO: Add search for the most specified regexp
     //       But for now support only upper level dissectors
-    //       which subscribe to all subjects using the ">" wildcard
-    if (context->dissector == NULL && strncmp(subject_regexp, ">", 2) == 0)
+    //       which subscribe to exactly one subject (no wildcards)
+    //       or all subjects using the ">" wildcard
+    if (context->dissector == NULL && strncmp(subject_regexp, context->subject, context->subject_length) == 0)
+    {
+        context->dissector = dissector_handle;
+    }
+    else if (context->dissector == NULL && strncmp(subject_regexp, ">", 2) == 0)
     {
         context->dissector = dissector_handle;
     }
@@ -444,6 +451,12 @@ static int dissect_nats_with_payload(tvbuff_t* tvb, unsigned offset, unsigned ne
     if (body_bytes)
     {
         const char* subject = token_subject.value;
+        int subject_length = token_subject.length;
+
+        /* Save NATS subject to prefill the decode as value
+         * subject uses memory from pinfo->pool (originating from nats_parse_tokens)
+         */
+        p_add_proto_data(pinfo->pool, pinfo, proto_nats, pinfo->curr_layer_num, (void *)subject);
 
         nats_data->subject = subject;
         nats_data->reply_to = token_reply_to ? token_reply_to->value : NULL;
@@ -461,7 +474,7 @@ static int dissect_nats_with_payload(tvbuff_t* tvb, unsigned offset, unsigned ne
             }
         }
 
-        nats_dissector_search_context_t context = {subject, NULL};
+        nats_dissector_search_context_t context = {subject, subject_length, NULL};
 
         dissector_table_foreach("nats.subject", nats_dissector_search, &context);
 
@@ -1082,6 +1095,17 @@ dissect_nats(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     return tvb_reported_length(tvb);
 }
 
+static void nats_prompt(packet_info *pinfo, char* result)
+{
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Nats subject %s as",
+             (char *)p_get_proto_data(pinfo->pool, pinfo, proto_nats, pinfo->curr_layer_num));
+}
+
+static void *nats_value(packet_info *pinfo)
+{
+    return p_get_proto_data(pinfo->pool, pinfo, proto_nats, pinfo->curr_layer_num);
+}
+
 void proto_register_nats(void)
 {
     static hf_register_info hf[] = {
@@ -1331,6 +1355,12 @@ void proto_register_nats(void)
         &ett_nats_headers,
     };
 
+    // Decode As handling
+    static build_valid_func nats_da_build_value[1] = {nats_value};
+    static decode_as_value_t nats_da_values = {nats_prompt, 1, nats_da_build_value};
+    static decode_as_t nats_da = {"nats", "nats.subject", 1, 0, &nats_da_values, NULL, NULL,
+                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL, NULL };
+
     proto_nats = proto_register_protocol("NATS", "NATS", "nats");
     handle_nats = create_dissector_handle(dissect_nats, proto_nats);
 
@@ -1347,6 +1377,8 @@ void proto_register_nats(void)
         BASE_NONE);
 
     register_dissector("NATS", dissect_nats, proto_nats);
+
+    register_decode_as(&nats_da);
 }
 
 void proto_reg_handoff_nats(void)

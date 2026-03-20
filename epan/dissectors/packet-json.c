@@ -3126,6 +3126,7 @@ proto_reg_handoff_json(void)
 	heur_dissector_add("udp", dissect_json_acdr_heur, "JSON over AC DR", "json_acdr", proto_json, HEURISTIC_ENABLE);
 
 	dissector_add_for_decode_as("udp.port", json_file_handle);
+	dissector_add_for_decode_as("nats.subject", json_handle);
 
 	dissector_add_string("media_type.suffix", "json", json_handle);  /* RFC 6839 */
 	dissector_add_string("grpc_message_type", "application/grpc+json", json_handle);
