@@ -835,7 +835,7 @@ dissect_mbudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 /* Code to dissect Modbus RTU over TCP messages */
 static int
-dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_mbrtu_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
     /* Make sure there's at least enough data to determine it's a Modbus packet */
@@ -845,14 +845,27 @@ dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     /* For Modbus RTU mode, confirm that the first byte is a valid address (non-zero), */
     /* so we can eliminate false-positives on Modbus TCP messages loaded as RTU       */
-    if(tvb_get_uint8(tvb, 0) == 0 )
+    if (tvb_get_uint8(tvb, 0) == 0)
         return 0;
 
     /* build up protocol tree and iterate over multiple packets */
     tcp_dissect_pdus(tvb, pinfo, tree, mbrtu_desegment, 5,
-                     get_mbrtu_pdu_len, dissect_mbrtu_pdu, data);
+        get_mbrtu_pdu_len, dissect_mbrtu_pdu, data);
 
     return tvb_captured_length(tvb);
+}
+
+/* Code to dissect raw Modbus RTU messages */
+static int
+dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+
+    /* Make sure there's at least enough data to determine it's a Modbus packet */
+    /* 5 bytes is the smallest possible valid message (exception response) */
+    if (tvb_reported_length(tvb) < 5)
+        return 0;
+
+    return dissect_mbrtu_pdu_common(tvb, pinfo, tree, NULL);
 }
 
 static int
@@ -2270,10 +2283,11 @@ void
 proto_reg_handoff_mbrtu(void)
 {
     dissector_handle_t mbrtu_udp_handle = create_dissector_handle(dissect_mbrtu_udp, proto_mbrtu);
+    dissector_handle_t mbrtu_tcp_handle = create_dissector_handle(dissect_mbrtu_tcp, proto_mbrtu);
 
     /* Make sure to use Modbus RTU Preferences field to determine default TCP port */
     dissector_add_for_decode_as_with_preference("udp.port", mbrtu_udp_handle);
-    dissector_add_for_decode_as_with_preference("tcp.port", mbrtu_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", mbrtu_tcp_handle);
     apply_mbrtu_prefs();
 
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
