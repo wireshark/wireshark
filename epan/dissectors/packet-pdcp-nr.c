@@ -1708,8 +1708,8 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 }
 
 /* Try to calculate digest to compare with that found in frame. */
-static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings, packet_info *pinfo, proto_tree *security_tree, tvbuff_t *header_tvb _U_,
-                                tvbuff_t *tvb _U_, int offset _U_, unsigned sdap_length _U_, bool *calculated)
+static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings, packet_info *pinfo, proto_tree *security_tree, tvbuff_t *header_tvb,
+                                tvbuff_t *tvb, int offset, unsigned sdap_length, bool *calculated)
 {
     *calculated = false;
 
@@ -1729,6 +1729,23 @@ static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings,
         return 0;
     }
 
+    /* XXX - Should we just add sdap_length to offset (here or before
+     * calling this?) The SDAP bytes don't seem to be consistently removed.
+     * XXX - We could calculate the digest if the *reported* length is long
+     * enough for a digest, but the *captured* length is only long enough
+     * for everything except the digest. We would then need to add the
+     * digest with PROTO_CHECKSUM_GENERATED later; as it is, we'll just
+     * throw an exception there later so it's not worth doing yet. */
+    unsigned message_length = tvb_captured_length_remaining(tvb, offset);
+    /* Can't calculate if there's not room for a digest */
+    if (message_length < 4 + sdap_length) {
+        return 0;
+    }
+    /* Remove the digest from the length. */
+    message_length -= 4;
+
+    unsigned header_length = tvb_reported_length(header_tvb);
+
     switch (pdu_security_settings->integrity) {
 
 #ifdef HAVE_SNOW3G
@@ -1736,8 +1753,6 @@ static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings,
             {
                 /* SNOW3G */
                 uint8_t *mac;
-                unsigned header_length = tvb_reported_length(header_tvb);
-                int message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 uint8_t *message_data = (uint8_t *)wmem_alloc0(pinfo->pool, header_length+message_length-sdap_length+4);
 
                 /* TS 33.401 B.2.2 */
@@ -1771,8 +1786,6 @@ static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings,
                 /* AES */
                 gcry_mac_hd_t mac_hd;
                 int gcrypt_err;
-                unsigned header_length;
-                int message_length;
                 uint8_t *message_data;
                 uint8_t mac[4];
                 size_t read_digest_length = 4;
@@ -1793,8 +1806,6 @@ static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings,
                 /* TS 33.501 D.4.3 defers to TS 33.401 B.2.3 */
 
                 /* Extract the encrypted data into a buffer */
-                header_length = tvb_reported_length(header_tvb);
-                message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 message_data = (uint8_t *)wmem_alloc0(pinfo->pool, 8+header_length+message_length-sdap_length);
                 message_data[0] = (pdu_security_settings->count & 0xff000000) >> 24;
                 message_data[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
@@ -1839,8 +1850,6 @@ static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings,
             {
                 /* ZUC */
                 uint32_t mac;
-                unsigned header_length = tvb_reported_length(header_tvb);
-                int message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 uint8_t *message_data = (uint8_t *)wmem_alloc0(pinfo->pool, header_length+message_length-sdap_length+4);
 
                 /* Data is header bytes */

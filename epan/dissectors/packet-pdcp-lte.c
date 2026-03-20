@@ -1862,6 +1862,19 @@ static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings,
         return 0;
     }
 
+    /* XXX - We could calculate the digest if the *reported* length is long
+    * enough for a digest, but the *captured* length is only long enough
+    * for everything except the digest. We would then need to add the
+    * digest with PROTO_CHECKSUM_GENERATED later; as it is, we'll just
+    * throw an exception there later so it's not worth doing yet. */
+    unsigned message_length = tvb_captured_length_remaining(tvb, offset);
+    /* Can't calculate if there's not room for a digest */
+    if (message_length < 4) {
+        return 0;
+    }
+    /* Remove the digest from the length */
+    message_length -= 4;
+
     switch (pdu_security_settings->integrity) {
 
 #ifdef HAVE_SNOW3G
@@ -1869,7 +1882,6 @@ static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings,
             {
                 /* SNOW3G */
                 uint8_t *mac;
-                int message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 uint8_t *message_data = (uint8_t *)wmem_alloc0(pinfo->pool, message_length+5);
 
                 /* TS 33.401 B.2.2 */
@@ -1897,7 +1909,6 @@ static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings,
                 /* AES */
                 gcry_mac_hd_t mac_hd;
                 int gcrypt_err;
-                int message_length;
                 uint8_t *message_data;
                 uint8_t mac[4];
                 size_t read_digest_length = 4;
@@ -1918,7 +1929,6 @@ static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings,
                 /* TS 33.401 B.2.3 */
 
                 /* Extract the encrypted data into a buffer */
-                message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 message_data = (uint8_t *)wmem_alloc0(pinfo->pool, message_length+9);
                 message_data[0] = (pdu_security_settings->count & 0xff000000) >> 24;
                 message_data[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
@@ -1956,7 +1966,6 @@ static uint32_t calculate_digest(pdu_security_settings_t *pdu_security_settings,
             {
                 /* ZUC */
                 uint32_t mac;
-                int message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 uint8_t *message_data = (uint8_t *)wmem_alloc0(pinfo->pool, message_length+5);
 
                 /* Data is header byte */
