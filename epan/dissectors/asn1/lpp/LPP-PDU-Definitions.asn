@@ -1,4 +1,4 @@
--- 3GPP TS 37.355 V19.1.0 (2025-12)
+-- 3GPP TS 37.355 V19.2.0 (2026-03)
 
 LPP-PDU-Definitions
 DEFINITIONS AUTOMATIC TAGS ::=
@@ -1998,7 +1998,7 @@ NR-On-Demand-DL-PRS-Request-r17 ::= SEQUENCE {
 																						OPTIONAL
 	]],
 	[[
-	nr-TRP-RequestList-r19 						NR-TRP-RequestList-r19					OPTIONAL
+	nr-TRP-RequestList-r19						NR-TRP-RequestList-r19					OPTIONAL
 	]]
 }
 
@@ -3721,7 +3721,7 @@ GNSS-SSR-CorrectionPoints-r16 ::= SEQUENCE {
 	},
 	...,
 	[[
-	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL 	-- Need OR
+	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -3807,7 +3807,7 @@ GNSS-SSR-IOD-Update-r18 ::= SEQUENCE {
 	iod-ssr-PCVResiduals-r18			INTEGER (0..64),
 	...,
 	[[
-	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL 	-- Need OR
+	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -4756,7 +4756,7 @@ GNSS-SSR-OrbitCorrections-r15 ::= SEQUENCE {
 		orbit-IntegrityParameters-r17	ORBIT-IntegrityParameters-r17	OPTIONAL -- Need OR
 	]],
 	[[
-	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL 	-- Need OR
+	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -4812,7 +4812,7 @@ GNSS-SSR-ClockCorrections-r15 ::= SEQUENCE {
 		clock-IntegrityParameters-r17	CLOCK-IntegrityParameters-r17		OPTIONAL   -- Need OR
 	]],
 	[[
-	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL 	-- Need OR
+	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -4851,7 +4851,7 @@ GNSS-SSR-CodeBias-r15 ::= SEQUENCE {
 	ssr-CodeBiasSatList-r15				SSR-CodeBiasSatList-r15,
 	...,
 	[[
-	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL 	-- Need OR
+	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -4890,7 +4890,7 @@ GNSS-SSR-URA-r16 ::= SEQUENCE {
 	ssr-URA-SatList-r16					SSR-URA-SatList-r16,
 	...,
 	[[
-	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL 	-- Need OR
+	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -4910,7 +4910,7 @@ GNSS-SSR-PhaseBias-r16 ::= SEQUENCE {
 	ssr-PhaseBiasSatList-r16			SSR-PhaseBiasSatList-r16,
 	...,
 	[[
-	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL 	-- Need OR
+	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -4955,7 +4955,7 @@ GNSS-SSR-STEC-Correction-r16 ::= SEQUENCE {
 		stec-IntegrityParameters-r17	STEC-IntegrityParameters-r17		OPTIONAL	-- Need OR
 	]],
 	[[
-	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL 	-- Need OR
+	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -5005,7 +5005,7 @@ GNSS-SSR-GriddedCorrection-r16 ::= SEQUENCE {
 																			OPTIONAL  -- Need OR
 	]],
 	[[
-	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL 	-- Need OR
+	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -5189,7 +5189,7 @@ GNSS-SSR-SatellitePCVResiduals-r18 ::= SEQUENCE {
 	ssr-SatellitePCV-List-r18			SSR-SatellitePCV-List-r18,
 	...,
 	[[
-	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL 	-- Need OR
+	ssr-ProviderInfo-r19				GNSS-SSR-ProviderInfo-r19			OPTIONAL	-- Need OR
 	]]
 }
 
@@ -6306,7 +6306,7 @@ NavIC-GridModelSupport-r16 ::=	SEQUENCE {
 GNSS-SSR-OrbitCorrectionsSet2Support-r17 ::=	SEQUENCE {
 	...,
 	[[
-	refEphSupport-r19	BIT STRING 	{	b1c 		(0),
+	refEphSupport-r19	BIT STRING	{	b1c			(0),
 										navicL1	(1)
 									} (SIZE (1..8))				OPTIONAL
 	]]
@@ -7785,7 +7785,7 @@ NR-DL-TDOA-ProvideCapabilities-r16 ::= SEQUENCE {
 															beamInfoSup		(1),
 															rtdInfoSup		(2),
 															trpTEG-InfoSup	(3),
-															nr-IntegritySup-r18 (4),
+															nr-IntegrityBoundsSup-r18 (4),
 															pruInfoSup-r18	(5)
 														}	(SIZE (1..8))				OPTIONAL,
 	nr-los-nlos-AssistanceDataSupport-r17	SEQUENCE {
@@ -8778,7 +8778,13 @@ NR-DL-AIML-CapabilityPerBand-r19 ::= SEQUENCE {
 	supportOfDL-PRS-BWA-RRC-Idle-r19			ENUMERATED { supported }				OPTIONAL,
 	supportOfDL-AIML-Pos-RRC-Inactive-r19		ENUMERATED { supported }				OPTIONAL,
 	supportOfDL-AIML-Pos-RRC-Idle-r19			ENUMERATED { supported }				OPTIONAL,
-	...
+	...,
+	[[
+	inferenceTimePerPFL-r19						ENUMERATED { ms1, ms2, ms3, ms4, ms5, ms6,
+															ms7, ms8, ms9, ms10, ms11, ms12,
+															ms14, ms16, ms18, ms20 }	OPTIONAL,
+	maxUE-RxTEGs-Support-r19					ENUMERATED {n1, n2, n3, n4 }			OPTIONAL
+	]]
 }
 
 
@@ -8812,7 +8818,12 @@ NR-DL-AIML-PRS-ProcessingCapabilityPerBand-r19 ::= SEQUENCE {
 											PRS-BWA-TwoContiguousIntrabandInMG-r19		OPTIONAL,
 	prs-BWA-ThreeContiguousIntraband-RRC-IdleAndInactive-r19
 											PRS-BWA-ThreeContiguousIntrabandInMG-r19	OPTIONAL,
-	...
+	...,
+	[[
+	supportedDL-PRS-ProcessingSamples-r19	ENUMERATED { supported }					OPTIONAL,
+	supportedLowerRxBeamSweepingFactor-FR2-r19
+											ENUMERATED { n1, n2, n4, n6 }				OPTIONAL
+	]]
 }
 
 NR-DL-AIML-PRS-ProcessingCapabilityElement-r19 ::= SEQUENCE {
@@ -8875,11 +8886,11 @@ PRS-ProcessingCapabilityOutsideMGinPPWperType-r19 ::= SEQUENCE {
 		scs15-r19						ENUMERATED {n1, n2, n4, n6, n8, n12, n16, n24,
 													n32, n48, n64 }						OPTIONAL,
 		scs30-r19						ENUMERATED {n1, n2, n4, n6, n8, n12, n16, n24,
-	 												n32, n48, n64 }						OPTIONAL,
+													n32, n48, n64 }						OPTIONAL,
 		scs60-r19						ENUMERATED {n1, n2, n4, n6, n8, n12, n16, n24,
- 													n32, n48, n64 }						OPTIONAL,
+													n32, n48, n64 }						OPTIONAL,
 		scs120-r19						ENUMERATED {n1, n2, n4, n6, n8, n12, n16, n24,
-			 										n32, n48, n64 }						OPTIONAL,
+													n32, n48, n64 }						OPTIONAL,
 		...
 		},
 	ppw-maxNumOfDL-Bandwidth-r19	CHOICE {
