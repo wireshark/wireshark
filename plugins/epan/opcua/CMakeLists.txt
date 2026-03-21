@@ -31,45 +31,9 @@ set(DISSECTOR_SUPPORT_SRC
 	opcua_keyset.c
 )
 
-set(PLUGIN_FILES
-	plugin.c
-	${DISSECTOR_SRC}
-	${DISSECTOR_SUPPORT_SRC}
-)
-
-set_source_files_properties(
-	${PLUGIN_FILES}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
-register_plugin_files(plugin.c
-	plugin
-	${DISSECTOR_SRC}
-	${DISSECTOR_SUPPORT_SRC}
-)
-
-add_wireshark_plugin_library(opcua epan)
-
-target_link_libraries(opcua epan ${GCRYPT_LIBRARIES})
-
-target_include_directories(opcua SYSTEM
-	PRIVATE
-	    ${GCRYPT_INCLUDE_DIRS}
-)
-install_plugin(opcua epan)
-
-file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-CHECKAPI(
-	NAME
-	  opcua
-	SWITCHES
-	  --group dissectors-prohibited
-	  --group dissectors-restricted
-	SOURCES
-	  ${DISSECTOR_SRC}
-	  ${DISSECTOR_SUPPORT_SRC}
-	  ${DISSECTOR_HEADERS}
+add_wireshark_epan_plugin_library(opcua
+	PLUGIN_LIBS ${GCRYPT_LIBRARIES}
+	PLUGIN_INCS ${GCRYPT_INCLUDE_DIRS}
 )
 
 #

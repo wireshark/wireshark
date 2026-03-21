@@ -16,39 +16,7 @@ set(WIRETAP_SRC
 	usbdump.c
 )
 
-set(PLUGIN_FILES
-	plugin.c
-	${WIRETAP_SRC}
-)
-
-set_source_files_properties(
-	${PLUGIN_FILES}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
-register_plugin_files(plugin.c
-	plugin_wtap
-	${WIRETAP_SRC}
-)
-
-add_wireshark_plugin_library(usbdump wiretap)
-
-target_include_directories(usbdump PRIVATE ${CMAKE_SOURCE_DIR}/wiretap)
-
-target_link_libraries(usbdump wiretap)
-
-install_plugin(usbdump wiretap)
-
-file(GLOB WIRETAP_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-CHECKAPI(
-	NAME
-	  usbdump
-	SWITCHES
-	SOURCES
-	  ${WIRETAP_SRC}
-	  ${WIRETAP_HEADERS}
-)
+add_wireshark_wiretap_plugin_library(usbdump)
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -20,41 +20,9 @@ set(DISSECTOR_SRC
 	packet-wimaxasncp.c
 )
 
-set(PLUGIN_FILES
-	plugin.c
-	${DISSECTOR_SRC}
-)
-
-set_source_files_properties(
-	${DISSECTOR_SRC}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
-register_plugin_files(plugin.c
-	plugin
-	${DISSECTOR_SRC}
-)
-
-add_wireshark_plugin_library(wimaxasncp epan)
-
-target_link_libraries(wimaxasncp epan ${LIBXML2_LIBRARIES})
-
-target_include_directories(wimaxasncp SYSTEM PRIVATE ${LIBXML2_INCLUDE_DIRS})
-
-
-install_plugin(wimaxasncp epan)
-
-file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-CHECKAPI(
-	NAME
-	  wimaxasncp
-	SWITCHES
-	  --group dissectors-prohibited
-	  --group dissectors-restricted
-	SOURCES
-	  ${DISSECTOR_SRC}
-	  ${DISSECTOR_HEADERS}
+add_wireshark_epan_plugin_library(wimaxasncp
+	PLUGIN_LIBS ${LIBXML2_LIBRARIES}
+	PLUGIN_INCS ${LIBXML2_INCLUDE_DIRS}
 )
 
 #

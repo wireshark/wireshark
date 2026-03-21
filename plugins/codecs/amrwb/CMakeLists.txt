@@ -16,39 +16,9 @@ set(CODEC_SRC
 	amrwbdecode.c
 )
 
-set(PLUGIN_FILES
-	plugin.c
-	${CODEC_SRC}
-)
-
-set_source_files_properties(
-	${PLUGIN_FILES}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
-register_plugin_files(plugin.c
-	plugin_codec
-	${CODEC_SRC}
-)
-
-add_wireshark_plugin_library(amrwb codecs)
-
-target_include_directories(amrwb PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
-
-target_link_libraries(amrwb wsutil ${AMRWB_LIBRARIES})
-target_include_directories(amrwb SYSTEM PRIVATE ${AMRWB_INCLUDE_DIRS})
-
-install_plugin(amrwb codecs)
-
-file(GLOB CODEC_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-CHECKAPI(
-	NAME
-	  amrwb
-	SWITCHES
-	SOURCES
-	  ${CODEC_SRC}
-	  ${CODEC_HEADERS}
+add_wireshark_codec_plugin_library(amrwb
+	PLUGIN_LIBS ${AMRWB_LIBRARIES}
+	PLUGIN_INCS ${AMRWB_INCLUDE_DIRS}
 )
 
 #

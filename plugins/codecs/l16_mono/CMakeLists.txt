@@ -16,39 +16,7 @@ set(CODEC_SRC
 	l16decode.c
 )
 
-set(PLUGIN_FILES
-	plugin.c
-	${CODEC_SRC}
-)
-
-set_source_files_properties(
-	${PLUGIN_FILES}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
-register_plugin_files(plugin.c
-	plugin_codec
-	${CODEC_SRC}
-)
-
-add_wireshark_plugin_library(l16mono codecs)
-
-target_include_directories(l16mono PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
-
-target_link_libraries(l16mono wsutil)
-
-install_plugin(l16mono codecs)
-
-file(GLOB CODEC_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-CHECKAPI(
-	NAME
-	  l16mono
-	SWITCHES
-	SOURCES
-	  ${CODEC_SRC}
-	  ${CODEC_HEADERS}
-)
+add_wireshark_codec_plugin_library(l16mono)
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

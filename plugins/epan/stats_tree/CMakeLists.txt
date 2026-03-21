@@ -16,37 +16,7 @@ set(TAP_SRC
 	pinfo_stats_tree.c
 )
 
-set(PLUGIN_FILES
-	plugin.c
-	${TAP_SRC}
-)
-
-set_source_files_properties(
-	${PLUGIN_FILES}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
-register_plugin_files(plugin.c
-	plugin_tap
-	${TAP_SRC}
-)
-
-add_wireshark_plugin_library(stats_tree epan)
-
-target_link_libraries(stats_tree epan)
-
-install_plugin(stats_tree epan)
-
-file(GLOB TAP_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-CHECKAPI(
-	NAME
-	  stats_tree
-	SWITCHES
-	SOURCES
-	  ${TAP_SRC}
-	  ${TAP_HEADERS}
-)
+add_wireshark_tap_plugin_library(stats_tree)
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

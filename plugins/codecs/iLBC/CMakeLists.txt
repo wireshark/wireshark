@@ -16,40 +16,9 @@ set(CODEC_SRC
 	iLBCdecode.c
 )
 
-set(PLUGIN_FILES
-	plugin.c
-	${CODEC_SRC}
-)
-
-set_source_files_properties(
-	${PLUGIN_FILES}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
-register_plugin_files(plugin.c
-	plugin_codec
-	${CODEC_SRC}
-)
-
-add_wireshark_plugin_library(ilbc codecs)
-
-target_include_directories(ilbc PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
-
-target_link_libraries(ilbc wsutil ${ILBC_LIBRARIES})
-
-target_include_directories(ilbc SYSTEM PRIVATE ${ILBC_INCLUDE_DIRS})
-
-install_plugin(ilbc codecs)
-
-file(GLOB CODEC_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-CHECKAPI(
-	NAME
-	  ilbc
-	SWITCHES
-	SOURCES
-	  ${CODEC_SRC}
-	  ${CODEC_HEADERS}
+add_wireshark_codec_plugin_library(ilbc
+	PLUGIN_LIBS ${ILBC_LIBRARIES}
+	PLUGIN_INCS ${ILBC_INCLUDE_DIRS}
 )
 
 #

@@ -22,39 +22,7 @@ set(DISSECTOR_SRC
 	packet-nv.c
 )
 
-set(PLUGIN_FILES
-	plugin.c
-	${DISSECTOR_SRC}
-)
-
-set_source_files_properties(
-	${PLUGIN_FILES}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
-register_plugin_files(plugin.c
-	plugin
-	${DISSECTOR_SRC}
-)
-
-add_wireshark_plugin_library(ethercat epan)
-
-target_link_libraries(ethercat epan)
-
-install_plugin(ethercat epan)
-
-file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-CHECKAPI(
-	NAME
-	  ethercat
-	SWITCHES
-	  --group dissectors-prohibited
-	  --group dissectors-restricted
-	SOURCES
-	  ${DISSECTOR_SRC}
-	  ${DISSECTOR_HEADERS}
-)
+add_wireshark_epan_plugin_library(ethercat)
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

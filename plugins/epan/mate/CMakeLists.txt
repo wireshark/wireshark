@@ -36,26 +36,12 @@ set(PLUGIN_FILES
 	${GENERATED_FILES}
 )
 
-set_source_files_properties(
-	${DISSECTOR_SRC}
-	${DISSECTOR_SUPPORT_SRC}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
-register_plugin_files(plugin.c
-	plugin
-	${DISSECTOR_SRC}
-	${DISSECTOR_SUPPORT_SRC}
-)
-
-add_wireshark_plugin_library(mate epan)
-
-target_link_libraries(mate epan)
-
-install_plugin(mate epan)
-
+#Define dissector headers here to prevent the "default" CheckAPI macro
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
+
+add_wireshark_epan_plugin_library(mate)
+
+#"Manually" have to call CheckAPI macro because of the extra files (LEMON_FILES, LEX_FILES) that are not included in the add_wireshark_epan_plugin_library() call.
 CHECKAPI(
 	NAME
 	  mate

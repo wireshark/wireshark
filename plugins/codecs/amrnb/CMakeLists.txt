@@ -16,40 +16,9 @@ set(CODEC_SRC
 	amrdecode.c
 )
 
-set(PLUGIN_FILES
-	plugin.c
-	${CODEC_SRC}
-)
-
-set_source_files_properties(
-	${PLUGIN_FILES}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
-register_plugin_files(plugin.c
-	plugin_codec
-	${CODEC_SRC}
-)
-
-add_wireshark_plugin_library(amrnb codecs)
-
-target_include_directories(amrnb PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
-
-target_link_libraries(amrnb wsutil ${AMRNB_LIBRARIES})
-
-target_include_directories(amrnb SYSTEM PRIVATE ${AMRNB_INCLUDE_DIRS})
-
-install_plugin(amrnb codecs)
-
-file(GLOB CODEC_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-CHECKAPI(
-	NAME
-	  amrnb
-	SWITCHES
-	SOURCES
-	  ${CODEC_SRC}
-	  ${CODEC_HEADERS}
+add_wireshark_codec_plugin_library(amrnb
+	PLUGIN_LIBS ${AMRNB_LIBRARIES}
+	PLUGIN_INCS ${AMRNB_INCLUDE_DIRS}
 )
 
 #
