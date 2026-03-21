@@ -65,8 +65,7 @@ mp2t_read_packet(wtap *wth, FILE_T fh, int64_t offset, wtap_rec *rec, int *err,
      * MP2T_SIZE will always be less than WTAP_MAX_PACKET_SIZE_STANDARD, so
      * we don't have to worry about the packet being too big.
      */
-    ws_buffer_assure_space(&rec->data, MP2T_SIZE);
-    if (!wtap_read_bytes_or_eof(fh, ws_buffer_start_ptr(&rec->data), MP2T_SIZE, err, err_info))
+    if (!wtap_read_bytes_or_eof_buffer(fh, &rec->data, MP2T_SIZE, err, err_info))
         return false;
 
     wtap_setup_packet_rec(rec, wth->file_encap);
