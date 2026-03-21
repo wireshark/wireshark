@@ -85,10 +85,10 @@ codec_sbc_decode(codec_context_t *ctx,
         const void *input, size_t inputSizeBytes,
         void *output, size_t *outputSizeBytes)
 {
-    size_t         size_in = (size_t) inputSizeBytes;
+    size_t         size_in = inputSizeBytes;
     size_t         size_out = SBC_BUFFER;
     size_t         len;
-    size_t         framelen;
+    ssize_t        framelen;
     size_t         xframe_pos = 0;
     const uint8_t *data_in  = (const uint8_t *) input;
     uint8_t       *data_out = (uint8_t *) output;
@@ -96,17 +96,35 @@ codec_sbc_decode(codec_context_t *ctx,
     uint8_t       *i_data;
     uint8_t        tmp;
 
+    /* XXX - This should presumably call sbc_parse on the input to set the
+     * various parameters the first time, then return the value from
+     * sbc_get_codesize() (uncompressed block size) as the necessary
+     * output size. See the opus codec. */
     if (!output || !outputSizeBytes) {
         return size_out;
     }
 
+    /* XXX - Why ask libsbc to provide Big Endian output and then always
+     * byte swap below? That seems wasteful on Little Endian and just wrong
+     * on Big Endian. sbc_init sets sbc->endian correctly depending on how
+     * the library was compiled. */
     sbc->endian = SBC_BE;
 
     *outputSizeBytes = 0;
     while (xframe_pos < inputSizeBytes) {
         framelen = sbc_decode(sbc, data_in, size_in, data_out, size_out, &len);
+        if (framelen <= 0) {
+            // Error
+            break;
+        }
         xframe_pos += framelen;
         data_in += framelen;
+        size_in -= framelen;
+        if (len > size_out) {
+            // Not enough room in output (multiple frames?)
+            break;
+        }
+        size_out -= len;
         *outputSizeBytes += len;
 
         for (i_data = data_out; i_data < data_out + len; i_data += 2) {
