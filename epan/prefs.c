@@ -5860,7 +5860,8 @@ deprecated_port_pref(char *pref_name, const char *value)
         for (i = 0; i < G_N_ELEMENTS(port_prefs); i++) {
             module = prefs_find_module(port_prefs[i].module_name);
             if (!module) {
-                ws_warning("Deprecated ports pref check - module '%s' not found", port_prefs[i].module_name);
+                // We might not be Wireshark, and therefore might not have deprecated port prefs.
+                ws_noisy("Deprecated ports pref check - module '%s' not found", port_prefs[i].module_name);
                 continue;
             }
             pref = prefs_find_preference(module, port_prefs[i].table_name);
