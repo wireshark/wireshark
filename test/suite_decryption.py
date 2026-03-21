@@ -1446,7 +1446,7 @@ class TestDecryptSmb2:
                         '-Y', 'frame.number >= %d'%pkt_skip,
                         '-w', partial_cap,
         ), encoding='utf-8', env=env)
-        TestDecryptSmb2.check_tree(cmd_tshark, partial_cap, tree, sesid, '""', s2ckey, c2skey)
+        TestDecryptSmb2.check_tree(cmd_tshark, partial_cap, tree, sesid, '""', s2ckey, c2skey, env=env)
 
     def test_smb311_aes128gcm_partial(self, features, home_path, cmd_tshark, capture_file, test_env):
         '''Check SMB 3.1.1 AES128GCM decryption in capture missing session setup'''
