@@ -157,7 +157,8 @@ static const zgfx_token_t ZGFX_MATCH_TABLE[] = {
 	{ 9, 382, 24, 17094304 }, // 101111110
 };
 
-
+/* Limits from [MS-RDPEGFX] 3.1.9.1.2 (So failures here are malformed
+ * packets, not limitations of the implementation.) */
 struct _zgfx_context_t{
 	uint8_t historyBuffer[2500000];
 	uint32_t historyIndex;
@@ -338,6 +339,9 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 	len--;
 
 	if (!(flags & ZGX_PACKET_COMPRESSED)) {
+		if (len > 65535) {
+		    return false;
+		}
 		tvbuff_t *raw = tvb_new_subset_remaining(tvb, 1);
 		zgfx_write_history_buffer_tvb(zgfx, raw, len);
 
