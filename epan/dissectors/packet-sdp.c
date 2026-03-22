@@ -2356,7 +2356,7 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
              * the same, so we could free the existing entry.  */
             rtp_dyn_payload_t *old_rtp_pt;
             old_rtp_pt = wmem_map_insert(sdp_rtsp_control_map, media_desc->control_uri, media_desc->media.rtp_dyn_payload);
-            if (old_rtp_pt) {
+            if (old_rtp_pt && old_rtp_pt != media_desc->media.rtp_dyn_payload) {
                 rtp_dyn_payload_free(old_rtp_pt);
             }
         }
