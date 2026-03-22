@@ -232,14 +232,15 @@ codec_amr_decode(codec_context_t *ctx, const void *input,
             return *outputSizeBytes;
         }
 
-        memset(aligned, 0, 32);
+        memset(aligned, 0, sizeof(aligned));
         aligned[0] = mode << 3;
-        for (unsigned j = 0; j < speech_bits[mode] / 8; ++j) {
+        unsigned j;
+        for (j = 0; j < speech_bits[mode] / 8U; ++j) {
             aligned[1 + j] = get_bits8(in, bit_offset, 8);
             bit_offset += 8;
         }
-        if (speech_bits[mode] % 8) {
-            aligned[1 + block_size[mode]] = get_bits8(in, bit_offset, speech_bits[mode] % 8);
+        if (j < block_size[mode]) {
+            aligned[1 + j] = get_bits8(in, bit_offset, speech_bits[mode] % 8);
         }
         /* Padding might be different. */
 
