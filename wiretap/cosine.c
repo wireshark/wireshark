@@ -467,10 +467,10 @@ parse_cosine_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 static int
 parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset)
 {
-	int num_items_scanned, i;
-	unsigned int bytes[16];
+	int num_items_scanned;
+	unsigned char bytes[16];
 
-	num_items_scanned = sscanf(rec, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
+	num_items_scanned = sscanf(rec, "%02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx",
 			       &bytes[0], &bytes[1], &bytes[2], &bytes[3],
 			       &bytes[4], &bytes[5], &bytes[6], &bytes[7],
 			       &bytes[8], &bytes[9], &bytes[10], &bytes[11],
@@ -481,9 +481,7 @@ parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset)
 	if (num_items_scanned > 16)
 		num_items_scanned = 16;
 
-	for (i=0; i<num_items_scanned; i++) {
-		buf[byte_offset + i] = (uint8_t)bytes[i];
-	}
+	memcpy(&buf[byte_offset], bytes, num_items_scanned);
 
 	return num_items_scanned;
 }
