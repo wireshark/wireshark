@@ -139,12 +139,10 @@ static const value_string mp_tcprst_reasons[] = {
 
 /*
  * RST Diagnostic Payload:
- * https://datatracker.ietf.org/doc/html/draft-boucadair-tcpm-rst-diagnostic-payload-15
+ * https://datatracker.ietf.org/doc/html/draft-boucadair-tcpm-rst-diagnostic-payload-17
  */
-#define TCP_RST_DIAGNOSTIC_COMPACT_MAGIC 0x33AA
-#define TCP_RST_DIAGNOSTIC_COMPACT_LEN   8  /* magic(2) + reason_code(2) + pen(4) */
-#define TCP_RST_DIAGNOSTIC_FREE_MAGIC    0xF317
-#define TCP_RST_DIAGNOSTIC_FREE_MIN_LEN  3  /* magic(2) + at least 1 byte description */
+#define TCP_RST_DIAGNOSTIC_MAGIC 0x33AA
+#define TCP_RST_DIAGNOSTIC_LEN   8  /* magic(2) + reason_code(2) + pen(4) */
 
 /* IANA "TCP Failure Causes" registry */
 static const value_string tcp_failure_cause_vals[] = {
@@ -427,7 +425,6 @@ static int hf_tcp_rst_diagnostic_magic;
 static int hf_tcp_rst_diagnostic_reason_code;
 static int hf_tcp_rst_diagnostic_vendor_reason_code;
 static int hf_tcp_rst_diagnostic_pen;
-static int hf_tcp_rst_diagnostic_reason_desc;
 static int hf_tcp_fin_retransmission;
 static int hf_tcp_option_rvbd_probe_reserved;
 static int hf_tcp_option_scps_binding_data;
@@ -8514,7 +8511,7 @@ static void tcp_tap_cleanup(void *data)
  * otherwise display the data as text.
  */
 static void
-dissect_tcp_rst_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length)
+dissect_tcp_rst_payload(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 {
     if (length < 2) {
         proto_tree_add_item(tree, hf_tcp_reset_cause, tvb, offset, length, ENC_ASCII);
@@ -8523,9 +8520,9 @@ dissect_tcp_rst_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
     uint16_t magic = tvb_get_ntohs(tvb, offset);
 
-    /* compact format (Section 3.1) */
-    if (magic == TCP_RST_DIAGNOSTIC_COMPACT_MAGIC &&
-        length == TCP_RST_DIAGNOSTIC_COMPACT_LEN) {
+    /* structured diagnostic payload (Section 4.1) */
+    if (magic == TCP_RST_DIAGNOSTIC_MAGIC &&
+        length == TCP_RST_DIAGNOSTIC_LEN) {
         uint16_t reason_code;
         uint32_t pen_value;
         int diag_offset = offset;
@@ -8572,26 +8569,6 @@ dissect_tcp_rst_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             proto_item_append_text(rst_diag_ti, ": %s (%u)",
                 cause_str ? cause_str : "Unknown", reason_code);
         }
-    }
-    /* free-description format (Section 3.2) */
-    else if (magic == TCP_RST_DIAGNOSTIC_FREE_MAGIC &&
-             length >= TCP_RST_DIAGNOSTIC_FREE_MIN_LEN) {
-        int desc_len = length - 2;
-        proto_tree *rst_diag_tree;
-        proto_item *rst_diag_ti;
-
-        rst_diag_tree = proto_tree_add_subtree(tree, tvb, offset,
-            length, ett_tcp_rst_diagnostic, &rst_diag_ti,
-            "RST Diagnostic Payload");
-
-        proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_magic,
-            tvb, offset, 2, ENC_BIG_ENDIAN);
-
-        proto_tree_add_item(rst_diag_tree, hf_tcp_rst_diagnostic_reason_desc,
-            tvb, offset + 2, desc_len, ENC_UTF_8);
-
-        proto_item_append_text(rst_diag_ti, ": %s",
-            tvb_get_string_enc(pinfo->pool, tvb, offset + 2, desc_len, ENC_UTF_8));
     } else {
         proto_tree_add_item(tree, hf_tcp_reset_cause, tvb, offset, length, ENC_ASCII);
     }
@@ -9843,7 +9820,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      */
     if (captured_length_remaining != 0) {
         if (tcph->th_flags & TH_RST) {
-            dissect_tcp_rst_payload(tvb, pinfo, tcp_tree, offset, captured_length_remaining);
+            dissect_tcp_rst_payload(tvb, tcp_tree, offset, captured_length_remaining);
         } else {
         /* When we have a frame with TCP SYN bit set and segmented TCP payload we need
          * to increment seq and nxtseq to detect the overlapping byte(s). This is to fix Bug 9882.
@@ -10718,7 +10695,7 @@ proto_register_tcp(void)
 
         { &hf_tcp_rst_diagnostic_magic,
           { "Magic Number", "tcp.rst_diagnostic.magic", FT_UINT16, BASE_HEX, NULL, 0x0,
-            "RST diagnostic payload magic number (0x33AA=compact, 0xF317=free-description)", HFILL }},
+            "RST diagnostic payload magic number (0x33AA)", HFILL }},
 
         { &hf_tcp_rst_diagnostic_reason_code,
           { "Reason Code", "tcp.rst_diagnostic.reason_code", FT_UINT16, BASE_DEC, VALS(tcp_failure_cause_vals), 0x0,
@@ -10731,10 +10708,6 @@ proto_register_tcp(void)
         { &hf_tcp_rst_diagnostic_pen,
           { "Private Enterprise Number", "tcp.rst_diagnostic.pen", FT_UINT32, BASE_DEC, NULL, 0x0,
             "IANA Private Enterprise Number identifying the vendor", HFILL }},
-
-        { &hf_tcp_rst_diagnostic_reason_desc,
-          { "Reason Description", "tcp.rst_diagnostic.reason_desc", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Free-text UTF-8 description of the reset reason", HFILL }},
 
         { &hf_tcp_syncookie_time,
           { "SYN Cookie Time", "tcp.syncookie.time", FT_UINT8, BASE_DEC, NULL, 0x0,
