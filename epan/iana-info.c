@@ -404,7 +404,7 @@ static const struct ws_iana_ip_special_block __ipv6_special_block[] = {
 };
 
 
-/* (last updated 2026-03-13) */
+/* (last updated 2026-03-20) */
 
 
 static const value_string enterprise_val[] = {
@@ -19921,7 +19921,7 @@ static const value_string enterprise_val[] = {
 	{ 19545,    "Sony CISC" },
 	{ 19546,    "MELENTANE" },
 	{ 19547,    "Oplink Communications, Inc." },
-	{ 19548,    "FROX communication" },
+	{ 19548,    "FROX AG" },
 	{ 19549,    "Uni-Q Systems" },
 	{ 19550,    "an Academic Network at Sao Paulo (ANSP)" },
 	{ 19551,    "Thales Naval France" },
@@ -53512,7 +53512,7 @@ static const value_string enterprise_val[] = {
 	{ 53188,    "Queen Margaret's School" },
 	{ 53189,    "Share IT Limited" },
 	{ 53190,    "LittleMouseCloud" },
-	{ 53191,    "Telmex Colombia S.A." },
+	{ 53191,    "Comcel S.A." },
 	{ 53192,    "Socially Determined, Inc." },
 	{ 53193,    "UVEX WINTER HOLDING GmbH & Co. KG" },
 	{ 53194,    "Goodbaby International" },
@@ -65631,6 +65631,25 @@ static const value_string enterprise_val[] = {
 	{ 65334,    "easier.digital" },
 	{ 65335,    "MEK, Inc" },
 	{ 65336,    "AVISIA" },
+	{ 65337,    "Stephan Harrer" },
+	{ 65338,    "HPELab" },
+	{ 65339,    "LotusFlare Inc" },
+	{ 65340,    "New Use Energy Solutions" },
+	{ 65341,    "Claiborne County School District" },
+	{ 65342,    "Haerang Energy" },
+	{ 65343,    "FLDG Holding SASU" },
+	{ 65344,    "Dustin Ward" },
+	{ 65345,    "Communications Regulatory Authority of Namibia" },
+	{ 65346,    "Yaskawa America Inc." },
+	{ 65347,    "Beijing Unihannto Technology Co., Ltd." },
+	{ 65348,    "Florian Sluiter" },
+	{ 65349,    "Microgrid Energy Pty Ltd" },
+	{ 65350,    "Ruchi Telecom Private Limited" },
+	{ 65351,    "Sigalion" },
+	{ 65352,    "Space-Tech LLC" },
+	{ 65353,    "CEDIA" },
+	{ 65354,    "TRAC Intermodal" },
+	{ 65355,    "Apache Corporation" },
 	{ 0, NULL }
 };
 
