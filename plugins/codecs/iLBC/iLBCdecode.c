@@ -49,8 +49,9 @@ codec_iLBC_init(codec_context_t *ctx _U_)
 static void
 codec_iLBC_release(codec_context_t *ctx)
 {
-    WebRtcIlbcfix_DecoderFree(((ilbc_ctx_t *)ctx->priv)->ilbc_ctx);
-    g_free(ctx);
+    ilbc_ctx_t *dataCtx = (ilbc_ctx_t *)ctx->priv;
+    WebRtcIlbcfix_DecoderFree(dataCtx->ilbc_ctx);
+    g_free(dataCtx);
 }
 
 static unsigned
