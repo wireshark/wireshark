@@ -1047,7 +1047,7 @@
     </message>
     <message>
         <source>Interface Description</source>
-        <translation>Gränssnittsbeskrivning</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Dropped packets</source>

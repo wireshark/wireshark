@@ -1024,7 +1024,7 @@
     </message>
     <message>
         <source>Interface Description</source>
-	<translation>Descripción de la interfaz</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Dropped packets</source>
