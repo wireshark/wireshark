@@ -80,7 +80,7 @@ typedef struct oran_tap_info {
     uint32_t compression_methods;
     uint32_t compression_width;      /* TODO: support multiple widths? */
 
-    /* (DL) beamIds */
+    /* BeamIds */
     uint8_t  num_beams;
     uint16_t beams[MAX_BEAMS_IN_FRAME];
 

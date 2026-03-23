@@ -49,8 +49,10 @@ uint32_t ul_within_configured_max = 0;
 uint32_t ul_above_configured_max = 0;
 
 #define MAX_BEAMS_IN_CAPTURE 256U
-uint16_t num_beams;
-uint16_t beams[MAX_BEAMS_IN_CAPTURE];
+uint16_t num_dl_beams;
+uint16_t dl_beams[MAX_BEAMS_IN_CAPTURE];
+uint16_t num_ul_beams;
+uint16_t ul_beams[MAX_BEAMS_IN_CAPTURE];
 
 /* Assuming that it is unlikely we have > 255 radio frames.. */
 int      first_radio_frame = -1;
@@ -249,23 +251,27 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
             row->base_info.beams[row->base_info.num_beams++] = si->beams[b];
         }
     }
-    /* ..globally */
+
+    /* ..globally (by direction) */
+    uint16_t *num_beams = (si->uplink) ? &num_ul_beams : &num_dl_beams;
+    uint16_t *beams = (si->uplink) ? ul_beams : dl_beams;
+
     for (uint16_t b = 0; b < si->num_beams; b++) {
         bool need_to_add = true;
-        for (uint16_t n=0; n < num_beams; n++) {
+        for (uint16_t n=0; n < *num_beams; n++) {
             if (si->beams[b] == beams[n]) {
                 /* Already have it, nothing to do */
                 need_to_add = false;
                 break;
             }
-            if (num_beams == MAX_BEAMS_IN_CAPTURE) {
+            if (*num_beams == MAX_BEAMS_IN_CAPTURE) {
                 need_to_add = false;
                 break;
             }
         }
         if (need_to_add) {
             /* Have room and wasn't found, so add */
-            beams[num_beams++] = si->beams[b];
+            beams[(*num_beams)++] = si->beams[b];
         }
     }
 
@@ -438,9 +444,9 @@ oran_stat_draw(void *phs)
     printf("================================================================================================\n");
     printf("%24u %25u %24u %19u\n", ul_configured_max, ul_within_configured_max, ul_above_configured_max, largest_ul_delay_in_us);
 
-    printf("\n Unique beams seen\n");
-    printf("=======================\n");
-    printf("%18u\n", num_beams);
+    printf("\n Unique DL beams      Unique UL beams\n");
+    printf("======================================\n");
+    printf("%16u %20u\n", num_dl_beams, num_ul_beams);
 }
 
 /* Create a new ORAN stats struct */
