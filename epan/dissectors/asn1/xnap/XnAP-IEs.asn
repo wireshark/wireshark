@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V19.1.0 (2025-12)
+-- 3GPP TS 38.423 V19.2.0 (2026-03)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -182,7 +182,7 @@ IMPORTS
 	id-BarringExemptionforEmerCallInfo,
 	id-Transmission-Bandwidth-asymmetric,
 	id-NRPPaPositioningInformation,
-	id-AerialUEFlightInformationReportingControl,
+	id-AerialUEFlightInformationReportingControl-List,
 	id-PDCPSNGapTransfer-UL,
 	id-ECNMarkingorCongestionInformationReportingStatus,
 	id-AdditionalDRBSetupInfoList,
@@ -211,10 +211,15 @@ IMPORTS
 	id-FiveGProSeLayer2MHRemote,
 	id-UEAveragePacketLossUL,
 	id-SemipersistentPositioningInformation,
+	id-ProposedLTM-UEBasedTAMeasurementID-List,
+	id-UEBasedTAMeasurementConfiguration,
+	id-ServingGNB-ID,
+	id-requestedTargetCellGlobalID,
 	maxEARFCN,
 	maxnoofAllowedAreas,
 	maxnoofAMFRegions,
 	maxnoofAoIs,
+	maxnoofFlightInfoReportControl,
 	maxnoofBPLMNs,
 	maxnoofCAGs,
 	maxnoofCAGsperPLMN,
@@ -378,6 +383,7 @@ AerialUEFlightInformationReportingControl ::= SEQUENCE {
 	higherAltitudeThreshold					Altitude,
 	lowerAltitudeThreshold					Altitude,
 	aerialUEReportingPeriodicity			AerialUEReportingPeriodicity									OPTIONAL,
+	areaScope								AreaScope,
 	iE-Extensions		ProtocolExtensionContainer { { AerialUEFlightInformationReportingControl-ExtIEs} }		OPTIONAL,
 	...
 }
@@ -387,6 +393,31 @@ AerialUEFlightInformationReportingControl-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 AerialUEReportingPeriodicity ::= ENUMERATED {ms120, ms240, ms480, ms640, ms1024, ms2048, ms5120, ms10240, ms20480, ms40960, min1, min6, min12, min30, ...}
+AreaScope ::= CHOICE {
+	tai						TAIinAreaScope,
+	ran-node				GlobalNG-RANNode-ID,
+	globalNG-RANCell-ID		GlobalNG-RANCell-ID,
+	...,
+	choice-extension		ProtocolIE-Single-Container { {AreaScope-ExtIEs} }
+
+}
+
+AreaScope-ExtIEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+
+TAIinAreaScope ::= SEQUENCE {
+	pLMN-Identity		PLMN-Identity,
+	tAC					TAC,
+	iE-Extensions		ProtocolExtensionContainer { {TAIinAreaScope-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAIinAreaScope-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 Altitude ::= INTEGER (-420..10000, ...)
 
@@ -815,9 +846,9 @@ BeamMeasurementsReportConfiguration-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 
 
 BeamMeasurementsReportQuantity ::= SEQUENCE {
-	rSRP						ENUMERATED {true, ...},
-	rSRQ						ENUMERATED {true, ...},
-	sINR						ENUMERATED {true, ...},
+	rSRP						ENUMERATED {true, ..., false},
+	rSRQ						ENUMERATED {true, ..., false},
+	sINR						ENUMERATED {true, ..., false},
 	iE-Extensions			ProtocolExtensionContainer { { BeamMeasurementsReportQuantity-ExtIEs} } OPTIONAL,
 	...
 }
@@ -3936,13 +3967,25 @@ LocationReportingInformation ::= SEQUENCE {
 
 LocationReportingInformation-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
 	{ ID id-AdditionLocationInformation					CRITICALITY ignore	EXTENSION AdditionLocationInformation					PRESENCE optional }|
-	{ ID id-AerialUEFlightInformationReportingControl	CRITICALITY ignore	EXTENSION AerialUEFlightInformationReportingControl	PRESENCE optional },
+	{ ID id-AerialUEFlightInformationReportingControl-List	CRITICALITY ignore	EXTENSION AerialUEFlightInformationReportingControl-List		PRESENCE optional },
 	...
 }
 
 LoggedEventTriggeredConfig ::= SEQUENCE {
 	eventTypeTrigger					EventTypeTrigger,
 	iE-Extensions		ProtocolExtensionContainer { { LoggedEventTriggeredConfig-ExtIEs} } OPTIONAL,
+	...
+}
+
+AerialUEFlightInformationReportingControl-List ::= SEQUENCE (SIZE(1.. maxnoofFlightInfoReportControl)) OF AerialUEFlightInformationReportingControl-Item
+
+AerialUEFlightInformationReportingControl-Item ::= SEQUENCE {
+	aerialUEFlightInformationReportingControl											AerialUEFlightInformationReportingControl,
+	iE-Extensions		ProtocolExtensionContainer { { AerialUEFlightInformationReportingControl-Item-ExtIEs} } 						OPTIONAL,
+	...
+}
+
+AerialUEFlightInformationReportingControl-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -4041,7 +4084,8 @@ LTMHandoverInformationRequest ::= SEQUENCE {
 }
 
 LTMHandoverInformationRequest-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	...
+	{ ID id-ProposedLTM-UEBasedTAMeasurementID-List	CRITICALITY ignore	EXTENSION LTM-UEBasedTAMeasurementID-List		PRESENCE optional },
+...
 }
 
 
@@ -4083,7 +4127,9 @@ LTMHandoverInformationRequestAcknowledge ::= SEQUENCE {
 }
 
 LTMHandoverInformationAcknowledge-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	...
+	{ ID id-UEBasedTAMeasurementConfiguration		CRITICALITY ignore	EXTENSION UEBasedTAMeasurementConfiguration			PRESENCE optional }|
+	{ ID id-requestedTargetCellGlobalID				CRITICALITY ignore	EXTENSION Target-CGI										PRESENCE optional },
+...
 }
 
 
@@ -4287,7 +4333,8 @@ LTMPSCellInformation-AddReq ::= SEQUENCE {
 }
 
 LTMPSCellInformation-AddReq-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
-	...
+	{ ID id-ProposedLTM-UEBasedTAMeasurementID-List		CRITICALITY ignore	EXTENSION LTM-UEBasedTAMeasurementID-List		PRESENCE optional },
+...
 }
 
 LTMPSCellInformation-AddReqAck ::= SEQUENCE {
@@ -4313,7 +4360,8 @@ LTMPSCellInformation-UpdateReq ::= SEQUENCE {
 }
 
 LTMPSCellInformation-UpdateReq-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
-	...
+	{ ID id-ProposedLTM-UEBasedTAMeasurementID-List	CRITICALITY ignore	EXTENSION LTM-UEBasedTAMeasurementID-List		PRESENCE optional },
+...
 }
 
 LTMPSCellInformation-UpdateReqAck ::= SEQUENCE {
@@ -4411,6 +4459,19 @@ LTM-PSCell-Prepared-Item ::= SEQUENCE {
 }
 
 LTM-PSCell-Prepared-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-UEBasedTAMeasurementConfiguration		CRITICALITY ignore	EXTENSION UEBasedTAMeasurementConfiguration			PRESENCE optional },
+...
+}
+
+LTM-UEBasedTAMeasurementID-List ::= SEQUENCE (SIZE (1.. maxnoofLTMCells)) OF LTM-UEBasedTAMeasurementID-Item
+
+LTM-UEBasedTAMeasurementID-Item ::= SEQUENCE {
+	uEBasedTAMeasurementConfiguration				OCTET STRING,
+	iE-Extensions							ProtocolExtensionContainer { { LTM-UEBasedTAMeasurementID-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+LTM-UEBasedTAMeasurementID-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -9898,6 +9959,7 @@ TAInformation-Item ::= SEQUENCE {
 }
 
 TAInformation-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-ServingGNB-ID	CRITICALITY ignore	EXTENSION GlobalgNB-ID		PRESENCE optional },
 	...
 }
 
@@ -9940,6 +10002,7 @@ UEAppLayerMeasConfigInfo-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+UEBasedTAMeasurementConfiguration ::= OCTET STRING
 
 UEContextKeptIndicator ::= ENUMERATED {true, ...}
 

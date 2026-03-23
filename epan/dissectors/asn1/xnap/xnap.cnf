@@ -1,6 +1,6 @@
 # xnap.cnf
 # xnap conformation file
-# Copyright 2018-2025 Pascal Quantin
+# Copyright 2018-2026 Pascal Quantin
 
 #.OPT
 PER
@@ -1343,6 +1343,14 @@ TimeSCG-Failure DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(xnap_tenth_seconds_fmt)
     dissect_nr_rrc_TCI_UL_StateId_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY UEBasedTAMeasurementConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ueBasedTAMeasurementConfiguration);
+    dissect_nr_rrc_LTM_UE_MeasuredTA_ID_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.END
 
 #.FN_HDR HandoverRequest
@@ -2092,7 +2100,7 @@ id-BarringExemptionforEmerCallInfo                                  ProtocolIE-I
 id-Transmission-Bandwidth-asymmetric                                ProtocolIE-ID
 id-SRSPositioningConfigOrActivationRequest                          ProtocolIE-ID
 id-NRPPaPositioningInformation                                      ProtocolIE-ID
-id-AerialUEFlightInformationReportingControl                        ProtocolIE-ID
+id-AerialUEFlightInformationReportingControl-List                   ProtocolIE-ID
 id-PDCPSNGapTransfer-UL                                             ProtocolIE-ID
 id-RequestType                                                      ProtocolIE-ID
 id-NES-Cell-ID                                                      ProtocolIE-ID
@@ -2166,6 +2174,9 @@ id-SemipersistentPositioningInformation                             ProtocolIE-I
 id-UEAveragePacketLossUL                                            ProtocolIE-ID
 id-LP-WUS-Disable-Indication                                        ProtocolIE-ID
 id-ContinuousMDT                                                    ProtocolIE-ID
+id-ProposedLTM-UEBasedTAMeasurementID-List                          ProtocolIE-ID
+id-UEBasedTAMeasurementConfiguration                                ProtocolIE-ID
+id-ServingGNB-ID                                                    ProtocolIE-ID
 
 
 #.REGISTER
@@ -2694,7 +2705,7 @@ MN-only-MDT-collection                                           N xnap.extensio
 BarringExemptionforEmerCallInfo                                  N xnap.extension id-BarringExemptionforEmerCallInfo
 Transmission-Bandwidth-asymmetric                                N xnap.extension id-Transmission-Bandwidth-asymmetric
 NRPPaPositioningInformation                                      N xnap.extension id-NRPPaPositioningInformation
-AerialUEFlightInformationReportingControl                        N xnap.extension id-AerialUEFlightInformationReportingControl
+AerialUEFlightInformationReportingControl-List                   N xnap.extension id-AerialUEFlightInformationReportingControl-List
 PDCPSNGapTransfer-UL                                             N xnap.extension id-PDCPSNGapTransfer-UL
 ECNMarkingorCongestionInformationReportingStatus                 N xnap.extension id-ECNMarkingorCongestionInformationReportingStatus
 AdditionalDRBSetupInfoList                                       N xnap.extension id-AdditionalDRBSetupInfoList
@@ -2722,6 +2733,9 @@ FiveGProSeLayer2MHIntermediateUEtoNetworkRelay                   N xnap.extensio
 FiveGProSeLayer2MHRemote                                         N xnap.extension id-FiveGProSeLayer2MHRemote
 SemipersistentPositioningInformation                             N xnap.extension id-SemipersistentPositioningInformation
 UEAveragePacketLossUL                                            N xnap.extension id-UEAveragePacketLossUL
+LTM-UEBasedTAMeasurementID-List                                  N xnap.extension id-ProposedLTM-UEBasedTAMeasurementID-List
+UEBasedTAMeasurementConfiguration                                N xnap.extension id-UEBasedTAMeasurementConfiguration
+GlobalgNB-ID                                                     N xnap.extension id-ServingGNB-ID
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

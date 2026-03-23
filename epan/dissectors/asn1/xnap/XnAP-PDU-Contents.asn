@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V19.1.0 (2025-12)
+-- 3GPP TS 38.423 V19.2.0 (2026-03)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -791,8 +791,8 @@ HandoverRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-SourceSN-to-TargetSN-QMCInfo				CRITICALITY ignore	TYPE QMCConfigInfo											PRESENCE optional }|
 	{ ID id-MobileIAB-AuthorizationStatus				CRITICALITY reject	TYPE MobileIAB-AuthorizationStatus					PRESENCE optional }|
 	{ ID id-SLPositioning-Ranging-Services-Info			CRITICALITY ignore	TYPE SLPositioning-Ranging-Services-Info			PRESENCE optional }|
-	{ ID id-LTMHandoverInformationRequest				CRITICALITY reject	TYPE LTMHandoverInformationRequest					PRESENCE optional}|
-	{ ID id-EarlySyncInformationRequest					CRITICALITY ignore	TYPE EarlySyncInformationRequest						PRESENCE optional}|
+	{ ID id-LTMHandoverInformationRequest				CRITICALITY reject	TYPE LTMHandoverInformationRequest					PRESENCE optional }|
+	{ ID id-EarlySyncInformationRequest					CRITICALITY ignore	TYPE EarlySyncInformationRequest						PRESENCE optional }|
 	{ ID id-ContinuousMDT								CRITICALITY ignore	TYPE NG-RANTraceID											PRESENCE optional },
 	...
 }
@@ -943,7 +943,8 @@ HandoverCancel-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-sourceNG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-targetNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE optional }|
 	{ ID id-Cause										CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
-	{ ID id-targetCellsToCancel							CRITICALITY reject		TYPE TargetCellList								PRESENCE optional },
+	{ ID id-targetCellsToCancel							CRITICALITY reject		TYPE TargetCellList								PRESENCE optional }|
+	{ ID id-LTMCandidateCellsToBeCancelled-List			CRITICALITY ignore		TYPE LTMCandidateCellsToBeCancelled-List	PRESENCE optional },
 	...
 }
 

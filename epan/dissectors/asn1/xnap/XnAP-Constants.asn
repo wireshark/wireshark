@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V19.1.0 (2025-12)
+-- 3GPP TS 38.423 V19.2.0 (2026-03)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -100,6 +100,7 @@ maxEARFCN									INTEGER ::= 262143
 maxnoofAllowedAreas							INTEGER ::= 16
 maxnoofAMFRegions							INTEGER ::= 16
 maxnoofAoIs									INTEGER ::= 64
+maxnoofFlightInfoReportControl				INTEGER ::= 64
 maxnoofBluetoothName						INTEGER ::= 4
 maxnoofBPLMNs								INTEGER ::= 12
 maxnoofCAGs									INTEGER ::= 12
@@ -724,7 +725,7 @@ id-BarringExemptionforEmerCallInfo																	ProtocolIE-ID ::= 471
 id-Transmission-Bandwidth-asymmetric																ProtocolIE-ID ::= 472
 id-SRSPositioningConfigOrActivationRequest															ProtocolIE-ID ::= 473
 id-NRPPaPositioningInformation																		ProtocolIE-ID ::= 474
-id-AerialUEFlightInformationReportingControl														ProtocolIE-ID ::= 475
+id-AerialUEFlightInformationReportingControl-List													ProtocolIE-ID ::= 475
 id-PDCPSNGapTransfer-UL																				ProtocolIE-ID ::= 476
 id-RequestType																						ProtocolIE-ID ::= 477
 id-NES-Cell-ID																						ProtocolIE-ID ::= 478
@@ -798,6 +799,9 @@ id-SemipersistentPositioningInformation																ProtocolIE-ID ::= 545
 id-UEAveragePacketLossUL																			ProtocolIE-ID ::= 546
 id-LP-WUS-Disable-Indication																		ProtocolIE-ID ::= 547
 id-ContinuousMDT																					ProtocolIE-ID ::= 548
+id-ProposedLTM-UEBasedTAMeasurementID-List															ProtocolIE-ID ::= 549
+id-UEBasedTAMeasurementConfiguration																ProtocolIE-ID ::= 550
+id-ServingGNB-ID																					ProtocolIE-ID ::= 551
 
 
 END
