@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V19.1.0 (2025-12)
+-- 3GPP TS 38.473 V19.2.0 (2026-03)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -3515,6 +3515,8 @@ FlowsMappedToSLDRB-Item-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Future-Coverage-Modification-Notification-Cause ::= ENUMERATED {coverage, cell-edge-capacity, cancel, ...}
+
 Future-Coverage-Modification-Notification ::= SEQUENCE {
 	future-coverage-Modification-List			Future-Coverage-Modification-List,
 	iE-Extensions								ProtocolExtensionContainer { { Future-Coverage-Modification-Notification-ExtIEs} }	OPTIONAL,
@@ -3532,7 +3534,7 @@ Future-Coverage-Modification-Item ::= SEQUENCE {
 	futurecellCoverageState				FutureCellCoverageState,
 	futureSSBCoverageModificationList	FutureSSBCoverageModification-List	OPTIONAL,
 	timeforFutureCoverageModification	TimeforFutureCoverageModification	OPTIONAL,
-	futureCoverageModificationCause		Predicted-CCO-issue-detection		OPTIONAL,
+	futureCoverageModificationCause		Future-Coverage-Modification-Notification-Cause		OPTIONAL,
 	iE-Extension			ProtocolExtensionContainer { { Future-Coverage-Modification-Item-ExtIEs} } 				OPTIONAL,
 	...
 }
@@ -6231,7 +6233,8 @@ Neighbour-Future-Coverage-Modification-Item ::= SEQUENCE {
 	nRCGI								NRCGI,
 	neighbourfuturecellCoverageState				NeighbourFutureCellCoverageState,
 	neighbourfutureSSBCoverageModificationList	NeighbourFutureSSBCoverageModification-List	OPTIONAL,
-	timeforneighbourFutureCoverageModificaiton	TimeforNeighbourFutureCoverageModification	OPTIONAL,
+	timeforneighbourFutureCoverageModification	TimeforNeighbourFutureCoverageModification	OPTIONAL,
+	futureCoverageModificationCause				Future-Coverage-Modification-Notification-Cause		OPTIONAL,
 	iE-Extension			ProtocolExtensionContainer { { Neighbour-Future-Coverage-Modification-Item-ExtIEs} } 				OPTIONAL,
 	...
 }
@@ -6821,10 +6824,10 @@ Periodicity ::= INTEGER (0..640000, ...)
 PeriodicitySRS ::= ENUMERATED { ms0p125, ms0p25, ms0p5, ms0p625, ms1, ms1p25, ms2, ms2p5, ms4, ms5, ms8, ms10, ms16, ms20, ms32, ms40, ms64, ms80, ms160, ms320, ms640, ms1280, ms2560, ms5120, ms10240, ...}
 
 Predicted-CCO-Assistance-Information ::= SEQUENCE {
-	predicted-CCO-issue-detection	Predicted-CCO-issue-detection	OPTIONAL,
-	predictedAffectedCellsAndBeams-List		AffectedCellsAndBeams-List 		OPTIONAL,
-	timeforPredictedCCOIssue		TimeforPredictedCCOIssue	OPTIONAL,
-	iE-Extensions					ProtocolExtensionContainer { { Predicted-CCO-Assistance-Information-ExtIEs} }	OPTIONAL,
+	predicted-CCO-issue-detection			Predicted-CCO-issue-detection,
+	predictedAffectedCellsAndBeams-List		AffectedCellsAndBeams-List,
+	timeforPredictedCCOIssue				TimeforPredictedCCOIssue	OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { {Predicted-CCO-Assistance-Information-ExtIEs} }	OPTIONAL,
 	...
 }
 
@@ -6832,7 +6835,7 @@ Predicted-CCO-Assistance-Information-ExtIEs F1AP-PROTOCOL-EXTENSION ::={
 	...
 }
 
-Predicted-CCO-issue-detection	::=	ENUMERATED {coverage, cell-edge-capacity, cancel,...}
+Predicted-CCO-issue-detection ::= ENUMERATED {coverage, cell-edge-capacity, cancel, ...}
 
 
 

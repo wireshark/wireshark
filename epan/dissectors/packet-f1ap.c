@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V19.1.0 (2025-12)
+ * References: 3GPP TS 38.473 V19.2.0 (2026-03)
  */
 
 #include "config.h"
@@ -2708,7 +2708,7 @@ static int hf_f1ap_Future_Coverage_Modification_List_item;  /* Future_Coverage_M
 static int hf_f1ap_futurecellCoverageState;       /* FutureCellCoverageState */
 static int hf_f1ap_futureSSBCoverageModificationList;  /* FutureSSBCoverageModification_List */
 static int hf_f1ap_timeforFutureCoverageModification;  /* TimeforFutureCoverageModification */
-static int hf_f1ap_futureCoverageModificationCause;  /* Predicted_CCO_issue_detection */
+static int hf_f1ap_futureCoverageModificationCause;  /* Future_Coverage_Modification_Notification_Cause */
 static int hf_f1ap_FutureSSBCoverageModification_List_item;  /* FutureSSBCoverageModification_Item */
 static int hf_f1ap_sSBIndex_01;                   /* INTEGER_0_63 */
 static int hf_f1ap_futureSSBCoverageState;        /* FutureSSBCoverageState */
@@ -3101,7 +3101,7 @@ static int hf_f1ap_neighbour_future_coverage_Modification_List;  /* Neighbour_Fu
 static int hf_f1ap_Neighbour_Future_Coverage_Modification_List_item;  /* Neighbour_Future_Coverage_Modification_Item */
 static int hf_f1ap_neighbourfuturecellCoverageState;  /* NeighbourFutureCellCoverageState */
 static int hf_f1ap_neighbourfutureSSBCoverageModificationList;  /* NeighbourFutureSSBCoverageModification_List */
-static int hf_f1ap_timeforneighbourFutureCoverageModificaiton;  /* TimeforNeighbourFutureCoverageModification */
+static int hf_f1ap_timeforneighbourFutureCoverageModification;  /* TimeforNeighbourFutureCoverageModification */
 static int hf_f1ap_NeighbourFutureSSBCoverageModification_List_item;  /* NeighbourFutureSSBCoverageModification_Item */
 static int hf_f1ap_neighbourfutureSSBCoverageState;  /* NeighbourFutureSSBCoverageState */
 static int hf_f1ap_energyCost;                    /* EnergyCost */
@@ -19575,6 +19575,23 @@ dissect_f1ap_FlowsMappedToSLDRB_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn
 }
 
 
+static const value_string f1ap_Future_Coverage_Modification_Notification_Cause_vals[] = {
+  {   0, "coverage" },
+  {   1, "cell-edge-capacity" },
+  {   2, "cancel" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_f1ap_Future_Coverage_Modification_Notification_Cause(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 
 static unsigned
 dissect_f1ap_FutureCellCoverageState(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -19635,29 +19652,12 @@ dissect_f1ap_TimeforFutureCoverageModification(tvbuff_t *tvb _U_, uint32_t offse
 }
 
 
-static const value_string f1ap_Predicted_CCO_issue_detection_vals[] = {
-  {   0, "coverage" },
-  {   1, "cell-edge-capacity" },
-  {   2, "cancel" },
-  { 0, NULL }
-};
-
-
-static unsigned
-dissect_f1ap_Predicted_CCO_issue_detection(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, true, 0, NULL);
-
-  return offset;
-}
-
-
 static const per_sequence_t Future_Coverage_Modification_Item_sequence[] = {
   { &hf_f1ap_nRCGI          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_NRCGI },
   { &hf_f1ap_futurecellCoverageState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_FutureCellCoverageState },
   { &hf_f1ap_futureSSBCoverageModificationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_FutureSSBCoverageModification_List },
   { &hf_f1ap_timeforFutureCoverageModification, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_TimeforFutureCoverageModification },
-  { &hf_f1ap_futureCoverageModificationCause, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_Predicted_CCO_issue_detection },
+  { &hf_f1ap_futureCoverageModificationCause, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_Future_Coverage_Modification_Notification_Cause },
   { &hf_f1ap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -25950,7 +25950,8 @@ static const per_sequence_t Neighbour_Future_Coverage_Modification_Item_sequence
   { &hf_f1ap_nRCGI          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_NRCGI },
   { &hf_f1ap_neighbourfuturecellCoverageState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_NeighbourFutureCellCoverageState },
   { &hf_f1ap_neighbourfutureSSBCoverageModificationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_NeighbourFutureSSBCoverageModification_List },
-  { &hf_f1ap_timeforneighbourFutureCoverageModificaiton, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_TimeforNeighbourFutureCoverageModification },
+  { &hf_f1ap_timeforneighbourFutureCoverageModification, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_TimeforNeighbourFutureCoverageModification },
+  { &hf_f1ap_futureCoverageModificationCause, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_Future_Coverage_Modification_Notification_Cause },
   { &hf_f1ap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -27196,6 +27197,23 @@ dissect_f1ap_PeriodicitySRS(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *
 }
 
 
+static const value_string f1ap_Predicted_CCO_issue_detection_vals[] = {
+  {   0, "coverage" },
+  {   1, "cell-edge-capacity" },
+  {   2, "cancel" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_f1ap_Predicted_CCO_issue_detection(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 
 static unsigned
 dissect_f1ap_TimeforPredictedCCOIssue(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -27207,8 +27225,8 @@ dissect_f1ap_TimeforPredictedCCOIssue(tvbuff_t *tvb _U_, uint32_t offset _U_, as
 
 
 static const per_sequence_t Predicted_CCO_Assistance_Information_sequence[] = {
-  { &hf_f1ap_predicted_CCO_issue_detection, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_Predicted_CCO_issue_detection },
-  { &hf_f1ap_predictedAffectedCellsAndBeams_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_AffectedCellsAndBeams_List },
+  { &hf_f1ap_predicted_CCO_issue_detection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_Predicted_CCO_issue_detection },
+  { &hf_f1ap_predictedAffectedCellsAndBeams_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_AffectedCellsAndBeams_List },
   { &hf_f1ap_timeforPredictedCCOIssue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_TimeforPredictedCCOIssue },
   { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -54574,8 +54592,8 @@ void proto_register_f1ap(void) {
         NULL, HFILL }},
     { &hf_f1ap_futureCoverageModificationCause,
       { "futureCoverageModificationCause", "f1ap.futureCoverageModificationCause",
-        FT_UINT32, BASE_DEC, VALS(f1ap_Predicted_CCO_issue_detection_vals), 0,
-        "Predicted_CCO_issue_detection", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(f1ap_Future_Coverage_Modification_Notification_Cause_vals), 0,
+        "Future_Coverage_Modification_Notification_Cause", HFILL }},
     { &hf_f1ap_FutureSSBCoverageModification_List_item,
       { "FutureSSBCoverageModification-Item", "f1ap.FutureSSBCoverageModification_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -56144,10 +56162,10 @@ void proto_register_f1ap(void) {
       { "neighbourfutureSSBCoverageModificationList", "f1ap.neighbourfutureSSBCoverageModificationList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "NeighbourFutureSSBCoverageModification_List", HFILL }},
-    { &hf_f1ap_timeforneighbourFutureCoverageModificaiton,
-      { "timeforneighbourFutureCoverageModificaiton", "f1ap.timeforneighbourFutureCoverageModificaiton",
+    { &hf_f1ap_timeforneighbourFutureCoverageModification,
+      { "timeforneighbourFutureCoverageModification", "f1ap.timeforneighbourFutureCoverageModification",
         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0,
-        "TimeforNeighbourFutureCoverageModification", HFILL }},
+        NULL, HFILL }},
     { &hf_f1ap_NeighbourFutureSSBCoverageModification_List_item,
       { "NeighbourFutureSSBCoverageModification-Item", "f1ap.NeighbourFutureSSBCoverageModification_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
