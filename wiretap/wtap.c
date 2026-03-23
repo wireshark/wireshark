@@ -1913,6 +1913,36 @@ wtap_read_bytes_or_eof(FILE_T fh, void *buf, unsigned int count, int *err,
 }
 
 /*
+ * Read a given number of bytes from a file into a Buffer, growing
+ * the buffer if necessary.
+ *
+ * If we succeed, return true.
+ *
+ * If we get an EOF, return false with *err set to 0, reporting this
+ * as an EOF.
+ *
+ * If we get fewer bytes than the specified number, return false with
+ * *err set to WTAP_ERR_SHORT_READ, reporting this as a short read
+ * error.
+ *
+ * If we get a read error, return false with *err and *err_info set
+ * appropriately.
+ */
+bool
+wtap_read_bytes_or_eof_buffer(FILE_T fh, Buffer *buf, unsigned length, int *err,
+    char **err_info)
+{
+	bool rv;
+	ws_buffer_assure_space(buf, length);
+	rv = wtap_read_bytes_or_eof(fh, ws_buffer_end_ptr(buf), length, err,
+	    err_info);
+	if (rv) {
+		ws_buffer_increase_length(buf, length);
+	}
+	return rv;
+}
+
+/*
  * Read a given number of bytes from a file into a buffer or, if
  * buf is NULL, just discard them.
  *
@@ -1920,7 +1950,10 @@ wtap_read_bytes_or_eof(FILE_T fh, void *buf, unsigned int count, int *err,
  *
  * If we get fewer bytes than the specified number, including getting
  * an EOF, return false with *err set to WTAP_ERR_SHORT_READ, reporting
- * this as a short read error.
+ * this as a short read error.  (The assumption is that each packet has
+ * a header followed by raw packet data, and that we've already read the
+ * header, so if we get an EOF trying to read the packet data, the file
+ * has been cut short, even if the read didn't read any data at all.)
  *
  * If we get a read error, return false with *err and *err_info set
  * appropriately.
@@ -1945,11 +1978,17 @@ wtap_read_bytes(FILE_T fh, void *buf, unsigned int count, int *err,
  * Read a given number of bytes from a file into a Buffer, growing the
  * buffer as necessary.
  *
- * This returns an error on a short read, even if the short read hit
- * the EOF immediately.  (The assumption is that each packet has a
- * header followed by raw packet data, and that we've already read the
+ * If we succeed, return true.
+ *
+ * If we get fewer bytes than the specified number, including getting
+ * an EOF, return false with *err set to WTAP_ERR_SHORT_READ, reporting
+ * this as a short read error.  (The assumption is that each packet has
+ * a header followed by raw packet data, and that we've already read the
  * header, so if we get an EOF trying to read the packet data, the file
  * has been cut short, even if the read didn't read any data at all.)
+ *
+ * If we get a read error, return false with *err and *err_info set
+ * appropriately.
  */
 bool
 wtap_read_bytes_buffer(FILE_T fh, Buffer *buf, unsigned length, int *err,
