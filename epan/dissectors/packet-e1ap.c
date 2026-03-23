@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 37.483 V19.1.0 (2025-12)
+ * References: 3GPP TS 37.483 V19.2.0 (2026-03)
  */
 
 #include "config.h"
@@ -10904,11 +10904,11 @@ dissect_e1ap_ReportingPeriodicity(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_c
 
 
 static const value_string e1ap_ReportingPeriodicityForDataCollection_vals[] = {
-  {   0, "half-thousand-ms" },
-  {   1, "one-thousand-ms" },
-  {   2, "two-thousand-ms" },
-  {   3, "five-thousand-ms" },
-  {   4, "ten-thousand-ms" },
+  {   0, "ms500" },
+  {   1, "ms1000" },
+  {   2, "ms2000" },
+  {   3, "ms5000" },
+  {   4, "ms10000" },
   { 0, NULL }
 };
 
