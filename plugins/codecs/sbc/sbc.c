@@ -93,8 +93,6 @@ codec_sbc_decode(codec_context_t *ctx,
     const uint8_t *data_in  = (const uint8_t *) input;
     uint8_t       *data_out = (uint8_t *) output;
     sbc_t         *sbc = (sbc_t *) ctx->priv;
-    uint8_t       *i_data;
-    uint8_t        tmp;
 
     /* XXX - This should presumably call sbc_parse on the input to set the
      * various parameters the first time, then return the value from
@@ -103,12 +101,6 @@ codec_sbc_decode(codec_context_t *ctx,
     if (!output || !outputSizeBytes) {
         return size_out;
     }
-
-    /* XXX - Why ask libsbc to provide Big Endian output and then always
-     * byte swap below? That seems wasteful on Little Endian and just wrong
-     * on Big Endian. sbc_init sets sbc->endian correctly depending on how
-     * the library was compiled. */
-    sbc->endian = SBC_BE;
 
     *outputSizeBytes = 0;
     while (xframe_pos < inputSizeBytes) {
@@ -126,13 +118,6 @@ codec_sbc_decode(codec_context_t *ctx,
         }
         size_out -= len;
         *outputSizeBytes += len;
-
-        for (i_data = data_out; i_data < data_out + len; i_data += 2) {
-                tmp = i_data[0];
-                i_data[0] = i_data[1];
-                i_data[1] = tmp;
-        }
-
         data_out += len;
     }
 
