@@ -82,6 +82,17 @@ static bool esc_read(FILE_T fh, uint8_t *buf, int len, int *err, char **err_info
 	return true;
 }
 
+static bool esc_read_append_buffer(FILE_T fh, Buffer *buf, int len, int *err, char **err_info)
+{
+	/* Make sure we have enough room for the data */
+	ws_buffer_assure_space(buf, len);
+
+	if (!esc_read(fh, ws_buffer_end_ptr(buf), len, err, err_info))
+		return false;
+	ws_buffer_increase_length(buf, len);
+	return true;
+}
+
 /* Magic text to check for eyesdn-ness of file */
 static const unsigned char eyesdn_hdr_magic[]  =
 { 'E', 'y', 'e', 'S', 'D', 'N'};
@@ -181,7 +192,6 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 	int		usecs;
 	unsigned	pkt_len;
 	uint8_t		channel, direction;
-	uint8_t		*pd;
 
 	/* Our file pointer should be at the summary information header
 	 * for a packet. Read in that header and extract the useful
@@ -299,14 +309,7 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 	rec->rec_header.packet_header.caplen = pkt_len;
 	rec->rec_header.packet_header.len = pkt_len;
 
-	/* Make sure we have enough room for the packet */
-	ws_buffer_assure_space(&rec->data, pkt_len);
-
-	pd = ws_buffer_start_ptr(&rec->data);
-	if (!esc_read(fh, pd, pkt_len, err, err_info))
-		return false;
-	ws_buffer_increase_length(&rec->data, pkt_len);
-	return true;
+	return esc_read_append_buffer(fh, &rec->data, pkt_len, err, err_info);
 }
 
 
