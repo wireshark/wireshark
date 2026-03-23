@@ -86,6 +86,7 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
         return false;
 
     QMap<QString, QString> cleanPaths;
+    QString canonicalDir = QFileInfo(di.path()).canonicalFilePath();
 
     for (unsigned int cnt = 0; cnt < nmbr; cnt++)
     {
@@ -111,6 +112,13 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                 }
                 continue;
             }
+
+#ifndef _WIN32
+            /* Reject paths outside the extraction root, to prevent directory traversal attacks on Posix systems */
+            if (!QFileInfo(fileInZip).absoluteFilePath().startsWith(canonicalDir + "/")) {
+                continue;
+            }
+#endif
 
             if (di.exists())
             {
