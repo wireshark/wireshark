@@ -3079,7 +3079,17 @@ find_conversation_pinfo_deinterlaced(const packet_info *pinfo, const uint32_t an
 
     /* Have we seen this conversation before? */
     if (pinfo->use_conv_addr_port_endpoints) {
-        // XXX - not implemented yet. Necessary ?
+        // For example, it's reached with EAPOL/TLS over Ethernet, see Issue #21027
+        DISSECTOR_ASSERT(pinfo->conv_addr_port_endpoints);
+        if ((conv = find_conversation_deinterlaced(pinfo->num, &pinfo->conv_addr_port_endpoints->addr1, &pinfo->conv_addr_port_endpoints->addr2,
+                        pinfo->conv_addr_port_endpoints->ctype, pinfo->conv_addr_port_endpoints->port1,
+                        pinfo->conv_addr_port_endpoints->port2, anchor, 0)) != NULL) {
+            DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
+                    pinfo->num, conv->last_frame));
+            if (pinfo->num > conv->last_frame) {
+                conv->last_frame = pinfo->num;
+            }
+        }
     } else if (pinfo->conv_elements) {
         // XXX - not implemented yet. Necessary ?
     } else {
@@ -3263,7 +3273,9 @@ find_or_create_conversation_deinterlaced(const packet_info *pinfo, const uint32_
                     pinfo->num));
         DINDENT();
         if (pinfo->use_conv_addr_port_endpoints) {
-            conv = conversation_new_strat(pinfo, pinfo->conv_addr_port_endpoints->ctype, 0);
+            conv = conversation_new_deinterlaced(pinfo->num, &pinfo->conv_addr_port_endpoints->addr1, &pinfo->conv_addr_port_endpoints->addr2,
+                        pinfo->conv_addr_port_endpoints->ctype, pinfo->conv_addr_port_endpoints->port1,
+                        pinfo->conv_addr_port_endpoints->port2, conv_index, 0);
         } else if (pinfo->conv_elements) {
             conv = conversation_new_full(pinfo->num, pinfo->conv_elements);
         } else {

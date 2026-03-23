@@ -446,7 +446,7 @@ ssl_reset_uat(void)
 static char *
 tls_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream _U_)
 {
-    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    conversation_t *conv = find_conversation_pinfo_strat(pinfo, 0);
     if (!conv) {
         return NULL;
     }
@@ -724,12 +724,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     /* Get the conversation with the deinterlacing strategy,
      * assuming it does exist, as created by an underlying proto.
      */
-    conversation = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), 0, false);
-    if(conversation == NULL) {
-        conversation = conversation_new(pinfo->num, &pinfo->src,
-            &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
-            pinfo->srcport, pinfo->destport, 0);
-    }
+    conversation = find_or_create_conversation_strat(pinfo);
 
 
     ssl_session_save = ssl_session = ssl_get_session(conversation, tls_handle);
