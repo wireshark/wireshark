@@ -1205,6 +1205,8 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
             more_frag = stored_info->full_size > tvb_reported_length_remaining(tvb, offset);
         }
         else {
+            ttl_segmented_info_t* new_info = NULL;
+
             fh = fragment_get(&ttl_reassembly_table, pinfo, key, NULL);
 
             if (frame_num == 0) {
@@ -1216,7 +1218,7 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
                     g_hash_table_remove(segmented_frames_info_ht, GUINT_TO_POINTER(key));
                 }
 
-                ttl_segmented_info_t* new_info = g_new(ttl_segmented_info_t, 1);
+                new_info = g_new(ttl_segmented_info_t, 1);
 
                 proto_tree_add_item_ret_uint(tree, hf_ttl_trace_data_entry_segment_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &new_info->full_size);
                 offset += 4;
@@ -1225,25 +1227,24 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 
                 g_hash_table_insert(segmented_frames_info_ht, GUINT_TO_POINTER(key), new_info);
 
-                stored_info = new_info;
-
                 more_frag = new_info->full_size > tvb_reported_length_remaining(tvb, offset);
             }
             else {
-                stored_info = g_hash_table_lookup(segmented_frames_info_ht, GUINT_TO_POINTER(key));
+                new_info = g_hash_table_lookup(segmented_frames_info_ht, GUINT_TO_POINTER(key));
 
-                more_frag = fh && stored_info && stored_info->full_size > (fh->contiguous_len + tvb_reported_length_remaining(tvb, offset));
+                more_frag = fh && new_info && new_info->full_size > (fh->contiguous_len + tvb_reported_length_remaining(tvb, offset));
             }
 
-            if (stored_info) {
-                ttl_segmented_info_t* new_info = wmem_new0(wmem_file_scope(), ttl_segmented_info_t);
-                new_info->full_size = stored_info->full_size;
-                new_info->type = stored_info->type;
+            if (new_info) {
+                stored_info = wmem_new0(wmem_file_scope(), ttl_segmented_info_t);
+                stored_info->full_size = new_info->full_size;
+                stored_info->type = new_info->type;
 
-                p_set_proto_data(wmem_file_scope(), pinfo, proto_ttl, 0xffffffff, new_info);
+                p_set_proto_data(wmem_file_scope(), pinfo, proto_ttl, 0xffffffff, stored_info);
             }
 
             if (!more_frag) {
+                // We have all the fragments, we don't need the entry from the segmented table anymore
                 g_hash_table_remove(segmented_frames_info_ht, GUINT_TO_POINTER(key));
             }
         }
