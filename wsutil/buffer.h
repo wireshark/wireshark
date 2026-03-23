@@ -177,6 +177,11 @@ size_t ws_buffer_length(const Buffer* buffer);
  *
  * @param buffer Pointer to the Buffer.
  * @return Pointer to the first valid byte.
+ *
+ * @note If you use this to write new data directly to end of the buffer, you
+ * must call ws_buffer_assure_space beforehand (which can realloc the buffer,
+ * so it must be called first), and ws_buffer_increase_length afterwards.
+ * ws_buffer_append does both those automatically, so it may be preferred.
  */
 WS_DLL_PUBLIC
 uint8_t* ws_buffer_start_ptr(const Buffer* buffer);
@@ -186,6 +191,11 @@ uint8_t* ws_buffer_start_ptr(const Buffer* buffer);
  *
  * @param buffer Pointer to the Buffer.
  * @return Pointer to the first byte after the valid data.
+ *
+ * @note If you use this to write new data directly to end of the buffer, you
+ * must call ws_buffer_assure_space beforehand (which can realloc the buffer,
+ * so it must be called first), and ws_buffer_increase_length afterwards.
+ * ws_buffer_append does both those automatically, so it may be preferred.
  */
 WS_DLL_PUBLIC
 uint8_t* ws_buffer_end_ptr(const Buffer* buffer);

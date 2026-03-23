@@ -162,11 +162,10 @@ static bool logcat_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     int *err, char **err_info)
 {
     struct logcat_phdr  *logcat = (struct logcat_phdr *) wth->priv;
-    int                  packet_size;
+    unsigned             packet_size;
     uint16_t             payload_length;
-    unsigned             tmp[2];
-    uint8_t             *pd;
-    struct logger_entry *log_entry;
+    uint8_t              tmp[2];
+    const struct logger_entry *log_entry;
 
     if (!wtap_read_bytes_or_eof(fh, &tmp, 2, err, err_info)) {
         return false;
@@ -174,28 +173,27 @@ static bool logcat_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     payload_length = pletohu16(tmp);
 
     if (logcat->version == 1) {
-        packet_size = (int)sizeof(struct logger_entry) + payload_length;
+        packet_size = (unsigned)sizeof(struct logger_entry) + payload_length;
     } else if (logcat->version == 2) {
-        packet_size = (int)sizeof(struct logger_entry_v2) + payload_length;
+        packet_size = (unsigned)sizeof(struct logger_entry_v2) + payload_length;
     } else {
         return false;
     }
     /*
      * The maximum value of payload_length is 65535, which, even after
      * the size of the logger entry structure is added to it, is less
-     * than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check
-     * it.
+     * than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to
+     * check it.
      */
 
     ws_buffer_assure_space(&rec->data, packet_size);
-    pd = ws_buffer_start_ptr(&rec->data);
-    log_entry = (struct logger_entry *)(void *) pd;
+    log_entry = (const struct logger_entry *)(void *) ws_buffer_start_ptr(&rec->data);
 
     /* Copy the first two bytes of the packet. */
-    memcpy(pd, tmp, 2);
+    ws_buffer_append(&rec->data, tmp, 2);
 
     /* Read the rest of the packet. */
-    if (!wtap_read_bytes(fh, pd + 2, packet_size - 2, err, err_info)) {
+    if (!wtap_read_bytes_buffer(fh, &rec->data, packet_size - 2, err, err_info)) {
         return false;
     }
 

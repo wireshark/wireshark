@@ -284,10 +284,9 @@ find_next_pkt_info(FILE_T fh,
 /* buffer allocated by the caller, must be long enough to hold
    dat_len bytes, ... */
 static int
-read_packet_data(FILE_T fh, uint8_t dat_trans_type, uint8_t *buf, uint16_t dat_len,
+read_packet_data(FILE_T fh, uint8_t dat_trans_type, Buffer *buf, uint16_t dat_len,
                  uint64_t *time_us, int *err, char **err_info)
 {
-    uint8_t *p;
     uint8_t  block[2];
     uint16_t bytes_count = 0;
 
@@ -298,13 +297,12 @@ read_packet_data(FILE_T fh, uint8_t dat_trans_type, uint8_t *buf, uint16_t dat_l
        we can get (up to dat_len) and return those
        end-of-file will be detected when we search for the next packet */
 
-    p = buf;
     while (bytes_count < dat_len) {
         if (!wtap_read_bytes_or_eof(fh, block, sizeof(block), err, err_info))
             break;
 
         if (block[1] == dat_trans_type) {
-            *p++ = block[0];
+            ws_buffer_append(buf, block, 1);
             bytes_count++;
         }
         else if (IS_TIMESTAMP(block[1])) {
@@ -326,21 +324,25 @@ read_packet_data(FILE_T fh, uint8_t dat_trans_type, uint8_t *buf, uint16_t dat_l
 /* create a DVB-CI pseudo header
    return its length or -1 for error */
 static int
-create_pseudo_hdr(uint8_t *buf, uint8_t dat_trans_type, uint16_t dat_len,
+create_pseudo_hdr(Buffer *buf, uint8_t dat_trans_type, uint16_t dat_len,
     char **err_info)
 {
-    buf[0] = DVB_CI_PSEUDO_HDR_VER;
+    uint8_t phdr[DVB_CI_PSEUDO_HDR_LEN];
+
+    phdr[0] = DVB_CI_PSEUDO_HDR_VER;
 
     if (dat_trans_type==TRANS_CAM_HOST)
-        buf[1] = DVB_CI_PSEUDO_HDR_CAM_TO_HOST;
+        phdr[1] = DVB_CI_PSEUDO_HDR_CAM_TO_HOST;
     else if (dat_trans_type==TRANS_HOST_CAM)
-        buf[1] = DVB_CI_PSEUDO_HDR_HOST_TO_CAM;
+        phdr[1] = DVB_CI_PSEUDO_HDR_HOST_TO_CAM;
     else {
         *err_info = ws_strdup_printf("camins: invalid dat_trans_type %u", dat_trans_type);
         return -1;
     }
 
-    phtonu16(&buf[2], dat_len);
+    phtonu16(&phdr[2], dat_len);
+
+    ws_buffer_append(buf, phdr, DVB_CI_PSEUDO_HDR_LEN);
 
     return DVB_CI_PSEUDO_HDR_LEN;
 }
@@ -352,7 +354,6 @@ camins_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 {
     uint8_t     dat_trans_type;
     uint16_t    dat_len;
-    uint8_t    *p;
     int         offset, bytes_read;
 
     if (!find_next_pkt_info(
@@ -366,8 +367,7 @@ camins_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
      */
 
     ws_buffer_assure_space(&rec->data, DVB_CI_PSEUDO_HDR_LEN+dat_len);
-    p = ws_buffer_start_ptr(&rec->data);
-    offset = create_pseudo_hdr(p, dat_trans_type, dat_len, err_info);
+    offset = create_pseudo_hdr(&rec->data, dat_trans_type, dat_len, err_info);
     if (offset<0) {
         /* shouldn't happen, all invalid packets must be detected by
            find_next_pkt_info() */
@@ -377,7 +377,7 @@ camins_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     }
 
     bytes_read = read_packet_data(fh, dat_trans_type,
-            &p[offset], dat_len, time_us, err, err_info);
+            &rec->data, dat_len, time_us, err, err_info);
     /* 0<=bytes_read<=dat_len is very likely a corrupted packet
        we let the dissector handle this */
     if (bytes_read < 0)

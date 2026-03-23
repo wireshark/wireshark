@@ -155,8 +155,7 @@ static bool cosine_seek_read(wtap *wth, int64_t seek_off,
 	wtap_rec *rec, int *err, char **err_info);
 static bool parse_cosine_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	char *line, int *err, char **err_info);
-static int parse_single_hex_dump_line(char* rec, uint8_t *buf,
-	unsigned byte_offset);
+static int parse_single_hex_dump_line(char* rec, Buffer *buf);
 
 static int cosine_file_type_subtype = -1;
 
@@ -332,7 +331,6 @@ parse_cosine_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	unsigned	code1, code2;
 	char	if_name[COSINE_MAX_IF_NAME_LEN] = "", direction[6] = "";
 	struct	tm tm;
-	uint8_t *pd;
 	int	i, hex_lines, n, caplen = 0;
 
 	if (sscanf(line, "%4d-%2d-%2d,%2d:%2d:%2d.%9d:",
@@ -431,7 +429,6 @@ parse_cosine_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 
 	/* Make sure we have enough room for the packet */
 	ws_buffer_assure_space(&rec->data, pkt_len);
-	pd = ws_buffer_start_ptr(&rec->data);
 
 	/* Calculate the number of hex dump lines, each
 	 * containing 16 bytes of data */
@@ -448,7 +445,7 @@ parse_cosine_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		if (empty_line(line)) {
 			break;
 		}
-		if ((n = parse_single_hex_dump_line(line, pd, i*16)) == -1) {
+		if ((n = parse_single_hex_dump_line(line, &rec->data)) == -1) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("cosine: hex dump line doesn't have 16 numbers");
 			return false;
@@ -465,7 +462,7 @@ parse_cosine_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
  *
  * Returns number of bytes successfully read, -1 if bad.  */
 static int
-parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset)
+parse_single_hex_dump_line(char* rec, Buffer *buf)
 {
 	int num_items_scanned;
 	unsigned char bytes[16];
@@ -481,7 +478,7 @@ parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset)
 	if (num_items_scanned > 16)
 		num_items_scanned = 16;
 
-	memcpy(&buf[byte_offset], bytes, num_items_scanned);
+	ws_buffer_append(buf, bytes, num_items_scanned);
 
 	return num_items_scanned;
 }
