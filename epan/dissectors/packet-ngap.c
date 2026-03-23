@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v19.1.0 (2025-12)
+ * References: 3GPP TS 38.413 v19.2.0 (2026-03)
  */
 
 #include "config.h"
@@ -131,6 +131,7 @@ static int proto_json;
 #define maxnoofRecommendedRANNodes     16
 #define maxnoofAoI                     64
 #define maxnoofAoIMinusOne             63
+#define maxnoofFlightInfoReportControl 64
 #define maxnoofReportedCells           256
 #define maxnoofSensorName              3
 #define maxnoofServedGUAMIs            256
@@ -766,8 +767,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_Indication_of_Bitrate_Adaptation = 491,
   id_SCGActivationTime = 492,
   id_Aerial_UE_FlightInformationReporting = 493,
-  id_Aerial_UE_FlightInformationReportingControl = 494,
-  id_LPWUSDisableIndication = 495
+  id_Aerial_UE_FlightInformationReportingControlList = 494,
+  id_LPWUSDisableIndication = 495,
+  id_AIoT_SecurityInfo = 496
 } ProtocolIE_ID_enum;
 
 typedef enum _GlobalRANNodeID_enum {
@@ -880,6 +882,7 @@ static int hf_ngap_AIOTFIdentifier_PDU;           /* AIOTFIdentifier */
 static int hf_ngap_AIOTFName_PDU;                 /* AIOTFName */
 static int hf_ngap_AIoT_InventoryAssistanceInformation_PDU;  /* AIoT_InventoryAssistanceInformation */
 static int hf_ngap_AIoT_NASPDU_PDU;               /* AIoT_NASPDU */
+static int hf_ngap_AIoT_SecurityInfo_PDU;         /* AIoT_SecurityInfo */
 static int hf_ngap_AIoT_RequestedServiceAreaInformation_PDU;  /* AIoT_RequestedServiceAreaInformation */
 static int hf_ngap_AIoT_Support_PDU;              /* AIoT_Support */
 static int hf_ngap_AllowedNSSAI_PDU;              /* AllowedNSSAI */
@@ -1009,7 +1012,7 @@ static int hf_ngap_LastVisitedPSCellList_PDU;     /* LastVisitedPSCellList */
 static int hf_ngap_ngap_LastVisitedPSCellInformation_PDU;  /* LastVisitedPSCellInformation */
 static int hf_ngap_LocationReportingAdditionalInfo_PDU;  /* LocationReportingAdditionalInfo */
 static int hf_ngap_LocationReportingRequestType_PDU;  /* LocationReportingRequestType */
-static int hf_ngap_Aerial_UE_FlightInformationReportingControl_PDU;  /* Aerial_UE_FlightInformationReportingControl */
+static int hf_ngap_Aerial_UE_FlightInformationReportingControlList_PDU;  /* Aerial_UE_FlightInformationReportingControlList */
 static int hf_ngap_LPWUSPSAssistanceInformation_PDU;  /* LPWUSPSAssistanceInformation */
 static int hf_ngap_LPWUSDisableIndication_PDU;    /* LPWUSDisableIndication */
 static int hf_ngap_LTEM_Indication_PDU;           /* LTEM_Indication */
@@ -1547,6 +1550,7 @@ static int hf_ngap_aIOTFNameUTF8String;           /* AIOTFNameUTF8String */
 static int hf_ngap_expectedD2RMsgSize;            /* INTEGER_1_256_ */
 static int hf_ngap_approximateNoofTargetDevices;  /* INTEGER_1_65535_ */
 static int hf_ngap_timeInterval;                  /* INTEGER_1_256_ */
+static int hf_ngap_a_IoT_RAND_n;                  /* BIT_STRING_SIZE_128_ */
 static int hf_ngap_AIoT_ReaderReportList_item;    /* AIoT_ReaderReportItem */
 static int hf_ngap_readerIndex;                   /* AIoT_ReaderIndex */
 static int hf_ngap_deviceReportList;              /* AIoT_DeviceReportList */
@@ -2016,6 +2020,9 @@ static int hf_ngap_areaOfInterestList;            /* AreaOfInterestList */
 static int hf_ngap_higher_Altitude_Threshold;     /* Altitude */
 static int hf_ngap_lower_Altitude_Threshold;      /* Altitude */
 static int hf_ngap_aerial_UE_report_periodicity;  /* AerialUEReportingPeriodicity */
+static int hf_ngap_areaID;                        /* Area_ID */
+static int hf_ngap_Aerial_UE_FlightInformationReportingControlList_item;  /* Aerial_UE_FlightInformationReportingControlItem */
+static int hf_ngap_aerial_UE_FlightInformationReportingControl;  /* Aerial_UE_FlightInformationReportingControl */
 static int hf_ngap_loggingInterval;               /* LoggingInterval */
 static int hf_ngap_loggingDuration;               /* LoggingDuration */
 static int hf_ngap_loggedMDTTrigger;              /* LoggedMDTTrigger */
@@ -2677,6 +2684,7 @@ static int ett_ngap_AIoT_DeviceReportList;
 static int ett_ngap_AIoT_DeviceReportItem;
 static int ett_ngap_AIOTFName;
 static int ett_ngap_AIoT_InventoryAssistanceInformation;
+static int ett_ngap_AIoT_SecurityInfo;
 static int ett_ngap_AIoT_ReaderReportList;
 static int ett_ngap_AIoT_ReaderReportItem;
 static int ett_ngap_AIoT_RequestedReaderList;
@@ -2971,6 +2979,9 @@ static int ett_ngap_LastVisitedPSCellList;
 static int ett_ngap_LastVisitedPSCellInformation;
 static int ett_ngap_LocationReportingRequestType;
 static int ett_ngap_Aerial_UE_FlightInformationReportingControl;
+static int ett_ngap_Aerial_UE_FlightInformationReportingControlList;
+static int ett_ngap_Aerial_UE_FlightInformationReportingControlItem;
+static int ett_ngap_Area_ID;
 static int ett_ngap_LoggedMDTNr;
 static int ett_ngap_LoggedMDTTrigger;
 static int ett_ngap_LPWUSPSAssistanceInformation;
@@ -4952,8 +4963,9 @@ static const value_string ngap_ProtocolIE_ID_vals[] = {
   { id_Indication_of_Bitrate_Adaptation, "id-Indication-of-Bitrate-Adaptation" },
   { id_SCGActivationTime, "id-SCGActivationTime" },
   { id_Aerial_UE_FlightInformationReporting, "id-Aerial-UE-FlightInformationReporting" },
-  { id_Aerial_UE_FlightInformationReportingControl, "id-Aerial-UE-FlightInformationReportingControl" },
+  { id_Aerial_UE_FlightInformationReportingControlList, "id-Aerial-UE-FlightInformationReportingControlList" },
   { id_LPWUSDisableIndication, "id-LPWUSDisableIndication" },
+  { id_AIoT_SecurityInfo, "id-AIoT-SecurityInfo" },
   { 0, NULL }
 };
 
@@ -5876,6 +5888,38 @@ dissect_ngap_AIoT_InventoryAssistanceInformation(tvbuff_t *tvb _U_, uint32_t off
 
 
 static unsigned
+dissect_ngap_BIT_STRING_SIZE_128_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     128, 128, true, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+static const value_string ngap_AIoT_SecurityInfo_vals[] = {
+  {   0, "a-IoT-RAND-n" },
+  {   1, "choice-Extensions" },
+  { 0, NULL }
+};
+
+static const per_choice_t AIoT_SecurityInfo_choice[] = {
+  {   0, &hf_ngap_a_IoT_RAND_n   , ASN1_NO_EXTENSIONS     , dissect_ngap_BIT_STRING_SIZE_128_ },
+  {   1, &hf_ngap_choice_Extensions, ASN1_NO_EXTENSIONS     , dissect_ngap_ProtocolIE_SingleContainer },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_ngap_AIoT_SecurityInfo(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_ngap_AIoT_SecurityInfo, AIoT_SecurityInfo_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
 dissect_ngap_AIoT_ReaderIndex(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 65535U, NULL, true);
@@ -6230,6 +6274,7 @@ static const value_string ngap_CauseNas_vals[] = {
   {   4, "uE-not-in-PLMN-serving-area" },
   {   5, "mobile-IAB-not-authorized" },
   {   6, "iAB-not-authorized" },
+  {   7, "no-aiot-NAS-response" },
   { 0, NULL }
 };
 
@@ -6238,7 +6283,7 @@ static unsigned
 dissect_ngap_CauseNas(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   uint32_t value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, &value, true, 3, NULL);
+                                     4, &value, true, 4, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Nas=%s]", val_to_str_const(value, ngap_CauseNas_vals, "Unknown"));
 
@@ -8139,6 +8184,7 @@ dissect_ngap_AvailableRANVisibleQoEMetrics(tvbuff_t *tvb _U_, uint32_t offset _U
 
 static const value_string ngap_T_rSRP_vals[] = {
   {   0, "true" },
+  {   1, "false" },
   { 0, NULL }
 };
 
@@ -8146,7 +8192,7 @@ static const value_string ngap_T_rSRP_vals[] = {
 static unsigned
 dissect_ngap_T_rSRP(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, true, 0, NULL);
+                                     1, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -8154,6 +8200,7 @@ dissect_ngap_T_rSRP(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_
 
 static const value_string ngap_T_rSRQ_vals[] = {
   {   0, "true" },
+  {   1, "false" },
   { 0, NULL }
 };
 
@@ -8161,7 +8208,7 @@ static const value_string ngap_T_rSRQ_vals[] = {
 static unsigned
 dissect_ngap_T_rSRQ(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, true, 0, NULL);
+                                     1, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -8169,6 +8216,7 @@ dissect_ngap_T_rSRQ(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_
 
 static const value_string ngap_T_sINR_vals[] = {
   {   0, "true" },
+  {   1, "false" },
   { 0, NULL }
 };
 
@@ -8176,7 +8224,7 @@ static const value_string ngap_T_sINR_vals[] = {
 static unsigned
 dissect_ngap_T_sINR(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, true, 0, NULL);
+                                     1, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -15683,10 +15731,37 @@ dissect_ngap_AerialUEReportingPeriodicity(tvbuff_t *tvb _U_, uint32_t offset _U_
 }
 
 
+static const value_string ngap_Area_ID_vals[] = {
+  {   0, "tAI" },
+  {   1, "globalRANNodeID" },
+  {   2, "nR-CGI" },
+  {   3, "choice-Extensions" },
+  { 0, NULL }
+};
+
+static const per_choice_t Area_ID_choice[] = {
+  {   0, &hf_ngap_tAI            , ASN1_NO_EXTENSIONS     , dissect_ngap_TAI },
+  {   1, &hf_ngap_globalRANNodeID, ASN1_NO_EXTENSIONS     , dissect_ngap_GlobalRANNodeID },
+  {   2, &hf_ngap_nR_CGI         , ASN1_NO_EXTENSIONS     , dissect_ngap_NR_CGI },
+  {   3, &hf_ngap_choice_Extensions, ASN1_NO_EXTENSIONS     , dissect_ngap_ProtocolIE_SingleContainer },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_ngap_Area_ID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_ngap_Area_ID, Area_ID_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t Aerial_UE_FlightInformationReportingControl_sequence[] = {
   { &hf_ngap_higher_Altitude_Threshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_Altitude },
   { &hf_ngap_lower_Altitude_Threshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_Altitude },
   { &hf_ngap_aerial_UE_report_periodicity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_AerialUEReportingPeriodicity },
+  { &hf_ngap_areaID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_Area_ID },
   { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -15695,6 +15770,35 @@ static unsigned
 dissect_ngap_Aerial_UE_FlightInformationReportingControl(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_Aerial_UE_FlightInformationReportingControl, Aerial_UE_FlightInformationReportingControl_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Aerial_UE_FlightInformationReportingControlItem_sequence[] = {
+  { &hf_ngap_aerial_UE_FlightInformationReportingControl, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_Aerial_UE_FlightInformationReportingControl },
+  { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_ngap_Aerial_UE_FlightInformationReportingControlItem(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ngap_Aerial_UE_FlightInformationReportingControlItem, Aerial_UE_FlightInformationReportingControlItem_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Aerial_UE_FlightInformationReportingControlList_sequence_of[1] = {
+  { &hf_ngap_Aerial_UE_FlightInformationReportingControlList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ngap_Aerial_UE_FlightInformationReportingControlItem },
+};
+
+static unsigned
+dissect_ngap_Aerial_UE_FlightInformationReportingControlList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ngap_Aerial_UE_FlightInformationReportingControlList, Aerial_UE_FlightInformationReportingControlList_sequence_of,
+                                                  1, maxnoofFlightInfoReportControl, false);
 
   return offset;
 }
@@ -28528,6 +28632,14 @@ static int dissect_AIoT_NASPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_AIoT_SecurityInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_ngap_AIoT_SecurityInfo(tvb, offset, &asn1_ctx, tree, hf_ngap_AIoT_SecurityInfo_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_AIoT_RequestedServiceAreaInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -29560,11 +29672,11 @@ static int dissect_LocationReportingRequestType_PDU(tvbuff_t *tvb _U_, packet_in
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_Aerial_UE_FlightInformationReportingControl_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+static int dissect_Aerial_UE_FlightInformationReportingControlList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
-  offset = dissect_ngap_Aerial_UE_FlightInformationReportingControl(tvb, offset, &asn1_ctx, tree, hf_ngap_Aerial_UE_FlightInformationReportingControl_PDU);
+  offset = dissect_ngap_Aerial_UE_FlightInformationReportingControlList(tvb, offset, &asn1_ctx, tree, hf_ngap_Aerial_UE_FlightInformationReportingControlList_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -34178,6 +34290,7 @@ proto_reg_handoff_ngap(void)
   dissector_add_uint("ngap.ies", id_LPWUSPSAssistanceInformation, create_dissector_handle(dissect_LPWUSPSAssistanceInformation_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_AdditionalULI, create_dissector_handle(dissect_AdditionalULI_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_LPWUSDisableIndication, create_dissector_handle(dissect_LPWUSDisableIndication_PDU, proto_ngap));
+  dissector_add_uint("ngap.ies", id_AIoT_SecurityInfo, create_dissector_handle(dissect_AIoT_SecurityInfo_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_SecondaryRATUsageInformation, create_dissector_handle(dissect_SecondaryRATUsageInformation_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_PDUSessionResourceReleaseResponseTransfer, create_dissector_handle(dissect_PDUSessionResourceReleaseResponseTransfer_OCTET_STRING_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_S_NSSAI, create_dissector_handle(dissect_S_NSSAI_PDU, proto_ngap));
@@ -34334,7 +34447,7 @@ proto_reg_handoff_ngap(void)
   dissector_add_uint("ngap.extension", id_Indication_of_Bitrate_Adaptation, create_dissector_handle(dissect_Indication_of_Bitrate_Adaptation_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_SCGActivationTime, create_dissector_handle(dissect_SCGActivationTime_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_Aerial_UE_FlightInformationReporting, create_dissector_handle(dissect_Aerial_UE_FlightInformationReporting_PDU, proto_ngap));
-  dissector_add_uint("ngap.extension", id_Aerial_UE_FlightInformationReportingControl, create_dissector_handle(dissect_Aerial_UE_FlightInformationReportingControl_PDU, proto_ngap));
+  dissector_add_uint("ngap.extension", id_Aerial_UE_FlightInformationReportingControlList, create_dissector_handle(dissect_Aerial_UE_FlightInformationReportingControlList_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_LPWUSDisableIndication, create_dissector_handle(dissect_LPWUSDisableIndication_PDU, proto_ngap));
   dissector_add_uint("ngap.proc.imsg", id_AMFConfigurationUpdate, create_dissector_handle(dissect_AMFConfigurationUpdate_PDU, proto_ngap));
   dissector_add_uint("ngap.proc.sout", id_AMFConfigurationUpdate, create_dissector_handle(dissect_AMFConfigurationUpdateAcknowledge_PDU, proto_ngap));
@@ -34887,6 +35000,10 @@ void proto_register_ngap(void) {
       { "AIoT-NASPDU", "ngap.AIoT_NASPDU",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ngap_AIoT_SecurityInfo_PDU,
+      { "AIoT-SecurityInfo", "ngap.AIoT_SecurityInfo",
+        FT_UINT32, BASE_DEC, VALS(ngap_AIoT_SecurityInfo_vals), 0,
+        NULL, HFILL }},
     { &hf_ngap_AIoT_RequestedServiceAreaInformation_PDU,
       { "AIoT-RequestedServiceAreaInformation", "ngap.AIoT_RequestedServiceAreaInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -35403,9 +35520,9 @@ void proto_register_ngap(void) {
       { "LocationReportingRequestType", "ngap.LocationReportingRequestType_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ngap_Aerial_UE_FlightInformationReportingControl_PDU,
-      { "Aerial-UE-FlightInformationReportingControl", "ngap.Aerial_UE_FlightInformationReportingControl_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+    { &hf_ngap_Aerial_UE_FlightInformationReportingControlList_PDU,
+      { "Aerial-UE-FlightInformationReportingControlList", "ngap.Aerial_UE_FlightInformationReportingControlList",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_ngap_LPWUSPSAssistanceInformation_PDU,
       { "LPWUSPSAssistanceInformation", "ngap.LPWUSPSAssistanceInformation_element",
@@ -37555,6 +37672,10 @@ void proto_register_ngap(void) {
       { "timeInterval", "ngap.timeInterval",
         FT_UINT32, BASE_CUSTOM, CF_FUNC(ngap_AIoT_timeInterval_fmt), 0,
         "INTEGER_1_256_", HFILL }},
+    { &hf_ngap_a_IoT_RAND_n,
+      { "a-IoT-RAND-n", "ngap.a_IoT_RAND_n",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_128_", HFILL }},
     { &hf_ngap_AIoT_ReaderReportList_item,
       { "AIoT-ReaderReportItem", "ngap.AIoT_ReaderReportItem_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -39431,6 +39552,18 @@ void proto_register_ngap(void) {
       { "aerial-UE-report-periodicity", "ngap.aerial_UE_report_periodicity",
         FT_UINT32, BASE_DEC, VALS(ngap_AerialUEReportingPeriodicity_vals), 0,
         "AerialUEReportingPeriodicity", HFILL }},
+    { &hf_ngap_areaID,
+      { "areaID", "ngap.areaID",
+        FT_UINT32, BASE_DEC, VALS(ngap_Area_ID_vals), 0,
+        "Area_ID", HFILL }},
+    { &hf_ngap_Aerial_UE_FlightInformationReportingControlList_item,
+      { "Aerial-UE-FlightInformationReportingControlItem", "ngap.Aerial_UE_FlightInformationReportingControlItem_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_aerial_UE_FlightInformationReportingControl,
+      { "aerial-UE-FlightInformationReportingControl", "ngap.aerial_UE_FlightInformationReportingControl_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ngap_loggingInterval,
       { "loggingInterval", "ngap.loggingInterval",
         FT_UINT32, BASE_DEC, VALS(ngap_LoggingInterval_vals), 0,
@@ -41861,6 +41994,7 @@ void proto_register_ngap(void) {
     &ett_ngap_AIoT_DeviceReportItem,
     &ett_ngap_AIOTFName,
     &ett_ngap_AIoT_InventoryAssistanceInformation,
+    &ett_ngap_AIoT_SecurityInfo,
     &ett_ngap_AIoT_ReaderReportList,
     &ett_ngap_AIoT_ReaderReportItem,
     &ett_ngap_AIoT_RequestedReaderList,
@@ -42155,6 +42289,9 @@ void proto_register_ngap(void) {
     &ett_ngap_LastVisitedPSCellInformation,
     &ett_ngap_LocationReportingRequestType,
     &ett_ngap_Aerial_UE_FlightInformationReportingControl,
+    &ett_ngap_Aerial_UE_FlightInformationReportingControlList,
+    &ett_ngap_Aerial_UE_FlightInformationReportingControlItem,
+    &ett_ngap_Area_ID,
     &ett_ngap_LoggedMDTNr,
     &ett_ngap_LoggedMDTTrigger,
     &ett_ngap_LPWUSPSAssistanceInformation,

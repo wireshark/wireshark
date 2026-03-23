@@ -1981,8 +1981,9 @@ id-MMSID                                               ProtocolIE-ID
 id-Indication-of-Bitrate-Adaptation                    ProtocolIE-ID
 id-SCGActivationTime                                   ProtocolIE-ID
 id-Aerial-UE-FlightInformationReporting                ProtocolIE-ID
-id-Aerial-UE-FlightInformationReportingControl         ProtocolIE-ID
+id-Aerial-UE-FlightInformationReportingControlList     ProtocolIE-ID
 id-LPWUSDisableIndication                              ProtocolIE-ID
+id-AIoT-SecurityInfo                                   ProtocolIE-ID
 
 
 #.END
@@ -2335,6 +2336,7 @@ AIOTFName                                                N ngap.ies id-AIOTFName
 LPWUSPSAssistanceInformation                             N ngap.ies id-LPWUSPSAssistanceInformation
 AdditionalULI                                            N ngap.ies id-AdditionalULI
 LPWUSDisableIndication                                   N ngap.ies id-LPWUSDisableIndication
+AIoT-SecurityInfo                                        N ngap.ies id-AIoT-SecurityInfo
 
 #NGAP-PROTOCOL-EXTENSION
 
@@ -2495,7 +2497,7 @@ MMSID                                                  N ngap.extension id-MMSID
 Indication-of-Bitrate-Adaptation                       N ngap.extension id-Indication-of-Bitrate-Adaptation
 SCGActivationTime                                      N ngap.extension id-SCGActivationTime
 Aerial-UE-FlightInformationReporting                   N ngap.extension id-Aerial-UE-FlightInformationReporting
-Aerial-UE-FlightInformationReportingControl            N ngap.extension id-Aerial-UE-FlightInformationReportingControl
+Aerial-UE-FlightInformationReportingControlList        N ngap.extension id-Aerial-UE-FlightInformationReportingControlList
 LPWUSDisableIndication                                 N ngap.extension id-LPWUSDisableIndication
 
 #NGAP-ELEMENTARY-PROCEDURE

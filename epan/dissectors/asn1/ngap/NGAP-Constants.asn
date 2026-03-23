@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V19.1.0 (2025-12)
+-- 3GPP TS 38.413 V19.2.0 (2026-03)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -194,6 +194,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofRecommendedRANNodes					INTEGER ::= 16
 	maxnoofAoI									INTEGER ::= 64
 	maxnoofAoIMinusOne							INTEGER ::= 63
+	maxnoofFlightInfoReportControl				INTEGER ::= 64
 	maxnoofReportedCells						INTEGER ::= 256
 	maxnoofSensorName							INTEGER ::= 3
 	maxnoofServedGUAMIs							INTEGER ::= 256
@@ -750,8 +751,9 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-Indication-of-Bitrate-Adaptation						ProtocolIE-ID ::= 491
 	id-SCGActivationTime									ProtocolIE-ID ::= 492
 	id-Aerial-UE-FlightInformationReporting					ProtocolIE-ID ::= 493
-	id-Aerial-UE-FlightInformationReportingControl			ProtocolIE-ID ::= 494
+	id-Aerial-UE-FlightInformationReportingControlList		ProtocolIE-ID ::= 494
 	id-LPWUSDisableIndication								ProtocolIE-ID ::= 495
+	id-AIoT-SecurityInfo									ProtocolIE-ID ::= 496
 
 
 

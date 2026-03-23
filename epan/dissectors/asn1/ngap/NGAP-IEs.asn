@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V19.1.0 (2025-12)
+-- 3GPP TS 38.413 V19.2.0 (2026-03)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -29,6 +29,7 @@ IMPORTS
 	id-AIOTFIdentifier,
 	id-AIoT-CorrelationIdentifier,
 	id-AIoT-DeviceIdentificationRequested,
+	id-AIoT-SecurityInfo,
 	id-AIoT-RequestedServiceAreaInformation,
 	id-AIoT-InventoryAssistanceInformation,
 	id-AIoT-FollowonCommandIndication,
@@ -247,7 +248,7 @@ IMPORTS
 	id-Indication-of-Bitrate-Adaptation,
 	id-SCGActivationTime,
 	id-Aerial-UE-FlightInformationReporting,
-	id-Aerial-UE-FlightInformationReportingControl,
+	id-Aerial-UE-FlightInformationReportingControlList,
 	maxnoofAIoTAreas,
 	maxnoofAllowedAreas,
 	maxnoofAllowedCAGsperPLMN,
@@ -312,6 +313,7 @@ IMPORTS
 	maxnoofRecommendedCells,
 	maxnoofRecommendedRANNodes,
 	maxnoofAoI,
+	maxnoofFlightInfoReportControl,
 	maxnoofPSCellsPerPrimaryCellinUEHistoryInfo,
 	maxnoofReportedCells,
 	maxnoofSensorName,
@@ -541,6 +543,16 @@ AIoT-InventoryAssistanceInformation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 AIoT-NASPDU  ::= OCTET STRING
+
+AIoT-SecurityInfo ::= CHOICE {
+	a-IoT-RAND-n			BIT STRING (SIZE(128, ...)),
+	choice-Extensions		ProtocolIE-SingleContainer { {AIoT-SecurityInfo-ExtIEs} }
+}
+
+AIoT-SecurityInfo-ExtIEs NGAP-PROTOCOL-IES ::= {
+	...
+}
+
 
 AIoT-ReaderReportList ::= SEQUENCE (SIZE(1..maxnoofReaders)) OF AIoT-ReaderReportItem
 
@@ -997,9 +1009,9 @@ BeamMeasurementsReportConfiguration-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 BeamMeasurementsReportQuantity ::= SEQUENCE {
-    rSRP						ENUMERATED {true, ...},
-    rSRQ						ENUMERATED {true, ...},
-    sINR						ENUMERATED {true, ...},
+    rSRP						ENUMERATED {true, ..., false},
+    rSRQ						ENUMERATED {true, ..., false},
+    sINR						ENUMERATED {true, ..., false},
 	iE-Extensions			ProtocolExtensionContainer { { BeamMeasurementsReportQuantity-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1278,7 +1290,8 @@ CauseNas ::= ENUMERATED {
 	...,
 	uE-not-in-PLMN-serving-area,
 	mobile-IAB-not-authorized,
-	iAB-not-authorized
+	iAB-not-authorized,
+	no-aiot-NAS-response
 }
 
 CauseProtocol ::= ENUMERATED {
@@ -3664,7 +3677,8 @@ InventoryRequestTransferIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AIoT-DeviceIdentificationRequested		CRITICALITY reject	TYPE AIoT-DeviceIdentificationRequested				PRESENCE	mandatory	}|
 	{ ID id-AIoT-RequestedServiceAreaInformation	CRITICALITY reject	TYPE AIoT-RequestedServiceAreaInformation			PRESENCE mandatory	}|
 	{ ID id-AIoT-InventoryAssistanceInformation		CRITICALITY reject	TYPE AIoT-InventoryAssistanceInformation				PRESENCE	mandatory	}|
-	{ ID id-AIoT-FollowonCommandIndication			CRITICALITY reject	TYPE AIoT-FollowonCommandIndication					PRESENCE	optional		},
+	{ ID id-AIoT-FollowonCommandIndication			CRITICALITY reject	TYPE AIoT-FollowonCommandIndication					PRESENCE	optional		}|
+	{ ID id-AIoT-SecurityInfo						CRITICALITY reject	TYPE AIoT-SecurityInfo										PRESENCE	mandatory	},
 	...
 }
 
@@ -3805,19 +3819,46 @@ LocationReportingRequestType ::= SEQUENCE {
 LocationReportingRequestType-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-LocationReportingAdditionalInfo	CRITICALITY ignore	EXTENSION LocationReportingAdditionalInfo		PRESENCE optional }|
 	{ ID id-AdditionalCancelledlocationReportingReferenceIDList	CRITICALITY reject	EXTENSION AdditionalCancelledlocationReportingReferenceIDList  PRESENCE optional }|
-	{ ID id-Aerial-UE-FlightInformationReportingControl	CRITICALITY ignore	 EXTENSION Aerial-UE-FlightInformationReportingControl	PRESENCE optional},
+	{ ID id-Aerial-UE-FlightInformationReportingControlList	CRITICALITY ignore	 EXTENSION Aerial-UE-FlightInformationReportingControlList	PRESENCE optional},
 	...
 }
+
 
 Aerial-UE-FlightInformationReportingControl ::= SEQUENCE {
 	higher-Altitude-Threshold				Altitude,
 	lower-Altitude-Threshold				Altitude,
 	aerial-UE-report-periodicity						AerialUEReportingPeriodicity			OPTIONAL,
+	areaID									Area-ID,
 	iE-Extensions		ProtocolExtensionContainer { {Aerial-UE-FlightInformationReportingControl-ExtIEs}} OPTIONAL,
 	...
 }
 
 Aerial-UE-FlightInformationReportingControl-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Aerial-UE-FlightInformationReportingControlList::= SEQUENCE (SIZE(1.. maxnoofFlightInfoReportControl)) OF Aerial-UE-FlightInformationReportingControlItem
+
+Aerial-UE-FlightInformationReportingControlItem ::= SEQUENCE {
+    aerial-UE-FlightInformationReportingControl     Aerial-UE-FlightInformationReportingControl,
+	iE-Extensions		ProtocolExtensionContainer { {Aerial-UE-FlightInformationReportingControlItem-ExtIEs}} OPTIONAL,
+	...
+}
+
+
+Aerial-UE-FlightInformationReportingControlItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+Area-ID ::= CHOICE {
+tAI             TAI,
+globalRANNodeID			GlobalRANNodeID,
+	nR-CGI			NR-CGI,
+	choice-Extensions		ProtocolIE-SingleContainer { {Area-ID-ExtIEs} }
+}
+
+Area-ID-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
