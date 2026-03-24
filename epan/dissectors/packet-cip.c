@@ -65,7 +65,7 @@
 
 void proto_register_cip(void);
 void proto_reg_handoff_cip(void);
-static int dissect_cip_stringi(packet_info* pinfo, proto_tree* tree, proto_item* item, tvbuff_t* tvb, int offset);
+static int dissect_cip_stringi(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int offset, const char* name);
 
 typedef struct mr_mult_req_info {
    uint8_t service;
@@ -444,11 +444,14 @@ static int hf_conn_mgr_conn_open_bits;
 static int hf_conn_mgr_cpu_utilization;
 static int hf_conn_mgr_max_buff_size;
 static int hf_conn_mgr_buff_size_remaining;
-static int hf_stringi_number_char;
-static int hf_stringi_language_char;
-static int hf_stringi_char_string_struct;
-static int hf_stringi_char_set;
+
+static int hf_stringi;
+static int hf_stringi_data_type;
+static int hf_stringi_string;
 static int hf_stringi_international_string;
+static int hf_stringi_number_of_strings;
+static int hf_stringi_language_char;
+static int hf_stringi_char_set;
 
 static int hf_file_data;
 static int hf_file_encoding;
@@ -658,6 +661,8 @@ static int ett_id_status;
 static int ett_32bitheader_tree;
 
 static int ett_connection_info;
+static int ett_stringi;
+static int ett_stringi_entry;
 
 static expert_field ei_mal_identity_revision;
 static expert_field ei_mal_identity_status;
@@ -726,6 +731,8 @@ static expert_field ei_cip_safety_input;
 static expert_field ei_cip_safety_output;
 static expert_field ei_cip_listen_input_connection;
 
+static expert_field ei_cip_stringi_invalid_type;
+
 //// Concurrent Connections
 static int hf_cip_cm_cc_version;
 
@@ -782,6 +789,29 @@ static int* ett_cc[] =
 
 static dissector_table_t   subdissector_class_table;
 static dissector_table_t   subdissector_symbol_table;
+
+static const value_string cip_string_type_vals[] = {
+    { CIP_STRING_TYPE, "STRING" },
+    { CIP_STRING2_TYPE, "STRING2" },
+    { CIP_STRINGN_TYPE, "STRINGN" },
+    { CIP_SHORT_STRING_TYPE, "SHORT_STRING" },
+    { 0, NULL }
+};
+
+static const value_string cip_charset_vals[] = {
+    { 4, "ISO-8859-1:1987" },
+    { 5, "ISO-8859-2:1987" },
+    { 6, "ISO-8859-3:1988" },
+    { 7, "ISO-8859-4:1988 7" },
+    { 8, "ISO-8859-5:1988 8" },
+    { 9, "ISO-8859-6:1987 9" },
+    { 10, "ISO-8859-7:1987 10" },
+    { 11, "ISO-8859-8:1989 11" },
+    { 12, "ISO-8859-9:1989 12" },
+    { 1000, "ISO-10646-UCS-2" },
+    { 1001, "ISO-10646-UCS-4" },
+    { 0, NULL }
+};
 
 /* Translate function to string - CIP Service codes */
 static const value_string cip_sc_vals[] = {
@@ -4416,8 +4446,8 @@ static int dissect_file_directory(packet_info *pinfo, proto_tree *tree, proto_it
       proto_tree_add_item(instance_tree, hf_cip_instance16, tvb, offset + parsed_len, 2, ENC_LITTLE_ENDIAN);
       parsed_len += 2;
 
-      parsed_len += dissect_cip_stringi(pinfo, instance_tree, instance_item, tvb, offset + parsed_len);
-      parsed_len += dissect_cip_stringi(pinfo, instance_tree, instance_item, tvb, offset + parsed_len);
+      parsed_len += dissect_cip_stringi(pinfo, instance_tree, tvb, offset + parsed_len, "Instance Name");
+      parsed_len += dissect_cip_stringi(pinfo, instance_tree, tvb, offset + parsed_len, "File Name");
 
       instance_num++;
    }
@@ -4434,13 +4464,13 @@ static int dissect_file_revision(packet_info *pinfo _U_, proto_tree *tree, proto
 }
 
 /// File - Services
-static int dissect_file_create(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, bool request)
+static int dissect_file_create(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb, int offset, bool request)
 {
    int parsed_len = 0;
 
    if (request)
    {
-      parsed_len = dissect_cip_stringi(pinfo, tree, item, tvb, offset);
+      parsed_len = dissect_cip_stringi(pinfo, tree, tvb, offset, "Instance Name");
 
       // This parameter is optional.
       if (tvb_reported_length_remaining(tvb, offset + parsed_len) > 0)
@@ -4468,7 +4498,7 @@ static int dissect_file_initiate_download(packet_info *pinfo, proto_tree *tree, 
       proto_tree_add_item(tree, hf_file_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(tree, hf_file_file_format_version, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
       dissect_file_revision(pinfo, tree, item, tvb, offset + 6, tvb_reported_length_remaining(tvb, offset + 6));
-      int string_len = dissect_cip_stringi(pinfo, tree, item, tvb, offset + 8);
+      int string_len = dissect_cip_stringi(pinfo, tree, tvb, offset + 8, "File Name");
 
       parsed_len = 8 + string_len;
    }
@@ -6533,6 +6563,7 @@ int dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *it
 {
     uint32_t string_size_field_len;
     uint32_t string_size;
+    uint32_t char_size;
     unsigned string_encoding;
     int parsed_len;
     int total_len;
@@ -6543,13 +6574,13 @@ int dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *it
     {
     case CIP_SHORT_STRING_TYPE:
         string_size = tvb_get_uint8(tvb, offset);
-        string_encoding = ENC_ASCII;
+        string_encoding = ENC_ISO_8859_1;
         string_size_field_len = 1;
         break;
 
     case CIP_STRING_TYPE:
         string_size = tvb_get_letohs(tvb, offset);
-        string_encoding = ENC_ASCII;
+        string_encoding = ENC_ISO_8859_1;
         string_size_field_len = 2;
         break;
 
@@ -6558,6 +6589,29 @@ int dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *it
         string_encoding = ENC_UCS_2 | ENC_LITTLE_ENDIAN;
         string_size_field_len = 2;
         break;
+
+    case CIP_STRINGN_TYPE:
+       char_size = tvb_get_letohs(tvb, offset) * 2;
+       string_size = tvb_get_letohs(tvb, offset+2) * char_size;
+
+       /* Determine the string encoding; only 1-, 2-, or 4-byte character widths are supported. */
+       switch (char_size) {
+       case 1:
+          string_encoding = ENC_ISO_8859_1;
+          break;
+       case 2:
+          string_encoding = ENC_UCS_2 | ENC_LITTLE_ENDIAN;
+          break;
+       case 4:
+          string_encoding = ENC_UCS_4 | ENC_LITTLE_ENDIAN;
+          break;
+       default:
+          // Unsupported character size
+          return total_len;
+       }
+
+       string_size_field_len = 4;
+       break;
 
     default:
         // Unsupported.
@@ -6578,33 +6632,86 @@ int dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *it
     return parsed_len;
 }
 
-static int dissect_cip_stringi(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset)
+static int dissect_cip_stringi(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int offset, const char* name)
 {
-    int parsed_len = 1;
-    uint32_t num_char = 0;
-    proto_tree_add_item_ret_uint(tree, hf_stringi_number_char, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_char);
+   guint32 num_entries = 0;
+   gint start_offset = offset;
 
-    for (uint32_t i = 0; i < num_char; ++i)
-    {
-        proto_tree_add_item(tree, hf_stringi_language_char, tvb, offset + 1, 3, ENC_ASCII);
+   proto_item* ti;
+   proto_tree* stringi_tree;
 
-        uint32_t char_string_type = 0;
-        proto_tree_add_item_ret_uint(tree, hf_stringi_char_string_struct, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN, &char_string_type);
-        proto_tree_add_item(tree, hf_stringi_char_set, tvb, offset + 5, 2, ENC_LITTLE_ENDIAN);
-        parsed_len += 6;
+   /* Top-level subtree */
+   ti = proto_tree_add_item(tree, hf_stringi, tvb, offset, 0, ENC_NA);
 
-        if (char_string_type != CIP_STRING_TYPE
-            && char_string_type != CIP_SHORT_STRING_TYPE
-            && char_string_type != CIP_STRING2_TYPE)
-        {
-            // Unsupported type.
-            break;
-        }
+   if (name != NULL) {
+      proto_item_set_text(ti, "%s", name);
+   }
+   else {
+      proto_item_set_text(ti, "STRINGI");
+   }
 
-        parsed_len += dissect_cip_string_type(pinfo, tree, item, tvb, offset + parsed_len, hf_stringi_international_string, char_string_type);
-    }
+   stringi_tree = proto_item_add_subtree(ti, ett_stringi);
 
-    return parsed_len;
+   /* Number of entries */
+   proto_tree_add_item_ret_uint(stringi_tree, hf_stringi_number_of_strings, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_entries);
+   offset += 1;
+
+   /* Loop through entries */
+   for (guint32 i = 0; i < num_entries; ++i)
+   {
+      gint entry_start = offset;
+
+      proto_item* entry_ti;
+      proto_tree* entry_tree;
+
+      /* Create entry subtree */
+      entry_ti = proto_tree_add_item(stringi_tree, hf_stringi_string, tvb, offset, 0, ENC_NA);
+      proto_item_set_text(entry_ti, "String %u", i + 1);
+
+      entry_tree = proto_item_add_subtree(entry_ti, ett_stringi_entry);
+
+      /* Language (3 bytes ASCII) */
+      proto_tree_add_item(entry_tree, hf_stringi_language_char, tvb, offset, 3, ENC_ASCII);
+      offset += 3;
+
+      /* DataType (1 byte) */
+      guint8 string_type = tvb_get_uint8(tvb, offset);
+      proto_tree_add_item(entry_tree, hf_stringi_data_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+      /* Validate string_type */
+      switch (string_type) {
+      case CIP_STRING_TYPE:
+      case CIP_STRING2_TYPE:
+      case CIP_STRINGN_TYPE:
+      case CIP_SHORT_STRING_TYPE:
+         break;
+      default:
+         expert_add_info_format(pinfo, entry_ti,
+            &ei_cip_stringi_invalid_type,
+            "Unknown string type: 0x%02x",
+            string_type);
+         break;
+      }
+
+      offset += 1;
+
+      /* Charset (2 bytes) */
+      proto_tree_add_item(entry_tree, hf_stringi_char_set, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      /* String */
+      int str_len = dissect_cip_string_type(pinfo, entry_tree, entry_ti, tvb, offset, hf_stringi_international_string, string_type);
+
+      offset += str_len;
+
+      /* Fix entry subtree length */
+      proto_item_set_len(entry_ti, offset - entry_start);
+   }
+
+   /* Update top-level subtree length */
+   proto_item_set_len(ti, offset - start_offset);
+
+   return offset - start_offset;
 }
 
 int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
@@ -6707,7 +6814,7 @@ int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item
       consumed = dissect_cip_string_type(pinfo, tree, item, tvb, offset, *(attr->phf), CIP_STRING2_TYPE);
       break;
    case cip_stringi:
-      consumed = dissect_cip_stringi(pinfo, tree, item, tvb, offset);
+      consumed = dissect_cip_stringi(pinfo, tree, tvb, offset, "STRINGI");
       break;
    case cip_stringN:
       /* CURRENTLY NOT SUPPORTED */
@@ -10210,11 +10317,13 @@ proto_register_cip(void)
       { &hf_conn_mgr_max_buff_size, { "Max Buff Size", "cip.cm.max_buff_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_conn_mgr_buff_size_remaining, { "Buff Size Remaining", "cip.cm.buff_remain", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
 
-      { &hf_stringi_number_char, { "Number of Characters", "cip.stringi.num", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_stringi, { "String", "cip.stringi", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_stringi_data_type, { "Data Type", "cip.stringi.data_type", FT_UINT8, BASE_HEX, VALS(cip_string_type_vals), 0, NULL, HFILL } },
+      { &hf_stringi_string, { "String", "cip.stringi.string", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_stringi_international_string, { "International String", "cip.stringi.istring", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_stringi_number_of_strings, { "Number of Strings", "cip.stringi.num", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_stringi_language_char, { "Language Chars", "cip.stringi.language_char", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
-      { &hf_stringi_char_string_struct, { "Char String Struct", "cip.stringi.char_string_struct", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-      { &hf_stringi_char_set, { "Char Set", "cip.stringi.char_set", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-      { &hf_stringi_international_string, { "International String", "cip.stringi.int_string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_stringi_char_set, { "Character Set", "cip.stringi.char_set", FT_UINT16, BASE_DEC, VALS(cip_charset_vals), 0, NULL, HFILL } },
 
       { &hf_file_data, { "Data", "cip.file.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_file_encoding, { "Encoding", "cip.file.encoding", FT_UINT8, BASE_DEC, VALS(cip_file_encoding_vals), 0, NULL, HFILL } },
@@ -10575,6 +10684,7 @@ proto_register_cip(void)
       &ett_id_status,
       &ett_32bitheader_tree,
       &ett_connection_info,
+      &ett_stringi
    };
 
    static int *ett_cm[] = {
@@ -10673,6 +10783,7 @@ proto_register_cip(void)
       { &ei_mal_opt_service_list, { "cip.malformed.opt_service_list", PI_MALFORMED, PI_ERROR, "Optional service list missing data", EXPFILL }},
       { &ei_mal_padded_epath_size, { "cip.malformed.epath.size", PI_MALFORMED, PI_ERROR, "Malformed EPATH vs Size", EXPFILL } },
       { &ei_mal_missing_string_data, { "cip.malformed.missing_str_data", PI_MALFORMED, PI_ERROR, "Missing string data", EXPFILL } },
+      { &ei_cip_stringi_invalid_type, { "cip.stringi.invalid_type", PI_MALFORMED, PI_ERROR, "Unknown string type", EXPFILL } },
 
       { &ei_cip_null_fwd_open, { "cip.analysis.null_fwd_open", PI_PROTOCOL, PI_NOTE, "Null Forward Open", EXPFILL } },
       { &ei_cip_safety_open_type1, { "cip.analysis.safety_open_type1", PI_PROTOCOL, PI_NOTE, "Type 1 - Safety Open with Data", EXPFILL } },
@@ -10681,7 +10792,7 @@ proto_register_cip(void)
       { &ei_cip_safety_input, { "cip.analysis.safety_input", PI_PROTOCOL, PI_NOTE, "Safety Input Connection", EXPFILL } },
       { &ei_cip_safety_output, { "cip.analysis.safety_output", PI_PROTOCOL, PI_NOTE, "Safety Output Connection", EXPFILL } },
       { &ei_cip_listen_input_connection, { "cip.analysis.listen_input_connection", PI_PROTOCOL, PI_NOTE, "[Likely] Listen Only or Input Only Connection", EXPFILL } },
-      { &ei_cip_no_fwd_close, { "cip.analysis.no_fwd_close", PI_PROTOCOL, PI_NOTE, "No Forward Close seen for this CIP Connection", EXPFILL } },
+      { &ei_cip_no_fwd_close, { "cip.analysis.no_fwd_close", PI_PROTOCOL, PI_NOTE, "No Forward Close seen for this CIP Connection", EXPFILL } }
    };
 
    module_t *cip_module;

@@ -617,8 +617,9 @@ extern void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_t
 // Elementary Data Types.
 enum cip_elem_data_types {
     CIP_STRING_TYPE = 0xD0,
-    CIP_SHORT_STRING_TYPE = 0xDA,
-    CIP_STRING2_TYPE = 0xD5
+    CIP_STRING2_TYPE = 0xD5,
+    CIP_STRINGN_TYPE = 0xD9,
+    CIP_SHORT_STRING_TYPE = 0xDA
 };
 
 extern void add_cip_service_to_info_column(packet_info *pinfo, uint8_t service, const value_string* service_vals);
