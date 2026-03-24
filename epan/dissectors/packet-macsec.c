@@ -14,6 +14,7 @@
 #include <wireshark.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/uat.h>
 #include <epan/tfs.h>
@@ -40,6 +41,7 @@ static dissector_handle_t ethertype_handle;
 #define TCI_C_MASK   0x04
 
 #define AN_MASK      0x03
+#define SL_MASK      0x3F
 
 #define SAK128_LEN            (16)
 #define PSK128_LEN            (16)
@@ -92,6 +94,9 @@ static int hf_macsec_psk_table_index;
 static int ett_macsec;
 static int ett_macsec_tci;
 static int ett_macsec_verify;
+
+static expert_field ei_macsec_not_processed;
+static expert_field ei_macsec_nonstandard_cipher;
 
 /* Decrypting payload buffer */
 static uint8_t macsec_payload[MAX_PAYLOAD_LEN];
@@ -335,9 +340,30 @@ attempt_packet_decode_with_psks(bool encrypted, const uint8_t *payload, unsigned
     return table_index;
 }
 
+struct decode_user_data {
+    const uint8_t *payload;
+    unsigned payload_len;
+    bool encrypted;
+};
+
+gboolean saks_find_cb(void *key, void *value _U_, void *user_data)
+{
+    struct decode_user_data *decode_params = (struct decode_user_data*)user_data;
+
+    uint8_t *sci = (uint8_t*)key;
+
+    memcpy(iv, sci, MACSEC_SCI_LEN);
+
+    proto_checksum_enum_e result = attempt_packet_decode(decode_params->encrypted, sak_for_decode, sak_for_decode_len, decode_params->payload, decode_params->payload_len);
+    if (PROTO_CHECKSUM_E_GOOD == result) {
+        return true;
+    }
+    return false;
+}
+
 /* Attempt to decode the packet using SAKs from the CKN table */
 static int
-attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payload, unsigned payload_len) {
+attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payload, unsigned payload_len, bool sci_known) {
     proto_checksum_enum_e result = PROTO_CHECKSUM_E_UNVERIFIED;
     int table_index = 0;
 
@@ -348,20 +374,43 @@ attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payl
 
     ws_debug("AN: %u", an);
 
+    struct decode_user_data ud = {payload, payload_len, encrypted};
+
     /* Iterate through the CKN table and use each SAK for the given AN to attempt to decode the packet. */
     for (table_index = 0; table_index < ckn_table_count; table_index++) {
         const mka_ckn_info_t *info = &ckn_table[table_index];
 
-        sak_for_decode = (uint8_t *)info->key.saks[an];
-        sak_for_decode_len = info->cak_len;
+        mka_sak_info_key_t *sak_info = mka_get_sak_info(info);
 
-        result = attempt_packet_decode(encrypted, sak_for_decode, sak_for_decode_len, payload, payload_len);
-        if (PROTO_CHECKSUM_E_GOOD == result) {
-            ws_debug("packet decoded with SAK[%u] at CKN table index %u", an, table_index);
-            break;
+        if ((!sak_info) || (sak_info->sak_len == 0)) continue;
+
+        sak_for_decode = (uint8_t *)sak_info->saks[an];
+        sak_for_decode_len = sak_info->sak_len;
+
+        if (sci_known) {
+            result = attempt_packet_decode(encrypted, sak_for_decode, sak_for_decode_len, payload, payload_len);
+            if (PROTO_CHECKSUM_E_GOOD == result) {
+                ws_debug("packet decoded with SAK[%u] at CKN table index %u", an, table_index);
+                return table_index;
+            } else {
+                ws_debug("failed to decode packet with SAK[%u] at CKN table index %u", an, table_index);
+            }
         } else {
-            ws_debug("failed to decode packet with SAK[%u] at CKN table index %u", an, table_index);
+            uint8_t *sci = wmem_map_find(sak_info->sci_map, saks_find_cb, &ud);
+            if (sci != NULL) {
+                if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
+                    ws_debug("packet decoded with SAK[%u] at CKN table index %u", an, table_index);
+                    char *sci_str = bytes_to_str_maxlen(NULL, sci, MACSEC_SCI_LEN, 0);
+                    ws_debug("SCI: %s", sci_str);
+                    g_free(sci_str);
+                }
+                /* XXX - Save the returned SCI? Would the same SCI always be
+                 * used with a given source MAC when the ES and SC bits are
+                 * both unset? */
+                return table_index;
+            }
         }
+
     }
 
     /* On failure, clear the key used for decode. */
@@ -378,10 +427,10 @@ attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payl
 static int
 dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 
-    unsigned    sectag_length, data_length, short_length;
+    unsigned    sectag_length, data_length;
     unsigned    fcs_length = 0;
     unsigned    data_offset, icv_offset;
-    uint8_t     tci_an_field;
+    uint8_t     tci_an_field, short_length;
     uint8_t     an = 0;
 
     proto_checksum_enum_e icv_check_success = PROTO_CHECKSUM_E_BAD;
@@ -393,10 +442,40 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item *verify_item;
     proto_tree *verify_tree = NULL;
 
+    proto_item *ti;
+
     tvbuff_t   *next_tvb;
 
     tci_an_field = tvb_get_uint8(tvb, 0);
 
+    /* "If the Encryption (E) bit is set and the Changed Text (C) bit is clear,
+     * the frame is not processed by the SecY (10.6) but is reserved for use by
+     * the KaY. Otherwise, the E bit is set if and only if confidentiality is
+     * being provided and is clear if integrity only is being provided and the
+     * C bit is clear if and only if the Secure Data is exactly the same as the
+     * User Data and the ICV is 16 octets long.
+     *
+     * When the Default Cipher Suite (14.5) is used for integrity protection
+     * only, the Secure Data is the unmodified User Data, and a 16 octet ICV
+     * is used. Both the E bit and the C bit are therefore clear... Other
+     * Cipher Suites may also integrity protect data without modifying it,
+     * and use a 16 octet ICV... The E and C bits are also clear for such
+     * Cipher Suites when integrity only is provided.
+     *
+     * Some cryptographic algorithms modify or add to the data even when
+     * integrity only is being provided, or use an ICV that is not 16 octets
+     * long. The C bit is never clear for such an algorithm, even if the E bit
+     * is clear to indicate that confidentiality is not provided. Recovery of
+     * the data from a MACsec frame with the E bit clear and the C bit set
+     * requires knowledge of the Cipher Suite at a minimum. That information
+     * is not provided in the MACsec frame."
+     *
+     * However, no such Cipher Suites are defined as of IEEE 802.1AE-2018
+     * (14 Cipher Suites), so if the E bit is clear and the C bit set we
+     * will not know how to decrypt. If the E bit is set and the C bit clear,
+     * then we will not know how to decrypt either, as those are not processed
+     * by the algorithms here either.
+     */
     /* if the frame is an encrypted MACsec frame, remember that */
     if (((tci_an_field & TCI_E_MASK) == TCI_E_MASK) || ((tci_an_field & TCI_C_MASK) == TCI_C_MASK)) {
         ws_debug("MACsec encrypted frame");
@@ -413,7 +492,11 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         sectag_length = SECTAG_LEN_WITHOUT_SC;
     }
 
+    icv_len = ICV_LEN;
+
     /* Check for length too short */
+    /* XXX - Fix this so we can handle frames with captured length less
+     * than reported length in a sensible way. */
     if (tvb_captured_length(tvb) <= (sectag_length + icv_len)) {
         return 0;
     }
@@ -421,17 +504,72 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     an = tci_an_field & AN_MASK;
     ws_debug("AN : %u", an);
 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MACSEC");
+    col_set_str(pinfo->cinfo, COL_INFO, "MACsec frame");
+
+    unsigned offset = 0;
+
+    if (true == encrypted) {
+        macsec_item = proto_tree_add_item(tree, proto_macsec, tvb, 0, sectag_length, ENC_NA);
+    } else {
+        /* Add the EtherType too since this is authentication only. */
+        macsec_item = proto_tree_add_item(tree, proto_macsec, tvb, 0, sectag_length + ETHERTYPE_LEN, ENC_NA);
+    }
+
+    macsec_tree = proto_item_add_subtree(macsec_item, ett_macsec);
+
+    static int * const flags[] = {
+        &hf_macsec_TCI_V,
+        &hf_macsec_TCI_ES,
+        &hf_macsec_TCI_SC,
+        &hf_macsec_TCI_SCB,
+        &hf_macsec_TCI_E,
+        &hf_macsec_TCI_C,
+        NULL
+    };
+
+    ti = proto_tree_add_bitmask_with_flags(macsec_tree, tvb, 0,
+            hf_macsec_TCI, ett_macsec_tci, flags, ENC_NA, BMT_NO_TFS);
+    if ((tci_an_field & (TCI_E_MASK|TCI_C_MASK)) == TCI_E_MASK) {
+        ws_debug("Frame not processed by SecY but reserved for use by KaY");
+        expert_add_info(pinfo, ti, &ei_macsec_not_processed);
+        icv_len = 0;
+    } else if ((tci_an_field & (TCI_E_MASK|TCI_C_MASK)) == TCI_C_MASK) {
+        ws_debug("Non standard cipher suite");
+        expert_add_info(pinfo, ti, &ei_macsec_nonstandard_cipher);
+        icv_len = 0;
+    }
+    /* XXX - Expert info for more illegal combinations of flags (ES/SC) */
+
+    proto_tree_add_item(macsec_tree, hf_macsec_AN, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
     /* short length field: 1..47 bytes, 0 means 48 bytes or more */
-    short_length = (uint32_t)tvb_get_uint8(tvb, 1);
+    proto_tree_add_item_ret_uint8(macsec_tree, hf_macsec_SL, tvb, offset, 1, ENC_NA, &short_length);
+    /* XXX - expert info if > 47 */
+    offset += 1;
+
+    proto_tree_add_item(macsec_tree, hf_macsec_PN, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if (sectag_length == SECTAG_LEN_WITH_SC) {
+        proto_tree_add_item(macsec_tree, hf_macsec_SCI_system_identifier, tvb, offset, HWADDR_LEN, ENC_NA);
+        offset += HWADDR_LEN;
+
+        proto_tree_add_item(macsec_tree, hf_macsec_SCI_port_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
 
     /* Get the payload section */
     if (short_length != 0) {
         data_length = short_length;
-        fcs_length = tvb_reported_length(tvb) - sectag_length - icv_len - short_length;
+        fcs_length = tvb_reported_length_remaining(tvb, sectag_length + short_length + icv_len);
 
         /*
          * We know the length, so set it here for the previous ethertype
          * dissector. This will allow us to calculate the FCS correctly.
+         *
+         * Note set_actual_length does nothing if the parameter is greater
+         * than the current reported length, so we don't need to check that.
          */
         set_actual_length(tvb, short_length + sectag_length + icv_len);
     } else {
@@ -443,57 +581,11 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
          *
          * TODO: Find better heuristic to detect presence of FCS / trailers.
          */
-        data_length = tvb_reported_length(tvb) - sectag_length - icv_len;
+        data_length = tvb_reported_length_remaining(tvb, sectag_length + icv_len);
     }
 
     data_offset = sectag_length;
     icv_offset  = data_length + data_offset;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MACSEC");
-    col_set_str(pinfo->cinfo, COL_INFO, "MACsec frame");
-
-    if (NULL != tree) {
-        unsigned offset;
-
-        if (true == encrypted) {
-            macsec_item = proto_tree_add_item(tree, proto_macsec, tvb, 0, sectag_length, ENC_NA);
-        } else {
-            /* Add the EtherType too since this is authentication only. */
-            macsec_item = proto_tree_add_item(tree, proto_macsec, tvb, 0, sectag_length + ETHERTYPE_LEN, ENC_NA);
-        }
-
-        macsec_tree = proto_item_add_subtree(macsec_item, ett_macsec);
-
-        static int * const flags[] = {
-            &hf_macsec_TCI_V,
-            &hf_macsec_TCI_ES,
-            &hf_macsec_TCI_SC,
-            &hf_macsec_TCI_SCB,
-            &hf_macsec_TCI_E,
-            &hf_macsec_TCI_C,
-            NULL
-        };
-
-        proto_tree_add_bitmask_with_flags(macsec_tree, tvb, 0,
-                hf_macsec_TCI, ett_macsec_tci, flags, ENC_NA, BMT_NO_TFS);
-
-        offset = 0;
-        proto_tree_add_item(macsec_tree, hf_macsec_AN, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
-        proto_tree_add_item(macsec_tree, hf_macsec_SL, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
-        proto_tree_add_item(macsec_tree, hf_macsec_PN, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        if (sectag_length == SECTAG_LEN_WITH_SC) {
-            proto_tree_add_item(macsec_tree, hf_macsec_SCI_system_identifier, tvb, offset, HWADDR_LEN, ENC_NA);
-            offset += HWADDR_LEN;
-
-            proto_tree_add_item(macsec_tree, hf_macsec_SCI_port_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
-        }
-    }
 
     next_tvb = tvb_new_subset_length(tvb, data_offset, data_length);
 
@@ -506,7 +598,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     memset(aad, 0, ETHHDR_LEN);
     aad_len = 0;
 
-    if (pinfo->dl_dst.type == AT_ETHER && pinfo->dl_src.type == AT_ETHER) {
+    if (icv_len != 0 && pinfo->dl_dst.type == AT_ETHER && pinfo->dl_src.type == AT_ETHER) {
         memcpy(aad, pinfo->dl_dst.data, HWADDR_LEN);
         memcpy((aad + HWADDR_LEN), pinfo->dl_src.data, HWADDR_LEN);
 
@@ -558,13 +650,29 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     if (aad_len != 0) {
 
         /* Build the IV. */
-        tvb_memcpy(tvb, iv + 8, 2,  4);
+        /* XXX - The IV depends on the Cipher Suite. If this is one of the
+         * GCM-AES-XPN Cipher Suites, then the IV is different. We need to
+         * save that information from MKA. Using static SAKs (PSKs) with
+         * those suites is not possible due to how the Salt and also SSCI
+         * are calculated. */
+        tvb_memcpy(tvb, iv + 8, 2, 4);
 
+        /* 9.5 TAG Control Information
+         * "If the ES bit is set, bit 6 (the SC bit) shall not be set...
+         * If an SCI is explicitly encoded in the SecTAG, bit 6 (the SC bit)
+         * of the TCI shall be set. The SC bit shall be clear if an SCI is
+         * not present in the SecTAG."
+         *
+         * If both the ES and SC bit are set but the SCI in the SecTAG and
+         * the source address are the same, it's at least consistent even if
+         * it violates the spec. If they're different, it's inconsistent.
+         */
         /* If there is an SCI, use it; if not, fill out the default */
+        bool sci_known = true;
         if (SECTAG_LEN_WITH_SC == sectag_length) {
             tvb_memcpy(tvb, iv,     6,  HWADDR_LEN); // SI System identifier (source MAC)
             tvb_memcpy(tvb, iv + 6, 12, 2);          // PI Port identifier
-        } else {
+        } else if (tci_an_field & TCI_ES_MASK) {
             /* With no SC, fetch the eth src address and set the PI to the Common Port identifier of 0x0001 */
             if (pinfo->dl_src.type == AT_ETHER) {
                 memcpy(iv, pinfo->dl_src.data, HWADDR_LEN);
@@ -572,22 +680,37 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 ws_warning("No Ethernet source address");
             }
 
+            /* 9.5 TAG Control Information
+             * "If the ES bit is set and the SCB is not set, the SCI comprises
+             * a Port Identifier component of 00-01. If the SCB bit is set, the
+             * Port Identifier has the reserved SCB value of 00-00."
+             */
             iv[6] = 0x00;
-            iv[7] = 0x01;
+            iv[7] = (tci_an_field & TCI_SCB_MASK) ? 0x00 : 0x01;
+        } else {
+            /* It's odd for both to be unset, but we've seen that with Arista
+             * routers where there's a chassis MAC address different from the
+             * MAC address used on a port, and the SCI used is one associated
+             * with a different MAC address on that side of the point to point
+             * connection.
+             */
+            sci_known = false;
         }
 
         /* Fetch the ICV. */
         tvb_memcpy(tvb, icv, icv_offset, icv_len);
 
         /* Attempt to authenticate/decode the packet using the stored keys in the PSK table. */
-        table_index = attempt_packet_decode_with_psks(encrypted, payload, payload_len);
+        if (sci_known) {
+            table_index = attempt_packet_decode_with_psks(encrypted, payload, payload_len);
+        }
 
         /* Upon failure to decode with PSKs, and when told to also try with the CKN table,
            attempt to authenticate/decode the packet using the stored SAKs in the CKN table. */
         if ((true == try_mka) && (0 > table_index)) {
             use_mka_table = true;
             ws_debug("also using MKA for decode");
-            table_index = attempt_packet_decode_with_saks(encrypted, an, payload, payload_len);
+            table_index = attempt_packet_decode_with_saks(encrypted, an, payload, payload_len, sci_known);
         }
 
         if (0 <= table_index) {
@@ -599,27 +722,29 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* If the data's ok, attempt to continue dissection. */
     if (encrypted == false) {
-        /* also trim off the Ethertype */
-        next_tvb = tvb_new_subset_length(tvb, data_offset + 2, data_length - 2);
-
         /* The ethertype is the original from the unencrypted data. */
-        proto_tree_add_item(macsec_tree, hf_macsec_etype, tvb, data_offset, 2, ENC_BIG_ENDIAN);
-        ethertype_data.etype = tvb_get_ntohs(tvb, data_offset);
+        proto_tree_add_item_ret_uint16(macsec_tree, hf_macsec_etype, tvb, data_offset, 2, ENC_BIG_ENDIAN, &ethertype_data.etype);
+
+        /* also trim off the Ethertype */
+        /* This won't overflow because otherwise there would be an exception
+         * adding the Ethertype to the tree. */
+        next_tvb = tvb_new_subset_length(tvb, data_offset + 2, data_length - 2);
     } else if (PROTO_CHECKSUM_E_GOOD == icv_check_success) {
         tvbuff_t *plain_tvb;
 
         plain_tvb = tvb_new_child_real_data(next_tvb, (uint8_t *)wmem_memdup(pinfo->pool, macsec_payload, macsec_payload_len),
                                             macsec_payload_len, macsec_payload_len);
-        ethertype_data.etype = tvb_get_ntohs(plain_tvb, 0);
-
-        /* also trim off the Ethertype */
-        next_tvb = tvb_new_subset_length(plain_tvb, 2, macsec_payload_len - 2);
 
         /* add the decrypted data as a data source for the next dissectors */
         add_new_data_source(pinfo, plain_tvb, "Decrypted Data");
 
         /* The ethertype is the one from the start of the decrypted data. */
-        proto_tree_add_item(macsec_tree, hf_macsec_etype, plain_tvb, 0, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint16(macsec_tree, hf_macsec_etype, plain_tvb, 0, 2, ENC_BIG_ENDIAN, &ethertype_data.etype);
+
+        /* also trim off the Ethertype */
+        /* This won't overflow because otherwise there would be an exception
+         * adding the Ethertype to the tree. */
+        next_tvb = tvb_new_subset_length(plain_tvb, 2, macsec_payload_len - 2);
 
         /* show the decrypted data and original ethertype */
         /* XXX - Why include the ethertype here? Why not just the payload?
@@ -628,8 +753,10 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     /* Add the ICV to the sectag subtree. */
-    proto_tree_add_item(macsec_tree, hf_macsec_ICV, tvb, icv_offset, icv_len, ENC_NA);
-    proto_tree_set_appendix(macsec_tree, tvb, icv_offset, icv_len);
+    if (icv_len) {
+        proto_tree_add_item(macsec_tree, hf_macsec_ICV, tvb, icv_offset, icv_len, ENC_NA);
+        proto_tree_set_appendix(macsec_tree, tvb, icv_offset, icv_len);
+    }
 
     verify_item = proto_tree_add_item(macsec_tree, hf_macsec_verify_info, tvb, 0, 0, ENC_NA);
     proto_item_set_generated(verify_item);
@@ -718,6 +845,8 @@ proto_register_macsec(void)
     uat_t *psk_config_uat = NULL;
 
     module_t *module;
+    expert_module_t *expert_macsec;
+
     static hf_register_info hf[] = {
         { &hf_macsec_TCI,
             { "TCI", "macsec.TCI", FT_UINT8, BASE_HEX,
@@ -753,7 +882,7 @@ proto_register_macsec(void)
         },
         { &hf_macsec_SL,
             { "Short length", "macsec.SL", FT_UINT8, BASE_DEC,
-              NULL, 0, NULL, HFILL }
+              NULL, SL_MASK, NULL, HFILL }
         },
         { &hf_macsec_PN,
             { "Packet number", "macsec.PN", FT_UINT32, BASE_DEC,
@@ -815,7 +944,14 @@ proto_register_macsec(void)
             { "Decrypted Data", "macsec.decrypted_data", FT_BYTES, BASE_NONE,
             NULL, 0, NULL, HFILL }
         },
-   };
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_macsec_not_processed, {
+            "macsec.not_processed", PI_UNDECODED, PI_NOTE, "E bit set and C bit clear indicates frames not to be delivered to the Controlled Port (Reserved for use by the KaY)", EXPFILL }},
+        { &ei_macsec_nonstandard_cipher, {
+            "macsec.nonstandard_cipher", PI_UNDECODED, PI_NOTE, "E bit clear and C bit set indicates a non-standard cipher that modifies the data or uses a ICV other than 16 octets long even in integrity-only mode", EXPFILL }}
+    };
 
     /* Setup protocol subtree array */
     static int *ett[] = {
@@ -830,6 +966,9 @@ proto_register_macsec(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_macsec, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_macsec = expert_register_protocol(proto_macsec);
+    expert_register_field_array(expert_macsec, ei, array_length(ei));
 
     /* Register the dissector */
     macsec_handle = register_dissector("macsec", dissect_macsec, proto_macsec);
@@ -862,9 +1001,15 @@ proto_register_macsec(void)
     /* The PSK entry is obsolete in favor of the PSK table */
     prefs_register_obsolete_preference(module, "psk");
 
+    /* XXX - "PSK" is a bad name here. They're all keys, and if pre-shared
+     * they're PSKs; these are static pre-shared SAKs; the table in the MKA
+     * dissector is of static pre-shared CAKs/CKNs used to derive SAKs. */
     prefs_register_uat_preference(module, "psk_list", "Pre-Shared Key List",
         "A list of AES-GCM Pre-Shared Keys (PSKs) as HEX (16 or 32 bytes).", psk_config_uat);
 
+    /* XXX - Why does this need to be a preference? We can only try SAKs
+     * obtained from CKNs that were actually seen in EAPOL-MKA in the capture,
+     * so there's no harm in always doing so. */
     prefs_register_bool_preference(module, "mka", "Also Use MKA For Decode",
                                      "Also attempt to use EAPOL-MKA Distributed SAKs to decode MACsec packets.",
                                      &try_mka);

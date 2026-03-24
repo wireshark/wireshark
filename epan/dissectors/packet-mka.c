@@ -213,6 +213,8 @@ static const value_string macsec_tlvs[] = {
   { 0, NULL }
 };
 
+static wmem_map_t *mka_ckn_sci_map;
+
 static const char *mka_ckn_info_uat_defaults_[] = { NULL, "", "" };
 
 static mka_ckn_info_t *mka_ckn_uat_data = NULL;
@@ -425,6 +427,9 @@ ckn_info_post_update_cb(void) {
     ws_info("deriving KEK for CKN table entry %zu (%s)", i, mka_ckn_uat_data[i].name);
     mka_derive_kek(&(mka_ckn_uat_data[i]));
 
+    /* The disadvantage of using hash tables like this is that it's not
+     * possible to have multiple entries with the same CKN without more
+     * changes.  */
     g_hash_table_insert(ht_mka_ckn, &(mka_ckn_uat_data[i]), &(mka_ckn_uat_data[i]));
   }
 }
@@ -455,6 +460,32 @@ get_mka_ckn_table_count(void) {
   return num_mka_ckn_uat_data;
 }
 
+mka_sak_info_key_t *
+mka_get_sak_info(const mka_ckn_info_t *ckn) {
+  return wmem_map_lookup(mka_ckn_sci_map, ckn);
+}
+
+static unsigned
+mka_sci_hash(const void *key) {
+  return wmem_strong_hash(key, MACSEC_SCI_LEN);
+}
+
+static gboolean
+mka_sci_equal(const void *k1, const void *k2) {
+  return memcmp(k1, k2, MACSEC_SCI_LEN) == 0;
+}
+
+static mka_sak_info_key_t *
+get_or_create_sak_info(const mka_ckn_info_t *ckn) {
+  mka_sak_info_key_t *sak_info = wmem_map_lookup(mka_ckn_sci_map, ckn);
+  if (sak_info == NULL) {
+    sak_info = wmem_new0(wmem_file_scope(), mka_sak_info_key_t);
+    sak_info->sci_map = wmem_map_new(wmem_file_scope(), mka_sci_hash, mka_sci_equal);
+    wmem_map_insert(mka_ckn_sci_map, ckn, sak_info);
+  }
+  return sak_info;
+}
+
 static void
 mka_add_ckn_info(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t ckn_len) {
   proto_item *ti;
@@ -475,6 +506,7 @@ mka_add_ckn_info(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t ckn_len) 
 static void
 dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr) {
   int offset = *offset_ptr;
+  unsigned sci_offset;
   proto_tree *basic_param_set_tree;
   proto_item *ti;
   uint16_t basic_param_set_len;
@@ -503,6 +535,7 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   offset += 2;
 
   proto_tree_add_item(basic_param_set_tree, hf_mka_sci, tvb, offset, 8, ENC_NA);
+  sci_offset = offset;
   offset += 8;
 
   proto_tree_add_item(basic_param_set_tree, hf_mka_actor_mi, tvb, offset, 12, ENC_NA);
@@ -525,6 +558,10 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
     mka_ckn_info_t *rec = ckn_info_lookup((uint8_t *)ckn, ckn_len);
     if (NULL != rec) {
       /* add the record to the private hash table for this packet to tell ourselves about the CKN and its keys later on */
+      uint8_t *sci = tvb_memdup(wmem_file_scope(), tvb, sci_offset, MACSEC_SCI_LEN);
+
+      mka_sak_info_key_t *sak_info = get_or_create_sak_info(rec);
+      wmem_map_insert(sak_info->sci_map, sci, sci);
       p_add_proto_data(pinfo->pool, pinfo, proto_mka, CKN_KEY, rec);
     }
 
@@ -745,10 +782,13 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     }
 
     /* Unwrap the key with the KEK. */
-    uint8_t *sak = key->saks[distributed_an];
-    if (gcry_cipher_decrypt(hd, sak, wrappedlen - WRAPPED_KEY_IV_LEN, wrappedkey, wrappedlen) ) {
+    mka_sak_info_key_t *sak_info = get_or_create_sak_info(rec);
+    uint8_t *sak = sak_info->saks[distributed_an];
+    sak_info->sak_len = wrappedlen - WRAPPED_KEY_IV_LEN;
+    if (gcry_cipher_decrypt(hd, sak, sak_info->sak_len, wrappedkey, wrappedlen) ) {
       ws_info("failed to unwrap SAK");
       memset(sak, 0, MKA_MAX_SAK_LEN);
+      sak_info->sak_len = 0;
       gcry_cipher_close(hd);
       goto out;
     }
@@ -757,12 +797,12 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     gcry_cipher_close(hd);
 
     if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
-      char *sak_str = bytes_to_str_maxlen(pinfo->pool, sak, wrappedlen - WRAPPED_KEY_IV_LEN, 0);
+      char *sak_str = bytes_to_str_maxlen(pinfo->pool, sak, sak_info->sak_len, 0);
       ws_debug("unwrapped sak: %s", sak_str);
     }
 
     /* Add the unwrapped SAK to the output. */
-    proto_tree_add_bytes_with_length(distributed_sak_tree, hf_mka_aes_key_wrap_unwrapped_sak, tvb, offset, 0, sak, wrappedlen - WRAPPED_KEY_IV_LEN);  //works, no highlights
+    proto_tree_add_bytes_with_length(distributed_sak_tree, hf_mka_aes_key_wrap_unwrapped_sak, tvb, offset, 0, sak, sak_info->sak_len);  //works, no highlights
   }
   else
   {
@@ -1291,6 +1331,8 @@ proto_register_mka(void) {
   expert_register_field_array(expert_mka, ei, array_length(ei));
 
   mka_module = prefs_register_protocol(proto_mka, NULL);
+
+  mka_ckn_sci_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), ckn_key_hash_func, ckn_key_equal_func);
 
   /* UAT: CKN info */
   static uat_field_t mka_ckn_uat_fields[] = {

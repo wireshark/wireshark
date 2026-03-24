@@ -12,6 +12,8 @@
 #define AES128_KEY_LEN                  16
 #define AES256_KEY_LEN                  32
 
+#define MACSEC_SCI_LEN                  8U
+
 #define MACSEC_AN_COUNT                 4
 
 #define MKA_CAK_AES_GCM_128_LEN (AES128_KEY_LEN)
@@ -22,6 +24,18 @@
 #define MKA_MAX_ICK_LEN (MKA_CAK_AES_GCM_256_LEN)
 #define MKA_MAX_SAK_LEN (MKA_CAK_AES_GCM_256_LEN)
 
+typedef struct _mka_sak_info_key {
+  /* the SAKs unwrapped by the KEK for each AN
+   * index is the AN to which the SAK belongs */
+  unsigned char saks[MACSEC_AN_COUNT][MKA_MAX_SAK_LEN];
+  unsigned sak_len;
+
+  /* SCIs of active participants (those that have sent MKPDUs) for the
+   * CA using this CKN. Note there can be passive participants, see
+   * IEEE 802.1X-2020 9.4.6 */
+  wmem_map_t *sci_map;
+} mka_sak_info_key_t;
+
 typedef struct _mka_ckn_info_key {
   /* The KEK derived from the CAK */
   unsigned char kek[MKA_MAX_KEK_LEN];
@@ -30,11 +44,6 @@ typedef struct _mka_ckn_info_key {
   /* The ICK derived from the CAK */
   unsigned char ick[MKA_MAX_ICK_LEN];
   unsigned ick_len;
-
-  /* the SAKs unwrapped by the KEK for each AN
-   * index is the AN to which the SAK belongs */
-  unsigned char saks[MACSEC_AN_COUNT][MKA_MAX_SAK_LEN];
-
 } mka_ckn_info_key_t;
 
 typedef struct _mka_ckn_info {
@@ -49,12 +58,14 @@ typedef struct _mka_ckn_info {
   /* Identifier for the name of the entry. */
   char *name;
 
-  /* KEK/ICK/SAK data for this entry */
+  /* KEK/ICK data for this entry */
   mka_ckn_info_key_t key;
 } mka_ckn_info_t;
 
 /* access to the table data from macsec dissector */
 const mka_ckn_info_t * get_mka_ckn_table(void);
 unsigned get_mka_ckn_table_count(void);
+
+mka_sak_info_key_t *mka_get_sak_info(const mka_ckn_info_t *ckn_info);
 
 #endif
