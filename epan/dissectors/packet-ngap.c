@@ -34091,7 +34091,6 @@ proto_reg_handoff_ngap(void)
   dissector_add_uint("ngap.ies", id_HandoverFlag, create_dissector_handle(dissect_HandoverFlag_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_RedirectionVoiceFallback, create_dissector_handle(dissect_RedirectionVoiceFallback_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_UERetentionInformation, create_dissector_handle(dissect_UERetentionInformation_PDU, proto_ngap));
-  dissector_add_uint("ngap.ies", id_PSCellInformation, create_dissector_handle(dissect_ngap_NGRAN_CGI_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_ENDC_SONConfigurationTransferDL, create_dissector_handle(dissect_EN_DCSONConfigurationTransfer_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_ENDC_SONConfigurationTransferUL, create_dissector_handle(dissect_EN_DCSONConfigurationTransfer_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_NewGUAMI, create_dissector_handle(dissect_GUAMI_PDU, proto_ngap));
@@ -34340,6 +34339,7 @@ proto_reg_handoff_ngap(void)
   dissector_add_uint("ngap.extension", id_NPN_Support, create_dissector_handle(dissect_NPN_Support_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_NPN_PagingAssistanceInformation, create_dissector_handle(dissect_NPN_PagingAssistanceInformation_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_NPN_MobilityInformation, create_dissector_handle(dissect_NPN_MobilityInformation_PDU, proto_ngap));
+  dissector_add_uint("ngap.extension", id_PSCellInformation, create_dissector_handle(dissect_ngap_NGRAN_CGI_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_NID, create_dissector_handle(dissect_NID_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_DAPSRequestInfo, create_dissector_handle(dissect_DAPSRequestInfo_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_DAPSResponseInfoList, create_dissector_handle(dissect_DAPSResponseInfoList_PDU, proto_ngap));

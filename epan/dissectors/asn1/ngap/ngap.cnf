@@ -2137,7 +2137,6 @@ PDUSessionResourceSecondaryRATUsageList                  N ngap.ies id-PDUSessio
 HandoverFlag                                             N ngap.ies id-HandoverFlag
 RedirectionVoiceFallback                                 N ngap.ies id-RedirectionVoiceFallback
 UERetentionInformation                                   N ngap.ies id-UERetentionInformation
-NGRAN-CGI                                                N ngap.ies id-PSCellInformation
 EN-DCSONConfigurationTransfer                            N ngap.ies id-ENDC-SONConfigurationTransferDL
 EN-DCSONConfigurationTransfer                            N ngap.ies id-ENDC-SONConfigurationTransferUL
 GUAMI                                                    N ngap.ies id-NewGUAMI
@@ -2389,6 +2388,7 @@ URI-address                                            N ngap.extension id-Trace
 NPN-Support                                            N ngap.extension id-NPN-Support
 NPN-PagingAssistanceInformation                        N ngap.extension id-NPN-PagingAssistanceInformation
 NPN-MobilityInformation                                N ngap.extension id-NPN-MobilityInformation
+NGRAN-CGI                                              N ngap.extension id-PSCellInformation
 NID                                                    N ngap.extension id-NID
 DAPSRequestInfo                                        N ngap.extension id-DAPSRequestInfo
 DAPSResponseInfoList                                   N ngap.extension id-DAPSResponseInfoList
