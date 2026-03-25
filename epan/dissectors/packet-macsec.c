@@ -341,18 +341,41 @@ attempt_packet_decode_with_psks(bool encrypted, const uint8_t *payload, unsigned
 }
 
 struct decode_user_data {
+    mka_sak_info_key_t *sak_info;
     const uint8_t *payload;
     unsigned payload_len;
     bool encrypted;
+    unsigned ssci;
 };
 
-gboolean saks_find_cb(void *key, void *value _U_, void *user_data)
+gboolean
+saks_find_cb(void *key, void *value _U_, void *user_data)
 {
     struct decode_user_data *decode_params = (struct decode_user_data*)user_data;
 
     uint8_t *sci = (uint8_t*)key;
+    /* This is a generic function, but in practice only used on
+     * GCM_AES_128 and GCM_AES_256. */
+    /* Don't use the SSCI value because this would only be called when
+     * iterating over the entire map when the correct SSCI is unknown. */
+    //uint8_t ssci = GPOINTER_TO_UINT(value);
 
-    memcpy(iv, sci, MACSEC_SCI_LEN);
+    mka_sak_info_key_t *sak_info = decode_params->sak_info;
+    uint8_t *salt = sak_info->salt;
+
+    switch(sak_info->cipher_suite) {
+    case MACSEC_GCM_AES_128:
+    case MACSEC_GCM_AES_256:
+        memcpy(iv, sci, MACSEC_SCI_LEN);
+        break;
+    case MACSEC_GCM_AES_XPN_128:
+    case MACSEC_GCM_AES_XPN_256:
+        // 802.1X-2020 9.10 SAK installation and use
+        iv[3] = salt[3] ^ decode_params->ssci++;
+        break;
+    default:
+        return false;
+    }
 
     proto_checksum_enum_e result = attempt_packet_decode(decode_params->encrypted, sak_for_decode, sak_for_decode_len, decode_params->payload, decode_params->payload_len);
     if (PROTO_CHECKSUM_E_GOOD == result) {
@@ -361,9 +384,87 @@ gboolean saks_find_cb(void *key, void *value _U_, void *user_data)
     return false;
 }
 
+static proto_checksum_enum_e
+attempt_packet_decode_with_xpn(struct decode_user_data *ud, bool sci_known) {
+    proto_checksum_enum_e result = PROTO_CHECKSUM_E_UNVERIFIED;
+
+    mka_sak_info_key_t *sak_info = ud->sak_info;
+    uint8_t saved_iv[IV_LEN];
+
+    /* The global IV is 96 bits, where the 64 most significant bits
+     * are the SCI (if known) and the 32 least significant bits are
+     * the 32 least significant bits of the PN. */
+
+    memcpy(saved_iv, iv, IV_LEN);
+
+    uint8_t *salt = sak_info->salt;
+    memcpy(iv, salt, 8);
+    for (unsigned i = 8; i < IV_LEN; ++i) {
+        iv[i] ^= salt[i];
+    }
+    /* We still need to XOR the upper 32 bits with the SSCI (depends
+     * on the SCI) and XOR the middle 32 bits with the upper 32 bits
+     * of the PN (also depends on the SCI.) */
+
+    /* TODO - Reconstruct the 64-bit PN. */
+
+    if (sci_known) {
+        /* The SSCI is technically a 32-bit quantity, but according to
+         * how it is derived, cannot be larger then 8 bits (10.7.13,
+         * also IEEE 802.1X-2020 9.10). */
+        uint8_t ssci = GPOINTER_TO_UINT(wmem_map_lookup(sak_info->sci_map, iv));
+        if (ssci) {
+            iv[3] ^= ssci;
+        } else {
+            // We know the SCI, but not what SSCI that corresponds to.
+            sci_known = false;
+        }
+    }
+
+    if (sci_known) {
+        result = attempt_packet_decode(ud->encrypted, sak_for_decode, sak_for_decode_len, ud->payload, ud->payload_len);
+    } else {
+        // We don't know the SSCI, but the SSCI range from 1 to the number of MI
+        // Try them all.
+        for (unsigned ssci = 1; ssci <= wmem_array_get_count(sak_info->mi_array); ++ssci) {
+            // Again, assume SSCI can't be too large
+            iv[3] = salt[3] ^ ssci;
+            result = attempt_packet_decode(ud->encrypted, sak_for_decode, sak_for_decode_len, ud->payload, ud->payload_len);
+            if (PROTO_CHECKSUM_E_GOOD == result) {
+                break;
+            }
+            result = PROTO_CHECKSUM_E_BAD;
+        }
+    }
+
+    memcpy(iv, saved_iv, MACSEC_XPN_SALT_LEN);
+
+    return result;
+}
+
+static proto_checksum_enum_e
+attempt_packet_decode_with_default_suite(struct decode_user_data *ud, bool sci_known) {
+    proto_checksum_enum_e result = PROTO_CHECKSUM_E_UNVERIFIED;
+    mka_sak_info_key_t *sak_info = ud->sak_info;
+
+    if (sci_known) {
+        result = attempt_packet_decode(ud->encrypted, sak_for_decode, sak_for_decode_len, ud->payload, ud->payload_len);
+    } else {
+        uint32_t ssci = GPOINTER_TO_UINT(wmem_map_find(sak_info->sci_map, saks_find_cb, ud));
+        if (ssci) {
+            result = PROTO_CHECKSUM_E_GOOD;
+        } else if (wmem_map_size(sak_info->sci_map)) {
+            // Otherwise, we didn't actually try any
+            result = PROTO_CHECKSUM_E_BAD;
+        }
+    }
+
+    return result;
+}
+
 /* Attempt to decode the packet using SAKs from the CKN table */
 static int
-attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payload, unsigned payload_len, bool sci_known) {
+attempt_packet_decode_with_saks(packet_info *pinfo, bool encrypted, unsigned an, const uint8_t *payload, unsigned payload_len, bool sci_known) {
     proto_checksum_enum_e result = PROTO_CHECKSUM_E_UNVERIFIED;
     int table_index = 0;
 
@@ -374,43 +475,41 @@ attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payl
 
     ws_debug("AN: %u", an);
 
-    struct decode_user_data ud = {payload, payload_len, encrypted};
+    struct decode_user_data ud = {NULL, payload, payload_len, encrypted, 1};
 
     /* Iterate through the CKN table and use each SAK for the given AN to attempt to decode the packet. */
     for (table_index = 0; table_index < ckn_table_count; table_index++) {
         const mka_ckn_info_t *info = &ckn_table[table_index];
 
-        mka_sak_info_key_t *sak_info = mka_get_sak_info(info);
+        mka_sak_info_key_t *sak_info = mka_get_sak_info(info, an, pinfo->num);
 
         if ((!sak_info) || (sak_info->sak_len == 0)) continue;
 
-        sak_for_decode = (uint8_t *)sak_info->saks[an];
+        ud.ssci = 1; // 0 not legal
+        ud.sak_info = sak_info;
+        sak_for_decode = (uint8_t *)sak_info->sak;
         sak_for_decode_len = sak_info->sak_len;
 
-        if (sci_known) {
-            result = attempt_packet_decode(encrypted, sak_for_decode, sak_for_decode_len, payload, payload_len);
-            if (PROTO_CHECKSUM_E_GOOD == result) {
-                ws_debug("packet decoded with SAK[%u] at CKN table index %u", an, table_index);
-                return table_index;
-            } else {
-                ws_debug("failed to decode packet with SAK[%u] at CKN table index %u", an, table_index);
-            }
-        } else {
-            uint8_t *sci = wmem_map_find(sak_info->sci_map, saks_find_cb, &ud);
-            if (sci != NULL) {
-                if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
-                    ws_debug("packet decoded with SAK[%u] at CKN table index %u", an, table_index);
-                    char *sci_str = bytes_to_str_maxlen(NULL, sci, MACSEC_SCI_LEN, 0);
-                    ws_debug("SCI: %s", sci_str);
-                    g_free(sci_str);
-                }
-                /* XXX - Save the returned SCI? Would the same SCI always be
-                 * used with a given source MAC when the ES and SC bits are
-                 * both unset? */
-                return table_index;
-            }
+        switch (sak_info->cipher_suite) {
+        case MACSEC_GCM_AES_128:
+        case MACSEC_GCM_AES_256:
+            result = attempt_packet_decode_with_default_suite(&ud, sci_known);
+            break;
+        case MACSEC_GCM_AES_XPN_128:
+        case MACSEC_GCM_AES_XPN_256:
+            result = attempt_packet_decode_with_xpn(&ud, sci_known);
+            break;
+        default:
+            ws_debug("Unsupported Cipher Suite at CKN table index %u", table_index);
+            continue;
         }
 
+        if (PROTO_CHECKSUM_E_GOOD == result) {
+            ws_debug("packet decoded with SAK[%u] at CKN table index %u", an, table_index);
+            break;
+        } else {
+            ws_debug("failed to decode packet with SAK[%u] at CKN table index %u", an, table_index);
+        }
     }
 
     /* On failure, clear the key used for decode. */
@@ -598,6 +697,11 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     memset(aad, 0, ETHHDR_LEN);
     aad_len = 0;
 
+    /* For authentication and decryption, we can either save everything on
+     * the first pass, or store the SAK info in a multimap with the packet
+     * number, because new SAKs can be distributed for the same AN in a
+     * long enough capture. Right now we do the latter, which uses somewhat
+     * less memory at the cost of CPU. */
     if (icv_len != 0 && pinfo->dl_dst.type == AT_ETHER && pinfo->dl_src.type == AT_ETHER) {
         memcpy(aad, pinfo->dl_dst.data, HWADDR_LEN);
         memcpy((aad + HWADDR_LEN), pinfo->dl_src.data, HWADDR_LEN);
@@ -710,7 +814,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         if ((true == try_mka) && (0 > table_index)) {
             use_mka_table = true;
             ws_debug("also using MKA for decode");
-            table_index = attempt_packet_decode_with_saks(encrypted, an, payload, payload_len, sci_known);
+            table_index = attempt_packet_decode_with_saks(pinfo, encrypted, an, payload, payload_len, sci_known);
         }
 
         if (0 <= table_index) {
@@ -1003,13 +1107,18 @@ proto_register_macsec(void)
 
     /* XXX - "PSK" is a bad name here. They're all keys, and if pre-shared
      * they're PSKs; these are static pre-shared SAKs; the table in the MKA
-     * dissector is of static pre-shared CAKs/CKNs used to derive SAKs. */
+     * dissector is of static pre-shared CAKs/CKNs used to derive SAKs.
+     * 802.1X-2020 uses "PSK" extensively to refer to pre-shared CAKs.
+     * 802.1AE-2018 uses "PSK" exactly once to refer to pre-shared SAKs,
+     * referring to them as "inadvisabl[e]." */
     prefs_register_uat_preference(module, "psk_list", "Pre-Shared Key List",
         "A list of AES-GCM Pre-Shared Keys (PSKs) as HEX (16 or 32 bytes).", psk_config_uat);
 
     /* XXX - Why does this need to be a preference? We can only try SAKs
      * obtained from CKNs that were actually seen in EAPOL-MKA in the capture,
-     * so there's no harm in always doing so. */
+     * so there's no harm in always doing so. It would make more sense to
+     * conversely have a preference for using the pre shared SAKs, where
+     * we try them all. */
     prefs_register_bool_preference(module, "mka", "Also Use MKA For Decode",
                                      "Also attempt to use EAPOL-MKA Distributed SAKs to decode MACsec packets.",
                                      &try_mka);

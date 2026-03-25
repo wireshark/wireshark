@@ -45,6 +45,7 @@
 #define WRAPPED_KEY_IV_LEN           8
 #define WRAPPED_KEY_LEN(kl)          ((kl) + WRAPPED_KEY_IV_LEN)
 
+#define MKA_MI_LEN                   12U
 #define MKA_MAX_CKN_LEN              32
 
 #define KDF_LABEL_LEN                12
@@ -55,10 +56,15 @@
 #define BASIC_PARAMSET_BODY_LENGTH   28
 #define DISTRIBUTED_SAK_AES128_BODY_LEN 28
 #define DISTRIBUTED_SAK_AES256_BODY_LEN 52
+#define DISTRIBUTED_SAK_AES128_XPN_BODY_LEN 36
 
 /* keys for p_[add|get]_proto_data */
 #define CKN_KEY 0
 #define ICV_KEY 1
+#define MI_KEY 2
+#define SAK_KEY 3
+#define PEER_SCI_KEY 4
+#define PEER_MI_KEY 5
 
 void proto_register_mka(void);
 void proto_reg_handoff_mka(void);
@@ -87,6 +93,8 @@ static int hf_mka_macsec_desired;
 static int hf_mka_macsec_capability;
 static int hf_mka_param_body_length;
 static int hf_mka_sci;
+static int hf_mka_sci_system_identifier;
+static int hf_mka_sci_port_identifier;
 static int hf_mka_actor_mi;
 static int hf_mka_actor_mn;
 static int hf_mka_algo_agility;
@@ -144,6 +152,7 @@ static expert_field ei_unexpected_data;
 static expert_field ei_mka_unimplemented;
 
 static int ett_mka;
+static int ett_mka_sci;
 static int ett_mka_basic_param_set;
 static int ett_mka_peer_list_set;
 static int ett_mka_sak_use_set;
@@ -179,7 +188,7 @@ static const value_string macsec_capability_type_vals[] = {
 };
 
 static const value_string algo_agility_vals[] = {
-  { 0x0080C201, "IEEE Std 802.1X-2010" },
+  { 0x0080C201, "IEEE Std 802.1X-2020" },
   { 0, NULL }
 };
 
@@ -191,12 +200,17 @@ static const value_string confidentiality_offset_vals[] = {
   { 0, NULL }
 };
 
+#define MACSEC_GCM_AES_128      UINT64_C(0x0080C20001000001)
+#define MACSEC_GCM_AES_256      UINT64_C(0x0080C20001000002)
+#define MACSEC_GCM_AES_XPN_128  UINT64_C(0x0080C20001000003)
+#define MACSEC_GCM_AES_XPN_256  UINT64_C(0x0080C20001000004)
+
 static const val64_string macsec_cipher_suite_vals[] = {
-  { INT64_C(0x0080020001000001),           "GCM-AES-128" }, // Original, incorrect value in IEEE 802.1AE-2006 and IEEE 802.1X-2010
-  { INT64_C(0x0080C20001000001),           "GCM-AES-128" },
-  { INT64_C(0x0080C20001000002),           "GCM-AES-256" },
-  { INT64_C(0x0080C20001000003),           "GCM-AES-XPN-128" },
-  { INT64_C(0x0080C20001000004),           "GCM-AES-XPN-256" },
+  { INT64_C(0x0080020001000001),  "GCM-AES-128" }, // Original, incorrect value in IEEE 802.1AE-2006 and IEEE 802.1X-2010
+  { MACSEC_GCM_AES_128,           "GCM-AES-128" },
+  { MACSEC_GCM_AES_256,           "GCM-AES-256" },
+  { MACSEC_GCM_AES_XPN_128,       "GCM-AES-XPN-128" },
+  { MACSEC_GCM_AES_XPN_256,       "GCM-AES-XPN-256" },
   { 0, NULL }
 };
 
@@ -213,7 +227,8 @@ static const value_string macsec_tlvs[] = {
   { 0, NULL }
 };
 
-static wmem_map_t *mka_ckn_sci_map;
+static wmem_map_t *mka_mi_sci_map;
+static wmem_multimap_t *mka_ckn_sak_map;
 
 static const char *mka_ckn_info_uat_defaults_[] = { NULL, "", "" };
 
@@ -393,6 +408,9 @@ ckn_info_update_cb(void *r, char **err) {
     return false;
   }
 
+  /* XXX - The CKN must be unique for pre-shared CAKs (IEEE 802.1X-2020 6.3.3,
+   * 9.3.1). Can that be validated here? */
+
   return true;
 }
 
@@ -460,11 +478,6 @@ get_mka_ckn_table_count(void) {
   return num_mka_ckn_uat_data;
 }
 
-mka_sak_info_key_t *
-mka_get_sak_info(const mka_ckn_info_t *ckn) {
-  return wmem_map_lookup(mka_ckn_sci_map, ckn);
-}
-
 static unsigned
 mka_sci_hash(const void *key) {
   return wmem_strong_hash(key, MACSEC_SCI_LEN);
@@ -475,13 +488,65 @@ mka_sci_equal(const void *k1, const void *k2) {
   return memcmp(k1, k2, MACSEC_SCI_LEN) == 0;
 }
 
+static unsigned
+mka_mi_hash(const void *key) {
+  return wmem_strong_hash(key, MKA_MI_LEN);
+}
+
+static gboolean
+mka_mi_equal(const void *k1, const void *k2) {
+  return memcmp(k1, k2, MKA_MI_LEN) == 0;
+}
+
+typedef struct _mka_sak_key_t {
+  const mka_ckn_info_t *ckn_info;
+  uint8_t an;
+} mka_sak_key_t;
+
+static unsigned
+mka_sak_key_hash(const void *k) {
+  const mka_sak_key_t *key = (const mka_sak_key_t*)k;
+
+  return ckn_key_hash_func(key->ckn_info) ^ key->an;
+}
+
+static gboolean
+mka_sak_key_equal(const void *k1, const void *k2) {
+  const mka_sak_key_t *key1 = (const mka_sak_key_t*)k1;
+  const mka_sak_key_t *key2 = (const mka_sak_key_t*)k2;
+
+  return (key1->an == key2->an) &&
+    ckn_key_equal_func(key1->ckn_info, key2->ckn_info);
+}
+
+/* For use by other dissectors (MACsec), this looks for the most recent
+ * SAK with a given CKN and AN. */
+mka_sak_info_key_t *
+mka_get_sak_info(const mka_ckn_info_t *ckn, unsigned an, uint32_t frame_num) {
+  mka_sak_key_t key = {ckn, an};
+  return wmem_multimap_lookup32_le(mka_ckn_sak_map, &key, frame_num);
+}
+
+/* This static function is used internally on the second pass and requires an
+ * exact match on the frame number. */
 static mka_sak_info_key_t *
-get_or_create_sak_info(const mka_ckn_info_t *ckn) {
-  mka_sak_info_key_t *sak_info = wmem_map_lookup(mka_ckn_sci_map, ckn);
+get_sak_info(const mka_ckn_info_t *ckn, unsigned an, uint32_t frame_num) {
+  mka_sak_key_t tmp_key = {ckn, an};
+  mka_sak_info_key_t *sak_info = wmem_multimap_lookup32(mka_ckn_sak_map, &tmp_key, frame_num);
+  return sak_info;
+}
+
+static mka_sak_info_key_t *
+get_or_create_sak_info(const mka_ckn_info_t *ckn, unsigned an, uint32_t frame_num) {
+  mka_sak_info_key_t *sak_info = get_sak_info(ckn, an, frame_num);
   if (sak_info == NULL) {
+    mka_sak_key_t *perm_key = wmem_new(wmem_file_scope(), mka_sak_key_t);
+    perm_key->ckn_info = ckn;
+    perm_key->an = an;
     sak_info = wmem_new0(wmem_file_scope(), mka_sak_info_key_t);
     sak_info->sci_map = wmem_map_new(wmem_file_scope(), mka_sci_hash, mka_sci_equal);
-    wmem_map_insert(mka_ckn_sci_map, ckn, sak_info);
+    sak_info->mi_array = wmem_array_new(wmem_file_scope(), MKA_MI_LEN);
+    wmem_multimap_insert32(mka_ckn_sak_map, perm_key, frame_num, sak_info);
   }
   return sak_info;
 }
@@ -502,15 +567,15 @@ mka_add_ckn_info(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t ckn_len) 
   }
 }
 
-
 static void
 dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr) {
   int offset = *offset_ptr;
   unsigned sci_offset;
-  proto_tree *basic_param_set_tree;
+  proto_tree *basic_param_set_tree, *sci_tree;
   proto_item *ti;
   uint16_t basic_param_set_len;
   uint16_t ckn_len;
+  uint8_t *mi, *sci;
 
   basic_param_set_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_basic_param_set, tvb, offset, basic_param_set_len + 4, ENC_NA);
@@ -534,12 +599,26 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   proto_tree_add_uint(basic_param_set_tree, hf_mka_param_body_length, tvb, offset, 2, basic_param_set_len);
   offset += 2;
 
-  proto_tree_add_item(basic_param_set_tree, hf_mka_sci, tvb, offset, 8, ENC_NA);
+  ti = proto_tree_add_item(basic_param_set_tree, hf_mka_sci, tvb, offset, 8, ENC_NA);
   sci_offset = offset;
-  offset += 8;
+  sci_tree = proto_item_add_subtree(ti, ett_mka_sci);
+  proto_tree_add_item(sci_tree, hf_mka_sci_system_identifier, tvb, offset, 6, ENC_NA);
+  offset += 6;
+  proto_tree_add_item(sci_tree, hf_mka_sci_port_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
 
-  proto_tree_add_item(basic_param_set_tree, hf_mka_actor_mi, tvb, offset, 12, ENC_NA);
-  offset += 12;
+  proto_tree_add_item(basic_param_set_tree, hf_mka_actor_mi, tvb, offset, MKA_MI_LEN, ENC_NA);
+  mi = tvb_memdup(pinfo->pool, tvb, offset, MKA_MI_LEN);
+  p_add_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY, mi);
+  if (!wmem_map_contains(mka_mi_sci_map, mi)) {
+    /* We will assume that the 96-bit randomly chosen MIs do not collide.
+     * However note that an SCI can choose multiple MI over a lifetime if
+     * the Message Number would wrap. (IEEE 802.1X-2020 9.4.2) */
+    mi = tvb_memdup(wmem_file_scope(), tvb, offset, MKA_MI_LEN);
+    sci = tvb_memdup(wmem_file_scope(), tvb, sci_offset, MACSEC_SCI_LEN);
+    wmem_map_insert(mka_mi_sci_map, mi, sci);
+  }
+  offset += MKA_MI_LEN;
 
   proto_tree_add_item(basic_param_set_tree, hf_mka_actor_mn, tvb, offset, 4, ENC_NA);
   offset += 4;
@@ -553,19 +632,13 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   mka_add_ckn_info(basic_param_set_tree, tvb, offset, ckn_len);
 
   /* look up the CAK/CKN in the CKN table, and add a private hash table entry if it does not yet exist there */
-  const uint8_t *ckn = tvb_memdup(NULL, tvb, offset, ckn_len);
+  const uint8_t *ckn = tvb_memdup(pinfo->pool, tvb, offset, ckn_len);
   if (NULL != ckn) {
     mka_ckn_info_t *rec = ckn_info_lookup((uint8_t *)ckn, ckn_len);
     if (NULL != rec) {
       /* add the record to the private hash table for this packet to tell ourselves about the CKN and its keys later on */
-      uint8_t *sci = tvb_memdup(wmem_file_scope(), tvb, sci_offset, MACSEC_SCI_LEN);
-
-      mka_sak_info_key_t *sak_info = get_or_create_sak_info(rec);
-      wmem_map_insert(sak_info->sci_map, sci, sci);
       p_add_proto_data(pinfo->pool, pinfo, proto_mka, CKN_KEY, rec);
     }
-
-    g_free((void *)ckn);
   }
 
   offset += ckn_len;
@@ -580,6 +653,16 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   *offset_ptr = offset;
 }
 
+static int
+sort_mi_by_sci(const void* a, const void* b) {
+  uint8_t *sci_a = wmem_map_lookup(mka_mi_sci_map, a);
+  uint8_t *sci_b = wmem_map_lookup(mka_mi_sci_map, b);
+
+  DISSECTOR_ASSERT(sci_a && sci_b);
+  // Numerically greates SCI uses the SSCI value 0x01, etc.
+  return -memcmp(sci_a, sci_b, MACSEC_SCI_LEN);
+}
+
 static void
 dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr, bool key_server_ssci_flag) {
   int offset = *offset_ptr;
@@ -587,9 +670,34 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
   proto_item *ti;
   int hf_peer;
   int16_t peer_list_len;
+  mka_sak_info_key_t *sak_info = NULL;
+  uint32_t ssci;
+  uint8_t  server_ssci = 0;
+  uint8_t *mi = NULL;
+  uint8_t *sci = NULL;
+
+  wmem_map_t *sci_map = NULL;
+  wmem_array_t *mi_array = NULL;
 
   if (tvb_get_uint8(tvb, offset) == LIVE_PEER_LIST_TYPE) {
     hf_peer = hf_mka_live_peer_list_set;
+    sak_info = p_get_proto_data(pinfo->pool, pinfo, proto_mka, SAK_KEY);
+    mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
+    sci = wmem_map_lookup(mka_mi_sci_map, mi);
+    DISSECTOR_ASSERT(sci);
+    if (sak_info) {
+      // Distributed SAK parameter set already processed.
+      sci_map = sak_info->sci_map;
+      mi_array = sak_info->mi_array;
+    } else {
+      // Distributed SAK parameter set not already processed.
+      // It should not appear later, per 11.11.3, but in practice
+      // in many implementations it does.
+      sci_map = wmem_map_new(pinfo->pool, mka_sci_hash, mka_sci_equal);
+      p_add_proto_data(pinfo->pool, pinfo, proto_mka, PEER_SCI_KEY, sci_map);
+      mi_array = wmem_array_new(pinfo->pool, MKA_MI_LEN);
+      p_add_proto_data(pinfo->pool, pinfo, proto_mka, PEER_MI_KEY, mi_array);
+    }
   } else {
     hf_peer = hf_mka_potential_peer_list_set;
   }
@@ -607,11 +715,50 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
      * Only present in MKPDU's with:
      * - MKA version 3 (that's covered), and
      * - In Live Peer list parameter set (that's covered), and
-     * - A Distributed SAK parameter set present (which could be before or after this parameter set), but only
+     * - A Distributed SAK parameter set present (which could be before or after this parameter set*), but only
      * - A Distributed SAK parameter set with XPN Cipher suites (requires to look into the contents),
      * otherwise 0.
+     *
+     * * - 802.1X-2010 and 802.1X-2020 both specify (11.11.3 Encoding MKPDUs)
+     * that implementations with a MKA Version Identifier of 1, 2, or 3 all
+     * shall encode the protocol parameters as follows:
+     * a) The Basic Parameter Set is encoded first.
+     * b) The remaining parameter sets, except for the Live Peer List,
+     *    Potential Peer List, and ICV Indicator are then encoded in
+     *    parameter set type ascending order.
+     * c) The Live Peer List, if present, is encoded next.
+     * d) The Potential Peer List, if present, is encoded next.
+     * e) The ICV Indicator, if present (i.e. the Algorithm Agility
+     *    parameter indicates an ICV of length other than 16 octets)
+     *    is encoded last.
+     * That would make our lives easier, but in practice, implementations
+     * do not do this. A common approach is to order *all* the parameter
+     * sets other than the Basic Parameter Set in ascending type order,
+     * which puts the Live Peer List before the Distributed SAK. Some
+     * implementations include the ICV Indicator even when not necessary.
+     *
+     * Since 0 is not used as an SSCI and even though the SSCI is 32-bits
+     * in practice it cannot be larger than 255 (9.10) or even 100 or less
+     * (see the NOTE in IEEE 802.1AE-2018 10.7.13), it suffices in normal
+     * operation to add it here iff the value is nonzero.
      */
-    proto_tree_add_item(peer_list_set_tree, hf_mka_key_server_ssci, tvb, offset, 1, ENC_BIG_ENDIAN);
+    server_ssci = tvb_get_uint8(tvb, offset);
+    if (server_ssci) {
+      proto_tree_add_item(peer_list_set_tree, hf_mka_key_server_ssci, tvb, offset, 1, ENC_NA);
+    }
+  }
+
+  if (sci_map) {
+    if (server_ssci) {
+      wmem_map_insert(sci_map, sci, GUINT_TO_POINTER(server_ssci));
+    } else {
+      wmem_map_insert(sci_map, sci, GUINT_TO_POINTER(UINT32_MAX));
+    }
+    if (server_ssci > 1) {
+      uint8_t *zeroes = wmem_alloc0(pinfo->pool, MKA_MI_LEN * (server_ssci - 1));
+      wmem_array_append(mi_array, zeroes, server_ssci - 1);
+    }
+    wmem_array_append(mi_array, mi, 1);
   }
 
   offset += 1;
@@ -619,14 +766,71 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
   proto_tree_add_uint(peer_list_set_tree, hf_mka_param_body_length, tvb, offset, 2, peer_list_len);
   offset += 2;
 
+  bool know_all_sci = true;
+  unsigned index = 1; // SSCIs start at 1
   while (peer_list_len >= 16) {
-    proto_tree_add_item(peer_list_set_tree, hf_mka_peer_mi, tvb, offset, 12, ENC_NA);
-    offset += 12;
+    /* If this is MKA version 3 and a Live Peer List in a MKPDU that contains
+     * a Distributed SAK, then the MIs are ordered in order of their SCI. This,
+     * combined with the SSCI least significant octet of the Key Server (see
+     * above) can be used to determine the SCI->SSCI mapping for XPN cipher
+     * suites, provided that the MI->SCI mapping was also recorded from the
+     * MKPDUs sent by those actors.
+     *
+     * In practice, since the SSCIs are assigned incrementing from 1, we can
+     * record the number of peers in the Live Peer List (plus the Key Server
+     * itself) and try all of them in the MACsec dissector, if necessary.
+     */
+    proto_tree_add_item(peer_list_set_tree, hf_mka_peer_mi, tvb, offset, MKA_MI_LEN, ENC_NA);
+    if (sci_map) {
+      mi = tvb_memdup(pinfo->pool, tvb, offset, MKA_MI_LEN);
+      if (index >= server_ssci) {
+        // This is the correct 1-indexed position if server_ssci is 0
+        // Because the server SCI was put at the first position.
+        ssci = index + 1;
+      } else {
+        ssci = index;
+      }
+      // Do we know the SCI for this MI?
+      sci = wmem_map_lookup(mka_mi_sci_map, mi);
+      if (sci) {
+        if (server_ssci) {
+          wmem_map_insert(sci_map, sci, GUINT_TO_POINTER(ssci));
+        } else {
+          /* This value is to get around wmem_map_find() not being able to
+           * distinguish between finding 0 and not finding a result.
+           * (There's no equivalent of wmem_map_lookup_extended.)
+           */
+          wmem_map_insert(sci_map, sci, GUINT_TO_POINTER(UINT32_MAX));
+        }
+      } else {
+        know_all_sci = false;
+      }
+      if (ssci == wmem_array_get_count(mi_array) + 1) {
+        wmem_array_append(mi_array, mi, 1);
+      } else if (ssci < wmem_array_get_count(mi_array)) {
+        memcpy(wmem_array_index(mi_array, ssci - 1), mi, MKA_MI_LEN);
+      } else {
+        DISSECTOR_ASSERT_NOT_REACHED();
+      }
+    }
+    offset += MKA_MI_LEN;
 
     proto_tree_add_item(peer_list_set_tree, hf_mka_peer_mn, tvb, offset, 4, ENC_NA);
     offset += 4;
 
     peer_list_len -= 16;
+    index++;
+  }
+
+  if (mi_array && know_all_sci && !server_ssci) {
+    // For the case before MKA version 3, we manually sort these.
+    // XXX - Should we try sorting them anyway?
+    wmem_array_sort(mi_array, sort_mi_by_sci);
+    for (ssci = 1; ssci <= wmem_array_get_count(mi_array); ++ssci) {
+      mi = wmem_array_index(mi_array, ssci - 1);
+      sci = wmem_map_lookup(mka_mi_sci_map, mi);
+      wmem_map_insert(sci_map, sci, GUINT_TO_POINTER(ssci));
+    }
   }
 
   if (peer_list_len != 0) {
@@ -704,6 +908,18 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
 }
 
 static void
+mka_sci_map_copy(void *key, void *value, void *user_data)
+{
+  wmem_map_t *target_map = (wmem_map_t*)user_data;
+  uint8_t *sci = (uint8_t*)key;
+
+  // The key here (SCI) is already in file scope (a pointer to a result in
+  // the dissector global MI->SCI map), and the value is a GUINT_TO_POINTER,
+  // so we don't need to wmem_memdup anything.
+  wmem_map_insert(target_map, sci, value);
+}
+
+static void
 dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr) {
   int offset = *offset_ptr;
   uint16_t distributed_sak_len;
@@ -732,18 +948,33 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
   {
       // Nothing
   }
-  else if ((DISTRIBUTED_SAK_AES128_BODY_LEN == distributed_sak_len) || (DISTRIBUTED_SAK_AES256_BODY_LEN == distributed_sak_len)) { // GCM-AES-128, GCM-AES-256
+  else if ((DISTRIBUTED_SAK_AES128_BODY_LEN == distributed_sak_len) || (DISTRIBUTED_SAK_AES128_XPN_BODY_LEN <= distributed_sak_len)) { // GCM-AES-128, GCM-AES-XPN-128, GCM-AES-256, GCM-AES-XPN-256
+    uint64_t cipher_suite = MACSEC_GCM_AES_128; // Default if not specified
     uint16_t wrappedlen = WRAPPED_KEY_LEN(AES128_KEY_LEN);
+    uint32_t kn;
+    mka_sak_info_key_t *sak_info;
+    uint8_t *sak;
 
-    proto_tree_add_item(distributed_sak_tree, hf_mka_key_number, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item_ret_uint(distributed_sak_tree, hf_mka_key_number, tvb, offset, 4, ENC_NA, &kn);
     offset += 4;
 
     /* For AES256, the wrapped key is longer and an 8 byte cipher suite is inserted before the wrapped key data. */
-    if (DISTRIBUTED_SAK_AES256_BODY_LEN == distributed_sak_len) {
-      wrappedlen = WRAPPED_KEY_LEN(AES256_KEY_LEN);
-
-      proto_tree_add_item(distributed_sak_tree, hf_mka_macsec_cipher_suite, tvb, offset, CIPHER_SUITE_LEN, ENC_BIG_ENDIAN);
+    if (DISTRIBUTED_SAK_AES128_XPN_BODY_LEN <= distributed_sak_len) {
+      proto_tree_add_item_ret_uint64(distributed_sak_tree, hf_mka_macsec_cipher_suite, tvb, offset, CIPHER_SUITE_LEN, ENC_BIG_ENDIAN, &cipher_suite);
       offset += CIPHER_SUITE_LEN;
+      switch (cipher_suite) {
+      case MACSEC_GCM_AES_XPN_128:
+        break;
+
+      case MACSEC_GCM_AES_XPN_256:
+      case MACSEC_GCM_AES_256:
+        wrappedlen = WRAPPED_KEY_LEN(AES256_KEY_LEN);
+        break;
+      default:
+        proto_tree_add_expert(distributed_sak_tree, pinfo, &ei_mka_undecoded, tvb, offset, distributed_sak_len - 12);
+        offset += distributed_sak_len - 12;
+        goto out;
+      }
     }
 
     /* Add the wrapped key data. */
@@ -751,58 +982,98 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_tree_add_item(distributed_sak_tree, hf_mka_aes_key_wrap_sak, tvb, offset, wrappedlen, ENC_NA);
     offset += wrappedlen;
 
-    /* Attempt to unwrap the key using the KEK for the CKN. */
-    /* Fetch the KEK for the CKN in the basic parameter set. */
-    mka_ckn_info_t *rec = p_get_proto_data(pinfo->pool, pinfo, proto_mka, CKN_KEY);
-    if (NULL == rec) {
-      ws_info("no record for CKN");
-      goto out;
-    }
+      /* Attempt to unwrap the key using the KEK for the CKN. */
+      /* Fetch the KEK for the CKN in the basic parameter set. */
+      mka_ckn_info_t *rec = p_get_proto_data(pinfo->pool, pinfo, proto_mka, CKN_KEY);
+      if (NULL == rec) {
+        ws_info("no record for CKN");
+        goto out;
+      }
 
-    /* Look up the CKN and if found in the table, use the KEK associated with it. */
-    ws_debug("CKN entry name: %s", rec->name);
+      /* Look up the CKN and if found in the table, use the KEK associated with it. */
+      ws_debug("CKN entry name: %s", rec->name);
 
-    /* If no KEK available, skip the decode. */
-    mka_ckn_info_key_t *key = &(rec->key);
-    if ((NULL == key) || (0 == key->kek_len)) {
-      goto out;
-    }
+      /* If no KEK available, skip the decode. */
+      mka_ckn_info_key_t *key = &(rec->key);
+      if ((NULL == key) || (0 == key->kek_len)) {
+        goto out;
+      }
 
-    /* Open the cipher context. */
-    gcry_cipher_hd_t hd;
-    if (gcry_cipher_open(&hd, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_AESWRAP, 0)) {
-      ws_warning("failed to open cipher context");
-      goto out;
-    }
+    if (!PINFO_FD_VISITED(pinfo)) {
+      /* Open the cipher context. */
+      gcry_cipher_hd_t hd;
+      if (gcry_cipher_open(&hd, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_AESWRAP, 0)) {
+        ws_warning("failed to open cipher context");
+        goto out;
+      }
 
-    if (gcry_cipher_setkey(hd, key->kek, key->kek_len)) {
-        ws_warning("failed to set KEK");
+      if (gcry_cipher_setkey(hd, key->kek, key->kek_len)) {
+          ws_warning("failed to set KEK");
+          gcry_cipher_close(hd);
+          goto out;
+      }
+
+      /* Unwrap the key with the KEK. */
+      sak_info = get_or_create_sak_info(rec, distributed_an, pinfo->num);
+      sak = sak_info->sak;
+      sak_info->sak_len = wrappedlen - WRAPPED_KEY_IV_LEN;
+      if (gcry_cipher_decrypt(hd, sak, sak_info->sak_len, wrappedkey, wrappedlen) ) {
+        ws_info("failed to unwrap SAK");
+        memset(sak, 0, MKA_MAX_SAK_LEN);
+        sak_info->sak_len = 0;
         gcry_cipher_close(hd);
+        goto out;
+      }
+
+      sak_info->cipher_suite = cipher_suite;
+      wmem_map_t *sci_map = p_get_proto_data(pinfo->pool, pinfo, proto_mka, PEER_SCI_KEY);
+      if (sci_map) {
+        wmem_map_foreach(sci_map, mka_sci_map_copy, sak_info->sci_map);
+      }
+      wmem_array_t *mi_array = p_get_proto_data(pinfo->pool, pinfo, proto_mka, PEER_MI_KEY);
+      if (mi_array) {
+        wmem_array_append(sak_info->mi_array, wmem_array_get_raw(mi_array), wmem_array_get_count(mi_array));
+      }
+      uint8_t *mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
+      if (cipher_suite == MACSEC_GCM_AES_XPN_128 || cipher_suite == MACSEC_GCM_AES_XPN_256) {
+        if (mi) {
+          /* 802.1AE-2018 10.7.8 SAK creation
+           * "The 64 least significant bits of the Salt are the 64 least significant
+           * bits of the MKA Key Server’s Member Identifier (MI), the 16 next most
+           * significant bits of the Salt comprise the exclusive-or of the 16 next
+           * most significant bits of that MI with the 16 most significant bits of
+           * the 32-bit MKA Key Number (KN), and the 16 most significant bits of
+           * the Salt comprise the exclusive-or of the 16 most significant bits of
+           * that MI with the 16 least significant bits of the KN.
+           */
+          uint32_t mi_upper = pntohu32(mi);
+          mi_upper ^= (kn >> 16);
+          mi_upper ^= (kn & UINT16_MAX) << 16;
+          phtonu32(mi, mi_upper);
+          memcpy(sak_info->salt, mi, MACSEC_XPN_SALT_LEN);
+        }
+      }
+
+      /* Close the cipher context. */
+      gcry_cipher_close(hd);
+
+      p_add_proto_data(pinfo->pool, pinfo, proto_mka, SAK_KEY, sak_info);
+
+      if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
+        char *sak_str = bytes_to_str_maxlen(pinfo->pool, sak, sak_info->sak_len, 0);
+        ws_debug("unwrapped sak: %s", sak_str);
+      }
+    } else {
+      /* Do not try to create on the second pass, only retrieve. */
+      sak_info = get_sak_info(rec, distributed_an, pinfo->num);
+      if (!sak_info)
         goto out;
     }
 
-    /* Unwrap the key with the KEK. */
-    mka_sak_info_key_t *sak_info = get_or_create_sak_info(rec);
-    uint8_t *sak = sak_info->saks[distributed_an];
-    sak_info->sak_len = wrappedlen - WRAPPED_KEY_IV_LEN;
-    if (gcry_cipher_decrypt(hd, sak, sak_info->sak_len, wrappedkey, wrappedlen) ) {
-      ws_info("failed to unwrap SAK");
-      memset(sak, 0, MKA_MAX_SAK_LEN);
-      sak_info->sak_len = 0;
-      gcry_cipher_close(hd);
-      goto out;
-    }
-
-    /* Close the cipher context. */
-    gcry_cipher_close(hd);
-
-    if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
-      char *sak_str = bytes_to_str_maxlen(pinfo->pool, sak, sak_info->sak_len, 0);
-      ws_debug("unwrapped sak: %s", sak_str);
-    }
-
     /* Add the unwrapped SAK to the output. */
-    proto_tree_add_bytes_with_length(distributed_sak_tree, hf_mka_aes_key_wrap_unwrapped_sak, tvb, offset, 0, sak, sak_info->sak_len);  //works, no highlights
+    tvbuff_t *sak_tvb = tvb_new_child_real_data(tvb, sak_info->sak, sak_info->sak_len, sak_info->sak_len);
+    add_new_data_source(pinfo, sak_tvb, "Unwrapped SAK");
+    proto_tree_add_item(distributed_sak_tree, hf_mka_aes_key_wrap_unwrapped_sak, sak_tvb, 0, sak_info->sak_len, ENC_NA);
   }
   else
   {
@@ -1253,6 +1524,8 @@ proto_register_mka(void) {
     { &hf_mka_macsec_capability,            { "MACsec Capability", "mka.macsec_capability", FT_UINT8, BASE_DEC, VALS(macsec_capability_type_vals), 0x30, NULL, HFILL }},
     { &hf_mka_param_body_length,            { "Parameter set body length", "mka.param_body_length", FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL }},
     { &hf_mka_sci,                          { "SCI", "mka.sci", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_sci_system_identifier,        { "System Identifier", "mka.sci.system_identifier", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_sci_port_identifier,          { "Port Identifier", "mka.sci.port_identifier", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_actor_mi,                     { "Actor Member Identifier", "mka.actor_mi", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_actor_mn,                     { "Actor Message Number", "mka.actor_mn", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_algo_agility,                 { "Algorithm Agility", "mka.algo_agility", FT_UINT32, BASE_HEX, VALS(algo_agility_vals), 0x0, NULL, HFILL }},
@@ -1283,7 +1556,7 @@ proto_register_mka(void) {
 
     { &hf_mka_distributed_an,               { "Distributed AN", "mka.distributed_an", FT_UINT8, BASE_DEC, NULL, 0xc0, NULL, HFILL }},
     { &hf_mka_confidentiality_offset,       { "Confidentiality Offset", "mka.confidentiality_offset", FT_UINT8, BASE_DEC, VALS(confidentiality_offset_vals), 0x30, NULL, HFILL }},
-    { &hf_mka_key_number,                   { "Key Number", "mka.key_number", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_key_number,                   { "Key Number", "mka.key_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_aes_key_wrap_sak,             { "AES Key Wrap of SAK", "mka.aes_key_wrap_sak", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_aes_key_wrap_unwrapped_sak,   { "Unwrapped SAK", "mka.aes_key_wrap_unwrapped_sak", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_aes_key_wrap_cak,             { "AES Key Wrap of CAK", "mka.aes_key_wrap_cak", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1307,6 +1580,7 @@ proto_register_mka(void) {
 
   static int *ett[] = {
     &ett_mka,
+    &ett_mka_sci,
     &ett_mka_basic_param_set,
     &ett_mka_peer_list_set,
     &ett_mka_sak_use_set,
@@ -1332,7 +1606,9 @@ proto_register_mka(void) {
 
   mka_module = prefs_register_protocol(proto_mka, NULL);
 
-  mka_ckn_sci_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), ckn_key_hash_func, ckn_key_equal_func);
+  mka_mi_sci_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), mka_mi_hash, mka_mi_equal);
+
+  mka_ckn_sak_map = wmem_multimap_new_autoreset(wmem_epan_scope(), wmem_file_scope(), mka_sak_key_hash, mka_sak_key_equal);
 
   /* UAT: CKN info */
   static uat_field_t mka_ckn_uat_fields[] = {
