@@ -209,6 +209,7 @@ void LearnCardWidget::updateStyleSheets(const QColor &header_text_color, const Q
     header_label_->setStyleSheet(QStringLiteral(
             "QLabel {"
             "  color: %1;"
+            "  padding: 10px 12px;"
             "}"
             "QLabel::hover {"
             "  color: %2;"
