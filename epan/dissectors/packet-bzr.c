@@ -70,15 +70,17 @@ static unsigned get_bzr_prefixed_len(tvbuff_t *tvb, unsigned offset)
 }
 
 static bool
-get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, unsigned offset, unsigned *pdu_len)
+get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *parent_tvb, unsigned offset, unsigned *pdu_len)
 {
     unsigned    next_offset;
     unsigned    len = 0, current_len;
     unsigned    protocol_version_len;
     uint8_t     cmd = 0;
 
+    tvbuff_t   *tvb = tvb_new_subset_remaining(parent_tvb, offset);
+
     /* Protocol version */
-    if (!tvb_find_line_end_remaining(tvb, offset, &protocol_version_len, &next_offset)) /* End of the packet not seen yet */
+    if (!tvb_find_line_end_remaining(tvb, 0, &protocol_version_len, &next_offset)) /* End of the packet not seen yet */
         return false;
 
     len += protocol_version_len + 1;
@@ -86,19 +88,19 @@ get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, unsigned offset, unsigned
     /* Headers */
     current_len = len;
     len += get_bzr_prefixed_len(tvb, next_offset);
-    if (current_len > len) /* Make sure we're not going backwards */
+    if (current_len >= len) /* Make sure we're advancing */
         return false;
 
-    while (tvb_reported_length_remaining(tvb, offset + len) > 0) {
-        cmd = tvb_get_uint8(tvb, offset + len);
+    while (tvb_reported_length_remaining(tvb, len) > 0) {
+        cmd = tvb_get_uint8(tvb, len);
         len += 1;
 
         switch (cmd) {
         case 's':
         case 'b':
             current_len = len;
-            len += get_bzr_prefixed_len(tvb, offset + len);
-            if (current_len > len) /* Make sure we're not going backwards */
+            len += get_bzr_prefixed_len(tvb, len);
+            if (current_len >= len) /* Make sure we're advancing */
                 return false;
             break;
         case 'o':
