@@ -1803,10 +1803,30 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
 	  if (!PINFO_FD_VISITED(pinfo)) {
 		  rdp_channel_packet_context_t *context = packetToServer ? &channel->current_cs : &channel->current_sc;
 
-		  chunk = wmem_alloc(wmem_file_scope(), sizeof(*chunk));
-		  chunk->tvb = NULL;
-		  chunk->endFrame = 0;
-
+                  /* XXX - MS-RDPBCGR 3.1.5.2.2:
+                   * "If the... flags of the channelPduHeader field... does not
+                   * contain the CHANNEL_FLAG_FIRST... or CHANNEL_FLAG_LAST...,
+                   * and the data is not part of a chunked sequence (that is, a
+                   * start chunk has not been received), then the data in the
+                   * virtualChannelData field can be dispatched to the
+                   * appropriate virtual channel endpoint (no reassembly is
+                   * required by the endpoint)."
+                   *
+                   * We don't handle that case here, we expect a chunk with
+                   * LAST set to end a reassembly. The samples we have of no
+                   * reassembly required chunks have both FIRST and LAST set.
+                   *
+                   * This reassembly type is similar to that of BTHCI ISO.
+                   * There's first and last flags, no explicit fragment
+                   * numbers (so fragments must be received in order), but
+                   * the total length of the reassembly is known. We should
+                   * probably have a "fragment_add_next" that is like
+                   * "fragment_add_seq_next" but where "fragment_set_tot_len"
+                   * sets the expected number of bytes instead of number of
+                   * fragments. That would also handle setting the "depended
+                   * upon" frames correctly, which this custom reassembly
+                   * does not do.
+                   */
 		  if (first) {
 			  context->packetLen = context->pendingLen = length;
 			  context->currentPayload = wmem_array_sized_new(wmem_file_scope(), 1, length);
@@ -1814,29 +1834,38 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
 			  context->startFrame = pinfo->num;
 		  }
 
-		  chunk->startFrame = context->startFrame;
-		  wmem_array_append(context->currentPayload, tvb_get_ptr(tvb, offset, payloadLen), payloadLen);
-		  context->pendingLen -= payloadLen;
-		  wmem_array_append(context->chunks, &chunk, 1);
+                  /* Make sure we received a first chunk, or else reassembly
+                   * has already failed. */
+                  if (context->chunks != NULL) {
+                          /* XXX - Check if length == context->packetLen; else
+                           * something went wrong (missing/out of order?) */
+                          chunk = wmem_alloc(wmem_file_scope(), sizeof(*chunk));
+                          chunk->tvb = NULL;
+                          chunk->startFrame = context->startFrame;
+                          chunk->endFrame = 0;
+                          wmem_multimap_insert32(chunksMap, GUINT_TO_POINTER(key), pinfo->num, chunk);
 
-		  if (last) {
-			  if (context->pendingLen) {
-				  printf("%d: ooups context->pendingLen=%d\n", pinfo->num, context->pendingLen);
-			  }
+                          wmem_array_append(context->currentPayload, tvb_get_ptr(tvb, offset, payloadLen), payloadLen);
+                          context->pendingLen -= payloadLen;
+                          wmem_array_append(context->chunks, &chunk, 1);
 
-			  chunk->reassembled = !first;
-			  chunk->tvb = tvb_new_real_data(wmem_array_get_raw(context->currentPayload), context->packetLen, context->packetLen);
+                          if (last) {
+                                  if (context->pendingLen) {
+                                          printf("%d: oops context->pendingLen=%d\n", pinfo->num, context->pendingLen);
+                                  }
 
-			  for (unsigned i = 0; i < wmem_array_get_count(context->chunks); i++) {
-				  rdp_channel_pdu_chunk_t *c = *(rdp_channel_pdu_chunk_t**) wmem_array_index(context->chunks, i);
-				  c->endFrame = pinfo->num;
-			  }
+                                  chunk->reassembled = !first;
+                                  chunk->tvb = tvb_new_real_data(wmem_array_get_raw(context->currentPayload), context->packetLen - context->pendingLen, context->packetLen);
 
-			  wmem_destroy_array(context->chunks);
-			  context->chunks = wmem_array_new(wmem_file_scope(), sizeof(rdp_channel_pdu_chunk_t *));
-		  }
+                                  for (unsigned i = 0; i < wmem_array_get_count(context->chunks); i++) {
+                                          rdp_channel_pdu_chunk_t *c = *(rdp_channel_pdu_chunk_t**) wmem_array_index(context->chunks, i);
+                                          c->endFrame = pinfo->num;
+                                  }
 
-		  wmem_multimap_insert32(chunksMap, GUINT_TO_POINTER(key), pinfo->num, chunk);
+                                  wmem_destroy_array(context->chunks);
+                                  context->chunks = NULL;
+                          }
+                  }
 	  } else {
 		  chunk = (rdp_channel_pdu_chunk_t *)wmem_multimap_lookup32(chunksMap, GUINT_TO_POINTER(key), pinfo->num);
 	  }
