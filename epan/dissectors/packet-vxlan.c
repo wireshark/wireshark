@@ -89,7 +89,8 @@ dissect_vxlan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int is
     proto_item *ti;
     tvbuff_t *next_tvb;
     int offset = 0;
-    uint32_t vxlan_next_proto;
+    uint32_t vxlan_next_proto, vxlan_vni;
+    uint16_t vxlan_gbp;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VxLAN");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -111,12 +112,16 @@ dissect_vxlan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int is
         proto_tree_add_bitmask(vxlan_tree, tvb, offset, hf_vxlan_flags, ett_vxlan_flags, flags_fields, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(vxlan_tree, hf_vxlan_gbp, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint16(vxlan_tree, hf_vxlan_gbp, tvb, offset, 2, ENC_BIG_ENDIAN, &vxlan_gbp);
         offset += 2;
     }
 
-    proto_tree_add_item(vxlan_tree, hf_vxlan_vni, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(vxlan_tree, hf_vxlan_vni, tvb, offset, 3, ENC_BIG_ENDIAN, &vxlan_vni);
     offset += 3;
+    proto_item_append_text(ti, ", VNI: %" PRIu32, vxlan_vni);
+    if(!is_gpe) {
+        proto_item_append_text(ti, ", GP ID: %" PRIu16, vxlan_gbp);
+    }
 
     proto_tree_add_item(vxlan_tree, hf_vxlan_reserved_8, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
