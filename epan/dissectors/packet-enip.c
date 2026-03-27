@@ -305,6 +305,13 @@ static int hf_qos_dscp_scheduled;
 static int hf_qos_dscp_high;
 static int hf_qos_dscp_low;
 static int hf_qos_dscp_explicit;
+static int hf_qos_pcp_ptp_event;
+static int hf_qos_pcp_ptp_general;
+static int hf_qos_pcp_ptp_urgent;
+static int hf_qos_pcp_ptp_scheduled;
+static int hf_qos_pcp_ptp_high;
+static int hf_qos_pcp_ptp_low;
+static int hf_qos_pcp_ptp_explicit;
 
 static int hf_dlr_network_topology;
 static int hf_dlr_network_status;
@@ -2576,14 +2583,21 @@ const attribute_info_t enip_attribute_vals[] = {
    {0x48, true, 7, 6, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
 
    /* QoS object (instance attributes) */
-   {0x48, false,  1, -1, "802.1Q Tag Enable",         cip_bool,             &hf_qos_8021q_enable,     NULL},
-   {0x48, false,  2, -1, "DSCP PTP Event",            cip_usint,            &hf_qos_dscp_ptp_event,   NULL},
-   {0x48, false,  3, -1, "DSCP PTP General",          cip_usint,            &hf_qos_dscp_ptp_general, NULL},
-   {0x48, false,  4, -1, "DSCP Urgent",               cip_usint,            &hf_qos_dscp_urgent,      NULL},
-   {0x48, false,  5, -1, "DSCP Scheduled",            cip_usint,            &hf_qos_dscp_scheduled,   NULL},
-   {0x48, false,  6, -1, "DSCP High",                 cip_usint,            &hf_qos_dscp_high,        NULL},
-   {0x48, false,  7, -1, "DSCP Low",                  cip_usint,            &hf_qos_dscp_low,         NULL},
-   {0x48, false,  8, -1, "DSCP Explicit",             cip_usint,            &hf_qos_dscp_explicit,    NULL},
+   {0x48, false,  1, -1, "802.1Q Tag Enable",         cip_bool,             &hf_qos_8021q_enable,      NULL},
+   {0x48, false,  2, -1, "DSCP PTP Event",            cip_usint,            &hf_qos_dscp_ptp_event,    NULL},
+   {0x48, false,  3, -1, "DSCP PTP General",          cip_usint,            &hf_qos_dscp_ptp_general,  NULL},
+   {0x48, false,  4, -1, "DSCP Urgent",               cip_usint,            &hf_qos_dscp_urgent,       NULL},
+   {0x48, false,  5, -1, "DSCP Scheduled",            cip_usint,            &hf_qos_dscp_scheduled,    NULL},
+   {0x48, false,  6, -1, "DSCP High",                 cip_usint,            &hf_qos_dscp_high,         NULL},
+   {0x48, false,  7, -1, "DSCP Low",                  cip_usint,            &hf_qos_dscp_low,          NULL},
+   {0x48, false,  8, -1, "DSCP Explicit",             cip_usint,            &hf_qos_dscp_explicit,     NULL},
+   {0x48, false,  9, -1, "PCP PTP Event",             cip_usint,            &hf_qos_pcp_ptp_event,     NULL},
+   {0x48, false, 10, -1, "PCP PTP General",           cip_usint,            &hf_qos_pcp_ptp_general,   NULL},
+   {0x48, false, 11, -1, "PCP PTP Urgent",            cip_usint,            &hf_qos_pcp_ptp_urgent,    NULL},
+   {0x48, false, 12, -1, "PCP PTP Scheduled",         cip_usint,            &hf_qos_pcp_ptp_scheduled, NULL},
+   {0x48, false, 13, -1, "PCP PTP High",              cip_usint,            &hf_qos_pcp_ptp_high,      NULL},
+   {0x48, false, 14, -1, "PCP PTP Low",               cip_usint,            &hf_qos_pcp_ptp_low,       NULL},
+   {0x48, false, 15, -1, "PCP PTP Explicit",          cip_usint,            &hf_qos_pcp_ptp_explicit,  NULL},
 
     /* DLR Object (class attributes) */
    {0x47, true, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -4845,6 +4859,41 @@ proto_register_enip(void)
         { "DSCP Explicit", "cip.qos.explicit",
           FT_UINT8, BASE_DEC, NULL, 0,
           NULL, HFILL }},
+
+      { &hf_qos_pcp_ptp_event,
+        { "PCP PTP Event", "cip.qos.pcp_ptp_event",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_qos_pcp_ptp_general,
+        { "PCP PTP General", "cip.qos.pcp_ptp_general",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_qos_pcp_ptp_urgent,
+        { "PCP PTP Urgent", "cip.qos.pcp_ptp_urgent",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_qos_pcp_ptp_scheduled,
+        { "PCP PTP Scheduled", "cip.qos.pcp_ptp_scheduled",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_qos_pcp_ptp_high,
+        { "PCP PTP High", "cip.qos.pcp_ptp_high",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_qos_pcp_ptp_low,
+        { "PCP PTP Low", "cip.qos.pcp_ptp_low",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_qos_pcp_ptp_explicit,
+        { "PCP PTP Explicit", "cip.qos.pcp_ptp_explicit",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
 
       { &hf_dlr_network_topology,
         { "Network Topology", "cip.dlr.network_topology",
