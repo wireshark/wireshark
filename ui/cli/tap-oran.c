@@ -58,13 +58,13 @@ uint16_t ul_beams[MAX_BEAMS_IN_CAPTURE];
 int      first_radio_frame = -1;
 int      last_radio_frame = -1;
 
-static const char *flow_titles[] = { " Plane",
+static const char *flow_titles[] = { " Plane ",
                                      "eAxC ID ",
                                      "Direction  ",
                                      "Frames ",
                                      "Largest PDU  ",
-                                     "Section Types                ",
-                                     "Section IDs        ",
+                                     "Section Types                 ",
+                                     "Section IDs	  ",
                                      "Extensions                                            ",
                                      "Beams",
                                      "Highest Slot",
@@ -311,6 +311,16 @@ static int compare_flows(void *a, void *b)
     return 0;
 }
 
+/* Truncate a column to required width.  TODO: could show .. to indicate more? */
+static void truncate_column(wmem_strbuf_t *strbuf, uint32_t width)
+{
+    wmem_strbuf_truncate(strbuf, width);
+    if ((strbuf->len > 0) && (strbuf->str[strbuf->len] == ' ')) {
+        wmem_strbuf_truncate(strbuf, strbuf->len-1);
+    }
+}
+
+
 /* Output the accumulated stats */
 static void
 oran_stat_draw(void *phs)
@@ -321,7 +331,7 @@ oran_stat_draw(void *phs)
     oran_stat_t *hs = (oran_stat_t*)phs;
     GList *tmp = NULL;
 
-    /* TODO: sort rows by eAxC (ascending), Plane (control first), direction (DL first) */
+    /* Sort rows by eAxC (ascending), Plane (control first), direction (DL first) */
     hs->flow_list = g_list_sort(hs->flow_list, (GCompareFunc)compare_flows);
 
     /* Show column titles */
@@ -329,85 +339,78 @@ oran_stat_draw(void *phs)
         printf("%s  ", flow_titles[i]);
     }
     /* Divider before rows */
-    printf("\n============================================================================================================================================================================================================================================================================\n");
+    printf("\n=============================================================================================================================================================================================================================================================================\n");
 
     /* Write a row for each flow */
     for (tmp = hs->flow_list; tmp; tmp=tmp->next) {
 
         oran_row_data *row = (oran_row_data*)tmp->data;
 
-        /* TODO: use wmem_strbuf_t for these strings */
-        char sections[32];
-        int sections_offset = 0;
-        sections[0] = '\0';
+        wmem_strbuf_t *eaxcid_strbuf = wmem_strbuf_create(NULL);
+        wmem_strbuf_append_printf(eaxcid_strbuf, "%x:%x:%x:%x",
+                                  row->base_info.eaxc_du_port_id, row->base_info.eaxc_bandsector_id,
+                                  row->base_info.eaxc_cc_id, row->base_info.eaxc_ru_port_id);
 
-        char extensions[17];
-        int extensions_offset = 0;
-        extensions[0] = '-';
-        extensions[1] = '\0';
-
-        char section_ids[28];
-        int section_ids_offset = 0;
-        section_ids[0] = '-';
-        section_ids[1] = '\0';
-
-        char beams_string[50];
-        int beams_offset = 0;
-        beams_string[0] = '-';
-        beams_string[1] = '\0';
+        wmem_strbuf_t *sectiontypes_strbuf = wmem_strbuf_create(NULL);
+        wmem_strbuf_t *extensions_strbuf = wmem_strbuf_create(NULL);
+        wmem_strbuf_t *sectionids_strbuf = wmem_strbuf_create(NULL);
+        wmem_strbuf_t *beams_strbuf = wmem_strbuf_create(NULL);
 
 
         /* Some fields only apply to c-plane */
         if (!row->base_info.userplane) {
             /* Note which sections are used */
-            for (unsigned int s=0; s < SEC_C_MAX_INDEX && (extensions_offset < 17-3); s++) {
+            for (unsigned int s=0; s < SEC_C_MAX_INDEX; s++) {
                 if (row->base_info.section_types[s]) {
-                    sections_offset += snprintf(sections+sections_offset, 17-sections_offset-1, " %u", s);
+                    wmem_strbuf_append_printf(sectiontypes_strbuf, " %u", s);
                 }
             }
+            truncate_column(sectiontypes_strbuf, 17);
 
             /* Note which extensions are used */
-            for (unsigned int e=1; e <= HIGHEST_EXTTYPE && (extensions_offset < 17-3); e++) {
+            for (unsigned int e=1; e <= HIGHEST_EXTTYPE; e++) {
                 if (row->base_info.extensions[e]) {
-                    extensions_offset += snprintf(extensions+extensions_offset, 17-extensions_offset-1, " %u", e);
+                    wmem_strbuf_append_printf(extensions_strbuf, " %u", e);
                 }
             }
+            truncate_column(extensions_strbuf, 17);
         }
 
-        /* Section IDs */
-        for (unsigned id=0; (id < 4096) && (section_ids_offset < 28-1); id++) {
+
+        for (unsigned id=0; id<4096; id++) {
             if (row->section_ids_present[id]) {
-                section_ids_offset += snprintf(section_ids+section_ids_offset, 28-section_ids_offset-1, " %u", id);
+                wmem_strbuf_append_printf(sectionids_strbuf, " %u", id);
             }
         }
+        truncate_column(sectionids_strbuf, 28);
+
 
         /* Beams. Only showing for DL CP..  */
         if (!row->base_info.uplink && !row->base_info.userplane) {
-            for (int b=0; b < MIN(row->base_info.num_beams, MAX_BEAMS_IN_FRAME) && (beams_offset <= (50-2)); b++) {
-                beams_offset += snprintf(beams_string+beams_offset, 50-beams_offset, " %u", row->base_info.beams[b]);
+            for (int b=0; b < MIN(row->base_info.num_beams, MAX_BEAMS_IN_FRAME); b++) {
+                wmem_strbuf_append_printf(beams_strbuf, " %u", row->base_info.beams[b]);
             }
         }
+        truncate_column(beams_strbuf, 50);
 
 
         /* Print this row. */
-        /* TODO: will be wrong if any of the constituent parts of eaxc run to 2 hex chars - need to print to separate string and give column fixed width */
-        printf("%6s  %x:%x:%x:%x %11s %9u %13u %17s %28s %18s %50s %13u %12u",
+        printf("%6s	%8s %11s %9u %13u %17s %28s %18s %50s %13u %12u",
                (row->base_info.userplane) ? "U" : "C",
-               row->base_info.eaxc_du_port_id, row->base_info.eaxc_bandsector_id, row->base_info.eaxc_cc_id, row->base_info.eaxc_ru_port_id,
+               wmem_strbuf_finalize(eaxcid_strbuf),
                (row->base_info.uplink) ? "UL" : "DL",
                row->num_frames,
                row->largest_pdu,
-               sections,
-               section_ids,
-               extensions,
-               beams_string,
+               wmem_strbuf_finalize(sectiontypes_strbuf),
+               wmem_strbuf_finalize(sectionids_strbuf),
+               wmem_strbuf_finalize(extensions_strbuf),
+               wmem_strbuf_finalize(beams_strbuf),
                row->highest_slot,
                row->missing_sns
                );
 
         if (row->base_info.userplane) {
             /* U-Plane only */
-
             const char* comp_names[] = { "None", "BFP", "Block Scaling",
                                          "uLaw", "ModCompr",
                                          "BFP+SelRE", "ModComp+SelRE"};
