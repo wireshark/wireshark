@@ -49,6 +49,7 @@ static int ett_ecat_mailbox_soeflag;
 static int ett_ecat_mailbox_soe;
 static int ett_ecat_mailbox_fraghead;
 static int ett_ecat_mailbox_header;
+static int ett_ecat_mailbox_voe;
 
 static int hf_ecat_mailboxlength;
 static int hf_ecat_mailboxaddress;
@@ -183,11 +184,17 @@ static int hf_ecat_mailbox_soe_data;
 static int hf_ecat_mailbox_soe_frag;
 static int hf_ecat_mailbox_soe_error;
 
+static int hf_ecat_mailbox_voe;
+static int hf_ecat_mailbox_voe_vendor_id;
+static int hf_ecat_mailbox_voe_vendor_type;
+static int hf_ecat_mailbox_voe_data;
+
 static expert_field ei_ecat_mailbox_error;
 static expert_field ei_ecat_mailbox_coe_error;
 static expert_field ei_ecat_mailbox_eoe_error;
 static expert_field ei_ecat_mailbox_soe_error;
 static expert_field ei_ecat_mailbox_foe_error;
+static expert_field ei_ecat_mailbox_voe_error;
 
 
 static const value_string EcMBoxType[] =
@@ -333,6 +340,12 @@ static void init_sdo_info_header(PETHERCAT_SDO_INFO_HEADER pInfo, tvbuff_t *tvb,
    pInfo->FragmentsLeft = 2;
 }
 
+static void init_voe_header(PETHERCAT_VOE_HEADER pVoE, tvbuff_t *tvb, int offset)
+{
+   pVoE->VendorID = tvb_get_letohl(tvb, offset);offset+=4;
+   pVoE->VendorType = tvb_get_letohs(tvb, offset);offset+=2;
+}
+
 static void CANopenSdoReqFormatter(PETHERCAT_SDO_HEADER pSdo, char *szText, int nMax)
 {
    switch ( pSdo->anSdoHeaderUnion.Idq.Ccs )
@@ -470,6 +483,14 @@ static void SoeFormatter(tvbuff_t *tvb, int offset, char *szText, int nMax, unsi
    }
    else
       snprintf ( szText, nMax, "SoE: Error %04x", tvb_get_letohs(tvb, offset));
+}
+
+static void VoeFormatter(tvbuff_t *tvb, int offset, char *szText, int nMax, unsigned voe_length)
+{
+   ETHERCAT_VOE_HEADER voe;
+   init_voe_header(&voe, tvb, offset);
+
+   snprintf ( szText, nMax, "VoE(ID=0x%x, Type=0x%x) : %d Bytes", voe.VendorID, voe.VendorType, (unsigned)(voe_length-ETHERCAT_VOE_HEADER_LEN));
 }
 
 /* ethercat mailbox */
@@ -1176,6 +1197,44 @@ static void dissect_ecat_foe(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
    }
 }
 
+static void dissect_ecat_voe(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+   proto_tree *ecat_voe_tree;
+   proto_item *anItem = NULL ,*aparent = NULL;
+   char szText[100];
+   int nMax = sizeof(szText)-1;
+
+   unsigned voe_length = tvb_reported_length(tvb)-offset;
+
+   if( tree )
+   {
+      anItem = proto_tree_add_bytes_format(tree, hf_ecat_mailbox_voe, tvb, offset, voe_length, NULL, "Voe");
+
+      aparent = proto_item_get_parent(anItem);
+      proto_item_append_text(aparent,": VoE");
+   }
+
+   if( voe_length >= ETHERCAT_VOE_HEADER_LEN )
+   {
+      VoeFormatter(tvb, offset, szText, nMax, voe_length);
+      col_append_str(pinfo->cinfo, COL_INFO, szText);
+      if( tree )
+      {
+         ecat_voe_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_voe);
+         proto_tree_add_item(ecat_voe_tree, hf_ecat_mailbox_voe_vendor_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+         offset+=4;
+         proto_tree_add_item(ecat_voe_tree, hf_ecat_mailbox_voe_vendor_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+         offset+=2;
+         proto_tree_add_item(ecat_voe_tree, hf_ecat_mailbox_voe_data, tvb, offset, voe_length-offset, ENC_NA);
+      }
+   }
+   else
+   {
+      col_append_str(pinfo->cinfo, COL_INFO, "VoE - invalid length");
+      expert_add_info(pinfo, tree, &ei_ecat_mailbox_voe_error);
+   }
+}
+
 static int dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    proto_tree *ecat_mailbox_tree = NULL;
@@ -1243,6 +1302,10 @@ static int dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
          case ETHERCAT_MBOX_TYPE_SOE:
             dissect_ecat_soe(next_tvb, 0, pinfo, ecat_mailbox_tree);
+            break;
+
+         case ETHERCAT_MBOX_TYPE_VOE:
+            dissect_ecat_voe(next_tvb, 0, pinfo, ecat_mailbox_tree);
             break;
 
          default:
@@ -1925,7 +1988,23 @@ void proto_register_ecat_mailbox(void)
       { &hf_ecat_mailbox_soe_error,
       { "SoE Error", "ecat_mailbox.soe_error",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
-      }
+      },
+      { &hf_ecat_mailbox_voe,
+      { "Voe", "ecat_mailbox.voe",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+      },
+      { &hf_ecat_mailbox_voe_vendor_id,
+      { "Voe VendorID", "ecat_mailbox.voe_vendor_id",
+      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+      },
+      { &hf_ecat_mailbox_voe_vendor_type,
+      { "Voe Vendor Type", "ecat_mailbox.voe_vendor_type",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+      },
+      { &hf_ecat_mailbox_voe_data,
+      { "Voe Data", "ecat_mailbox.voe_data",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+      },
    };
 
    static int *ett[] =
@@ -1945,7 +2024,8 @@ void proto_register_ecat_mailbox(void)
       &ett_ecat_mailbox_soeflag,
       &ett_ecat_mailbox_soe,
       &ett_ecat_mailbox_fraghead,
-      &ett_ecat_mailbox_header
+      &ett_ecat_mailbox_header,
+      &ett_ecat_mailbox_voe
    };
 
    static ei_register_info ei[] =
@@ -1955,6 +2035,7 @@ void proto_register_ecat_mailbox(void)
       { &ei_ecat_mailbox_foe_error, { "ecat_mailbox.foe.invalid", PI_MALFORMED, PI_ERROR, "Malformed FoE data", EXPFILL } },
       { &ei_ecat_mailbox_soe_error, { "ecat_mailbox.soe.invalid", PI_MALFORMED, PI_ERROR, "Malformed SoE data", EXPFILL } },
       { &ei_ecat_mailbox_eoe_error, { "ecat_mailbox.eoe.invalid", PI_MALFORMED, PI_ERROR, "Malformed EoE data", EXPFILL } },
+      { &ei_ecat_mailbox_voe_error, { "ecat_mailbox.voe.invalid", PI_MALFORMED, PI_ERROR, "Malformed VoE data", EXPFILL } }
    };
 
    expert_module_t *expert_module;
