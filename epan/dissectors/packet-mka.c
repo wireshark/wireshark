@@ -200,11 +200,9 @@ static const value_string confidentiality_offset_vals[] = {
   { 0, NULL }
 };
 
-#define MACSEC_GCM_AES_128      UINT64_C(0x0080C20001000001)
-#define MACSEC_GCM_AES_256      UINT64_C(0x0080C20001000002)
-#define MACSEC_GCM_AES_XPN_128  UINT64_C(0x0080C20001000003)
-#define MACSEC_GCM_AES_XPN_256  UINT64_C(0x0080C20001000004)
-
+/* The incorrect value can appear in the MACsec Cipher Suites TLV in the
+ * Announcement parameter set, but not in the Distributed SAK parameter set,
+ * which is the agreed upon value shared with the MACsec dissector. */
 static const val64_string macsec_cipher_suite_vals[] = {
   { INT64_C(0x0080020001000001),  "GCM-AES-128" }, // Original, incorrect value in IEEE 802.1AE-2006 and IEEE 802.1X-2010
   { MACSEC_GCM_AES_128,           "GCM-AES-128" },
