@@ -1515,7 +1515,7 @@
     </avp>
     <avp name="SM-Delivery-Cause" code="3321" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
       <type type-name="Enumerated"/>
-      <enum name="SM-Delivery-Cause" code="0"/>
+      <enum name="UE_MEMORY_CAPACITY_EXCEEDED" code="0"/>
       <enum name="ABSENT_USER" code="1"/>
       <enum name="SUCCESSFUL_TRANSFER" code="2"/>
     </avp>
@@ -1590,6 +1590,21 @@
         <gavp name="SMSF-Non-3GPP-Name"/>
         <gavp name="SMSF-Non-3GPP-Realm"/>
       </grouped>
+    </avp>
+    <avp name="SMSF-3GPP-SBI-Support-Indicator" code="3346" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NOT_SUPPORT_SBI" code="0"/>
+      <enum name="SUPPORT_SBI" code="1"/>
+    </avp>
+    <avp name="SMSF-Non-3GPP-SBI-Support-Indicator" code="3347" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NOT_SUPPORT_SBI" code="0"/>
+      <enum name="SUPPORT_SBI" code="1"/>
+    </avp>
+    <avp name="IP-SM-GW-SBI-Support-Indicator" code="3348" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NOT_SUPPORT_SBI" code="0"/>
+      <enum name="SUPPORT_SBI" code="1"/>
     </avp>
 </application> <!-- 3GPP S6c -->
 
