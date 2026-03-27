@@ -4211,8 +4211,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (mac_len && data_len) {
-        mac = (char *)tvb_get_ptr(tvb, offset + data_len, mac_len);
-        if (!memcmp(mac, calc_mac, mac_len)){
+        if (mac_len <= DIGEST_MAX_SIZE && !memcmp(tvb_get_ptr(tvb, offset + data_len, mac_len), calc_mac, mac_len)){
             ws_noisy("MAC OK");
         }else{
             ws_debug("MAC ERR");
