@@ -1640,6 +1640,7 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                case ETHERCAT_MBOX_TYPE_FOE:
                case ETHERCAT_MBOX_TYPE_COE:
                case ETHERCAT_MBOX_TYPE_SOE:
+               case ETHERCAT_MBOX_TYPE_VOE:
                if ( mbox.Length <= 1500 )
                {
                   unsigned MBoxLength = mbox.Length + ETHERCAT_MBOX_HEADER_LEN;

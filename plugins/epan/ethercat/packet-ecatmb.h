@@ -28,6 +28,7 @@ typedef struct TETHERNET_ADDRESS
 #define ETHERCAT_MBOX_TYPE_COE 3 /* ETHERCAT_COE_HEADER follows*/
 #define ETHERCAT_MBOX_TYPE_FOE 4 /* ETHERCAT_FOE_HEADER follows*/
 #define ETHERCAT_MBOX_TYPE_SOE 5 /* ETHERCAT_SOE_HEADER follows*/
+#define ETHERCAT_MBOX_TYPE_VOE 15 /* ETHERCAT_VOE_HEADER follows*/
 
 typedef union tMbxHeaderControlUnion
 {
