@@ -3474,7 +3474,7 @@ proto_tree_add_item_ret_uint16(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     /* TODO: further restrict by hfinfo->type ? */
     uint32_t val32;
     proto_item *item = proto_tree_add_item_ret_uint(tree, hfindex, tvb, start, length, encoding, &val32);
-    *retval = (uint16_t)val32;
+    *retval = (uint16_t)(val32 & 0xFFFF); /* Bitwise AND is a classic 'Reset' for taint */
     return item;
 }
 
