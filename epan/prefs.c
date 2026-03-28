@@ -1230,7 +1230,7 @@ prefs_register_int_preference(module_t* module, const char* name,
 }
 
 /*
- * Register a preference with a float (doube) value.
+ * Register a preference with a float (double) value.
  */
 void prefs_register_float_preference(module_t* module, const char* name,
     const char* title, const char* description, unsigned num_decimal, double* var)

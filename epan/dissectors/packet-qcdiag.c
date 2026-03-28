@@ -2084,7 +2084,7 @@ qcdictionary_load(wmem_array_t *hf_array _U_, GPtrArray *ett_array _U_)
         wmem_array_get_count(arr),
         wmem_strdup(wmem_epan_scope(), "qcdiag_logcodes_ext"));
 
-    /* If there are duplicates in the value_string_ext, the first occurence is used. */
+    /* If there are duplicates in the value_string_ext, the first occurrence is used. */
 
     return success;
 }

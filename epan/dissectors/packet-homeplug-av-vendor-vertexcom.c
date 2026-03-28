@@ -175,7 +175,7 @@ static const value_string homeplug_av_mmtype_vertexcom_vals[] = {
 static value_string_ext homeplug_av_mmtype_vertexcom_vals_ext =
     VALUE_STRING_EXT_INIT(homeplug_av_mmtype_vertexcom_vals);
 
-// #################### Common Vlues ####################
+// #################### Common Values ####################
 static const value_string vertexcom_val_str_operation_result[] = {
     {0x00, "Success"},
     {0x01, "Failure"},
@@ -220,7 +220,7 @@ static bool dissect_vs_get_version_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_VERSION_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -293,7 +293,7 @@ static bool dissect_vs_reset_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_RESET_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -362,7 +362,7 @@ static bool dissect_vs_get_eth_phy_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_ETH_PHY_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -447,7 +447,7 @@ static bool dissect_vs_eth_stats_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_ETH_STATS_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -466,7 +466,7 @@ static bool dissect_vs_eth_stats_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_ETH_STATS_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -662,7 +662,7 @@ static bool dissect_vs_get_status_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_STATUS_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -813,7 +813,7 @@ static bool dissect_vs_get_snr_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_SNR_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -835,7 +835,7 @@ static bool dissect_vs_get_snr_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_SNR_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1059,7 +1059,7 @@ static bool dissect_vs_get_link_stats_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_LINK_STATS_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1091,7 +1091,7 @@ static bool dissect_vs_get_link_stats_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_LINK_STATS_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1380,7 +1380,7 @@ static bool dissect_vs_get_nw_info_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_NW_INFO_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1557,7 +1557,7 @@ static bool dissect_vs_set_capture_state_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_CAPTURE_STATE_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1581,7 +1581,7 @@ static bool dissect_vs_set_capture_state_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_CAPTURE_STATE_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1679,7 +1679,7 @@ static bool dissect_vs_set_nvram_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_NVRAM_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1701,7 +1701,7 @@ static bool dissect_vs_set_nvram_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_NVRAM_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1789,7 +1789,7 @@ static bool dissect_vs_get_nvram_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_NVRAM_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1808,7 +1808,7 @@ static bool dissect_vs_get_nvram_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_NVRAM_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1915,7 +1915,7 @@ static bool dissect_vs_get_pwm_stats_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_PWM_STATS_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -1938,7 +1938,7 @@ static bool dissect_vs_get_pwm_stats_ind(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_PWM_STATS_IND) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2041,7 +2041,7 @@ static bool dissect_vs_get_pwm_conf_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_PWM_CONF_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2158,7 +2158,7 @@ static bool dissect_vs_set_pwm_conf_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_PWM_CONF_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2192,7 +2192,7 @@ static bool dissect_vs_set_pwm_conf_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_PWM_CONF_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2303,7 +2303,7 @@ static bool dissect_vs_pwm_generation_req(tvbuff_t* tvb, packet_info* pinfo,
         return false;
     }
 
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2326,7 +2326,7 @@ static bool dissect_vs_pwm_generation_cnf(tvbuff_t* tvb, packet_info* pinfo,
         return false;
     }
 
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2428,7 +2428,7 @@ static bool dissect_vs_spi_stats_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SPI_STATS_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2447,7 +2447,7 @@ static bool dissect_vs_spi_stats_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SPI_STATS_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2656,7 +2656,7 @@ static bool dissect_vs_set_tx_cal_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_TX_CAL_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2675,7 +2675,7 @@ static bool dissect_vs_set_tx_cal_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_TX_CAL_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2772,7 +2772,7 @@ static bool dissect_vs_file_access_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_FILE_ACCESS_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2800,7 +2800,7 @@ static bool dissect_vs_file_access_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_FILE_ACCESS_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2943,7 +2943,7 @@ static bool dissect_vs_set_remote_access_req(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_REMOTE_ACCESS_REQ) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -2962,7 +2962,7 @@ static bool dissect_vs_set_remote_access_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_REMOTE_ACCESS_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 
@@ -3028,7 +3028,7 @@ static bool dissect_vs_get_remote_access_cnf(tvbuff_t* tvb, packet_info* pinfo,
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_REMOTE_ACCESS_CNF) {
         return false;
     }
-    //  shift cusor after `OUI` field
+    //  shift cursor after `OUI` field
     ptvcursor_t* cursor = ptvcursor_new(pinfo->pool, tree, tvb, 0);
     ptvcursor_advance(cursor, 3);
 

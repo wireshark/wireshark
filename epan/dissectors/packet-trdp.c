@@ -188,7 +188,7 @@ typedef struct Element {
 
     ElementType type; /**< Numeric type of the variable (see Usermanual, chapter 4.2) or defined at ::TRDP_BOOL8, ::TRDP_UINT8, ::TRDP_UINT16 and so on, and its typeName[1..30]*/
 
-    int32_t     array_size; /**< Amount this value occurred. 1 is default; 0 indicates a dynamic list (the dynamic list is preceeded by an integer revealing the actual size.) */
+    int32_t     array_size; /**< Amount this value occurred. 1 is default; 0 indicates a dynamic list (the dynamic list is preceded by an integer revealing the actual size.) */
     double      scale;      /**< A factor the given value is scaled */
     int32_t     offset;     /**< Offset that is added to the values. displayed value = scale * raw value + offset */
 
@@ -263,7 +263,7 @@ typedef struct TrdpXmlContext {
     bool        isShippedXml; /**< mark datasets when shipped to be displayed accordingly */
     GError**    error;
 
-    xmlTextReader* reader;    /**< will be aquired on first call and reused */
+    xmlTextReader* reader;    /**< will be acquired on first call and reused */
 } TrdpXmlContext;
 
 /** @struct TrdpDict
@@ -272,7 +272,7 @@ typedef struct TrdpXmlContext {
  *
  *  The old QtXML-based application used hash-tables instead of lists.
  *  GLib offers GHashTable as an alternative.
- *  However, once the structure is built, there are not that many look-ups, since Datasets and Elemnts are directly linked.
+ *  However, once the structure is built, there are not that many look-ups, since Datasets and Elements are directly linked.
  *  Only in case of large ComId databases, this would become relevant again. Mañana, mañana ...
  */
 typedef struct TrdpDict {

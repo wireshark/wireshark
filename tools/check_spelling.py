@@ -541,7 +541,7 @@ if __name__ == '__main__':
 
 
     # Now check the chosen files.
-    with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
+    with concurrent.futures.ProcessPoolExecutor() as executor:
         future_to_file_output = {executor.submit(checkFile, file, args.comments): file for file in files}
         for future in concurrent.futures.as_completed(future_to_file_output):
             # Result is ready, get output and list of missing words

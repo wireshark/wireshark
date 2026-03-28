@@ -291,7 +291,7 @@ static const oid_value_type_t* get_typedata(SmiType* smiType) {
 	 * There has to be a better way to know if a given
 	 * OCTETSTRING type is actually human readable text,
 	 * an address of some type or some moe specific FT_
-	 * Until that is found, this is the mappping between
+	 * Until that is found, this is the mapping between
 	 * SNMP Types and our FT_s
 	 */
 	static const struct _type_mapping_t {

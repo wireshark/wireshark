@@ -492,7 +492,7 @@ const gunichar2 charset_table_iso_8859_16[0x80] = {
  * Windows-1250
  *
  * See:
- *     httpss://en.wikipedia.org/wiki/Windows-1250)
+ *     https://en.wikipedia.org/wiki/Windows-1250)
  *     https://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP1250.TXT
  */
 const gunichar2 charset_table_cp1250[0x80] = {
