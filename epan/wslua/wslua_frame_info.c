@@ -56,7 +56,7 @@ WSLUA_METAMETHOD FrameInfo__tostring(lua_State* L) {
         lua_pushstring(L,"FrameInfo pointer is NULL!");
     } else {
         if (fi->rec)
-            lua_pushfstring(L, "FrameInfo: rec_type=%u, presence_flags=%d, caplen=%d, len=%d, pkt_encap=%d, block='%p'",
+            lua_pushfstring(L, "FrameInfo: rec_type=%d, presence_flags=%d, caplen=%d, len=%d, pkt_encap=%d, block='%p'",
                 fi->rec->rec_type, fi->rec->presence_flags, fi->rec->rec_header.packet_header.caplen, fi->rec->rec_header.packet_header.len, fi->rec->rec_header.packet_header.pkt_encap, fi->rec->block);
         else
             lua_pushstring(L, "FrameInfo rec pointer is NULL!");
@@ -338,7 +338,7 @@ WSLUA_METAMETHOD FrameInfoConst__tostring(lua_State* L) {
         lua_pushstring(L,"FrameInfo pointer is NULL!");
     } else {
         if (fi->rec && !fi->expired)
-            lua_pushfstring(L, "FrameInfo: rec_type=%u, presence_flags=%d, caplen=%d, len=%d, pkt_encap=%d, block='%p'",
+            lua_pushfstring(L, "FrameInfo: rec_type=%d, presence_flags=%d, caplen=%d, len=%d, pkt_encap=%d, block='%p'",
                 fi->rec->rec_type, fi->rec->presence_flags, fi->rec->rec_header.packet_header.caplen, fi->rec->rec_header.packet_header.len, fi->rec->rec_header.packet_header.pkt_encap, fi->rec->block);
         else
             lua_pushfstring(L, "FrameInfo has %s", fi->rec?"expired":"null rec pointer");
