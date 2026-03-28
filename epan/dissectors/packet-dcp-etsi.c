@@ -231,9 +231,9 @@ dissect_dcp_etsi_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
   return true;
 }
 
-#define PFT_RS_N_MAX 207
-#define PFT_RS_K 255
-#define PFT_RS_P (PFT_RS_K - PFT_RS_N_MAX)
+#define PFT_RS_K_MAX 207
+#define PFT_RS_N 255
+#define PFT_RS_P (PFT_RS_N - PFT_RS_K_MAX)
 
 
 static
@@ -256,11 +256,23 @@ bool rs_correct_data(uint8_t *deinterleaved, uint8_t *output,
 {
   uint32_t i, index_coded = 0, index_out = 0;
   int err_corr;
+  /* 7.3.1 Reed Solomon
+   * When the calculated value for k is less than 207 (PFT_RS_K_MAX),
+   * bytes k to 206 (inclusive) encoded by the RS(255,207) code shall
+   * all be zero and shall not be included in the resulting RS Block,
+   * thus producing a RS(k+p,k) code. [I.e., a punctured code.]
+   *
+   * This is a method of decoding it all in place, but it does require
+   * that output have extra space at the end for the parity bytes (PFT_RS_P)
+   * and any extra zeros (PFT_RS_K_MAX - rsk) beyond the real output, or
+   * PFT_RS_N - rsk.
+   */
   for (i=0; i<c_max; i++)
   {
     memcpy(output+index_out, deinterleaved+index_coded, rsk);
     index_coded += rsk;
-    memcpy(output+index_out+PFT_RS_N_MAX, deinterleaved+index_coded, PFT_RS_P);
+    memset(output+index_out+rsk, 0, PFT_RS_N - rsk);
+    memcpy(output+index_out+PFT_RS_K_MAX, deinterleaved+index_coded, PFT_RS_P);
     index_coded += PFT_RS_P;
     err_corr = eras_dec_rs(output+index_out, NULL, 0);
     if (err_corr<0) {
@@ -297,6 +309,14 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   if (fcount > MAX_FRAGMENTS) {
     proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", fcount);
+    return NULL;
+  }
+  if (fcount == 0) {
+    /* Fcount: ... The value zero shall not be used. */
+    return NULL;
+  }
+  /* RSk == 0 is also nonsensical. */
+  if (rsk > PFT_RS_K_MAX) {
     return NULL;
   }
 
@@ -372,15 +392,21 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     const uint8_t *input = tvb_get_ptr(new_tvb, 0, -1);
     uint32_t reassembled_size = tvb_captured_length(new_tvb);
     uint8_t *deinterleaved = (uint8_t*) wmem_alloc(pinfo->pool, reassembled_size);
-    uint8_t *output = (uint8_t*) wmem_alloc(pinfo->pool, decoded_size);
     rs_deinterleave(input, deinterleaved, plen, fcount);
 
     dtvb = tvb_new_child_real_data(tvb, deinterleaved, reassembled_size, reassembled_size);
     add_new_data_source(pinfo, dtvb, "Deinterleaved");
 
+    uint8_t *output = (uint8_t*) wmem_alloc(pinfo->pool, decoded_size + PFT_RS_N - rsk);
     decoded = rs_correct_data(deinterleaved, output, c_max, rsk, rsz);
     proto_tree_add_boolean (tree, hf_edcp_rs_ok, tvb, offset, 2, decoded);
 
+#if 0
+    /* We don't need to realloc here because it's pinfo->pool memory that
+     * will soon be freed and < 255 bytes of savings. It's a no-op most
+     * likely with the fast block allocator anyway. */
+    output = wmem_realloc(pinfo->pool, output, decoded_size);
+#endif
     new_tvb = tvb_new_child_real_data(dtvb, output, decoded_size, decoded_size);
     add_new_data_source(pinfo, new_tvb, "RS Error Corrected Data");
   }
