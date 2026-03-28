@@ -75,6 +75,7 @@ static int hf_macsec_TCI_C;
 static int hf_macsec_AN;
 static int hf_macsec_SL;
 static int hf_macsec_PN;
+static int hf_macsec_SCI;
 static int hf_macsec_SCI_system_identifier;
 static int hf_macsec_SCI_port_identifier;
 static int hf_macsec_etype;
@@ -93,10 +94,12 @@ static int hf_macsec_psk_table_index;
 /* Initialize the subtree pointers */
 static int ett_macsec;
 static int ett_macsec_tci;
+static int ett_macsec_sci;
 static int ett_macsec_verify;
 
 static expert_field ei_macsec_not_processed;
 static expert_field ei_macsec_nonstandard_cipher;
+static expert_field ei_macsec_payload_too_large;
 
 /* Decrypting payload buffer */
 static uint8_t macsec_payload[MAX_PAYLOAD_LEN];
@@ -119,7 +122,7 @@ static uint8_t *sak_for_decode = NULL;
 static unsigned sak_for_decode_len = 0;
 
 /* if set, try to use the EAPOL-MKA CKN table as well */
-static bool try_mka = false;
+static bool try_mka = true;
 
 /* PSK key config data */
 typedef struct _psk_info {
@@ -538,6 +541,9 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item *macsec_item;
     proto_tree *macsec_tree = NULL;
 
+    proto_item *sci_item;
+    proto_tree *sci_tree = NULL;
+
     proto_item *verify_item;
     proto_tree *verify_tree = NULL;
 
@@ -652,10 +658,13 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     offset += 4;
 
     if (sectag_length == SECTAG_LEN_WITH_SC) {
-        proto_tree_add_item(macsec_tree, hf_macsec_SCI_system_identifier, tvb, offset, HWADDR_LEN, ENC_NA);
+        sci_item = proto_tree_add_item(macsec_tree, hf_macsec_SCI, tvb, offset, HWADDR_LEN + 2, ENC_NA);
+        sci_tree = proto_item_add_subtree(sci_item, ett_macsec_sci);
+
+        proto_tree_add_item(sci_tree, hf_macsec_SCI_system_identifier, tvb, offset, HWADDR_LEN, ENC_NA);
         offset += HWADDR_LEN;
 
-        proto_tree_add_item(macsec_tree, hf_macsec_SCI_port_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sci_tree, hf_macsec_SCI_port_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
 
     /* Get the payload section */
@@ -733,7 +742,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         } else {
             /* The frame length for the AAD is the complete frame including ethernet header but without the ICV */
-            unsigned frame_len = (ETHHDR_LEN + tvb_captured_length(tvb)) - ICV_LEN;
+            unsigned frame_len = (ETHHDR_LEN + tvb_captured_length(tvb)) - icv_len;
 
             /* For authenticated-only data, the AAD is the entire frame minus the ICV.
                 We have to build the AAD since the incoming TVB payload does not have the Ethernet header. */
@@ -931,6 +940,10 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         /* restore original value */
         pinfo->fd->pkt_len = pkt_len_saved;
     } else {
+        if (payload_len > MAX_PAYLOAD_LEN) {
+            proto_tree_add_expert_remaining(macsec_tree, pinfo, &ei_macsec_payload_too_large, next_tvb, 0);
+        }
+
         /* Show the encrypted, undissected data as data. */
         call_data_dissector(next_tvb, pinfo, tree);
     }
@@ -991,6 +1004,10 @@ proto_register_macsec(void)
         { &hf_macsec_PN,
             { "Packet number", "macsec.PN", FT_UINT32, BASE_DEC,
               NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_SCI,
+            { "SCI", "macsec.SCI", FT_BYTES, BASE_NONE,
+                NULL, 0, NULL, HFILL }
         },
         { &hf_macsec_SCI_system_identifier,
             { "System Identifier", "macsec.SCI.system_identifier", FT_ETHER, BASE_NONE,
@@ -1054,13 +1071,16 @@ proto_register_macsec(void)
         { &ei_macsec_not_processed, {
             "macsec.not_processed", PI_UNDECODED, PI_NOTE, "E bit set and C bit clear indicates frames not to be delivered to the Controlled Port (Reserved for use by the KaY)", EXPFILL }},
         { &ei_macsec_nonstandard_cipher, {
-            "macsec.nonstandard_cipher", PI_UNDECODED, PI_NOTE, "E bit clear and C bit set indicates a non-standard cipher that modifies the data or uses a ICV other than 16 octets long even in integrity-only mode", EXPFILL }}
+            "macsec.nonstandard_cipher", PI_UNDECODED, PI_NOTE, "E bit clear and C bit set indicates a non-standard cipher that modifies the data or uses a ICV other than 16 octets long even in integrity-only mode", EXPFILL }},
+        { &ei_macsec_payload_too_large, {
+            "macsec.payload_too_large", PI_UNDECODED, PI_NOTE, "Payload is larger than can currently be handled. Contact Wireshark developers if you want this supported", EXPFILL }},
     };
 
     /* Setup protocol subtree array */
     static int *ett[] = {
         &ett_macsec,
         &ett_macsec_tci,
+        &ett_macsec_sci,
         &ett_macsec_verify
     };
 

@@ -549,7 +549,7 @@ get_or_create_sak_info(const mka_ckn_info_t *ckn, unsigned an, uint32_t frame_nu
   return sak_info;
 }
 
-static void
+static mka_ckn_info_t *
 mka_add_ckn_info(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t ckn_len) {
   proto_item *ti;
 
@@ -557,12 +557,14 @@ mka_add_ckn_info(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t ckn_len) 
   if (1 <= ckn_len && ckn_len <= MKA_MAX_CKN_LEN) {
     tvb_memcpy(tvb, ckn, offset, ckn_len);
 
-    const mka_ckn_info_t *rec = ckn_info_lookup(ckn, ckn_len);
+    mka_ckn_info_t *rec = ckn_info_lookup(ckn, ckn_len);
     if (rec != NULL) {
       ti = proto_tree_add_string(tree, hf_mka_cak_name_info, tvb, offset, ckn_len, rec->name);
       proto_item_set_generated(ti);
     }
+    return rec;
   }
+  return NULL;
 }
 
 static void
@@ -627,16 +629,12 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   ckn_len = basic_param_set_len - BASIC_PARAMSET_BODY_LENGTH;
   proto_tree_add_item(basic_param_set_tree, hf_mka_cak_name, tvb, offset, ckn_len, ENC_NA);
 
-  mka_add_ckn_info(basic_param_set_tree, tvb, offset, ckn_len);
-
   /* look up the CAK/CKN in the CKN table, and add a private hash table entry if it does not yet exist there */
-  const uint8_t *ckn = tvb_memdup(pinfo->pool, tvb, offset, ckn_len);
-  if (NULL != ckn) {
-    mka_ckn_info_t *rec = ckn_info_lookup((uint8_t *)ckn, ckn_len);
-    if (NULL != rec) {
-      /* add the record to the private hash table for this packet to tell ourselves about the CKN and its keys later on */
-      p_add_proto_data(pinfo->pool, pinfo, proto_mka, CKN_KEY, rec);
-    }
+  mka_ckn_info_t *rec = mka_add_ckn_info(basic_param_set_tree, tvb, offset, ckn_len);
+
+  if (NULL != rec) {
+    /* add the record to the private hash table for this packet to tell ourselves about the CKN and its keys later on */
+    p_add_proto_data(pinfo->pool, pinfo, proto_mka, CKN_KEY, rec);
   }
 
   offset += ckn_len;
