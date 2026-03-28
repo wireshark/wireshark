@@ -16,6 +16,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
+#include <epan/proto_data.h>
 #include <epan/uat.h>
 #include <epan/tfs.h>
 
@@ -63,6 +64,8 @@ static dissector_handle_t ethertype_handle;
 // XXX - MACsec now supports jumbo frames, this assumption is not valid
 #define MAX_PAYLOAD_LEN       (1514)
 
+/* keys for p_[add|get]_proto_data */
+#define XPN_KEY 0
 
 static int proto_macsec;
 static int hf_macsec_TCI;
@@ -75,6 +78,7 @@ static int hf_macsec_TCI_C;
 static int hf_macsec_AN;
 static int hf_macsec_SL;
 static int hf_macsec_PN;
+static int hf_macsec_XPN;
 static int hf_macsec_SCI;
 static int hf_macsec_SCI_system_identifier;
 static int hf_macsec_SCI_port_identifier;
@@ -388,43 +392,72 @@ saks_find_cb(void *key, void *value _U_, void *user_data)
 }
 
 static proto_checksum_enum_e
-attempt_packet_decode_with_xpn(struct decode_user_data *ud, bool sci_known) {
+attempt_packet_decode_with_xpn(packet_info *pinfo, struct decode_user_data *ud, bool sci_known) {
     proto_checksum_enum_e result = PROTO_CHECKSUM_E_UNVERIFIED;
 
     mka_sak_info_key_t *sak_info = ud->sak_info;
+    bool ssci_known = sci_known;
     uint8_t saved_iv[IV_LEN];
+    uint32_t pn, pn_msb;
+    uint64_t lpn;
 
     /* The global IV is 96 bits, where the 64 most significant bits
      * are the SCI (if known) and the 32 least significant bits are
      * the 32 least significant bits of the PN. */
-
+    pn = pntohu32(iv + MACSEC_SCI_LEN);
     memcpy(saved_iv, iv, IV_LEN);
 
     uint8_t *salt = sak_info->salt;
-    memcpy(iv, salt, 8);
-    for (unsigned i = 8; i < IV_LEN; ++i) {
-        iv[i] ^= salt[i];
-    }
+    memcpy(iv, salt, 4);
+
     /* We still need to XOR the upper 32 bits with the SSCI (depends
-     * on the SCI) and XOR the middle 32 bits with the upper 32 bits
-     * of the PN (also depends on the SCI.) */
+     * on the SCI) and XOR the middle 32 bits of the salt with the
+     * upper 32 bits of the PN (also depends on the SCI.) */
 
-    /* TODO - Reconstruct the 64-bit PN. */
-
+    /* Note the first eight bytes of the saved IV are the SCI. */
     if (sci_known) {
+        lpn = mka_get_lpn(sak_info, saved_iv, pinfo->num);
         /* The SSCI is technically a 32-bit quantity, but according to
          * how it is derived, cannot be larger then 8 bits (10.7.13,
          * also IEEE 802.1X-2020 9.10). */
-        uint8_t ssci = GPOINTER_TO_UINT(wmem_map_lookup(sak_info->sci_map, iv));
+        uint8_t ssci = GPOINTER_TO_UINT(wmem_map_lookup(sak_info->sci_map, saved_iv));
         if (ssci) {
             iv[3] ^= ssci;
         } else {
             // We know the SCI, but not what SSCI that corresponds to.
-            sci_known = false;
+            ssci_known = false;
         }
+    } else {
+        lpn = mka_get_lpn(sak_info, NULL, pinfo->num);
     }
 
-    if (sci_known) {
+    /* Reconstruct the 64-bit PN.
+     *
+     * Each SecY has its own lowest acceptable PN for this SAK. The Key
+     * Server observes all and issues a fresh SAK if any member of the CA
+     * has an LPN greater than 0xC000 0000 for 32-bit PNs and
+     * 0xC000 0000 0000 0000 for 64-bit PNs. (802.1X-2020 9.8)
+     * If we do not know the SCI, we can't determine the appropriate
+     * LPN with certainty, though all members should be fairly close,
+     * so we get a generic number (passing in NULL for the sci above.)
+     */
+    pn_msb = lpn >> 32;
+    if (lpn & 0x80000000 && !(pn & 0x80000000)) {
+        pn_msb++;
+    }
+    phtonu32(&iv[4], pn_msb);
+
+    for (unsigned i = 4; i < IV_LEN; ++i) {
+        iv[i] ^= salt[i];
+    }
+    /* We really only need to return the MSB, but we use a pointer
+     * anyway to distinguish "32 MSB are 0" from no proto data for
+     * that key (i.e., not XPN). */
+    uint64_t *xpn = wmem_new(pinfo->pool, uint64_t);
+    *xpn = ((uint64_t)pn_msb << 32) | pn;
+    p_add_proto_data(pinfo->pool, pinfo, proto_macsec, XPN_KEY, xpn);
+
+    if (ssci_known) {
         result = attempt_packet_decode(ud->encrypted, sak_for_decode, sak_for_decode_len, ud->payload, ud->payload_len);
     } else {
         // We don't know the SSCI, but the SSCI range from 1 to the number of MI
@@ -500,7 +533,7 @@ attempt_packet_decode_with_saks(packet_info *pinfo, bool encrypted, unsigned an,
             break;
         case MACSEC_GCM_AES_XPN_128:
         case MACSEC_GCM_AES_XPN_256:
-            result = attempt_packet_decode_with_xpn(&ud, sci_known);
+            result = attempt_packet_decode_with_xpn(pinfo, &ud, sci_known);
             break;
         default:
             ws_debug("Unsupported Cipher Suite at CKN table index %u", table_index);
@@ -547,7 +580,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item *verify_item;
     proto_tree *verify_tree = NULL;
 
-    proto_item *ti;
+    proto_item *ti, *pn_item;
 
     tvbuff_t   *next_tvb;
 
@@ -654,7 +687,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /* XXX - expert info if > 47 */
     offset += 1;
 
-    proto_tree_add_item(macsec_tree, hf_macsec_PN, tvb, offset, 4, ENC_BIG_ENDIAN);
+    pn_item = proto_tree_add_item(macsec_tree, hf_macsec_PN, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     if (sectag_length == SECTAG_LEN_WITH_SC) {
@@ -768,7 +801,8 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
          * save that information from MKA. Using static SAKs (PSKs) with
          * those suites is not possible due to how the Salt and also SSCI
          * are calculated. */
-        tvb_memcpy(tvb, iv + 8, 2, 4);
+        /* Copy the packet number. */
+        tvb_memcpy(tvb, iv + MACSEC_SCI_LEN, 2, 4);
 
         /* 9.5 TAG Control Information
          * "If the ES bit is set, bit 6 (the SC bit) shall not be set...
@@ -828,6 +862,12 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         if (0 <= table_index) {
             icv_check_success = PROTO_CHECKSUM_E_GOOD;
+            uint64_t *xpn = p_get_proto_data(pinfo->pool, pinfo, proto_macsec, XPN_KEY);
+            if (xpn) {
+                proto_item *xpn_item = proto_tree_add_uint64(macsec_tree, hf_macsec_XPN, tvb, 0, 0, *xpn);
+                proto_item_set_generated(xpn_item);
+                proto_tree_move_item(macsec_tree, pn_item, xpn_item);
+            }
         }
     }
 
@@ -1003,6 +1043,10 @@ proto_register_macsec(void)
         },
         { &hf_macsec_PN,
             { "Packet number", "macsec.PN", FT_UINT32, BASE_DEC,
+              NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_XPN,
+            { "Extended packet number", "macsec.XPN", FT_UINT64, BASE_DEC,
               NULL, 0, NULL, HFILL }
         },
         { &hf_macsec_SCI,

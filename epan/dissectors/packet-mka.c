@@ -65,6 +65,8 @@
 #define SAK_KEY 3
 #define PEER_SCI_KEY 4
 #define PEER_MI_KEY 5
+#define LATEST_KEY 6
+#define OLD_KEY 7
 
 void proto_register_mka(void);
 void proto_reg_handoff_mka(void);
@@ -227,6 +229,7 @@ static const value_string macsec_tlvs[] = {
 
 static wmem_map_t *mka_mi_sci_map;
 static wmem_multimap_t *mka_ckn_sak_map;
+static wmem_map_t *mka_ki_pn_map;
 
 static const char *mka_ckn_info_uat_defaults_[] = { NULL, "", "" };
 
@@ -496,6 +499,89 @@ mka_mi_equal(const void *k1, const void *k2) {
   return memcmp(k1, k2, MKA_MI_LEN) == 0;
 }
 
+typedef struct _mka_ki_pn_t {
+  uint8_t ki[MKA_KI_LEN];
+  uint64_t pn;
+} mka_ki_pn_t;
+
+typedef struct _mka_ki_pn_value_t {
+  wmem_tree_t *all_sci_lpn_tree;
+  wmem_multimap_t *sci_lpn_multimap;
+} mka_ki_value_t;
+
+static unsigned
+mka_ki_hash(const void *k) {
+  mka_ki_pn_t *key = (mka_ki_pn_t*)k;
+  return wmem_strong_hash(key->ki, MKA_KI_LEN);
+}
+
+static gboolean
+mka_ki_equal(const void *k1, const void *k2) {
+  mka_ki_pn_t *key1 = (mka_ki_pn_t*)k1;
+  mka_ki_pn_t *key2 = (mka_ki_pn_t*)k2;
+
+  return memcmp(key1->ki, key2->ki, MKA_KI_LEN) == 0;
+}
+
+/* For use by other dissectors (MACsec), this looks for the most recent
+ * Lowest Acceptable Packet Number for a given Key Identifier (in the
+ * SAK info) and SCI (SecY). sci is allowed to be NULL, in which case
+ * the most recent value for any SCI is given, if known. The result is
+ * only accurate to the top 33 significant digits, as that is all that
+ * is required by the PN recovery algorithm in 802.1AE-2018 10.6.2. */
+uint64_t
+mka_get_lpn(const mka_sak_info_key_t *sak_info, const uint8_t *sci, uint32_t frame_num) {
+  mka_ki_value_t *value = wmem_map_lookup(mka_ki_pn_map, sak_info->ki);
+  uint64_t *lpn_p;
+  if (!value) {
+    return 0;
+  }
+  if (sci) {
+    lpn_p = wmem_multimap_lookup32_le(value->sci_lpn_multimap, sci, frame_num);
+  } else {
+    lpn_p = wmem_tree_lookup32_le(value->all_sci_lpn_tree, frame_num);
+  }
+
+  return lpn_p ? *lpn_p : 0;
+}
+
+static void
+update_lpn(const mka_ki_pn_t *tmp_value, const uint8_t *sci, uint32_t frame_num) {
+  // Shortcut: Don't bother creating the structures for zero values.
+  if ((tmp_value->pn >> 31) == 0) {
+    return;
+  }
+
+  mka_ki_value_t *value = wmem_map_lookup(mka_ki_pn_map, tmp_value->ki);
+  uint64_t lpn, *lpn_p, *perm_lpn_p = NULL;
+  if (!value) {
+    value = wmem_new(wmem_file_scope(), mka_ki_value_t);
+    value->all_sci_lpn_tree = wmem_tree_new(wmem_file_scope());
+    value->sci_lpn_multimap = wmem_multimap_new(wmem_file_scope(), mka_sci_hash, mka_sci_equal);
+    uint8_t *perm_ki = wmem_memdup(wmem_file_scope(), tmp_value->ki, MKA_KI_LEN);
+    wmem_map_insert(mka_ki_pn_map, perm_ki, value);
+  }
+  lpn_p = wmem_tree_lookup32_le(value->all_sci_lpn_tree, frame_num);
+  lpn = lpn_p ? *lpn_p : 0;
+  if ((tmp_value->pn >> 31) > (lpn >> 31)) {
+    /* Due to the algorithm for PN recovery (802.1AE-2018 10.6.2), we only
+     * need to update the value when the upper 33 bits change. */
+    perm_lpn_p = wmem_new(wmem_file_scope(), uint64_t);
+    *perm_lpn_p = tmp_value->pn;
+    wmem_tree_insert32(value->all_sci_lpn_tree, frame_num, perm_lpn_p);
+  }
+  lpn_p = wmem_multimap_lookup32_le(value->sci_lpn_multimap, sci, frame_num);
+  lpn = lpn_p ? *lpn_p : 0;
+  if ((tmp_value->pn >> 31) > (lpn >> 31)) {
+    if (perm_lpn_p == NULL) {
+      // We can share the values here, as they have the same scope
+      perm_lpn_p = wmem_new(wmem_file_scope(), uint64_t);
+      *perm_lpn_p = tmp_value->pn;
+    }
+    wmem_multimap_insert32(value->sci_lpn_multimap, sci, frame_num, perm_lpn_p);
+  }
+}
+
 typedef struct _mka_sak_key_t {
   const mka_ckn_info_t *ckn_info;
   uint8_t an;
@@ -744,7 +830,9 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
     }
   }
 
+  bool know_all_sci = false;
   if (sci_map) {
+    know_all_sci = true;
     if (server_ssci) {
       wmem_map_insert(sci_map, sci, GUINT_TO_POINTER(server_ssci));
     } else {
@@ -762,7 +850,6 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
   proto_tree_add_uint(peer_list_set_tree, hf_mka_param_body_length, tvb, offset, 2, peer_list_len);
   offset += 2;
 
-  bool know_all_sci = true;
   unsigned index = 1; // SSCIs start at 1
   while (peer_list_len >= 16) {
     /* If this is MKA version 3 and a Live Peer List in a MKPDU that contains
@@ -843,6 +930,10 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
   proto_tree *sak_use_set_tree;
   proto_item *ti;
   uint16_t sak_use_len;
+  bool latest_rx, old_rx;
+  uint32_t pn;
+  uint8_t ki[MKA_KI_LEN];
+  mka_ki_pn_t *pn_key;
 
   sak_use_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_macsec_sak_use_set, tvb, offset, sak_use_len + 4, ENC_NA);
@@ -853,11 +944,11 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
 
   proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_an, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_tx, tvb, offset, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_boolean(sak_use_set_tree, hf_mka_latest_key_rx, tvb, offset, 1, ENC_BIG_ENDIAN, &latest_rx);
 
   proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_an, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_tx, tvb, offset, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_boolean(sak_use_set_tree, hf_mka_old_key_rx, tvb, offset, 1, ENC_BIG_ENDIAN, &old_rx);
   offset += 1;
 
   proto_tree_add_item(sak_use_set_tree, hf_mka_plain_tx, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -877,21 +968,43 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
   else if (sak_use_len == 40) /* MACsec supported */
   {
     proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_server_mi, tvb, offset, 12, ENC_NA);
+    if (latest_rx && !PINFO_FD_VISITED(pinfo)) {
+      tvb_memcpy(tvb, ki, offset, MKA_KI_LEN);
+    }
     offset += 12;
 
     proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_number, tvb, offset, 4, ENC_NA);
     offset += 4;
+    if (latest_rx && !PINFO_FD_VISITED(pinfo)) {
+      proto_tree_add_item_ret_uint(sak_use_set_tree, hf_mka_latest_lowest_acceptable_pn, tvb, offset, 4, ENC_NA, &pn);
 
-    proto_tree_add_item(sak_use_set_tree, hf_mka_latest_lowest_acceptable_pn, tvb, offset, 4, ENC_NA);
+      pn_key = wmem_new(pinfo->pool, mka_ki_pn_t);
+      memcpy(pn_key->ki, ki, MKA_KI_LEN);
+      pn_key->pn = pn;
+      p_add_proto_data(pinfo->pool, pinfo, proto_mka, LATEST_KEY, pn_key);
+    } else {
+      proto_tree_add_item(sak_use_set_tree, hf_mka_latest_lowest_acceptable_pn, tvb, offset, 4, ENC_NA);
+    }
     offset += 4;
 
     proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_server_mi, tvb, offset, 12, ENC_NA);
+    if (old_rx && !PINFO_FD_VISITED(pinfo)) {
+      tvb_memcpy(tvb, ki, offset, MKA_KI_LEN);
+    }
     offset += 12;
 
     proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_number, tvb, offset, 4, ENC_NA);
     offset += 4;
 
-    proto_tree_add_item(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn, tvb, offset, 4, ENC_NA);
+    if (old_rx && !PINFO_FD_VISITED(pinfo)) {
+      proto_tree_add_item_ret_uint(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn, tvb, offset, 4, ENC_NA, &pn);
+      pn_key = wmem_new(pinfo->pool, mka_ki_pn_t);
+      memcpy(pn_key->ki, ki, MKA_KI_LEN);
+      pn_key->pn = pn;
+      p_add_proto_data(pinfo->pool, pinfo, proto_mka, OLD_KEY, pn_key);
+    } else {
+      proto_tree_add_item(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn, tvb, offset, 4, ENC_NA);
+    }
     offset += 4;
   }
   else
@@ -1009,8 +1122,9 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
           goto out;
       }
 
-      /* Unwrap the key with the KEK. */
       sak_info = get_or_create_sak_info(rec, distributed_an, pinfo->num);
+
+      /* Unwrap the key with the KEK. */
       sak = sak_info->sak;
       sak_info->sak_len = wrappedlen - WRAPPED_KEY_IV_LEN;
       if (gcry_cipher_decrypt(hd, sak, sak_info->sak_len, wrappedkey, wrappedlen) ) {
@@ -1021,6 +1135,13 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
         goto out;
       }
 
+      /* Add the Key Identifier */
+      uint8_t *mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
+      /* This is added in the Basic Parameter Set, which is always dissected. */
+      DISSECTOR_ASSERT(mi != NULL);
+      memcpy(sak_info->ki, mi, MKA_MI_LEN);
+      phtonu32(&sak_info->ki[MKA_MI_LEN], kn);
+
       sak_info->cipher_suite = cipher_suite;
       wmem_map_t *sci_map = p_get_proto_data(pinfo->pool, pinfo, proto_mka, PEER_SCI_KEY);
       if (sci_map) {
@@ -1030,24 +1151,21 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
       if (mi_array) {
         wmem_array_append(sak_info->mi_array, wmem_array_get_raw(mi_array), wmem_array_get_count(mi_array));
       }
-      uint8_t *mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
       if (cipher_suite == MACSEC_GCM_AES_XPN_128 || cipher_suite == MACSEC_GCM_AES_XPN_256) {
-        if (mi) {
-          /* 802.1AE-2018 10.7.8 SAK creation
-           * "The 64 least significant bits of the Salt are the 64 least significant
-           * bits of the MKA Key Server’s Member Identifier (MI), the 16 next most
-           * significant bits of the Salt comprise the exclusive-or of the 16 next
-           * most significant bits of that MI with the 16 most significant bits of
-           * the 32-bit MKA Key Number (KN), and the 16 most significant bits of
-           * the Salt comprise the exclusive-or of the 16 most significant bits of
-           * that MI with the 16 least significant bits of the KN.
-           */
-          uint32_t mi_upper = pntohu32(mi);
-          mi_upper ^= (kn >> 16);
-          mi_upper ^= (kn & UINT16_MAX) << 16;
-          phtonu32(mi, mi_upper);
-          memcpy(sak_info->salt, mi, MACSEC_XPN_SALT_LEN);
-        }
+        /* 802.1AE-2018 10.7.8 SAK creation
+         * "The 64 least significant bits of the Salt are the 64 least significant
+         * bits of the MKA Key Server’s Member Identifier (MI), the 16 next most
+         * significant bits of the Salt comprise the exclusive-or of the 16 next
+         * most significant bits of that MI with the 16 most significant bits of
+         * the 32-bit MKA Key Number (KN), and the 16 most significant bits of
+         * the Salt comprise the exclusive-or of the 16 most significant bits of
+         * that MI with the 16 least significant bits of the KN.
+         */
+        uint32_t mi_upper = pntohu32(mi);
+        mi_upper ^= (kn >> 16);
+        mi_upper ^= (kn & UINT16_MAX) << 16;
+        phtonu32(mi, mi_upper);
+        memcpy(sak_info->salt, mi, MACSEC_XPN_SALT_LEN);
       }
 
       /* Close the cipher context. */
@@ -1230,11 +1348,14 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
 }
 
 static void
-dissect_xpn(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr) {
+dissect_xpn(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr) {
   int offset = *offset_ptr;
   uint16_t xpn_len;
   proto_tree *xpn_set_tree;
   proto_item *ti;
+  uint32_t pn_msb;
+  mka_ki_pn_t *pn_key;
+  uint8_t *mi, *sci = NULL;
 
   xpn_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_xpn_set, tvb, offset, xpn_len + 4, ENC_NA);
@@ -1249,10 +1370,34 @@ dissect_xpn(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *of
   proto_tree_add_uint(xpn_set_tree, hf_mka_param_body_length, tvb, offset, 2, xpn_len);
   offset += 2;
 
-  proto_tree_add_item(xpn_set_tree, hf_mka_latest_lowest_accept_pn_msb, tvb, offset, 4, ENC_NA);
+  /* Based on samples, we should be able to assume that the spec is followed
+   * and the XPN parameter set appears after the MACsec SAK Use set */
+  pn_key = p_get_proto_data(pinfo->pool, pinfo, proto_mka, LATEST_KEY);
+  if (pn_key) {
+    proto_tree_add_item_ret_uint(xpn_set_tree, hf_mka_latest_lowest_accept_pn_msb, tvb, offset, 4, ENC_NA, &pn_msb);
+    pn_key->pn |= ((uint64_t)pn_msb << 32);
+    mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
+    sci = wmem_map_lookup(mka_mi_sci_map, mi);
+    DISSECTOR_ASSERT(sci);
+    update_lpn(pn_key, sci, pinfo->num);
+  } else {
+    proto_tree_add_item(xpn_set_tree, hf_mka_latest_lowest_accept_pn_msb, tvb, offset, 4, ENC_NA);
+  }
   offset += 4;
 
-  proto_tree_add_item(xpn_set_tree, hf_mka_old_lowest_accept_pn_msb, tvb, offset, 4, ENC_NA);
+  pn_key = p_get_proto_data(pinfo->pool, pinfo, proto_mka, OLD_KEY);
+  if (pn_key) {
+    proto_tree_add_item_ret_uint(xpn_set_tree, hf_mka_old_lowest_accept_pn_msb, tvb, offset, 4, ENC_NA, &pn_msb);
+    pn_key->pn |= ((uint64_t)pn_msb << 32);
+    if (sci == NULL) {
+      mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
+      sci = wmem_map_lookup(mka_mi_sci_map, mi);
+      DISSECTOR_ASSERT(sci);
+    }
+    update_lpn(pn_key, sci, pinfo->num);
+  } else {
+    proto_tree_add_item(xpn_set_tree, hf_mka_old_lowest_accept_pn_msb, tvb, offset, 4, ENC_NA);
+  }
   offset += 4;
 
   *offset_ptr = offset;
@@ -1523,7 +1668,7 @@ proto_register_mka(void) {
     { &hf_mka_sci_system_identifier,        { "System Identifier", "mka.sci.system_identifier", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_sci_port_identifier,          { "Port Identifier", "mka.sci.port_identifier", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_actor_mi,                     { "Actor Member Identifier", "mka.actor_mi", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_mka_actor_mn,                     { "Actor Message Number", "mka.actor_mn", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_actor_mn,                     { "Actor Message Number", "mka.actor_mn", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_algo_agility,                 { "Algorithm Agility", "mka.algo_agility", FT_UINT32, BASE_HEX, VALS(algo_agility_vals), 0x0, NULL, HFILL }},
     { &hf_mka_cak_name,                     { "CAK Name", "mka.cak_name", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_cak_name_info,                { "CAK Name Info", "mka.cak_name.info", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1532,7 +1677,7 @@ proto_register_mka(void) {
 
     { &hf_mka_key_server_ssci,              { "Key Server SSCI (LSB)", "mka.key_server_ssci", FT_UINT8, BASE_HEX, NULL, 0x0, "Only present combined with Distributed SAK parameter set with XPN cipher suite", HFILL }},
     { &hf_mka_peer_mi,                      { "Peer Member Identifier", "mka.peer_mi", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_mka_peer_mn,                      { "Peer Message Number", "mka.peer_mn", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_peer_mn,                      { "Peer Message Number", "mka.peer_mn", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mka_latest_key_an,                { "Latest Key AN", "mka.latest_key_an", FT_UINT8, BASE_DEC, NULL, 0xc0, NULL, HFILL }},
     { &hf_mka_latest_key_tx,                { "Latest Key tx", "mka.latest_key_tx", FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
@@ -1544,15 +1689,15 @@ proto_register_mka(void) {
     { &hf_mka_plain_rx,                     { "Plain rx", "mka.plain_rx", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
     { &hf_mka_delay_protect,                { "Delay protect", "mka.delay_protect", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
     { &hf_mka_latest_key_server_mi,         { "Latest Key: Key Server Member Identifier", "mka.latest_key_server_mi", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_mka_latest_key_number,            { "Latest Key: Key Number", "mka.latest_key_number", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_mka_latest_lowest_acceptable_pn,  { "Latest Key: Lowest Acceptable PN (32 LSB)", "mka.latest_lowest_acceptable_pn", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_latest_key_number,            { "Latest Key: Key Number", "mka.latest_key_number", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_latest_lowest_acceptable_pn,  { "Latest Key: Lowest Acceptable PN (32 LSB)", "mka.latest_lowest_acceptable_pn", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_old_key_server_mi,            { "Old Key: Key Server Member Identifier", "mka.old_key_server_mi", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_mka_old_key_number,               { "Old Key: Key Number", "mka.old_key_number", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_mka_old_lowest_acceptable_pn,     { "Old Key: Lowest Acceptable PN (32 LSB)", "mka.old_lowest_acceptable_pn", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_old_key_number,               { "Old Key: Key Number", "mka.old_key_number", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_old_lowest_acceptable_pn,     { "Old Key: Lowest Acceptable PN (32 LSB)", "mka.old_lowest_acceptable_pn", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mka_distributed_an,               { "Distributed AN", "mka.distributed_an", FT_UINT8, BASE_DEC, NULL, 0xc0, NULL, HFILL }},
     { &hf_mka_confidentiality_offset,       { "Confidentiality Offset", "mka.confidentiality_offset", FT_UINT8, BASE_DEC, VALS(confidentiality_offset_vals), 0x30, NULL, HFILL }},
-    { &hf_mka_key_number,                   { "Key Number", "mka.key_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_key_number,                   { "Key Number", "mka.key_number", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_aes_key_wrap_sak,             { "AES Key Wrap of SAK", "mka.aes_key_wrap_sak", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_aes_key_wrap_unwrapped_sak,   { "Unwrapped SAK", "mka.aes_key_wrap_unwrapped_sak", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_aes_key_wrap_cak,             { "AES Key Wrap of CAK", "mka.aes_key_wrap_cak", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1561,8 +1706,8 @@ proto_register_mka(void) {
     { &hf_mka_kmd,                          { "Key Management Domain", "mka.kmd", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mka_suspension_time,              { "Suspension time", "mka.suspension_time", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-    { &hf_mka_latest_lowest_accept_pn_msb,  { "Latest Key: Lowest Acceptable PN (32 MSB)", "mka.latest_lowest_acceptable_pn_msb", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_mka_old_lowest_accept_pn_msb,     { "Old Key: Lowest Acceptable PN (32 MSB)", "mka.old_lowest_acceptable_pn_msb", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_latest_lowest_accept_pn_msb,  { "Latest Key: Lowest Acceptable PN (32 MSB)", "mka.latest_lowest_acceptable_pn_msb", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_mka_old_lowest_accept_pn_msb,     { "Old Key: Lowest Acceptable PN (32 MSB)", "mka.old_lowest_acceptable_pn_msb", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mka_icv,                          { "Integrity Check Value", "mka.icv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_mka_icv_status,                   { "ICV Status", "mka.icv.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
@@ -1605,6 +1750,7 @@ proto_register_mka(void) {
   mka_mi_sci_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), mka_mi_hash, mka_mi_equal);
 
   mka_ckn_sak_map = wmem_multimap_new_autoreset(wmem_epan_scope(), wmem_file_scope(), mka_sak_key_hash, mka_sak_key_equal);
+  mka_ki_pn_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), mka_ki_hash, mka_ki_equal);
 
   /* UAT: CKN info */
   static uat_field_t mka_ckn_uat_fields[] = {
