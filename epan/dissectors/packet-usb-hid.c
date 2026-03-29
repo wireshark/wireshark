@@ -4248,7 +4248,7 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
                 default: global->usage_page = 0; break;
             }
             str = get_usage_page_string(global->usage_page);
-            proto_tree_add_uint_format_value(tree, hf_usb_hid_globalitem_usage, tvb, offset, bSize, global->usage_page, "%s (0x%02x)", str, global->usage_page);
+            proto_tree_add_uint_format_value(tree, hf_usb_hid_globalitem_usage, tvb, offset, bSize, global->usage_page, "%s (0x%04x)", str, global->usage_page);
             proto_item_append_text(ti, " (%s)", str);
             break;
         case USBHID_GLOBALITEM_TAG_LOG_MIN:
@@ -4340,17 +4340,17 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo, proto_tree *tree, tvbu
                 else if (bSize == 2)
                     id = tvb_get_ntohs(tvb, offset);
                 str = get_usage_page_item_string(pinfo->pool, global->usage_page, id);
-                proto_tree_add_uint_format_value(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, id, "%s (0x%02x)", str, id);
+                proto_tree_add_uint_format_value(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, id, "%s (0x%04x)", str, id);
                 proto_item_append_text(ti, " (%s)", str);
             }
             break;
         case USBHID_LOCALITEM_TAG_USAGE_MIN:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_usage_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (0x%02x)", val);
+            proto_item_append_text(ti, " (0x%04x)", val);
             break;
         case USBHID_LOCALITEM_TAG_USAGE_MAX:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_usage_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (0x%02x)", val);
+            proto_item_append_text(ti, " (0x%04x)", val);
             break;
         case USBHID_LOCALITEM_TAG_DESIG_INDEX:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_desig_index, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
@@ -5558,7 +5558,7 @@ proto_register_usb_hid(void)
         /* Global-report item data */
 
         { &hf_usb_hid_globalitem_usage,
-            { "Usage page", "usbhid.item.global.usage", FT_UINT8, BASE_RANGE_STRING|BASE_HEX,
+            { "Usage page", "usbhid.item.global.usage", FT_UINT16, BASE_RANGE_STRING|BASE_HEX,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_log_min,
@@ -5632,15 +5632,15 @@ proto_register_usb_hid(void)
         /* Local-report item data */
 
         { &hf_usb_hid_localitem_usage,
-            { "Usage", "usbhid.item.local.usage", FT_UINT8, BASE_RANGE_STRING|BASE_HEX,
+            { "Usage", "usbhid.item.local.usage", FT_UINT16, BASE_HEX,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_localitem_usage_min,
-            { "Usage minimum", "usbhid.item.local.usage_min", FT_UINT8, BASE_HEX,
+            { "Usage minimum", "usbhid.item.local.usage_min", FT_UINT16, BASE_HEX,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_localitem_usage_max,
-            { "Usage maximum", "usbhid.item.local.usage_max", FT_UINT8, BASE_HEX,
+            { "Usage maximum", "usbhid.item.local.usage_max", FT_UINT16, BASE_HEX,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_localitem_desig_index,
