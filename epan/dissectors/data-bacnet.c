@@ -1614,6 +1614,8 @@ BACnetVendorIdentifiers[] = {
     { 1603, "Q-PAC Systems, Inc." },
     { 1604, "Yobiiq Intelligence B.V." },
     { 1605, "Camfil USA Inc." },
+    { 1606, "Radnox" },
+    { 1607, "Optospark Sdn. Bhd." },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
