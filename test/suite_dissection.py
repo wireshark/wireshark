@@ -1164,3 +1164,40 @@ class TestDissectOvsNetlink:
                 '-Tfields', '-eovs_packet.cmd',
             ), encoding='utf-8', env=test_env)
         assert '1' in stdout
+
+class TestDissectUsbHid:
+    def test_usb_hid_descriptor_usage(self, cmd_tshark, capture_file, test_env):
+        '''Verify usage page and usage are properly decoded in the descriptor.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('usb-hid.pcapng'),
+                '-Y', 'usbhid',
+                '-Tfields', '-eusbhid.item.global.usage', '-eusbhid.item.local.usage',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0x000c,0xff00\t0x0001,0x008a,0x0196,0x0239,0x0030,0x0001,0x0023'
+
+    def test_usb_hid_data_array(self, cmd_tshark, capture_file, test_env):
+        '''Verify array is properly decoded in the data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('usb-hid.pcapng'),
+                '-Y', 'usb.transfer_type == 1 and usb.urb_status == 0',
+                '-Tfields', '-eusbhid.data.array', '-eusbhid.data.array.usage',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0f\tTrue,True\n09\tTrue,True\n00\tFalse,False'
+
+    def test_usb_hid_data_vendor(self, cmd_tshark, capture_file, test_env):
+        '''Verify vendor data is properly decoded in the data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('usb-hid.pcapng'),
+                '-Y', 'usb.transfer_type == 1 and usb.urb_status == 0',
+                '-Tfields', '-eusbhid.data.vendor',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '01,0f\n01,0d\n00,00'
+
+    def test_usb_hid_data_padding(self, cmd_tshark, capture_file, test_env):
+        '''Verify padding is properly decoded in the data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('usb-hid.pcapng'),
+                '-Y', 'usb.transfer_type == 1 and usb.urb_status == 0',
+                '-Tfields', '-eusbhid.data.padding',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '03,ff07\n01,b907\n00,0000'
