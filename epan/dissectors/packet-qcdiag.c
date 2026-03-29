@@ -547,7 +547,7 @@ qcdiag_add_cmd_subtree(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto
     length = tvb_reported_length(tvb);
     ti = proto_tree_get_parent(tree);
 
-    text = val_to_str_ext(pinfo->pool, cmd, &qcdiag_cmds_ext, "Unknown Command (0x%02x)");
+    text = val_to_str_ext_const(cmd, &qcdiag_cmds_ext, "Unknown Command");
     msgtype = tfs_get_string(!request, &tfs_response_request);
 
     /* Append parent item name */
@@ -1148,7 +1148,7 @@ dissect_qcdiag_subsys_cmd(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, pr
     /* SUBSYS_ID value */
     subsys_id = (uint32_t)tvb_get_uint8(tvb, offset+1);
 
-    text = val_to_str_ext(pinfo->pool, subsys_id, &qcdiag_subsys_ext, "Unknown Subsystem (0x%02x)");
+    text = val_to_str_ext_const(subsys_id, &qcdiag_subsys_ext, "Unknown Subsystem");
 
     /* Set COL_INFO to Subsystem ID */
     col_set_str(pinfo->cinfo, COL_INFO, "Subsystem");
@@ -1289,7 +1289,7 @@ dissect_qcdiag_log_config_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
 
     ti = proto_tree_get_parent(tree);
 
-    cmd_str = val_to_str_ext(pinfo->pool, cmd, &qcdiag_cmds_ext, "Unknown Command (0x%02x)");
+    cmd_str = val_to_str_ext_const(cmd, &qcdiag_cmds_ext, "Unknown Command");
 
     /* Log Code value */
     logcode = (request) ? LOG_CODE_1X_DIAG_REQUEST : LOG_CODE_1X_DIAG_RES_STATUS;
@@ -1307,7 +1307,7 @@ dissect_qcdiag_log_config_hdr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
     proto_tree_add_item_ret_uint(tree, hf_qcdiag_logcfg_operation, tvb, offset, 4, ENC_LITTLE_ENDIAN, &operation);
     offset += 4;
 
-    op_str = val_to_str(pinfo->pool, operation, qcdiag_logcfg_ops, "Unknown Operation (0x%02x)");
+    op_str = val_to_str_const(operation, qcdiag_logcfg_ops, "Unknown Operation");
 
     /* Set COL_INFO to Operation */
     col_set_str(pinfo->cinfo, COL_INFO, op_str);
@@ -1409,7 +1409,7 @@ dissect_qcdiag_log_config_setmask(tvbuff_t *tvb, uint32_t offset, packet_info *p
 
     /* If Request assumed, there are 12 bytes before MASK */
     /* 12 = CMD_CODE (1) + RESERVED (3) + OPERATION (4) + EQUIP_ID (4) */
-    mask = (uint32_t)tvb_get_uint32(tvb, 12, ENC_LITTLE_ENDIAN);
+    mask = tvb_get_uint32(tvb, 12, ENC_LITTLE_ENDIAN);
     mask = (mask + 7) / 8;
 
     if (length == mask + 16)
@@ -1417,7 +1417,7 @@ dissect_qcdiag_log_config_setmask(tvbuff_t *tvb, uint32_t offset, packet_info *p
 
     /* If Response assumed, there are 16 bytes before MASK */
     /* 16 = CMD_CODE (1) + RESERVED (3) + OPERATION (4) + STATUS (4) + EQUIP_ID (4) */
-    //mask = (uint32_t)tvb_get_uint32(tvb, 16, ENC_LITTLE_ENDIAN);
+    //mask = tvb_get_uint32(tvb, 16, ENC_LITTLE_ENDIAN);
     //mask = (mask + 7) / 8;
 
     //if (length == mask + 20)
@@ -1776,7 +1776,7 @@ dissect_qcdiag_custom(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_
     offset += 1;
 
     cmd = (uint32_t)tvb_get_uint8(tvb, offset);
-    text = val_to_str_ext(pinfo->pool, cmd, &qcdiag_cmds_ext, "Unknown Command (0x%02x)");
+    text = val_to_str_ext_const(cmd, &qcdiag_cmds_ext, "Unknown Command");
 
     /* Set COL_INFO to the Command Code Name */
     col_set_str(pinfo->cinfo, COL_INFO, text);
@@ -1821,7 +1821,7 @@ dissect_qcdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     subtree = proto_item_add_subtree(ti, ett_qcdiag);
 
     cmd = (uint32_t)tvb_get_uint8(tvb, offset);
-    text = val_to_str_ext(pinfo->pool, cmd, &qcdiag_cmds_ext, "Unknown Command (0x%02x)");
+    text = val_to_str_ext_const(cmd, &qcdiag_cmds_ext, "Unknown Command");
 
     /* Set COL_INFO to the Command Code Name */
     col_set_str(pinfo->cinfo, COL_INFO, text);
@@ -2084,7 +2084,7 @@ qcdictionary_load(wmem_array_t *hf_array _U_, GPtrArray *ett_array _U_)
         wmem_array_get_count(arr),
         wmem_strdup(wmem_epan_scope(), "qcdiag_logcodes_ext"));
 
-    /* If there are duplicates in the value_string_ext, the first occurrence is used. */
+    /* If there are duplicates in the value_string_ext, the first occurence is used. */
 
     return success;
 }
