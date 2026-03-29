@@ -4338,7 +4338,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo, proto_tree *tree, tvbu
                 if (bSize == 1)
                     id = tvb_get_uint8(tvb, offset);
                 else if (bSize == 2)
-                    id = tvb_get_ntohs(tvb, offset);
+                    id = tvb_get_letohs(tvb, offset);
                 str = get_usage_page_item_string(pinfo->pool, global->usage_page, id);
                 proto_tree_add_uint_format_value(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, id, "%s (0x%04x)", str, id);
                 proto_item_append_text(ti, " (%s)", str);
