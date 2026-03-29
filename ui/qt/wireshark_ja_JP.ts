@@ -1038,7 +1038,7 @@
     </message>
     <message>
         <source>Interface Description</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース 説明</translation>
     </message>
     <message>
         <source>Dropped packets</source>

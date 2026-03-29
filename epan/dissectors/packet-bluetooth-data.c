@@ -5617,6 +5617,12 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10A6,   "Lightnovo ApS" },
     { 0x10A7,   "Pedigree Technologies, LLC" },
     { 0x10A8,   "Zhejiang Wanyou Intelligent Technology Co., Ltd." },
+    { 0x10A9,   "Mallow" },
+    { 0x10AA,   "Sigenergy Technology Co., Ltd." },
+    { 0x10AB,   "ObjectSpectrum, LLC" },
+    { 0x10AC,   "ATsens Co.,Ltd." },
+    { 0x10AD,   "CoreHW Semiconductor Oy" },
+    { 0x10AE,   "Raycon Inc." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
