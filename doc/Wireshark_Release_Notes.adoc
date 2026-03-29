@@ -31,6 +31,8 @@ See the “New and Updated Features” section below for more details.
 
 //=== Bug Fixes
 
+* wsbuglink:21115[Wireshark Profile Import RCE via Zip-Slip Vulnerability ] - A critical issue that caused Wireshark to crash when importing malformed zip files has been fixed. This bug was reported by Joohyun Park, Hyuk Kwon, Yonghwa Lee, Taisic Yun, Sangjun Song (Theori), with Xint and has been resolved in this release.
+
 //The following bugs have been fixed:
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
