@@ -912,7 +912,9 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
     for (ssci = 1; ssci <= wmem_array_get_count(mi_array); ++ssci) {
       mi = wmem_array_index(mi_array, ssci - 1);
       sci = wmem_map_lookup(mka_mi_sci_map, mi);
-      wmem_map_insert(sci_map, sci, GUINT_TO_POINTER(ssci));
+      if (sci) {
+          wmem_map_insert(sci_map, sci, GUINT_TO_POINTER(ssci));
+      }
     }
   }
 
