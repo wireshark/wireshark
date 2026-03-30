@@ -60679,7 +60679,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_phy_bits_64_71,
      {"EHT PHY Bits 64-71", "wlan.eht.phy_capabilities.bits_64_71",
-      FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_phy_bits_64_71_rx_1024_qam_wid_bw_dl_ofdma_sup,
      {"Rx 1024-QAM In Wider Bandwidth DL OFDMA Support",
