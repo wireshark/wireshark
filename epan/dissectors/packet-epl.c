@@ -5067,17 +5067,14 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 	if (!response)
 	{   /* request */
 		const char *name;
-		idx = tvb_get_letohs(tvb, offset);
-		psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		psf_item = proto_tree_add_item_ret_uint16(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, ENC_LITTLE_ENDIAN, &idx);
 		obj = object_lookup(convo->profile, idx);
 
 		name = obj ? obj->info.name : val_to_str_ext_const(((uint32_t)(idx<<16)), &sod_index_names, "User Defined");
 		proto_item_append_text(psf_item," (%s)", name);
 		offset += 2;
 
-
-		subindex = tvb_get_uint8(tvb, offset);
-		psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		psf_item = proto_tree_add_item_ret_uint8(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN, &subindex);
 		subobj = subobject_lookup(obj, subindex);
 
 		name = subobj ? subobj->info.name

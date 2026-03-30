@@ -3137,8 +3137,7 @@ dissect_frame_prio(tvbuff_t *tvb, proto_tree *http2_tree, unsigned offset, uint8
         proto_tree_add_item(http2_tree, hf_http2_excl_dependency, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(http2_tree, hf_http2_stream_dependency, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(http2_tree, hf_http2_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
-        weight = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(http2_tree, hf_http2_weight, tvb, offset, 1, ENC_BIG_ENDIAN, &weight);
         /* 6.2: Weight:  An 8-bit weight for the stream; Add one to the value to obtain a weight between 1 and 256 */
         ti = proto_tree_add_uint(http2_tree, hf_http2_weight_real, tvb, offset, 1, weight+1);
         proto_item_set_generated(ti);
@@ -4536,8 +4535,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     offset += 1;
 
     proto_tree_add_item(http2_tree, hf_http2_r, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(http2_tree, hf_http2_streamid, tvb, offset, 4, ENC_BIG_ENDIAN);
-    streamid = tvb_get_ntohl(tvb, offset) & MASK_HTTP2_STREAMID;
+    proto_tree_add_item_ret_uint(http2_tree, hf_http2_streamid, tvb, offset, 4, ENC_BIG_ENDIAN, &streamid);
     proto_item_append_text(ti, ": %s, Stream ID: %u, Length %u", type_str, streamid, length);
     offset += 4;
 

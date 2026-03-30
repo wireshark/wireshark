@@ -2624,8 +2624,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	switch (path_type) {
 	case 1:
 	case 2:
-		len = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_path_len, tvb, offset,	 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_afp_path_len, tvb, offset,	 1, ENC_BIG_ENDIAN, &len);
 		offset++;
 		proto_tree_add_item(tree, hf_afp_path_name, tvb, offset, len, ENC_UTF_8);
 		offset += len;
@@ -3434,8 +3433,7 @@ dissect_query_afp_map_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
 	uint8_t type;
 
-	type = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_map_id_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_afp_map_id_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
 	offset++;
 
 	if ( type < 5) {
@@ -3508,8 +3506,7 @@ dissect_query_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	uint8_t type;
 	int     size;
 
-	type = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_map_name_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_afp_map_name_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
 	offset++;
 	switch (type) {
 	case 5:
@@ -3691,8 +3688,7 @@ dissect_reply_afp_get_server_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	 */
 	if (bitmap & 0x02) {
 		/* Message is UTF-8, and message length is 2 bytes */
-		len = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_message_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_afp_message_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
 		offset += 2;
 		if (len) {
 			proto_tree_add_item(tree, hf_afp_message, tvb, offset, len , ENC_UTF_8);
@@ -3705,8 +3701,7 @@ dissect_reply_afp_get_server_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 		 * Is the message in some Mac encoding? Always Mac Roman,
 		 * or possibly some other encoding for other locales?
 		 */
-		len = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_message_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_afp_message_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
 		offset += 1;
 		if (len) {
 			proto_tree_add_item(tree, hf_afp_message, tvb, offset, len , ENC_ASCII);
@@ -6700,8 +6695,8 @@ proto_register_afp(void)
 
 		{ &hf_afp_message_len,
 		  { "Len",         "afp.message_length",
-		    FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Message length", HFILL }},
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			"Message length", HFILL }},
 
 		{ &hf_afp_message,
 		  { "Message",  "afp.message",

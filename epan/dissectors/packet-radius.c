@@ -674,8 +674,7 @@ dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 	ti = proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, ENC_NA);
 	ascend_tree = proto_item_add_subtree(ti, ett_radius_ascend);
 
-	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	type = tvb_get_uint8(tvb, 0);
+	proto_tree_add_item_ret_uint8(ascend_tree, hf_radius_ascend_data_filter_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
 	offset += 1;
 	if (type == 3) { /* IPv6 */
 		iplen = 16;
@@ -873,8 +872,7 @@ dissect_rfc4675_egress_vlanid(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 
 	proto_tree_add_item(tree, hf_radius_egress_vlanid_tag, tvb, 0, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_radius_egress_vlanid_pad, tvb, 0, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_radius_egress_vlanid, tvb, 0, 4, ENC_BIG_ENDIAN);
-	vlanid = tvb_get_ntohl(tvb, 0);
+	proto_tree_add_item_ret_uint(tree, hf_radius_egress_vlanid, tvb, 0, 4, ENC_BIG_ENDIAN, &vlanid);
 
 	return wmem_strdup_printf(pinfo->pool, "%s, Vlan ID: %u",
 				   val_to_str_const(((vlanid&0xFF000000)>>24), egress_vlan_tag_vals, "Unknown"), vlanid&0xFFF);
@@ -891,8 +889,7 @@ dissect_rfc4675_egress_vlan_name(proto_tree *tree, tvbuff_t *tvb, packet_info *p
 	if (len < 2)
 		return "[wrong length for Egress-VLAN-Name ]";
 
-	proto_tree_add_item(tree, hf_radius_egress_vlan_name_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
-	tag = tvb_get_uint8(tvb, 0);
+	proto_tree_add_item_ret_uint8(tree, hf_radius_egress_vlan_name_tag, tvb, 0, 1, ENC_BIG_ENDIAN, &tag);
 	len -= 1;
 	proto_tree_add_item_ret_string(tree, hf_radius_egress_vlan_name, tvb, 1, len, ENC_ASCII|ENC_NA, pinfo->pool, &name);
 

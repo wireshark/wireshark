@@ -4852,8 +4852,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, unsigned offset, unsigned length, pro
 
   proto_tree_add_item(tree, hf_isakmp_cisco_frag_packetid, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  seq = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_isakmp_cisco_frag_seq, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(tree, hf_isakmp_cisco_frag_seq, tvb, offset, 1, ENC_BIG_ENDIAN, &seq);
   offset += 1;
   proto_tree_add_item_ret_uint8(tree, hf_isakmp_cisco_frag_last, tvb, offset, 1, ENC_BIG_ENDIAN, &last);
   offset += 1;

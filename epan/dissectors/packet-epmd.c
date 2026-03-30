@@ -123,8 +123,7 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, proto_t
 
     proto_tree_add_item(tree, hf_epmd_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_epmd_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_epmd_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
     offset++;
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, type, VALS(message_types), "unknown (0x%02X)"));
 

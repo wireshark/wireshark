@@ -966,8 +966,7 @@ static int dissect_lbtrm_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 
     nak_item = proto_tree_add_item(tree, hf_lbtrm_nak, tvb, offset, -1, ENC_NA);
     nak_tree = proto_item_add_subtree(nak_item, ett_lbtrm_nak);
-    num_naks = tvb_get_ntohs(tvb, offset + O_LBTRM_NAK_HDR_T_NUM_NAKS);
-    proto_tree_add_item(nak_tree, hf_lbtrm_nak_num_naks, tvb, offset + O_LBTRM_NAK_HDR_T_NUM_NAKS, L_LBTRM_NAK_HDR_T_NUM_NAKS, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(nak_tree, hf_lbtrm_nak_num_naks, tvb, offset + O_LBTRM_NAK_HDR_T_NUM_NAKS, L_LBTRM_NAK_HDR_T_NUM_NAKS, ENC_BIG_ENDIAN, &num_naks);
     proto_tree_add_item(nak_tree, hf_lbtrm_nak_format, tvb, offset + O_LBTRM_NAK_HDR_T_FORMAT, L_LBTRM_NAK_HDR_T_FORMAT, ENC_BIG_ENDIAN);
     len = L_LBTRM_NAK_HDR_T;
     if (!lbtrm_expert_separate_naks)

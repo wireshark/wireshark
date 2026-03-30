@@ -1935,8 +1935,7 @@ dissect_eigrp_multi_topology_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
     offset += 2;
 
     /* now it's all about the family */
-    afi = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_eigrp_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_eigrp_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);
     offset += 2;
 
     /* gota have an id... */
@@ -2332,8 +2331,7 @@ dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
     offset += 2;
 
     /* now it's all about the family */
-    afi = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_eigrp_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_eigrp_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);
     offset += 2;
 
     /* gota have an id... */

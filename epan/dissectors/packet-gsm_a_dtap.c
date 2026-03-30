@@ -3226,8 +3226,7 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
         proto_tree_add_item(tree, hf_gsm_a_dtap_sysid, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
         /*  Length Of Bitmap for SysID */
-        proto_tree_add_item(tree, hf_gsm_a_dtap_bitmap_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        length = tvb_get_uint8(tvb,curr_offset);
+        proto_tree_add_item_ret_uint8(tree, hf_gsm_a_dtap_bitmap_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &length);
         curr_offset++;
         if (length > 0)
         {

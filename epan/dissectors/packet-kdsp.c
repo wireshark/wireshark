@@ -366,8 +366,7 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_data_hdr, tvb, offset, 44, ENC_NA);
       sub_tree = proto_item_add_subtree(sub_item, ett_sub_cpt);
 
-      data_len_item = proto_tree_add_item(sub_tree, hf_kdsp_cpt_data_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
-      data_hdr_len = tvb_get_ntohs(tvb, offset);
+      data_len_item = proto_tree_add_item_ret_uint16(sub_tree, hf_kdsp_cpt_data_hdr_len, tvb, offset, 2, ENC_BIG_ENDIAN, &data_hdr_len);
       offset += 2;
 
       subsub_item = proto_tree_add_item(sub_tree, hf_kdsp_cpt_data_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);

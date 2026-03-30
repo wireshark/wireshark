@@ -1766,8 +1766,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
     ft_tree = proto_item_add_subtree(ti_ft, ett_gquic_ft);
 
     /* Frame type */
-    ti_ftflags = proto_tree_add_item(ft_tree, hf_gquic_frame_type, tvb, offset, 1, ENC_NA);
-    frame_type = tvb_get_uint8(tvb, offset);
+    ti_ftflags = proto_tree_add_item_ret_uint8(ft_tree, hf_gquic_frame_type, tvb, offset, 1, ENC_NA, &frame_type);
     proto_item_set_text(ti_ft, "%s", rval_to_str_const(frame_type, frame_type_vals, "Unknown"));
 
     if((frame_type & FTFLAGS_SPECIAL) == 0 && frame_type != FT_CRYPTO){ /* Regular Stream Flags */
@@ -1999,8 +1998,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_ack_delay_time, tvb, offset, 2, gquic_info->encoding);
                 offset += 2;
 
-                proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_num_timestamp, tvb, offset, 1, ENC_NA);
-                num_timestamp = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint8(ft_tree, hf_gquic_frame_type_ack_num_timestamp, tvb, offset, 1, ENC_NA, &num_timestamp);
                 offset += 1;
 
                 if(num_timestamp){

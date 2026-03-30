@@ -472,15 +472,13 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 it_routing = proto_tree_add_item(gre_tree, hf_gre_routing, tvb, offset, -1, ENC_NA);
                 r_tree = proto_item_add_subtree(ti, ett_gre_routing);
 
-                sre_af = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_item(r_tree, hf_gre_routing_address_family , tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint16(r_tree, hf_gre_routing_address_family , tvb, offset, 2, ENC_BIG_ENDIAN, &sre_af);
                 offset += 2;
 
                 proto_tree_add_item(r_tree, hf_gre_routing_sre_offset , tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
-                sre_length = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(r_tree, hf_gre_routing_sre_length , tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8(r_tree, hf_gre_routing_sre_length , tvb, offset, 1, ENC_BIG_ENDIAN, &sre_length);
                 offset += 1;
 
                 proto_item_set_len(it_routing, 2 + 1 +1 + sre_length);

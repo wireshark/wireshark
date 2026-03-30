@@ -892,15 +892,12 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
     proto_tree_add_item(subtree, hf_lbmpdm_segment_res, tvb, offset + O_LBMPDM_SEG_HDR_T_RES, L_LBMPDM_SEG_HDR_T_RES, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_len, tvb, offset + O_LBMPDM_SEG_HDR_T_LEN, L_LBMPDM_SEG_HDR_T_LEN, encoding);
     ofs = offset + L_LBMPDM_SEG_HDR_T;
-    proto_tree_add_item(subtree, hf_lbmpdm_segment_def_id, tvb, ofs + O_LBMPDM_DEFN_T_ID, L_LBMPDM_DEFN_T_ID, encoding);
-    def_id = tvb_get_uint32(tvb, ofs + O_LBMPDM_DEFN_T_ID, encoding);
+    proto_tree_add_item_ret_uint(subtree, hf_lbmpdm_segment_def_id, tvb, ofs + O_LBMPDM_DEFN_T_ID, L_LBMPDM_DEFN_T_ID, encoding, &def_id);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_num_fields, tvb, ofs + O_LBMPDM_DEFN_T_NUM_FIELDS, L_LBMPDM_DEFN_T_NUM_FIELDS, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_field_names_type, tvb, ofs + O_LBMPDM_DEFN_T_FIELD_NAMES_TYPE, L_LBMPDM_DEFN_T_FIELD_NAMES_TYPE, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_finalized, tvb, ofs + O_LBMPDM_DEFN_T_FINALIZED, L_LBMPDM_DEFN_T_FINALIZED, encoding);
-    proto_tree_add_item(subtree, hf_lbmpdm_segment_def_msg_vers_major, tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MAJOR, L_LBMPDM_DEFN_T_MSG_VERS_MAJOR, encoding);
-    vers_major = tvb_get_uint8(tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MAJOR);
-    proto_tree_add_item(subtree, hf_lbmpdm_segment_def_msg_vers_minor, tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MINOR, L_LBMPDM_DEFN_T_MSG_VERS_MINOR, encoding);
-    vers_minor = tvb_get_uint8(tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MINOR);
+    proto_tree_add_item_ret_uint8(subtree, hf_lbmpdm_segment_def_msg_vers_major, tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MAJOR, L_LBMPDM_DEFN_T_MSG_VERS_MAJOR, encoding, &vers_major);
+    proto_tree_add_item_ret_uint8(subtree, hf_lbmpdm_segment_def_msg_vers_minor, tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MINOR, L_LBMPDM_DEFN_T_MSG_VERS_MINOR, encoding, &vers_minor);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_fixed_req_section_len, tvb, ofs + O_LBMPDM_DEFN_T_FIXED_REQ_SECTION_LEN, L_LBMPDM_DEFN_T_FIXED_REQ_SECTION_LEN, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_field_info_len, tvb, ofs + O_LBMPDM_DEFN_T_FIELD_INFO_LEN, L_LBMPDM_DEFN_T_FIELD_INFO_LEN, encoding);
     if (tvb_get_uint8(tvb, ofs + O_LBMPDM_DEFN_T_FIELD_NAMES_TYPE) == PDM_DEFN_STR_FIELD_NAMES)

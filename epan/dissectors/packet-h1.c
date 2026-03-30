@@ -106,8 +106,7 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree_add_item(h1_tree, hf_h1_header, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    h1_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(h1_tree, hf_h1_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(h1_tree, hf_h1_len, tvb, offset, 1, ENC_BIG_ENDIAN, &h1_len);
     proto_item_set_len(h1_ti, h1_len);
     offset++;
 
@@ -205,7 +204,7 @@ proto_register_h1 (void)
             {"H1-Header", "h1.header", FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
         {&hf_h1_len,
-            {"Length indicator", "h1.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+            {"Length indicator", "h1.len", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         {&hf_h1_block_type,
             {"Block type", "h1.block_type", FT_UINT8, BASE_HEX, VALS(block_type_vals), 0x0,
