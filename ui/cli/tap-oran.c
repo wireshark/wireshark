@@ -397,17 +397,23 @@ oran_stat_draw(void *phs)
         /* Print this row. */
         printf("%6s	%8s %11s %9u %13u %17s %28s %18s %50s %13u %12u",
                (row->base_info.userplane) ? "U" : "C",
-               wmem_strbuf_finalize(eaxcid_strbuf),
+               wmem_strbuf_get_str(eaxcid_strbuf),
                (row->base_info.uplink) ? "UL" : "DL",
                row->num_frames,
                row->largest_pdu,
-               wmem_strbuf_finalize(sectiontypes_strbuf),
-               wmem_strbuf_finalize(sectionids_strbuf),
-               wmem_strbuf_finalize(extensions_strbuf),
-               wmem_strbuf_finalize(beams_strbuf),
+               wmem_strbuf_get_str(sectiontypes_strbuf),
+               wmem_strbuf_get_str(sectionids_strbuf),
+               wmem_strbuf_get_str(extensions_strbuf),
+               wmem_strbuf_get_str(beams_strbuf),
                row->highest_slot,
                row->missing_sns
                );
+
+        wmem_free(NULL, eaxcid_strbuf);
+        wmem_free(NULL, sectiontypes_strbuf);
+        wmem_free(NULL, sectionids_strbuf);
+        wmem_free(NULL, extensions_strbuf);
+        wmem_free(NULL, beams_strbuf);
 
         if (row->base_info.userplane) {
             /* U-Plane only */
