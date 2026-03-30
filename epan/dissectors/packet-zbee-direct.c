@@ -2,6 +2,10 @@
  * Dissector routines for the ZigBee Direct
  * Copyright 2021 DSR Corporation, http://dsr-wireless.com/
  *
+ * Zigbee Direct Specification, 1.1
+ * Connectivity Standards Alliance Document 20-27688-041
+ * https://csa-iot.org/all-solutions/zigbee/zigbee-direct/
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -119,7 +123,12 @@ static const uint8_t serv_tunnel_uuid[]          = { 0x3f, 0x31, 0xd5, 0x8b, 0x3
                                                     0xf4, 0x45, 0x00, 0x00, 0xfd, 0x78, 0xd1, 0x8b };
 static const uint8_t char_tunnel_uuid[]          = { 0x3f, 0x31, 0xd5, 0x8b, 0x37, 0xb2, 0x20, 0x81,
                                                     0xf4, 0x45, 0x01, 0x00, 0xfd, 0x78, 0xd1, 0x8b };
-#define ZIGBEE_DIRECT_MAX_ATT_SIZE  248
+
+/* The Zigbee Direct Specification states 247 as the RecommendedAttMtuSize
+ * (with the Minimum being 185 octets), see 7.4 and 8.2, but the ATT_MTU
+ * can be negotiated larger (see Bluetooth Core Specification Vol 3, Part F,
+ * Section 3.2.8, 3.2.9, 3.4.2.) */
+#define ZIGBEE_DIRECT_MAX_ATT_SIZE  512
 #define ZIGBEE_DIRECT_AUTH_STR_SIZE (16 + 1 + 16 + 1)
 #define ZIGBEE_DIRECT_SECUR_CONTROL 0x05
 
@@ -605,7 +614,7 @@ static bool decrypt_data(const uint8_t *serv_uuid,
                              bool          to_zdd,
                              const uint8_t *in,
                              uint8_t      *out,
-                             uint16_t     *len,
+                             uint16_t      len,
                              uint8_t       zdd_ieee[8],
                              uint8_t       zvd_ieee[8],
                              uint8_t       key[KEY_LEN]);
@@ -617,7 +626,7 @@ static bool decrypt_data(const uint8_t *serv_uuid,
  * @param  char_uuid  characteristic UUID
  * @param  in         pointer to encrypted payload
  * @param  out        pointer to buffer for the result
- * @param  len        pointer to the length of payload, outputs length of out
+ * @param  len        length of encrypted payload (on success, decrypted length is len - 8)
  * @param  zdd_ieee   ZDD IEEE
  * @param  zvd_ieee   ZVD IEEE
  * @param  key        key for decryption
@@ -627,7 +636,7 @@ static bool try_decrypt(const uint8_t *serv_uuid,
                             const uint8_t *char_uuid,
                             const uint8_t *in,
                             uint8_t      *out,
-                            uint16_t     *len,
+                            uint16_t      len,
                             uint8_t       zdd_ieee[8],
                             uint8_t       zvd_ieee[8],
                             uint8_t       key[KEY_LEN])
@@ -635,7 +644,6 @@ static bool try_decrypt(const uint8_t *serv_uuid,
     /* As there is no reliable way known to determine,
      * if the packet is from zdd or zvd, try both cases */
 
-    uint16_t len_buf  = *len;
     bool success = decrypt_data(serv_uuid, char_uuid,
                                     true,
                                     in,
@@ -644,7 +652,6 @@ static bool try_decrypt(const uint8_t *serv_uuid,
 
     if (!success)
     {
-        *len = len_buf;
         success = decrypt_data(serv_uuid, char_uuid,
                                false,
                                in,
@@ -723,11 +730,28 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
     {
         uint8_t  ieee[8];
         bool success = false;
-        uint16_t size = tvb_reported_length_remaining(*tvb, offset);
-        uint8_t *decrypted = (uint8_t *)wmem_alloc(pinfo->pool, 512);
+        uint32_t size = tvb_reported_length_remaining(*tvb, offset);
+        /* The maximum value of ATT_MTU is negotiated in 2 octet parameters
+         * (Bluetooth Core Specification Vol 3, Part F, 3.4.2); since "the
+         * maximum length of an attribute value shall be 512 octets" (ibid.,
+         * 3.2.9) it doesn't make sense to set it to more than 515 or so, but
+         * it's not clear if libwiretap or the Bluetooth dissector enforces
+         * any maximum. */
+        if (size > ZIGBEE_DIRECT_MAX_ATT_SIZE) {
+            /* Larger than supported; fail. */
+            expert_add_info_format(pinfo, tree, &ei_zb_direct_crypt_error, "Packet size exceeds maximum supported MTU (%u > %u)", size, ZIGBEE_DIRECT_MAX_ATT_SIZE);
+            return tvb_reported_length(*tvb);
+        }
+        if (size < (sizeof(uint32_t) + ZB_CCM_M)) {
+            /* Not enough room for the 32-bit counter for the nonce and the
+             * MIC, so don't try to decrypt. */
+            expert_add_info_format(pinfo, tree, &ei_zb_direct_crypt_error, "Packet is too short to decrypt (%u < %u)", size, 8);
+            return tvb_reported_length(*tvb);
+        }
+        unsigned decrypted_size = size - (sizeof(uint32_t) + ZB_CCM_M);
+        uint8_t *decrypted = (uint8_t *)wmem_alloc(pinfo->pool, decrypted_size);
         GSList **pan_keyring;
         GSList  *i = zbee_pc_keyring;
-        uint16_t init_size = size;
 
         zb_direct_ieee_from_packet_data(pinfo, ieee);
 
@@ -747,7 +771,7 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
                                   char_uuid,
                                   tvb_get_ptr(*tvb, offset, size),
                                   decrypted,
-                                  &size,
+                                  size,
                                   keyrec(i)->zdd_ieee,
                                   keyrec(i)->zvd_ieee,
                                   keyrec(i)->key);
@@ -755,7 +779,6 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
             if (!success)
             {
                 i = g_slist_next(i);
-                size = init_size;
             }
         }
 
@@ -774,13 +797,8 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
                     {
                         success = decrypt_data(serv_uuid, char_uuid, false,
                                                tvb_get_ptr(*tvb, offset, size),
-                                               decrypted, &size,
+                                               decrypted, size,
                                                ieee, NULL, ((key_record_t*)i->data)->key);
-
-                        if (!success)
-                        {
-                            size = init_size;
-                        }
                     }
                 }
             }
@@ -789,7 +807,7 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
         if (success)
         {
             /* On decryption success: replace the tvb, make offset point to its beginning */
-            *tvb = tvb_new_child_real_data(*tvb, decrypted, size, size);
+            *tvb = tvb_new_child_real_data(*tvb, decrypted, decrypted_size, decrypted_size);
             add_new_data_source(pinfo, *tvb, "CCM* decrypted payload");
             offset = 0;
         }
@@ -847,7 +865,7 @@ static void create_auth_string(const uint8_t serv_uuid[16],
  * @param  to_zdd     true if packet ws sent to zdd, false if to zvd (needed for nonce formation)
  * @param  in         pointer to encrypted payload
  * @param  out        pointer to buffer for the result
- * @param  len        pointer to the length of payload, outputs length of out
+ * @param  len        length of encrypted payload (on success, decrypted length is len - 8)
  * @param  zdd_ieee   ZDD IEEE
  * @param  zvd_ieee   ZVD IEEE
  * @param  key        key for decryption
@@ -858,19 +876,19 @@ static bool decrypt_data(const uint8_t *serv_uuid,
                              bool          to_zdd,
                              const uint8_t *in,
                              uint8_t      *out,
-                             uint16_t     *len,
+                             uint16_t      len,
                              uint8_t       zdd_ieee[8],
                              uint8_t       zvd_ieee[8],
                              uint8_t       key[KEY_LEN])
 {
+    DISSECTOR_ASSERT_CMPINT(len, >=, sizeof(uint32_t) + ZB_CCM_M);
+
     bool success = true;
     uint8_t  auth_str[ZIGBEE_DIRECT_AUTH_STR_SIZE];
-    uint8_t  decrypted_data[ZIGBEE_DIRECT_MAX_ATT_SIZE + 16];
-    uint16_t decrypted_data_len = sizeof(decrypted_data);
 
     /* Remove 32-bit counter from the beginning */
     const uint8_t *encrypted_data     = in + sizeof(uint32_t);
-    uint16_t      encrypted_data_len = *len - sizeof(uint32_t);
+    uint16_t       encrypted_data_len = len - sizeof(uint32_t);
 
     /* Form the nonce */
     zb_secur_ccm_nonce_t nonce = (zb_secur_ccm_nonce_t)
@@ -882,7 +900,6 @@ static bool decrypt_data(const uint8_t *serv_uuid,
     memcpy(&nonce.frame_counter, in, sizeof(uint32_t));
     memcpy(&nonce.source_address, to_zdd ? zvd_ieee : zdd_ieee, 8);
 
-    if (*len < 8) return false;
 
     create_auth_string(serv_uuid, char_uuid, auth_str);
 
@@ -890,22 +907,10 @@ static bool decrypt_data(const uint8_t *serv_uuid,
                                    (uint8_t*)&nonce,
                                    auth_str,
                                    encrypted_data,
-                                   decrypted_data,
+                                   out,
                                    sizeof(auth_str),
                                    encrypted_data_len - ZB_CCM_M,
                                    ZB_CCM_M);
-
-
-    if (success)
-    {
-        decrypted_data_len = encrypted_data_len - ZB_CCM_M;
-        memcpy(out, decrypted_data, decrypted_data_len);
-        *len = decrypted_data_len;
-    }
-    else
-    {
-        *len = 0;
-    }
 
     return success;
 }
@@ -1777,8 +1782,8 @@ void proto_register_zb_direct(void)
 
     static ei_register_info ei[] = {
         { &ei_zb_direct_crypt_error,
-            { "zbd.error.decryption", PI_UNDECODED, PI_WARN,
-                "Decryption fail",
+            { "zbd.error.decryption", PI_DECRYPTION, PI_WARN,
+                "Decryption failure",
                 EXPFILL }
         }
     };
