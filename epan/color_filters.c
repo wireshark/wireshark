@@ -26,6 +26,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/wmem/wmem_list.h>
 
 #include <epan/packet.h>
 #include "color_filters.h"
@@ -613,10 +614,9 @@ color_filters_colorize_packet(epan_dissect_t *edt)
 }
 
 const color_filter_t *
-color_filters_colorize_packet_all(epan_dissect_t *edt, GSList **matches)
+color_filters_colorize_packet_all(epan_dissect_t *edt,
+        wmem_allocator_t *scope, wmem_list_t **matches)
 {
-    GSList         *curr;
-    color_filter_t *colorf;
     const color_filter_t *first_match = NULL;
 
     if (matches) {
@@ -625,19 +625,20 @@ color_filters_colorize_packet_all(epan_dissect_t *edt, GSList **matches)
 
     /* If we have color filters, collect ALL matching ones. */
     if ((edt->tree != NULL) && (color_filters_used())) {
-        curr = color_filter_list;
-
-        while(curr != NULL) {
-            colorf = (color_filter_t *)curr->data;
-            if ( (!colorf->disabled) &&
-                 (colorf->c_colorfilter != NULL) &&
-                 dfilter_apply_edt(colorf->c_colorfilter, edt)) {
+        for (GSList *curr = color_filter_list; curr != NULL; curr = g_slist_next(curr)) {
+            color_filter_t *colorf = (color_filter_t *)curr->data;
+            if ((!colorf->disabled) &&
+                (colorf->c_colorfilter != NULL) &&
+                dfilter_apply_edt(colorf->c_colorfilter, edt)) {
 
                 bool is_session_disabled = color_filter_is_session_disabled(colorf->filter_name);
 
                 /* Add to matches list even if paused (for Frame tree display) */
                 if (matches) {
-                    *matches = g_slist_append(*matches, colorf);
+                    if (*matches == NULL) {
+                        *matches = wmem_list_new(scope);
+                    }
+                    wmem_list_append(*matches, colorf);
                 }
 
                 /* Only use non-paused filters for first_match */
@@ -645,7 +646,6 @@ color_filters_colorize_packet_all(epan_dissect_t *edt, GSList **matches)
                     first_match = colorf;  /* Backward compatibility */
                 }
             }
-            curr = g_slist_next(curr);
         }
     }
 

@@ -422,12 +422,12 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     if (is_color_rule_name || is_color_rule_string) {
         // "Coloring Rule Preferences..." positioned right below Protocol Preferences
-        action = ctx_menu->addAction(tr("Coloring Rule Preferences..."), [this]() {
+        ctx_menu->addAction(tr("Coloring Rule Preferences..."), [this]() {
             emit showProtocolPreferences(PrefsModel::typeToString(PrefsModel::Layout));
         });
 
         // "Coloring Rules..." opens the View -> Coloring Rules dialog
-        action = ctx_menu->addAction(tr("Coloring Rules..."), [this]() {
+        ctx_menu->addAction(tr("Coloring Rules..."), [this]() {
             QAction *coloring_rules_action = window()->findChild<QAction *>("actionViewColoringRules");
             if (coloring_rules_action)
                 coloring_rules_action->trigger();
@@ -454,14 +454,14 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
                 bool is_paused = color_filter_is_session_disabled(filter_name.toUtf8().constData());
                 QString action_text = is_paused ? tr("Resume Coloring Rule") : tr("Pause Coloring Rule");
 
-                action = ctx_menu->addAction(action_text, [this, filter_name, is_paused]() {
+                ctx_menu->addAction(action_text, [this, filter_name, is_paused]() {
                     color_filter_set_session_disabled(filter_name.toUtf8().constData(), !is_paused);
                     QTimer::singleShot(0, this, [this]() {
                         emit redissectPacketsRequested();
                     });
                 });
 
-                action = ctx_menu->addAction(tr("Resume All Coloring Rules"), [this]() {
+                ctx_menu->addAction(tr("Resume All Coloring Rules"), [this]() {
                     color_filter_resume_all(NULL);
                     QTimer::singleShot(0, this, [this]() {
                         emit redissectPacketsRequested();

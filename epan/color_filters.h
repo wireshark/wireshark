@@ -15,6 +15,7 @@
 #include "ws_symbol_export.h"
 
 #include <wsutil/color.h>
+#include <wsutil/wmem/wmem_list.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -140,11 +141,13 @@ color_filters_colorize_packet(struct epan_dissect *edt);
 /** Colorize a packet with ALL matching filters.
  *
  * @param edt the dissected packet
- * @param matches output parameter: GSList of matching color_filter_t* (can be NULL)
+ * @param scope wmem allocator to use for the returned list (e.g. wmem_file_scope())
+ * @param matches output parameter: wmem_list_t of matching color_filter_t* (can be NULL)
  * @return the first matching color filter or NULL (for backward compatibility)
  */
 WS_DLL_PUBLIC const color_filter_t *
-color_filters_colorize_packet_all(struct epan_dissect *edt, GSList **matches);
+color_filters_colorize_packet_all(struct epan_dissect *edt,
+        wmem_allocator_t *scope, wmem_list_t **matches);
 
 /** Set a color filter as session-disabled (paused).
  *

@@ -2028,7 +2028,7 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    if (dissect_color) {
+    if (dissect_color || prefs.gui_packet_list_multi_color_details) {
         if (!color_filters_init(&err_msg, NULL, application_configuration_environment_prefix())) {
             fprintf(stderr, "%s\n", err_msg);
             g_free(err_msg);
@@ -3783,7 +3783,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
             cf->provider.ref = &ref_frame;
         }
 
-        if (dissect_color) {
+        if (dissect_color || prefs.gui_packet_list_multi_color_details) {
             color_filters_prime_edt(edt);
             fdata->need_colorize = 1;
         }
@@ -4534,7 +4534,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, int64_t offset
             cf->provider.ref = &ref_frame;
         }
 
-        if (dissect_color) {
+        if (dissect_color || prefs.gui_packet_list_multi_color_details) {
             color_filters_prime_edt(edt);
             fdata.need_colorize = 1;
         }

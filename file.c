@@ -4900,6 +4900,15 @@ cf_select_packet(capture_file *cf, frame_data *fdata)
     /* We don't need the columns here. */
     cf->edt = epan_dissect_new(cf->epan, true, true);
 
+    /* Prime for color filter evaluation so dissect_frame stores all matching
+     * filters in proto_data, reflecting current session state (e.g., after
+     * pause/resume of coloring rules which triggers a full redissect that
+     * clears per-frame proto_data). */
+    if (color_filters_used()) {
+        color_filters_prime_edt(cf->edt);
+        cf->current_frame->need_colorize = 1;
+    }
+
     epan_dissect_run(cf->edt, cf->cd_t, &cf->rec, cf->current_frame, NULL);
 
     if (old_edt != NULL)

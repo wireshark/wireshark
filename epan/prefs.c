@@ -3765,27 +3765,35 @@ prefs_register_modules(void)
                                    "Enable Intelligent Scroll Bar",
                                    "Show the intelligent scroll bar (a minimap of packet list colors in the scrollbar)",
                                    &prefs.gui_packet_list_show_minimap);
+    prefs_set_effect_flags_by_name(gui_layout_module, "packet_list_show_minimap", gui_color_effect_flags);
 
     prefs_register_enum_preference(gui_layout_module, "packet_list_multi_color_mode",
                                    "Multi-Color Display Mode",
                                    "How to display multiple colors: Equal Stripes (entire row) or Shift Right (configurable primary color percentage)",
                                    (int*)(void*)(&prefs.gui_packet_list_multi_color_mode), gui_packet_list_multi_color_modes, false);
+    prefs_set_effect_flags_by_name(gui_layout_module, "packet_list_multi_color_mode", gui_color_effect_flags);
 
     prefs_register_uint_preference(gui_layout_module, "packet_list_multi_color_shift_percent",
                                    "Shift Right percentage",
                                    "Primary color percentage in Shift Right mode (75, 80, 85, 90, or 95)",
                                    10,
                                    &prefs.gui_packet_list_multi_color_shift_percent);
+    prefs_set_effect_flags_by_name(gui_layout_module, "packet_list_multi_color_shift_percent", gui_color_effect_flags);
 
-    prefs_register_bool_preference(gui_layout_module, "packet_list_multi_color_details",
+    prefs_register_bool_preference(gui_module, "packet_list_multi_color_details",
                                    "Display Multiple Colors in Packet Details",
                                    "Show all matching color filter names in packet details pane and TShark output when multiple color filters match",
                                    &prefs.gui_packet_list_multi_color_details);
+    /* This preference affects what is shown in the packet detail proto tree,
+     * so changing it requires re-dissection to take effect immediately. */
+    prefs_set_preference_effect(gui_module, "packet_list_multi_color_details",
+                                PREF_EFFECT_DISSECTION);
 
     prefs_register_enum_preference(gui_layout_module, "packet_list_multi_color_separator",
                                    "Color Stripe Separator Style",
                                    "Shape of the boundary between color stripes: Vertical, Diagonal (candy-cane), or Bubble (half-moon)",
                                    (int*)(void*)(&prefs.gui_packet_list_multi_color_separator), gui_packet_list_multi_color_separators, false);
+    prefs_set_effect_flags_by_name(gui_layout_module, "packet_list_multi_color_separator", gui_color_effect_flags);
 
     prefs_register_bool_preference(gui_module, "packet_list_is_sortable",
                                    "Allow packet list to be sortable",

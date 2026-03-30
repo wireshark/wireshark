@@ -15,6 +15,8 @@
 #include <epan/column.h>
 #include <epan/conversation.h>
 #include <epan/color_filters.h>
+#include <epan/wmem_scopes.h>
+#include <wsutil/wmem/wmem_list.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
@@ -207,8 +209,15 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
         // Get all matching colors if any multi-color feature is enabled
         if (prefs.gui_packet_list_multi_color_mode != PACKET_LIST_MULTI_COLOR_MODE_OFF ||
             prefs.gui_packet_list_multi_color_details) {
-            fdata_->color_filter = color_filters_colorize_packet_all(&edt, &color_filters_);
-            color_filter_count_ = g_slist_length(color_filters_);
+            wmem_list_t *wm_matches = NULL;
+            fdata_->color_filter = color_filters_colorize_packet_all(&edt, wmem_file_scope(), &wm_matches);
+            if (wm_matches) {
+                for (wmem_list_frame_t *lf = wmem_list_head(wm_matches); lf != NULL; lf = wmem_list_frame_next(lf)) {
+                    color_filters_ = g_slist_append(color_filters_, wmem_list_frame_data(lf));
+                    color_filter_count_++;
+                }
+                wmem_destroy_list(wm_matches);
+            }
         } else {
             color_filter_count_ = fdata_->color_filter ? 1 : 0;
         }

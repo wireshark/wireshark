@@ -1245,22 +1245,22 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	/* Attempt to (re-)calculate color filters (if any). */
 	if (pinfo->fd->need_colorize) {
-		GSList *matches = NULL;
+		wmem_list_t *matches = NULL;
 
 		/* Get ALL matching color filters (not just first).
 		 * Store matches in proto_data so the display code below can show
 		 * multiple matching rules in the frame tree. This enables multi-color
 		 * support in TShark when --color flag is used. */
-		color_filter = color_filters_colorize_packet_all(fr_data->color_edt, &matches);
+		color_filter = color_filters_colorize_packet_all(fr_data->color_edt, wmem_file_scope(), &matches);
 		pinfo->fd->color_filter = color_filter;
 		pinfo->fd->need_colorize = 0;
 
 		/* Store matches in proto_data for display code below to access.
-		 * Free any previously stored list (from a prior dissect pass) first. */
+		 * free any previously stored list (from a prior dissect pass) first. */
 		if (matches) {
-			GSList *old_matches = (GSList *)p_get_proto_data(wmem_file_scope(), pinfo, proto_frame, 0);
+			wmem_list_t *old_matches = (wmem_list_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_frame, 0);
 			if (old_matches) {
-				g_slist_free(old_matches);
+				wmem_destroy_list(old_matches);
 				p_remove_proto_data(wmem_file_scope(), pinfo, proto_frame, 0);
 			}
 			p_add_proto_data(wmem_file_scope(), pinfo, proto_frame, 0, matches);
@@ -1273,9 +1273,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	/* Retrieve all matching filters from proto_data (stored during colorization above).
 	 * This enables multi-color display for both GUI and TShark. */
-	GSList *matches = NULL;
+	wmem_list_t *matches = NULL;
 	if (fh_tree) {
-		matches = (GSList *)p_get_proto_data(wmem_file_scope(), pinfo, proto_frame, 0);
+		matches = (wmem_list_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_frame, 0);
 		if (matches && !has_color_info) {
 			/* All filters are paused, but we still want to show them so user can resume */
 			has_color_info = true;
@@ -1285,7 +1285,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		 * protocol tree has already been built by sub-dissectors above, so dfilter
 		 * evaluation works correctly without prior priming. */
 		if (!matches && has_color_info && prefs.gui_packet_list_multi_color_details) {
-			color_filters_colorize_packet_all(fr_data->color_edt, &matches);
+			color_filters_colorize_packet_all(fr_data->color_edt, wmem_file_scope(), &matches);
 			if (matches) {
 				p_add_proto_data(wmem_file_scope(), pinfo, proto_frame, 0, matches);
 			}
@@ -1297,8 +1297,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		 * This is controlled independently from packet list and scrollbar display. */
 		if (matches && prefs.gui_packet_list_multi_color_details) {
 				/* Show all matching color filters from stored list */
-				for (const GSList *item_list = matches; item_list != NULL; item_list = g_slist_next(item_list)) {
-					const color_filter_t *colorf = (const color_filter_t *)item_list->data;
+				for (wmem_list_frame_t *lf = wmem_list_head(matches); lf != NULL; lf = wmem_list_frame_next(lf)) {
+					const color_filter_t *colorf = (const color_filter_t *)wmem_list_frame_data(lf);
 					/* Skip conversation color filters (temporary filters) */
 					if (strncmp(colorf->filter_name, CONVERSATION_COLOR_PREFIX,
 						    strlen(CONVERSATION_COLOR_PREFIX)) == 0) {
