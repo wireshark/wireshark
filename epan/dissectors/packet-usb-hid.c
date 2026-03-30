@@ -5387,6 +5387,12 @@ dissect_usb_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 if (rdesc->uses_report_id && field->report_id != report_id)
                     continue;
 
+                /* skip items with a report size of 0 (no data and won't
+                 * advance offset) */
+                if (field->report_size == 0) {
+                    continue;
+                }
+
                 /* if the item has no usages, it is padding - HID spec 6.2.2.9 */
                 if (wmem_array_get_count(field->usages) == 0) {
                     proto_tree_add_bits_item(hid_tree, hf_usbhid_padding, tvb, hid_bit_offset, data_size, ENC_LITTLE_ENDIAN);
