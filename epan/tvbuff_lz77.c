@@ -25,12 +25,6 @@ static bool do_uncompress(tvbuff_t *tvb, int offset, int in_size,
 	unsigned match_bytes, match_len, match_off;
 	unsigned i;
 
-	if (!tvb)
-		return false;
-
-	if (!in_size || in_size > MAX_INPUT_SIZE)
-		return false;
-
 	while (1) {
 		if (buf_flag_count == 0) {
 			buf_flags = tvb_get_letohl(tvb, offset+in_off);
@@ -81,6 +75,12 @@ static bool do_uncompress(tvbuff_t *tvb, int offset, int in_size,
                         if (match_len > MAX_INPUT_SIZE)
                             return false;
 			match_len += 3;
+                        /* It is tempting to use memmove and/or check if
+                         * match_len > match_off and fail, but it is allowed
+                         * and is why the 1 byte at a time loop is used.
+                         * See [MS-XCA] 2.4.4. [There still are some likely
+                         * possible optimizations to copy several bytes at
+                         * a time.] */
 			for (i = 0; i < match_len; i++) {
 				uint8_t byte;
 				if (match_off > wmem_array_get_count(obuf))
@@ -103,6 +103,12 @@ tvb_uncompress_lz77(tvbuff_t *tvb, const unsigned offset, unsigned in_size)
 	wmem_array_t *obuf;
 	tvbuff_t *out;
 
+	if (!tvb)
+		return NULL;
+
+	if (!in_size || in_size > MAX_INPUT_SIZE)
+		return NULL;
+
 	pool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 	obuf = wmem_array_sized_new(pool, 1, in_size*2);
 
@@ -119,6 +125,10 @@ tvb_uncompress_lz77(tvbuff_t *tvb, const unsigned offset, unsigned in_size)
 		 * pool, so we make an extra copy that uses bare
 		 * pointers. This could be optimized if tvb API had a
 		 * free pool callback of some sort.
+		 *
+		 * XXX - Maybe a tvb_set_free_cb_with_data or similar
+		 * that takes functions that take a void* userdata
+		 * parameter?
 		 */
 		unsigned size = wmem_array_get_count(obuf);
 		uint8_t *p = (uint8_t *)g_malloc(size);
