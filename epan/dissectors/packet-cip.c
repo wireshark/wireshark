@@ -7055,7 +7055,9 @@ int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item
       consumed = dissect_cip_stringi(pinfo, tree, tvb, offset, "STRINGI");
       break;
    case cip_stringN:
-      /* CURRENTLY NOT SUPPORTED */
+      consumed = dissect_cip_string_type(pinfo, tree, item, tvb, offset, *(attr->phf), CIP_STRINGN_TYPE);
+      break;
+   default:
       expert_add_info(pinfo, item, &ei_proto_unsupported_datatype);
       consumed = total_len;
       break;

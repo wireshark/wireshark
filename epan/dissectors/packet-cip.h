@@ -467,8 +467,6 @@ enum cip_datatype {
    cip_time_of_day,
    cip_date_and_time,
    cip_dissector_func,
-
-   /* Currently not supported */
    cip_stringN,
 };
 
