@@ -107,12 +107,12 @@ void proto_reg_handoff_rtps(void);
 #define LONG_ADDRESS_SIZE               (16)
 
 #define INSTANCE_STATE_DATA_RESPONSE_NUM_ELEMENTS     7
-#define SEQUENCE_100_IINSTANCE_TRANSITION_DATA_BOUND  100
-#define INSTANCE_TRANSITION_DATA_NUM_ELEMENTS         4
+#define SEQUENCE_100_INSTANCE_UPDATE_DATA_BOUND  100
+#define INSTANCE_UPDATE_DATA_NUM_ELEMENTS              3
 #define GUID_T_NUM_ELEMENTS                           1
 #define VALUE_NUM_ELEMENTS                            16
 #define KEY_HAS_VALUE_NUM_ELEMENTS                    16
-#define NTPTIME_T_NUM_ELEMENTS                        2
+#define RTPSTIME_T_NUM_ELEMENTS                       2
 #define SEQUENCE_NUMBER_T_NUM_ELEMENTS                2
 #define SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH 16 /* bytes. */
 
@@ -1847,7 +1847,7 @@ static int ett_rtps_decompressed_type_object;
 static int ett_rtps_info_remaining_items;
 static int ett_rtps_data_encapsulation_options;
 static int ett_rtps_decompressed_serialized_data;
-static int ett_rtps_instance_transition_data;
+static int ett_rtps_instance_update_data;
 static int ett_rtps_crypto_algorithm_requirements;
 static int ett_rtps_decrypted_payload;
 static int ett_rtps_secure_postfix_tag_list_item;
@@ -1913,6 +1913,10 @@ static const value_string entity_id_vals[] = {
   { ENTITYID_TL_SVC_REQ_READER,                                 "ENTITYID_TL_SVC_REQ_READER" },
   { ENTITYID_TL_SVC_REPLY_WRITER,                               "ENTITYID_TL_SVC_REPLY_WRITER" },
   { ENTITYID_TL_SVC_REPLY_READER,                               "ENTITYID_TL_SVC_REPLY_READER" },
+  { ENTITYID_TL_SVC_REQ_SECURE_WRITER,                          "ENTITYID_TL_SVC_REQ_SECURE_WRITER" },
+  { ENTITYID_TL_SVC_REQ_SECURE_READER,                          "ENTITYID_TL_SVC_REQ_SECURE_READER" },
+  { ENTITYID_TL_SVC_REPLY_SECURE_WRITER,                        "ENTITYID_TL_SVC_REPLY_SECURE_WRITER" },
+  { ENTITYID_TL_SVC_REPLY_SECURE_READER,                        "ENTITYID_TL_SVC_REPLY_SECURE_READER" },
   { ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER,           "ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER" },
   { ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_READER,           "ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_READER" },
   { ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER,          "ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER" },
@@ -3316,12 +3320,11 @@ typedef struct  {
   dissection_info unregistered_instances_dissection_info;
   dissection_info guid_t_dissection_info;
   dissection_info value_dissection_info;
-  dissection_info instance_transition_data_dissection_info;
+  dissection_info instance_update_data_dissection_info;
   dissection_info key_hash_value_dissection_info;
   dissection_info array_16_byte_dissection_info;
-  dissection_info ntptime_t_dissection_info;
+  dissection_info rtps_time_t_dissection_info;
   dissection_info sequence_number_t_dissection_info;
-  dissection_info serialized_key_dissection_info;
   dissection_info payload_dissection_info;
 } builtin_types_dissection_infos;
 
@@ -5004,10 +5007,14 @@ static void generate_status_info(packet_info *pinfo,
       break;
     case ENTITYID_TL_SVC_REQ_WRITER:
     case ENTITYID_TL_SVC_REQ_READER:
+    case ENTITYID_TL_SVC_REQ_SECURE_WRITER:
+    case ENTITYID_TL_SVC_REQ_SECURE_READER:
       writerId = "trq";
       break;
     case ENTITYID_TL_SVC_REPLY_WRITER:
     case ENTITYID_TL_SVC_REPLY_READER:
+    case ENTITYID_TL_SVC_REPLY_SECURE_WRITER:
+    case ENTITYID_TL_SVC_REPLY_SECURE_READER:
       writerId = "trp";
       break;
     case ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_WRITER:
@@ -10322,7 +10329,7 @@ static int rtps_util_add_instance_state_request_data(proto_tree* tree, tvbuff_t*
       tvb,
       offset,
       instance_state_request_data_len,
-      ett_rtps_instance_transition_data,
+      ett_rtps_instance_update_data,
       &ti,
       "Instance State Request Data");
   rtps_util_add_seq_number(instance_state_request_tree, tvb, offset, encoding, "seqNumber");
@@ -13537,10 +13544,12 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
             }
             break;
         case ENCAPSULATION_CDR2_LE:
-          if (guid != NULL && guid->entity_id == ENTITYID_TL_SVC_REQ_WRITER) {
+          if (guid != NULL && (guid->entity_id == ENTITYID_TL_SVC_REQ_WRITER ||
+              guid->entity_id == ENTITYID_TL_SVC_REQ_SECURE_WRITER)) {
             rtps_util_dissect_type_lookup_request(dissected_data_holder_tree,
               pinfo, tvb, offset, encapsulation_id);
-          } else if (guid != NULL && guid->entity_id == ENTITYID_TL_SVC_REPLY_WRITER) {
+          } else if (guid != NULL && (guid->entity_id == ENTITYID_TL_SVC_REPLY_WRITER ||
+              guid->entity_id == ENTITYID_TL_SVC_REPLY_SECURE_WRITER)) {
             rtps_util_dissect_type_lookup_reply(dissected_data_holder_tree,
               pinfo, tvb, offset, encapsulation_id);
           } else {
@@ -13549,7 +13558,8 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
           }
           break;
         case ENCAPSULATION_D_CDR2_LE:
-          if (guid != NULL && guid->entity_id == ENTITYID_TL_SVC_REQ_WRITER) {
+          if (guid != NULL && (guid->entity_id == ENTITYID_TL_SVC_REQ_WRITER ||
+              guid->entity_id == ENTITYID_TL_SVC_REQ_SECURE_WRITER)) {
             /*
              * since the request, request header, sample identity, and GUID
              * are appendable, there will be a dheader for each one if we are
@@ -13561,7 +13571,8 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
             offset = rtps_util_add_xcdr2_delimited_header(dissected_data_holder_tree, tvb, offset);
             rtps_util_dissect_type_lookup_request(dissected_data_holder_tree,
               pinfo, tvb, offset, encapsulation_id);
-          } else if (guid != NULL && guid->entity_id == ENTITYID_TL_SVC_REPLY_WRITER) {
+          } else if (guid != NULL && (guid->entity_id == ENTITYID_TL_SVC_REPLY_WRITER ||
+              guid->entity_id == ENTITYID_TL_SVC_REPLY_SECURE_WRITER)) {
             /*
              * since the reply, reply header, sample identity, and GUID
              * are appendable, there will be a dheader for each one if we are
@@ -18154,14 +18165,13 @@ static int dissect_simple_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void initialize_instance_state_data_response_dissection_info(builtin_types_dissection_data_t *_builtin_types_dissection_data) {
   uint32_t element = 0;
   const uint64_t InstanceStateDataResponse_type_id = 0x9d6d4c879b0e6aa9;
-  const uint64_t sequence_100_InstanceTransitionData_type_id = 0x2dac07d5577caaf6;
+  const uint64_t sequence_100_InstanceUpdateData_type_id = 0x2dac07d5577caaf6;
   const uint64_t guid_t_type_id = 0x36d940c4ed806097;
   const uint64_t value_type_id = 0x974064b1120169ed;
-  const uint64_t instancetransitiondata_type_id = 0xceb6f5e405f4bde7;
+  const uint64_t instanceupdatedata_type_id = 0xceb6f5e405f4bde7;
   const uint64_t KeyHashValue_type_id = 0x48725f37453310ed;
-  const uint64_t SerializedKey_type_id = 0x3fd77a8ff43c7e55;
   const uint64_t payload_type_id = 0x0d0ecc8d34a5c3ab;
-  const uint64_t ntptime_t_type_id = 0x842c59af7e962a4c;
+  const uint64_t rtps_time_t_type_id = 0x842c59af7e962a4c;
   const uint64_t sequencenumber_t_type_id = 0xb933efe30d85453b;
   /*
    * @appendable @nested
@@ -18175,21 +18185,16 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
    * };
    *
    * @final @nested
-   * struct NtpTime_t {
-   *  int32 sec;
+   * struct RTPSTime_t {
+   *  uint32 sec;
    *  uint32 frac;
-   * };
-   * @final @nested
-   * struct SerializedKey {
-   *   sequence<octet> payload;
    * };
    * typedef octet KeyHashValue[16];
    *
-   * struct InstanceTransitionData {
+   * struct InstanceUpdateData {
    *   @optional KeyHashValue key_hash;
-   *   @optional SerializedKey serialized_key;
-   *   NtpTime_t last_update_timestamp;
-   *   SequenceNumber_t transition_sequence_number;
+   *   RTPSTime_t last_update_timestamp;
+   *   SequenceNumber_t update_sequence_number;
    * };
    */
 
@@ -18251,42 +18256,26 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
     &(_builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.type_id),
     (void*)&(_builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info));
 
-  /* SerializedKey */
-  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.member_name, "SerializedKey", MAX_TOPIC_AND_TYPE_LENGTH);
-  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.num_elements = GUID_T_NUM_ELEMENTS;
-  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
-  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.type_id = SerializedKey_type_id;
-  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, GUID_T_NUM_ELEMENTS);
-  /* sequence<octet> payload */
-  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].flags = 0;
-  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].member_id = 0;
-  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].type_id = payload_type_id;
-  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].member_name, "payload", MAX_TOPIC_AND_TYPE_LENGTH);
-  wmem_map_insert(
-    builtin_dissection_infos,
-    &(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.type_id),
-    (void*)&(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info));
-
-  /* NtpTime_t */
-  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.member_name, "NtpTime_t", MAX_TOPIC_AND_TYPE_LENGTH);
-  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.num_elements = NTPTIME_T_NUM_ELEMENTS;
-  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
-  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.type_id = ntptime_t_type_id;
-  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, NTPTIME_T_NUM_ELEMENTS);
-  /* int32 sec */
-  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].flags = 0;
-  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].member_id = 0;
-  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE;
-  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].member_name, "sec", MAX_TOPIC_AND_TYPE_LENGTH);
+  /* RTPSTime_t */
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.member_name, "RTPSTime_t", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.num_elements = RTPSTIME_T_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.type_id = rtps_time_t_type_id;
+  _builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, RTPSTIME_T_NUM_ELEMENTS);
+  /* uint32 sec */
+  _builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.elements[0].flags = 0;
+  _builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.elements[0].member_id = 0;
+  _builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.elements[0].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE;
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.elements[0].member_name, "sec", MAX_TOPIC_AND_TYPE_LENGTH);
   /* uint32 frac */
-  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].flags = 0;
-  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].member_id = 1;
-  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE;
-  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].member_name, "frac", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.elements[1].flags = 0;
+  _builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.elements[1].member_id = 1;
+  _builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.elements[1].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE;
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.elements[1].member_name, "frac", MAX_TOPIC_AND_TYPE_LENGTH);
   wmem_map_insert(
     builtin_dissection_infos,
-    &(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.type_id),
-    (void*)&(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info));
+    &(_builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.rtps_time_t_dissection_info));
 
   /* SequenceNumber_t */
   (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.member_name, "SequenceNumber_t", MAX_TOPIC_AND_TYPE_LENGTH);
@@ -18307,55 +18296,48 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
     &(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.type_id),
     (void*)&(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info));
 
-  /* Instance transition Data */
-  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.member_name, "InstanceTransitionData", MAX_TOPIC_AND_TYPE_LENGTH);
-  _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.num_elements = INSTANCE_TRANSITION_DATA_NUM_ELEMENTS;
-  _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
-  _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.type_id = instancetransitiondata_type_id;
-  _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, INSTANCE_TRANSITION_DATA_NUM_ELEMENTS);
+  /* Instance update Data */
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.member_name, "InstanceUpdateData", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.num_elements = INSTANCE_UPDATE_DATA_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.type_id = instanceupdatedata_type_id;
+  _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, INSTANCE_UPDATE_DATA_NUM_ELEMENTS);
   wmem_map_insert(
     builtin_dissection_infos,
-    &(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.type_id),
-    (void*)&(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info));
+    &(_builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info));
 
-  for (element = 0; element < _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.num_elements; ++element) {
+  for (element = 0; element < _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.num_elements; ++element) {
     switch (element) {
     case 0:
       /* @optional KeyHashValue key_hash */
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = KeyHashValue_type_id;
-      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "key_hash", MAX_TOPIC_AND_TYPE_LENGTH);
+      _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
+      _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].member_id = element;
+      _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].type_id = KeyHashValue_type_id;
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].member_name, "key_hash", MAX_TOPIC_AND_TYPE_LENGTH);
       break;
     case 1:
-      /* @optional SerializedKey serialized_key */
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = SerializedKey_type_id;
-      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "serialized_key", MAX_TOPIC_AND_TYPE_LENGTH);
+      /* RTPSTime_t last_update_timestamp */
+      _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].flags = 0;
+      _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].member_id = element;
+      _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].type_id = rtps_time_t_type_id;
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].member_name, "last_update_timestamp", MAX_TOPIC_AND_TYPE_LENGTH);
       break;
     case 2:
-      /* NtpTime_t last_update_timestamp */
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = 0;
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = ntptime_t_type_id;
-      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "last_update_timestamp", MAX_TOPIC_AND_TYPE_LENGTH);
-      break;
-    case 3:
-      /* SequenceNumber_t transition_sequence_number */
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = 0;
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
-      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = sequencenumber_t_type_id;
-      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "transition_sequence_number", MAX_TOPIC_AND_TYPE_LENGTH);
+      /* SequenceNumber_t update_sequence_number */
+      _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].flags = 0;
+      _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].member_id = element;
+      _builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].type_id = sequencenumber_t_type_id;
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_update_data_dissection_info.elements[element].member_name, "update_sequence_number", MAX_TOPIC_AND_TYPE_LENGTH);
       break;
     }
   }
 
   /* InstanceStateDataResponse
    * struct InstanceStateDataResponse {
-   *   @optional sequence<InstanceTransitionData> alive_instances;
-   *   @optional sequence<InstanceTransitionData> disposed_instances;
-   *   @optional sequence<InstanceTransitionData> unregistered_instances;
+   *   @optional sequence<InstanceUpdateData> alive_instances;
+   *   @optional sequence<InstanceUpdateData> disposed_instances;
+   *   @optional sequence<InstanceUpdateData> unregistered_instances;
    *   GUID_t writer_guid;
    *   GUID_t reader_guid;
    *   uint32 reader_group_oid;
@@ -18385,53 +18367,53 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
     &(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.type_id),
     (void*)&(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info));
 
-  /* sequence_100_InstanceTransitionData */
-  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.member_name, "sequence_100_InstanceTransitionData", MAX_TOPIC_AND_TYPE_LENGTH);
+  /* sequence_100_InstanceUpdateData */
+  (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.member_name, "sequence_100_InstanceUpdateData", MAX_TOPIC_AND_TYPE_LENGTH);
   _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.num_elements = INSTANCE_STATE_DATA_RESPONSE_NUM_ELEMENTS;
-  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.bound = SEQUENCE_100_IINSTANCE_TRANSITION_DATA_BOUND;
+  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.bound = SEQUENCE_100_INSTANCE_UPDATE_DATA_BOUND;
   _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE;
-  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.base_type_id = instancetransitiondata_type_id;
-  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.type_id = sequence_100_InstanceTransitionData_type_id;
+  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.base_type_id = instanceupdatedata_type_id;
+  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.type_id = sequence_100_InstanceUpdateData_type_id;
   wmem_map_insert(
     builtin_dissection_infos,
     &(_builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.type_id),
     (void*)&(_builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info));
 
-  /* @optional sequence<InstanceTransitionData> alive_instances */
+  /* @optional sequence<InstanceUpdateData> alive_instances */
   for (element = 0; element < _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.num_elements; ++element) {
     switch (element) {
     case 0:
-      /* @optional sequence<InstanceTransitionData> alive_instances */
+      /* @optional sequence<InstanceUpdateData> alive_instances */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
       (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "alive_instances", MAX_MEMBER_NAME);
-      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceTransitionData_type_id;
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceUpdateData_type_id;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
     case 1:
-      /* @optional sequence<InstanceTransitionData> disposed_instances */
+      /* @optional sequence<InstanceUpdateData> disposed_instances */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
       (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "disposed_instances", MAX_MEMBER_NAME);
-      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceTransitionData_type_id;
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceUpdateData_type_id;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
     case 2:
-      /* @optional sequence<InstanceTransitionData> unregistered_instances */
+      /* @optional sequence<InstanceUpdateData> unregistered_instances */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
       (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "unregistered_instances", MAX_MEMBER_NAME);
-      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceTransitionData_type_id;
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceUpdateData_type_id;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
     case 3:
       /* GUID_t writer_guid */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = 0;
-      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "writer_gid", MAX_MEMBER_NAME);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "writer_guid", MAX_MEMBER_NAME);
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = guid_t_type_id;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
     case 4:
       /* GUID_t reader_guid */
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = 0;
-      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "reader_gid", MAX_MEMBER_NAME);
+      (void) g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "reader_guid", MAX_MEMBER_NAME);
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = guid_t_type_id;
       _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
       break;
@@ -21956,7 +21938,7 @@ void proto_register_rtps(void) {
     &ett_rtps_info_remaining_items,
     &ett_rtps_data_encapsulation_options,
     &ett_rtps_decompressed_serialized_data,
-    &ett_rtps_instance_transition_data,
+    &ett_rtps_instance_update_data,
     &ett_rtps_crypto_algorithm_requirements,
     &ett_rtps_decrypted_payload,
     &ett_rtps_secure_postfix_tag_list_item
