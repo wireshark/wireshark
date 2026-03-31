@@ -83,6 +83,22 @@ static void extcap_log(int priority, const char *function, const char *buffer, v
 	 * After the following commit libssh only uses LOG_LEVEL_WARN for
 	 * serious issues:
 	 * https://gitlab.com/libssh/libssh-mirror/-/commit/657d9143d121dfff74f5a63f734d0096c7f37194
+	 *
+	 * In 0.11.4 libssh added a common "ssh_strict_fopen" function that
+	 * is used to open various configuration files. Unfortunately, it
+	 * issues SSH_LOG_WARN (aka RARE) level logs for any errors, including
+	 * a file not existing. Some files, like known_hosts, are optional
+	 * and so it's harmless if they're missing. This was fixed in 0.12.1[1],
+	 * but before then we downgrade just the WARN level log messages from
+	 * ssh_strict_open. Since we only downgrade messages from one function,
+	 * and all the logs in that function are low level in 0.12.1 and later,
+	 * we can lower them even more than the WARN mesages pre 0.11.0, which
+	 * were changed to a wider variety of levels upstream. We don't lower
+	 * all the way to NOISY because the same change added a WARN in the
+	 * parent function for problems opening files recursively included by
+	 * a main config file. Also see #21051.
+	 *
+	 * 1 - https://gitlab.com/libssh/libssh-mirror/-/commit/a7fd80795e21b8c894b54409496ea6b569f7f4a3
 	 */
 #if LIBSSH_VERSION_INT < SSH_VERSION_INT(0,11,0)
 		level = LOG_LEVEL_INFO;
