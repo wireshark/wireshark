@@ -1128,6 +1128,10 @@ static int hf_rtps_sm_app_id;
 static int hf_rtps_sm_instance_id_v1;
 static int hf_rtps_sm_app_kind;
 static int hf_rtps_sm_instance_id;
+static int hf_rtps_directed_write_guid_prefix;
+static int hf_rtps_directed_write_host_id;
+static int hf_rtps_directed_write_app_id;
+static int hf_rtps_directed_write_instance_id;
 static int hf_rtps_sm_entity_id;
 static int hf_rtps_sm_entity_id_key;
 static int hf_rtps_sm_entity_id_kind;
@@ -1138,6 +1142,18 @@ static int hf_rtps_sm_wrentity_id;
 static int hf_rtps_sm_wrentity_id_key;
 static int hf_rtps_sm_wrentity_id_kind;
 static int hf_rtps_sm_seq_number;
+static int hf_rtps_heartbeat_first_seq;
+static int hf_rtps_heartbeat_last_seq;
+static int hf_rtps_heartbeat_batch_first_sn;
+static int hf_rtps_heartbeat_batch_last_sn;
+static int hf_rtps_heartbeat_batch_first_virtual_sn;
+static int hf_rtps_heartbeat_batch_last_virtual_sn;
+static int hf_rtps_type_lookup_guid_prefix;
+static int hf_rtps_type_lookup_host_id;
+static int hf_rtps_type_lookup_app_id;
+static int hf_rtps_type_lookup_instance_id;
+static int hf_rtps_type_lookup_seq_number;
+static int hf_rtps_type_lookup_request_type_hash;
 
 static int hf_rtps_info_src_ip;
 static int hf_rtps_info_src_unused;
@@ -1392,7 +1408,8 @@ static int hf_rtps_type_id_discriminator;
 static int hf_rtps_type_id_w_size;
 static int hf_rtps_type_kind_discriminator;
 static int hf_rtps_type_lookup_deps_seq;
-static int hf_rtps_type_lookup_discriminator;
+static int hf_rtps_type_lookup_request_discriminator;
+static int hf_rtps_type_lookup_reply_discriminator;
 static int hf_rtps_type_object_serialized_size;
 static int hf_rtps_type_object_v2;
 static int hf_rtps_type_object_v2_ann_builtin;
@@ -4932,14 +4949,21 @@ static void generate_status_info(packet_info *pinfo,
    * ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_SECURE_WRITER    | M
    * ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER          | W
    * ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER         | R
-   * ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER        | Pc
-   * ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_READER        | Pc
-   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER           | Pb
-   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_READER           | Pb
-   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER    | sPc
-   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER    | sPc
-
-
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER         | Pb
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_READER         | Pb
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER            | Pc
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_READER            | Pc
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER     | sPc
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER     | sPc
+   * ENTITYID_TL_SVC_REQ_WRITER                                | trq
+   * ENTITYID_TL_SVC_REQ_READER                                | trq
+   * ENTITYID_TL_SVC_REQ_SECURE_WRITER                         | trq
+   * ENTITYID_TL_SVC_REQ_SECURE_READER                         | trq
+   * ENTITYID_TL_SVC_REPLY_WRITER                              | trp
+   * ENTITYID_TL_SVC_REPLY_READER                              | trp
+   * ENTITYID_TL_SVC_REPLY_SECURE_WRITER                       | trp
+   * ENTITYID_TL_SVC_REPLY_SECURE_READER                       | trp
+   *
    * The letter is followed by:
    * status_info &1 | status_info & 2       | Text
    * ---------------+-----------------------+--------------
@@ -6013,12 +6037,13 @@ static uint64_t rtps_util_add_seq_number(proto_tree *tree,
                                  tvbuff_t   *tvb,
                                  int         offset,
                                  const unsigned encoding,
-                                 const char *label) {
+                                 const char *label,
+                                 int         hf_item) {
   uint64_t hi = (uint64_t)tvb_get_uint32(tvb, offset, encoding);
   uint64_t lo = (uint64_t)tvb_get_uint32(tvb, offset+4, encoding);
   uint64_t all = (hi << 32) | lo;
 
-  proto_tree_add_int64_format(tree, hf_rtps_sm_seq_number, tvb, offset, 8,
+  proto_tree_add_int64_format(tree, hf_item, tvb, offset, 8,
                         all, "%s: %" PRIu64, label, all);
 
   return all;
@@ -6077,7 +6102,7 @@ static void rtps_util_add_timestamp_sec_and_fraction(proto_tree *tree,
   tvbuff_t *tvb,
   int        offset,
   const unsigned encoding,
-  int hf_time _U_) {
+  int hf_time) {
 
   char   tempBuffer[MAX_TIMESTAMP_SIZE];
   double absolute;
@@ -6086,6 +6111,7 @@ static void rtps_util_add_timestamp_sec_and_fraction(proto_tree *tree,
 
   if (tree) {
     proto_tree *time_tree;
+    header_field_info *hfinfo = proto_registrar_get_nth(hf_time);
 
     sec = tvb_get_uint32(tvb, offset, encoding);
     frac = tvb_get_uint32(tvb, offset+4, encoding);
@@ -6101,7 +6127,7 @@ static void rtps_util_add_timestamp_sec_and_fraction(proto_tree *tree,
     }
 
     time_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8,
-           ett_rtps_timestamp, NULL, "%s: %s", "lease_duration", tempBuffer);
+           ett_rtps_timestamp, NULL, "%s: %s", hfinfo->name, tempBuffer);
 
     proto_tree_add_item(time_tree, hf_rtps_param_timestamp_sec, tvb, offset, 4, encoding);
     proto_tree_add_item(time_tree, hf_rtps_param_timestamp_fraction, tvb, offset+4, 4, encoding);
@@ -9170,34 +9196,34 @@ static int rtps_util_dissect_get_types_out(proto_tree* tree, packet_info* pinfo,
     return offset;
   }
 
-  proto_item* deps_seq_item;
-  proto_tree* deps_seq_tree = proto_tree_add_subtree_format(
+  proto_item* types_seq_item;
+  proto_tree* types_seq_tree = proto_tree_add_subtree_format(
     tree, tvb, offset, -1, ett_rtps_type_deps_seq,
-    &deps_seq_item, "Dependent Type IDs [%u]", ti_to_pair_seq_len);
+    &types_seq_item, "Type Identifier-Object Pairs [%u]", ti_to_pair_seq_len);
   const int initial_deps_seq_offset = offset;
 
   for (uint32_t i = 0; i < ti_to_pair_seq_len; i++)
   {
-    proto_item* dep_item;
-    proto_tree* dep_tree = proto_tree_add_subtree_format(deps_seq_tree, tvb,
-      offset, -1, ett_rtps_type_dep, &dep_item, "Dependent Type ID [%u]", i);
+    proto_item* pair_item;
+    proto_tree* pair_tree = proto_tree_add_subtree_format(types_seq_tree, tvb,
+      offset, -1, ett_rtps_type_dep, &pair_item, "Type Identifier-Object Pair [%u]", i);
     const int initial_dep_offset = offset;
 
     /* TypeIdentifier */
-    offset = rtps_util_add_type_id_v2(dep_tree, pinfo, tvb, offset, false);
+    offset = rtps_util_add_type_id_v2(pair_tree, pinfo, tvb, offset, false);
 
     /* Delimited header */
-    offset = rtps_util_add_xcdr2_delimited_header(dep_tree, tvb, offset);
+    offset = rtps_util_add_xcdr2_delimited_header(pair_tree, tvb, offset);
 
     /* (appendable) TypeObject */
     const char* label = "Unknown";
-    offset = rtps_util_add_type_object_v2(dep_tree, pinfo, tvb, offset, &label);
-    proto_item_set_text(dep_item, "Dependent Type ID [%d] (%s)", i, label);
+    offset = rtps_util_add_type_object_v2(pair_tree, pinfo, tvb, offset, &label);
+    proto_item_set_text(pair_item, "Type Identifier-Object Pair [%d] (%s)", i, label);
 
-    proto_item_set_len(dep_item, offset - initial_dep_offset);
+    proto_item_set_len(pair_item, offset - initial_dep_offset);
   }
 
-  proto_item_set_len(deps_seq_item, offset - initial_deps_seq_offset);
+  proto_item_set_len(types_seq_item, offset - initial_deps_seq_offset);
 
   /* Enhanced Mutable Header for complete_to_minimal */
   offset = rtps_util_add_xcdr2_enhanced_mutable_header(tree, tvb, offset);
@@ -9261,8 +9287,8 @@ static int rtps_util_add_type_lookup_request_id(proto_tree* tree, packet_info* p
    */
   /* request id - guid */
   rtps_util_add_guid_prefix_v2(tree, tvb, offset,
-    hf_rtps_sm_guid_prefix, hf_rtps_sm_host_id, hf_rtps_sm_app_id,
-    hf_rtps_sm_instance_id, 0);
+    hf_rtps_type_lookup_guid_prefix, hf_rtps_type_lookup_host_id, hf_rtps_type_lookup_app_id,
+    hf_rtps_type_lookup_instance_id, 0);
   offset += 12;
   rtps_util_add_entity_id(tree, pinfo, tvb, offset,
     hf_rtps_sm_entity_id, hf_rtps_sm_entity_id_key, hf_rtps_sm_entity_id_kind,
@@ -9279,7 +9305,7 @@ static int rtps_util_add_type_lookup_request_id(proto_tree* tree, packet_info* p
   }
   /* request id - sequence number */
   rtps_util_add_seq_number(tree, tvb, offset, ENC_LITTLE_ENDIAN,
-    "sequenceNumber");
+    "sequenceNumber", hf_rtps_type_lookup_seq_number);
   offset += 8;
 
   return offset;
@@ -9346,7 +9372,7 @@ static void rtps_util_dissect_type_lookup_reply(proto_tree* tree,
   /* reply header - reply type GET_TYPES or GET_TYPE_DEPENDENCIES */
   const uint32_t reply_discriminator = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(type_lookup_reply_data_tree,
-    hf_rtps_type_lookup_discriminator, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    hf_rtps_type_lookup_reply_discriminator, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
   if (reply_discriminator == GET_TYPE_DEPENDENCIES)
@@ -9434,7 +9460,7 @@ static void rtps_util_dissect_type_lookup_request(proto_tree* tree,
   const uint32_t request_type_discriminator = tvb_get_uint32(tvb, offset,
     ENC_LITTLE_ENDIAN);
   proto_tree_add_item(type_lookup_request_data_tree,
-    hf_rtps_type_lookup_discriminator, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    hf_rtps_type_lookup_request_discriminator, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
   /*
@@ -9471,6 +9497,17 @@ static void rtps_util_dissect_type_lookup_request(proto_tree* tree,
       const int initial_req_offset = offset;
       offset = rtps_util_add_type_id_v2(req_tree, pinfo, tvb, offset, false);
       proto_item_set_len(req_item, offset - initial_req_offset);
+
+      /* Emit the type hash at the top-level request tree for easy filtering.
+       * The hash is already emitted inside the TypeIdentifier subtree by
+       * rtps_util_add_type_id_v2(), but consumers need a TypeLookup-scoped
+       * field to distinguish request hashes from nested type structure hashes. */
+      const uint8_t type_id_disc = tvb_get_uint8(tvb, initial_req_offset);
+      if (type_id_disc == EK_COMPLETE || type_id_disc == EK_MINIMAL) {
+        proto_tree_add_item(type_lookup_request_tree,
+          hf_rtps_type_lookup_request_type_hash, tvb,
+          initial_req_offset + 1, 14, ENC_NA);
+      }
     }
 
     proto_item_set_len(req_seq_item, offset - initial_req_seq_offset);
@@ -9663,7 +9700,8 @@ static int rtps_util_add_bitmap(proto_tree *tree,
           ett_rtps_bitmap, &ti_tree, label);
 
   /* Bitmap base sequence number */
-  first_seq_number = rtps_util_add_seq_number(bitmap_tree, tvb, offset, encoding, "bitmapBase");
+  first_seq_number = rtps_util_add_seq_number(bitmap_tree, tvb, offset, encoding, "bitmapBase",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* Reads the bitmap size */
@@ -10251,7 +10289,8 @@ static int rtps_util_add_rti_topic_query_service_request(proto_tree * tree, pack
   SHORT_ALIGN_ZERO(offset,alignment_zero);
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &param_id, &param_length);
 
-  rtps_util_add_seq_number(topic_query_tree, tvb, offset, encoding, "Sync Sequence Number");
+  rtps_util_add_seq_number(topic_query_tree, tvb, offset, encoding, "Sync Sequence Number",
+    hf_rtps_sm_seq_number);
   offset = check_offset_addition(offset, param_length, tree, NULL, tvb);
 
   SHORT_ALIGN_ZERO(offset,alignment_zero);
@@ -10332,7 +10371,8 @@ static int rtps_util_add_instance_state_request_data(proto_tree* tree, tvbuff_t*
       ett_rtps_instance_update_data,
       &ti,
       "Instance State Request Data");
-  rtps_util_add_seq_number(instance_state_request_tree, tvb, offset, encoding, "seqNumber");
+  rtps_util_add_seq_number(instance_state_request_tree, tvb, offset, encoding, "seqNumber",
+    hf_rtps_sm_seq_number);
   offset += 8;
   rtps_util_add_generic_guid_v2(instance_state_request_tree, tvb, offset, hf_rtps_pgm_dst_endpoint_guid,
     hf_rtps_param_host_id, hf_rtps_param_app_id, hf_rtps_param_instance_id,
@@ -10839,7 +10879,7 @@ static bool dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tree, 
                     "virtualGUIDSuffix", NULL);
         /* Sequence number */
         rtps_util_add_seq_number(rtps_parameter_tree, tvb, offset+16,
-                            encoding, "virtualSeqNumber");
+                            encoding, "virtualSeqNumber", hf_rtps_sm_seq_number);
       } else {
         ENSURE_LENGTH(4);
         proto_tree_add_item(rtps_parameter_tree, hf_rtps_domain_id, tvb, offset, 4, encoding);
@@ -10890,7 +10930,8 @@ static bool dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tree, 
             tvb,
             offset + 16,
             encoding,
-            "virtualSeqNumber");
+            "virtualSeqNumber",
+            hf_rtps_sm_seq_number);
       }
       break;
     }
@@ -12098,7 +12139,7 @@ static bool dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, packe
 
       ENSURE_LENGTH(8);
       coherent_seq_number = rtps_util_add_seq_number(rtps_parameter_tree, tvb, offset,
-        encoding, "sequenceNumber");
+        encoding, "sequenceNumber", hf_rtps_sm_seq_number);
       if (coherent_set_entity_info_object && rtps_parameter_tree) {
         rtps_util_add_coherent_set_general_cases_case(rtps_parameter_tree,
           tvb, coherent_seq_number, coherent_set_entity_info_object);
@@ -12256,7 +12297,8 @@ static bool dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, packe
 
     case PID_VARGAPPS_SEQUENCE_NUMBER_LAST:
       ENSURE_LENGTH(4);
-      rtps_util_add_seq_number(rtps_parameter_tree, tvb, offset, encoding, "sequenceNumberLast");
+      rtps_util_add_seq_number(rtps_parameter_tree, tvb, offset, encoding, "sequenceNumberLast",
+        hf_rtps_sm_seq_number);
       break;
 
     case PID_SENTINEL:
@@ -12339,8 +12381,9 @@ static bool dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, packe
     */
     case PID_DIRECTED_WRITE: {
       ENSURE_LENGTH(16);
-      rtps_util_add_guid_prefix_v2(rtps_parameter_tree, tvb, offset, hf_rtps_sm_guid_prefix,
-                    hf_rtps_sm_host_id, hf_rtps_sm_app_id, hf_rtps_sm_instance_id, 0);
+      rtps_util_add_guid_prefix_v2(rtps_parameter_tree, tvb, offset, hf_rtps_directed_write_guid_prefix,
+                    hf_rtps_directed_write_host_id, hf_rtps_directed_write_app_id,
+                    hf_rtps_directed_write_instance_id, 0);
       rtps_util_add_entity_id(rtps_parameter_tree, pinfo, tvb, offset+12, hf_rtps_sm_entity_id,
                     hf_rtps_sm_entity_id_key, hf_rtps_sm_entity_id_kind, ett_rtps_entity,
                     "guidSuffix", NULL);
@@ -12517,7 +12560,7 @@ static bool dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, packe
 
       /* Sequence number */
       rtps_util_add_seq_number(rtps_parameter_tree, tvb, offset+16,
-                            encoding, "virtualSeqNumber");
+                            encoding, "virtualSeqNumber", hf_rtps_sm_seq_number);
       break;
 
     /* 0...2...........7...............15.............23...............31
@@ -12688,7 +12731,8 @@ static bool dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, packe
                 tvb,
                 offset,
                 encoding,
-                "coherenceSetSequenceNumber");
+                "coherenceSetSequenceNumber",
+                hf_rtps_sm_seq_number);
         ti = proto_tree_add_uint64(
                 rtps_parameter_tree,
                 hf_rtps_coherent_set_end,
@@ -13743,7 +13787,8 @@ static void dissect_APP_ACK(tvbuff_t *tvb,
           tvb,
           offset,
           encoding,
-          "firstVirtualSN");
+          "firstVirtualSN",
+          hf_rtps_sm_seq_number);
         offset += 8;
 
         /* lastVirtualSN */
@@ -13751,7 +13796,8 @@ static void dissect_APP_ACK(tvbuff_t *tvb,
           tvb,
           offset,
           encoding,
-          "lastVirtualSN");
+          "lastVirtualSN",
+          hf_rtps_sm_seq_number);
         offset += 8;
 
         /* interval flags */
@@ -13983,7 +14029,8 @@ static void dissect_DATA_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, uint8
   offset += 4;
 
   /* Sequence number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* InlineQos */
@@ -14084,7 +14131,8 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, uint8
   rtps_util_add_topic_info(tree, pinfo, tvb, offset, guid);
 
   /* Sequence number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* If flag H is defined, read the GUID Prefix */
@@ -14494,7 +14542,8 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, int offset, uin
   rtps_util_add_topic_info(tree, pinfo, tvb, offset, guid);
 
   /* Sequence number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* If flag H is defined, read the GUID Prefix */
@@ -14660,7 +14709,8 @@ static void dissect_NOKEY_DATA(tvbuff_t *tvb, packet_info *pinfo, int offset, ui
   offset += 4;
 
   /* Sequence number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* Parameters */
@@ -14761,7 +14811,8 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, int offse
   offset += 4;
 
   /* Sequence number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* Fragment number */
@@ -14944,7 +14995,8 @@ static void dissect_NACK_FRAG(tvbuff_t *tvb, packet_info *pinfo, int offset, uin
   offset += 4;
 
   /* Writer sequence number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSN");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSN",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* FragmentNumberSet */
@@ -15044,11 +15096,13 @@ static void dissect_HEARTBEAT(tvbuff_t *tvb, packet_info *pinfo, int offset, uin
   rtps_util_add_topic_info(tree, pinfo, tvb, offset, guid);
 
   /* First available Sequence Number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "firstAvailableSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "firstAvailableSeqNumber",
+    hf_rtps_heartbeat_first_seq);
   offset += 8;
 
   /* Last Sequence Number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "lastSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "lastSeqNumber",
+    hf_rtps_heartbeat_last_seq);
   offset += 8;
 
   /* Counter: it was not present in RTPS 1.0 */
@@ -15073,19 +15127,19 @@ static void dissect_HEARTBEAT_BATCH(tvbuff_t *tvb, packet_info *pinfo, int offse
    * | EntityId writerId                                             |
    * +---------------+---------------+---------------+---------------+
    * |                                                               |
-   * + SequenceNumber firstBatchSN                                   +
-   * |                                                               |
-   * +---------------+---------------+---------------+---------------+
-   * |                                                               |
-   * + SequenceNumber lastBatchSN                                    +
-   * |                                                               |
-   * +---------------+---------------+---------------+---------------+
-   * |                                                               |
    * + SequenceNumber firstSN                                        +
    * |                                                               |
    * +---------------+---------------+---------------+---------------+
    * |                                                               |
    * + SequenceNumber lastSN                                         +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + SequenceNumber firstVirtualSN                                 +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + SequenceNumber lastVirtualSN                                  +
    * |                                                               |
    * +---------------+---------------+---------------+---------------+
    * | Count count                                                   |
@@ -15123,20 +15177,24 @@ static void dissect_HEARTBEAT_BATCH(tvbuff_t *tvb, packet_info *pinfo, int offse
   guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_add_topic_info(tree, pinfo, tvb, offset, guid);
 
-  /* First available Batch Sequence Number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "firstBatchSN");
-  offset += 8;
-
-  /* Last Batch Sequence Number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "lastBatchSN");
-  offset += 8;
-
   /* First available Sequence Number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "firstSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "firstSN",
+    hf_rtps_heartbeat_batch_first_sn);
   offset += 8;
 
   /* Last Sequence Number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "lastSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "lastSN",
+    hf_rtps_heartbeat_batch_last_sn);
+  offset += 8;
+
+  /* First available Virtual Sequence Number */
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "firstVirtualSN",
+    hf_rtps_heartbeat_batch_first_virtual_sn);
+  offset += 8;
+
+  /* Last Virtual Sequence Number */
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "lastVirtualSN",
+    hf_rtps_heartbeat_batch_last_virtual_sn);
   offset += 8;
 
   /* Counter */
@@ -15372,7 +15430,8 @@ static void dissect_HEARTBEAT_VIRTUAL(tvbuff_t *tvb, packet_info *pinfo _U_, int
               tvb,
               offset,
               encoding,
-              "firstVirtualSN");
+              "firstVirtualSN",
+              hf_rtps_sm_seq_number);
             offset += 8;
 
             /* lastVirtualSN */
@@ -15380,7 +15439,8 @@ static void dissect_HEARTBEAT_VIRTUAL(tvbuff_t *tvb, packet_info *pinfo _U_, int
               tvb,
               offset,
               encoding,
-              "lastVirtualSN");
+              "lastVirtualSN",
+              hf_rtps_sm_seq_number);
             offset += 8;
 
             /* firstRTPSSN */
@@ -15388,7 +15448,8 @@ static void dissect_HEARTBEAT_VIRTUAL(tvbuff_t *tvb, packet_info *pinfo _U_, int
               tvb,
               offset,
               encoding,
-              "firstRTPSSN");
+              "firstRTPSSN",
+              hf_rtps_sm_seq_number);
             offset += 8;
 
             /* lastRTPSSN */
@@ -15396,7 +15457,8 @@ static void dissect_HEARTBEAT_VIRTUAL(tvbuff_t *tvb, packet_info *pinfo _U_, int
               tvb,
               offset,
               encoding,
-              "lastRTPSSN");
+              "lastRTPSSN",
+              hf_rtps_sm_seq_number);
             offset += 8;
 
             current_virtual_guid_index++;
@@ -15468,7 +15530,8 @@ static void dissect_HEARTBEAT_FRAG(tvbuff_t *tvb, packet_info *pinfo, int offset
   rtps_util_add_topic_info(tree, pinfo, tvb, offset, guid);
 
   /* First available Sequence Number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* Fragment number */
@@ -15595,14 +15658,16 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, int offset, uin
 
   /* Sequence number */
   if (is_session) {
-    rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSessionSeqNumber");
+    rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSessionSeqNumber",
+      hf_rtps_sm_seq_number);
     offset += 8;
 
-    rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerVirtualSeqNumber");
+    rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerVirtualSeqNumber",
+      hf_rtps_sm_seq_number);
     offset += 8;
   } else {
     coherent_set_entity_info_object.writer_seq_number = rtps_util_add_seq_number(tree, tvb, offset,
-      encoding, "writerSeqNumber");
+      encoding, "writerSeqNumber", hf_rtps_sm_seq_number);
     coherent_set_entity_info_object.guid = *guid;
     offset += 8;
   }
@@ -15986,13 +16051,14 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, int o
 
   /* Sequence number */
   coherent_set_entity_info_object.writer_seq_number = rtps_util_add_seq_number(tree, tvb, offset,
-    encoding, "writerSeqNumber");
+    encoding, "writerSeqNumber", hf_rtps_sm_seq_number);
   coherent_set_entity_info_object.guid = *guid;
   offset += 8;
 
   /* virtual Sequence Number (Only in RTPS_DATA_FRAG_SESSION)*/
   if (is_session) {
-      rtps_util_add_seq_number(tree, tvb, offset, encoding, "virtualSeqNumber");
+      rtps_util_add_seq_number(tree, tvb, offset, encoding, "virtualSeqNumber",
+        hf_rtps_sm_seq_number);
       offset += 8;
   }
   /* Fragment number */
@@ -16241,11 +16307,13 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, int offse
 
 
   /* Batch sequence number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "batchSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "batchSeqNumber",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* First sample sequence number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "firstSampleSeqNumber");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "firstSampleSeqNumber",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* offsetToLastSampleSN */
@@ -16513,7 +16581,8 @@ static void dissect_GAP(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 
  /* First Sequence Number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "gapStart");
+  rtps_util_add_seq_number(tree, tvb, offset, encoding, "gapStart",
+    hf_rtps_sm_seq_number);
   offset += 8;
 
   /* Bitmap */
@@ -18749,6 +18818,50 @@ void proto_register_rtps(void) {
         HFILL }
     },
 
+    { &hf_rtps_directed_write_guid_prefix, {
+        "guidPrefix",
+        "rtps.directed_write.guidPrefix",
+        FT_BYTES,
+        BASE_NONE,
+        NULL,
+        0,
+        "GUID prefix of the PID_DIRECTED_WRITE destination",
+        HFILL }
+    },
+
+    { &hf_rtps_directed_write_host_id, {
+        "host_id",
+        "rtps.directed_write.guidPrefix.hostId",
+        FT_UINT32,
+        BASE_HEX,
+        NULL,
+        0,
+        "Host ID of the PID_DIRECTED_WRITE destination",
+        HFILL }
+    },
+
+    { &hf_rtps_directed_write_app_id, {
+        "appId",
+        "rtps.directed_write.guidPrefix.appId",
+        FT_UINT32,
+        BASE_HEX,
+        NULL,
+        0,
+        "App ID of the PID_DIRECTED_WRITE destination",
+        HFILL }
+    },
+
+    { &hf_rtps_directed_write_instance_id, {
+        "instanceId",
+        "rtps.directed_write.guidPrefix.instanceId",
+        FT_UINT32,
+        BASE_HEX,
+        NULL,
+        0,
+        "Instance ID of the PID_DIRECTED_WRITE destination",
+        HFILL }
+    },
+
     /* Entity ID (composed as entityKey, entityKind) ----------------------- */
     { &hf_rtps_sm_entity_id, {
         "entityId",
@@ -18854,6 +18967,138 @@ void proto_register_rtps(void) {
         NULL,
         0,
         "Writer sequence number",
+        HFILL }
+    },
+
+    { &hf_rtps_heartbeat_first_seq, {
+        "firstAvailableSeqNumber",
+        "rtps.heartbeat.firstAvailableSeqNumber",
+        FT_INT64,
+        BASE_DEC,
+        NULL,
+        0,
+        "First available sequence number in HEARTBEAT",
+        HFILL }
+    },
+
+    { &hf_rtps_heartbeat_last_seq, {
+        "lastSeqNumber",
+        "rtps.heartbeat.lastSeqNumber",
+        FT_INT64,
+        BASE_DEC,
+        NULL,
+        0,
+        "Last sequence number in HEARTBEAT",
+        HFILL }
+    },
+
+    { &hf_rtps_heartbeat_batch_first_sn, {
+        "firstSN",
+        "rtps.heartbeat_batch.firstSN",
+        FT_INT64,
+        BASE_DEC,
+        NULL,
+        0,
+        "First sequence number",
+        HFILL }
+    },
+
+    { &hf_rtps_heartbeat_batch_last_sn, {
+        "lastSN",
+        "rtps.heartbeat_batch.lastSN",
+        FT_INT64,
+        BASE_DEC,
+        NULL,
+        0,
+        "Last sequence number",
+        HFILL }
+    },
+
+    { &hf_rtps_heartbeat_batch_first_virtual_sn, {
+        "firstVirtualSN",
+        "rtps.heartbeat_batch.firstVirtualSN",
+        FT_INT64,
+        BASE_DEC,
+        NULL,
+        0,
+        "First virtual sequence number",
+        HFILL }
+    },
+
+    { &hf_rtps_heartbeat_batch_last_virtual_sn, {
+        "lastVirtualSN",
+        "rtps.heartbeat_batch.lastVirtualSN",
+        FT_INT64,
+        BASE_DEC,
+        NULL,
+        0,
+        "Last virtual sequence number",
+        HFILL }
+    },
+
+    { &hf_rtps_type_lookup_guid_prefix, {
+        "guidPrefix",
+        "rtps.type_lookup.guidPrefix",
+        FT_BYTES,
+        BASE_NONE,
+        NULL,
+        0,
+        "GUID prefix for TypeLookup request ID",
+        HFILL }
+    },
+
+    { &hf_rtps_type_lookup_host_id, {
+        "host_id",
+        "rtps.type_lookup.guidPrefix.hostId",
+        FT_UINT32,
+        BASE_HEX,
+        NULL,
+        0,
+        "Host ID for TypeLookup request ID",
+        HFILL }
+    },
+
+    { &hf_rtps_type_lookup_app_id, {
+        "appId",
+        "rtps.type_lookup.guidPrefix.appId",
+        FT_UINT32,
+        BASE_HEX,
+        NULL,
+        0,
+        "App ID for TypeLookup request ID",
+        HFILL }
+    },
+
+    { &hf_rtps_type_lookup_instance_id, {
+        "instanceId",
+        "rtps.type_lookup.guidPrefix.instanceId",
+        FT_UINT32,
+        BASE_HEX,
+        NULL,
+        0,
+        "Instance ID for TypeLookup request ID",
+        HFILL }
+    },
+
+    { &hf_rtps_type_lookup_seq_number, {
+        "sequenceNumber",
+        "rtps.type_lookup.seqNumber",
+        FT_INT64,
+        BASE_DEC,
+        NULL,
+        0,
+        "Sequence number for TypeLookup request ID",
+        HFILL }
+    },
+
+    { &hf_rtps_type_lookup_request_type_hash, {
+        "Request Type Hash",
+        "rtps.type_lookup.request_type_hash",
+        FT_BYTES,
+        BASE_NONE,
+        NULL,
+        0,
+        "Type hash from a TypeLookup request",
         HFILL }
     },
 
@@ -20706,10 +20951,15 @@ void proto_register_rtps(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "GetTypeDependencies Result Discriminator", HFILL }
     },
-    { &hf_rtps_type_lookup_discriminator, {
-        "Discriminator", "rtps.type_lookup_discriminator",
+    { &hf_rtps_type_lookup_request_discriminator, {
+        "Request Discriminator", "rtps.type_lookup.request_discriminator",
         FT_UINT32, BASE_HEX, VALS(type_lookup_discriminator_vals), 0,
-        "DDS XTypes Type Lookup Discriminator", HFILL }
+        "DDS XTypes TypeLookup Request Discriminator", HFILL }
+    },
+    { &hf_rtps_type_lookup_reply_discriminator, {
+        "Reply Discriminator", "rtps.type_lookup.reply_discriminator",
+        FT_UINT32, BASE_HEX, VALS(type_lookup_discriminator_vals), 0,
+        "DDS XTypes TypeLookup Reply Discriminator", HFILL }
     },
     { &hf_rtps_type_lookup_deps_seq, {
         "Dependencies Seq", "rtps.type_lookup_deps_seq",
