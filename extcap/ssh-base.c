@@ -86,6 +86,12 @@ static void extcap_log(int priority, const char *function, const char *buffer, v
 	 */
 #if LIBSSH_VERSION_INT < SSH_VERSION_INT(0,11,0)
 		level = LOG_LEVEL_INFO;
+#elif LIBSSH_VERSION_INT < SSH_VERSION_INT(0,12,1)
+		if (strncmp(function, "ssh_strict_fopen", strlen("ssh_strict_fopen")) == 0) {
+			level = LOG_LEVEL_DEBUG;
+		} else {
+			level = LOG_LEVEL_WARNING;
+		}
 #else
 		level = LOG_LEVEL_WARNING;
 #endif
