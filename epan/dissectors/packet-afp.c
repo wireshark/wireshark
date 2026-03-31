@@ -4958,7 +4958,7 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 				case 4: /* DNS */
 				case 5: /* SSH tunnel */
 					/*
-					 * The AFP specifcation says of
+					 * The AFP specification says of
 					 * the SSH tunnel type:
 					 *
 					 *  IP address (four bytes) with port

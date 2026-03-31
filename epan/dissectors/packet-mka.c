@@ -706,7 +706,7 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   }
   offset += MKA_MI_LEN;
 
-  proto_tree_add_item(basic_param_set_tree, hf_mka_actor_mn, tvb, offset, 4, ENC_NA);
+  proto_tree_add_item(basic_param_set_tree, hf_mka_actor_mn, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   proto_tree_add_item(basic_param_set_tree, hf_mka_algo_agility, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -741,7 +741,7 @@ sort_mi_by_sci(const void* a, const void* b) {
   uint8_t *sci_b = wmem_map_lookup(mka_mi_sci_map, b);
 
   DISSECTOR_ASSERT(sci_a && sci_b);
-  // Numerically greates SCI uses the SSCI value 0x01, etc.
+  // Numerically greatest SCI uses the SSCI value 0x01, etc.
   return -memcmp(sci_a, sci_b, MACSEC_SCI_LEN);
 }
 
@@ -898,7 +898,7 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
     }
     offset += MKA_MI_LEN;
 
-    proto_tree_add_item(peer_list_set_tree, hf_mka_peer_mn, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(peer_list_set_tree, hf_mka_peer_mn, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     peer_list_len -= 16;
@@ -973,17 +973,17 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
     }
     offset += 12;
 
-    proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_number, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_number, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     if (latest_rx && !PINFO_FD_VISITED(pinfo)) {
-      proto_tree_add_item_ret_uint(sak_use_set_tree, hf_mka_latest_lowest_acceptable_pn, tvb, offset, 4, ENC_NA, &pn);
+      proto_tree_add_item_ret_uint(sak_use_set_tree, hf_mka_latest_lowest_acceptable_pn, tvb, offset, 4, ENC_BIG_ENDIAN, &pn);
 
       pn_key = wmem_new(pinfo->pool, mka_ki_pn_t);
       memcpy(pn_key->ki, ki, MKA_KI_LEN);
       pn_key->pn = pn;
       p_add_proto_data(pinfo->pool, pinfo, proto_mka, LATEST_KEY, pn_key);
     } else {
-      proto_tree_add_item(sak_use_set_tree, hf_mka_latest_lowest_acceptable_pn, tvb, offset, 4, ENC_NA);
+      proto_tree_add_item(sak_use_set_tree, hf_mka_latest_lowest_acceptable_pn, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
     offset += 4;
 
@@ -993,17 +993,17 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
     }
     offset += 12;
 
-    proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_number, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_number, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     if (old_rx && !PINFO_FD_VISITED(pinfo)) {
-      proto_tree_add_item_ret_uint(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn, tvb, offset, 4, ENC_NA, &pn);
+      proto_tree_add_item_ret_uint(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn, tvb, offset, 4, ENC_BIG_ENDIAN, &pn);
       pn_key = wmem_new(pinfo->pool, mka_ki_pn_t);
       memcpy(pn_key->ki, ki, MKA_KI_LEN);
       pn_key->pn = pn;
       p_add_proto_data(pinfo->pool, pinfo, proto_mka, OLD_KEY, pn_key);
     } else {
-      proto_tree_add_item(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn, tvb, offset, 4, ENC_NA);
+      proto_tree_add_item(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
     offset += 4;
   }
@@ -1064,7 +1064,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     mka_sak_info_key_t *sak_info;
     uint8_t *sak;
 
-    proto_tree_add_item_ret_uint(distributed_sak_tree, hf_mka_key_number, tvb, offset, 4, ENC_NA, &kn);
+    proto_tree_add_item_ret_uint(distributed_sak_tree, hf_mka_key_number, tvb, offset, 4, ENC_BIG_ENDIAN, &kn);
     offset += 4;
 
     /* For AES256, the wrapped key is longer and an 8 byte cipher suite is inserted before the wrapped key data. */
@@ -1374,20 +1374,20 @@ dissect_xpn(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset
    * and the XPN parameter set appears after the MACsec SAK Use set */
   pn_key = p_get_proto_data(pinfo->pool, pinfo, proto_mka, LATEST_KEY);
   if (pn_key) {
-    proto_tree_add_item_ret_uint(xpn_set_tree, hf_mka_latest_lowest_accept_pn_msb, tvb, offset, 4, ENC_NA, &pn_msb);
+    proto_tree_add_item_ret_uint(xpn_set_tree, hf_mka_latest_lowest_accept_pn_msb, tvb, offset, 4, ENC_BIG_ENDIAN, &pn_msb);
     pn_key->pn |= ((uint64_t)pn_msb << 32);
     mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
     sci = wmem_map_lookup(mka_mi_sci_map, mi);
     DISSECTOR_ASSERT(sci);
     update_lpn(pn_key, sci, pinfo->num);
   } else {
-    proto_tree_add_item(xpn_set_tree, hf_mka_latest_lowest_accept_pn_msb, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(xpn_set_tree, hf_mka_latest_lowest_accept_pn_msb, tvb, offset, 4, ENC_BIG_ENDIAN);
   }
   offset += 4;
 
   pn_key = p_get_proto_data(pinfo->pool, pinfo, proto_mka, OLD_KEY);
   if (pn_key) {
-    proto_tree_add_item_ret_uint(xpn_set_tree, hf_mka_old_lowest_accept_pn_msb, tvb, offset, 4, ENC_NA, &pn_msb);
+    proto_tree_add_item_ret_uint(xpn_set_tree, hf_mka_old_lowest_accept_pn_msb, tvb, offset, 4, ENC_BIG_ENDIAN, &pn_msb);
     pn_key->pn |= ((uint64_t)pn_msb << 32);
     if (sci == NULL) {
       mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
@@ -1396,7 +1396,7 @@ dissect_xpn(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset
     }
     update_lpn(pn_key, sci, pinfo->num);
   } else {
-    proto_tree_add_item(xpn_set_tree, hf_mka_old_lowest_accept_pn_msb, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(xpn_set_tree, hf_mka_old_lowest_accept_pn_msb, tvb, offset, 4, ENC_BIG_ENDIAN);
   }
   offset += 4;
 

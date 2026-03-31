@@ -1210,7 +1210,7 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
             fh = fragment_get(&ttl_reassembly_table, pinfo, key, NULL);
 
             if (frame_num == 0) {
-                // New fragment header, check if we have a reassemly in progress
+                // New fragment header, check if we have a reassembly in progress
                 if (fh && !(fh->flags & FD_DEFRAGMENTED)) {
                     // If we're here, we were missing fragments
                     tvb_free(fragment_delete(&ttl_reassembly_table, pinfo, key, NULL));

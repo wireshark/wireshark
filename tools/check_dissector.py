@@ -25,6 +25,10 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 def run_check(tool, dissectors, python):
+    tool_name = tool[0].split()[0]
+    print('\n', tool_name)
+    print('=' * (len(tool_name)+2))
+
     # Create command-line with all dissectors included
     command = ''
 

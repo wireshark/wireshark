@@ -10684,7 +10684,8 @@ proto_register_cip(void)
       &ett_id_status,
       &ett_32bitheader_tree,
       &ett_connection_info,
-      &ett_stringi
+      &ett_stringi,
+      &ett_stringi_entry
    };
 
    static int *ett_cm[] = {

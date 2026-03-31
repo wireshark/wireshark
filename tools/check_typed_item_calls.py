@@ -2046,6 +2046,7 @@ apiChecks.append(TVBGetBits('tvb_get_bits64', maxlen=64))
 def check_filename_in_first_line(filename, result, line):
     # Check if first line names the wrong file?
     try:
+        filename = filename.replace('-template', '')
         ext = filename.split('.')[-1]
         first_line = line[2:]
         file_end_idx = line.find('.' + ext)

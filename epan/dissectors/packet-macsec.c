@@ -355,7 +355,7 @@ struct decode_user_data {
     unsigned ssci;
 };
 
-gboolean
+static gboolean
 saks_find_cb(void *key, void *value _U_, void *user_data)
 {
     struct decode_user_data *decode_params = (struct decode_user_data*)user_data;

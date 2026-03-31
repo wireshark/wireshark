@@ -2209,8 +2209,7 @@ static uint32_t build_trdp_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_item(trdp_tree, hf_trdp_comid,            tvb, TRDP_HEADER_OFFSET_COMID, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(trdp_tree, hf_trdp_etb_topocount,    tvb, TRDP_HEADER_OFFSET_ETB_TOPOCNT, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(trdp_tree, hf_trdp_op_trn_topocount, tvb, TRDP_HEADER_OFFSET_OP_TRN_TOPOCNT, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(trdp_tree, hf_trdp_datasetlength,    tvb, TRDP_HEADER_OFFSET_DATASETLENGTH, 4, ENC_BIG_ENDIAN);
-        datasetlength = tvb_get_ntohl(tvb, TRDP_HEADER_OFFSET_DATASETLENGTH);
+        proto_tree_add_item_ret_uint(trdp_tree, hf_trdp_datasetlength,    tvb, TRDP_HEADER_OFFSET_DATASETLENGTH, 4, ENC_BIG_ENDIAN, &datasetlength);
     } else {
         expert_add_info_format(pinfo, tree, &ei_trdp_packet_small, "Packet too small for header information");
     }

@@ -970,6 +970,7 @@ void proto_register_resp(void) {
             &ett_resp_bulk_string,
             &ett_resp_bulk_error,
             &ett_resp_array,
+            &ett_resp_verbatim_string,
             &ett_resp_set,
             &ett_resp_push,
             &ett_resp_map,
