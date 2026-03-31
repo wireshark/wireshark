@@ -78,6 +78,8 @@ static bool do_uncompress(tvbuff_t *tvb, int offset, int in_size,
 				}
 				match_len += 7;
 			}
+                        if (match_len > MAX_INPUT_SIZE)
+                            return false;
 			match_len += 3;
 			for (i = 0; i < match_len; i++) {
 				uint8_t byte;
