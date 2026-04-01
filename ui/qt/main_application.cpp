@@ -414,7 +414,7 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
 
     /* Apply command-line preferences */
     commandline_options_reapply();
-    extcap_register_preferences();
+    extcap_register_preferences(NULL, NULL);
 
     /* Switching profile requires reloading the macro list. */
     reloadDisplayFilterMacros();
@@ -652,11 +652,6 @@ MainApplication::~MainApplication()
     free_interface_list(cached_if_list_);
 #endif
     clearDynamicMenuGroupItems();
-}
-
-void MainApplication::registerUpdate(register_action_e action, const char *message)
-{
-    emit splashUpdate(action, message);
 }
 
 void MainApplication::emitAppSignal(AppSignal signal)

@@ -12,6 +12,8 @@
 
 #include "ws_symbol_export.h"
 
+#include "epan/register.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

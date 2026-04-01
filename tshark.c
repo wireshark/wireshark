@@ -1399,7 +1399,7 @@ main(int argc, char *argv[])
          * set the extcap preferences from the preferences file and "-o"
          * options on the command line.
          */
-        extcap_register_preferences();
+        extcap_register_preferences(NULL, NULL);
     }
 
     conversation_table_set_gui_info(init_iousers);

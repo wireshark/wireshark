@@ -28,6 +28,7 @@ class SplashOverlay : public QWidget
 
 public:
     explicit SplashOverlay(QWidget *parent = 0);
+    ~SplashOverlay();
 
     void fadeOut();
 
@@ -39,13 +40,16 @@ private:
     int register_cur_;
     int register_max_;
     QString action_text_;
+    QString action_subtext_;
     QElapsedTimer elapsed_timer_;
 
     QGraphicsOpacityEffect *opacity_effect_;
     QPropertyAnimation *fade_animation_;
 
-private slots:
+    static SplashOverlay *instance_;
     void splashUpdate(register_action_e action, const char *message);
+
+    friend void splash_update(register_action_e action, const char *message, void *dummy);
 };
 
 #endif // SPLASH_OVERLAY_H

@@ -21,6 +21,7 @@
 #endif
 
 #include <wsutil/plugins.h>
+#include "epan/register.h"
 
 #include "capture/capture_session.h"
 #include <ui/capture_ui_utils.h>
@@ -84,9 +85,12 @@ extern "C" {
 /**
  * Registers preferences for all interfaces.
  * Initializes the extcap interface list if that hasn't already been done.
+ *
+ * @param cb Optional callback for progress reporting (may be NULL).
+ * @param client_data Data pointer passed through to the callback.
  */
 void
-extcap_register_preferences(void);
+extcap_register_preferences(register_cb cb, void *client_data);
 
 /**
  * Fetches the interface capabilities for the named extcap interface.

@@ -14,8 +14,6 @@
 
 #include "wsutil/feature_list.h"
 
-#include "epan/register.h"
-
 #include "ui/help_url.h"
 
 #include <QApplication>
@@ -73,7 +71,6 @@ public:
         TemporaryStatus
     };
 
-    void registerUpdate(register_action_e action, const char *message);
     void emitAppSignal(AppSignal signal);
     // Emitting app signals (PacketDissectionChanged in particular) from
     // dialogs on macOS can be problematic. Dialogs should call queueAppSignal
@@ -191,7 +188,6 @@ signals:
     void openCaptureFile(QString cf_path, QString display_filter, unsigned int type);
     void openCaptureOptions();
     void recentPreferencesRead();
-    void splashUpdate(register_action_e action, const char *message);
     void profileChanging();
     void profileNameChanged(const char *profile_name);
 

@@ -388,7 +388,7 @@ void PreferencesDialog::apply()
     // XXX - We're also too enthusiastic about setting must_redissect.
     prefs_modules_for_all_modules(module_prefs_unstash, (void *)&redissect_flags);
 
-    extcap_register_preferences();
+    extcap_register_preferences(NULL, NULL);
 
     if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
         // Layout type changed, reset sizes
