@@ -25,6 +25,7 @@ enum BannerSlideType {
     BannerEvents,
     BannerSponsorship,
     BannerTips,
+    BannerSeasonal,
 };
 
 struct BannerSlide {
@@ -98,6 +99,10 @@ private:
                                 QMap<BannerSlideType, SlideTypeConfig> &file_config,
                                 QMap<BannerSlideType, QList<BannerSlide>> &file_slides);
     void buildSlideSequence();
+    static bool isAprilFoolsDay();
+    void addSeasonalSlides(const QDate &today);
+    BannerSlide aprilFoolsSlide(bool is_wireshark);
+    BannerSlide birthdaySlide();
     void advanceSlide();
     // Updates accessibleName/Description to reflect the current slide and
     // notifies the platform AT via QAccessible::NameChanged. Must be called

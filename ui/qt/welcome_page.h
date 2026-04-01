@@ -42,7 +42,6 @@ protected:
     virtual void resizeEvent(QResizeEvent *event);
     virtual void changeEvent(QEvent* event);
     virtual QString getReleaseLabel();
-    virtual QString getReleaseLabelGlue();
 
 protected slots:
     void on_openFileSectionLabel_clicked();

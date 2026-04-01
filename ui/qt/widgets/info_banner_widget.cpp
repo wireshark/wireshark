@@ -31,6 +31,7 @@
 #endif
 
 #include <ui/recent.h>
+#include <app/application_flavor.h>
 
 #include <algorithm>
 #include <random>
@@ -364,14 +365,29 @@ void InfoBannerWidget::setAutoAdvanceInterval(unsigned seconds)
         auto_advance_timer_->start(auto_advance_ms_);
 }
 
+bool InfoBannerWidget::isAprilFoolsDay()
+{
+    QDate today = QDate::currentDate();
+    return (today.month() == 4 && today.day() == 1);
+}
+
 void InfoBannerWidget::applySlideFilter()
 {
-    // Rebuild date-filtered per-type lists, then build the windowed sequence
-    buildSlideSequence();
-    if (current_slide_ >= slides_.size()) {
+    if (!recent.gui_welcome_page_sidebar_tips_visible && isAprilFoolsDay()) {
+        // April Fools' override: show only the seasonal slide even when
+        // banners are disabled — that's part of the joke.
+        slides_.clear();
+        slides_.append(aprilFoolsSlide(application_flavor_is_wireshark()));
         current_slide_ = 0;
+        setVisible(true);
+    } else {
+        // Rebuild date-filtered per-type lists, then build the windowed sequence
+        buildSlideSequence();
+        if (current_slide_ >= slides_.size()) {
+            current_slide_ = 0;
+        }
+        setVisible(recent.gui_welcome_page_sidebar_tips_visible && !slides_.isEmpty());
     }
-    setVisible(recent.gui_welcome_page_sidebar_tips_visible && !slides_.isEmpty());
     updateAccessibility();
     update();
 }
@@ -417,6 +433,54 @@ void InfoBannerWidget::buildSlideSequence()
             }
         }
     }
+
+    addSeasonalSlides(today);
+}
+
+void InfoBannerWidget::addSeasonalSlides(const QDate &today)
+{
+    bool is_wireshark = application_flavor_is_wireshark();
+
+    if (today.month() == 7 && today.day() == 14 && is_wireshark) {
+        slides_.prepend(birthdaySlide());
+    }
+
+    if (isAprilFoolsDay()) {
+        slides_.prepend(aprilFoolsSlide(is_wireshark));
+    }
+}
+
+BannerSlide InfoBannerWidget::aprilFoolsSlide(bool is_wireshark)
+{
+    BannerSlide af;
+    af.type = BannerSeasonal;
+    af.tag = tr("April 1st");
+    af.title = tr("Happy April Fools' Day!");
+    af.description = "";
+    af.description_sub = "";
+    af.body_text = is_wireshark
+        ? tr("Sniffing the glue that holds the Internet together")
+        : tr("Sniffing the glue that holds your system together");
+    af.url = QStringLiteral("https://en.wikipedia.org/wiki/April_Fools%27_Day");
+    af.image = QStringLiteral("sharksbeingsharks.png");
+    return af;
+}
+
+BannerSlide InfoBannerWidget::birthdaySlide()
+{
+    BannerSlide bday;
+    bday.type = BannerSeasonal;
+    bday.tag = tr("Birthday");
+    bday.title = tr("Happy Birthday, Wireshark!");
+    bday.description = "";
+    bday.description_sub = "";
+    bday.body_text = tr("On this day in 1998, the first version of Ethereal (later renamed "
+                        "Wireshark) was released. Thank you to the community that has kept "
+                        "the project thriving ever since!");
+    bday.button_label = tr("Our History");
+    bday.url = QStringLiteral("https://wiki.wireshark.org/WiresharkHistory");
+    bday.image = QStringLiteral("sharkscelebratingsharks.png");
+    return bday;
 }
 
 void InfoBannerWidget::advanceSlide()
@@ -524,11 +588,10 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
     const BannerSlide &slide = slides_[current_slide_];
     const QRectF r = rect();
     const int content_width = static_cast<int>(r.width()) - kContentLeftMargin - kContentRightMargin;
+    const bool is_seasonal = (slide.type == BannerSeasonal);
 
-    QPair<QColor, QColor> colors = gradientForType(slide.type);
-
-    // --- Card background gradient (145 degrees) ---
-    double angle_rad = qDegreesToRadians(145.0);
+    // --- Card background gradient ---
+    double angle_rad = qDegreesToRadians(is_seasonal ? 45.0 : 145.0);
     double cx = r.width() / 2.0;
     double cy = r.height() / 2.0;
     double dx = qCos(angle_rad - M_PI / 2.0) * r.width();
@@ -538,8 +601,20 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
         QPointF(cx - dx / 2.0, cy - dy / 2.0),
         QPointF(cx + dx / 2.0, cy + dy / 2.0)
     );
-    gradient.setColorAt(0, colors.first);
-    gradient.setColorAt(1, colors.second);
+
+    if (is_seasonal) {
+        // Rainbow gradient for seasonal slides (darkened for readability)
+        gradient.setColorAt(0.0, QColor(120, 30, 50));
+        gradient.setColorAt(0.2, QColor(140, 80, 20));
+        gradient.setColorAt(0.4, QColor(50, 120, 50));
+        gradient.setColorAt(0.6, QColor(30, 90, 130));
+        gradient.setColorAt(0.8, QColor(60, 40, 130));
+        gradient.setColorAt(1.0, QColor(100, 30, 100));
+    } else {
+        QPair<QColor, QColor> colors = gradientForType(slide.type);
+        gradient.setColorAt(0, colors.first);
+        gradient.setColorAt(1, colors.second);
+    }
 
     painter.setPen(Qt::NoPen);
     painter.setBrush(gradient);
@@ -636,49 +711,54 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
 
     y += 24;
 
-    // --- Description highlight box ---
-    QFont desc_font = font();
-    desc_font.setPixelSize(11);
-    painter.setFont(desc_font);
-    QFontMetrics desc_fm(desc_font);
+    // --- Description highlight box (skip for seasonal slides) ---
+    if (!is_seasonal) {
+        QFont desc_font = font();
+        desc_font.setPixelSize(11);
+        painter.setFont(desc_font);
+        QFontMetrics desc_fm(desc_font);
 
-    int box_padding = 10;
-    int box_inner_width = content_width - box_padding * 2;
-    int line1_h = desc_fm.height();
-    int line2_h = slide.description_sub.isEmpty() ? 0 : desc_fm.height();
-    int box_h = box_padding * 2 + line1_h + (line2_h > 0 ? line2_h + 3 : 0);
+        int box_padding = 10;
+        int box_inner_width = content_width - box_padding * 2;
+        int line1_h = slide.description.isEmpty() ? 0 : desc_fm.height();
+        int line2_h = slide.description_sub.isEmpty() ? 0 : desc_fm.height();
+        int box_h = box_padding * 2 + line1_h + (line2_h > 0 ? line2_h + 3 : 0);
 
-    QRectF desc_box(kContentLeftMargin, y, content_width, box_h);
-    painter.setBrush(QColor(255, 255, 255, 25));
-    painter.setPen(Qt::NoPen);
-    painter.drawRoundedRect(desc_box, 6, 6);
+        QRectF desc_box(kContentLeftMargin, y, content_width, box_h);
+        painter.setBrush(QColor(255, 255, 255, 25));
+        painter.setPen(Qt::NoPen);
+        painter.drawRoundedRect(desc_box, 6, 6);
 
-    painter.setPen(QColor(255, 255, 255, 230));
-    int text_y = y + box_padding;
-    painter.drawText(QRectF(kContentLeftMargin + box_padding, text_y, box_inner_width, line1_h),
-                     Qt::AlignLeft | Qt::AlignVCenter,
-                     desc_fm.elidedText(slide.description, Qt::ElideRight, box_inner_width));
-    if (line2_h > 0) {
-        painter.setPen(QColor(255, 255, 255, 170));
-        text_y += line1_h + 3;
-        painter.drawText(QRectF(kContentLeftMargin + box_padding, text_y, box_inner_width, line2_h),
-                         Qt::AlignLeft | Qt::AlignVCenter,
-                         desc_fm.elidedText(slide.description_sub, Qt::ElideRight, box_inner_width));
+        int text_y = y + box_padding;
+        if (line1_h > 0) {
+            painter.setPen(QColor(255, 255, 255, 230));
+            painter.drawText(QRectF(kContentLeftMargin + box_padding, text_y, box_inner_width, line1_h),
+                             Qt::AlignLeft | Qt::AlignVCenter,
+                             desc_fm.elidedText(slide.description, Qt::ElideRight, box_inner_width));
+            text_y += line1_h + 3;
+        }
+        if (line2_h > 0) {
+            painter.setPen(QColor(255, 255, 255, 170));
+            painter.drawText(QRectF(kContentLeftMargin + box_padding, text_y, box_inner_width, line2_h),
+                             Qt::AlignLeft | Qt::AlignVCenter,
+                             desc_fm.elidedText(slide.description_sub, Qt::ElideRight, box_inner_width));
+        }
+
+        y += box_h + 8;
     }
-
-    y += box_h + 8;
 
     // --- Body text (skip in compact mode) ---
     if (!compact_mode_ && !slide.body_text.isEmpty()) {
         QFont body_font = font();
-        body_font.setPixelSize(10);
+        body_font.setPixelSize(is_seasonal ? 13 : 10);
         painter.setFont(body_font);
-        painter.setPen(QColor(255, 255, 255, 160));
+        painter.setPen(QColor(255, 255, 255, is_seasonal ? 220 : 160));
 
-        QRectF body_rect(kContentLeftMargin, y, content_width, 48);
+        int body_h = is_seasonal ? 64 : 48;
+        QRectF body_rect(kContentLeftMargin, y, content_width, body_h);
         painter.drawText(body_rect, Qt::AlignLeft | Qt::TextWordWrap, slide.body_text);
 
-        y += 52;
+        y += body_h + 4;
     }
 
     // --- Action button ---

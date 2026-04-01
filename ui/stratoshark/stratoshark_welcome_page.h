@@ -28,7 +28,6 @@ public:
 
 protected:
     virtual QString getReleaseLabel() override;
-    virtual QString getReleaseLabelGlue() override;
 };
 
 #endif // STRATOSHARK_WELCOME_PAGE_H

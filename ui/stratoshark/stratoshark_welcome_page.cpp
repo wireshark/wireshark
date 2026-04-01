@@ -25,7 +25,3 @@ QString StratosharkWelcomePage::getReleaseLabel()
     return tr("You are running Stratoshark ");
 }
 
-QString StratosharkWelcomePage::getReleaseLabelGlue()
-{
-    return tr("You are sniffing the glue that holds your system together using Stratoshark ");
-}

@@ -27,7 +27,6 @@
 #include "main_application.h"
 
 #include <QClipboard>
-#include <QDate>
 #include <QDesktopServices>
 #include <QDir>
 #include <QListWidget>
@@ -174,21 +173,11 @@ QString WelcomePage::getReleaseLabel()
     return tr("You are running Wireshark ");
 }
 
-QString WelcomePage::getReleaseLabelGlue()
-{
-    return tr("You are sniffing the glue that holds the Internet together using Wireshark ");
-}
-
 void WelcomePage::setReleaseLabel()
 {
     // XXX Add a "check for updates" link?
     QString full_release;
-    QDate today = QDate::currentDate();
-    if ((today.month() == 4 && today.day() == 1) || (today.month() == 7 && today.day() == 14)) {
-        full_release = getReleaseLabelGlue();
-    } else {
-        full_release = getReleaseLabel();
-    }
+    full_release = getReleaseLabel();
     full_release += application_get_vcs_version_info();
     full_release += ".";
 #ifdef HAVE_SOFTWARE_UPDATE
