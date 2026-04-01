@@ -54,6 +54,7 @@
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
 #include <epan/tfs.h>
+#include <wsutil/ws_roundup.h>
 #include <epan/unit_strings.h>
 
 #include <wsutil/array.h>
@@ -2299,6 +2300,7 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_END_GROUP_COHERENT_SET,         "PID_END_GROUP_COHERENT_SET" },
   { MIG_RTPS_PID_END_COHERENT_SET_SAMPLE_COUNT,  "MIG_RTPS_PID_END_COHERENT_SET_SAMPLE_COUNT" },
   { PID_TYPE_INFORMATION,               "PID_TYPE_INFORMATION" },
+  { PID_TYPE_OBJECT,                    "PID_TYPE_OBJECT" },
 
   /* The following PID are deprecated */
   { PID_DEADLINE_OFFERED,               "PID_DEADLINE_OFFERED [deprecated]" },
@@ -7058,6 +7060,7 @@ static int rtps_util_add_type_library_type(proto_tree *tree, packet_info* pinfo,
 
   proto_item_append_text(tree, " %s", name);
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
 
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   offset_tmp = offset;
@@ -7073,6 +7076,7 @@ static int rtps_util_add_type_library_type(proto_tree *tree, packet_info* pinfo,
               encoding, offset);
   }
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
 
   return offset;
 }
@@ -7090,6 +7094,7 @@ static void rtps_util_add_type_element_enumeration(proto_tree *tree, packet_info
   /* dissect Bound */
   proto_tree_add_item(tree, hf_rtps_type_object_bound, tvb, offset, 4, encoding);
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
 
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   /* dissect constant seq */
@@ -7124,9 +7129,11 @@ static void rtps_util_add_type_element_sequence(proto_tree* tree, packet_info* p
   zero_alignment = offset;
   rtps_util_add_type_id(tree, pinfo, tvb, offset, encoding, zero_alignment, -1 , NULL, &(info->base_type_id));
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   proto_tree_add_item(tree, hf_rtps_type_object_element_shared, tvb, offset, 1, encoding);
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   /* dissect Bound */
   proto_tree_add_item(tree, hf_rtps_type_object_bound, tvb, offset, 4, encoding);
@@ -7144,9 +7151,11 @@ static void rtps_util_add_type_element_string(proto_tree* tree, packet_info* pin
   zero_alignment = offset;
   rtps_util_add_type_id(tree, pinfo, tvb, offset, encoding, zero_alignment, -1, NULL, NULL);
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   proto_tree_add_item(tree, hf_rtps_type_object_element_shared, tvb, offset, 1, encoding);
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   /* dissect Bound */
   proto_tree_add_item(tree, hf_rtps_type_object_bound, tvb, offset, 4, encoding);
@@ -7166,9 +7175,11 @@ static void rtps_util_add_type_element_array(proto_tree* tree, packet_info* pinf
   zero_alignment = offset;
   rtps_util_add_type_id(tree, pinfo, tvb, offset, encoding, zero_alignment, -1, NULL, &(info->base_type_id));
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   proto_tree_add_item(tree, hf_rtps_type_object_element_shared, tvb, offset, 1, encoding);
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
 
   /* dissect Bound sequence */
@@ -7246,6 +7257,7 @@ static int rtps_util_add_type_member(proto_tree* tree, packet_info* pinfo,
   }
 
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
 
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   offset_tmp = offset;
@@ -7259,6 +7271,7 @@ static int rtps_util_add_type_member(proto_tree* tree, packet_info* pinfo,
                 encoding, offset);
   }
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
 
   long_number = tvb_get_uint32(tvb, offset, encoding);
   if ((long_number & PID_LIST_END) == PID_LIST_END) {
@@ -7334,6 +7347,7 @@ static int rtps_util_add_type_union_member(proto_tree* tree, packet_info* pinfo,
   }
 
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
+  offset = WS_ROUNDUP_4(offset);
   long_number = tvb_get_uint32(tvb, offset_tmp, encoding);
 
   if ((long_number & PID_LIST_END) == PID_LIST_END) {
@@ -7456,6 +7470,7 @@ static int rtps_util_add_type_library_element(proto_tree *tree, packet_info * pi
   element_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
                     ett_rtps_type_element, NULL, "");
   offset = check_offset_addition(offset, member_length, tree, pinfo, tvb);
+  offset = WS_ROUNDUP_4(offset);
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   proto_item_set_len(element_tree, member_length + offset - initial_offset);
   switch (long_number) {
@@ -7545,6 +7560,7 @@ static void rtps_util_add_typeobject(proto_tree *tree, packet_info * pinfo,
   /* Dissect the member */
   rtps_util_add_type_library(typeobject_tree, pinfo, tvb, offset_tmp, encoding, member_length);
   offset = check_offset_addition(offset, member_length, tree, pinfo, tvb);
+  offset = WS_ROUNDUP_4(offset);
   /*                    End TypeLibrary                       */
 
   /*                         _TypeId                          */
@@ -7555,6 +7571,7 @@ static void rtps_util_add_typeobject(proto_tree *tree, packet_info * pinfo,
   rtps_util_add_type_id(typeobject_tree, pinfo, tvb, offset_tmp, encoding, offset, -1, NULL, &type_id);
   if (type_mapping_object) type_mapping_object->type_id = type_id;
   offset = check_offset_addition(offset, member_length, tree, pinfo, tvb);
+  offset = WS_ROUNDUP_4(offset);
   /*                      End _TypeId                          */
 
   long_number = tvb_get_uint32(tvb, offset, encoding);
@@ -10960,12 +10977,6 @@ static bool dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tree, 
       break;
     }
 
-    case PID_TYPE_OBJECT: {
-      rtps_util_add_typeobject(rtps_parameter_tree, pinfo, tvb,
-              offset, encoding, param_length, type_mapping_object);
-      break;
-    }
-
     /* 0...2...........7...............15.............23...............31
     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     * | PID_TYPECODE_RTPS2            |            length             |
@@ -12809,6 +12820,12 @@ static bool dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, packe
 
     case PID_TYPE_INFORMATION: {
       rtps_util_add_typeinformation(rtps_parameter_tree, pinfo, tvb, offset);
+      break;
+    }
+
+    case PID_TYPE_OBJECT: {
+      rtps_util_add_typeobject(rtps_parameter_tree, pinfo, tvb,
+              offset, encoding, param_length, type_mapping_object);
       break;
     }
 
