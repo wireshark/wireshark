@@ -46,6 +46,7 @@
 #include "config.h"
 #define WS_LOG_DOMAIN "ber"
 
+#include <errno.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/reassemble.h>
@@ -180,6 +181,8 @@ static expert_field ei_ber_invalid_format_utctime;
 static expert_field ei_hf_field_not_integer_type;
 static expert_field ei_ber_constr_bitstr;
 static expert_field ei_ber_real_not_primitive;
+static expert_field ei_ber_real_overflow;
+static expert_field ei_ber_real_invalid_format;
 
 static dissector_handle_t ber_handle;
 static dissector_handle_t ber_file_handle;
@@ -2120,8 +2123,16 @@ dissect_ber_real(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t
           tree, actx->pinfo, &ei_ber_real_not_primitive, tvb, offset - 2, 1);
     }
 
-    val = asn1_get_real(tvb_get_ptr(tvb, offset, val_length), val_length);
-    actx->created_item = proto_tree_add_double(tree, hf_id, tvb, end_offset - val_length, val_length, val);
+    int err;
+    val = asn1_get_real(tvb_get_ptr(tvb, offset, val_length), val_length, &err);
+    if (err == EINVAL) {
+        proto_tree_add_expert(tree, actx->pinfo, &ei_ber_real_invalid_format, tvb, end_offset - val_length, val_length);
+    } else {
+        actx->created_item = proto_tree_add_double(tree, hf_id, tvb, end_offset - val_length, val_length, val);
+        if (err == ERANGE) {
+            expert_add_info(actx->pinfo, actx->created_item, &ei_ber_real_overflow);
+        }
+    }
 
     if (value)
         *value = val;
@@ -4529,6 +4540,8 @@ proto_register_ber(void)
         { &ei_hf_field_not_integer_type, { "ber.error.hf_field_not_integer_type", PI_PROTOCOL, PI_ERROR, "Was passed a HF field that was not integer type", EXPFILL }},
         { &ei_ber_constr_bitstr,{ "ber.error.constr_bitstr.len", PI_MALFORMED, PI_WARN, "BER Error: malformed Bitstring encoding", EXPFILL } },
         { &ei_ber_real_not_primitive,{ "ber.error.not_primitive.real", PI_MALFORMED, PI_WARN, "BER Error: REAL class not encoded as primitive", EXPFILL } },
+        { &ei_ber_real_overflow,{ "ber.error.overflow.real", PI_UNDECODED, PI_WARN, "BER Error: REAL overflow", EXPFILL } },
+        { &ei_ber_real_invalid_format,{ "ber.error.invalid_format.real", PI_PROTOCOL, PI_WARN, "BER Error: REAL invalid or reserved encoding", EXPFILL } },
     };
 
     /* Decode As handling */

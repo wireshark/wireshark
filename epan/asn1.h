@@ -189,7 +189,10 @@ WS_DLL_PUBLIC void rose_ctx_clean_data(rose_ctx_t *rctx);
 WS_DLL_PUBLIC asn1_ctx_t *get_asn1_ctx(void *ptr);
 WS_DLL_PUBLIC rose_ctx_t *get_rose_ctx(void *ptr);
 
-WS_DLL_PUBLIC double asn1_get_real(const uint8_t *real_ptr, int len);
+/* Sets err to EINVAL for an invalid encoding (returning 0) to ERANGE if
+ * overflow or underflow occurs (rounding, possibly to +/-HUGE_VAL, +/-0.0),
+ * and 0 if conversion is successful. */
+WS_DLL_PUBLIC double asn1_get_real(const uint8_t *real_ptr, int len, int *err);
 
 /* flags */
 #define ASN1_EXT_ROOT 0x01

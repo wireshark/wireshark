@@ -16,6 +16,7 @@ proper helper routines
 
 #include "config.h"
 
+#include <errno.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/oids.h>
@@ -88,6 +89,7 @@ static expert_field ei_per_field_not_integer;
 static expert_field ei_per_external_type;
 static expert_field ei_per_open_type;
 static expert_field ei_per_open_type_len;
+static expert_field ei_per_real_overflow;
 
 static dissector_table_t per_oid_dissector_table;
 
@@ -1762,8 +1764,16 @@ dissect_per_real(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *t
 	}
 	end_offset = offset + val_length * 8;
 
-	val = asn1_get_real(tvb_get_ptr(val_tvb, 0, val_length), val_length);
-	actx->created_item = proto_tree_add_double(tree, hf_index, val_tvb, 0, val_length, val);
+	int err;
+	val = asn1_get_real(tvb_get_ptr(val_tvb, 0, val_length), val_length, &err);
+	if (err == EINVAL) {
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_encoding_error, val_tvb, 0, val_length, "Real type invalid or reserved encoding");
+	} else {
+		actx->created_item = proto_tree_add_double(tree, hf_index, val_tvb, 0, val_length, val);
+		if (err == ERANGE) {
+			expert_add_info(actx->pinfo, actx->created_item, &ei_per_real_overflow);
+		}
+	}
 
 	if (value) *value = val;
 
@@ -2984,7 +2994,9 @@ proto_register_per(void)
 		{ &ei_per_open_type,
 		  { "per.open_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Open Type", EXPFILL }},
 		{ &ei_per_open_type_len,
-		  { "per.open_type.len", PI_PROTOCOL, PI_ERROR, "Open Type length > available data(tvb)", EXPFILL }}
+		  { "per.open_type.len", PI_PROTOCOL, PI_ERROR, "Open Type length > available data(tvb)", EXPFILL }},
+		{ &ei_per_real_overflow,
+		  { "per.real.overflow", PI_UNDECODED, PI_WARN, "Real value overflow", EXPFILL }}
 	};
 
 	module_t *per_module;
