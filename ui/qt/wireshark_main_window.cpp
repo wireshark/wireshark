@@ -536,7 +536,11 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(update_action_, &QAction::triggered, this, &WiresharkMainWindow::checkForUpdates);
 #endif
     master_split_.setObjectName("splitterMaster");
+    master_split_.setAccessibleName(tr("Main View Splitter"));
+    master_split_.setAccessibleDescription(tr("Contains the packet list, protocol tree, and packet bytes."));
     extra_split_.setObjectName("splitterExtra");
+    extra_split_.setAccessibleName(tr("Extra View Splitter"));
+    extra_split_.setAccessibleDescription(tr("Contains packet extras and bytes views."));
     master_split_.setChildrenCollapsible(false);
     extra_split_.setChildrenCollapsible(false);
     main_ui_->mainStack->addWidget(&master_split_);

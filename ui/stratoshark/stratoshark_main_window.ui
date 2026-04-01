@@ -20,6 +20,9 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="accessibleName">
+    <string>Main Window</string>
+   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
      <horstretch>0</horstretch>
@@ -165,6 +168,9 @@
     </item>
     <item>
      <widget class="QStackedWidget" name="mainStack">
+      <property name="accessibleName">
+       <string>Main View</string>
+      </property>
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -174,6 +180,9 @@
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="accessibleName">
+    <string>Main Menu</string>
+   </property>
    <property name="geometry">
     <rect>
      <x>0</x>
