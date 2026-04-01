@@ -17992,7 +17992,7 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       nature = (pinfo->destport % 10);
     } else {
       domain_id = get_domain_id_from_tcp_discovered_participants(discovered_participants_domain_ids, &guid);
-      if (pinfo->ptype != PT_TCP && pinfo->destport > PORT_BASE && domain_id == RTPS_UNKNOWN_DOMAIN_ID_VAL) {
+      if (pinfo->ptype != PT_TCP && pinfo->destport >= PORT_BASE && domain_id == RTPS_UNKNOWN_DOMAIN_ID_VAL) {
         domain_id = (pinfo->destport - PORT_BASE) / DOMAIN_GAIN;
         is_domain_id_calculated = true;
       }
