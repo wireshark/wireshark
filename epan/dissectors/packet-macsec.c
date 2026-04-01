@@ -876,7 +876,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /* If the data's ok, attempt to continue dissection. */
     if (encrypted == false) {
         /* The ethertype is the original from the unencrypted data. */
-        proto_tree_add_item_ret_uint16(macsec_tree, hf_macsec_etype, tvb, data_offset, 2, ENC_BIG_ENDIAN, &ethertype_data.etype);
+        proto_tree_add_item_ret_uint16(tree, hf_macsec_etype, tvb, data_offset, 2, ENC_BIG_ENDIAN, &ethertype_data.etype);
 
         /* also trim off the Ethertype */
         /* This won't overflow because otherwise there would be an exception
@@ -891,18 +891,13 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         /* add the decrypted data as a data source for the next dissectors */
         add_new_data_source(pinfo, plain_tvb, "Decrypted Data");
 
-        /* The ethertype is the one from the start of the decrypted data. */
-        proto_tree_add_item_ret_uint16(macsec_tree, hf_macsec_etype, plain_tvb, 0, 2, ENC_BIG_ENDIAN, &ethertype_data.etype);
-
         /* also trim off the Ethertype */
-        /* This won't overflow because otherwise there would be an exception
-         * adding the Ethertype to the tree. */
         next_tvb = tvb_new_subset_length(plain_tvb, 2, macsec_payload_len - 2);
 
         /* show the decrypted data and original ethertype */
-        /* XXX - Why include the ethertype here? Why not just the payload?
-         * Should this be added to macsec_tree as well? */
         proto_tree_add_item(tree, hf_macsec_decrypted_data, plain_tvb, 0, macsec_payload_len, ENC_NA);
+        /* The ethertype is the one from the start of the decrypted data. */
+        proto_tree_add_item_ret_uint16(tree, hf_macsec_etype, plain_tvb, 0, 2, ENC_BIG_ENDIAN, &ethertype_data.etype);
     }
 
     /* Add the ICV to the sectag subtree. */
