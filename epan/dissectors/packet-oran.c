@@ -13,7 +13,7 @@
  /*
   * Dissector for the O-RAN Fronthaul CUS protocol specification.
   * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
-  * The current implementation is based on the ORAN-WG4.CUS.0-v19.00 specification.
+  * The current implementation is based on the ORAN-WG4.CUS.0-v20.00 specification.
   * Note that other eCPRI message types are handled in packet-ecpri.c
   */
 
@@ -41,6 +41,7 @@
  * - Detect/indicate signs of application layer fragmentation?
  *      same eAxC in same symbol (same/different section ID?)
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
+ *      does anyone use this?
  * - for section extensions, check more constraints (which other extension types appear with them, order, repeated)
  * - re-order items (decl and hf definitions) to match spec order?
  * - track energy-saving status, and identify TRX or ASM commands as 'Sleep extension'
@@ -583,22 +584,12 @@ static int ett_oran_fragments;
 /* Reassembly table. */
 static reassembly_table oran_reassembly_table;
 
-static void *oran_temporary_key(const packet_info *pinfo _U_, const uint32_t id _U_, const void *data)
+static void *oran_key(const packet_info *pinfo _U_, const uint32_t id _U_, const void *data)
 {
     return (void *)data;
 }
 
-static void *oran_persistent_key(const packet_info *pinfo _U_, const uint32_t id _U_,
-                                 const void *data)
-{
-    return (void *)data;
-}
-
-static void oran_free_temporary_key(void *ptr _U_)
-{
-}
-
-static void oran_free_persistent_key(void *ptr _U_)
+static void oran_free_key(void *ptr _U_)
 {
 }
 
@@ -606,10 +597,10 @@ static reassembly_table_functions oran_reassembly_table_functions =
 {
     g_direct_hash,
     g_direct_equal,
-    oran_temporary_key,
-    oran_persistent_key,
-    oran_free_temporary_key,
-    oran_free_persistent_key
+    oran_key,
+    oran_key,
+    oran_free_key,
+    oran_free_key
 };
 
 static const fragment_items oran_frag_items = {
@@ -631,7 +622,7 @@ static const fragment_items oran_frag_items = {
 
 
 
-/* Don't want all extensions to open and close together. Use extType-1 entry */
+/* Don't want all extensions to open and close together. Use [extType-1] entry */
 static int ett_oran_c_section_extension[HIGHEST_EXTTYPE];
 
 /* Expert info */
@@ -831,6 +822,7 @@ static const range_string filter_indices[] = {
     {0, 0, NULL}
 };
 
+/* 7.3.1-1 */
 static const range_string section_types[] = {
     { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "Unused Resource Blocks or symbols in Downlink or Uplink" },
     { SEC_C_NORMAL,            SEC_C_NORMAL,            "Most DL/UL radio channels" },
@@ -931,6 +923,7 @@ static const range_string laaMsgTypes[] = {
     {0, 0, NULL}
 };
 
+/* 7.7.26.3 */
 static const range_string freq_offset_fb_values[] = {
     {0,      0,        "no frequency offset"},
     {8000,   8000,     "value not provided"},
@@ -940,6 +933,7 @@ static const range_string freq_offset_fb_values[] = {
     {0, 0, NULL}
 };
 
+/* Table 7.5.2.19-1 */
 static const value_string num_sinr_per_prb_vals[] = {
     { 0,  "1" },
     { 1,  "2" },
@@ -947,7 +941,7 @@ static const value_string num_sinr_per_prb_vals[] = {
     { 3,  "4" },
     { 4,  "6" },
     { 5,  "12" },
-    { 6,  "reserved" },
+    { 6,  "1 SINR value per section for DFT-s-OFDM" },
     { 7,  "reserved" },
     { 0, NULL}
 };
@@ -7359,29 +7353,29 @@ proto_register_oran(void)
 {
     static hf_register_info hf[] = {
 
-       /* Section 5.1.3.2.7 */
-       { &hf_oran_du_port_id,
-         { "DU Port ID", "oran_fh_cus.du_port_id",
-           FT_UINT16, BASE_DEC,
-           NULL, 0x0,
-           "Processing unit at O-RU - width set in dissector preference", HFILL }
-       },
+        /* Section 5.1.3.2.7 */
+        { &hf_oran_du_port_id,
+          { "DU Port ID", "oran_fh_cus.du_port_id",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "Processing unit at O-RU - width set in dissector preference", HFILL }
+        },
 
-       /* Section 5.1.3.2.7 */
-       { &hf_oran_bandsector_id,
-         { "BandSector ID", "oran_fh_cus.bandsector_id",
-           FT_UINT16, BASE_DEC,
-           NULL, 0x0,
-           "Aggregated cell identified - width set in dissector preference", HFILL }
-       },
+        /* Section 5.1.3.2.7 */
+        { &hf_oran_bandsector_id,
+          { "BandSector ID", "oran_fh_cus.bandsector_id",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "Aggregated cell identified - width set in dissector preference", HFILL }
+        },
 
-       /* Section 5.1.3.2.7 */
-       { &hf_oran_cc_id,
-         { "CC ID", "oran_fh_cus.cc_id",
-           FT_UINT16, BASE_DEC,
-           NULL, 0x0,
-           "Component Carrier - width set in dissector preference", HFILL }
-       },
+        /* Section 5.1.3.2.7 */
+        { &hf_oran_cc_id,
+          { "CC ID", "oran_fh_cus.cc_id",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "Component Carrier - width set in dissector preference", HFILL }
+        },
 
         /* Section 5.1.3.2.7 */
         { &hf_oran_ru_port_id,
@@ -10137,6 +10131,7 @@ proto_register_oran(void)
         &ett_oran_fragments
     };
 
+    /* Separate subtree array for extensions.  Used with [ext-1] */
     static int *ext_ett[HIGHEST_EXTTYPE];
     for (unsigned extno=0; extno<HIGHEST_EXTTYPE; extno++) {
         ext_ett[extno] = &ett_oran_c_section_extension[extno];
@@ -10215,15 +10210,12 @@ proto_register_oran(void)
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_subtree_array(ext_ett, array_length(ext_ett));
 
-
     expert_oran = expert_register_protocol(proto_oran);
     expert_register_field_array(expert_oran, ei, array_length(ei));
 
 
     /* Preferences */
     module_t * oran_module = prefs_register_protocol(proto_oran, NULL);
-
-    /* prefs_register_static_text_preference(oran_module, "oran.stream", "", ""); */
 
     /* Register bit width/compression preferences separately by direction. */
     prefs_register_uint_preference(oran_module, "oran.du_port_id_bits", "DU Port ID bits [a]",
@@ -10235,9 +10227,8 @@ proto_register_oran(void)
     prefs_register_uint_preference(oran_module, "oran.ru_port_id_bits", "RU Port ID bits [d]",
         "The bit width of RU Port ID - sum of a,b,c&d (eAxC) must be 16", 10, &pref_ru_port_id_bits);
 
-    prefs_register_static_text_preference(oran_module, "oran.ul", "", "");
-
     /* Uplink userplane */
+    prefs_register_static_text_preference(oran_module, "oran.ul", "", "");
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_up", "IQ Bitwidth Uplink",
         "The bit width of a sample in the Uplink (if no udcompHdr and no C-Plane)", 10, &pref_sample_bit_width_uplink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_up", "Uplink User Data Compression",
@@ -10253,11 +10244,8 @@ proto_register_oran(void)
         "Maximum number of microseconds allowed for UL slot transmission before expert warning (zero to disable).  N.B. timing relative to first frame seen for same symbol",
         10, &us_allowed_for_ul_in_symbol);
 
-
-
-    prefs_register_static_text_preference(oran_module, "oran.dl", "", "");
-
     /* Downlink userplane */
+    prefs_register_static_text_preference(oran_module, "oran.dl", "", "");
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_down", "IQ Bitwidth Downlink",
         "The bit width of a sample in the Downlink (if no udcompHdr)", 10, &pref_sample_bit_width_downlink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_down", "Downlink User Data Compression",
@@ -10268,49 +10256,36 @@ proto_register_oran(void)
         "this field to be present in downlink messages",
         &pref_includeUdCompHeaderDownlink, udcomphdr_present_options, false);
 
-    prefs_register_static_text_preference(oran_module, "oran.sinr", "", "");
-
     /* SINR */
+    prefs_register_static_text_preference(oran_module, "oran.sinr", "", "");
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_sinr", "IQ Bitwidth SINR",
         "The bit width of a sample in SINR", 10, &pref_sample_bit_width_sinr);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_sinr", "SINR Compression",
         "SINR Compression", &pref_iqCompressionSINR, ul_compression_options, false);
 
-
     /* BF-related */
     prefs_register_static_text_preference(oran_module, "oran.bf", "", "");
-
-    prefs_register_obsolete_preference(oran_module, "oran.num_weights_per_bundle");
-
     prefs_register_uint_preference(oran_module, "oran.num_bf_antennas", "Number of beam weights",
         "Number of array elements that BF weights will be provided for", 10, &pref_num_bf_antennas);
-
+    prefs_register_obsolete_preference(oran_module, "oran.num_weights_per_bundle");
     prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
-
     prefs_register_bool_preference(oran_module, "oran.st6_4byte_alignment_required", "Use 4-byte alignment for ST6 sections",
         "Default is 1-byte alignment", &st6_4byte_alignment);
 
-
     /* Misc (and will seldom need to be accessed) */
     prefs_register_static_text_preference(oran_module, "oran.misc", "", "");
-
     prefs_register_bool_preference(oran_module, "oran.show_iq_samples", "Show IQ Sample values",
         "When enabled, for U-Plane frames show each I and Q value in PRB", &pref_showIQSampleValues);
-
     prefs_register_enum_preference(oran_module, "oran.support_udcomplen", "udCompLen supported",
         "When enabled, U-Plane messages with relevant compression schemes will include udCompLen",
         &pref_support_udcompLen, udcomplen_support_options, false);
-
     prefs_register_uint_preference(oran_module, "oran.rbs_in_uplane_section", "Total RBs in User-Plane data section",
         "This is used if numPrbu is signalled as 0", 10, &pref_data_plane_section_total_rbs);
-
     prefs_register_bool_preference(oran_module, "oran.unscaled_iq", "Show unscaled I/Q values",
         "", &show_unscaled_values);
-
     prefs_register_bool_preference(oran_module, "oran.attempt_reassembly",
                                    "Attempt Radio Transport layer reassembly", "",
                                    &do_radio_transport_layer_reassembly);
-
     prefs_register_obsolete_preference(oran_module, "oran.k_antenna_ports");
 
 
