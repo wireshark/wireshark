@@ -188,6 +188,11 @@ experiment.
 
 CMake builds are best done in a separate build directory, such as a
 `build` subdirectory of the top-level source directory.
+
+TIP: Wireshark ships a `CMakePresets.json` with a `ninja_ccache` preset that configures Ninja and ccache for you.
+Run `cmake --preset ninja_ccache` to use it.
+You can override the build directory or other settings by creating a `CMakeUserPresets.json` — see <<ChToolsCMake>> for details.
+
 If that directory is a subdirectory of the top-level source directory,
 to generate the build files, change to the build directory and enter the
 following command:

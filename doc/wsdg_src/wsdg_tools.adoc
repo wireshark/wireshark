@@ -130,7 +130,21 @@ after the cmake run. To only view the current cache, add option `-N`.
 
 Depending on your needs, it might be useful to save your CMake configuration options in a file outside your build directory.
 CMake supports this via its https://cmake.org/cmake/help/v3.23/manual/cmake-presets.7.html[presets] option.
-For example, adding the following to `CMakeUserPresets.json` would let you build using Ninja in the `build` directory, enable ccache, and set a custom Qt directory by running `cmake --preset mydev`:
+
+Wireshark ships a `CMakePresets.json` with a predefined `ninja_ccache` preset that uses Ninja as the generator and enables ccache.
+This preset sets the build directory to `${sourceDir}/build`.
+You can use it directly:
+
+[source,sh]
+----
+cmake --preset ninja_ccache
+cmake --build build
+----
+
+To customize the build directory or other settings without modifying the shared `CMakePresets.json`, create a `CMakeUserPresets.json` file in the source root (it is already listed in `.gitignore`).
+Use `inherits` to extend the shipped preset and override only what you need.
+
+For example, on macOS or Linux, to use an out-of-tree build directory, enable ccache and set a custom Qt path:
 
 [source,json]
 ----
@@ -140,8 +154,8 @@ For example, adding the following to `CMakeUserPresets.json` would let you build
     {
       "name": "mydev",
       "displayName": "Local development",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build",
+      "inherits": "ninja_ccache",
+      "binaryDir": "${sourceDir}/../build",
       "cacheVariables": {
         "ENABLE_CCACHE": "ON"
       },
@@ -152,6 +166,44 @@ For example, adding the following to `CMakeUserPresets.json` would let you build
   ]
 }
 ----
+
+On Windows, you might want to use the Visual Studio generator and a different build directory instead.
+The `inherits` field still pulls in cache variables like `ENABLE_CCACHE` from the base preset, while letting you override the generator and build path:
+
+[source,json]
+----
+{
+  "version": 4,
+  "configurePresets": [
+    {
+      "name": "vs-dev",
+      "displayName": "Visual Studio development",
+      "inherits": "ninja_ccache",
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "C:/build"
+    }
+  ]
+}
+----
+
+Then configure and build using your preset:
+
+[source,sh]
+----
+cmake --preset mydev
+cmake --build ../build
+----
+
+If you use VSCode with the CMake Tools extension, select your preset via the command palette (*CMake: Select Configure Preset*) or set it in `.vscode/settings.json`:
+
+[source,json]
+----
+{
+  "cmake.configurePreset": "mydev"
+}
+----
+
+NOTE: When a configure preset is active, CMake Tools uses the preset's `binaryDir` and ignores the `cmake.buildDirectory` setting.
 
 After running cmake, you can always run `make help` to see a list of all possible make targets.
 
