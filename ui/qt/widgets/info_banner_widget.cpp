@@ -36,15 +36,67 @@
 #include <algorithm>
 #include <random>
 
+/*
+ * Layout constants for slide rendering.
+ * Used by both paintEvent() and buttonRect() to keep layout in sync.
+ */
+
+/* Vertical margin above the first content element (tag pill). */
+static constexpr int kContentTopMargin     = 12;
+
+/* Vertical gap between consecutive layout sections (tag→title, desc box→body, etc.). */
+static constexpr int kSectionSpacing       = 8;
+
+/* Corner radius for the outer card background. */
+static constexpr int kCardRadius           = 8;
+
+/* Font size for the tag pill label (smallest text in the card). */
+static constexpr int kSmallFontSize        = 9;
+
+/* Font size shared by description text, action button, and illustration fallback. */
+static constexpr int kNormalFontSize       = 11;
+
+/* Font size for the body text area below the description box. */
+static constexpr int kBodyFontSize         = 10;
+
+/* Font size for the slide title. */
+static constexpr int kTitleFontSize        = 15;
+
+/* Total vertical space consumed by the title row (includes line height + padding). */
+static constexpr int kTitleAdvance         = 24;
+
+/* Inner padding of the description highlight box. */
+static constexpr int kDescBoxPadding       = 10;
+
+/* Vertical gap between the two description text lines inside the highlight box. */
+static constexpr int kDescLineSpacing      = 3;
+
+/* Height of the body text area for normal and seasonal slides respectively. */
+static constexpr int kBodyHeight           = 48;
+static constexpr int kBodyHeightSeasonal   = 64;
+
+/* Vertical gap below the body text area. */
+static constexpr int kBodyBottomSpacing    = 4;
+
+/* Vertical and horizontal padding added to the action button around its text. */
+static constexpr int kBtnPaddingV          = 12;
+static constexpr int kBtnPaddingH          = 24;
+
+/* Extra margin around each navigation dot for hit-testing (enlarges the tap target). */
+static constexpr int kDotHitMargin         = 6;
+
+
 InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
     QFrame(parent)
     , current_slide_(0)
     , compact_mode_(false)
+    , hovered_(false)
     , auto_advance_timer_(new QTimer(this))
     , auto_advance_ms_(kDefaultAutoAdvanceMs)
     , default_color_start_(QColor(0x33, 0x33, 0x33))
     , default_color_end_(QColor(0x22, 0x22, 0x22))
 {
+    qRegisterMetaType<BannerSlideType>();
     slide_type_visible_[BannerEvents] = true;
     slide_type_visible_[BannerSponsorship] = true;
     slide_type_visible_[BannerTips] = true;
@@ -52,7 +104,6 @@ InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
     applySlideFilter();
 
     setMouseTracking(true);
-    setCursor(Qt::PointingHandCursor);
     setFrameShape(QFrame::NoFrame);
     setFixedWidth(kCardWidth);
     setMinimumHeight(kCardHeight);
@@ -64,6 +115,9 @@ InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
 
 BannerSlideType InfoBannerWidget::typeFromString(const QString &type_str)
 {
+    /* We could do this automatically using QMetaEnum if needed, but for just three fields
+       that feels like overkill. */
+
     if (type_str == QLatin1String("events"))
         return BannerEvents;
     if (type_str == QLatin1String("sponsorship"))
@@ -71,6 +125,24 @@ BannerSlideType InfoBannerWidget::typeFromString(const QString &type_str)
     if (type_str == QLatin1String("tips"))
         return BannerTips;
     return static_cast<BannerSlideType>(-1);
+}
+
+BannerSlideType InfoBannerWidget::validTypeFromString(const QString &type_str,
+                                            const QString &resource_path,
+                                            const QString &context,
+                                            bool is_custom)
+{
+    BannerSlideType type = typeFromString(type_str);
+    if (static_cast<int>(type) < 0) {
+        qWarning("InfoBannerWidget: unknown type \"%s\" in %s of %s, skipping",
+                 qUtf8Printable(type_str), qUtf8Printable(context), qUtf8Printable(resource_path));
+    }
+    if (is_custom && type == BannerSponsorship) {
+        qWarning("InfoBannerWidget: sponsorship type not allowed in custom file %s, skipping",
+                 qUtf8Printable(resource_path));
+        return static_cast<BannerSlideType>(-1);
+    }
+    return type;
 }
 
 QString InfoBannerWidget::resolveI18nField(const QJsonObject &obj,
@@ -263,9 +335,10 @@ void InfoBannerWidget::loadSlidesFromResource(const QString &resource_path,
         for (const QString &type_name : color_types) {
             if (!colors_obj.contains(type_name))
                 continue;
-            BannerSlideType type = typeFromString(type_name);
+            BannerSlideType type = validTypeFromString(type_name, resource_path, "config.colors", is_custom);
             if (static_cast<int>(type) < 0)
                 continue;
+
             QJsonObject cobj = colors_obj.value(type_name).toObject();
             SlideTypeConfig &cfg = file_config[type];
             QColor start(cobj.value(QStringLiteral("start")).toString());
@@ -279,12 +352,10 @@ void InfoBannerWidget::loadSlidesFromResource(const QString &resource_path,
         // Parse per-type settings
         QJsonObject types_obj = config_obj.value(QStringLiteral("types")).toObject();
         for (auto it = types_obj.constBegin(); it != types_obj.constEnd(); ++it) {
-            BannerSlideType type = typeFromString(it.key());
-            if (static_cast<int>(type) < 0) {
-                qWarning("InfoBannerWidget: unknown type \"%s\" in config.types of %s",
-                         qUtf8Printable(it.key()), qUtf8Printable(resource_path));
+            BannerSlideType type = validTypeFromString(it.key(), resource_path, "config.types", is_custom);
+            if (static_cast<int>(type) < 0)
                 continue;
-            }
+
             QJsonObject tobj = it.value().toObject();
             SlideTypeConfig &cfg = file_config[type];
             if (tobj.contains(QStringLiteral("randomized")))
@@ -304,20 +375,10 @@ void InfoBannerWidget::loadSlidesFromResource(const QString &resource_path,
         QJsonObject obj = val.toObject();
         QString type_str = obj.value(QStringLiteral("type")).toString();
 
-        BannerSlideType type = typeFromString(type_str);
-        if (static_cast<int>(type) < 0) {
-            qWarning("InfoBannerWidget: unknown slide type \"%s\" in %s, skipping",
-                     qUtf8Printable(type_str),
-                     qUtf8Printable(resource_path));
+        BannerSlideType type = validTypeFromString(type_str, resource_path, "slides", is_custom);
+        if (static_cast<int>(type) < 0)
             continue;
-        }
 
-        // Sponsorship slides in custom files are not allowed
-        if (is_custom && type == BannerSponsorship) {
-            qWarning("InfoBannerWidget: sponsorship slides not allowed in custom file %s, skipping",
-                     qUtf8Printable(resource_path));
-            continue;
-        }
 
         // Validate required fields before translation (check raw JSON values)
         QString raw_title = obj.value(QStringLiteral("title")).toString();
@@ -618,7 +679,7 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
 
     painter.setPen(Qt::NoPen);
     painter.setBrush(gradient);
-    painter.drawRoundedRect(r, 8, 8);
+    painter.drawRoundedRect(r, kCardRadius, kCardRadius);
 
     int y;
     if (!compact_mode_) {
@@ -663,7 +724,7 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
             painter.drawPath(clip_path);
 
             QFont illus_font = font();
-            illus_font.setPixelSize(11);
+            illus_font.setPixelSize(kNormalFontSize);
             illus_font.setCapitalization(QFont::AllUppercase);
             illus_font.setLetterSpacing(QFont::AbsoluteSpacing, 2.0);
             painter.setFont(illus_font);
@@ -671,14 +732,14 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
             painter.drawText(illus_rect, Qt::AlignCenter, slide.tag.toUpper());
         }
 
-        y = kIllustrationHeight + 12;
+        y = kIllustrationHeight + kContentTopMargin;
     } else {
-        y = 12;
+        y = kContentTopMargin;
     }
 
     // Tag / subheader pill
     QFont tag_font = font();
-    tag_font.setPixelSize(9);
+    tag_font.setPixelSize(kSmallFontSize);
     tag_font.setBold(true);
     tag_font.setCapitalization(QFont::AllUppercase);
     tag_font.setLetterSpacing(QFont::AbsoluteSpacing, 0.5);
@@ -697,87 +758,93 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
     painter.setPen(QColor(255, 255, 255, 200));
     painter.drawText(pill_rect, Qt::AlignCenter, tag_text);
 
-    y += pill_h + 8;
+    y += pill_h + kSectionSpacing;
 
     // --- Title ---
     QFont title_font = font();
-    title_font.setPixelSize(15);
+    title_font.setPixelSize(kTitleFontSize);
     title_font.setBold(true);
     painter.setFont(title_font);
     painter.setPen(Qt::white);
 
-    QRectF title_rect(kContentLeftMargin, y, content_width, 20);
+    QRectF title_rect(kContentLeftMargin, y, content_width, kTitleFontSize + 5);
     painter.drawText(title_rect, Qt::AlignLeft | Qt::AlignVCenter, slide.title);
 
-    y += 24;
+    y += kTitleAdvance;
 
+    bool descriptionEmpty = slide.description.isEmpty() && slide.description_sub.isEmpty();
     // --- Description highlight box (skip for seasonal slides) ---
-    if (!is_seasonal) {
+    if (!is_seasonal && !descriptionEmpty) {
         QFont desc_font = font();
-        desc_font.setPixelSize(11);
+        desc_font.setPixelSize(kNormalFontSize);
         painter.setFont(desc_font);
         QFontMetrics desc_fm(desc_font);
 
-        int box_padding = 10;
-        int box_inner_width = content_width - box_padding * 2;
+        int box_inner_width = content_width - kDescBoxPadding * 2;
         int line1_h = slide.description.isEmpty() ? 0 : desc_fm.height();
         int line2_h = slide.description_sub.isEmpty() ? 0 : desc_fm.height();
-        int box_h = box_padding * 2 + line1_h + (line2_h > 0 ? line2_h + 3 : 0);
+        int box_h = kDescBoxPadding * 2 + line1_h + (line2_h > 0 ? line2_h + kDescLineSpacing : 0);
 
         QRectF desc_box(kContentLeftMargin, y, content_width, box_h);
         painter.setBrush(QColor(255, 255, 255, 25));
         painter.setPen(Qt::NoPen);
-        painter.drawRoundedRect(desc_box, 6, 6);
+        painter.drawRoundedRect(desc_box, kCardRadius - 2, kCardRadius - 2);
 
-        int text_y = y + box_padding;
+        int text_y = y + kDescBoxPadding;
         if (line1_h > 0) {
             painter.setPen(QColor(255, 255, 255, 230));
-            painter.drawText(QRectF(kContentLeftMargin + box_padding, text_y, box_inner_width, line1_h),
+            painter.drawText(QRectF(kContentLeftMargin + kDescBoxPadding, text_y, box_inner_width, line1_h),
                              Qt::AlignLeft | Qt::AlignVCenter,
                              desc_fm.elidedText(slide.description, Qt::ElideRight, box_inner_width));
-            text_y += line1_h + 3;
+            text_y += line1_h + kDescLineSpacing;
         }
         if (line2_h > 0) {
             painter.setPen(QColor(255, 255, 255, 170));
-            painter.drawText(QRectF(kContentLeftMargin + box_padding, text_y, box_inner_width, line2_h),
+            painter.drawText(QRectF(kContentLeftMargin + kDescBoxPadding, text_y, box_inner_width, line2_h),
                              Qt::AlignLeft | Qt::AlignVCenter,
                              desc_fm.elidedText(slide.description_sub, Qt::ElideRight, box_inner_width));
         }
 
-        y += box_h + 8;
+        y += box_h + kSectionSpacing;
     }
 
     // --- Body text (skip in compact mode) ---
     if (!compact_mode_ && !slide.body_text.isEmpty()) {
         QFont body_font = font();
-        body_font.setPixelSize(is_seasonal ? 13 : 10);
+        body_font.setPixelSize(is_seasonal ? kBodyFontSize + 3 : kBodyFontSize);
         painter.setFont(body_font);
         painter.setPen(QColor(255, 255, 255, is_seasonal ? 220 : 160));
 
-        int body_h = is_seasonal ? 64 : 48;
+        int body_h = is_seasonal ? kBodyHeightSeasonal : kBodyHeight;
         QRectF body_rect(kContentLeftMargin, y, content_width, body_h);
         painter.drawText(body_rect, Qt::AlignLeft | Qt::TextWordWrap, slide.body_text);
 
-        y += body_h + 4;
+        y += body_h + kBodyBottomSpacing;
     }
 
     // --- Action button ---
     if (!slide.button_label.isEmpty()) {
         QFont btn_font = font();
-        btn_font.setPixelSize(11);
+        btn_font.setPixelSize(kNormalFontSize);
         btn_font.setBold(true);
         painter.setFont(btn_font);
         QFontMetrics btn_fm(btn_font);
 
-        int btn_h = btn_fm.height() + 12;
-        int btn_w = btn_fm.horizontalAdvance(slide.button_label) + 24;
-        QRectF btn_rect(kContentLeftMargin, y, btn_w, btn_h);
+        int btn_h = btn_fm.height() + kBtnPaddingV;
+        int btn_w = btn_fm.horizontalAdvance(slide.button_label) + kBtnPaddingH;
+        int btn_x = static_cast<int>((r.width() - btn_w) / 2.0);
+        QRectF btn_rect(btn_x, y, btn_w, btn_h);
 
-        painter.setBrush(Qt::NoBrush);
-        painter.setPen(QPen(QColor(255, 255, 255, 180), 1.0));
-        painter.drawRoundedRect(btn_rect, 4, 4);
+        if (hovered_) {
+            painter.setBrush(QColor(255, 255, 255, 40));
+            painter.setPen(QPen(QColor(255, 255, 255, 220), 1.0));
+        } else {
+            painter.setBrush(Qt::NoBrush);
+            painter.setPen(QPen(QColor(255, 255, 255, 180), 1.0));
+        }
+        painter.drawRoundedRect(btn_rect, kBtnPaddingV / 3, kBtnPaddingV / 3);
 
-        painter.setPen(QColor(255, 255, 255, 220));
+        painter.setPen(QColor(255, 255, 255, hovered_ ? 255 : 220));
         painter.drawText(btn_rect, Qt::AlignCenter, slide.button_label);
     }
 
@@ -806,36 +873,49 @@ QRect InfoBannerWidget::buttonRect() const
     const BannerSlide &slide = slides_[current_slide_];
     if (slide.button_label.isEmpty()) return QRect();
 
-    // Approximate button position by replaying the layout logic
+    bool descriptionEmpty = slide.description.isEmpty() && slide.description_sub.isEmpty();
+    bool is_seasonal = (slide.type == BannerSeasonal);
+
+    // --- Tag pill ---
     QFont tag_font = font();
-    tag_font.setPixelSize(9);
+    tag_font.setPixelSize(kSmallFontSize);
     tag_font.setBold(true);
     QFontMetrics tag_fm(tag_font);
     int pill_h = tag_fm.height() + 6;
 
-    int y_start = compact_mode_ ? 12 : (kIllustrationHeight + 12);
-    int y = y_start + pill_h + 8 + 24; // after tag + title
+    int y = compact_mode_ ? kContentTopMargin : (kIllustrationHeight + kContentTopMargin);
+    y += pill_h + kSectionSpacing;
 
-    QFont desc_font = font();
-    desc_font.setPixelSize(11);
-    QFontMetrics desc_fm(desc_font);
-    int line1_h = desc_fm.height();
-    int line2_h = slide.description_sub.isEmpty() ? 0 : desc_fm.height();
-    int box_h = 10 * 2 + line1_h + (line2_h > 0 ? line2_h + 3 : 0);
-    y += box_h + 8;
+    // --- Title ---
+    y += kTitleAdvance;
 
-    if (!compact_mode_ && !slide.body_text.isEmpty()) {
-        y += 52;
+    // --- Description highlight box (skip for seasonal slides) ---
+    if (!is_seasonal && !descriptionEmpty) {
+        QFont desc_font = font();
+        desc_font.setPixelSize(kNormalFontSize);
+        QFontMetrics desc_fm(desc_font);
+        int line1_h = slide.description.isEmpty() ? 0 : desc_fm.height();
+        int line2_h = slide.description_sub.isEmpty() ? 0 : desc_fm.height();
+        int box_h = kDescBoxPadding * 2 + line1_h + (line2_h > 0 ? line2_h + kDescLineSpacing : 0);
+        y += box_h + kSectionSpacing;
     }
 
+    // --- Body text (skip in compact mode) ---
+    if (!compact_mode_ && !slide.body_text.isEmpty()) {
+        int body_h = is_seasonal ? kBodyHeightSeasonal : kBodyHeight;
+        y += body_h + kBodyBottomSpacing;
+    }
+
+    // --- Action button ---
     QFont btn_font = font();
-    btn_font.setPixelSize(11);
+    btn_font.setPixelSize(kNormalFontSize);
     btn_font.setBold(true);
     QFontMetrics btn_fm(btn_font);
-    int btn_h = btn_fm.height() + 12;
-    int btn_w = btn_fm.horizontalAdvance(slide.button_label) + 24;
+    int btn_h = btn_fm.height() + kBtnPaddingV;
+    int btn_w = btn_fm.horizontalAdvance(slide.button_label) + kBtnPaddingH;
+    int btn_x = (width() - btn_w) / 2;
 
-    return QRect(kContentLeftMargin, y, btn_w, btn_h);
+    return QRect(btn_x, y, btn_w, btn_h);
 }
 
 QRect InfoBannerWidget::dotRect(int index) const
@@ -846,7 +926,7 @@ QRect InfoBannerWidget::dotRect(int index) const
     int dots_x = (static_cast<int>(r.width()) - total_dots_width) / 2;
     int dots_y = static_cast<int>(r.height()) - kDotBottomMargin;
 
-    int hit_margin = 6;
+    int hit_margin = kDotHitMargin;
     return QRect(
         dots_x + index * kDotSpacing - hit_margin,
         dots_y - kDotRadius - hit_margin,
@@ -894,23 +974,29 @@ void InfoBannerWidget::mousePressEvent(QMouseEvent *event)
         }
         return;
     }
-
-    // Click anywhere else also opens the URL
-    if (current_slide_ >= 0 && current_slide_ < static_cast<int>(slides_.size())) {
-        const QString &url = slides_[current_slide_].url;
-        if (!url.isEmpty()) {
-            QDesktopServices::openUrl(QUrl(url));
-        }
-    }
 }
 
 void InfoBannerWidget::mouseMoveEvent(QMouseEvent *event)
 {
     QRect btn = buttonRect();
-    if ((btn.isValid() && btn.contains(event->pos())) || dotHitTest(event->pos()) >= 0) {
+    bool over_btn = btn.isValid() && btn.contains(event->pos());
+    if (over_btn || dotHitTest(event->pos()) >= 0) {
         setCursor(Qt::PointingHandCursor);
     } else {
-        setCursor(Qt::PointingHandCursor);
+        setCursor(Qt::ArrowCursor);
+    }
+    if (over_btn != hovered_) {
+        hovered_ = over_btn;
+        update();
     }
     QFrame::mouseMoveEvent(event);
+}
+
+void InfoBannerWidget::leaveEvent(QEvent *event)
+{
+    if (hovered_) {
+        hovered_ = false;
+        update();
+    }
+    QFrame::leaveEvent(event);
 }

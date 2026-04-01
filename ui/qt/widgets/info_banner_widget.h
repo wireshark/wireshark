@@ -21,35 +21,36 @@
 
 class QJsonObject;
 
-enum BannerSlideType {
-    BannerEvents,
-    BannerSponsorship,
-    BannerTips,
-    BannerSeasonal,
-};
+    enum BannerSlideType {
+            BannerEvents,
+            BannerSponsorship,
+            BannerTips,
+            BannerSeasonal,
+    };
+    Q_DECLARE_METATYPE(BannerSlideType)
 
-struct BannerSlide {
-    BannerSlideType type;
-    QString tag;              // type label shown as subheader, e.g. "Tip of the Day"
-    QString title;            // main heading, e.g. "Quick Filter Shortcut"
-    QString description;      // primary text shown in highlight box
-    QString description_sub;  // secondary line in highlight box
-    QString body_text;        // additional text below the highlight box
-    QString button_label;     // action button text, e.g. "More Tips"
-    QString url;              // click/button target
-    QString image;            // banner image filename, resolved under :/json/banners/
-    QDate date_from;          // slide visible from this date (inclusive), invalid = always
-    QDate date_until;         // slide visible until this date (inclusive), invalid = always
-};
+    struct BannerSlide {
+            BannerSlideType type;
+            QString tag;              // type label shown as subheader, e.g. "Tip of the Day"
+            QString title;            // main heading, e.g. "Quick Filter Shortcut"
+            QString description;      // primary text shown in highlight box
+            QString description_sub;  // secondary line in highlight box
+            QString body_text;        // additional text below the highlight box
+            QString button_label;     // action button text, e.g. "More Tips"
+            QString url;              // click/button target
+            QString image;            // banner image filename, resolved under :/json/banners/
+            QDate date_from;          // slide visible from this date (inclusive), invalid = always
+            QDate date_until;         // slide visible until this date (inclusive), invalid = always
+    };
 
-struct SlideTypeConfig {
-    bool randomized = false;
-    int maxdisplay = 0;       // 0 = show all (no limit)
-    bool only = false;        // only slides from this file for this type
-    bool hidden = false;      // suppress this type entirely (custom files only)
-    QColor color_start;
-    QColor color_end;
-};
+    struct SlideTypeConfig {
+            bool randomized = false;
+            int maxdisplay = 0;       // 0 = show all (no limit)
+            bool only = false;        // only slides from this file for this type
+            bool hidden = false;      // suppress this type entirely (custom files only)
+            QColor color_start;
+            QColor color_end;
+    };
 
 class InfoBannerWidget : public QFrame {
     Q_OBJECT
@@ -69,6 +70,7 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
     void changeEvent(QEvent *event) override;
 
 private:
@@ -76,6 +78,7 @@ private:
     QList<BannerSlide> slides_;
     int current_slide_;
     bool compact_mode_;
+    bool hovered_;
     QMap<BannerSlideType, bool> slide_type_visible_;
     QTimer *auto_advance_timer_;
     int auto_advance_ms_;
@@ -114,6 +117,10 @@ private:
     QRect dotRect(int index) const;
     QRect buttonRect() const;
     static BannerSlideType typeFromString(const QString &type_str);
+    static BannerSlideType validTypeFromString(const QString &type_str,
+                                               const QString &resource_path,
+                                               const QString &context,
+                                               bool is_custom);
 
     // Layout constants
     static constexpr int kCardWidth = 300;
