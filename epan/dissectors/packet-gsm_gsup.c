@@ -625,7 +625,6 @@ static void dissect_sm_rp_ui_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offs
 		break;
 	default:
 		/* Just to be sure */
-		DISSECTOR_ASSERT(0);
 		break;
 	}
 
