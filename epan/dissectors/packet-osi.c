@@ -95,8 +95,8 @@ osi_check_and_get_checksum( tvbuff_t *tvb, int offset, unsigned len, int offset_
   int           block, x, y;
 
   /* Make sure the checksum is part of the data being checksummed. */
-  DISSECTOR_ASSERT(offset_check >= offset);
-  DISSECTOR_ASSERT((unsigned)offset_check + 2 <= (unsigned)offset + len);
+  if ((offset_check < offset) || ((unsigned)offset_check + 2 > (unsigned)offset + len))
+    return false;
 
   /*
    * If we don't have all the data to be checksummed, report that and don't
