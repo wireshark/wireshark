@@ -1460,6 +1460,50 @@ dlt_to_linktype(int dlt)
 	return (dlt);
 }
 
+static void
+cap_pipe_ensure_databuf_size(capture_src *pcap_src, uint32_t block_length) {
+
+    size_t new_bufsize = block_length;
+    if (new_bufsize > pcap_src->cap_pipe_databuf_size) {
+        /*
+        * Grow the buffer to the packet size, rounded up to a power of
+        * 2.
+        *
+        * Caveats: This can "round up" to 0 if new_bufsize is 0 or, on
+        * platforms where size_t is 32 bits, larger than 2^31, which is
+        * not very useful. We shouldn't have to worry about 0, because
+        * pcap_src->cap_pipe_databuf_size is initialized to a nonzero
+        * value.
+        *
+        * All the various values of WTAP_MAX_PACKET_SIZE_*, and thus
+        * pcap_src->cap_pipe_max_pkt_size, are smaller than 2^31, but
+        * we don't check all blocks against the max pkt size since
+        * db9ed8844c48326a3a8e3823d1d9f152e6667542. Either we should, or
+        * we should probably have some fixed maximum and report failure
+        * in those cases.
+        */
+        /*
+        * https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+        */
+        /* XXX - Should this be added to wsutil/ws_roundup.h? */
+        new_bufsize--;
+        new_bufsize |= new_bufsize >> 1;
+        new_bufsize |= new_bufsize >> 2;
+        new_bufsize |= new_bufsize >> 4;
+        new_bufsize |= new_bufsize >> 8;
+        new_bufsize |= new_bufsize >> 16;
+        new_bufsize++;
+        if (new_bufsize == 0) {
+            /* Should only happen on platforms where SIZE_WIDTH is 32, which
+             * is new in C23 (or we could add a size check to CMake.)
+             */
+            new_bufsize = UINT32_MAX;
+        }
+        pcap_src->cap_pipe_databuf = (uint8_t*)g_realloc(pcap_src->cap_pipe_databuf, new_bufsize);
+        pcap_src->cap_pipe_databuf_size = new_bufsize;
+    }
+}
+
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
 static void
@@ -2302,6 +2346,7 @@ pcapng_read_shb(capture_src *pcap_src,
                 size_t errmsgl)
 {
     pcapng_section_header_block_t shb;
+    pcapng_block_header_t *bh = &pcap_src->cap_pipe_info.pcapng.bh;
 
 #ifdef _WIN32
     if (pcap_src->from_cap_socket)
@@ -2382,7 +2427,24 @@ pcapng_read_shb(capture_src *pcap_src,
         return -1;
     }
 
+    if ((bh->block_total_length & 0x03) != 0) {
+        snprintf(errmsg, errmsgl,
+                   "block_total_length read from pipe is %u, which is not a multiple of 4.",
+                   bh->block_total_length);
+        return -1;
+    }
+
     pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_STANDARD;
+
+    cap_pipe_ensure_databuf_size(pcap_src, bh->block_total_length);
+
+    /* Make sure the total length is sane */
+    if (bh->block_total_length < sizeof(pcapng_block_header_t)+sizeof(pcapng_section_header_block_t)+sizeof(uint32_t)) {
+        snprintf(errmsg, errmsgl,
+                   "malformed pcapng SHB block_total_length < minimum");
+        pcap_src->cap_pipe_err = PIPEOF;
+        return -1;
+    }
 
     /* Setup state to capture any options following the section header block */
     pcap_src->cap_pipe_state = STATE_EXPECT_DATA;
@@ -2567,12 +2629,6 @@ pcapng_pipe_open_live(int fd,
         pcap_src->cap_pipe_fd = fd;
     }
 #endif
-    if ((bh->block_total_length & 0x03) != 0) {
-        snprintf(errmsg, errmsgl,
-                   "block_total_length read from pipe is %u, which is not a multiple of 4.",
-                   bh->block_total_length);
-        goto error;
-    }
     if (pcapng_read_shb(pcap_src, errmsg, errmsgl)) {
         goto error;
     }
@@ -2601,7 +2657,6 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
     void *    q_status;
 #endif
     ssize_t   b;
-    unsigned new_bufsize;
     pcap_pipe_info_t *pcap_info = &pcap_src->cap_pipe_info.pcap;
 
 #ifdef LOG_CAPTURE_VERBOSE
@@ -2763,25 +2818,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
             break;
         }
 
-        if (pcap_info->rechdr.hdr.incl_len > pcap_src->cap_pipe_databuf_size) {
-            /*
-             * Grow the buffer to the packet size, rounded up to a power of
-             * 2.
-             */
-            new_bufsize = pcap_info->rechdr.hdr.incl_len;
-            /*
-             * https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-             */
-            new_bufsize--;
-            new_bufsize |= new_bufsize >> 1;
-            new_bufsize |= new_bufsize >> 2;
-            new_bufsize |= new_bufsize >> 4;
-            new_bufsize |= new_bufsize >> 8;
-            new_bufsize |= new_bufsize >> 16;
-            new_bufsize++;
-            pcap_src->cap_pipe_databuf = (char*)g_realloc(pcap_src->cap_pipe_databuf, new_bufsize);
-            pcap_src->cap_pipe_databuf_size = new_bufsize;
-        }
+        cap_pipe_ensure_databuf_size(pcap_src, pcap_info->rechdr.hdr.incl_len);
 
         if (pcap_info->rechdr.hdr.incl_len) {
             /*
@@ -2849,7 +2886,6 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
 #ifdef _WIN32
     void *    q_status;
 #endif
-    unsigned new_bufsize;
     pcapng_block_header_t *bh = &pcap_src->cap_pipe_info.pcapng.bh;
 
 #ifdef LOG_CAPTURE_VERBOSE
@@ -3019,25 +3055,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
             break;
         }
 
-        if (bh->block_total_length > pcap_src->cap_pipe_databuf_size) {
-            /*
-            * Grow the buffer to the packet size, rounded up to a power of
-            * 2.
-            */
-            new_bufsize = bh->block_total_length;
-            /*
-            * https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-            */
-            new_bufsize--;
-            new_bufsize |= new_bufsize >> 1;
-            new_bufsize |= new_bufsize >> 2;
-            new_bufsize |= new_bufsize >> 4;
-            new_bufsize |= new_bufsize >> 8;
-            new_bufsize |= new_bufsize >> 16;
-            new_bufsize++;
-            pcap_src->cap_pipe_databuf = (unsigned char*)g_realloc(pcap_src->cap_pipe_databuf, new_bufsize);
-            pcap_src->cap_pipe_databuf_size = new_bufsize;
-        }
+        cap_pipe_ensure_databuf_size(pcap_src, bh->block_total_length);
 
         /* The record always has at least the block total length following the header */
         if (bh->block_total_length < sizeof(pcapng_block_header_t)+sizeof(uint32_t)) {
@@ -4773,6 +4791,11 @@ capture_loop_get_errmsg(char *errmsg, size_t errmsglen, char *secondary_errmsg,
         snprintf(secondary_errmsg, secondary_errmsglen, "%s", find_space);
         break;
 #endif
+
+    /* XXX - pcapng_write_block can set EINVAL (for block length and data
+     * are not aligned to 4 bytes) or EBADMSG (block_total_length field
+     * is not the same at the start and end of the block) and those should
+     * have more user-friendly messages than what g_strerror provides. */
 
     default:
         if (is_close) {
