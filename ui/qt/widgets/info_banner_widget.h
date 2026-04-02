@@ -66,6 +66,8 @@ public:
 
     QSize sizeHint() const override;
 
+    void startRotation();
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;

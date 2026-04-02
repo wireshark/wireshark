@@ -110,7 +110,13 @@ InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
     setMaximumHeight(kCardHeight);
 
     connect(auto_advance_timer_, &QTimer::timeout, this, &InfoBannerWidget::advanceSlide);
-    auto_advance_timer_->start(auto_advance_ms_);
+    auto_advance_timer_->stop();
+}
+
+void InfoBannerWidget::startRotation()
+{
+    if (!auto_advance_timer_->isActive())
+        auto_advance_timer_->start(auto_advance_ms_);
 }
 
 BannerSlideType InfoBannerWidget::typeFromString(const QString &type_str)
@@ -547,7 +553,7 @@ BannerSlide InfoBannerWidget::birthdaySlide()
 void InfoBannerWidget::advanceSlide()
 {
     if (slides_.isEmpty()) return;
-
+    
     int next = current_slide_ + 1;
     if (next >= static_cast<int>(slides_.size())) {
         // Cycle complete — advance per-type offsets and rebuild

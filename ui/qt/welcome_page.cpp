@@ -211,6 +211,7 @@ void WelcomePage::appInitialized()
 
     splash_overlay_->fadeOut();
     splash_overlay_ = NULL;
+    welcome_ui_->tipsSectionCard->startRotation();
 }
 
 void WelcomePage::applySidebarPreferences()
