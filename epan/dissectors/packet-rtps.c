@@ -9941,7 +9941,9 @@ static unsigned hash_by_participant_guid(const void *key) {
 
 static unsigned hash_by_guid(const void *key) {
   const endpoint_guid * guid = (const endpoint_guid *) key;
-  DISSECTOR_ASSERT(guid->fields_present & GUID_HAS_APP_ID);
+  if ((guid->fields_present & GUID_HAS_APP_ID) != GUID_HAS_APP_ID)
+    return 0xFFFFFFFF; /* If the app_id is not present, we cannot calculate a hash, so we return a constant value to put all these entries in the same bucket */
+
   return g_int_hash(&(guid->app_id));
 }
 
