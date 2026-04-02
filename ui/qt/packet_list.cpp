@@ -1226,8 +1226,6 @@ void PacketList::applyRecentColumnWidths()
         setColumnHidden(col, false);
         setRecentColumnWidth(col);
     }
-
-    column_state_ = header()->saveState();
 }
 
 void PacketList::preferencesChanged()
@@ -1620,14 +1618,8 @@ void PacketList::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
     packet_list_model_->setCaptureFile(cf);
-    if (cf) {
-        if (columns_changed_) {
-            columnsChanged();
-        } else {
-            // Restore columns widths and visibility.
-            header()->restoreState(column_state_);
-            setColumnVisibility();
-        }
+    if (cap_file_ && columns_changed_) {
+        columnsChanged();
     }
     create_near_overlay_ = true;
     changing_profile_ = false;
