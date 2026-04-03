@@ -176,6 +176,8 @@ static expert_field ei_icmp_type_deprecated;
 static expert_field ei_icmp_resp_not_found;
 static expert_field ei_icmp_checksum;
 static expert_field ei_icmp_ext_checksum;
+static expert_field ei_icmp_ext_obj_len_invalid;
+static expert_field ei_icmp_ext_obj_len_truncated;
 
 /* Extended Echo - Probe */
 static int hf_icmp_ext_echo_seq_num;
@@ -1037,7 +1039,7 @@ dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 						MAX(obj_trunc_length, 4),
 						ett_icmp_ext_object, &tf_object, "Unknown object");
 
-		proto_tree_add_uint(ext_object_tree, hf_icmp_ext_length,
+		proto_item* ti_length = proto_tree_add_uint(ext_object_tree, hf_icmp_ext_length,
 				    tvb, offset, 2, obj_length);
 
 		/* Class */
@@ -1049,10 +1051,18 @@ dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 		c_type = tvb_get_uint8(tvb, offset + 3);
 
 		if (obj_length < 4 /* Object header */ ) {
-			/* Thanks doc/README.developer :)) */
-			proto_item_set_text(tf_object,
-					    "Object with bad length");
+			expert_add_info_format(pinfo, ti_length,
+				&ei_icmp_ext_obj_len_invalid,
+				"Invalid ICMP extension object length: %u (minimum 4)",
+				obj_length);
 			break;
+		}
+
+		if (obj_trunc_length < obj_length) {
+			expert_add_info_format(pinfo, ti_length,
+				&ei_icmp_ext_obj_len_truncated,
+				"Truncated ICMP extension object: declared length %u, available %u",
+				obj_length, obj_trunc_length);
 		}
 
 
@@ -2457,6 +2467,12 @@ void proto_register_icmp(void)
 		{ &ei_icmp_resp_not_found, { "icmp.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
 		{ &ei_icmp_checksum, { "icmp.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
 		{ &ei_icmp_ext_checksum, { "icmp.ext.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+		{ &ei_icmp_ext_obj_len_invalid, { "icmp.ext.obj.len.invalid",
+		    PI_MALFORMED, PI_ERROR,
+		    "Invalid ICMP extension object length", EXPFILL }},
+		{ &ei_icmp_ext_obj_len_truncated, { "icmp.ext.obj.len.truncated",
+		    PI_MALFORMED, PI_WARN,
+		    "Truncated ICMP extension object", EXPFILL }},
 	};
 
 	module_t *icmp_module;
