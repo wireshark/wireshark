@@ -392,6 +392,12 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     bool decoded;
     tvbuff_t *dtvb = NULL;
     uint32_t reassembled_size = tvb_captured_length(new_tvb);
+    /* "Note that when Reed Solomon has been used, all fragments will
+     * be of length s" [i.e., plen]" */
+    if (reassembled_size != fcount * plen) {
+      proto_tree_add_expert_format_remaining(tree, pinfo, &ei_edcp_reassembly, new_tvb, 0, "[All fragments must be the same size when Reed Solomon is used]");
+      return NULL;
+    }
     const uint8_t *input = tvb_get_ptr(new_tvb, 0, reassembled_size);
     uint8_t *deinterleaved = (uint8_t*) wmem_alloc(pinfo->pool, reassembled_size);
     rs_deinterleave(input, deinterleaved, plen, fcount);
