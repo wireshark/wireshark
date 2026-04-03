@@ -31,8 +31,8 @@ void proto_register_HI2Operations(void);
 void proto_reg_handoff_HI2Operations(void);
 
 /* Initialize the protocol and registered fields */
-int proto_HI2Operations;
-int hf_HI2Operations_apn_str;
+static int proto_HI2Operations;
+static int hf_HI2Operations_apn_str;
 #include "packet-HI2Operations-hf.c"
 
 /* Initialize the subtree pointers */
