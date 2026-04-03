@@ -286,11 +286,6 @@ double asn1_get_real(const uint8_t *real_ptr, int len, int *err) {
         }
         return val;
       }
-    } else {
-      lenE++; // Make lenE the number of octets of the exponent
-      /* Note that in BER c) does not require that the leading octet is not
-       * all zeros or all ones, unlike d), so it might not overflow even if
-       * the number of exponent octets is 3. */
     }
 
     /* Ensure the buffer len and its content are coherent */
