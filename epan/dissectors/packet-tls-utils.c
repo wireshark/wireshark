@@ -9264,8 +9264,9 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_inf
         if (ssl) {
             /* save the authoritative SID for later use in ChangeCipherSpec.
              * (D)TLS restricts the SID to 32 chars, it does not make sense to
-             * save more, so ignore larger ones. */
-            if (from_server && sessid_length <= 32) {
+             * save more, so ignore larger ones. To support ECH, also save
+             * the SID from the ClientHelloOuter. */
+            if (sessid_length <= 32 && (from_server || sessid_length > 0)) {
                 tvb_memcpy(tvb, ssl->session_id.data, offset, sessid_length);
                 ssl->session_id.data_len = sessid_length;
             }
@@ -10066,47 +10067,82 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                         ssl->ech_transcript.data = (unsigned char*)wmem_alloc(wmem_file_scope(), hello_length + 4);
                     ssl->ech_transcript.data[ssl->ech_transcript.data_len] = SSL_HND_CLIENT_HELLO;
                     ssl->ech_transcript.data[ssl->ech_transcript.data_len + 1] = 0;
+                    /* Copy ClientHelloInner up to the legacy_session_id field. */
                     tvb_memcpy(ech_tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len + 4, 0, 34);
                     ssl->ech_transcript.data_len += 38;
-                    tvb_memcpy(tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len, 34,
-                        tvb_get_uint8(tvb, 34) + 1);
-                    ssl->ech_transcript.data_len += tvb_get_uint8(tvb, 34) + 1;
+                    /* Now copy the legacy_session_id field from ClientHelloOuter. */
+                    ssl->ech_transcript.data[ssl->ech_transcript.data_len] = ssl->session_id.data_len;
+                    ssl->ech_transcript.data_len++;
+                    memcpy(&ssl->ech_transcript.data[ssl->ech_transcript.data_len], ssl->session_id.data, ssl->session_id.data_len);
+                    ssl->ech_transcript.data_len += ssl->session_id.data_len;
+                    /* Skip past the legacy_session_id field in ClientHelloInner
+                     * (which should be the empty string, i.e. just a 0 size.) */
                     uint32_t ech_offset = 35 + tvb_get_uint8(ech_tvb, 34);
+                    /* Copy the Cipher Suites from ClientHelloInner. */
                     tvb_memcpy(ech_tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len, ech_offset,
                                2 + tvb_get_ntohs(ech_tvb, ech_offset));
                     ssl->ech_transcript.data_len += 2 + tvb_get_ntohs(ech_tvb, ech_offset);
                     ech_offset += 2 + tvb_get_ntohs(ech_tvb, ech_offset);
+                    /* Copy the Compression Methods */
                     tvb_memcpy(ech_tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len, ech_offset,
                                1 + tvb_get_uint8(ech_tvb, ech_offset));
                     ssl->ech_transcript.data_len += 1 + tvb_get_uint8(ech_tvb, ech_offset);
                     ech_offset += 1 + tvb_get_uint8(ech_tvb, ech_offset);
+                    /* Now replace extensions in ech_outer_extensions with the
+                     * data from ClientHelloOuter. */
                     uint32_t ech_extensions_len_offset = ssl->ech_transcript.data_len;
                     ssl->ech_transcript.data_len += 2;
                     uint32_t extensions_end = ech_offset + tvb_get_ntohs(ech_tvb, ech_offset) + 2;
                     ech_offset += 2;
                     while (extensions_end - ech_offset >= 4) {
-                        if (tvb_get_ntohs(ech_tvb, ech_offset) != SSL_HND_HELLO_EXT_ECH_OUTER_EXTENSIONS) {
-                            tvb_memcpy(ech_tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len, ech_offset,
-                                       4 + tvb_get_ntohs(ech_tvb, ech_offset + 2));
-                            ssl->ech_transcript.data_len += 4 + tvb_get_ntohs(ech_tvb, ech_offset + 2);
-                            ech_offset += 4 + tvb_get_ntohs(ech_tvb, ech_offset + 2);
-                        } else if (tvb_get_ntohs(ech_tvb, ech_offset + 2) > 0) {
-                            uint32_t outer_extensions_end = tvb_get_uint8(ech_tvb, ech_offset + 4) + ech_offset + 5;
-                            ech_offset += 5;
+                        uint16_t ext_type = tvb_get_ntohs(ech_tvb, ech_offset);
+                        ech_offset += 2;
+                        uint16_t ext_len = tvb_get_ntohs(ech_tvb, ech_offset);
+                        ech_offset += 2;
+                        if (ext_type != SSL_HND_HELLO_EXT_ECH_OUTER_EXTENSIONS) {
+                            /* Copy this extension directly */
+                            tvb_memcpy(ech_tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len,
+                                       ech_offset - 4, 4 + ext_len);
+                            ssl->ech_transcript.data_len += 4 + ext_len;
+                            ech_offset += ext_len;
+                        } else if (ext_len > 0) {
+                            unsigned num_ech_outer_extensions = tvb_get_uint8(ech_tvb, ech_offset);
+                            ech_offset += 1;
+                            uint32_t ech_outer_extensions_end = ech_offset + num_ech_outer_extensions;
+                            /* In ClientHelloOuter, skip past the legacy_session_id */
                             uint32_t outer_offset = 35 + tvb_get_uint8(tvb, 34);
+                            /* Skip past Cipher Suites */
                             outer_offset += tvb_get_ntohs(tvb, outer_offset) + 2;
+                            /* Skip past Compression Methods */
                             outer_offset += tvb_get_uint8(tvb, outer_offset) + 3;
-                            while (outer_extensions_end - ech_offset >= 2) {
+                            /* Now at the start of ClientHelloOuter's extensions */
+                            while (ech_outer_extensions_end - ech_offset >= 2) {
+                                ext_type = tvb_get_ntohs(ech_tvb, ech_offset);
+                                if (ext_type == SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO) {
+                                    ssl_debug_printf("Illegal parameter; encrypted_client_hello cannot appear within ech_outer_extensions\n");
+                                    /* This could lead to a buffer overflow by
+                                     * making the post-copying ClientHelloInner
+                                     * longer than ClientHelloOuter and is
+                                     * illegal, so don't copy. */
+                                    break;
+                                }
+                                bool found = false;
                                 while (tvb_reported_length_remaining(tvb, outer_offset) >= 4) {
-                                    if (tvb_get_ntohs(tvb, outer_offset) == tvb_get_ntohs(ech_tvb, ech_offset)) {
+                                    uint16_t outer_ext_type = tvb_get_ntohs(tvb, outer_offset);
+                                    uint16_t outer_ext_len = tvb_get_ntohs(tvb, outer_offset + 2);
+                                    if (ext_type == outer_ext_type) {
                                         tvb_memcpy(tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len, outer_offset,
-                                                   4 + tvb_get_ntohs(tvb, outer_offset + 2));
-                                        ssl->ech_transcript.data_len += 4 + tvb_get_ntohs(tvb, outer_offset + 2);
-                                        outer_offset += 4 + tvb_get_ntohs(tvb, outer_offset + 2);
+                                                   4 + outer_ext_len);
+                                        ssl->ech_transcript.data_len += 4 + outer_ext_len;
+                                        outer_offset += 4 + outer_ext_len;
+                                        found = true;
                                         break;
                                     } else {
-                                        outer_offset += 4 + tvb_get_ntohs(tvb, outer_offset + 2);
+                                        outer_offset += 4 + outer_ext_len;
                                     }
+                                }
+                                if (!found) {
+                                    ssl_debug_printf("Extension %s was not found in ClientHelloOuter (possibly out of order or referenced more than once)\n", val_to_str(pinfo->pool, ext_type, tls_hello_extension_types, "unknown (0x%02x)"));
                                 }
                                 ech_offset += 2;
                             }
