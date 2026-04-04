@@ -95,6 +95,18 @@ error_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data
   return tvb_captured_length(tvb);
 }
 
+/*--- Cyclic dependencies ---*/
+
+/* Invoke/argument -> Invoke/argument */
+static int dissect_h450_ros_InvokeArgument(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ReturnResult/result/result -> ReturnResult/result/result */
+static int dissect_h450_ros_ResultArgument(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ReturnError/parameter -> ReturnError/parameter */
+static int dissect_h450_ros_T_parameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 static int
@@ -159,8 +171,11 @@ dissect_h450_ros_T_invokeIdConstrained(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_h450_ros_InvokeArgument(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // Invoke/argument -> Invoke/argument
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, argument_cb);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -224,8 +239,11 @@ dissect_h450_ros_Invoke(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_h450_ros_ResultArgument(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ReturnResult/result/result -> ReturnResult/result/result
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, result_cb);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -305,8 +323,11 @@ dissect_h450_ros_ReturnResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_h450_ros_T_parameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ReturnError/parameter -> ReturnError/parameter
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, error_cb);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

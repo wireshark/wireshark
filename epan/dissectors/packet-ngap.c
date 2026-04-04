@@ -3964,6 +3964,27 @@ static int dissect_MulticastSessionActivationRequestTransfer_PDU(tvbuff_t *tvb _
 static int dissect_MulticastSessionDeactivationRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_MulticastSessionUpdateRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
+/*--- Cyclic dependencies ---*/
+
+/* ProtocolIE-Field/value -> ProtocolIE-Field/value */
+static int dissect_ngap_T_ie_field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ProtocolExtensionField/extensionValue -> ProtocolExtensionField/extensionValue */
+static int dissect_ngap_T_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* PrivateIE-Field/value -> PrivateIE-Field/value */
+static int dissect_ngap_T_private_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* InitiatingMessage/value -> InitiatingMessage/value */
+static int dissect_ngap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* SuccessfulOutcome/value -> SuccessfulOutcome/value */
+static int dissect_ngap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value */
+static int dissect_ngap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 static const value_string ngap_Criticality_vals[] = {
   {   0, "reject" },
@@ -4617,8 +4638,11 @@ dissect_ngap_TriggeringMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_ngap_T_ie_field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolIE-Field/value -> ProtocolIE-Field/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolIEFieldValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -4665,8 +4689,11 @@ dissect_ngap_ProtocolIE_SingleContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_ngap_T_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolExtensionField/extensionValue -> ProtocolExtensionField/extensionValue
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolExtensionFieldExtensionValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -4704,8 +4731,11 @@ dissect_ngap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_ngap_T_private_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // PrivateIE-Field/value -> PrivateIE-Field/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -26258,10 +26288,13 @@ dissect_ngap_RANPagingRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ngap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // InitiatingMessage/value -> InitiatingMessage/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   ngap_data->message_type = INITIATING_MESSAGE;
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -26285,10 +26318,13 @@ dissect_ngap_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_ngap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // SuccessfulOutcome/value -> SuccessfulOutcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   ngap_data->message_type = SUCCESSFUL_OUTCOME;
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -26312,6 +26348,8 @@ dissect_ngap_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_ngap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   ngap_data->message_type = UNSUCCESSFUL_OUTCOME;
 
@@ -26328,6 +26366,7 @@ dissect_ngap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

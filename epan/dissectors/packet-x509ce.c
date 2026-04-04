@@ -315,6 +315,12 @@ static int ett_x509ce_EntrustVersionInfo;
 static int ett_x509ce_EntrustInfoFlags;
 static int ett_x509ce_NFTypes;
 static int ett_x509ce_ScramblerCapabilities;
+/*--- Cyclic dependencies ---*/
+
+/* PolicyQualifierInfo/qualifier -> PolicyQualifierInfo/qualifier */
+static int dissect_x509ce_T_qualifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 int
@@ -609,9 +615,12 @@ dissect_x509ce_T_policyQualifierId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_x509ce_T_qualifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // PolicyQualifierInfo/qualifier -> PolicyQualifierInfo/qualifier
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

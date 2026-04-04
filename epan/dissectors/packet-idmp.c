@@ -166,6 +166,21 @@ static int ett_idmp_IdmReject;
 static int ett_idmp_Code;
 static int ett_idmp_InvokeId;
 
+/*--- Cyclic dependencies ---*/
+
+/* IdmBind/argument -> IdmBind/argument */
+static int dissect_idmp_Bind_argument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* IdmBindResult/result -> IdmBindResult/result */
+static int dissect_idmp_Bind_result(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* Request/argument -> Request/argument */
+static int dissect_idmp_T_argument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* IdmResult/result -> IdmResult/result */
+static int dissect_idmp_T_result(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 static int
@@ -179,10 +194,13 @@ dissect_idmp_OBJECT_IDENTIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_idmp_Bind_argument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // IdmBind/argument -> IdmBind/argument
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
   offset = call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_ARGUMENT), top_tree, session);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -211,10 +229,13 @@ dissect_idmp_IdmBind(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_idmp_Bind_result(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // IdmBindResult/result -> IdmBindResult/result
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
   offset = call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_RESULT), top_tree, session);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -334,10 +355,13 @@ dissect_idmp_Code(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_idmp_T_argument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // Request/argument -> Request/argument
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
   offset = call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_ARGUMENT | opcode), top_tree, session);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -392,10 +416,13 @@ dissect_idmp_InvokeId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_idmp_T_result(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // IdmResult/result -> IdmResult/result
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
   offset = call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_RESULT | opcode), top_tree, session);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

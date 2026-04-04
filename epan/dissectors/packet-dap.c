@@ -689,6 +689,18 @@ static const value_string dap_err_code_string_vals[] = {
 /* FamilyEntries -> FamilyEntries/familyEntries -> FamilyEntry -> FamilyEntry/family-info -> FamilyEntries */
 static int dissect_dap_FamilyEntries(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
+/* FilterItem/substrings/strings/_item/initial -> FilterItem/substrings/strings/_item/initial */
+static int dissect_dap_T_initial(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* FilterItem/substrings/strings/_item/any -> FilterItem/substrings/strings/_item/any */
+static int dissect_dap_T_any(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* FilterItem/substrings/strings/_item/final -> FilterItem/substrings/strings/_item/final */
+static int dissect_dap_T_final(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* MatchingRuleAssertion/matchValue -> MatchingRuleAssertion/matchValue */
+static int dissect_dap_T_matchValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
 /* Filter -> SetOfFilter -> Filter */
 /* Filter -> Filter */
 /*int dissect_dap_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
@@ -1279,11 +1291,14 @@ dissect_dap_FamilyEntries(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_dap_T_initial(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // FilterItem/substrings/strings/_item/initial -> FilterItem/substrings/strings/_item/initial
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 	proto_item *it;
 	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, ENC_BIG_ENDIAN);
 	proto_item_append_text(it," XXX: Not yet implemented!");
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -1291,9 +1306,12 @@ dissect_dap_T_initial(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_dap_T_any(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // FilterItem/substrings/strings/_item/any -> FilterItem/substrings/strings/_item/any
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 	/* XXX: not yet implemented */
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -1301,9 +1319,12 @@ dissect_dap_T_any(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_dap_T_final(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // FilterItem/substrings/strings/_item/final -> FilterItem/substrings/strings/_item/final
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 	/* XXX: not yet implemented */
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -1378,9 +1399,12 @@ dissect_dap_T_matchingRule(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_dap_T_matchValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // MatchingRuleAssertion/matchValue -> MatchingRuleAssertion/matchValue
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 	/* XXX: not yet implemented */
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

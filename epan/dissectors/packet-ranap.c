@@ -1721,6 +1721,36 @@ static int dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvbuff_t *tv
 static int dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 
+/*--- Cyclic dependencies ---*/
+
+/* ProtocolIE-Field/value -> ProtocolIE-Field/value */
+static int dissect_ranap_T_ie_field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ProtocolIE-FieldPair/firstValue -> ProtocolIE-FieldPair/firstValue */
+static int dissect_ranap_T_firstValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ProtocolIE-FieldPair/secondValue -> ProtocolIE-FieldPair/secondValue */
+static int dissect_ranap_T_secondValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ProtocolExtensionField/extensionValue -> ProtocolExtensionField/extensionValue */
+static int dissect_ranap_T_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* PrivateIE-Field/value -> PrivateIE-Field/value */
+static int dissect_ranap_T_private_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* InitiatingMessage/value -> InitiatingMessage/value */
+static int dissect_ranap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* SuccessfulOutcome/value -> SuccessfulOutcome/value */
+static int dissect_ranap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value */
+static int dissect_ranap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* Outcome/value -> Outcome/value */
+static int dissect_ranap_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 static const value_string ranap_Criticality_vals[] = {
   {   0, "reject" },
@@ -2192,8 +2222,11 @@ dissect_ranap_TriggeringMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ranap_T_ie_field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolIE-Field/value -> ProtocolIE-Field/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolIEFieldValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2231,8 +2264,11 @@ dissect_ranap_ProtocolIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_ranap_T_firstValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolIE-FieldPair/firstValue -> ProtocolIE-FieldPair/firstValue
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolIEFieldPairFirstValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2240,8 +2276,11 @@ dissect_ranap_T_firstValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_ranap_T_secondValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolIE-FieldPair/secondValue -> ProtocolIE-FieldPair/secondValue
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolIEFieldPairSecondValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2321,8 +2360,11 @@ dissect_ranap_ProtocolIE_ContainerPairList(tvbuff_t *tvb _U_, int offset _U_, as
 
 static int
 dissect_ranap_T_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolExtensionField/extensionValue -> ProtocolExtensionField/extensionValue
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolExtensionFieldExtensionValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2360,8 +2402,11 @@ dissect_ranap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_ranap_T_private_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // PrivateIE-Field/value -> PrivateIE-Field/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -11925,8 +11970,11 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RerouteNASRequest ");
 
 static int
 dissect_ranap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // InitiatingMessage/value -> InitiatingMessage/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -11950,8 +11998,11 @@ dissect_ranap_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ranap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // SuccessfulOutcome/value -> SuccessfulOutcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -11975,8 +12026,11 @@ dissect_ranap_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ranap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -12000,8 +12054,11 @@ dissect_ranap_UnsuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_ranap_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // Outcome/value -> Outcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_OutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

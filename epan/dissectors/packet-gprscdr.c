@@ -703,6 +703,12 @@ dissect_gprscdr_uli(tvbuff_t *tvb _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U
   return length;
 }
 
+/*--- Cyclic dependencies ---*/
+
+/* ManagementExtension/information -> ManagementExtension/information */
+static int dissect_gprscdr_T_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 static int
@@ -949,6 +955,8 @@ dissect_gprscdr_BOOLEAN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_gprscdr_T_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ManagementExtension/information -> ManagementExtension/information
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 
   proto_tree *ext_tree;
   ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gprscdr_managementextension_information, NULL, "Information");
@@ -959,6 +967,7 @@ dissect_gprscdr_T_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   }
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

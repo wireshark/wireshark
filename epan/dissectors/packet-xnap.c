@@ -3942,6 +3942,27 @@ xnap_get_ranmode_id(address *addr, uint32_t port, packet_info *pinfo)
   return ranmode_id;
 }
 
+/*--- Cyclic dependencies ---*/
+
+/* ProtocolIE-Field/value -> ProtocolIE-Field/value */
+static int dissect_xnap_ProtocolIE_Field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ProtocolExtensionField/extensionValue -> ProtocolExtensionField/extensionValue */
+static int dissect_xnap_T_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* PrivateIE-Field/value -> PrivateIE-Field/value */
+static int dissect_xnap_PrivateIE_Field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* InitiatingMessage/value -> InitiatingMessage/value */
+static int dissect_xnap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* SuccessfulOutcome/value -> SuccessfulOutcome/value */
+static int dissect_xnap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value */
+static int dissect_xnap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 static const value_string xnap_Criticality_vals[] = {
   {   0, "reject" },
@@ -4585,8 +4606,11 @@ dissect_xnap_TriggeringMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_xnap_ProtocolIE_Field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolIE-Field/value -> ProtocolIE-Field/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolIEFieldValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -4633,8 +4657,11 @@ dissect_xnap_ProtocolIE_Single_Container(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_xnap_T_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolExtensionField/extensionValue -> ProtocolExtensionField/extensionValue
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolExtensionFieldExtensionValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -4672,8 +4699,11 @@ dissect_xnap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_xnap_PrivateIE_Field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // PrivateIE-Field/value -> PrivateIE-Field/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -28978,11 +29008,14 @@ dissect_xnap_DataCollectionUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_xnap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // InitiatingMessage/value -> InitiatingMessage/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
   xnap_data->message_type = INITIATING_MESSAGE;
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -29006,11 +29039,14 @@ dissect_xnap_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_xnap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // SuccessfulOutcome/value -> SuccessfulOutcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
   xnap_data->message_type = SUCCESSFUL_OUTCOME;
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -29034,11 +29070,14 @@ dissect_xnap_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_xnap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
   xnap_data->message_type = UNSUCCESSFUL_OUTCOME;
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

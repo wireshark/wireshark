@@ -136,14 +136,6 @@ static wmem_tree_t *atn_conversation_tree;
 static proto_tree *root_tree;
 
 /* forward declarations for functions generated from asn1 */
-static int dissect_atn_ulcs_T_externalt_encoding_single_asn1_type(
-    tvbuff_t *tvb _U_,
-    int offset _U_,
-    asn1_ctx_t *actx _U_,
-    proto_tree *tree _U_,
-    int hf_index
-    _U_);
-
 static int dissect_atn_ulcs_T_externalt_encoding_octet_aligned(
     tvbuff_t *tvb _U_,
     int offset _U_,
@@ -280,6 +272,15 @@ static int ett_atn_ulcs_AttributeTypeAndValue;
 static int ett_atn_ulcs;
 static int ett_atn_acse;
 
+/*--- Cyclic dependencies ---*/
+
+/* PDV-list/presentation-data-values/single-ASN1-type -> PDV-list/presentation-data-values/single-ASN1-type */
+static int dissect_atn_ulcs_T_pdv_list_presentation_data_values_single_asn1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* EXTERNALt/encoding/single-ASN1-type -> EXTERNALt/encoding/single-ASN1-type */
+static int dissect_atn_ulcs_T_externalt_encoding_single_asn1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 static int
@@ -320,8 +321,11 @@ dissect_atn_ulcs_Presentation_context_identifier(tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_atn_ulcs_T_pdv_list_presentation_data_values_single_asn1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // PDV-list/presentation-data-values/single-ASN1-type -> PDV-list/presentation-data-values/single-ASN1-type
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -528,11 +532,14 @@ dissect_atn_ulcs_T_data_value_descriptor(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_atn_ulcs_T_externalt_encoding_single_asn1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // EXTERNALt/encoding/single-ASN1-type -> EXTERNALt/encoding/single-ASN1-type
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 
     offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

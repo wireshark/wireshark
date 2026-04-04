@@ -3703,6 +3703,12 @@ dissect_gsm_map_Ext_TeleserviceCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 /* --- Module MAP-ExtensionDataTypes --- --- ---                              */
 
+/*--- Cyclic dependencies ---*/
+
+/* PrivateExtension/extType -> PrivateExtension/extType */
+static int dissect_gsm_map_T_extType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 static int
@@ -3719,6 +3725,8 @@ dissect_gsm_map_T_extId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_gsm_map_T_extType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // PrivateExtension/extType -> PrivateExtension/extType
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   proto_tree *ext_tree;
   ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gsm_map_extension_data, NULL, "Extension Data");
   if (actx->external.direct_ref_present){
@@ -3729,6 +3737,7 @@ dissect_gsm_map_T_extType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   }
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

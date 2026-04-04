@@ -1129,6 +1129,12 @@ static int ett_rrlp_AssistanceNeeded;
 #define maxGANSSAssistanceData         40
 
 
+/*--- Cyclic dependencies ---*/
+
+/* PrivateExtension/extType -> PrivateExtension/extType */
+static int dissect_rrlp_T_extType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 static int
@@ -1142,8 +1148,11 @@ dissect_rrlp_OBJECT_IDENTIFIER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_rrlp_T_extType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // PrivateExtension/extType -> PrivateExtension/extType
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

@@ -132,6 +132,12 @@ static expert_field ei_charging_ase_extensions_not_dissected;
 
 static dissector_handle_t charging_ase_handle;
 
+/*--- Cyclic dependencies ---*/
+
+/* ExtensionField/value -> ExtensionField/value */
+static int dissect_charging_ase_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 static int * const ChargingControlIndicators_bits[] = {
   &hf_charging_ase_ChargingControlIndicators_subscriberCharge,
@@ -504,10 +510,13 @@ dissect_charging_ase_CriticalityType(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_charging_ase_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ExtensionField/value -> ExtensionField/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 
 	proto_tree_add_expert(tree, actx->pinfo, &ei_charging_ase_extensions_not_dissected, tvb, offset, -1);
 	offset = tvb_reported_length(tvb);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
