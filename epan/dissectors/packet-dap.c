@@ -1267,13 +1267,11 @@ static const ber_sequence_t FamilyEntries_sequence[] = {
 static int
 dissect_dap_FamilyEntries(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // FamilyEntries -> FamilyEntries/familyEntries -> FamilyEntry -> FamilyEntry/family-info -> FamilyEntries
-  actx->pinfo->dissection_depth += 4;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 4);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    FamilyEntries_sequence, hf_index, ett_dap_FamilyEntries);
 
-  actx->pinfo->dissection_depth -= 4;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 4);
   return offset;
 }
 
@@ -1470,14 +1468,12 @@ static const ber_choice_t Filter_choice[] = {
 int
 dissect_dap_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // Filter -> SetOfFilter -> Filter
-  actx->pinfo->dissection_depth += 2;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 2);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Filter_choice, hf_index, ett_dap_Filter,
                                  NULL);
 
-  actx->pinfo->dissection_depth -= 2;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 2);
   return offset;
 }
 
@@ -2931,14 +2927,12 @@ static const ber_choice_t ListResultData_choice[] = {
 static int
 dissect_dap_ListResultData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // ListResultData -> ListResultData/uncorrelatedListInfo -> ListResult -> ListResultData
-  actx->pinfo->dissection_depth += 3;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 3);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ListResultData_choice, hf_index, ett_dap_ListResultData,
                                  NULL);
 
-  actx->pinfo->dissection_depth -= 3;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 3);
   return offset;
 }
 
@@ -3321,14 +3315,12 @@ static const ber_choice_t SearchResultData_choice[] = {
 static int
 dissect_dap_SearchResultData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // SearchResultData -> SearchResultData/uncorrelatedSearchInfo -> SearchResult -> SearchResultData
-  actx->pinfo->dissection_depth += 3;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 3);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  SearchResultData_choice, hf_index, ett_dap_SearchResultData,
                                  NULL);
 
-  actx->pinfo->dissection_depth -= 3;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 3);
   return offset;
 }
 

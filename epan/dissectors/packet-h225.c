@@ -3971,8 +3971,7 @@ static const per_sequence_t EnumeratedParameter_sequence[] = {
 static int
 dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // EnumeratedParameter -> Content -> Content/compound -> EnumeratedParameter
-  actx->pinfo->dissection_depth += 3;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 3);
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
@@ -3980,8 +3979,7 @@ dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_EnumeratedParameter, EnumeratedParameter_sequence);
 
-  actx->pinfo->dissection_depth -= 3;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 3);
   actx->private_data = parent_gefx;
   return offset;
 }
@@ -3996,8 +3994,7 @@ static const per_sequence_t GenericData_sequence[] = {
 int
 dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // GenericData -> GenericData/parameters -> EnumeratedParameter -> Content -> Content/nested -> GenericData
-  actx->pinfo->dissection_depth += 5;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 5);
   void *priv_data = actx->private_data;
   gef_ctx_t *gefx;
 
@@ -4010,8 +4007,7 @@ dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_GenericData, GenericData_sequence);
 
-  actx->pinfo->dissection_depth -= 5;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 5);
   actx->private_data = priv_data;
   return offset;
 }
