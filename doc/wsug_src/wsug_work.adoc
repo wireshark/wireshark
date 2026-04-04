@@ -498,7 +498,7 @@ Wireshark provides a display filter language that enables you
 to precisely control which packets are displayed. They can be used
 to check for the presence of a protocol or field, the value of a field, or
 even compare two fields to each other. These comparisons can be combined
-with logical operators, like "and" and "or", and parentheses
+with logical operators, like `and` and `or`, and parentheses
 into complex expressions.
 
 The following sections will go into the display filter functionality in
@@ -515,11 +515,11 @@ Filter page_ at: link:{wireshark-wiki-url}DisplayFilters[].
 The simplest display filter is one that displays a single protocol.
 To only display packets containing a particular protocol, type the protocol
 into Wireshark's display filter toolbar. For example, to only
-display TCP packets, type _tcp_ into Wireshark's display filter toolbar.
+display TCP packets, type `tcp` into Wireshark's display filter toolbar.
 Similarly, to only display
 packets containing a particular field, type the field
 into Wireshark's display filter toolbar. For example, to only display
-HTTP requests, type _http.request_ into Wireshark's display filter toolbar.
+HTTP requests, type `http.request` into Wireshark's display filter toolbar.
 
 You can filter on any protocol that Wireshark supports. You can
 also filter on any field that a dissector adds to the tree view, if the dissector
@@ -548,22 +548,22 @@ English and C-like operators are interchangeable and can be mixed within a filte
 [options="header",cols="1,1,1,3,3"]
 |===
 | English      | Alias    | C-like | Description                      | Example
-| eq           | any_eq   | ==     | Equal (any if more than one)     | `ip.src == 10.0.0.5`
-| ne           | all_ne   | !=     | Not equal (all if more than one) | `ip.src != 10.0.0.5`
-|              | all_eq   | ===    | Equal (all if more than one)     | `ip.src === 10.0.0.5`
-|              | any_ne   | !==    | Not equal (any if more than one) | `ip.src !== 10.0.0.5`
-| gt           |          | >      | Greater than                     | `frame.len > 10`
-| lt           |          | <      | Less than                        | `frame.len < 128`
-| ge           |          | >=     | Greater than or equal to         | `frame.len ge 0x100`
-| le           |          | \<=    | Less than or equal to            | `frame.len \<= 0x20`
-| contains     |          |        | Protocol, field or slice contains a value | `sip.To contains "a1762"`
-| matches      |          | ~      | Protocol or text field matches a Perl-compatible regular expression| `http.host matches "acme\\.(org\|com\|net)"`
+| `eq`         | `any_eq` | `==`   | Equal (any if more than one)     | `ip.src == 10.0.0.5`
+| `ne`         | `all_ne` | `!=`   | Not equal (all if more than one) | `ip.src != 10.0.0.5`
+|              | `all_eq` | `===`  | Equal (all if more than one)     | `ip.src === 10.0.0.5`
+|              | `any_ne` | `!==`  | Not equal (any if more than one) | `ip.src !== 10.0.0.5`
+| `gt`         |          | `>`    | Greater than                     | `frame.len > 10`
+| `lt`         |          | `<`    | Less than                        | `frame.len < 128`
+| `ge`         |          | `>=`   | Greater than or equal to         | `frame.len ge 0x100`
+| `le`         |          | `\<=`  | Less than or equal to            | `frame.len \<= 0x20`
+| `contains`   |          |        | Protocol, field or slice contains a value | `sip.To contains "a1762"`
+| `matches`    |          | `~`    | Protocol or text field matches a Perl-compatible regular expression| `http.host matches "acme\\.(org\|com\|net)"`
 |===
 
 
 [NOTE]
 ====
-The meaning of != (all not equal) was changed in Wireshark 3.6.
+The meaning of `!=` (all not equal) was changed in Wireshark 3.6.
 Before it used to mean "any not equal".
 ====
 
@@ -598,7 +598,7 @@ Signed integer::
   decimal, octal, hexadecimal or binary.
 
 Boolean::
-  Can be 1 or "True", 0 or "False" (without quotes).
+  Can be `1` or `True`, `0` or `False`.
 +
 A Boolean field is present regardless if its value is true or false. For example,
 `tcp.flags.syn` is present in all TCP packets containing the flag, whether
@@ -634,7 +634,7 @@ Text string::
 Strings are a sequence of bytes. Functions like `lower()` use ASCII, otherwise
 no particular encoding is assumed. String literals are specified with double
 quotes. Characters can also be specified using a byte escape sequence using
-hex \x__hh__ or octal {backslash}__ddd__, where _h_ and _d_ are hex and octal
+hex `\x__hh__` or octal `{backslash}__ddd__`, where `_h_` and `_d_` are hex and octal
 numerical digits respectively:
 +
 `dns.qry.name contains "www.\x77\x69\x72\x65\x73\x68\x61\x72\x6b.org"`
@@ -695,7 +695,7 @@ i.e., the SYN bit, set.
 
 String literals containing regular expressions are parsed twice. Once by Wireshark's display
 filter engine and again by the PCRE2 library. It's important to keep this in mind when using
-the "matches" operator with regex escape sequences and special characters.
+the `matches` operator with regex escape sequences and special characters.
 
 For example, the filter expression `+frame matches "AB\x43"+` uses the string `+"ABC"+` as input
 pattern to PCRE. However, the expression `+frame matches "AB\\x43"+` uses the string `+"AB\x43"+`
@@ -707,7 +707,7 @@ code for `(` the pattern input to PCRE is `+"bar("+`. This regular expression is
 invalid (missing closing parenthesis). To match a literal parenthesis in a display filter regular
 expression it must be escaped (twice) with backslashes.
 
-TIP: Using raw strings avoids most problem with the "matches" operator and double escape requirements.
+TIP: Using raw strings avoids most problems with the `matches` operator and double escape requirements.
 
 ==== Combining Expressions
 
@@ -718,45 +718,45 @@ You can combine filter expressions in Wireshark using the logical operators show
 .Display Filter Logical Operations
 [options="header",cols="1,1,1,4"]
 |===
-|English |C-like    |Description    | Example
-|and     |&amp;&amp;| Logical AND   | `ip.src==10.0.0.5 and tcp.flags.fin`
-|or      |\|\|      | Logical OR    | `ip.src==10.0.0.5 or ip.src==192.1.1.1`
-|xor     |^^        | Logical XOR   | `tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29`
-|not     |!         | Logical NOT   | `not llc`
-|[...]   |          | Subsequence   | See “Slice Operator” below.
-|in      |          | Set Membership| http.request.method in {"HEAD", "GET"}. See “Membership Operator” below.
+|English |C-like      |Description    | Example
+|`and`   |`&amp;&amp;`| Logical AND   | `ip.src==10.0.0.5 and tcp.flags.fin`
+|`or`    |`\|\|`      | Logical OR    | `ip.src==10.0.0.5 or ip.src==192.1.1.1`
+|`xor`   |`^^`        | Logical XOR   | `tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29`
+|`not`   |`!`         | Logical NOT   | `not llc`
+|`[...]` |            | Subsequence   | See “Slice Operator” below.
+|`in`    |            | Set Membership| `http.request.method in {"HEAD", "GET"}`. See “Membership Operator” below.
 |===
 
 ==== Slice Operator
 Wireshark allows you to select a subsequence of byte arrays (including
 protocols) or text strings in rather elaborate ways. After a label you can
-place a pair of brackets [] containing a comma separated list of range
+place a pair of brackets `[]` containing a comma separated list of range
 specifiers.
 ----
 eth.src[0:3] == 00:00:83
 ----
-The example above uses the n:m format to specify a single range. In this case n
-is the beginning offset and m is the length of the range being specified.
+The example above uses the `n:m` format to specify a single range. In this case `n`
+is the beginning offset and `m` is the length of the range being specified.
 ----
 eth.src[1-2] == 00:83
 ----
-The example above uses the n-m format to specify a single range. In this case n
-is the beginning offset and m is the ending offset.
+The example above uses the `n-m` format to specify a single range. In this case `n`
+is the beginning offset and `m` is the ending offset.
 ----
 eth.src[:4] == 00:00:83:00
 ----
-The example above uses the :m format, which takes everything from the beginning
-of a sequence to offset m. It is equivalent to 0:m
+The example above uses the `:m` format, which takes everything from the beginning
+of a sequence to offset `m`. It is equivalent to `0:m`.
 ----
 eth.src[4:] == 20:20
 ----
-The example above uses the n: format, which takes everything from offset n to
+The example above uses the `n:` format, which takes everything from offset `n` to
 the end of the sequence.
 ----
 eth.src[2] == 83
 ----
-The example above uses the n format to specify a single range. In this case the
-element in the sequence at offset n is selected. This is equivalent to n:1.
+The example above uses the `n` format to specify a single range. In this case the
+element in the sequence at offset `n` is selected. This is equivalent to `n:1`.
 ----
 eth.src[0:3,1-2,:4,4:,2] ==
 00:00:83:00:83:00:00:83:00:20:20:83
@@ -788,18 +788,18 @@ string starts with those ten characters.
 
 Byte slices can be directly compared to strings; this converts the
 string to the corresponding UTF-8 byte sequence. To compare string
-slices with byte sequences, use the @ operator, below.
+slices with byte sequences, use the `@` operator, below.
 
 ==== The Layer Operator
 
 A field can be restricted to a certain layer in the protocol stack using the
-layer operator (#), followed by a decimal number:
+layer operator (`#`), followed by a decimal number:
 
     ip.addr#2 == 192.168.30.40
 
 matches only the inner (second) layer in the packet.
 Layers use simple stacking semantics and protocol layers are counted sequentially starting from 1.
-For example, in a packet that contains two IPv4 headers, the outer (first) source address can be matched with "ip.src#1" and the inner (second) source address can be matched with "ip.src#2".
+For example, in a packet that contains two IPv4 headers, the outer (first) source address can be matched with `ip.src#1` and the inner (second) source address can be matched with `ip.src#2`.
 
 For more complicated ranges the same syntax used with slices is valid:
 
@@ -809,7 +809,7 @@ means layers number 2, 3 or 4 inclusive. The hash symbol is required to
 distinguish a layer range from a slice.
 
 ==== The At Operator
-By prefixing the field name with an at sign (@) the comparison is done against
+By prefixing the field name with an at sign (`@`) the comparison is done against
 the raw packet data for the field.
 
 A character string must be decoded from a source encoding during dissection.
@@ -837,7 +837,7 @@ which may not be UTF-8.
 
 As an example, SMPP has a bytes field, `+smpp.message+`, and a string
 field, `+smpp.message_text+`, that refer to the same data. If the
-first four characters of the message is the string "Text" in the UTF-16
+first four characters of the message is the string "Test" in the UTF-16
 encoding, the following filters all match.
 
 ----
@@ -872,7 +872,7 @@ the field bytes.
 ==== Membership Operator
 Wireshark allows you to test a field for membership in a set of values or
 fields. After the field name, use the `in` operator followed by the set items
-surrounded by braces {}. For example, to display packets with a TCP source or
+surrounded by braces `{}`. For example, to display packets with a TCP source or
 destination port of 80, 443, or 8080, you can use `tcp.port in {80, 443, 8080}`.
 Set elements must be separated by commas.
 The set of values can also contain ranges: `tcp.port in {443,4430..4434}`.
@@ -920,19 +920,19 @@ You can perform the arithmetic operations on numeric fields shown in <<Arithmeti
 .Display Filter Arithmetic Operations
 [options="header",cols="1,1,1,4"]
 |===
-|Name            |Syntax    | Alternative | Description
-|Unary minus     |-A        |             | Negation of A
-|Addition        |A + B     |             | Add B to A
-|Subtraction     |A - B     |             | Subtract B from A
-|Multiplication  |A * B     |             | Multiply A times B
-|Division        |A / B     |             | Divide A by B
-|Modulo          |A % B     |             | Remainder of A divided by B
-|Bitwise AND     |A & B     | A bitand B  | Bitwise AND of A and B
+|Name            |Syntax      | Alternative  | Description
+|Unary minus     |`-A`        |              | Negation of A
+|Addition        |`A + B`     |              | Add B to A
+|Subtraction     |`A - B`     |              | Subtract B from A
+|Multiplication  |`A * B`     |              | Multiply A times B
+|Division        |`A / B`     |              | Divide A by B
+|Modulo          |`A % B`     |              | Remainder of A divided by B
+|Bitwise AND     |`A & B`     | `A bitand B` | Bitwise AND of A and B
 |===
 
 An unfortunate quirk in the filter syntax is that the subtraction
-operator must be preceded by a space character, so "A-B" must be
-written as "A -B" or "A - B".
+operator must be preceded by a space character, so \"``A-B``" must be
+written as \"``A -B``" or \"``A - B``".
 
 Arithmetic expressions can be grouped using curly braces.
 
@@ -951,34 +951,34 @@ The display filter language has a number of functions to convert fields, see
 [options="header",cols="1,4"]
 |===
 |Function|Description
-|upper   |Converts a string field to uppercase.
-|lower   |Converts a string field to lowercase.
-|len     |Returns the byte length of a string or bytes field.
-|count   |Returns the number of field occurrences in a frame.
-|string  |Converts a non-string field to a string.
-|vals    |Converts a field value to its value string, if it has one.
-|dec     |Converts an unsigned integer field to a decimal string.
-|hex     |Converts an unsigned integer field to a hexadecimal string.
-|float   |Converts a field to single precision floating point.
-|double  |Converts a field to double precision floating point.
-|max     |Return the maximum value for the arguments.
-|min     |Return the minimum value for the arguments.
-|abs     |Return the absolute value for the argument.
+|`upper` |Converts a string field to uppercase.
+|`lower` |Converts a string field to lowercase.
+|`len`   |Returns the byte length of a string or bytes field.
+|`count` |Returns the number of field occurrences in a frame.
+|`string`|Converts a non-string field to a string.
+|`vals`  |Converts a field value to its value string, if it has one.
+|`dec`   |Converts an unsigned integer field to a decimal string.
+|`hex`   |Converts an unsigned integer field to a hexadecimal string.
+|`float` |Converts a field to single precision floating point.
+|`double`|Converts a field to double precision floating point.
+|`max`   |Return the maximum value for the arguments.
+|`min`   |Return the minimum value for the arguments.
+|`abs`   |Return the absolute value for the argument.
 |===
 
-The `upper` and `lower` functions can used to force case-insensitive matches:
+The `upper()` and `lower()` functions can used to force case-insensitive matches:
 `lower(http.server) contains "apache"`.
 
 To find HTTP requests with long request URIs: `len(http.request.uri) > 100`.
-Note that the `len` function yields the string length in bytes rather than
+Note that the `len()` function yields the string length in bytes rather than
 (multi-byte) characters.
 
 Usually an IP frame has only two addresses (source and destination), but in case
 of ICMP errors or tunneling, a single packet might contain even more addresses.
 These packets can be found with `count(ip.addr) > 2`.
 
-The `string` function converts a field value to a string, suitable for use with operators
-like "matches" or "contains". Integer fields are converted to their decimal representation.
+The `string()` function converts a field value to a string, suitable for use with operators
+like `matches` or `contains`. Integer fields are converted to their decimal representation.
 It can be used with IP/Ethernet addresses (as well as others), but not with string or
 byte fields.
 
@@ -992,17 +992,17 @@ To match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
 string(ip.dst) matches r"^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.255"
 ----
 
-The `vals` function converts an integer or boolean field value to a string
+The `vals()` function converts an integer or boolean field value to a string
 using the field's associated value string, if it has one.
 
-The `double` function converts certain field types to doubles, including
+The `double()` function converts certain field types to doubles, including
 floats, doubles (a no-op), integers, booleans, times (absolute times are
 converted to seconds since the UN*X epoch), and the special IEEE 11073
 Personal Health Devices floating point formats. The results can be used
 with further arithmetic operations and, like other filters, placed in a
 custom column.
 
-The functions max() and min() take any number of arguments of the same type
+The functions `max()` and `min()` take any number of arguments of the same type
 and returns the largest/smallest respectively of the set.
 
 ----
@@ -1011,7 +1011,7 @@ max(tcp.srcport, tcp.dstport) <= 1024
 
 ==== Field References
 
-An expression of the form ${proto.field} is called a field reference.
+An expression of the form `${proto.field}` is called a field reference.
 Its value is read from the corresponding field in the currently selected
 frame in the GUI. This is a powerful way to build dynamic filters, such
 as frames since the last five minutes to the selected frame:
@@ -1067,10 +1067,10 @@ matches all messages such that the message type comes before "35" in
 lexicographical order, i.e. would also match "170" (the message type
 for "Release Access Bearers Request.")
 
-For the "contains" and "matches" operators, which operate on strings
-(or byte arrays in the case of "contains"), fields on the left hand
+For the `contains` and `matches` operators, which operate on strings
+(or byte arrays in the case of `contains`), fields on the left hand
 side are implicitly converted to their value strings for comparison.
-(To compare a field with a byte array, use the raw/at (@) operator.)
+(To compare a field with a byte array, use the raw/at (`@`) operator.)
 
 [#ChWorkBuildDisplayFilterTransitional]
 
@@ -1085,10 +1085,10 @@ will add an alias from the old protocol name to the new one in order to
 make the transition easier.
 
 For example, the DHCP dissector was originally developed for the BOOTP
-protocol but as of Wireshark 3.0 all of the “bootp” display filter
-fields have been renamed to their “dhcp” equivalents. You can still use
-the old filter names for the time being, e.g., “bootp.type” is equivalent
-to “dhcp.type” but Wireshark will show the warning “"bootp" is deprecated”
+protocol but as of Wireshark 3.0 all of the `bootp` display filter
+fields have been renamed to their `dhcp` equivalents. You can still use
+the old filter names for the time being, e.g., `bootp.type` is equivalent
+to `dhcp.type` but Wireshark will show the warning “"bootp" is deprecated”
 when you use it. Support for the deprecated fields may be removed in the future.
 
 ==== Some protocol names can be ambiguous
@@ -1097,16 +1097,16 @@ can be ambiguous. The filter name of a protocol or protocol field can contain
 any letter and digit in any order, possibly separated by dots. That can be
 indistinguishable from a literal value (usually numerical values in hexadecimal).
 For example the semantic value of `fc` can be the protocol Fibre Channel or the
-number 0xFC in hexadecimal because the 0x prefix is optional for hexadecimal numbers.
+number `0xFC` in hexadecimal because the `0x` prefix is optional for hexadecimal numbers.
 
 Any value that matches a registered protocol or protocol field filter name is
 interpreted semantically as such. If it doesn't match a protocol name the normal
 rules for parsing literal values apply.
 
-So in the case of 'fc' the lexical token is interpreted as "Fibre Channel" and
-not 0xFC. In the case of 'fd' it would be interpreted as 0xFD because it is a
+So in the case of `fc` the lexical token is interpreted as "Fibre Channel" and
+not `0xFC`. In the case of `fd` it would be interpreted as `0xFD` because it is a
 well-formed hexadecimal literal value (according to the rules of display filter
-language syntax) and there is no protocol registered with the filter name 'fd'.
+language syntax) and there is no protocol registered with the filter name `fd`.
 
 How ambiguous values are interpreted may change in the future. To avoid this
 problem and resolve the ambiguity there is additional syntax available.
@@ -1161,7 +1161,7 @@ other listed relations are binary relations which require additional data (e.g.
 a _Value_ to match) to complete.
 +
 When you select a field from the field name list and select a binary relation
-(such as the equality relation ==) you will be given the opportunity to enter a
+(such as the equality relation, `==`) you will be given the opportunity to enter a
 value, and possibly some range information.
 
 Value::
@@ -1177,7 +1177,7 @@ of them here.
 Search::
 Lets you search for a full or partial field name or description.
 Regular expressions are supported.
-For example, searching for “tcp.*flag” shows the TCP flags fields supported by a wide variety of dissectors, while “^tcp.flag” shows only the TCP flags fields supported by the TCP dissector.
+For example, searching for `tcp.*flag` shows the TCP flags fields supported by a wide variety of dissectors, while `^tcp.flag` shows only the TCP flags fields supported by the TCP dissector.
 
 Range::
 A range of integers or a group of ranges, such as `1-12` or `39-42,98-2000`.
