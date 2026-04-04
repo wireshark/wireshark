@@ -1543,6 +1543,27 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
+/*--- Cyclic dependencies ---*/
+
+/* ProtocolIE-Field/value -> ProtocolIE-Field/value */
+static int dissect_nrppa_T_ie_field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ProtocolExtensionField/extensionValue -> ProtocolExtensionField/extensionValue */
+static int dissect_nrppa_T_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* PrivateIE-Field/value -> PrivateIE-Field/value */
+static int dissect_nrppa_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* InitiatingMessage/value -> InitiatingMessage/value */
+static int dissect_nrppa_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* SuccessfulOutcome/value -> SuccessfulOutcome/value */
+static int dissect_nrppa_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value */
+static int dissect_nrppa_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 static const value_string nrppa_Criticality_vals[] = {
   {   0, "reject" },
@@ -1856,8 +1877,11 @@ dissect_nrppa_TriggeringMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_nrppa_T_ie_field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolIE-Field/value -> ProtocolIE-Field/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolIEFieldValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -1904,8 +1928,11 @@ dissect_nrppa_ProtocolIE_Single_Container(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_nrppa_T_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolExtensionField/extensionValue -> ProtocolExtensionField/extensionValue
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolExtensionFieldExtensionValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -1943,8 +1970,11 @@ dissect_nrppa_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_nrppa_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // PrivateIE-Field/value -> PrivateIE-Field/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -1982,8 +2012,11 @@ dissect_nrppa_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_nrppa_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // InitiatingMessage/value -> InitiatingMessage/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2008,8 +2041,11 @@ dissect_nrppa_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_nrppa_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // SuccessfulOutcome/value -> SuccessfulOutcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2034,8 +2070,11 @@ dissect_nrppa_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_nrppa_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

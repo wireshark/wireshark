@@ -505,6 +505,12 @@ static int ett_sgp22_AuthenticateClientOkEs11;
 static int ett_sgp22_SEQUENCE_OF_EventEntries;
 static int ett_sgp22_EventEntries;
 
+/*--- Cyclic dependencies ---*/
+
+/* VendorSpecificExtension/_item/vendorSpecificData -> VendorSpecificExtension/_item/vendorSpecificData */
+static int dissect_sgp22_T_vendorSpecificData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 static int * const UICCCapability_bits[] = {
   &hf_sgp22_UICCCapability_contactlessSupport,
@@ -1263,9 +1269,12 @@ dissect_sgp22_T_vendorOid(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_sgp22_T_vendorSpecificData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // VendorSpecificExtension/_item/vendorSpecificData -> VendorSpecificExtension/_item/vendorSpecificData
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

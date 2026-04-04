@@ -2219,6 +2219,18 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 
 /*--- Cyclic dependencies ---*/
 
+/* ProtocolIE-Field/value -> ProtocolIE-Field/value */
+static int dissect_e2ap_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* InitiatingMessage/value -> InitiatingMessage/value */
+static int dissect_e2ap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* SuccessfulOutcome/value -> SuccessfulOutcome/value */
+static int dissect_e2ap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value */
+static int dissect_e2ap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
 /* RANParameter-Testing-Item -> RANParameter-Testing-Item/ranParameter-Type -> RANParameter-Testing-Item-Choice-List -> RANParameter-Testing-LIST -> RANParameter-Testing-Item */
 /* RANParameter-Testing-Item -> RANParameter-Testing-Item/ranParameter-Type -> RANParameter-Testing-Item-Choice-Structure -> RANParameter-Testing-STRUCTURE -> RANParameter-Testing-Item */
 static int dissect_e2ap_RANParameter_Testing_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -2422,8 +2434,11 @@ dissect_e2ap_TriggeringMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_e2ap_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ProtocolIE-Field/value -> ProtocolIE-Field/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolIEFieldValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -5607,10 +5622,13 @@ dissect_e2ap_E2RemovalFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_e2ap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // InitiatingMessage/value -> InitiatingMessage/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   e2ap_data->message_type = INITIATING_MESSAGE;
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -5634,10 +5652,13 @@ dissect_e2ap_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_e2ap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // SuccessfulOutcome/value -> SuccessfulOutcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   e2ap_data->message_type = SUCCESSFUL_OUTCOME;
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -5661,6 +5682,8 @@ dissect_e2ap_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_e2ap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   e2ap_data->message_type = UNSUCCESSFUL_OUTCOME;
 
@@ -5682,6 +5705,7 @@ dissect_e2ap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

@@ -431,6 +431,18 @@ ieee1609dot2_set_next_default_psid(packet_info *pinfo, uint32_t psid)
 
 /*--- Cyclic dependencies ---*/
 
+/* AppExtension/content -> AppExtension/content */
+static int dissect_ieee1609dot2_T_content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* CertIssueExtension/permissions/specific -> CertIssueExtension/permissions/specific */
+static int dissect_ieee1609dot2_T_specific(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* CertRequestExtension/permissions/content -> CertRequestExtension/permissions/content */
+static int dissect_ieee1609dot2_T_content_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ContributedExtensionBlock/extns/_item -> ContributedExtensionBlock/extns/_item */
+static int dissect_ieee1609dot2_T_extns_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
 /* Ieee1609Dot2Data -> Ieee1609Dot2Content -> SignedData -> ToBeSignedData -> SignedDataPayload -> Ieee1609Dot2Data */
 static int dissect_ieee1609dot2_Ieee1609Dot2Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
@@ -2341,8 +2353,11 @@ dissect_ieee1609dot2_T_flags(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_ieee1609dot2_T_content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // AppExtension/content -> AppExtension/content
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_oer_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2379,8 +2394,11 @@ dissect_ieee1609dot2_SequenceOfAppExtensions(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_ieee1609dot2_T_specific(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // CertIssueExtension/permissions/specific -> CertIssueExtension/permissions/specific
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_oer_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2439,8 +2457,11 @@ dissect_ieee1609dot2_SequenceOfCertIssueExtensions(tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_ieee1609dot2_T_content_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // CertRequestExtension/permissions/content -> CertRequestExtension/permissions/content
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_oer_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2588,8 +2609,11 @@ dissect_ieee1609dot2_HeaderInfoContributorId(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_ieee1609dot2_T_extns_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ContributedExtensionBlock/extns/_item -> ContributedExtensionBlock/extns/_item
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_oer_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

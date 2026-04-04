@@ -797,6 +797,12 @@ static rose_ctx_t h450_rose_ctx;
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
+/*--- Cyclic dependencies ---*/
+
+/* Extension/extensionArgument -> Extension/extensionArgument */
+static int dissect_h450_T_extensionArgument(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 static int
@@ -1073,8 +1079,11 @@ dissect_h450_OBJECT_IDENTIFIER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_h450_T_extensionArgument(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // Extension/extensionArgument -> Extension/extensionArgument
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

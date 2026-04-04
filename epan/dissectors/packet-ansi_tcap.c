@@ -1187,6 +1187,15 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
         return false;
 }
 
+/*--- Cyclic dependencies ---*/
+
+/* ReturnResult/parameter -> ReturnResult/parameter */
+static int dissect_ansi_tcap_T_returnResult_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ReturnError/parameter -> ReturnError/parameter */
+static int dissect_ansi_tcap_T_returnError_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 static int
@@ -1671,10 +1680,13 @@ dissect_ansi_tcap_T_componentID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ansi_tcap_T_returnResult_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ReturnResult/parameter -> ReturnResult/parameter
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   if(find_tcap_subdissector(tvb, actx, tree))
     offset = tvb_reported_length(tvb);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -1711,10 +1723,13 @@ dissect_ansi_tcap_T_componentID_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_ansi_tcap_T_returnError_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ReturnError/parameter -> ReturnError/parameter
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   if(find_tcap_subdissector(tvb, actx, tree))
     offset = tvb_reported_length(tvb);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

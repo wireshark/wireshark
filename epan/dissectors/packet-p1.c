@@ -983,6 +983,24 @@ static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx
     }
 }
 
+/*--- Cyclic dependencies ---*/
+
+/* ExtensionAttribute/extension-attribute-value -> ExtensionAttribute/extension-attribute-value */
+static int dissect_p1_T_extension_attribute_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* PerDomainBilateralInformation/bilateral-information -> PerDomainBilateralInformation/bilateral-information */
+static int dissect_p1_T_bilateral_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ExtensionField/value -> ExtensionField/value */
+static int dissect_p1_ExtensionValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* AdditionalInformation -> AdditionalInformation */
+static int dissect_p1_AdditionalInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* TokenData/value -> TokenData/value */
+static int dissect_p1_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 static int
@@ -2162,6 +2180,8 @@ dissect_p1_ExtensionAttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_p1_T_extension_attribute_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ExtensionAttribute/extension-attribute-value -> ExtensionAttribute/extension-attribute-value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 
 	proto_item_append_text(tree, " (%s)", val_to_str(actx->pinfo->pool, actx->external.indirect_reference, p1_ExtensionAttributeType_vals, "extension-attribute-type %d"));
 	p_add_proto_data(actx->pinfo->pool, actx->pinfo, proto_p1, 0, actx->subtree.tree_ctx);
@@ -2180,6 +2200,7 @@ dissect_p1_T_extension_attribute_value(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2730,6 +2751,8 @@ dissect_p1_T_bilateral_domain(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_p1_T_bilateral_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // PerDomainBilateralInformation/bilateral-information -> PerDomainBilateralInformation/bilateral-information
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 	proto_item *item = NULL;
 	int	    loffset = 0;
 	uint32_t	    len = 0;
@@ -2745,6 +2768,7 @@ dissect_p1_T_bilateral_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -3034,6 +3058,8 @@ dissect_p1_Criticality(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_p1_ExtensionValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ExtensionField/value -> ExtensionField/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 	const char *name;
 
 	if(actx->external.indirect_ref_present) {
@@ -3057,6 +3083,7 @@ dissect_p1_ExtensionValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -3407,6 +3434,8 @@ dissect_p1_SubjectIntermediateTraceInformation(bool implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_p1_AdditionalInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // AdditionalInformation -> AdditionalInformation
+  increment_dissection_depth_by_n(actx->pinfo, 1);
    proto_item *item = NULL;
    int         loffset = 0;
    uint32_t    len = 0;
@@ -3422,6 +3451,7 @@ dissect_p1_AdditionalInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
    offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -7081,6 +7111,8 @@ dissect_p1_TokenDataType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_p1_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // TokenData/value -> TokenData/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 
 	proto_item_append_text(tree, " (%s)", val_to_str(actx->pinfo->pool, actx->external.indirect_reference, p1_TokenDataType_vals, "tokendata-type %d"));
 	if (dissector_try_uint(p1_tokendata_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
@@ -7096,6 +7128,7 @@ dissect_p1_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
 	}
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

@@ -827,8 +827,20 @@ static int ett_p22_T_choice;
 
 /*--- Cyclic dependencies ---*/
 
+/* IPMSExtension/value -> IPMSExtension/value */
+static int dissect_p22_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
 /* IPM -> Body -> BodyPart -> BodyPart/basic -> MessageBodyPart -> MessageData -> IPM */
 /*int dissect_p22_IPM(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
+
+/* NationallyDefinedBodyPart -> NationallyDefinedBodyPart */
+static int dissect_p22_NationallyDefinedBodyPart(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* Contents-Type-Attribute/document-type/parameter -> Contents-Type-Attribute/document-type/parameter */
+static int dissect_p22_T_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* CompressionParameter/compression-algorithm-param -> CompressionParameter/compression-algorithm-param */
+static int dissect_p22_T_compression_algorithm_param(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* IPMSynopsis -> BodyPartSynopsis -> MessageBodyPartSynopsis -> IPMSynopsis */
 static int dissect_p22_IPMSynopsis(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -1011,10 +1023,13 @@ dissect_p22_T_type(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_p22_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // IPMSExtension/value -> IPMSExtension/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -1690,9 +1705,12 @@ dissect_p22_BilaterallyDefinedBodyPart(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_p22_NationallyDefinedBodyPart(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // NationallyDefinedBodyPart -> NationallyDefinedBodyPart
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 /* XXX Not implemented yet */
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -2896,9 +2914,12 @@ dissect_p22_Document_Type_Name(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_p22_T_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // Contents-Type-Attribute/document-type/parameter -> Contents-Type-Attribute/document-type/parameter
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 /* XXX: Not implemented yet */
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -3060,9 +3081,12 @@ dissect_p22_T_compression_algorithm_id(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_p22_T_compression_algorithm_param(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // CompressionParameter/compression-algorithm-param -> CompressionParameter/compression-algorithm-param
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 /* XXX: Not implemented yet */
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 

@@ -1419,6 +1419,36 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 
+/*--- Cyclic dependencies ---*/
+
+/* ExtensionField/value -> ExtensionField/value */
+static int dissect_inap_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* TriggerData/triggerPar -> TriggerData/triggerPar */
+static int dissect_inap_T_triggerPar(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ScriptCloseArg/uIScriptSpecificInfo -> ScriptCloseArg/uIScriptSpecificInfo */
+static int dissect_inap_T_uIScriptSpecificInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ScriptEventArg/uIScriptResult -> ScriptEventArg/uIScriptResult */
+static int dissect_inap_T_uIScriptResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ScriptInformationArg/uIScriptSpecificInfo -> ScriptInformationArg/uIScriptSpecificInfo */
+static int dissect_inap_T_uIScriptSpecificInfo_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ScriptRunArg/uIScriptSpecificInfo -> ScriptRunArg/uIScriptSpecificInfo */
+static int dissect_inap_T_uIScriptSpecificInfo_02(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* Invoke/argument -> Invoke/argument */
+static int dissect_inap_T_argument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ReturnResult/result/result -> ReturnResult/result/result */
+static int dissect_inap_ResultArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* ReturnError/parameter -> ReturnError/parameter */
+static int dissect_inap_T_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 const value_string inap_CriticalityType_vals[] = {
   {   0, "ignore" },
@@ -1494,6 +1524,8 @@ dissect_inap_Code(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_inap_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ExtensionField/value -> ExtensionField/value
+  increment_dissection_depth_by_n(actx->pinfo, 1);
   proto_tree *ext_tree;
   ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_inap_extension_data, NULL, "Extension Data");
   if (obj_id){
@@ -1507,6 +1539,7 @@ dissect_inap_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -5216,9 +5249,12 @@ dissect_inap_T_triggerId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_inap_T_triggerPar(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // TriggerData/triggerPar -> TriggerData/triggerPar
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 /* FIX ME */
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -7792,9 +7828,12 @@ dissect_inap_MessageReceivedArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_inap_T_uIScriptSpecificInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ScriptCloseArg/uIScriptSpecificInfo -> ScriptCloseArg/uIScriptSpecificInfo
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 /* FIX ME */
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -7819,9 +7858,12 @@ dissect_inap_ScriptCloseArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_inap_T_uIScriptResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ScriptEventArg/uIScriptResult -> ScriptEventArg/uIScriptResult
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 /* FIX ME */
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -7847,8 +7889,11 @@ dissect_inap_ScriptEventArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_inap_T_uIScriptSpecificInfo_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ScriptInformationArg/uIScriptSpecificInfo -> ScriptInformationArg/uIScriptSpecificInfo
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 /* FIX ME */
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -7873,9 +7918,12 @@ dissect_inap_ScriptInformationArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_inap_T_uIScriptSpecificInfo_02(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ScriptRunArg/uIScriptSpecificInfo -> ScriptRunArg/uIScriptSpecificInfo
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 /* FIX ME */
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -8102,10 +8150,13 @@ dissect_inap_T_linkedId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_inap_T_argument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // Invoke/argument -> Invoke/argument
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 
   offset = dissect_invokeData(tree, tvb, offset, actx);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -8133,10 +8184,13 @@ dissect_inap_Invoke(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 static int
 dissect_inap_ResultArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ReturnResult/result/result -> ReturnResult/result/result
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 
   offset = dissect_returnResultData(tree, tvb, offset, actx);
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
@@ -8177,12 +8231,15 @@ dissect_inap_ReturnResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_inap_T_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  // ReturnError/parameter -> ReturnError/parameter
+  increment_dissection_depth_by_n(actx->pinfo, 1);
 
   offset = dissect_returnErrorData(tree, tvb, offset, actx);
 
 
 
 
+  decrement_dissection_depth_by_n(actx->pinfo, 1);
   return offset;
 }
 
