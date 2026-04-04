@@ -4281,15 +4281,26 @@ prime_epan_dissect_with_postdissector_wanted_hfids(epan_dissect_t *edt)
 }
 
 void
+increment_dissection_depth_by_n(packet_info *pinfo, unsigned n) {
+	DISSECTOR_ASSERT_HINT(!ckd_add(&pinfo->dissection_depth, pinfo->dissection_depth, n),
+		"pinfo->dissection_depth overflowed!");
+	DISSECTOR_ASSERT(pinfo->dissection_depth < prefs.gui_max_tree_depth);
+}
+
+void
 increment_dissection_depth(packet_info *pinfo) {
-	pinfo->dissection_depth++;
-	DISSECTOR_ASSERT(pinfo->dissection_depth < (int)prefs.gui_max_tree_depth);
+	increment_dissection_depth_by_n(pinfo, 1);
+}
+
+void
+decrement_dissection_depth_by_n(packet_info *pinfo, unsigned n) {
+	DISSECTOR_ASSERT_HINT(!ckd_sub(&pinfo->dissection_depth, pinfo->dissection_depth, n),
+		"pinfo->dissection_depth underflowed!");
 }
 
 void
 decrement_dissection_depth(packet_info *pinfo) {
-	pinfo->dissection_depth--;
-	DISSECTOR_ASSERT(pinfo->dissection_depth >= 0);
+	decrement_dissection_depth_by_n(pinfo, 1);
 }
 
 /*

@@ -1040,13 +1040,11 @@ static const ber_sequence_t Subtree_sequence[] = {
 static unsigned
 dissect_disp_Subtree(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // Subtree -> Subtree/subtree -> Subtree
-  actx->pinfo->dissection_depth += 2;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 2);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Subtree_sequence, hf_index, ett_disp_Subtree);
 
-  actx->pinfo->dissection_depth -= 2;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 2);
   return offset;
 }
 
@@ -1203,13 +1201,11 @@ static const ber_sequence_t IncrementalStepRefresh_sequence[] = {
 static unsigned
 dissect_disp_IncrementalStepRefresh(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // IncrementalStepRefresh -> IncrementalStepRefresh/subordinateUpdates -> SubordinateChanges -> IncrementalStepRefresh
-  actx->pinfo->dissection_depth += 3;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 3);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IncrementalStepRefresh_sequence, hf_index, ett_disp_IncrementalStepRefresh);
 
-  actx->pinfo->dissection_depth -= 3;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 3);
   return offset;
 }
 

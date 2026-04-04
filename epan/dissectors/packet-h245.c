@@ -3861,13 +3861,11 @@ static const per_sequence_t GenericParameter_sequence[] = {
 static unsigned
 dissect_h245_GenericParameter(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // GenericParameter -> ParameterValue -> ParameterValue/genericParameter -> GenericParameter
-  actx->pinfo->dissection_depth += 3;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 3);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_GenericParameter, GenericParameter_sequence);
 
-  actx->pinfo->dissection_depth -= 3;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 3);
   return offset;
 }
 
@@ -5661,8 +5659,7 @@ static const per_choice_t VideoCapability_choice[] = {
 static unsigned
 dissect_h245_VideoCapability(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // VideoCapability -> ExtendedVideoCapability -> ExtendedVideoCapability/videoCapability -> VideoCapability
-  actx->pinfo->dissection_depth += 3;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 3);
   int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -5672,8 +5669,7 @@ dissect_h245_VideoCapability(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t 
         codec_type = val_to_str_const(value, h245_VideoCapability_vals, "<unknown>");
 
 
-  actx->pinfo->dissection_depth -= 3;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 3);
   return offset;
 }
 
@@ -5982,8 +5978,7 @@ static const per_choice_t AudioCapability_choice[] = {
 static unsigned
 dissect_h245_AudioCapability(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // AudioCapability -> VBDCapability -> AudioCapability
-  actx->pinfo->dissection_depth += 2;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 2);
   int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -5992,8 +5987,7 @@ dissect_h245_AudioCapability(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t 
 
         codec_type = val_to_str_const(value, h245_AudioCapability_short_vals, "<unknown>");
 
-  actx->pinfo->dissection_depth -= 2;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 2);
   return offset;
 }
 
@@ -7145,8 +7139,7 @@ static const per_choice_t DataType_choice[] = {
 static unsigned
 dissect_h245_DataType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // DataType -> H235Media -> H235Media/mediaType -> RedundancyEncoding -> DataType
-  actx->pinfo->dissection_depth += 4;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 4);
 int choice_index;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -7163,8 +7156,7 @@ if (upcoming_channel){
 }
 
 
-  actx->pinfo->dissection_depth -= 4;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 4);
   return offset;
 }
 
@@ -8866,8 +8858,7 @@ static const per_sequence_t MultiplexElement_sequence[] = {
 static unsigned
 dissect_h245_MultiplexElement(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // MultiplexElement -> MultiplexElement/type -> MultiplexElement/type/subElementList -> MultiplexElement
-  actx->pinfo->dissection_depth += 3;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 3);
   /*MultiplexElement*/
   h223_mux_element* me = wmem_new(wmem_file_scope(), h223_mux_element);
   h223_me->next = me;
@@ -8876,8 +8867,7 @@ dissect_h245_MultiplexElement(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MultiplexElement, MultiplexElement_sequence);
 
-  actx->pinfo->dissection_depth -= 3;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 3);
   return offset;
 }
 
@@ -9500,8 +9490,7 @@ static const per_choice_t AudioMode_choice[] = {
 static unsigned
 dissect_h245_AudioMode(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // AudioMode -> VBDMode -> AudioMode
-  actx->pinfo->dissection_depth += 2;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 2);
   int32_t value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -9510,8 +9499,7 @@ dissect_h245_AudioMode(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx 
 
   codec_type = val_to_str_const(value, h245_AudioMode_vals, "<unknown>");
 
-  actx->pinfo->dissection_depth -= 2;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 2);
   return offset;
 }
 
@@ -9858,14 +9846,12 @@ static const per_choice_t ModeElementType_choice[] = {
 static unsigned
 dissect_h245_ModeElementType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // ModeElementType -> RedundancyEncodingDTMode -> RedundancyEncodingDTModeElement -> RedundancyEncodingDTModeElement/type -> FECMode -> ModeElementType
-  actx->pinfo->dissection_depth += 5;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 5);
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_ModeElementType, ModeElementType_choice,
                                  NULL);
 
-  actx->pinfo->dissection_depth -= 5;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 5);
   return offset;
 }
 

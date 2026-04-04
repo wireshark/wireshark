@@ -1594,10 +1594,11 @@ class EthCtx:
                     break
 
         if len(cycle_funcs) > 1:
+            # The cycle always begins and ends with the same type, so
+            # subtract one.
             out += f'''\
   // {' -> '.join(cycle_funcs)}
-  actx->pinfo->dissection_depth += {len(cycle_funcs) - 1};
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, {len(cycle_funcs) - 1});
 '''
 
         if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
@@ -1620,9 +1621,10 @@ class EthCtx:
                     break
 
         if len(cycle_funcs) > 1:
+            # The cycle always begins and ends with the same type, so
+            # subtract one, as above
             out += f'''\
-  actx->pinfo->dissection_depth -= {len(cycle_funcs) - 1};
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, {len(cycle_funcs) - 1});
 '''
 
         if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):

@@ -165,7 +165,7 @@ typedef struct _packet_info {
   struct epan_session *epan;                           /**< Pointer to the current epan session context */
 
   const char *heur_list_name;                          /**< Name of heuristic list if packet is being heuristically dissected */
-  int dissection_depth;                                /**< Current "depth" or layer number in the current frame */
+  unsigned dissection_depth;                           /**< Current "depth" or layer number in the current frame */
 
   uint32_t stream_id;                                  /**< Conversation stream ID of the highest protocol */
   uint32_t track_ctype;                                /**< Tracks the conversation type for these protocols

@@ -15583,13 +15583,11 @@ static const per_sequence_t gdd_GddStructure_sequence[] = {
 static unsigned
 dissect_gdd_GddStructure(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // GddStructure -> GddAttributes -> GddAttributes/_item -> InternationalSign-destinationInformation -> InternationalSign-destinationInformation/ioList -> DestinationInformationIO -> DestinationInformationIO/destPlace -> DestinationPlace -> GddStructure
-  actx->pinfo->dissection_depth += 8;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 8);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_gdd_GddStructure, gdd_GddStructure_sequence);
 
-  actx->pinfo->dissection_depth -= 8;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 8);
   return offset;
 }
 

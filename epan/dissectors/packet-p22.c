@@ -1802,8 +1802,7 @@ static const ber_sequence_t IPM_sequence[] = {
 unsigned
 dissect_p22_IPM(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // IPM -> Body -> BodyPart -> BodyPart/basic -> MessageBodyPart -> MessageData -> IPM
-  actx->pinfo->dissection_depth += 6;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 6);
 
  col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
 
@@ -1813,8 +1812,7 @@ dissect_p22_IPM(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, a
 
 
 
-  actx->pinfo->dissection_depth -= 6;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 6);
   return offset;
 }
 
@@ -3518,13 +3516,11 @@ static const ber_sequence_t IPMSynopsis_sequence_of[1] = {
 static unsigned
 dissect_p22_IPMSynopsis(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // IPMSynopsis -> BodyPartSynopsis -> MessageBodyPartSynopsis -> IPMSynopsis
-  actx->pinfo->dissection_depth += 3;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 3);
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       IPMSynopsis_sequence_of, hf_index, ett_p22_IPMSynopsis);
 
-  actx->pinfo->dissection_depth -= 3;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 3);
   return offset;
 }
 
@@ -3983,13 +3979,11 @@ static const ber_sequence_t BodyPartTokens_set_of[1] = {
 static unsigned
 dissect_p22_BodyPartTokens(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // BodyPartTokens -> BodyPartTokens/_item -> BodyPartTokens/_item/body-part-choice -> BodyPartTokens
-  actx->pinfo->dissection_depth += 3;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 3);
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  BodyPartTokens_set_of, hf_index, ett_p22_BodyPartTokens);
 
-  actx->pinfo->dissection_depth -= 3;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 3);
   return offset;
 }
 
@@ -4038,13 +4032,11 @@ static const ber_sequence_t ForwardedContentToken_set_of[1] = {
 static unsigned
 dissect_p22_ForwardedContentToken(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // ForwardedContentToken -> ForwardedContentToken/_item -> ForwardedContentToken/_item/body-part-choice -> ForwardedContentToken
-  actx->pinfo->dissection_depth += 3;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 3);
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  ForwardedContentToken_set_of, hf_index, ett_p22_ForwardedContentToken);
 
-  actx->pinfo->dissection_depth -= 3;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 3);
   return offset;
 }
 

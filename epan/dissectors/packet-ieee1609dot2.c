@@ -3056,14 +3056,12 @@ static const oer_sequence_t Ieee1609Dot2Data_sequence[] = {
 static unsigned
 dissect_ieee1609dot2_Ieee1609Dot2Data(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // Ieee1609Dot2Data -> Ieee1609Dot2Content -> SignedData -> ToBeSignedData -> SignedDataPayload -> Ieee1609Dot2Data
-  actx->pinfo->dissection_depth += 5;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 5);
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, ieee1609_private_data_t);
   offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ieee1609dot2_Ieee1609Dot2Data, Ieee1609Dot2Data_sequence);
 
-  actx->pinfo->dissection_depth -= 5;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 5);
   return offset;
 }
 

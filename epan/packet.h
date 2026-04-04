@@ -1057,11 +1057,27 @@ prime_epan_dissect_with_postdissector_wanted_hfids(epan_dissect_t *edt);
 
 WS_DLL_PUBLIC void increment_dissection_depth(packet_info *pinfo);
 
+/** Increment the dissection depth by a value.
+ * This should be used to limit recursion outside the tree depth checks in
+ * call_dissector and dissector_try_heuristic.
+ * @param pinfo Packet Info.
+ * @param n The value by which to increment the depth
+ */
+
+WS_DLL_PUBLIC void increment_dissection_depth_by_n(packet_info *pinfo, unsigned n);
+
 /** Decrement the dissection depth.
  * @param pinfo Packet Info.
  */
 
 WS_DLL_PUBLIC void decrement_dissection_depth(packet_info *pinfo);
+
+/** Decrement the dissection depth by a value.
+ * @param pinfo Packet Info.
+ * @param n The value by which to decrement the depth
+ */
+
+WS_DLL_PUBLIC void decrement_dissection_depth_by_n(packet_info *pinfo, unsigned n);
 
 /** @} */
 

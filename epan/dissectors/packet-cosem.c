@@ -2091,13 +2091,11 @@ dlms_set_data_value(tvbuff_t* tvb, packet_info *pinfo, proto_item* item, int cho
 // NOLINTNEXTLINE(misc-no-recursion)
 static int dlms_get_type_description_length(tvbuff_t* tvb, packet_info* pinfo, int offset)
 {
-    pinfo->dissection_depth += 2;
-    increment_dissection_depth(pinfo);
+    increment_dissection_depth_by_n(pinfo, 3);
 
     int choice = tvb_get_uint8(tvb, offset);
     if (choice == 1) { // array
-        pinfo->dissection_depth -= 2;
-        decrement_dissection_depth(pinfo);
+        decrement_dissection_depth_by_n(pinfo, 3);
         return 1 + 2 + dlms_get_type_description_length(tvb, pinfo, offset + 3);
     }
     else if (choice == 2) { // structure
@@ -2107,13 +2105,11 @@ static int dlms_get_type_description_length(tvbuff_t* tvb, packet_info* pinfo, i
             end_offset += dlms_get_type_description_length(tvb, pinfo, end_offset);
             sequence_of--;
         }
-        pinfo->dissection_depth -= 2;
-        decrement_dissection_depth(pinfo);
+        decrement_dissection_depth_by_n(pinfo, 3);
         return end_offset - offset;
     }
     else {
-        pinfo->dissection_depth -= 2;
-        decrement_dissection_depth(pinfo);
+        decrement_dissection_depth_by_n(pinfo, 3);
         return 1;
     }
 }
@@ -2125,8 +2121,7 @@ static proto_item* dlms_dissect_compact_array_content(tvbuff_t* tvb, packet_info
     proto_tree* subtree;
     unsigned choice;
 
-    pinfo->dissection_depth += 2;
-    increment_dissection_depth(pinfo);
+    increment_dissection_depth_by_n(pinfo, 3);
 
     item = proto_tree_add_item(tree, hf_dlms_data, tvb, *content_offset, 0, ENC_NA);
     choice = tvb_get_uint8(tvb, description_offset);
@@ -2156,8 +2151,7 @@ static proto_item* dlms_dissect_compact_array_content(tvbuff_t* tvb, packet_info
     }
     proto_item_set_end(item, tvb, *content_offset);
 
-    pinfo->dissection_depth -= 2;
-    decrement_dissection_depth(pinfo);
+    decrement_dissection_depth_by_n(pinfo, 3);
 
     return item;
 }
@@ -2170,8 +2164,7 @@ static proto_item* dlms_dissect_data(tvbuff_t* tvb, packet_info* pinfo, proto_tr
     unsigned choice, length, i;
 
     /* Protect against recursion */
-    pinfo->dissection_depth += 2;
-    increment_dissection_depth(pinfo);
+    increment_dissection_depth_by_n(pinfo, 3);
 
     item = proto_tree_add_item(tree, hf_dlms_data, tvb, *offset, 1, ENC_NA);
     choice = tvb_get_uint8(tvb, *offset);
@@ -2233,8 +2226,7 @@ static proto_item* dlms_dissect_data(tvbuff_t* tvb, packet_info* pinfo, proto_tr
         *offset = dlms_set_data_value(tvb, pinfo, item, choice, *offset);
     }
     proto_item_set_end(item, tvb, *offset);
-    pinfo->dissection_depth -= 2;
-    decrement_dissection_depth(pinfo);
+    decrement_dissection_depth_by_n(pinfo, 3);
 
     return item;
 }

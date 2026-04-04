@@ -1044,14 +1044,12 @@ static const ber_choice_t Refinement_choice[] = {
 unsigned
 dissect_x509if_Refinement(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // Refinement -> Refinement/and -> Refinement
-  actx->pinfo->dissection_depth += 2;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 2);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Refinement_choice, hf_index, ett_x509if_Refinement,
                                  NULL);
 
-  actx->pinfo->dissection_depth -= 2;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 2);
   return offset;
 }
 
@@ -1488,14 +1486,12 @@ static const ber_choice_t ContextCombination_choice[] = {
 unsigned
 dissect_x509if_ContextCombination(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // ContextCombination -> ContextCombination/and -> ContextCombination
-  actx->pinfo->dissection_depth += 2;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 2);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ContextCombination_choice, hf_index, ett_x509if_ContextCombination,
                                  NULL);
 
-  actx->pinfo->dissection_depth -= 2;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 2);
   return offset;
 }
 
@@ -1612,14 +1608,12 @@ static const ber_choice_t AttributeCombination_choice[] = {
 unsigned
 dissect_x509if_AttributeCombination(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // AttributeCombination -> AttributeCombination/and -> AttributeCombination
-  actx->pinfo->dissection_depth += 2;
-  increment_dissection_depth(actx->pinfo);
+  increment_dissection_depth_by_n(actx->pinfo, 2);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  AttributeCombination_choice, hf_index, ett_x509if_AttributeCombination,
                                  NULL);
 
-  actx->pinfo->dissection_depth -= 2;
-  decrement_dissection_depth(actx->pinfo);
+  decrement_dissection_depth_by_n(actx->pinfo, 2);
   return offset;
 }
 
