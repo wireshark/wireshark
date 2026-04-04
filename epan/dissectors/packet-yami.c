@@ -111,8 +111,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	offset += WS_ROUNDUP_4(name_len);
 	proto_tree_add_string(yami_param, hf_yami_param_name, tvb, name_offset, offset - name_offset, name);
 
-	type = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(yami_param, hf_yami_param_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(yami_param, hf_yami_param_type, tvb, offset, 4, ENC_LITTLE_ENDIAN, &type);
 	offset += 4;
 
 	switch (type) {
@@ -195,8 +194,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			unsigned i;
 			int j;
 
-			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: boolean[], %u items: {", count);
@@ -235,8 +233,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			uint32_t count;
 			unsigned i;
 
-			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: integer[], %u items: {", count);
@@ -256,8 +253,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			uint32_t count;
 			unsigned i;
 
-			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: long long[], %u items: {", count);
@@ -278,8 +274,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			uint32_t count;
 			unsigned i;
 
-			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: double[], %u items: {", count);
@@ -300,8 +295,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			uint32_t count;
 			unsigned i;
 
-			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: string[], %u items: {", count);
@@ -330,8 +324,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			uint32_t count;
 			unsigned i;
 
-			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: binary[], %u items: {", count);
@@ -361,8 +354,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			uint32_t count;
 			unsigned i;
 
-			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(yami_param, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: nested, %u parameters: ", count);
@@ -401,9 +393,7 @@ dissect_yami_data(tvbuff_t *tvb, packet_info *pinfo, bool data, proto_tree *tree
 	ti = proto_tree_add_item(tree, (data) ? hf_yami_message_data : hf_yami_message_hdr, tvb, offset, 0, ENC_NA);
 	yami_data_tree = proto_item_add_subtree(ti, (data) ? ett_yami_msg_data : ett_yami_msg_hdr);
 
-	count = tvb_get_letohl(tvb, offset);
-
-	proto_tree_add_item(yami_data_tree, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(yami_data_tree, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 	offset += 4;
 
 	proto_item_append_text(ti, ", %u parameters: ", count);
@@ -443,21 +433,18 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	proto_tree_add_item(yami_tree, hf_yami_message_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	frame_number = tvb_get_letohl(tvb, offset);
-	ti = proto_tree_add_item(yami_tree, hf_yami_frame_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	ti = proto_tree_add_item_ret_int(yami_tree, hf_yami_frame_number, tvb, offset, 4, ENC_LITTLE_ENDIAN, &frame_number);
 	if(frame_number < 0)
 		proto_item_append_text(ti, "%s", " (last frame)");
 	offset += 4;
 
-	message_header_size = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(yami_tree, hf_yami_message_header_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_int(yami_tree, hf_yami_message_header_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &message_header_size);
 	if (message_header_size < 4) {
 		/* XXX, expert info */
 	}
 	offset += 4;
 
-	frame_payload_size = tvb_get_letohl(tvb, offset);
-	ti = proto_tree_add_item(yami_tree, hf_yami_frame_payload_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	ti = proto_tree_add_item_ret_int(yami_tree, hf_yami_frame_payload_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &frame_payload_size);
 	frame_size = frame_payload_size + 16;
 	proto_item_append_text(ti, ", (YAMI Frame Size: %d)", frame_size);
 	offset += 4;
@@ -543,7 +530,7 @@ proto_register_yami(void)
 		},
 		{ &hf_yami_param_type,
 			{ "Type", "yami.param.type",
-			  FT_INT32, BASE_DEC, VALS(yami_param_type_vals), 0x00,
+			  FT_UINT32, BASE_DEC, VALS(yami_param_type_vals), 0x00,
 			  "Parameter type", HFILL }
 		},
 		{ &hf_yami_param_value_bool,

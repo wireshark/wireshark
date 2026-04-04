@@ -4216,8 +4216,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 con_handle = tvb_get_letohs(tvb, offset) & 0x0FFF;
                 offset += 2;
-                proto_tree_add_item(tree, hf_bthci_evt_config_id, tvb, offset, 1, ENC_NA);
-                config_id = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthci_evt_config_id, tvb, offset, 1, ENC_NA, &config_id);
                 offset += 1;
                 if (subevent_code == 0x31) {
                     proto_tree_add_item(tree, hf_bthci_evt_start_acl_conn_event, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -4405,8 +4404,7 @@ dissect_bthci_evt_number_of_completed_data_blocks(tvbuff_t *tvb, int offset, pac
     proto_tree_add_item(tree, hf_bthci_evt_total_num_data_blocks, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    evt_num_handles = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_bthci_evt_num_handles, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_bthci_evt_num_handles, tvb, offset, 1, ENC_LITTLE_ENDIAN, &evt_num_handles);
     offset += 1;
 
     while (evt_num_handles--) {

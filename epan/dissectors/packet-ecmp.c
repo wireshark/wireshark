@@ -1644,8 +1644,7 @@ static int get_parameter_responses(packet_info* pinfo, unsigned offset, uint8_t 
 					ecmp_parameter_response_tree = proto_tree_add_subtree_format(ecmp_parameter_number_tree, tvb, offset, 0, ett_ecmp_command, &ecmp_response_item, "Response %d:", (a+1));
 					proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_parameter_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
-					proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-					data_type = tvb_get_uint8(tvb,offset);
+					proto_tree_add_item_ret_uint8(ecmp_parameter_response_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN, &data_type);
 					offset++;
 					offset = get_data_type(pinfo, offset, data_type, tvb, ecmp_parameter_response_tree);
 
@@ -3054,8 +3053,7 @@ static int dissect_ecmp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 1;
 
 		/* display the scheme  */
-		scheme = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(ecmp_tree, hf_ecmp_udp_scheme, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item_ret_uint8(ecmp_tree, hf_ecmp_udp_scheme, tvb, offset, 1, ENC_NA, &scheme);
 		offset += 1;
 
 		/* if the scheme is 1, there is grandmaster data to be printed  */

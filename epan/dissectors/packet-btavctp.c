@@ -104,7 +104,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     unsigned        number_of_packets = 0;
     unsigned        length;
     unsigned        i_frame;
-    bool            ipid = false;
+    uint8_t         ipid = 0;
     uint32_t        interface_id;
     uint32_t        adapter_id;
     uint32_t        chandle;
@@ -154,8 +154,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     cr = (tvb_get_uint8(tvb, offset) & 0x02) >> 1 ;
 
     if (packet_type == PACKET_TYPE_SINGLE || packet_type == PACKET_TYPE_START) {
-        ipid_item = proto_tree_add_item(btavctp_tree, hf_btavctp_ipid,  tvb, offset, 1, ENC_BIG_ENDIAN);
-        ipid = tvb_get_uint8(tvb, offset) & 0x01;
+        ipid_item = proto_tree_add_item_ret_uint8(btavctp_tree, hf_btavctp_ipid,  tvb, offset, 1, ENC_BIG_ENDIAN, &ipid);
     } else {
         proto_tree_add_item(btavctp_tree, hf_btavctp_rfa,  tvb, offset, 1, ENC_BIG_ENDIAN);
     }

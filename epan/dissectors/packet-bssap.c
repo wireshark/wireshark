@@ -1617,8 +1617,7 @@ static int dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     bssap_item = proto_tree_add_item(tree, proto_bssap_plus, tvb, 0, -1, ENC_NA);
     bssap_tree = proto_item_add_subtree(bssap_item, ett_bssap);
 
-    message_type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(bssap_tree, hf_bssap_plus_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(bssap_tree, hf_bssap_plus_message_type, tvb, offset, 1, ENC_BIG_ENDIAN, &message_type);
     offset++;
 
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(pinfo->pool, message_type, &bssap_plus_message_type_values_ext, "Unknown %u"));

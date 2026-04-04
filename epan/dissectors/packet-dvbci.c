@@ -3188,8 +3188,7 @@ dissect_dvbci_payload_mmi(uint32_t tag, int len_field,
                     pinfo, tree, hf_dvbci_enq, "Enquiry string", false);
             break;
         case T_ANSW:
-            ans_id = tvb_get_uint8(tvb,offset);
-            proto_tree_add_item(tree, hf_dvbci_ans_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(tree, hf_dvbci_ans_id, tvb, offset, 1, ENC_BIG_ENDIAN, &ans_id);
             offset++;
             if (ans_id == ANSW_ID_ANSWER) {
                 dissect_si_string(tvb, offset,
@@ -3618,8 +3617,7 @@ dissect_dvbci_ami_file_req(tvbuff_t *tvb, unsigned offset,
     uint8_t req_type;
     const char *req_str;
 
-    req_type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN, &req_type);
     col_append_sep_str(pinfo->cinfo, COL_INFO, ": ",
             val_to_str_const(req_type, dvbci_req_type, "unknown"));
     offset++;

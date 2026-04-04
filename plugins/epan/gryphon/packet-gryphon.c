@@ -2710,7 +2710,8 @@ cmd_addresp(tvbuff_t *tvb, int offset, packet_info* pinfo, proto_tree *pt)
     proto_tree  *tree;
     unsigned    blocks, responses, i, msglen, length;
     int padding;
-    int         action, actionType, actionValue;
+    uint8_t     action;
+    int         actionType, actionValue;
     tvbuff_t    *next_tvb;
 
     actionType = 0;
@@ -2736,8 +2737,7 @@ cmd_addresp(tvbuff_t *tvb, int offset, packet_info* pinfo, proto_tree *pt)
     offset += 1;
 
     /* action */
-    action = tvb_get_uint8(tvb, offset);
-    item = proto_tree_add_item(pt, hf_gryphon_addresp_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+    item = proto_tree_add_item_ret_uint8(pt, hf_gryphon_addresp_action, tvb, offset, 1, ENC_BIG_ENDIAN, &action);
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
     actionValue = tvb_get_ntohs(tvb, offset+2);
     if (actionValue) {

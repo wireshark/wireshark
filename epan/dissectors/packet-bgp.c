@@ -6868,8 +6868,7 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, unsigned offset
 
     ti = proto_tree_add_item(tree, hf_bgp_evpn_nlri_esi, tvb, offset, 10, ENC_NA);
     esi_tree = proto_item_add_subtree(ti, ett_bgp_evpn_nlri_esi);
-    proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    esi_type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(esi_tree, hf_bgp_evpn_nlri_esi_type, tvb, offset, 1, ENC_BIG_ENDIAN, &esi_type);
     proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_value, tvb, offset+1, 9, ENC_NA);
     switch (esi_type) {
         case BGP_NLRI_EVPN_ESI_VALUE :
@@ -10851,8 +10850,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                 q = o + i + aoff;
                 ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_aigp, tvb, q, tlen, ENC_NA);
                 subtree3 = proto_item_add_subtree(ti, ett_bgp_aigp_attr);
-                aigp_type_item =  proto_tree_add_item(subtree3, hf_bgp_aigp_type, tvb, q, 1, ENC_BIG_ENDIAN);
-                aigp_type = tvb_get_uint8(tvb,q);
+                aigp_type_item = proto_tree_add_item_ret_uint8(subtree3, hf_bgp_aigp_type, tvb, q, 1, ENC_BIG_ENDIAN, &aigp_type);
                 switch (aigp_type) {
                     case AIGP_TLV_TYPE :
                         proto_tree_add_item(subtree3, hf_bgp_aigp_tlv_length, tvb, q+1, 2, ENC_BIG_ENDIAN);

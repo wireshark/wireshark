@@ -269,7 +269,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree   *btbnep_tree;
     int           offset = 0;
     unsigned      bnep_type;
-    unsigned      extension_flag;
+    bool          extension_flag;
     unsigned      len_type = 0;
     proto_item   *addr_item;
     proto_tree   *addr_tree = NULL;
@@ -293,11 +293,8 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             break;
     }
 
-    proto_tree_add_item(btbnep_tree, hf_btbnep_extension_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(btbnep_tree, hf_btbnep_bnep_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    bnep_type = tvb_get_uint8(tvb, offset);
-    extension_flag = bnep_type & 0x80;
-    bnep_type = bnep_type & 0x7F;
+    proto_tree_add_item_ret_boolean(btbnep_tree, hf_btbnep_extension_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
+    proto_tree_add_item_ret_uint(btbnep_tree, hf_btbnep_bnep_type, tvb, offset, 1, ENC_BIG_ENDIAN, &bnep_type);
     offset += 1;
 
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(bnep_type, bnep_type_vals,  "Unknown type"));

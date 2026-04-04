@@ -5483,8 +5483,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     btle_item = proto_tree_add_item(tree, proto_btle, tvb, offset, -1, ENC_NA);
     btle_tree = proto_item_add_subtree(btle_item, ett_btle);
 
-    sub_item = proto_tree_add_item(btle_tree, hf_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    access_address = tvb_get_letohl(tvb, offset);
+    sub_item = proto_tree_add_item_ret_uint(btle_tree, hf_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN, &access_address);
     if (btle_context) {
         switch(btle_context->aa_category) {
         case E_AA_MATCHED:

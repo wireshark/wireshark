@@ -349,9 +349,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset = offset + 1;
             /* XXX Problem are tags 1 or two bytes???*/
-            proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-            tag = tvb_get_ntohs(tvb,offset);
+            proto_tree_add_item_ret_uint16(sm_tree, hf_sm_tag, tvb, offset, 2, ENC_BIG_ENDIAN, &tag);
             offset = offset +2;
             if (tag== 0x01ac) {
                 proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -379,9 +377,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset = offset + 1;
             /* XXX Problem are tags 1 or two bytes???*/
-            proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-            tag = tvb_get_ntohs(tvb,offset);
+            proto_tree_add_item_ret_uint16(sm_tree, hf_sm_tag, tvb, offset, 2, ENC_BIG_ENDIAN, &tag);
             offset = offset +2;
             if (tag== 0x01ac) {
                 proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);

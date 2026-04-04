@@ -1202,11 +1202,10 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
     *success = false;
     admin_record_tree = proto_tree_add_subtree(primary_tree, tvb, offset, -1,
                         ett_admin_record, &admin_record_item, "Administrative Record");
-    record_type = tvb_get_uint8(tvb, offset);
 
-    proto_tree_add_item(admin_record_tree, hf_bundle_admin_record_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(admin_record_tree, hf_bundle_admin_record_type, tvb, offset, 1, ENC_BIG_ENDIAN, &record_type);
 
-    switch ((record_type >> 4) & 0xf)
+    switch (record_type)
     {
     case ADMIN_REC_TYPE_STATUS_REPORT:
     {

@@ -176,8 +176,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 proto_tree_add_item(main_tree, hf_btmcap_timestamp_update_information, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
-                pitem = proto_tree_add_item(main_tree, hf_btmcap_bluetooth_clock_sync_time, tvb, offset, 4, ENC_BIG_ENDIAN);
-                bluetooth_clock_sync_time = tvb_get_ntohl(tvb, offset);
+                pitem = proto_tree_add_item_ret_uint(main_tree, hf_btmcap_bluetooth_clock_sync_time, tvb, offset, 4, ENC_BIG_ENDIAN, &bluetooth_clock_sync_time);
                 if (bluetooth_clock_sync_time == 0xFFFFFFFF)
                     proto_item_append_text(pitem, " (Instant Synchronization)");
                 else
