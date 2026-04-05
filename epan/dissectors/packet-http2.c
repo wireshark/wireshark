@@ -4303,22 +4303,21 @@ dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
 /* Altsvc */
 static int
 dissect_http2_altsvc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
-                     unsigned offset, uint8_t flags _U_, uint16_t length)
+                     unsigned offset, uint8_t flags _U_, uint32_t length)
 {
     uint32_t origin_len;
-    int remain = length;
 
     proto_tree_add_item_ret_uint(http2_tree, hf_http2_altsvc_origin_len, tvb, offset, 2, ENC_BIG_ENDIAN, &origin_len);
     offset += 2;
-    remain -= 2;
+    length -= 2;
 
     proto_tree_add_item(http2_tree, hf_http2_altsvc_origin, tvb, offset, origin_len, ENC_ASCII);
     offset += origin_len;
-    remain -= origin_len;
+    length -= origin_len;
 
-    if(remain) {
-        proto_tree_add_item(http2_tree, hf_http2_altsvc_field_value, tvb, offset, remain, ENC_ASCII);
-        offset += remain;
+    if (length) {
+        proto_tree_add_item(http2_tree, hf_http2_altsvc_field_value, tvb, offset, length, ENC_ASCII);
+        offset += length;
     }
 
     return offset;
@@ -4352,16 +4351,14 @@ dissect_http2_origin(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tr
 /* Priority Update */
 static int
 dissect_http2_priority_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
-                              unsigned offset, uint8_t flags _U_, uint16_t length)
+                              unsigned offset, uint8_t flags _U_, uint32_t length)
 {
-    int remain = length;
-
     proto_tree_add_item(http2_tree, hf_http2_priority_update_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    remain -= 4;
+    length -= 4;
 
-    proto_tree_add_item(http2_tree, hf_http2_priority_update_field_value, tvb, offset, remain, ENC_ASCII);
-    offset += remain;
+    proto_tree_add_item(http2_tree, hf_http2_priority_update_field_value, tvb, offset, length, ENC_ASCII);
+    offset += length;
 
     return offset;
 }
@@ -4374,7 +4371,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_tree *http2_tree;
     unsigned offset = 0;
     uint8_t type, flags;
-    uint16_t length;
+    uint32_t length;
     uint32_t streamid;
     struct HTTP2Tap *http2_stats;
     GHashTable* entry;
@@ -4435,8 +4432,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         return MAGIC_FRAME_LENGTH;
     }
 
-    proto_tree_add_item(http2_tree, hf_http2_length, tvb, offset, 3, ENC_BIG_ENDIAN);
-    length = tvb_get_ntoh24(tvb, offset);
+    proto_tree_add_item_ret_uint(http2_tree, hf_http2_length, tvb, offset, 3, ENC_BIG_ENDIAN, &length);
     offset += 3;
 
     proto_tree_add_item(http2_tree, hf_http2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
