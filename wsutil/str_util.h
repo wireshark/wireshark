@@ -336,12 +336,11 @@ typedef enum {
     FORMAT_SIZE_UNIT_BITS,          /**< "bits" for un-prefixed sizes, "b" otherwise. */
     FORMAT_SIZE_UNIT_BITS_S,        /**< "bits/s" for un-prefixed sizes, "bps" otherwise. */
     FORMAT_SIZE_UNIT_BYTES_S,       /**< "bytes/s" for un-prefixed sizes, "Bps" otherwise. */
-    FORMAT_SIZE_UNIT_PACKETS,       /**< "packets" */
-    FORMAT_SIZE_UNIT_PACKETS_S,     /**< "packets/s" */
-    FORMAT_SIZE_UNIT_EVENTS,        /**< "events" */
-    FORMAT_SIZE_UNIT_EVENTS_S,      /**< "events/s" */
-    FORMAT_SIZE_UNIT_FIELDS,        /**< "fields" */
-    /* These next two aren't really for format_size (which takes an int) */
+    FORMAT_SIZE_UNIT_PACKETS,       /**< "packets" for un-prefixed sizes, "pkts" otherwise */
+    FORMAT_SIZE_UNIT_PACKETS_S,     /**< "packets/s" for un-prefixed sizes, "pkts/s" otherwise */
+    FORMAT_SIZE_UNIT_EVENTS,        /**< "events" for un-prefixed sizes, "evts" otherwise */
+    FORMAT_SIZE_UNIT_EVENTS_S,      /**< "events/s" for un-prefixed sizes, "evts/s" otherwise */
+    FORMAT_SIZE_UNIT_FIELDS,        /**< "fields" for un-prefixed sizes, "flds" otherwise */
     FORMAT_SIZE_UNIT_SECONDS,       /**< "seconds" for un-prefixed sizes, "s" otherwise. */
     FORMAT_SIZE_UNIT_ERLANGS,       /**< "erlangs" for un-prefixed sizes, "E" otherwise. */
 } format_size_units_e;
