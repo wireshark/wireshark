@@ -13482,7 +13482,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Save data as raw</source>
-        <translation>Desa les dades com a raw</translation>
+        <translation>Desa les dades en brut</translation>
     </message>
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
