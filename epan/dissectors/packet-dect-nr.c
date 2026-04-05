@@ -5919,7 +5919,7 @@ void proto_register_dect_nr(void)
 			  UNS(&units_microseconds), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_dlc_routing_seq_num,
-			{ "Sequence number", "dect_nr.dlc.routing.sequence_number", FT_UINT8, BASE_DEC,
+			{ "Sequence number", "dect_nr.dlc.routing.sn", FT_UINT8, BASE_DEC,
 			  NULL, 0x0, NULL, HFILL }
 		},
 
