@@ -1644,6 +1644,9 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * doesn't see it.
 		 */
 		packet_size = pletohu16(&hdr.old_hdr.len);
+		if (packet_size < padding) {
+			padding = packet_size;
+		}
 		rec->rec_header.packet_header.caplen = packet_size - padding;
 		rec->rec_header.packet_header.len = rec->rec_header.packet_header.caplen;
 	} else {
@@ -1660,6 +1663,9 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * doesn't see it.
 		 */
 		packet_size = pletohu16(&hdr.hdr_1_x.incl_len);
+		if (packet_size < padding) {
+			padding = packet_size;
+		}
 		rec->rec_header.packet_header.caplen = packet_size - padding;
 		rec->rec_header.packet_header.len = pletohu16(&hdr.hdr_1_x.orig_len) - padding;
 	}
