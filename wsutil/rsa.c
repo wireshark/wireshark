@@ -26,33 +26,19 @@
 
 /* RSA private key file processing {{{ */
 #define RSA_PARS 6
-gcry_sexp_t
-rsa_privkey_to_sexp(gnutls_x509_privkey_t priv_key, char **err)
+static gcry_sexp_t
+rsa_privkey_to_sexp_common(gnutls_datum_t rsa_datum[RSA_PARS], char** err)
 {
-    gnutls_datum_t rsa_datum[RSA_PARS]; /* m, e, d, p, q, u */
     size_t         tmp_size;
     gcry_error_t   gret;
     gcry_sexp_t    rsa_priv_key = NULL;
     int            i;
     gcry_mpi_t     rsa_params[RSA_PARS];
-    *err = NULL;
-
-    /* RSA get parameter */
-    if (gnutls_x509_privkey_export_rsa_raw(priv_key,
-                &rsa_datum[0],
-                &rsa_datum[1],
-                &rsa_datum[2],
-                &rsa_datum[3],
-                &rsa_datum[4],
-                &rsa_datum[5])  != 0) {
-        *err = g_strdup("can't export rsa param (is a rsa private key file ?!?)");
-        return NULL;
-    }
 
     /* convert each rsa parameter to mpi format*/
     for(i=0; i<RSA_PARS; i++) {
         gret = gcry_mpi_scan(&rsa_params[i], GCRYMPI_FMT_USG, rsa_datum[i].data, rsa_datum[i].size,&tmp_size);
-        /* these buffers were allocated by gnutls_x509_privkey_export_rsa_raw() */
+        /* these buffers were allocated by gnutls_[x509_]privkey_export_rsa_raw() */
         gnutls_free(rsa_datum[i].data);
         if (gret != 0) {
             *err = ws_strdup_printf("can't convert m rsa param to int (size %d)", rsa_datum[i].size);
@@ -83,6 +69,52 @@ rsa_privkey_to_sexp(gnutls_x509_privkey_t priv_key, char **err)
     for (i=0; i< 6; i++)
         gcry_mpi_release(rsa_params[i]);
     return rsa_priv_key;
+}
+
+gcry_sexp_t
+rsa_privkey_to_sexp(gnutls_x509_privkey_t priv_key, char **err)
+{
+    gnutls_datum_t rsa_datum[RSA_PARS]; /* m, e, d, p, q, u */
+    gcry_error_t rc;
+    *err = NULL;
+
+    /* RSA get parameter */
+    if ((rc = gnutls_x509_privkey_export_rsa_raw(priv_key,
+                &rsa_datum[0],
+                &rsa_datum[1],
+                &rsa_datum[2],
+                &rsa_datum[3],
+                &rsa_datum[4],
+                &rsa_datum[5])) != 0) {
+        *err = g_strdup_printf("can't export rsa param (%s)", gcry_strerror(rc));
+        return NULL;
+    }
+
+    return rsa_privkey_to_sexp_common(rsa_datum, err);
+}
+
+gcry_sexp_t
+rsa_abstract_privkey_to_sexp(gnutls_privkey_t priv_key, char **err)
+{
+    gnutls_datum_t rsa_datum[RSA_PARS]; /* m, e, d, p, q, u */
+    gcry_error_t rc;
+    *err = NULL;
+
+    /* RSA get parameter */
+    if ((rc = gnutls_privkey_export_rsa_raw(priv_key,
+                &rsa_datum[0],
+                &rsa_datum[1],
+                &rsa_datum[2],
+                &rsa_datum[3],
+                &rsa_datum[4],
+                &rsa_datum[5],
+                NULL,
+                NULL)) != 0) {
+        *err = g_strdup_printf("can't export rsa param (%s)", gcry_strerror(rc));
+        return NULL;
+    }
+
+    return rsa_privkey_to_sexp_common(rsa_datum, err);
 }
 
 gnutls_x509_privkey_t
