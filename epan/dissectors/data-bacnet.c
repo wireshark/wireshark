@@ -950,7 +950,7 @@ BACnetVendorIdentifiers[] = {
     {  936, "Breathing Buildings" },
     {  937, "eWON SA" },
     {  938, "Cav. Uff. Giacomo Cimberio S.p.A" },
-    {  939, "PKE Electronics AG" },
+    {  939, "PKE Software Solutions GmbH" },
     {  940, "Allen" },
     {  941, "Kastle Systems" },
     {  942, "Logical Electro-Mechanical (EM) Systems, Inc." },
@@ -1616,6 +1616,11 @@ BACnetVendorIdentifiers[] = {
     { 1605, "Camfil USA Inc." },
     { 1606, "Radnox" },
     { 1607, "Optospark Sdn. Bhd." },
+    { 1608, "Controlbright" },
+    { 1609, "Pentair Residential Filtration" },
+    { 1610, "Venaera Inc." },
+    { 1611, "HumiPure" },
+    { 1612, "Humber Horizons" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

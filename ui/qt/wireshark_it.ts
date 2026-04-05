@@ -5280,6 +5280,38 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>InfoBannerWidget</name>
     <message>
+        <source>April 1st</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Happy April Fools&apos; Day!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sniffing the glue that holds the Internet together</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sniffing the glue that holds your system together</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Birthday</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Happy Birthday, Wireshark!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>On this day in 1998, the first version of Ethereal (later renamed Wireshark) was released. Thank you to the community that has kept the project thriving ever since!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Our History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Tips and announcements</source>
         <translation>Suggerimenti e annunci</translation>
     </message>
@@ -6439,63 +6471,63 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet list multi-color display mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità di visualizzazione multicolore dell&apos;elenco dei pacchetti:</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Spento</translation>
+        <translation>Spento</translation>
     </message>
     <message>
         <source>Scrollbar only</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo la barra di scorrimento</translation>
     </message>
     <message>
         <source>Equal stripes</source>
-        <translation type="unfinished"></translation>
+        <translation>Strisce uguali</translation>
     </message>
     <message>
         <source>Shift right</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta a destra</translation>
     </message>
     <message>
         <source>75%</source>
-        <translation type="unfinished">75%</translation>
+        <translation>75%</translation>
     </message>
     <message>
         <source>80%</source>
-        <translation type="unfinished">80%</translation>
+        <translation>80%</translation>
     </message>
     <message>
         <source>85%</source>
-        <translation type="unfinished">85%</translation>
+        <translation>85%</translation>
     </message>
     <message>
         <source>90%</source>
-        <translation type="unfinished">90%</translation>
+        <translation>90%</translation>
     </message>
     <message>
         <source>95%</source>
-        <translation type="unfinished">95%</translation>
+        <translation>95%</translation>
     </message>
     <message>
         <source>Separator style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Stile del separatore:</translation>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>Verticale</translation>
     </message>
     <message>
         <source>Diagonal</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagonale</translation>
     </message>
     <message>
         <source>Bubble</source>
-        <translation type="unfinished"></translation>
+        <translation>Bolla</translation>
     </message>
     <message>
         <source>Display multiple colors in packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza più colori nei dettagli del pacchetto</translation>
     </message>
 </context>
 <context>
@@ -9269,23 +9301,23 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Coloring Rule Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferenze regole di colorazione...</translation>
     </message>
     <message>
         <source>Coloring Rules...</source>
-        <translation type="unfinished"></translation>
+        <translation>Regole di colorazione...</translation>
     </message>
     <message>
         <source>Resume Coloring Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Riprendi regola di colorazione</translation>
     </message>
     <message>
         <source>Pause Coloring Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Sospendi regola di colorazione</translation>
     </message>
     <message>
         <source>Resume All Coloring Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Riprendi tutte le regole di colorazione</translation>
     </message>
     <message>
         <source>Copied %1</source>
@@ -14240,7 +14272,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation>Stai annusando la colla che tiene insieme Internet con Wireshark</translation>
+        <translation type="vanished">Stai annusando la colla che tiene insieme Internet con Wireshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -15583,6 +15615,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>&amp;Opzioni...</translation>
     </message>
     <message>
+        <source>Main Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Allows jumping to a specific packet by its number.</source>
         <translation>Consente di passare a un pacchetto specifico tramite il suo numero.</translation>
     </message>
@@ -15625,6 +15661,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Allows creating or editing display filter buttons.</source>
         <translation>Consente di creare o modificare i pulsanti del filtro di visualizzazione.</translation>
+    </message>
+    <message>
+        <source>Main View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main Menu</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;3GPP Uu</source>
@@ -16457,6 +16501,22 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Check for Updates…</source>
         <translation>Verifica aggiornamenti...</translation>
+    </message>
+    <message>
+        <source>Main View Splitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contains the packet list, protocol tree, and packet bytes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra View Splitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contains packet extras and bytes views.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to drop files during capture.</source>

@@ -404,7 +404,7 @@ static const struct ws_iana_ip_special_block __ipv6_special_block[] = {
 };
 
 
-/* (last updated 2026-03-27) */
+/* (last updated 2026-04-03) */
 
 
 static const value_string enterprise_val[] = {
@@ -4400,7 +4400,7 @@ static const value_string enterprise_val[] = {
 	{ 3995,     "VASCO Data Security International, Inc." },
 	{ 3996,     "Open Systems AG" },
 	{ 3997,     "ImproWare AG" },
-	{ 3998,     "Mediagroup Vtoroy" },
+	{ 3998,     "VTOROY" },
 	{ 3999,     "dydx" },
 	{ 4000,     "Hi-net Research Group" },
 	{ 4001,     "KADAK Products Ltd." },
@@ -65722,6 +65722,55 @@ static const value_string enterprise_val[] = {
 	{ 65425,    "Municipal institution City Institute" },
 	{ 65426,    "SXarc" },
 	{ 65427,    "Yu Energy" },
+	{ 65428,    "m3g yazilim danismanlik tic. ltd. sti." },
+	{ 65429,    "Duix Tecnologia Industria e Comercio LTDA" },
+	{ 65430,    "Carnival Corporation & PLC" },
+	{ 65431,    "Logipix" },
+	{ 65432,    "LukuID Oy" },
+	{ 65433,    "City of Orem, Utah" },
+	{ 65434,    "Mark Purcell" },
+	{ 65435,    "Paul Robinson" },
+	{ 65436,    "MdProSoft" },
+	{ 65437,    "Mikael Hansson Åkeri AB" },
+	{ 65438,    "Ram Jee Aryal (Independent Developer)" },
+	{ 65439,    "Sherpa-IRS" },
+	{ 65440,    "Signal24 LLC" },
+	{ 65441,    "Wendy Labs, Inc." },
+	{ 65442,    "CV BİLİŞİM TEKNOLOJİ TİCARET LİMİTED ŞİRKETİ" },
+	{ 65443,    "Horry County Government" },
+	{ 65444,    "ShenZhen Action Technologies Co., Ltd." },
+	{ 65445,    "Sirraya Labs" },
+	{ 65446,    "OnLogic Inc" },
+	{ 65447,    "Core Concept Collective" },
+	{ 65448,    "Augeral Pty Ltd" },
+	{ 65449,    "ISTREAMS SOLUTIONS FZE" },
+	{ 65450,    "Devops-DB" },
+	{ 65451,    "Stadtverwaltung Borken" },
+	{ 65452,    "Sallan yhteismetsä" },
+	{ 65453,    "Weinholt Consulting AB" },
+	{ 65454,    "Swarco Futurit Verkehrssignalsysteme Ges.m.b.H." },
+	{ 65455,    "Denny Thomas" },
+	{ 65456,    "SHI Lili" },
+	{ 65457,    "SECORO INC" },
+	{ 65458,    "Starnitzke Consulting GmbH" },
+	{ 65459,    "Salt Group" },
+	{ 65460,    "d-Matrix" },
+	{ 65461,    "Universidad Autónoma de Nayarit" },
+	{ 65462,    "Nymölla Skog AB" },
+	{ 65463,    "PANTHEON.tech" },
+	{ 65464,    "Granite Telecommunications LLC." },
+	{ 65465,    "bosloven" },
+	{ 65466,    "TELENICK" },
+	{ 65467,    "nekohaxx" },
+	{ 65468,    "SRNE Solar Co.,Ltd" },
+	{ 65469,    "ArtSanEnerji" },
+	{ 65470,    "TriCore Engineering UG (haftungsbeschränkt)" },
+	{ 65471,    "Mobi Acquisition LLC" },
+	{ 65472,    "BYD Finland Oy" },
+	{ 65473,    "DS Soft Olomouc, spol. s r.o." },
+	{ 65474,    "CedarDB GmbH" },
+	{ 65475,    "DESKO GmbH" },
+	{ 65476,    "Ducati Motor Holding S.p.A" },
 	{ 0, NULL }
 };
 

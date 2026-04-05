@@ -5260,6 +5260,38 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>InfoBannerWidget</name>
     <message>
+        <source>April 1st</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Happy April Fools&apos; Day!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sniffing the glue that holds the Internet together</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sniffing the glue that holds your system together</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Birthday</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Happy Birthday, Wireshark!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>On this day in 1998, the first version of Ethereal (later renamed Wireshark) was released. Thank you to the community that has kept the project thriving ever since!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Our History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Tips and announcements</source>
         <translation>TIPSとお知らせ</translation>
     </message>
@@ -6416,63 +6448,63 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packet list multi-color display mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧マルチカラー表示モード:</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">オフ</translation>
+        <translation>オフ</translation>
     </message>
     <message>
         <source>Scrollbar only</source>
-        <translation type="unfinished"></translation>
+        <translation>スクロールバーのみ</translation>
     </message>
     <message>
         <source>Equal stripes</source>
-        <translation type="unfinished"></translation>
+        <translation>縞模様</translation>
     </message>
     <message>
         <source>Shift right</source>
-        <translation type="unfinished"></translation>
+        <translation>シフト右</translation>
     </message>
     <message>
         <source>75%</source>
-        <translation type="unfinished">75%</translation>
+        <translation>75%</translation>
     </message>
     <message>
         <source>80%</source>
-        <translation type="unfinished">80%</translation>
+        <translation>80%</translation>
     </message>
     <message>
         <source>85%</source>
-        <translation type="unfinished">85%</translation>
+        <translation>85%</translation>
     </message>
     <message>
         <source>90%</source>
-        <translation type="unfinished">90%</translation>
+        <translation>90%</translation>
     </message>
     <message>
         <source>95%</source>
-        <translation type="unfinished">95%</translation>
+        <translation>95%</translation>
     </message>
     <message>
         <source>Separator style:</source>
-        <translation type="unfinished"></translation>
+        <translation>区切りスタイル:</translation>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>垂直</translation>
     </message>
     <message>
         <source>Diagonal</source>
-        <translation type="unfinished"></translation>
+        <translation>対角</translation>
     </message>
     <message>
         <source>Bubble</source>
-        <translation type="unfinished"></translation>
+        <translation>バブル</translation>
     </message>
     <message>
         <source>Display multiple colors in packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット詳細部に複数の色を表示します</translation>
     </message>
 </context>
 <context>
@@ -9232,23 +9264,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Coloring Rule Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルール設定...</translation>
     </message>
     <message>
         <source>Coloring Rules...</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルール...</translation>
     </message>
     <message>
         <source>Resume Coloring Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルールを復元</translation>
     </message>
     <message>
         <source>Pause Coloring Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルールを停止</translation>
     </message>
     <message>
         <source>Resume All Coloring Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての色付けルールを復元</translation>
     </message>
     <message>
         <source>Copied %1</source>
@@ -14194,7 +14226,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation>あなたはWiresharkを使ってインターネットを互いにつなぐ膠をキャプチャしています</translation>
+        <translation type="vanished">あなたはWiresharkを使ってインターネットを互いにつなぐ膠をキャプチャしています</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -15537,6 +15569,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>オプション…(&amp;O)</translation>
     </message>
     <message>
+        <source>Main Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Allows jumping to a specific packet by its number.</source>
         <translation>番号で特定のパケットにジャンプすることを許可します</translation>
     </message>
@@ -15579,6 +15615,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Allows creating or editing display filter buttons.</source>
         <translation>表示フィルタボタンの作成や編集を許可します</translation>
+    </message>
+    <message>
+        <source>Main View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main Menu</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;3GPP Uu</source>
@@ -16411,6 +16455,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Check for Updates…</source>
         <translation>更新を確認…</translation>
+    </message>
+    <message>
+        <source>Main View Splitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contains the packet list, protocol tree, and packet bytes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra View Splitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contains packet extras and bytes views.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to drop files during capture.</source>

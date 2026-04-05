@@ -5206,6 +5206,38 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
 <context>
     <name>InfoBannerWidget</name>
     <message>
+        <source>April 1st</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Happy April Fools&apos; Day!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sniffing the glue that holds the Internet together</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sniffing the glue that holds your system together</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Birthday</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Happy Birthday, Wireshark!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>On this day in 1998, the first version of Ethereal (later renamed Wireshark) was released. Thank you to the community that has kept the project thriving ever since!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Our History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Tips and announcements</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14030,7 +14062,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation>Está absorbiendo el pegamento que mantiene unido internet usando Wireshark</translation>
+        <translation type="vanished">Está absorbiendo el pegamento que mantiene unido internet usando Wireshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -15373,6 +15405,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>&amp;Opciones…</translation>
     </message>
     <message>
+        <source>Main Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Allows jumping to a specific packet by its number.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15414,6 +15450,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Allows creating or editing display filter buttons.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16247,6 +16291,22 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Check for Updates…</source>
         <translation>Buscar actualizaciones…</translation>
+    </message>
+    <message>
+        <source>Main View Splitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contains the packet list, protocol tree, and packet bytes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra View Splitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contains packet extras and bytes views.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to drop files during capture.</source>

@@ -5623,6 +5623,10 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10AC,   "ATsens Co.,Ltd." },
     { 0x10AD,   "CoreHW Semiconductor Oy" },
     { 0x10AE,   "Raycon Inc." },
+    { 0x10AF,   "Hangzhou SDIC Microelectronics Inc." },
+    { 0x10B0,   "VSC Synapse LLC" },
+    { 0x10B1,   "Senops Tracker, LLC" },
+    { 0x10B2,   "Shenzhen Xunzong Zhilian Technology Co., Ltd." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
