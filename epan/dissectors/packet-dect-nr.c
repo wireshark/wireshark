@@ -490,6 +490,7 @@ static int hf_dect_nr_dlc_routing_dst_addr;
 static int hf_dect_nr_dlc_routing_hop_count;
 static int hf_dect_nr_dlc_routing_hop_limit;
 static int hf_dect_nr_dlc_routing_delay;
+static int hf_dect_nr_dlc_routing_seq_num;
 
 /* Higher layer signalling */
 static int hf_dect_nr_hls_bin;
@@ -856,7 +857,7 @@ static const value_string mux_hdr_ie_type_mac_ext_012_vals[] = {
 	{ 26, "Source Routing IE" },
 	{ 27, "Joining Beacon message" },
 	{ 28, "Joining Information IE" },
-	/* 26 - 61 Reserved */
+	/* 29 - 61 Reserved */
 	{ 62, "Escape" },
 	{ 63, "IE type extension" },
 	{ 0, NULL }
@@ -880,7 +881,7 @@ static const value_string mux_hdr_ie_type_mac_ext_3_pl_1_vals[] = {
 	{ 1, "Radio Device Status IE" },
 	{ 2, "RD Capability Short IE" },
 	{ 3, "Association Control IE" },
-	/* 2 - 29 Reserved */
+	/* 4 - 29 Reserved */
 	{ 30, "Escape" },
 	{ 0, NULL }
 };
@@ -1735,7 +1736,7 @@ static const value_string dlc_routing_type_vals[] = {
 	{ 1, "Reserved" },
 	{ 2, "Reserved" },
 	{ 3, "Downlink flooding for Packet Routing from backend (downlink)" },
-	{ 4, "Reserved" },
+	{ 4, "Selective Source Routing" },
 	{ 5, "Local flooding RD to RD, or RD to multicast Group, for Hop-limited flooding" },
 	{ 6, "Reserved" },
 	{ 7, "Reserved" },
@@ -2324,6 +2325,7 @@ static int dissect_dlc_routing_header(tvbuff_t *tvb, int offset, packet_info *pi
 	bool delay_field;
 	uint32_t hop_count_limit;
 	uint32_t dest_add;
+	uint32_t routing_type;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_dlc_routing, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_dlc_routing);
@@ -2335,7 +2337,7 @@ static int dissect_dlc_routing_header(tvbuff_t *tvb, int offset, packet_info *pi
 
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_dlc_routing_hop_count_limit, tvb, offset, 1, ENC_BIG_ENDIAN, &hop_count_limit);
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_dlc_routing_dest_add, tvb, offset, 1, ENC_BIG_ENDIAN, &dest_add);
-	proto_tree_add_item(tree, hf_dect_nr_dlc_routing_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_dlc_routing_type, tvb, offset, 1, ENC_BIG_ENDIAN, &routing_type);
 	offset++;
 
 	if (dest_add != 3 && dest_add != 4) {
@@ -2361,6 +2363,11 @@ static int dissect_dlc_routing_header(tvbuff_t *tvb, int offset, packet_info *pi
 	if (delay_field) {
 		proto_tree_add_item(tree, hf_dect_nr_dlc_routing_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
+	}
+
+	if (routing_type == 5) {
+		proto_tree_add_item(tree, hf_dect_nr_dlc_routing_seq_num, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
 	}
 
 	proto_item_set_len(item, offset - start);
@@ -2919,11 +2926,14 @@ static int dissect_reconfiguration_request_msg(tvbuff_t *tvb, packet_info *pinfo
 		offset++;
 	}
 
-	for (uint32_t i = 0; i < num_flows; i++) {
-		proto_tree_add_item(tree, hf_dect_nr_rc_req_setup_release, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_dect_nr_rc_req_res, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_dect_nr_rc_req_flow_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+	/* Value 7 is 'Reserved' */
+	if (num_flows < 7) {
+		for (uint32_t i = 0; i < num_flows; i++) {
+			proto_tree_add_item(tree, hf_dect_nr_rc_req_setup_release, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dect_nr_rc_req_res, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dect_nr_rc_req_flow_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
+		}
 	}
 
 	proto_item_set_len(item, offset);
@@ -3874,6 +3884,7 @@ static tvbuff_t *decrypt_mac_pdus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		item = expert_add_info(pinfo, item, &ei_dect_nr_mac_encrypted);
 		proto_item_append_text(item, " (decryption failed)");
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[Decryption failed]");
+		g_byte_array_free(cipher_key, true);
 		return NULL;
 	}
 
@@ -3888,15 +3899,16 @@ static int dissect_mac_mux_msg_ie(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	tvbuff_t *subtvb;
 	int sublen;
+	unsigned length;
 
-	subtvb = tvb_new_subset_length(tvb, offset, ctx->ie_length);
+	length = ((ctx && ctx->ie_length_present) ? ctx->ie_length : tvb_reported_length_remaining(tvb, offset));
+	subtvb = tvb_new_subset_length(tvb, offset, length);
 	sublen = dissector_try_uint_with_data(dissector_table, ctx->ie_type, subtvb, pinfo, parent_tree, false, ctx);
 
 	if (sublen > 0) {
 		offset += sublen;
 	} else if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		/* Unknown message */
-		unsigned length = (ctx->ie_length_present ? ctx->ie_length : tvb_reported_length_remaining(tvb, offset));
 		proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_undecoded, tvb, offset, length, ENC_NA);
 		expert_add_info(pinfo, item, &ei_dect_nr_undecoded);
 		offset += length;
@@ -5747,6 +5759,10 @@ void proto_register_dect_nr(void)
 			{ "Delay", "dect_nr.dlc.routing.delay", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
 			  UNS(&units_microseconds), 0x0, NULL, HFILL }
 		},
+		{ &hf_dect_nr_dlc_routing_seq_num,
+			{ "Sequence number", "dect_nr.dlc.routing.sequence_number", FT_UINT8, BASE_DEC,
+			  NULL, 0x0, NULL, HFILL }
+		},
 
 		/* Higher layer signalling */
 		{ &hf_dect_nr_hls_bin,
@@ -5964,7 +5980,7 @@ void proto_reg_handoff_dect_nr(void)
 	dissector_add_uint("dect_nr.msg_ie", 26, create_dissector_handle(dissect_source_routing_ie, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie", 27, create_dissector_handle(dissect_joining_beacon_msg, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie", 28, create_dissector_handle(dissect_joining_information_ie, proto_dect_nr));
-	/* 26 - 61: Reserved */
+	/* 29 - 61: Reserved */
 	dissector_add_uint("dect_nr.msg_ie", 62, create_dissector_handle(dissect_escape, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie", 63, create_dissector_handle(dissect_ie_type_extension, proto_dect_nr));
 
@@ -5973,7 +5989,7 @@ void proto_reg_handoff_dect_nr(void)
 	dissector_add_uint("dect_nr.msg_ie_short", 1, create_dissector_handle(dissect_radio_device_status_ie, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie_short", 2, create_dissector_handle(dissect_rd_capability_short_ie, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie_short", 3, create_dissector_handle(dissect_association_control_ie, proto_dect_nr));
-	/* 2 - 29: Reserved */
+	/* 4 - 29: Reserved */
 	dissector_add_uint("dect_nr.msg_ie_short", 30, create_dissector_handle(dissect_escape, proto_dect_nr));
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_DECT_NR, dect_nr_handle);
