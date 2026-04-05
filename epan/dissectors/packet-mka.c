@@ -156,7 +156,8 @@ static expert_field ei_mka_unimplemented;
 static int ett_mka;
 static int ett_mka_sci;
 static int ett_mka_basic_param_set;
-static int ett_mka_peer_list_set;
+static int ett_mka_live_peer_list_set;
+static int ett_mka_potential_peer_list_set;
 static int ett_mka_sak_use_set;
 static int ett_mka_distributed_sak_set;
 static int ett_mka_distributed_cak_set;
@@ -734,10 +735,9 @@ sort_mi_by_sci(const void* a, const void* b) {
 }
 
 static proto_tree *
-dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, uint16_t param_body_len, bool key_server_ssci_flag) {
-  proto_tree *peer_list_set_tree;
+dissect_live_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, uint16_t param_body_len, bool key_server_ssci_flag) {
+  proto_tree *live_peer_list_set_tree;
   proto_item *ti;
-  int hf_peer;
   mka_sak_info_key_t *sak_info = NULL;
   uint32_t ssci;
   uint8_t  server_ssci = 0;
@@ -747,37 +747,31 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int o
   wmem_map_t *sci_map = NULL;
   wmem_array_t *mi_array = NULL;
 
-  if (tvb_get_uint8(tvb, offset) == LIVE_PEER_LIST_TYPE) {
-    hf_peer = hf_mka_live_peer_list_set;
-    sak_info = p_get_proto_data(pinfo->pool, pinfo, proto_mka, SAK_KEY);
-    mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
-    sci = wmem_map_lookup(mka_mi_sci_map, mi);
-    DISSECTOR_ASSERT(sci);
-    if (sak_info) {
-      // Distributed SAK parameter set already processed.
-      sci_map = sak_info->sci_map;
-      mi_array = sak_info->mi_array;
-    } else {
-      // Distributed SAK parameter set not already processed.
-      // It should not appear later, per 11.11.3, but in practice
-      // in many implementations it does.
-      sci_map = wmem_map_new(pinfo->pool, mka_sci_hash, mka_sci_equal);
-      p_add_proto_data(pinfo->pool, pinfo, proto_mka, PEER_SCI_KEY, sci_map);
-      mi_array = wmem_array_new(pinfo->pool, MKA_MI_LEN);
-      p_add_proto_data(pinfo->pool, pinfo, proto_mka, PEER_MI_KEY, mi_array);
-    }
+  sak_info = p_get_proto_data(pinfo->pool, pinfo, proto_mka, SAK_KEY);
+  mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
+  sci = wmem_map_lookup(mka_mi_sci_map, mi);
+  DISSECTOR_ASSERT(sci);
+  if (sak_info) {
+    // Distributed SAK parameter set already processed.
+    sci_map = sak_info->sci_map;
+    mi_array = sak_info->mi_array;
   } else {
-    hf_peer = hf_mka_potential_peer_list_set;
+    // Distributed SAK parameter set not already processed.
+    // It should not appear later, per 11.11.3, but in practice
+    // in many implementations it does.
+    sci_map = wmem_map_new(pinfo->pool, mka_sci_hash, mka_sci_equal);
+    p_add_proto_data(pinfo->pool, pinfo, proto_mka, PEER_SCI_KEY, sci_map);
+    mi_array = wmem_array_new(pinfo->pool, MKA_MI_LEN);
+    p_add_proto_data(pinfo->pool, pinfo, proto_mka, PEER_MI_KEY, mi_array);
   }
 
-  ti = proto_tree_add_item(mka_tree, hf_peer, tvb, offset, param_body_len + 4, ENC_NA);
-  peer_list_set_tree = proto_item_add_subtree(ti, ett_mka_peer_list_set);
+  ti = proto_tree_add_item(mka_tree, hf_mka_live_peer_list_set, tvb, offset, param_body_len + 4, ENC_NA);
+  live_peer_list_set_tree = proto_item_add_subtree(ti, ett_mka_live_peer_list_set);
 
-  proto_tree_add_uint(peer_list_set_tree, hf_mka_param_set_type, tvb, offset, 1,
-                      (hf_peer == hf_mka_live_peer_list_set) ? LIVE_PEER_LIST_TYPE : POTENTIAL_PEER_LIST_TYPE );
+  proto_tree_add_uint(live_peer_list_set_tree, hf_mka_param_set_type, tvb, offset, 1, LIVE_PEER_LIST_TYPE);
   offset += 1;
 
-  if (key_server_ssci_flag && (hf_peer == hf_mka_live_peer_list_set))
+  if (key_server_ssci_flag)
   {
     /* XXX - The presence of this field is non-trivial to find out. See IEEE 802.1X-2020, Section 11.11.3
      * Only present in MKPDU's with:
@@ -812,7 +806,7 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int o
      */
     server_ssci = tvb_get_uint8(tvb, offset);
     if (server_ssci) {
-      proto_tree_add_item(peer_list_set_tree, hf_mka_key_server_ssci, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(live_peer_list_set_tree, hf_mka_key_server_ssci, tvb, offset, 1, ENC_NA);
     }
   }
 
@@ -833,7 +827,7 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int o
 
   offset += 1;
 
-  proto_tree_add_uint(peer_list_set_tree, hf_mka_param_body_length, tvb, offset, 2, param_body_len);
+  proto_tree_add_uint(live_peer_list_set_tree, hf_mka_param_body_length, tvb, offset, 2, param_body_len);
   offset += 2;
 
   unsigned index = 1; // SSCIs start at 1
@@ -849,7 +843,7 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int o
      * record the number of peers in the Live Peer List (plus the Key Server
      * itself) and try all of them in the MACsec dissector, if necessary.
      */
-    proto_tree_add_item(peer_list_set_tree, hf_mka_peer_mi, tvb, offset, MKA_MI_LEN, ENC_NA);
+    proto_tree_add_item(live_peer_list_set_tree, hf_mka_peer_mi, tvb, offset, MKA_MI_LEN, ENC_NA);
     if (sci_map) {
       mi = tvb_memdup(pinfo->pool, tvb, offset, MKA_MI_LEN);
       if (index >= server_ssci) {
@@ -884,7 +878,7 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int o
     }
     offset += MKA_MI_LEN;
 
-    proto_tree_add_item(peer_list_set_tree, hf_mka_peer_mn, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(live_peer_list_set_tree, hf_mka_peer_mn, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     param_body_len -= 16;
@@ -905,10 +899,41 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int o
   }
 
   if (param_body_len != 0) {
-    proto_tree_add_expert(peer_list_set_tree, pinfo, &ei_mka_undecoded, tvb, offset, param_body_len);
+    proto_tree_add_expert(live_peer_list_set_tree, pinfo, &ei_mka_undecoded, tvb, offset, param_body_len);
   }
 
-  return peer_list_set_tree;
+  return live_peer_list_set_tree;
+}
+
+static proto_tree *
+dissect_potential_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, uint16_t param_body_len) {
+  proto_tree *potential_peer_list_set_tree;
+  proto_item *ti;
+
+  ti = proto_tree_add_item(mka_tree, hf_mka_potential_peer_list_set, tvb, offset, param_body_len + 4, ENC_NA);
+  potential_peer_list_set_tree = proto_item_add_subtree(ti, ett_mka_potential_peer_list_set);
+
+  proto_tree_add_uint(potential_peer_list_set_tree, hf_mka_param_set_type, tvb, offset, 1, POTENTIAL_PEER_LIST_TYPE);
+  offset += 2;
+
+  proto_tree_add_uint(potential_peer_list_set_tree, hf_mka_param_body_length, tvb, offset, 2, param_body_len);
+  offset += 2;
+
+  while (param_body_len >= 16) {
+    proto_tree_add_item(potential_peer_list_set_tree, hf_mka_peer_mi, tvb, offset, MKA_MI_LEN, ENC_NA);
+    offset += MKA_MI_LEN;
+
+    proto_tree_add_item(potential_peer_list_set_tree, hf_mka_peer_mn, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    param_body_len -= 16;
+  }
+
+  if (param_body_len != 0) {
+    proto_tree_add_expert(potential_peer_list_set_tree, pinfo, &ei_mka_undecoded, tvb, offset, param_body_len);
+  }
+
+  return potential_peer_list_set_tree;
 }
 
 static proto_tree *
@@ -1538,8 +1563,11 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     param_set_type = start_parameter_set(tvb, offset, &param_body_len);
     switch (param_set_type) {
     case LIVE_PEER_LIST_TYPE:
+      param_set_tree = dissect_live_peer_list(mka_tree, pinfo, tvb, offset, param_body_len, (mka_version_type == 3));
+      break;
+
     case POTENTIAL_PEER_LIST_TYPE:
-      param_set_tree = dissect_peer_list(mka_tree, pinfo, tvb, offset, param_body_len, (mka_version_type == 3));
+      param_set_tree = dissect_potential_peer_list(mka_tree, pinfo, tvb, offset, param_body_len);
       break;
 
     case MACSEC_SAK_USE_TYPE:
@@ -1685,7 +1713,8 @@ proto_register_mka(void) {
     &ett_mka,
     &ett_mka_sci,
     &ett_mka_basic_param_set,
-    &ett_mka_peer_list_set,
+    &ett_mka_live_peer_list_set,
+    &ett_mka_potential_peer_list_set,
     &ett_mka_sak_use_set,
     &ett_mka_distributed_sak_set,
     &ett_mka_distributed_cak_set,
