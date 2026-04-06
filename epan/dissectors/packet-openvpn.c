@@ -176,6 +176,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
   bool           tls_crypt = false;
   unsigned       openvpn_keyid;
   unsigned       openvpn_opcode;
+  char          *openvpn_message_type;
   uint32_t       msg_sessionid = -1;
   uint8_t        openvpn_predict_tlsauth_arraylength;
   proto_item    *ti2;
@@ -189,14 +190,12 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
 
   /* read opcode and write to info column */
   openvpn_opcode = tvb_get_bits8(tvb, offset*8, 5);
-  col_append_fstr(pinfo->cinfo, COL_INFO, "MessageType: %s",
-                  val_to_str_const(openvpn_opcode, openvpn_message_types, "Unknown Messagetype"));
+  openvpn_message_type = val_to_str(pinfo->pool, openvpn_opcode, openvpn_message_types, "Unknown (0x%02x)");
 
+  col_append_fstr(pinfo->cinfo, COL_INFO, "MessageType: %s", openvpn_message_type);
 
   openvpn_keyid = tvb_get_bits8(tvb, offset*8 + 5, 3);
-  proto_item_append_text(parent_tree, ", Opcode: %s, Key ID: %d",
-                         val_to_str(pinfo->pool, openvpn_opcode, openvpn_message_types, "Unknown (0x%02x)"),
-                         openvpn_keyid);
+  proto_item_append_text(openvpn_tree, ", Opcode: %s, Key ID: %d", openvpn_message_type, openvpn_keyid);
 
   ti2 = proto_tree_add_item(openvpn_tree, hf_openvpn_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_item_append_text(ti2, " [opcode/key_id]");
