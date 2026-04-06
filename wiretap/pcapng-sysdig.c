@@ -158,6 +158,17 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_type,
         event_len = block_remaining + event_header_len;
     }
 
+    //
+    // The total event length can't be less than the length of an event's
+    // header.
+    //
+    if (event_len < event_header_len) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("pcapng: event length %u of a Sysdig event block is less than the event's header length %u",
+                                     event_len, event_header_len);
+        return false;
+    }
+
     uint32_t event_data_len = event_len - event_header_len;
 
     wblock->rec->rec_header.syscall_header.cpu_id = cpu_id;
@@ -179,6 +190,19 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_type,
     unsigned pad_len = WS_PADDING_TO_4(event_len + preamble_len);
     if (pad_len && file_seek(fh, pad_len, SEEK_CUR, err) < 0) {
         return false;   /* Seek error */
+    }
+
+    /*
+     * Is this block long enough to hold the event data?
+     */
+    if (block_content_length < event_data_len + pad_len) {
+        /*
+         * No.
+         */
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("pcapng: block content length %u of a Sysdig event block is less than the padded event data length %u",
+                                     block_content_length, event_data_len + pad_len);
+        return false;
     }
 
     /* Options */
