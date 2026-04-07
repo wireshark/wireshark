@@ -784,6 +784,8 @@ static bool parse_rule(SnortConfig_t *snort_config, char *line, const char *file
     options_start = strstr(line, "(");
     if (options_start == NULL) {
         ws_debug("start of options not found");
+        g_free(rule->rule_string);
+        g_free(rule->file);
         g_free(rule);
         return false;
     }
@@ -791,6 +793,8 @@ static bool parse_rule(SnortConfig_t *snort_config, char *line, const char *file
 
     /* To make parsing simpler, replace final ')' with ';' */
     if (line[line_length-1] != ')') {
+        g_free(rule->rule_string);
+        g_free(rule->file);
         g_free(rule);
         return false;
     }
