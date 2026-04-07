@@ -57,6 +57,9 @@ The following bugs have been fixed:
 * The Windows installers now ship with Npcap 1.87.
   They previously shipped with Npcap 1.86.
 
+* The Windows installers now ship with Qt 6.10.3.
+  They previously shipped with Qt 6.9.3.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
