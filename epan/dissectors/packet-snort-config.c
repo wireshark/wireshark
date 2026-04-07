@@ -23,6 +23,9 @@
 #include "packet-snort-config.h"
 #include "ws_attributes.h"
 
+#define MAX_LINE_LENGTH 4096U
+#define STR_BUF_SIZE 1024U
+
 /* Forward declaration */
 static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd, const char *filename, const char *dirname, int recursion_level);
 
@@ -49,7 +52,7 @@ static const char *skipWhiteSpace(const char *source, int *accumulated_offset)
  * - returns: requested string.  Returns from static buffer when copy is false */
 static char* read_token(const char* source, char delimeter, int *length, int *accumulated_length, bool copy)
 {
-    static char static_buffer[1024];
+    static char static_buffer[MAX_LINE_LENGTH];
     int offset = 0;
 
     const char *source_proper = skipWhiteSpace(source, accumulated_length);
@@ -62,8 +65,7 @@ static char* read_token(const char* source, char delimeter, int *length, int *ac
     *accumulated_length += offset;
     if (copy) {
         /* Copy into new string */
-        char *new_string = g_strndup(source_proper, offset+1);
-        new_string[offset] = '\0';
+        char *new_string = g_strndup(source_proper, offset);
         return new_string;
     }
     else {
@@ -587,10 +589,10 @@ static bool parse_include_file(SnortConfig_t *snort_config, const char *line, co
 /* Process an individual option - i.e. the elements found between '(' and ')' */
 static void process_rule_option(Rule_t *rule, char *options, int option_start_offset, int options_end_offset, int colon_offset)
 {
-    static char name[1024], value[1024];
+    static char name[STR_BUF_SIZE], value[STR_BUF_SIZE];
     name[0] = '\0';
     value[0] = '\0';
-    int value_length = 0;
+    size_t value_length = 0;
     int32_t value_i32 = 0;
     uint32_t value_u32 = 0;
     uint16_t value_u16 = 0;
@@ -599,16 +601,20 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
 
     if (colon_offset != 0) {
         /* Name and value */
-        (void) g_strlcpy(name, options+option_start_offset, colon_offset-option_start_offset);
+        (void) g_strlcpy(name, options+option_start_offset, STR_BUF_SIZE);
+        // colon_offset is the offset *after* the colon
         if (options[colon_offset] == ' ') {
             spaces_after_colon = 1;
         }
-        (void) g_strlcpy(value, options+colon_offset+spaces_after_colon, options_end_offset-spaces_after_colon-colon_offset);
-        value_length = (int)strlen(value);
+        value_length = g_strlcpy(value, options+colon_offset+spaces_after_colon, STR_BUF_SIZE);
+        if (value_length >= STR_BUF_SIZE) {
+            // XXX - Should we do anything on truncation?
+            value_length = STR_BUF_SIZE - 1;
+        }
     }
     else {
         /* Just name */
-        (void) g_strlcpy(name, options+option_start_offset, options_end_offset-option_start_offset);
+        (void) g_strlcpy(name, options+option_start_offset, STR_BUF_SIZE);
     }
 
     /* Think this is space at end of all options - don't compare with option names */
@@ -818,10 +824,16 @@ static bool parse_rule(SnortConfig_t *snort_config, char *line, const char *file
         if (!in_quotes) {
             if (c == ':') {
                 colon_offset = options_index;
+                options[colon_offset - 1] = '\0';
             }
             if (c == ';') {
                 /* End of current option - add to rule. */
+                options[options_index - 1] = '\0';
                 process_rule_option(rule, options, options_start_index, options_index, colon_offset);
+                options[options_index - 1] = ';';
+                if (colon_offset) {
+                    options[colon_offset - 1] = ':';
+                }
 
                 /* Skip any spaces before next option */
                 while (options[options_index] == ' ') options_index++;
@@ -878,7 +890,6 @@ static gboolean delete_rule(void *    key _U_,
 static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd,
                               const char *filename, const char *dirname, int recursion_level)
 {
-    #define MAX_LINE_LENGTH 4096
     char line[MAX_LINE_LENGTH];
     int  line_number = 0;
 
@@ -1089,12 +1100,16 @@ unsigned content_convert_to_binary(content_t *content)
     char c;
     int n;
     bool have_backslash = false;
-    static char binary_str[1024];
+    static char binary_str[STR_BUF_SIZE];
 
     /* Just return length if have previously translated in binary string. */
     if (content->translated) {
         return content->translated_length;
     }
+
+    /* content->str was set by rule_add_content, strdup'd from a substring of
+     * value, which, null-terminated, fit in an array of STR_BUF_SIZE. */
+    ws_assert(strlen(content->str) < STR_BUF_SIZE);
 
     /* Walk over each character, work out what needs to be written into output */
     for (n=0; content->str[n] != '\0'; n++) {
