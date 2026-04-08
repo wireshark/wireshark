@@ -970,7 +970,13 @@ determine_http_location_target(wmem_allocator_t *scope, const char *base_url, co
 		}
 		/* Otherwise, it replaces the last element in the URI */
 		else {
-			char *scheme_end = strstr(base_url_no_query, "://") + 3;
+			char *scheme_end;
+
+			scheme_end = strstr(base_url_no_query, "://");
+			if (!(scheme_end)) {
+				return NULL;
+			}
+			scheme_end += strlen("://");
 			char *end_of_path = g_strrstr(scheme_end, "/");
 
 			if (end_of_path != NULL) {
