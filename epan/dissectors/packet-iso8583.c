@@ -519,21 +519,18 @@ static unsigned get_iso8583_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int o
  */
 static char* bin2hex(wmem_allocator_t *pool, const uint8_t *bin, enum bin2hex_enum type, uint32_t len)
 {
-  char* ret;
   uint8_t ch;
   const uint8_t* str = bin;
   uint32_t size = len;
-  char* buff;
+  wmem_strbuf_t* buff;
 
-  /* "size" characters, plus terminating NUL */
-  ret = (char *)wmem_alloc(pool, size + 1);
-  buff = ret;
+  buff = wmem_strbuf_new_sized(pool, size);
   if(type == TYPE_BCD)
   {
     if(size % 2) /* odd */
     {
       ch = *str & 0x0f;
-      *buff++ = NIBBLE_2_ASCHEX(ch);
+      wmem_strbuf_append_c(buff, NIBBLE_2_ASCHEX(ch));
       str++;
       size--;
     }
@@ -543,13 +540,12 @@ static char* bin2hex(wmem_allocator_t *pool, const uint8_t *bin, enum bin2hex_en
   while(size-- > 0)
   {
     ch = (*str >> 4) & 0x0f;
-    *buff++ = NIBBLE_2_ASCHEX(ch);
+    wmem_strbuf_append_c(buff, NIBBLE_2_ASCHEX(ch));
     ch = *str & 0x0f;
-    *buff++ = NIBBLE_2_ASCHEX(ch);
+    wmem_strbuf_append_c(buff, NIBBLE_2_ASCHEX(ch));
     str++;
   }
-  *buff = '\0';
-  return ret;
+  return wmem_strbuf_finalize(buff);
 }
 
 static uint64_t hex2bin(const char* hexstr, int len)
