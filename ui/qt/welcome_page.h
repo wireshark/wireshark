@@ -45,7 +45,6 @@ protected:
 protected slots:
     void on_recentLabel_clicked();
     void on_captureLabel_clicked();
-    void on_helpLabel_clicked();
 
 private:
     Ui::WelcomePage *welcome_ui_;
@@ -82,6 +81,8 @@ private slots:
     void on_interfaceFrame_showExtcapOptions(QString device_name, bool startCaptureOnClose);
     void on_interfaceFrame_startCapture(QStringList);
     void captureStarting();
+    void applySidebarPreferences();
+    void updateSidebarLayout();
 };
 
 #endif // WELCOME_PAGE_H

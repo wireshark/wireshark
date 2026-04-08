@@ -1,0 +1,53 @@
+{
+	"schema_version": 1,
+	"$schema": "learn_card.schema.json",
+	"links": [
+		{
+			"url": "https://www.wireshark.org/docs/wsdg_html_chunked/",
+			"label": "Developer Documentation",
+			"short_label": "Dev Docs",
+			"tooltip": "Read the Wireshark developer documentation online.",
+			"scheme": "dev"
+		},
+		{
+			"url": "https://www.wireshark.org/docs/wsug_html_chunked/",
+			"label": "User Documentation",
+			"short_label": "Docs",
+			"tooltip": "Read the Wireshark user documentation online."
+		},
+		{
+			"url": "https://gitlab.com/wireshark/wireshark/-/wikis/",
+			"label": "Wiki",
+			"short_label": "Wiki",
+			"tooltip": "Browse the Wireshark Wiki for how-tos and other information."
+		},
+		{
+			"url": "https://ask.wireshark.org/",
+			"label": "Questions and Answers",
+			"short_label": "Q&A",
+			"tooltip": "Get answers to your Wireshark questions from the community."
+		},
+		{
+			"url": "https://www.wireshark.org/lists/",
+			"label": "Mailing Lists",
+			"short_label": "Lists",
+			"tooltip": "Join the Wireshark mailing lists to discuss Wireshark with other users and developers."
+		}
+	],
+	"buttons": [
+		{
+			"label": "Discord",
+			"url": "https://discord.gg/fT2jvkawGj",
+			"tooltip": "Join the Wireshark Discord server to chat with other users and developers.",
+			"color": "#5865F2",
+			"hover": "#4752C4"
+		},
+		{
+			"label": "Donate",
+			"url": "https://wiresharkfoundation.org/donate/",
+			"tooltip": "Support the Wireshark project by making a donation to the Wireshark Foundation.",
+			"color": "#C0392B",
+			"hover": "#A93226"
+		}
+	]
+}

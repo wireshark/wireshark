@@ -41,7 +41,9 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/hex_data_source_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/interface_toolbar_lineedit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/json_data_source_view.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/info_banner_widget.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/label_stack.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/learn_card_widget.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/overlay_scroll_bar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/packet_list_header.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/path_selection_edit.h
@@ -95,6 +97,7 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/variant_pointer.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_mime_data.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_zip_helper.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/workspace_state.h
 )
 
 set (STRATOSHARK_UTILS_HEADERS ${WIRESHARK_UTILS_HEADERS})
@@ -237,6 +240,7 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/uat_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/uat_frame.h
 	${CMAKE_SOURCE_DIR}/ui/qt/welcome_page.h
+	${CMAKE_SOURCE_DIR}/ui/qt/welcome_page_preferences_frame.h
 	${CMAKE_SOURCE_DIR}/ui/qt/wireshark_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/marker_dialog.h
 )
@@ -290,7 +294,9 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/hex_data_source_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/interface_toolbar_lineedit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/json_data_source_view.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/info_banner_widget.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/label_stack.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/learn_card_widget.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/overlay_scroll_bar.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/packet_list_header.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/path_selection_edit.cpp
@@ -341,6 +347,7 @@ set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/stock_icon.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_mime_data.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_zip_helper.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/workspace_state.cpp
 )
 
 set (STRATOSHARK_UTILS_SRCS ${WIRESHARK_UTILS_SRCS})
@@ -472,6 +479,7 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/uat_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/uat_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/welcome_page.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/welcome_page_preferences_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/wireshark_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/marker_dialog.cpp
 )
@@ -583,6 +591,7 @@ set(WIRESHARK_QT_UI
 	${CMAKE_SOURCE_DIR}/ui/qt/uat_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/uat_frame.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/welcome_page.ui
+	${CMAKE_SOURCE_DIR}/ui/qt/welcome_page_preferences_frame.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/splash_overlay.ui
 )
 
@@ -661,6 +670,25 @@ else()
 	set(SS_ICON_QRC "ssicon.qrc")
 endif()
 
+# JSON data resources
+set(_json_qrc_files
+	"        <file alias=\"slides.json\">${CMAKE_SOURCE_DIR}/resources/json/slides.json</file>\n")
+string(APPEND _json_qrc_files
+	"        <file alias=\"learn_card.json\">${CMAKE_SOURCE_DIR}/resources/json/learn_card.json</file>\n")
+if(CUSTOM_SLIDES_JSON AND EXISTS "${CUSTOM_SLIDES_JSON}")
+	string(APPEND _json_qrc_files
+		"        <file alias=\"slides_custom.json\">${CUSTOM_SLIDES_JSON}</file>\n")
+	message(STATUS "Custom banner slides: ${CUSTOM_SLIDES_JSON}")
+endif()
+file(GLOB _banner_images "${CMAKE_SOURCE_DIR}/resources/json/banners/*")
+foreach(_img ${_banner_images})
+	get_filename_component(_img_name "${_img}" NAME)
+	string(APPEND _json_qrc_files
+		"        <file alias=\"banners/${_img_name}\">${_img}</file>\n")
+endforeach()
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/json_resource.qrc"
+	"<RCC>\n    <qresource prefix=\"/json\">\n${_json_qrc_files}    </qresource>\n</RCC>\n")
+
 qt_add_resources(STRATOSHARK_QT_QRC
 	${CMAKE_SOURCE_DIR}/resources/about.qrc
 	${CMAKE_SOURCE_DIR}/resources/languages/languages.qrc
@@ -669,6 +697,7 @@ qt_add_resources(STRATOSHARK_QT_QRC
 	${CMAKE_SOURCE_DIR}/resources/stock_icons.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
+	${CMAKE_CURRENT_BINARY_DIR}/json_resource.qrc
 	OPTIONS ${CMAKE_AUTORCC_OPTIONS}
 )
 

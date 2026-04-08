@@ -1,0 +1,89 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://www.wireshark.org/schemas/learn_card.schema.json",
+	"title": "Wireshark Learn Card Links",
+	"description": "Schema for Wireshark welcome page learn card link configuration (learn_card.json).",
+	"type": "object",
+	"required": ["schema_version", "links"],
+	"properties": {
+		"schema_version": {
+			"type": "integer",
+			"minimum": 1,
+			"description": "Schema version. Must be 1 or higher."
+		},
+		"$schema": {
+			"type": "string",
+			"description": "Optional JSON Schema reference for editor support."
+		},
+		"links": {
+			"type": "array",
+			"items": { "$ref": "#/$defs/link" }
+		},
+		"buttons": {
+			"type": "array",
+			"items": { "$ref": "#/$defs/button" }
+		}
+	},
+	"additionalProperties": false,
+	"$defs": {
+		"link": {
+			"type": "object",
+			"required": ["url", "label", "short_label", "tooltip"],
+			"properties": {
+				"url": {
+					"type": "string",
+					"format": "uri",
+					"description": "Target URL opened when the link is clicked."
+				},
+				"label": {
+					"type": "string",
+					"description": "Full link text shown in expanded mode."
+				},
+				"short_label": {
+					"type": "string",
+					"description": "Abbreviated link text shown in compact/collapsed mode."
+				},
+				"tooltip": {
+					"type": "string",
+					"description": "Tooltip and accessible description for the link."
+				},
+				"scheme": {
+					"type": "string",
+					"enum": ["stable", "dev"],
+					"description": "Controls when the link is shown. 'stable' shows only in stable releases, 'dev' shows only in development builds. If omitted, the link is shown in all builds."
+				}
+			},
+			"additionalProperties": false
+		},
+		"button": {
+			"type": "object",
+			"required": ["label", "url", "tooltip", "color", "hover"],
+			"properties": {
+				"label": {
+					"type": "string",
+					"description": "Text displayed on the button."
+				},
+				"url": {
+					"type": "string",
+					"format": "uri",
+					"description": "Target URL opened when the button is clicked."
+				},
+				"tooltip": {
+					"type": "string",
+					"description": "Tooltip and accessible description for the button."
+				},
+				"color": {
+					"type": "string",
+					"pattern": "^#[0-9A-Fa-f]{6}$",
+					"description": "Background color of the button in hex format."
+				},
+				"hover": {
+					"type": "string",
+					"pattern": "^#[0-9A-Fa-f]{6}$",
+					"description": "Background color of the button on hover in hex format."
+				}
+			},
+			"additionalProperties": false
+		}
+	}
+}

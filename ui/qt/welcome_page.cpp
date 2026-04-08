@@ -12,6 +12,7 @@
 #include <epan/prefs.h>
 
 #include "ui/capture_globals.h"
+#include "ui/recent.h"
 #include "ui/urls.h"
 
 #include <wsutil/application_flavor.h>
@@ -22,6 +23,7 @@
 #include <ui/qt/utils/tango_colors.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/workspace_state.h>
 #include "main_application.h"
 
 #include <QClipboard>
@@ -54,13 +56,23 @@ WelcomePage::WelcomePage(QWidget *parent) :
 {
     welcome_ui_->setupUi(this);
 
-    recent_files_ = welcome_ui_->recentList;
+	/* Ensures that we can shrink the height to at least around 450px */
+    welcome_ui_->recentList->setMinimumHeight(150);
+    welcome_ui_->interfaceFrame->setMinimumHeight(150);
+
+    setAccessibleName(tr("Welcome page"));
+    setAccessibleDescription(tr("The %1 welcome page provides access to recent files, capture interfaces, and learning resources.").arg(mainApp->applicationName()));
+
+    welcome_ui_->tipsSectionCard->setVisible(true);
+
+	recent_files_ = welcome_ui_->recentList;
 
     welcome_ui_->captureFilterComboBox->setEnabled(false);
 
     welcome_ui_->mainWelcomeBanner->setText(tr("Welcome to %1").arg(mainApp->applicationName()));
 
     updateStyleSheets();
+    applySidebarPreferences();
 
 
 #ifdef Q_OS_MAC
@@ -76,6 +88,7 @@ WelcomePage::WelcomePage(QWidget *parent) :
     connect(mainApp, &MainApplication::updateRecentCaptureStatus, this, &WelcomePage::updateRecentCaptures);
     connect(mainApp, &MainApplication::preferencesChanged, this, &WelcomePage::updateRecentCaptures);
     connect(mainApp, &MainApplication::appInitialized, this, &WelcomePage::appInitialized);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &WelcomePage::applySidebarPreferences);
     connect(mainApp, &MainApplication::localInterfaceListChanged, this, &WelcomePage::interfaceListChanged);
 #ifdef HAVE_LIBPCAP
     connect(mainApp, &MainApplication::scanLocalInterfaces,
@@ -137,20 +150,6 @@ void WelcomePage::setReleaseLabel()
 {
     // XXX Add a "check for updates" link?
     QString full_release;
-    QDate today = QDate::currentDate();
-    if ((today.month() == 4 && today.day() == 1) || (today.month() == 7 && today.day() == 14)) {
-        if (application_flavor_is_wireshark()) {
-            full_release = tr("You are sniffing the glue that holds the Internet together using Wireshark ");
-        } else {
-            full_release = tr("You are sniffing the glue that holds your system together using Stratoshark ");
-        }
-    } else {
-        if (application_flavor_is_wireshark()) {
-            full_release = tr("You are running Wireshark ");
-        } else {
-            full_release = tr("You are running Stratoshark ");
-        }
-    }
     full_release += application_flavor_is_wireshark() ? get_ws_vcs_version_info() : get_ss_vcs_version_info();
     full_release += ".";
 #ifdef HAVE_SOFTWARE_UPDATE
@@ -170,6 +169,7 @@ void WelcomePage::setReleaseLabel()
 void WelcomePage::appInitialized()
 {
     setReleaseLabel();
+    applySidebarPreferences();
 
 #ifdef HAVE_LIBPCAP
     welcome_ui_->captureFilterComboBox->lineEdit()->setText(global_capture_opts.default_options.cfilter);
@@ -183,6 +183,27 @@ void WelcomePage::appInitialized()
 
     delete splash_overlay_;
     splash_overlay_ = NULL;
+    welcome_ui_->tipsSectionCard->startRotation();
+}
+
+void WelcomePage::applySidebarPreferences()
+{
+    // There are slides that will be shown EVEN if the section card is set hidden through the preferences.
+    // hasVisibleSlides() checks if there are any slides that should be shown, as well as the user's preferences.
+    bool slidesAreVisible = welcome_ui_->tipsSectionCard->hasVisibleSlides();
+
+    welcome_ui_->tipsSectionCard->setSlideTypeVisible(BannerEvents, recent.gui_welcome_page_sidebar_tips_events);
+    welcome_ui_->tipsSectionCard->setSlideTypeVisible(BannerSponsorship, recent.gui_welcome_page_sidebar_tips_sponsorship);
+    welcome_ui_->tipsSectionCard->setSlideTypeVisible(BannerTips, recent.gui_welcome_page_sidebar_tips_tips);
+    welcome_ui_->tipsSectionCard->setAutoAdvanceInterval(recent.gui_welcome_page_sidebar_tips_interval);
+    welcome_ui_->tipsSectionCard->setVisible(slidesAreVisible);
+
+    welcome_ui_->learnSectionCard->setVisible(recent.gui_welcome_page_sidebar_learn_visible);
+
+    // Hide the entire sidebar container when all sidebar widgets are disabled,
+    // so the main content area can expand to fill the full window width.
+    bool sidebar_visible = slidesAreVisible || recent.gui_welcome_page_sidebar_learn_visible;
+    welcome_ui_->sidebarContainer->setVisible(sidebar_visible);
 }
 
 #ifdef HAVE_LIBPCAP
@@ -349,9 +370,34 @@ void WelcomePage::resizeEvent(QResizeEvent *event)
 {
     if (splash_overlay_)
         splash_overlay_->resize(event->size());
-//    event->accept();
 
     QFrame::resizeEvent(event);
+
+    updateSidebarLayout();
+}
+
+void WelcomePage::updateSidebarLayout()
+{
+    int available = welcome_ui_->sidebarContainer->height();
+    if (available <= 0)
+        return;
+
+    // Sidebar content: InfoBanner + spacing(16) + LearnCard (expands to fill)
+    // Full:   360 + 16 + 240 = 616
+    // Medium: 360 + 16 + 112 = 488
+    const int kFullNeeded = 616;
+    const int kMediumNeeded = 488;
+
+    if (available >= kFullNeeded) {
+        welcome_ui_->learnSectionCard->setLinksCollapsed(false);
+        welcome_ui_->tipsSectionCard->setCompactMode(false);
+    } else if (available >= kMediumNeeded) {
+        welcome_ui_->learnSectionCard->setLinksCollapsed(true);
+        welcome_ui_->tipsSectionCard->setCompactMode(false);
+    } else {
+        welcome_ui_->learnSectionCard->setLinksCollapsed(true);
+        welcome_ui_->tipsSectionCard->setCompactMode(true);
+    }
 }
 
 void WelcomePage::setCaptureFilterText(const QString capture_filter)
@@ -444,10 +490,6 @@ void WelcomePage::on_captureLabel_clicked()
     mainApp->doTriggerMenuItem(MainApplication::CaptureOptionsDialog);
 }
 
-void WelcomePage::on_helpLabel_clicked()
-{
-    QDesktopServices::openUrl(QUrl(WS_DOCS_URL));
-}
 
 void WelcomePage::updateStyleSheets()
 {
@@ -525,7 +567,6 @@ void WelcomePage::updateStyleSheets()
     }
     welcome_ui_->captureLabel->setStyleSheet(title_button_ss);
     welcome_ui_->recentLabel->setStyleSheet(title_button_ss);
-    welcome_ui_->helpLabel->setStyleSheet(title_button_ss);
 
     recent_files_->setStyleSheet(
             "QListWidget::item {"
@@ -540,12 +581,10 @@ void WelcomePage::updateStyleSheets()
             "}"
             );
 
-    // The helpLinks markup includes its own <style>...</style> section.
-    // Replacing it with a stylesheet and reapplying it like we do above
-    // doesn't work, but this does.
-    QString hl_text = welcome_ui_->helpLinks->text();
-    welcome_ui_->helpLinks->clear();
-    welcome_ui_->helpLinks->setText(hl_text);
+    welcome_ui_->tipsSectionCard->updateStyleSheets();
+
+    welcome_ui_->learnSectionCard->updateStyleSheets(
+            QColor(tango_aluminium_4), QColor(tango_sky_blue_4));
 }
 
 void WelcomePage::on_recentLabel_clicked()

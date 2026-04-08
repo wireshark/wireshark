@@ -275,6 +275,16 @@ QString openDialogInitialDir();
  */
 void storeLastDir(QString dir);
 
+/**
+ * @brief Compare two file paths for equality, handling platform-specific
+ * case sensitivity and filesystem quirks.
+ *
+ * @param path1 First file path.
+ * @param path2 Second file path.
+ * @return true if both paths refer to the same file.
+ */
+bool filePathsMatch(const QString &path1, const QString &path2);
+
 #endif /* __QT_UI_UTILS__H__ */
 
 // XXX Add a routine to fetch the HWND corresponding to a widget using QPlatformIntegration
