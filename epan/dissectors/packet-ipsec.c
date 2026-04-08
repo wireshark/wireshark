@@ -2162,10 +2162,11 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           esp_block_len = 1;
 
           /* Allocate buffer for decrypted data  */
+          if (esp_encr_data_len < esp_icv_len) {
+            return esp_packet_len;
+          }
           esp_decr_data_len = esp_encr_data_len - esp_icv_len;
-          esp_decr_data = (uint8_t *)wmem_alloc(pinfo->pool, esp_decr_data_len);
-
-          tvb_memcpy(tvb, esp_decr_data, ESP_HEADER_LEN, esp_decr_data_len);
+          esp_decr_data = tvb_memdup(pinfo->pool, tvb, ESP_HEADER_LEN, esp_decr_data_len);
 
           decrypt_ok = true;
 
@@ -2246,10 +2247,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           /*
            * Allocate buffer for decrypted data.
            */
-          esp_decr_data = (unsigned char*)wmem_alloc(pinfo->pool, esp_encr_data_len);
           esp_decr_data_len = esp_encr_data_len;
-
-          tvb_memcpy(tvb, esp_decr_data, ESP_HEADER_LEN,  esp_encr_data_len);
+          esp_decr_data = tvb_memdup(pinfo->pool, tvb, ESP_HEADER_LEN, esp_decr_data_len);
 
           /* (Lazily) create the cipher_hd */
           if (!(*cipher_hd_created)) {
