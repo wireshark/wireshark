@@ -29163,12 +29163,14 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
       if (conversation) {
         ieee80211_conversation_data_t *conversation_data =
           (ieee80211_conversation_data_t*)conversation_get_proto_data(conversation, proto_wlan);
-        if (is_ap) {
-            tvb_memcpy(tvb, conversation_data->ap_mld, offset, 6);
-            conversation_data->mld_set = TRUE;
-        } else {
-            tvb_memcpy(tvb, conversation_data->sta_mld, offset, 6);
-            conversation_data->mld_set = TRUE;
+        if (conversation_data) {
+          if (is_ap) {
+              tvb_memcpy(tvb, conversation_data->ap_mld, offset, 6);
+              conversation_data->mld_set = TRUE;
+          } else {
+              tvb_memcpy(tvb, conversation_data->sta_mld, offset, 6);
+              conversation_data->mld_set = TRUE;
+          }
         }
       }
     }
