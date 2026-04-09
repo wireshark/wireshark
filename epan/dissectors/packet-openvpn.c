@@ -322,11 +322,11 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
       proto_tree *wkc_tree;
       wkc_offset = tvb_reported_length(tvb) - wkc_len;
 
-      wkc_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, data_len,
-						ett_openvpn_wkc, NULL, "Wrapped client key (%d bytes)",
-						tvb_captured_length_remaining(tvb, wkc_offset));
+      wkc_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, wkc_offset, wkc_len,
+                                               ett_openvpn_wkc, NULL, "Wrapped client key (%d bytes)",
+                                               tvb_reported_length_remaining(tvb, wkc_offset));
 
-      proto_tree_add_item(wkc_tree, hf_openvpn_wkc_data, tvb, wkc_offset, wkc_len, ENC_NA);
+      proto_tree_add_item(wkc_tree, hf_openvpn_wkc_data, tvb, wkc_offset, wkc_len - 2, ENC_NA);
       proto_tree_add_item(wkc_tree, hf_openvpn_wkc_length, tvb,  tvb_reported_length(tvb) - 2, 2, ENC_BIG_ENDIAN);
     }
 
