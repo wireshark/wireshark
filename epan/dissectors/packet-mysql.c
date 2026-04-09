@@ -2825,7 +2825,9 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 	/*	&&
 								mysql_exec_dissectors[dissector_index].unsigned_flag == stmt_data->param_flags[stmt_pos]) */
 							{
-								mysql_exec_dissectors[dissector_index].dissector(tvb, pinfo, &offset, param_tree, stmt_data->param_metas.encodings[stmt_pos]);
+								/* The character set for a parameter
+								 * is character_set_client. */
+								mysql_exec_dissectors[dissector_index].dissector(tvb, pinfo, &offset, param_tree, my_frame_data->encoding_client);
 								break;
 							}
 							dissector_index++;
@@ -3740,6 +3742,14 @@ mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi _U_, int offset, proto_
 			my_frame_data->field_metas.encodings[fieldpos] = fld_encoding;
 		}
 	}
+	/* If the state is PREPARED_PARAMETERS, then the information is about
+	 * the columns to which the parameters will refer. That's of interest
+	 * to the client, but not to us; the client when later specifying a
+	 * parameter gives the type and (a different set of) flags (if the
+	 * type does not match, does that result in an error?), and always uses
+	 * the character_set_client for the connection (which hopefully can
+	 * be translated). At least that's what the documentation implies.
+	 */
 
 	/* default (Only use for show fields) */
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -3863,7 +3873,12 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		param_metas->count = stmt_num_params;
 		param_metas->flags = (uint16_t *)wmem_alloc0_array(wmem_file_scope(), uint16_t, param_metas->count);
 		param_metas->types = (uint8_t *)wmem_alloc0_array(wmem_file_scope(), uint8_t, param_metas->count);
-		//param_metas->encodings = (unsigned *)wmem_alloc0_array(wmem_file_scope(), unsigned, param_metas->count);
+		/* parameters always come from the client, and so are always in
+		 * character_set_client, so this should not be used. We can
+		 * allocate it to reduce the chance of deferencing a NULL
+		 * pointer dereference, but perhaps the parameter metadata
+		 * should be a different type. */
+		param_metas->encodings = (unsigned *)wmem_alloc0_array(wmem_file_scope(), unsigned, param_metas->count);
 		stmt_data->param_metas = *param_metas;
 
 		field_metas = wmem_new(wmem_file_scope(), my_metadata_list_t);
