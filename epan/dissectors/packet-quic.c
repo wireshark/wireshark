@@ -494,8 +494,8 @@ quic_multipath_negotiated(quic_info_data_t *conn);
 
 /* Returns the QUIC draft version or 0 if not applicable. */
 static inline uint8_t quic_draft_version(uint32_t version) {
-    /* IETF Draft versions */
-    if ((version >> 8) == 0xff0000) {
+    /* IETF Draft versions (draft-34 is the final draft version) */
+    if ((version ^ 0xff000000) <= 34) {
        return (uint8_t) version;
     }
     /* Facebook mvfst, based on draft -22. */
