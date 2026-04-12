@@ -5316,6 +5316,21 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
 </context>
 <context>
+    <name>InfoBannerWidget</name>
+    <message>
+        <source>Tips and announcements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1: %2 (%3 of %4)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InterfaceFrame</name>
     <message>
         <source>Frame</source>
@@ -6425,6 +6440,21 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Show file load time</source>
         <translation>Visa tiden för inläsning av filen</translation>
+    </message>
+</context>
+<context>
+    <name>LearnCardWidget</name>
+    <message>
+        <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
+        <translation type="unfinished">&lt;h2&gt;Lär dig&lt;/h2&gt;</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opens the Wireshark documentation website</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13796,6 +13826,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Välkommen till Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List of recently opened files. Files that can no longer be found on disk are shown in italics.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Öppna en fil i ditt filsystem&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -13810,6 +13848,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Capture files that have been opened previously</source>
         <translation>Fångstfiler som har öppnats förut</translation>
+    </message>
+    <message>
+        <source>Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start a new capture session</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13832,8 +13878,24 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Lista över tillgängliga fångstgränssnitt</translation>
     </message>
     <message>
+        <source>Tips and announcements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotating tips, sponsor acknowledgements, and announcements for Wireshark and Stratoshark conferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Links to documentation, wiki, and community resources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation>&lt;h2&gt;Lär dig&lt;/h2&gt;</translation>
+        <translation type="vanished">&lt;h2&gt;Lär dig&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;
@@ -13879,7 +13941,7 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
   color: palette(text);
@@ -13932,6 +13994,14 @@ a:hover {
         <translation>Visa i mappen</translation>
     </message>
     <message>
+        <source>Welcome page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The %1 welcome page provides access to recent files, capture interfaces, and learning resources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Welcome to %1</source>
         <translation>Välkommen till %1</translation>
     </message>
@@ -13948,19 +14018,19 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation>Du luktar på limmet som håller samman Internet med Wireshark </translation>
+        <translation type="vanished">Du luktar på limmet som håller samman Internet med Wireshark </translation>
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>Du sniffar på limmet som håller ihop ditt system med hjälp av Stratoshark</translation>
+        <translation type="vanished">Du sniffar på limmet som håller ihop ditt system med hjälp av Stratoshark</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>Du kör Stratoshark </translation>
+        <translation type="vanished">Du kör Stratoshark </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
-        <translation>Du kör Wireshark </translation>
+        <translation type="vanished">Du kör Wireshark </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13981,6 +14051,53 @@ a:hover {
     <message>
         <source>Remove from list</source>
         <translation>Ta bort från listan</translation>
+    </message>
+</context>
+<context>
+    <name>WelcomePagePreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">Ram</translation>
+    </message>
+    <message>
+        <source>Tips Section</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Tips section in sidebar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Notifications (e.g. SharkFest)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sponsorship and Donor information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tip of the Day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Slide display interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Learn Section</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Learn section in sidebar</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

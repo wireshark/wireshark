@@ -5296,6 +5296,21 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>InfoBannerWidget</name>
+    <message>
+        <source>Tips and announcements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1: %2 (%3 of %4)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InterfaceFrame</name>
     <message>
         <source>Frame</source>
@@ -6403,6 +6418,21 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show file load time</source>
         <translation>ファイル読込時間を表示</translation>
+    </message>
+</context>
+<context>
+    <name>LearnCardWidget</name>
+    <message>
+        <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
+        <translation type="unfinished">&lt;h2&gt;学習&lt;/h2&gt;</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opens the Wireshark documentation website</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13761,6 +13791,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Wiresharkへようこそ&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List of recently opened files. Files that can no longer be found on disk are shown in italics.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ファイルシステムのファイルを開く&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -13775,6 +13813,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Capture files that have been opened previously</source>
         <translation>以前に開いたキャプチャファイル</translation>
+    </message>
+    <message>
+        <source>Capture</source>
+        <translation type="unfinished">キャプチャ</translation>
+    </message>
+    <message>
+        <source>Start a new capture session</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13797,8 +13843,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>利用可能なキャプチャインターフェース一覧</translation>
     </message>
     <message>
+        <source>Tips and announcements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotating tips, sponsor acknowledgements, and announcements for Wireshark and Stratoshark conferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Links to documentation, wiki, and community resources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation>&lt;h2&gt;学習&lt;/h2&gt;</translation>
+        <translation type="vanished">&lt;h2&gt;学習&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;
@@ -13844,7 +13906,7 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
   color: palette(text);
@@ -13897,6 +13959,14 @@ a:hover {
         <translation>フォルダで表示</translation>
     </message>
     <message>
+        <source>Welcome page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The %1 welcome page provides access to recent files, capture interfaces, and learning resources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Welcome to %1</source>
         <translation>%1 へようこそ</translation>
     </message>
@@ -13912,19 +13982,19 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation>あなたはWiresharkを使ってインターネットを互いにつなぐ膠をキャプチャしています</translation>
+        <translation type="vanished">あなたはWiresharkを使ってインターネットを互いにつなぐ膠をキャプチャしています</translation>
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>あなたはStratosharkを使ってシステムを互いに繋ぐ膠をキャプチャしています</translation>
+        <translation type="vanished">あなたはStratosharkを使ってシステムを互いに繋ぐ膠をキャプチャしています</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>Stratosharkを起動中です </translation>
+        <translation type="vanished">Stratosharkを起動中です </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
-        <translation>Wiresharkを起動中</translation>
+        <translation type="vanished">Wiresharkを起動中</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13945,6 +14015,53 @@ a:hover {
     <message>
         <source>Remove from list</source>
         <translation>リストから削除</translation>
+    </message>
+</context>
+<context>
+    <name>WelcomePagePreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">フレーム</translation>
+    </message>
+    <message>
+        <source>Tips Section</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Tips section in sidebar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Notifications (e.g. SharkFest)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sponsorship and Donor information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tip of the Day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Slide display interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Learn Section</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Learn section in sidebar</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

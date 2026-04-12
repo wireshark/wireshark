@@ -5279,6 +5279,21 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
 </context>
 <context>
+    <name>InfoBannerWidget</name>
+    <message>
+        <source>Tips and announcements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1: %2 (%3 of %4)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InterfaceFrame</name>
     <message>
         <source>Frame</source>
@@ -6388,6 +6403,21 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Show file load time</source>
         <translation>Afficher le temps de chargement du fichier</translation>
+    </message>
+</context>
+<context>
+    <name>LearnCardWidget</name>
+    <message>
+        <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
+        <translation type="unfinished">&lt;h2&gt;Découvrir&lt;/h2&gt;</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opens the Wireshark documentation website</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13713,6 +13743,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Bienvenue dans Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List of recently opened files. Files that can no longer be found on disk are shown in italics.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ouvrir un fichier sur votre système de fichiers&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -13727,6 +13765,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Capture files that have been opened previously</source>
         <translation>Fichiers de capture ouverts précédemment</translation>
+    </message>
+    <message>
+        <source>Capture</source>
+        <translation type="unfinished">Capture</translation>
+    </message>
+    <message>
+        <source>Start a new capture session</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13749,8 +13795,24 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Liste des interfaces de capture disponibles</translation>
     </message>
     <message>
+        <source>Tips and announcements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotating tips, sponsor acknowledgements, and announcements for Wireshark and Stratoshark conferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Links to documentation, wiki, and community resources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation>&lt;h2&gt;Découvrir&lt;/h2&gt;</translation>
+        <translation type="vanished">&lt;h2&gt;Découvrir&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;
@@ -13796,7 +13858,7 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
   color: palette(text);
@@ -13849,6 +13911,14 @@ a:hover {
         <translation>Afficher dans le Dossier</translation>
     </message>
     <message>
+        <source>Welcome page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The %1 welcome page provides access to recent files, capture interfaces, and learning resources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Welcome to %1</source>
         <translation>Bienvenue dans %1</translation>
     </message>
@@ -13865,19 +13935,19 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation>Vous reniflez la colle qui maintient Internet ensemble à l&apos;aide de Wireshark </translation>
+        <translation type="vanished">Vous reniflez la colle qui maintient Internet ensemble à l&apos;aide de Wireshark </translation>
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>Vous reniflez la colle qui maintient votre système ensemble à l&apos;aide de Stratoshark</translation>
+        <translation type="vanished">Vous reniflez la colle qui maintient votre système ensemble à l&apos;aide de Stratoshark</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>Vous exécutez Stratoshark </translation>
+        <translation type="vanished">Vous exécutez Stratoshark </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
-        <translation>Vous exécutez Wireshark </translation>
+        <translation type="vanished">Vous exécutez Wireshark </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13898,6 +13968,53 @@ a:hover {
     <message>
         <source>Remove from list</source>
         <translation>Supprimer de la liste</translation>
+    </message>
+</context>
+<context>
+    <name>WelcomePagePreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">Trame</translation>
+    </message>
+    <message>
+        <source>Tips Section</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Tips section in sidebar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Notifications (e.g. SharkFest)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sponsorship and Donor information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tip of the Day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Slide display interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Learn Section</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Learn section in sidebar</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

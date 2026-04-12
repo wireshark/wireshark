@@ -5316,6 +5316,21 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
 </context>
 <context>
+    <name>InfoBannerWidget</name>
+    <message>
+        <source>Tips and announcements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1: %2 (%3 of %4)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InterfaceFrame</name>
     <message>
         <source>Frame</source>
@@ -6425,6 +6440,21 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Show file load time</source>
         <translation>Mostra el temps de càrrega del fitxer</translation>
+    </message>
+</context>
+<context>
+    <name>LearnCardWidget</name>
+    <message>
+        <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
+        <translation type="unfinished">&lt;h2&gt;Ajuda i informació&lt;/h2&gt;</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opens the Wireshark documentation website</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13798,6 +13828,14 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Us donem la benvinguda al Wireshark.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List of recently opened files. Files that can no longer be found on disk are shown in italics.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Obre un fitxer al vostre sistema&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -13812,6 +13850,14 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Capture files that have been opened previously</source>
         <translation>Fitxers de captura que s&apos;han obert anteriorment</translation>
+    </message>
+    <message>
+        <source>Capture</source>
+        <translation type="unfinished">Captura</translation>
+    </message>
+    <message>
+        <source>Start a new capture session</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13834,8 +13880,24 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Llista d&apos;interfícies de captura disponibles</translation>
     </message>
     <message>
+        <source>Tips and announcements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotating tips, sponsor acknowledgements, and announcements for Wireshark and Stratoshark conferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Links to documentation, wiki, and community resources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation>&lt;h2&gt;Ajuda i informació&lt;/h2&gt;</translation>
+        <translation type="vanished">&lt;h2&gt;Ajuda i informació&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;
@@ -13881,7 +13943,7 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
   color: palette(text);
@@ -13934,6 +13996,14 @@ a:hover {
         <translation>Mostra a la carpeta</translation>
     </message>
     <message>
+        <source>Welcome page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The %1 welcome page provides access to recent files, capture interfaces, and learning resources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Welcome to %1</source>
         <translation>Us donem la benvinguda al %1.</translation>
     </message>
@@ -13950,19 +14020,19 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation>Esteu esnifant el pegament que manté unida la Internet fent servir el Wireshark</translation>
+        <translation type="vanished">Esteu esnifant el pegament que manté unida la Internet fent servir el Wireshark</translation>
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>Esteu esnifant el pegament que manté unit el vostre sistema fent servir l&apos;Stratoshark</translation>
+        <translation type="vanished">Esteu esnifant el pegament que manté unit el vostre sistema fent servir l&apos;Stratoshark</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>S&apos;executa l&apos;Stratoshark</translation>
+        <translation type="vanished">S&apos;executa l&apos;Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
-        <translation>S&apos;executa el Wireshark</translation>
+        <translation type="vanished">S&apos;executa el Wireshark</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13983,6 +14053,53 @@ a:hover {
     <message>
         <source>Remove from list</source>
         <translation>Trau de la llista</translation>
+    </message>
+</context>
+<context>
+    <name>WelcomePagePreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">Trama</translation>
+    </message>
+    <message>
+        <source>Tips Section</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Tips section in sidebar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Notifications (e.g. SharkFest)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sponsorship and Donor information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tip of the Day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Slide display interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Learn Section</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Learn section in sidebar</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
