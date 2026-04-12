@@ -19,6 +19,7 @@
 #include "packet-tcp.h"
 #include "packet-tls.h"
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/asn1.h>
 #include "packet-x509af.h"
 
@@ -153,7 +154,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     proto_item *ti = NULL, *ti_flags, *ti_type;
     proto_tree *rpkirtr_tree = NULL, *flags_tree = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t pdu_type, version;
     unsigned length;
 
@@ -172,8 +173,6 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown (%d)"));
         proto_item_append_text(ti, " (%s)", val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown %d"));
         offset += 1;
-
-        length = tvb_get_ntohl(tvb, offset);
 
         switch (pdu_type) {
             case RPKI_RTR_SERIAL_NOTIFY_PDU: /* Serial Notify (0) */
@@ -344,12 +343,19 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 break;
             default:
                 /* No default ? At least sanity check the length*/
+                offset += 2; // Depends on the PDU type
+                proto_tree_add_item_ret_uint(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN, &length);
                 if (length > tvb_reported_length(tvb)) {
+                    /* XXX - I don't believe this ever gets called, because
+                     * tcp_dissect_pdus and get_rpkirtr_pdu_len guarantee
+                     * that the tvb reported length matches the field here. */
                     expert_add_info(pinfo, ti_type, &ei_rpkirtr_bad_length);
                     return tvb_reported_length(tvb);
                 }
-
-                offset += length;
+                /* Since we don't add a field to the tree... */
+                if (ckd_add(&offset, offset, length)) {
+                    THROW(ReportedBoundsError);
+                }
                 break;
         }
     }
