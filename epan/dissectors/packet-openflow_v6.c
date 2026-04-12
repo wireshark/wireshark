@@ -6398,6 +6398,11 @@ dissect_openflow_bundle_prop_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     switch (prop_type) {
     case OFPBPT_TIME:
+        if (prop_len <= 4) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         dissect_openflow_time_v6(tvb, pinfo, tree, offset, length);
         offset += prop_len - 4;
         break;
