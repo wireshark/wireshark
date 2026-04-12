@@ -569,8 +569,23 @@ Wireshark will pop up the “Enabled Protocols” dialog box as shown in
 image::images/ws-enabled-protocols.png[{screenshot-attrs}]
 
 To disable or enable a protocol, simply click the checkbox using the mouse.
-Note that typing a few letters of the protocol name in the search box will limit
-the list to those protocols that contain these letters.
+The search functionality can be used to quickly find the protocol dissector you want to
+disable or enable by limiting the list of protocols displayed.
+
+The _Search_ field is case-insensitive and matches any protocol dissector that contains
+the search string in its name. Typing a few letters of the protocol name in the
+search box will limit the list to those dissectors that contain these letters.
+
+The first drop down menu allows you to limit the search to enabled or disabled
+protocol dissectors, while the second drop down menu allows you to limit the search to
+heuristic and non-heuristic dissectors.
+
+Heuristic dissectors are dissectors that are not identified by a known relationship to other dissectors
+(i.e. IANA registered port number) but by heuristics "guessing" based on the
+content of the packet (i.e. A set sequence of bytes at the start of a packet).
+Disabling a heuristic dissector will prevent it from being used in the heuristics
+process, but it may still be used if it is identified by a known relationship to other dissectors.
+Heuristic protocol dissectors are identified as subtrees in the protocol list.
 
 You can choose from the following actions:
 
