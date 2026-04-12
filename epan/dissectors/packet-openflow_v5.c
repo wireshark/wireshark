@@ -1076,7 +1076,7 @@ static value_string_ext openflow_v5_oxm_basic_field_values_ext = VALUE_STRING_EX
 #define OXM_FIELD_OFFSET 1
 #define OXM_HM_MASK      0x01
 static int
-dissect_openflow_oxm_header_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length _U_)
+dissect_openflow_oxm_header_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     uint16_t oxm_class;
 
@@ -1106,7 +1106,7 @@ dissect_openflow_oxm_header_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 #define OFPVID_PRESENT  0x1000
 static int
-dissect_openflow_oxm_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length _U_)
+dissect_openflow_oxm_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     proto_tree *oxm_tree;
     uint16_t oxm_class;
@@ -1128,7 +1128,7 @@ dissect_openflow_oxm_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     oxm_tree = proto_tree_add_subtree(tree, tvb, offset, oxm_length + 4, ett_openflow_v5_oxm, NULL, "OXM field");
 
-    offset = dissect_openflow_oxm_header_v5(tvb, pinfo, oxm_tree, offset, length);
+    offset = dissect_openflow_oxm_header_v5(tvb, pinfo, oxm_tree, offset);
 
     if (oxm_class == OFPXMC_OPENFLOW_BASIC) {
         switch(oxm_field) {
@@ -1304,7 +1304,7 @@ dissect_openflow_match_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     case OFPMT_OXM:
         fields_end = offset + match_length - 4;
         while(offset < fields_end) {
-            offset = dissect_openflow_oxm_v5(tvb, pinfo, match_tree, offset, length);
+            offset = dissect_openflow_oxm_v5(tvb, pinfo, match_tree, offset);
         }
         break;
 
@@ -2193,7 +2193,7 @@ static const value_string openflow_v5_action_type_values[] = {
 
 
 static int
-dissect_openflow_action_header_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length _U_)
+dissect_openflow_action_header_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     uint16_t act_type;
 
@@ -2217,7 +2217,7 @@ dissect_openflow_action_header_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 
 static int
-dissect_openflow_action_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length _U_)
+dissect_openflow_action_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     proto_tree *act_tree;
     uint16_t act_type;
@@ -2230,7 +2230,7 @@ dissect_openflow_action_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     act_tree = proto_tree_add_subtree(tree, tvb, offset, act_length, ett_openflow_v5_action, NULL, "Action");
 
-    offset = dissect_openflow_action_header_v5(tvb, pinfo, act_tree, offset, length);
+    offset = dissect_openflow_action_header_v5(tvb, pinfo, act_tree, offset);
 
     switch (act_type) {
     case OFPAT_OUTPUT:
@@ -2341,7 +2341,7 @@ dissect_openflow_action_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         break;
 
     case OFPAT_SET_FIELD:
-        offset = dissect_openflow_oxm_v5(tvb, pinfo, act_tree, offset, length);
+        offset = dissect_openflow_oxm_v5(tvb, pinfo, act_tree, offset);
 
         /* padded to 64 bits */
         if (offset < act_end) {
@@ -2369,7 +2369,7 @@ dissect_openflow_action_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     case OFPAT_EXPERIMENTER:
         if (act_length <= 8) {
             expert_add_info(pinfo, act_tree, &ei_openflow_v5_length_too_short);
-            offset = length;
+            offset = tvb_reported_length(tvb);
             break;
         }
         proto_tree_add_expert_format(act_tree, pinfo, &ei_openflow_v5_action_undecoded,
@@ -2380,7 +2380,7 @@ dissect_openflow_action_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     default:
         if (act_length <= 4) {
             expert_add_info(pinfo, act_tree, &ei_openflow_v5_length_too_short);
-            offset = length;
+            offset = tvb_reported_length(tvb);
             break;
         }
         proto_tree_add_expert_format(act_tree, pinfo, &ei_openflow_v5_action_undecoded,
@@ -2762,7 +2762,8 @@ dissect_openflow_packet_out_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     proto_tree *data_tree;
     uint16_t acts_len;
-    int32_t acts_end;
+    int      acts_offset = 0;
+    tvbuff_t *acts_tvb;
     tvbuff_t *next_tvb;
     bool     save_writable;
     bool save_in_error_pkt;
@@ -2786,11 +2787,12 @@ dissect_openflow_packet_out_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=6;
 
     /* struct ofp_action_header actions[0]; */
-    acts_end = offset + acts_len;
+    acts_tvb = tvb_new_subset_length(tvb, offset, acts_len);
 
-    while (offset < acts_end) {
-        offset = dissect_openflow_action_v5(tvb, pinfo, tree, offset, length);
+    while (tvb_reported_length_remaining(acts_tvb, acts_offset)) {
+        acts_offset = dissect_openflow_action_v5(acts_tvb, pinfo, tree, acts_offset);
     }
+    offset += acts_offset;
 
     /* uint8_t data[0]; */
     if (offset < length) {
@@ -2874,7 +2876,8 @@ dissect_openflow_instruction_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree *inst_tree;
     uint16_t inst_type;
     uint16_t inst_length;
-    int32_t acts_end;
+    tvbuff_t *acts_tvb;
+    int acts_offset = 0;
 
     inst_type = tvb_get_ntohs(tvb, offset);
     inst_length = tvb_get_ntohs(tvb, offset + 2);
@@ -2918,10 +2921,11 @@ dissect_openflow_instruction_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_item(inst_tree, hf_openflow_v5_instruction_actions_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
 
-        acts_end = offset + inst_length - 8;
-        while (offset < acts_end) {
-            offset = dissect_openflow_action_v5(tvb, pinfo, inst_tree, offset, length);
+        acts_tvb = tvb_new_subset_length(tvb, offset, inst_length - 8);
+        while (tvb_reported_length_remaining(acts_tvb, acts_offset)) {
+            acts_offset = dissect_openflow_action_v5(acts_tvb, pinfo, inst_tree, acts_offset);
         }
+        offset += acts_offset;
         break;
 
     case OFPIT_METER:
@@ -3043,12 +3047,13 @@ dissect_openflow_flowmod_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static int
-dissect_openflow_bucket_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length)
+dissect_openflow_bucket_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length _U_)
 {
     proto_item *ti;
     proto_tree *bucket_tree;
     uint16_t bucket_length;
-    int32_t acts_end;
+    tvbuff_t *acts_tvb;
+    int acts_offset = 0;
 
     bucket_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_bucket, &ti, "Bucket");
 
@@ -3079,10 +3084,11 @@ dissect_openflow_bucket_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     offset+=4;
 
     /*struct ofp_action_header actions[0]; */
-    acts_end = offset + bucket_length - 16;
-    while (offset < acts_end) {
-        offset = dissect_openflow_action_v5(tvb, pinfo, bucket_tree, offset, length);
+    acts_tvb = tvb_new_subset_length(tvb, offset, bucket_length - 16);
+    while (tvb_reported_length_remaining(acts_tvb, acts_offset)) {
+        acts_offset = dissect_openflow_action_v5(acts_tvb, pinfo, bucket_tree, acts_offset);
     }
+    offset += acts_offset;
 
     return offset;
 }
@@ -3632,7 +3638,7 @@ dissect_openflow_table_feature_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pr
             elem_begin = offset;
             elem_tree = proto_tree_add_subtree(prop_tree, tvb, offset, -1, ett_openflow_v5_table_feature_prop_action_id, &ti, "Action ID");
 
-            offset = dissect_openflow_action_header_v5(tvb, pinfo, elem_tree, offset, length);
+            offset = dissect_openflow_action_header_v5(tvb, pinfo, elem_tree, offset);
             proto_item_set_len(ti, offset - elem_begin);
         }
         break;
@@ -3647,7 +3653,7 @@ dissect_openflow_table_feature_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pr
             elem_begin = offset;
             elem_tree = proto_tree_add_subtree(prop_tree, tvb, offset, -1, ett_openflow_v5_table_feature_prop_oxm_id, &ti, "OXM ID");
 
-            offset = dissect_openflow_oxm_header_v5(tvb, pinfo, elem_tree, offset, length);
+            offset = dissect_openflow_oxm_header_v5(tvb, pinfo, elem_tree, offset);
             proto_item_set_len(ti, offset - elem_begin);
         }
         break;
