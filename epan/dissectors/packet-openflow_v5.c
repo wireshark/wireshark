@@ -3346,7 +3346,7 @@ static const value_string openflow_v5_tablemod_prop_type_values[] = {
 #define OFPTMPEF_IMPORTANCE  1<<1
 #define OFPTMPEF_LIFETIME    1<<2
 static int
-dissect_openflow_tablemod_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length _U_)
+dissect_openflow_tablemod_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length)
 {
     proto_item *ti;
     proto_tree *prop_tree, *flags_tree;
@@ -4457,15 +4457,16 @@ dissect_openflow_port_stats_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 
 static int
-dissect_openflow_table_desc_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length _U_)
+dissect_openflow_table_desc_v5(tvbuff_t *parent_tvb, packet_info *pinfo _U_, proto_tree *tree, int parent_offset)
 {
     proto_item *ti;
     proto_tree *desc_tree, *conf_tree;
     uint16_t desc_length;
-    int32_t desc_end;
+    tvbuff_t *tvb;
+    unsigned offset = 0;
 
-    desc_length = tvb_get_ntohs(tvb, offset);
-    desc_end = offset + desc_length;
+    desc_length = tvb_get_ntohs(parent_tvb, parent_offset);
+    tvb = tvb_new_subset_length(parent_tvb, parent_offset, desc_length);
 
     desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_length, ett_openflow_v5_table_desc, NULL, "Table desc");
 
@@ -4490,11 +4491,11 @@ dissect_openflow_table_desc_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=4;
 
     /* struct ofp_table_mod_prop_header properties[0]; */
-    while (offset < desc_end) {
-        offset = dissect_openflow_tablemod_prop_v5(tvb, pinfo, desc_tree, offset, length);
+    while (tvb_reported_length_remaining(tvb, offset)) {
+        offset = dissect_openflow_tablemod_prop_v5(tvb, pinfo, desc_tree, offset, tvb_reported_length(tvb));
     }
 
-    return offset;
+    return parent_offset + offset;
 }
 
 
@@ -5385,7 +5386,7 @@ dissect_openflow_multipart_reply_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
         break;
     case OFPMP_TABLE_DESC:
         while (offset < length) {
-            offset = dissect_openflow_table_desc_v5(tvb, pinfo, tree, offset, length);
+            offset = dissect_openflow_table_desc_v5(tvb, pinfo, tree, offset);
         }
         break;
     case OFPMP_QUEUE_DESC:
@@ -5750,7 +5751,7 @@ dissect_openflow_table_status_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset+=1;
 
     /* struct ofp_table_desc table; */
-    dissect_openflow_table_desc_v5(tvb, pinfo, tree, offset, length);
+    dissect_openflow_table_desc_v5(tvb, pinfo, tree, offset);
 }
 
 static void
