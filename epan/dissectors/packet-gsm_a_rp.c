@@ -93,8 +93,6 @@ static dissector_handle_t gsm_a_dtap_handle;
 
 static int proto_json;
 
-static proto_tree *g_tree;
-
 #define	NUM_GSM_RP_ELEM array_length(gsm_rp_elem_strings)
 int ett_gsm_rp_elem[NUM_GSM_RP_ELEM];
 
@@ -153,7 +151,7 @@ de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
 	 */
 	tpdu_tvb = tvb_new_subset_length(tvb, curr_offset, len);
 
-	call_dissector_only(gsm_sms_handle, tpdu_tvb, pinfo, g_tree, NULL);
+	call_dissector_only(gsm_sms_handle, tpdu_tvb, pinfo, proto_tree_get_parent_tree(tree), NULL);
 
 	curr_offset += len;
 
@@ -430,8 +428,6 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	offset = 0;
 	saved_offset = offset;
-
-	g_tree = tree;
 
 	len = tvb_reported_length(tvb);
 
