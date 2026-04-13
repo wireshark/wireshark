@@ -267,11 +267,21 @@ websocket_init_z_stream_context(int8_t wbits)
  * (possibly empty) buffer is stored as "proto data" and true is returned.
  * Otherwise false is returned.
  */
+
+/* Because the stream, or at least the sliding window, has to be reused
+ * between messages, this doesn't call the functions in tvbuff_zlib.
+ * XXX - Would it make sense to provide a tvbuff_zlib API call that
+ * takes either a zlib stream pointer or a sliding window/dictionary,
+ * in order to consolidate some code? */
+/* Same constants as tvbuff_zlib.c */
+#define TVB_Z_MIN_BUFSIZ 32768
+#define TVB_Z_MAX_BUFSIZ 1048576 * 10
+
 static bool
 websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zlib_streamp z_strm, tvbuff_t** uncompressed_tvb, uint32_t key)
 {
   /*
-   * Decompression a message: append "0x00 0x00 0xff 0xff" to the end of
+   * Decompressing a message: append "0x00 0x00 0xff 0xff" to the end of
    * message, then apply DEFLATE to the result.
    * https://tools.ietf.org/html/rfc7692#section-7.2.2
    */
@@ -286,7 +296,13 @@ websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zlib_streamp z_strm, tvb
   tvb_memcpy(tvb, compr_payload, 0, compr_len-4);
   compr_payload[compr_len-4] = compr_payload[compr_len-3] = 0x00;
   compr_payload[compr_len-2] = compr_payload[compr_len-1] = 0xff;
-  decompr_buf_len = 2*compr_len;
+
+  if (ckd_mul(&decompr_buf_len, compr_len, 2)) {
+    decompr_buf_len = TVB_Z_MAX_BUFSIZ;
+  } else {
+    decompr_buf_len = CLAMP(decompr_buf_len, TVB_Z_MIN_BUFSIZ, TVB_Z_MAX_BUFSIZ);
+  }
+
   decompr_buf = (uint8_t *)wmem_alloc(pinfo->pool, decompr_buf_len);
 
   z_strm->next_in = compr_payload;
@@ -300,6 +316,19 @@ websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zlib_streamp z_strm, tvb
 
     if (err == Z_OK || err == Z_STREAM_END || err == Z_BUF_ERROR) {
       unsigned avail_bytes = decompr_buf_len - z_strm->avail_out;
+      /* Note z_strm, and thus z_strm->total_out, does not necessarily get reset
+       * between messages because the same sliding window may be used. */
+      if (decompr_len + avail_bytes > INT_MAX) {
+        /* Out of room (various tvb and Qt API functions will fail on anything
+         * bigger than a signed int. We could lower this more. (Because the
+         * size of the decompression buffer is clamped, this can't overflow.) */
+        err = ZLIB_PREFIX(inflateSync)(z_strm);
+        /* This should succeed and find the 00 00 FF FF at the end, but if the
+         * flush point is a sync flush point and not a full flush point, i.e.
+         * the siding window needs to be used for the next message, the stream
+         * probably gets left in a bad state.  */
+        continue;
+      }
       if (avail_bytes) {
         decompr_payload = (uint8_t *)wmem_realloc(wmem_file_scope(), decompr_payload,
                                                  decompr_len + avail_bytes);
