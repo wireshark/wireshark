@@ -12201,8 +12201,24 @@ dissect_smb2_compression_pattern_v1(proto_tree *tree,
 	if (out && times < MAX_UNCOMPRESSED_SIZE) {
 		uint8_t v = (uint8_t)pattern;
 
-		for (unsigned i = 0; i < times; i++)
+		/* Both of these are much faster than adding one byte at a,
+		 * time though the second is somewhat faster in testing due
+		 * to how compilers optimize a known length memset. */
+#if 0
+		uint8_t *bytes = g_malloc(times);
+		memset(bytes, v, times);
+		wmem_array_append(out, bytes, times);
+		g_free(bytes);
+#else
+		uint8_t sixty_four_bytes[64];
+		memset(sixty_four_bytes, v, 64);
+		unsigned i = 0;
+		for (i = 0; i < times/64; i++)
+			wmem_array_append(out, sixty_four_bytes, 64);
+
+		for (i *= 64; i < times; i++)
 			wmem_array_append(out, &v, 1);
+#endif
 	}
 
 	return offset;
