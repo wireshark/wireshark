@@ -270,7 +270,7 @@ extern "C" {
    * __GNUC__; if it does, __GNUC__ should suffice.
    */
   #define DIAG_OFF_CAST_AWAY_CONST DIAG_OFF(cast-qual)
-  #define DIAG_ON_CAST_AWAY_CONST DIAG_OFF(cast-qual)
+  #define DIAG_ON_CAST_AWAY_CONST DIAG_ON(cast-qual)
 #elif defined(_MSC_VER)
   #define DIAG_OFF_CAST_AWAY_CONST
   #define DIAG_ON_CAST_AWAY_CONST
