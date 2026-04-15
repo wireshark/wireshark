@@ -498,14 +498,14 @@ if(NOT VCSVERSION_OVERRIDE)
 	add_dependencies(wsutil_static vcs_version)
 endif()
 
-add_executable(wmem_test EXCLUDE_FROM_ALL wmem/wmem_test.c ${WMEM_FILES})
+add_executable(wmem_test EXCLUDE_FROM_ALL wmem/wmem_test.c)
 
-target_link_libraries(wmem_test wsutil)
+target_link_libraries(wmem_test wsutil_static)
 
 set_target_properties(wmem_test PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
-	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	COMPILE_DEFINITIONS "ENABLE_STATIC"
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
