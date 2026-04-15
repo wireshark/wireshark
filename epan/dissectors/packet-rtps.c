@@ -4102,12 +4102,10 @@ static uint8_t *rtps_decrypt_secure_payload(
     return NULL;
   }
 
-  secure_body_ptr = wmem_alloc0(allocator, secure_payload_len);
+  secure_body_ptr = tvb_memdup(allocator, tvb, offset, secure_payload_len);
   if (secure_body_ptr == NULL) {
     return NULL;
   }
-
-  tvb_memcpy(tvb, secure_body_ptr, offset, secure_payload_len);
 
   *error = rtps_util_decrypt_data(
       secure_body_ptr,
@@ -14014,12 +14012,7 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, int offs
          * checksum field set to 0. To calculate the checksum of the RTPS message
          * we need to set those bytes to 0 in a separate buffer.
          */
-        tvb_zero_checksum = wmem_alloc0_array(pinfo->pool, char, rtps_root->tvb_len);
-        tvb_memcpy(
-            rtps_root->tvb,
-            tvb_zero_checksum,
-            rtps_root->tvb_offset,
-            rtps_root->tvb_len);
+        tvb_zero_checksum = tvb_memdup(pinfo->pool, rtps_root->tvb, rtps_root->tvb_offset, rtps_root->tvb_len);
 
         /* Set checksum bytes to 0 */
         memset(tvb_zero_checksum + offsetToHeaderExtensionData + offset, 0, checksum_len);
