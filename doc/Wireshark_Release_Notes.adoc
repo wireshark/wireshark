@@ -101,6 +101,22 @@ There is no new or updated file format support in this release.
 
 // === Major API Changes
 
+=== Plugin Development Changes
+
+On UN*X systems (excluding macOS when running from an app bundle, as
+with the official installer) extcap binaries are now searched for under
+the libexec directory by default, e.g., `/usr/libexec/wireshark/extcap`
+instead of `/usr/lib64/wireshark/extcap` or similar. This is the customary
+place for helper binaries, which as opposed to libraries do not need
+multiarch support. The location can be overridden via the environment
+variable WIRESHARK_EXTCAP_DIR. The extcap binaries shipped with Wireshark
+are installed in the new location, but third party extcaps may need
+packaging changes. This change was effective in version 4.6.0, but was not
+explicitly noted in the release notes previously. Note that some distributions
+do not use a libexec directory, such as Alpine Linux, which does not have
+multilib support. On such systems extcap binaries should be in the same
+location as before.
+
 == Prior Versions
 
 Wireshark 4.6.4 included the following changes.
