@@ -509,6 +509,10 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
         /* Handle GUID type (assuming it is represented as a string in Lua) */
         const char* guid_str = luaL_checkstring(L,WSLUA_ARG_DissectorTable_add_PATTERN);
         fvalue_t* fval = fvalue_from_literal(type, guid_str, 0, NULL);
+        if (fval == NULL) {
+            WSLUA_ARG_ERROR(DissectorTable_add,PATTERN,"invalid GUID literal");
+            return 0;
+        }
         const e_guid_t* guid = fvalue_get_guid(fval);
         guid_key gk = {*guid, 0};
         /* The dcerpc.uuid table requires its own initializer */
@@ -629,6 +633,10 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
         /* Handle GUID type (assuming it is represented as a string in Lua) */
         const char* guid_str = luaL_checkstring(L,WSLUA_ARG_DissectorTable_set_PATTERN);
         fvalue_t* fval = fvalue_from_literal(type, guid_str, 0, NULL);
+        if (fval == NULL) {
+            WSLUA_ARG_ERROR(DissectorTable_set,PATTERN,"invalid GUID literal");
+            return 0;
+        }
         const e_guid_t* guid = fvalue_get_guid(fval);
         guid_key gk = {*guid, 0};
         /* The dcerpc.uuid table requires its own initializer */
@@ -714,6 +722,10 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
         // Handle GUID type (assuming it is represented as a string in Lua)
         const char* guid_str = luaL_checkstring(L,WSLUA_ARG_DissectorTable_remove_PATTERN);
         fvalue_t* fval = fvalue_from_literal(type, guid_str, 0, NULL);
+        if (fval == NULL) {
+            WSLUA_ARG_ERROR(DissectorTable_remove,PATTERN,"invalid GUID literal");
+            return 0;
+        }
         const e_guid_t* guid = fvalue_get_guid(fval);
         guid_key gk = {*guid, 0};
         guids_delete_guid(guid);
@@ -812,12 +824,16 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
         } else if ( type == FT_GUID ) {
             const char* guid_str = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_PATTERN);
             fvalue_t* fval = fvalue_from_literal(type, guid_str, 0, NULL);
-            const e_guid_t* guid = fvalue_get_guid(fval);
-            guid_key gk = {*guid, 0};
+            if (fval == NULL) {
+                error = "invalid GUID literal";
+            } else {
+                const e_guid_t* guid = fvalue_get_guid(fval);
+                guid_key gk = {*guid, 0};
 
-            len = dissector_try_guid_with_data(dt->table, &gk,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, true, NULL);
-            if (len > 0) {
-                handled = true;
+                len = dissector_try_guid_with_data(dt->table, &gk,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, true, NULL);
+                if (len > 0) {
+                    handled = true;
+                }
             }
         } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
             uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_try_PATTERN);
@@ -870,9 +886,13 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
     } else if ( type == FT_GUID ) {
         const char* guid_str = luaL_checkstring(L,WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
         fvalue_t* fval = fvalue_from_literal(type, guid_str, 0, NULL);
-        const e_guid_t* guid = fvalue_get_guid(fval);
-        guid_key gk = {*guid, 0};
-        handle = dissector_get_guid_handle(dt->table,&gk);
+        if (fval == NULL) {
+            WSLUA_ARG_ERROR(DissectorTable_get_dissector,PATTERN,"invalid GUID literal");
+        } else {
+            const e_guid_t* guid = fvalue_get_guid(fval);
+            guid_key gk = {*guid, 0};
+            handle = dissector_get_guid_handle(dt->table,&gk);
+        }
     } else if ( type == FT_UINT8 || type == FT_UINT16 || type == FT_UINT24 || type == FT_UINT32 ) {
         uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
         handle = dissector_get_uint_handle(dt->table,port);
