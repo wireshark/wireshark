@@ -12542,6 +12542,8 @@ static int dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbu
      * the final string that will identify the node or its length. It will
      * be set later...
      */
+    /* Reset to 2; PID_EXTENDED sets this to 4 and it must not persist */
+    param_length_length = 2;
     parameter = tvb_get_uint16(tvb, offset, encoding);
     param_length = tvb_get_uint16(tvb, offset+2, encoding);
     if ((parameter & PID_EXTENDED) == PID_EXTENDED) {
@@ -15737,7 +15739,7 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, int o
         fragment_offset = this_frag_number == 1 ? 0 : (((this_frag_number - 1) * frag_size));
         pinfo->fragmented = true;
         frag_msg = fragment_add_check(&rtps_reassembly_table,
-            tvb, offset, pinfo,
+            tvb, offset + (frag_index_in_submessage * frag_size), pinfo,
             (uint32_t)sample_seq_number, /* ID for fragments belonging together */
             (void *)guid, /* make sure only fragments from the same writer are considered for reassembly */
             fragment_offset, /* fragment offset */
