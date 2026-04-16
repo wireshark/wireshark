@@ -1668,7 +1668,7 @@ static int hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_key_encrypted
 static int hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_liveliness_encrypted;
 static int hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_valid;
 static int hf_rtps_param_plugin_endpoint_security_attributes_mask;
-static int hf_rtps_flag_participant_security_attribute_flag_key_psk_protected;
+static int hf_rtps_flag_participant_security_attribute_flag_is_psk_protected;
 static int hf_rtps_flag_participant_security_attribute_flag_is_rtps_protected;
 static int hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected;
 static int hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected;
@@ -2938,7 +2938,7 @@ static int* const ENDPOINT_SECURITY_INFO_FLAGS[] = {
 
 static int* const PLUGIN_ENDPOINT_SECURITY_INFO_FLAGS[] = {
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_valid,                 /* Bit 31 */
-  &hf_rtps_flag_participant_security_attribute_flag_key_psk_protected,            /* Bit 4 */
+  &hf_rtps_flag_participant_security_attribute_flag_is_psk_protected,            /* Bit 4 */
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_liveliness_encrypted,  /* Bit 2 */
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_key_encrypted,         /* Bit 1 */
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_payload_encrypted,     /* Bit 0 */
@@ -2946,7 +2946,7 @@ static int* const PLUGIN_ENDPOINT_SECURITY_INFO_FLAGS[] = {
 };
 static int* const PARTICIPANT_SECURITY_INFO_FLAGS[] = {
   &hf_rtps_flag_participant_security_attribute_flag_is_valid,                     /* Bit 31 */
-  &hf_rtps_flag_plugin_participant_security_attribute_flag_is_psk_encrypted,      /* Bit 6 */
+  &hf_rtps_flag_participant_security_attribute_flag_is_psk_protected,            /* Bit 4 */
   &hf_rtps_flag_participant_security_attribute_flag_key_revisions_enabled,        /* Bit 3 */
   &hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected,      /* Bit 2 */
   &hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected,       /* Bit 1 */
@@ -2956,6 +2956,7 @@ static int* const PARTICIPANT_SECURITY_INFO_FLAGS[] = {
 
 static int* const PLUGIN_PARTICIPANT_SECURITY_INFO_FLAGS[] = {
     &hf_rtps_flag_plugin_participant_security_attribute_flag_is_valid,                        /* Bit 31 */
+    &hf_rtps_flag_plugin_participant_security_attribute_flag_is_psk_encrypted,                /* Bit 6 */
     &hf_rtps_flag_plugin_participant_security_attribute_flag_is_liveliness_origin_encrypted,  /* Bit 5 */
     &hf_rtps_flag_plugin_participant_security_attribute_flag_is_discovery_origin_encrypted,   /* Bit 4 */
     &hf_rtps_flag_plugin_participant_security_attribute_flag_is_rtps_origin_encrypted,        /* Bit 3 */
@@ -20974,7 +20975,7 @@ void proto_register_rtps(void) {
         "Key Revisions Enabled", "rtps.flag.security.info.key_revisions_enabled",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
     },
-    { &hf_rtps_flag_participant_security_attribute_flag_key_psk_protected,{
+    { &hf_rtps_flag_participant_security_attribute_flag_is_psk_protected,{
     "RTPS Pre-Shared Key Protected", "rtps.flag.security.info.participant_psk_protected",
     FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010, NULL, HFILL }
     },
