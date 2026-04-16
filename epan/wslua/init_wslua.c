@@ -344,6 +344,8 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     // be a TRY..FINALLY block that also does some handling to put the
     // Lua call stack in the tree.)
     CLEANUP_PUSH(lua_resetthread_cb, L1);
+    // Note this macro declares struct except_stacknode except_sn and
+    // pushes it to the top of the exception stack.
 
     // After call, stack: [ error_handler_func ]
     lua_pushcfunction(L1, dissector_error_handler);
@@ -377,7 +379,14 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
         proto_item_set_hidden(lua_tree->item);
 
         if  ( lua_pcall(L1, /*num_args=*/3, /*num_results=*/1, /*error_handler_func_stack_position=*/1) ) {
-            // do nothing; the traceback error message handler function does everything
+            if (except_get_top() != &except_sn) {
+                ws_critical("exception stack mismatch! Lua error longjmp'd out of a Wireshark TRY block.");
+                // Just reset the exception stack. If one of the exceptions
+                // nodes skipped was a cleanup handler, this might leak, but
+                // since the except_stacknode was created on the stack, there's
+                // nothing we can do.
+                except_set_top(&except_sn);
+            }
         } else {
 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
@@ -446,6 +455,8 @@ bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
     ws_debug("new Lua thread: %p", L1);
 
     CLEANUP_PUSH(lua_resetthread_cb, L1);
+    // Note this macro declares struct except_stacknode except_sn and
+    // pushes it to the top of the exception stack.
 
     /* get the table of all lua heuristic dissector lists */
     lua_rawgeti(L1, LUA_REGISTRYINDEX, lua_heur_dissectors_table_ref);
@@ -490,6 +501,14 @@ bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
     if  ( lua_pcall(L1,3,1,0) ) {
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
                 "Lua Error: error calling %s heuristic dissector: %s", pinfo->current_proto, lua_tostring(L1,-1));
+        if (except_get_top() != &except_sn) {
+            ws_critical("exception stack mismatch! Lua error longjmp'd past a Wireshark TRY block.");
+            // Just reset the exception stack. If one of the exceptions
+            // nodes skipped was a cleanup handler, this might leak, but
+            // since the except_stacknode was created on the stack, there's
+            // nothing we can do.
+            except_set_top(&except_sn);
+        }
     } else {
         if (lua_isboolean(L1, -1) || lua_isnil(L1, -1)) {
             result = lua_toboolean(L1, -1);

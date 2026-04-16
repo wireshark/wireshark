@@ -179,6 +179,15 @@ void except_deinit(void)
 
 #endif
 
+const struct except_stacknode* except_get_top(void)
+{
+    return get_top();
+}
+
+void except_set_top(struct except_stacknode* node)
+{
+    set_top(node);
+}
 
 static int match(const volatile except_id_t *thrown, const except_id_t *caught)
 {

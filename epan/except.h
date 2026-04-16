@@ -110,6 +110,15 @@ WS_DLL_PUBLIC void except_set_allocator(void *(*)(size_t), void (*)(void *));
 WS_DLL_PUBLIC void *except_alloc(size_t);
 WS_DLL_PUBLIC void except_free(void *);
 
+/* Functions to be used in a last resort when things go badly wrong; e.g.,
+ * Lua uses setjmp and longjmp for its own error handling, and Lua errors
+ * can longjmp past the ENDTRY so that the function that created the current
+ * top node has exited and the node (and the jmp_buf) is no longer valid
+ * (having been created on the stack) so we can't run the handlers or even
+ * traverse the exception stack. It's better to do this than crash.  */
+const struct except_stacknode *except_get_top(void);
+void except_set_top(struct except_stacknode *node);
+
 #define except_code(E) ((E)->except_id.except_code)
 #define except_group(E) ((E)->except_id.except_group)
 #define except_message(E) ((E)->except_message)
