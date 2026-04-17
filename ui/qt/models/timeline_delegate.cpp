@@ -49,7 +49,8 @@ void TimelineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         if (tree) {
             QAbstractProxyModel * proxy = qobject_cast<QAbstractProxyModel *>(tree->model());
             if (proxy && proxy->sourceModel()) {
-                QModelIndex indexStart = proxy->mapFromSource(proxy->sourceModel()->index(0, span_px.colStart));
+                QModelIndex sourceIndex = proxy->mapToSource(index);
+                QModelIndex indexStart = proxy->mapFromSource(sourceIndex.siblingAtColumn(span_px.colStart));
                 int colStart = -1;
                 int start_px = 0;
                 if (indexStart.isValid()) {
@@ -58,7 +59,7 @@ void TimelineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
                 }
                 int colDuration = -1;
                 int column_px = start_px;
-                QModelIndex indexDuration = proxy->mapFromSource(proxy->sourceModel()->index(0, span_px.colDuration));
+                QModelIndex indexDuration = proxy->mapFromSource(sourceIndex.siblingAtColumn(span_px.colDuration));
                 if (indexDuration.isValid()) {
                     colDuration = indexDuration.column();
                     column_px += tree->columnWidth(colDuration);
