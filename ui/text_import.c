@@ -82,6 +82,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wsutil/file_util.h>
+#include <wsutil/buffer.h>
 #include <ws_exit_codes.h>
 
 #include <time.h>
@@ -172,6 +173,7 @@ static uint64_t seqno;
 
 /* This is where we store the packet currently being built */
 static uint8_t *packet_buf;
+static Buffer prefix_buf;
 static uint32_t curr_offset;
 static uint32_t packet_start;
 static bool offset_warned;
@@ -487,7 +489,6 @@ write_current_packet(bool cont)
     int proto_length = 0;
     int ip_length = 0;
     int eth_trailer_length = 0;
-    int prefix_index = 0;
     int i, padding_length;
 
     if (curr_offset > 0) {
@@ -495,6 +496,8 @@ write_current_packet(bool cont)
 
         /* Is direction indication on with an inbound packet? */
         bool isOutbound = has_direction && (direction == PACK_FLAGS_DIRECTION_OUTBOUND);
+
+        ws_buffer_clean(&prefix_buf);
 
         /* Compute packet length */
         prefix_length = 0;
@@ -519,9 +522,6 @@ write_current_packet(bool cont)
         }
         if (hdr_ethernet) { prefix_length += (int)sizeof(HDR_ETHERNET); }
 
-        /* Make room for dummy header */
-        memmove(&packet_buf[prefix_length], packet_buf, curr_offset);
-
         if (hdr_ethernet) {
             /* Pad trailer */
             if (prefix_length + curr_offset < 60) {
@@ -540,8 +540,7 @@ write_current_packet(bool cont)
                 memcpy(HDR_ETHERNET.src_addr, hdr_eth_src_addr, 6);
             }
             HDR_ETHERNET.ethertype = g_htons(hdr_ethernet_proto);
-            memcpy(&packet_buf[prefix_index], &HDR_ETHERNET, sizeof(HDR_ETHERNET));
-            prefix_index += (int)sizeof(HDR_ETHERNET);
+            ws_buffer_append(&prefix_buf, (uint8_t*)&HDR_ETHERNET, sizeof(HDR_ETHERNET));
         }
 
         /* Write IP header */
@@ -562,8 +561,7 @@ write_current_packet(bool cont)
             cksum_vector[0].ptr = (uint8_t *)&HDR_IP; cksum_vector[0].len = sizeof(HDR_IP);
             HDR_IP.hdr_checksum = in_cksum(cksum_vector, 1);
 
-            memcpy(&packet_buf[prefix_index], &HDR_IP, sizeof(HDR_IP));
-            prefix_index += (int)sizeof(HDR_IP);
+            ws_buffer_append(&prefix_buf, (uint8_t*)&HDR_IP, sizeof(HDR_IP));
 
             /* initialize pseudo header for checksum calculation */
             pseudoh.src_addr    = HDR_IP.src_addr;
@@ -589,8 +587,7 @@ write_current_packet(bool cont)
             HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_nxt  = (uint8_t) hdr_ip_proto;
             HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_hlim = 32;
 
-            memcpy(&packet_buf[prefix_index], &HDR_IPv6, sizeof(HDR_IPv6));
-            prefix_index += (int)sizeof(HDR_IPv6);
+            ws_buffer_append(&prefix_buf, (uint8_t*)&HDR_IPv6, sizeof(HDR_IPv6));
 
             /* initialize pseudo ipv6 header for checksum calculation */
             pseudoh6.src_addr6  = HDR_IPv6.ip6_src;
@@ -615,11 +612,10 @@ write_current_packet(bool cont)
                 cksum_vector[0].ptr = (uint8_t *)&pseudoh; cksum_vector[0].len = sizeof(pseudoh);
             }
             cksum_vector[1].ptr = (uint8_t *)&HDR_UDP; cksum_vector[1].len = sizeof(HDR_UDP);
-            cksum_vector[2].ptr = &packet_buf[prefix_length]; cksum_vector[2].len = curr_offset;
+            cksum_vector[2].ptr = packet_buf; cksum_vector[2].len = curr_offset;
             HDR_UDP.checksum = in_cksum(cksum_vector, 3);
 
-            memcpy(&packet_buf[prefix_index], &HDR_UDP, sizeof(HDR_UDP));
-            prefix_index += (int)sizeof(HDR_UDP);
+            ws_buffer_append(&prefix_buf, (uint8_t*)&HDR_UDP, sizeof(HDR_UDP));
         }
 
         /* Write TCP header */
@@ -648,11 +644,10 @@ write_current_packet(bool cont)
                 cksum_vector[0].ptr = (uint8_t *)&pseudoh; cksum_vector[0].len = sizeof(pseudoh);
             }
             cksum_vector[1].ptr = (uint8_t *)&HDR_TCP; cksum_vector[1].len = sizeof(HDR_TCP);
-            cksum_vector[2].ptr = &packet_buf[prefix_length]; cksum_vector[2].len = curr_offset;
+            cksum_vector[2].ptr = packet_buf; cksum_vector[2].len = curr_offset;
             HDR_TCP.checksum = in_cksum(cksum_vector, 3);
 
-            memcpy(&packet_buf[prefix_index], &HDR_TCP, sizeof(HDR_TCP));
-            prefix_index += (int)sizeof(HDR_TCP);
+            ws_buffer_append(&prefix_buf, (uint8_t*)&HDR_TCP, sizeof(HDR_TCP));
             if (isOutbound) {
                 tcp_in_seq_num = g_ntohl(tcp_in_seq_num) + curr_offset;
                 tcp_in_seq_num = g_htonl(tcp_in_seq_num);
@@ -685,7 +680,7 @@ write_current_packet(bool cont)
             }
             padding_length = number_of_padding_bytes(curr_offset);
             for (i=0; i<padding_length; i++)
-                packet_buf[prefix_length+curr_offset+i] = 0;
+                packet_buf[curr_offset+i] = 0;
             curr_offset += padding_length;
         }
 
@@ -699,16 +694,14 @@ write_current_packet(bool cont)
             HDR_SCTP.checksum  = crc32c_calculate(&HDR_SCTP, sizeof(HDR_SCTP), CRC32C_PRELOAD);
             if (hdr_data_chunk)
                 HDR_SCTP.checksum  = crc32c_calculate(&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
-            HDR_SCTP.checksum  = g_htonl(~crc32c_calculate(&packet_buf[prefix_length], curr_offset, HDR_SCTP.checksum));
+            HDR_SCTP.checksum  = g_htonl(~crc32c_calculate(packet_buf, curr_offset, HDR_SCTP.checksum));
 
-            memcpy(&packet_buf[prefix_index], &HDR_SCTP, sizeof(HDR_SCTP));
-            prefix_index += (int)sizeof(HDR_SCTP);
+            ws_buffer_append(&prefix_buf, (uint8_t*)&HDR_SCTP, sizeof(HDR_SCTP));
         }
 
         /* Write DATA chunk header */
         if (hdr_data_chunk) {
-            memcpy(&packet_buf[prefix_index], &HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK));
-            /*prefix_index += (int)sizeof(HDR_DATA_CHUNK);*/
+            ws_buffer_append(&prefix_buf, (uint8_t*)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK));
         }
 
         /* Write ExportPDU header */
@@ -716,17 +709,12 @@ write_current_packet(bool cont)
             unsigned payload_len = (unsigned)strlen(info_p->payload);
             HDR_EXPORT_PDU.tag_type = g_htons(EXP_PDU_TAG_DISSECTOR_NAME);
             HDR_EXPORT_PDU.payload_len = g_htons(payload_len);
-            memcpy(&packet_buf[prefix_index], &HDR_EXPORT_PDU, sizeof(HDR_EXPORT_PDU));
-            prefix_index += sizeof(HDR_EXPORT_PDU);
-            memcpy(&packet_buf[prefix_index], info_p->payload, payload_len);
-            prefix_index += payload_len;
+            ws_buffer_append(&prefix_buf, (uint8_t*)&HDR_EXPORT_PDU, sizeof(HDR_EXPORT_PDU));
+            ws_buffer_append(&prefix_buf, (uint8_t*)info_p->payload, payload_len);
             /* Add end-of-options tag */
-            memset(&packet_buf[prefix_index], 0x00, 4);
-        }
-
-        /* Write Ethernet trailer */
-        if (hdr_ethernet && eth_trailer_length > 0) {
-            memset(&packet_buf[prefix_length+curr_offset], 0, eth_trailer_length);
+            ws_buffer_assure_space(&prefix_buf, 4);
+            memset(ws_buffer_end_ptr(&prefix_buf), 0x00, 4);
+            ws_buffer_increase_length(&prefix_buf, 4);
         }
 
         HDR_TCP.seq_num = g_ntohl(HDR_TCP.seq_num) + curr_offset;
@@ -737,6 +725,8 @@ write_current_packet(bool cont)
         wtap_rec rec;
         int err;
         char *err_info;
+
+        ws_assert(prefix_length == (int)ws_buffer_length(&prefix_buf));
 
         data_length = prefix_length + curr_offset + eth_trailer_length;
         wtap_rec_init(&rec, data_length);
@@ -768,7 +758,16 @@ write_current_packet(bool cont)
             }
         }
 
-        ws_buffer_append(&rec.data, packet_buf, data_length);
+        ws_buffer_append_buffer(&rec.data, &prefix_buf);
+        ws_buffer_append(&rec.data, packet_buf, curr_offset);
+
+        /* Write Ethernet trailer */
+        if (hdr_ethernet && eth_trailer_length > 0) {
+            ws_buffer_assure_space(&rec.data, eth_trailer_length);
+            memset(ws_buffer_end_ptr(&rec.data), 0, eth_trailer_length);
+            ws_buffer_increase_length(&rec.data, eth_trailer_length);
+        }
+
 
         if (!wtap_dump(info_p->wdh, &rec, &err, &err_info)) {
             report_cfile_write_failure(info_p->import_text_filename,
@@ -1762,6 +1761,12 @@ text_import(text_import_info_t * const info)
     /* Get input parameters. */
     info_p = info;
 
+    if (info_p->max_frame_length > WTAP_MAX_PACKET_SIZE_STANDARD) {
+        /* Our callers should guarantee this. */
+        report_failure("max frame length too large (%u > %u)", info_p->max_frame_length, WTAP_MAX_PACKET_SIZE_STANDARD);
+        return WS_EXIT_INIT_FAILED;
+    }
+
     /* Dummy headers */
     hdr_ethernet = false;
     hdr_ip = false;
@@ -1896,9 +1901,9 @@ text_import(text_import_info_t * const info)
     info->num_packets_read = 0;
     info->num_packets_written = 0;
 
-    packet_buf = (uint8_t *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
-                                    sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
-                                    sizeof(HDR_EXPORT_PDU) + WTAP_MAX_PACKET_SIZE_STANDARD);
+    packet_buf = (uint8_t *)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
+
+    ws_buffer_init(&prefix_buf, 2048);
 
     if (!packet_buf)
     {
@@ -1937,6 +1942,7 @@ text_import(text_import_info_t * const info)
         ret = WS_EXIT_INVALID_OPTION;
     }
     g_free(packet_buf);
+    ws_buffer_free(&prefix_buf);
     return ret;
 }
 
