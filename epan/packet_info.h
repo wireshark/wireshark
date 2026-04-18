@@ -177,6 +177,13 @@ typedef struct _packet_info {
 
 /** @} */
 
+#define PINFO_SRC(pi)		((pi)->use_conv_addr_port_endpoints ? conversation_addr_port_endpoints_addr1((pi)->conv_addr_port_endpoints) : &((pi)->src))
+#define PINFO_DST(pi)		((pi)->use_conv_addr_port_endpoints ? conversation_addr_port_endpoints_addr2((pi)->conv_addr_port_endpoints) : &((pi)->dst))
+#define PINFO_SRCPORT(pi)	((pi)->use_conv_addr_port_endpoints ? conversation_addr_port_endpoints_port1((pi)->conv_addr_port_endpoints) : (pi)->srcport)
+#define PINFO_DESTPORT(pi)	((pi)->use_conv_addr_port_endpoints ? conversation_addr_port_endpoints_port2((pi)->conv_addr_port_endpoints) : (pi)->destport)
+#define PINFO_NET_SRC(pi)		((pi)->use_conv_addr_port_endpoints ? conversation_addr_port_endpoints_addr1((pi)->conv_addr_port_endpoints) : &((pi)->net_src))
+#define PINFO_NET_DST(pi)		((pi)->use_conv_addr_port_endpoints ? conversation_addr_port_endpoints_addr2((pi)->conv_addr_port_endpoints) : &((pi)->net_dst))
+
 /*
  * Editor modelines
  *

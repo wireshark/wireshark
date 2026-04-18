@@ -70,6 +70,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
+#include "conversation.h"
 #include "packet-tcp.h"
 #include "packet-x509af.h"
 #include "packet-tls.h"
@@ -658,13 +659,13 @@ ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
 
     /* Compute the packet's sender. */
     if (follow_info->client_port == 0) {
-        follow_info->client_port = pinfo->srcport;
-        copy_address(&follow_info->client_ip, &pinfo->src);
-        follow_info->server_port = pinfo->destport;
-        copy_address(&follow_info->server_ip, &pinfo->dst);
+        follow_info->client_port = PINFO_SRCPORT(pinfo);
+        copy_address(&follow_info->client_ip, PINFO_SRC(pinfo));
+        follow_info->server_port = PINFO_DESTPORT(pinfo);
+        copy_address(&follow_info->server_ip, PINFO_DST(pinfo));
     }
-    if (addresses_equal(&follow_info->client_ip, &pinfo->src) &&
-            follow_info->client_port == pinfo->srcport) {
+    if (addresses_equal(&follow_info->client_ip, PINFO_SRC(pinfo)) &&
+            follow_info->client_port == PINFO_SRCPORT(pinfo)) {
         from = FROM_CLIENT;
     } else {
         from = FROM_SERVER;
@@ -2144,9 +2145,9 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     if (ssl_packet_from_server(session, ssl_associations, pinfo)) {
-        app_port = pinfo->srcport;
+        app_port = PINFO_SRCPORT(pinfo);
     } else {
-        app_port = pinfo->destport;
+        app_port = PINFO_DESTPORT(pinfo);
     }
     /* If the appdata proto is not yet known (no STARTTLS or ALPN), try
      * heuristics and ports-based dissectors, order depending on preference. */
@@ -2563,8 +2564,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             /* Unknown protocol handle, ssl_starttls_ack was not called before.
              * Try to find a port-based protocol and use it if there is no
              * heuristics dissector (see process_ssl_payload). */
-            app_handle = dissector_get_uint_handle(ssl_associations, pinfo->srcport);
-            if (!app_handle) app_handle = dissector_get_uint_handle(ssl_associations, pinfo->destport);
+            app_handle = dissector_get_uint_handle(ssl_associations, PINFO_SRCPORT(pinfo));
+            if (!app_handle) app_handle = dissector_get_uint_handle(ssl_associations, PINFO_DESTPORT(pinfo));
         }
 
         proto_item_set_text(ssl_record_tree,
@@ -3199,7 +3200,7 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
             case SSL_HND_CLIENT_HELLO:
                 if (ssl) {
                     /* ClientHello is first packet so set direction */
-                    ssl_set_server(session, &pinfo->dst, pinfo->ptype, pinfo->destport);
+                    ssl_set_server(session, PINFO_DST(pinfo), pinfo->ptype, PINFO_DESTPORT(pinfo));
                     ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
                 }
                 ssl_dissect_hnd_cli_hello(&dissect_ssl3_hf, tvb, pinfo,
@@ -3793,7 +3794,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (ssl) {
-      ssl_set_server(&ssl->session, &pinfo->dst, pinfo->ptype, pinfo->destport);
+      ssl_set_server(&ssl->session, PINFO_DST(pinfo), pinfo->ptype, PINFO_DESTPORT(pinfo));
     }
 
     /* show the version */
@@ -4698,7 +4699,7 @@ static void
 ssl_src_prompt(packet_info *pinfo, char *result)
 {
     SslPacketInfo* pi;
-    uint32_t srcport = pinfo->srcport;
+    uint32_t srcport = PINFO_SRCPORT(pinfo);
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, pinfo->curr_layer_num);
     if (pi != NULL)
@@ -4714,7 +4715,7 @@ ssl_src_value(packet_info *pinfo)
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, pinfo->curr_layer_num);
     if (pi == NULL)
-        return GUINT_TO_POINTER(pinfo->srcport);
+        return GUINT_TO_POINTER(PINFO_SRCPORT(pinfo));
 
     return GUINT_TO_POINTER(pi->srcport);
 }
@@ -4723,7 +4724,7 @@ static void
 ssl_dst_prompt(packet_info *pinfo, char *result)
 {
     SslPacketInfo* pi;
-    uint32_t destport = pinfo->destport;
+    uint32_t destport = PINFO_DESTPORT(pinfo);
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, pinfo->curr_layer_num);
     if (pi != NULL)
@@ -4739,7 +4740,7 @@ ssl_dst_value(packet_info *pinfo)
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, pinfo->curr_layer_num);
     if (pi == NULL)
-        return GUINT_TO_POINTER(pinfo->destport);
+        return GUINT_TO_POINTER(PINFO_DESTPORT(pinfo));
 
     return GUINT_TO_POINTER(pi->destport);
 }
@@ -4748,8 +4749,8 @@ static void
 ssl_both_prompt(packet_info *pinfo, char *result)
 {
     SslPacketInfo* pi;
-    uint32_t srcport = pinfo->srcport,
-            destport = pinfo->destport;
+    uint32_t srcport = PINFO_SRCPORT(pinfo),
+            destport = PINFO_DESTPORT(pinfo);
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, pinfo->curr_layer_num);
     if (pi != NULL)

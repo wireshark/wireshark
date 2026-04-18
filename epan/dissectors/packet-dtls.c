@@ -54,6 +54,7 @@
 #include <wsutil/utf8_entities.h>
 #include <wsutil/rsa.h>
 #include <wsutil/pint.h>
+#include "conversation.h"
 #include "packet-tls-utils.h"
 #include "packet-dtls.h"
 #include "packet-rtp.h"
@@ -845,8 +846,8 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
     /* Unknown protocol handle, ssl_starttls_ack was not called before.
      * Try to find an appropriate dissection handle and cache it. */
     dissector_handle_t handle;
-    handle = dissector_get_uint_handle(dtls_associations, pinfo->srcport);
-    handle = handle ? handle : dissector_get_uint_handle(dtls_associations, pinfo->destport);
+    handle = dissector_get_uint_handle(dtls_associations, PINFO_SRCPORT(pinfo));
+    handle = handle ? handle : dissector_get_uint_handle(dtls_associations, PINFO_DESTPORT(pinfo));
     if (handle) session->app_handle = handle;
   }
 
@@ -877,9 +878,9 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
 
     saved_match_port = pinfo->match_uint;
     if (is_from_server) {
-      pinfo->match_uint = pinfo->srcport;
+      pinfo->match_uint = PINFO_SRCPORT(pinfo);
     } else {
-      pinfo->match_uint = pinfo->destport;
+      pinfo->match_uint = PINFO_DESTPORT(pinfo);
     }
     saved_match_string = pinfo->match_string;
     pinfo->match_string = session->alpn_name;
@@ -2199,7 +2200,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           case SSL_HND_CLIENT_HELLO:
             if (ssl) {
               /* ClientHello is first packet so set direction */
-              ssl_set_server(session, &pinfo->dst, pinfo->ptype, pinfo->destport);
+              ssl_set_server(session, PINFO_DST(pinfo), pinfo->ptype, PINFO_DESTPORT(pinfo));
             }
             ssl_dissect_hnd_cli_hello(&dissect_dtls_hf, sub_tvb, pinfo,
                                       ssl_hand_tree, 0, length, session, ssl,
@@ -2615,8 +2616,8 @@ dtls_dissect_hnd_hello_ext_use_srtp(packet_info *pinfo, tvbuff_t *tvb,
      * (Being able to have the stream refer back to both the DTLS-SRTP and
      * SDP setup frame might be useful, though.)
      */
-    srtp_add_address(pinfo, PT_UDP, &pinfo->net_src, pinfo->srcport, pinfo->destport, "DTLS-SRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, srtp_info, NULL);
-    srtp_add_address(pinfo, PT_UDP, &pinfo->net_dst, pinfo->destport, pinfo->srcport, "DTLS-SRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, srtp_info, NULL);
+    srtp_add_address(pinfo, PT_UDP, PINFO_NET_SRC(pinfo), PINFO_SRCPORT(pinfo), PINFO_DESTPORT(pinfo), "DTLS-SRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, srtp_info, NULL);
+    srtp_add_address(pinfo, PT_UDP, PINFO_NET_DST(pinfo), PINFO_DESTPORT(pinfo), PINFO_SRCPORT(pinfo), "DTLS-SRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, srtp_info, NULL);
   }
   return offset;
 }
@@ -2742,7 +2743,7 @@ static void
 dtls_src_prompt(packet_info *pinfo, char *result)
 {
     SslPacketInfo* pi;
-    uint32_t srcport = pinfo->srcport;
+    uint32_t srcport = PINFO_SRCPORT(pinfo);
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_dtls, pinfo->curr_layer_num);
     if (pi != NULL)
@@ -2758,7 +2759,7 @@ dtls_src_value(packet_info *pinfo)
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_dtls, pinfo->curr_layer_num);
     if (pi == NULL)
-        return GUINT_TO_POINTER(pinfo->srcport);
+        return GUINT_TO_POINTER(PINFO_SRCPORT(pinfo));
 
     return GUINT_TO_POINTER(pi->srcport);
 }
@@ -2767,7 +2768,7 @@ static void
 dtls_dst_prompt(packet_info *pinfo, char *result)
 {
     SslPacketInfo* pi;
-    uint32_t destport = pinfo->destport;
+    uint32_t destport = PINFO_DESTPORT(pinfo);
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_dtls, pinfo->curr_layer_num);
     if (pi != NULL)
@@ -2783,7 +2784,7 @@ dtls_dst_value(packet_info *pinfo)
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_dtls, pinfo->curr_layer_num);
     if (pi == NULL)
-        return GUINT_TO_POINTER(pinfo->destport);
+        return GUINT_TO_POINTER(PINFO_DESTPORT(pinfo));
 
     return GUINT_TO_POINTER(pi->destport);
 }
@@ -2792,8 +2793,8 @@ static void
 dtls_both_prompt(packet_info *pinfo, char *result)
 {
     SslPacketInfo* pi;
-    uint32_t srcport = pinfo->srcport,
-            destport = pinfo->destport;
+    uint32_t srcport = PINFO_SRCPORT(pinfo),
+            destport = PINFO_DESTPORT(pinfo);
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_dtls, pinfo->curr_layer_num);
     if (pi != NULL)

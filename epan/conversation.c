@@ -113,6 +113,23 @@ static const char * const type_names[] = {
 };
 
 /*
+ * Getters to for struct conversation_addr_port_endpoints.
+ * packet_info.h:{PINFO_{SRC,DST,...} macros for the reason.
+ */
+address *conversation_addr_port_endpoints_addr1(struct conversation_addr_port_endpoints *endpoints) {
+    return &endpoints->addr1;
+}
+address *conversation_addr_port_endpoints_addr2(struct conversation_addr_port_endpoints *endpoints) {
+    return &endpoints->addr2;
+}
+uint32_t conversation_addr_port_endpoints_port1(struct conversation_addr_port_endpoints *endpoints) {
+    return endpoints->port1;
+}
+uint32_t conversation_addr_port_endpoints_port2(struct conversation_addr_port_endpoints *endpoints) {
+    return endpoints->port2;
+}
+
+/*
  * Hash table of hash tables for conversations identified by element lists.
  */
 static wmem_map_t *conversation_hashtable_element_list;

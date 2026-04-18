@@ -37,6 +37,7 @@
 #include <wsutil/rsa.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/zlib_compat.h>
+#include "conversation.h"
 #include "packet-ber.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
@@ -5561,10 +5562,10 @@ ssl_packet_from_server(SslSession *session, dissector_table_t table, const packe
     int ret;
     if (session && session->srv_addr.type != AT_NONE) {
         ret = (session->srv_ptype == pinfo->ptype) &&
-              (session->srv_port == pinfo->srcport) &&
-              addresses_equal(&session->srv_addr, &pinfo->src);
+              (session->srv_port == PINFO_SRCPORT(pinfo)) &&
+              addresses_equal(&session->srv_addr, PINFO_SRC(pinfo));
     } else {
-        ret = (dissector_get_uint_handle(table, pinfo->srcport) != 0);
+        ret = (dissector_get_uint_handle(table, PINFO_SRCPORT(pinfo)) != 0);
     }
 
     ssl_debug_printf("packet_from_server: is from server - %s\n", (ret)?"TRUE":"FALSE");
@@ -5580,8 +5581,8 @@ tls_add_packet_info(int proto, packet_info *pinfo, uint8_t curr_layer_num_ssl)
     SslPacketInfo *pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, curr_layer_num_ssl);
     if (!pi) {
         pi = wmem_new0(wmem_file_scope(), SslPacketInfo);
-        pi->srcport = pinfo->srcport;
-        pi->destport = pinfo->destport;
+        pi->srcport = PINFO_SRCPORT(pinfo);
+        pi->destport = PINFO_DESTPORT(pinfo);
         conversation_t *conv = find_or_create_conversation_strat(pinfo);
         SslDecryptSession *ssl_session = tls_get_session(conv, proto, curr_layer_num_ssl);
         if (ssl_session) {
@@ -7873,15 +7874,15 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
             if (gbl_resolv_flags.handshake_sni_addr_resolution) {
                 // Client Hello: Client (Src) -> Server (Dst)
-                switch (pinfo->dst.type) {
+                switch (PINFO_DST(pinfo)->type) {
                     case AT_IPv4:
-                        if (pinfo->dst.len == sizeof(uint32_t)) {
-                            add_ipv4_name(*(uint32_t *)pinfo->dst.data, server_name, false);
+                        if (PINFO_DST(pinfo)->len == sizeof(uint32_t)) {
+                            add_ipv4_name(*(uint32_t *)PINFO_DST(pinfo)->data, server_name, false);
                         }
                         break;
                     case AT_IPv6:
-                        if (pinfo->dst.len == sizeof(ws_in6_addr)) {
-                            add_ipv6_name(pinfo->dst.data, server_name, false);
+                        if (PINFO_DST(pinfo)->len == sizeof(ws_in6_addr)) {
+                            add_ipv6_name(PINFO_DST(pinfo)->data, server_name, false);
                         }
                         break;
                 }
