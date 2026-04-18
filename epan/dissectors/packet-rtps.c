@@ -6326,6 +6326,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
   char         *indent_string;
   int           retVal;
   char          type_name[40];
+  size_t        bytesWritten;
 
     /* Structure of the typecode data:
      *  Offset   | Size  | Field                        | Notes
@@ -6484,7 +6485,10 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
 
         if (seq_max_len != -1) {
           /* We're dissecting a sequence of struct, bypass the seq definition */
-          snprintf(type_name, 40, "%s", struct_name);
+          bytesWritten = g_strlcpy(type_name, struct_name, sizeof(type_name));
+          if (bytesWritten >= sizeof(type_name)) {
+            ws_utf8_truncate(type_name, sizeof(type_name) - 1);
+          }
           break;
         }
 
@@ -6643,7 +6647,10 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
 
         if (seq_max_len != -1) {
           /* We're dissecting a sequence of struct, bypass the seq definition */
-          snprintf(type_name, 40, "%s", struct_name);
+          bytesWritten = g_strlcpy(type_name, struct_name, sizeof(type_name));
+          if (bytesWritten >= sizeof(type_name)) {
+            ws_utf8_truncate(type_name, sizeof(type_name) - 1);
+          }
           break;
         }
         /* Prints it */
@@ -6736,9 +6743,12 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         LONG_ALIGN(offset);
         string_length = tvb_get_uint32(tvb, offset, encoding);
         offset += 4;
-        snprintf(type_name, 40, "%s<%d>",
-                (tk_id == RTI_CDR_TK_STRING) ? "string" : "wstring",
-                string_length);
+        bytesWritten = snprintf(type_name, sizeof(type_name), "%s<%d>",
+                       (tk_id == RTI_CDR_TK_STRING) ? "string" : "wstring",
+                       string_length);
+        if (bytesWritten >= sizeof(type_name)) {
+          ws_utf8_truncate(type_name, sizeof(type_name) - 1);
+        }
         break;
     }
 
@@ -6813,7 +6823,10 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         offset += 4;
         alias_name = tvb_get_string_enc(pinfo->pool, tvb, offset, alias_name_length, ENC_ASCII);
         offset = check_offset_addition(offset, alias_name_length, tree, NULL, tvb);
-        (void) g_strlcpy(type_name, alias_name, sizeof(type_name));
+        bytesWritten = g_strlcpy(type_name, alias_name, sizeof(type_name));
+        if (bytesWritten >= sizeof(type_name)) {
+          ws_utf8_truncate(type_name, sizeof(type_name) - 1);
+        }
         break;
     }
 
@@ -6848,7 +6861,10 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         if (tk_id == RTI_CDR_TK_VALUE_PARAM) {
           type_id_name = "valueparam";
         }
-        snprintf(type_name, sizeof(type_name), "%s '%s'", type_id_name, value_name);
+        bytesWritten = snprintf(type_name, sizeof(type_name), "%s '%s'", type_id_name, value_name);
+        if (bytesWritten >= sizeof(type_name)) {
+          ws_utf8_truncate(type_name, sizeof(type_name) - 1);
+        }
         break;
     }
   } /* switch(tk_id) */
