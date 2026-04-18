@@ -29,6 +29,8 @@ If you or your organization would like to contribute or become a sponsor, please
 * Lua Debugger
   A built-in Lua script debugger has been added. It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces. The debugger can be opened from the menu:Tools[Lua Debugger] menu.
 
+* The Default profile now has additional column "Delta", showing the delta time from the previous displayed packet.
+
 * Name Resolution
   SMI paths are now recursed by Wireshark to provide subfolder to the SMI path.  MIBs provided by Wireshark now reflect the folder structure provided by libsmi.
 

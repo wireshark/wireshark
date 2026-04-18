@@ -975,6 +975,8 @@ The default columns will show:
 * btn:[Time] The timestamp of the packet. The presentation format of this
   timestamp can be changed, see <<ChWorkTimeFormatsSection>>.
 
+* btn:[Delta] The delta time from the previous displayed packet.
+
 * btn:[Source] The address where this packet is coming from.
 
 * btn:[Destination] The address where this packet is going to.
