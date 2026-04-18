@@ -1807,17 +1807,16 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   uint16_t        eap_len;
   uint8_t         eap_type;
   unsigned        len;
-  conversation_t *conversation       = NULL;
-  conv_state_t   *conversation_state = NULL;
+  conversation_t *conversation;
+  conv_state_t   *conversation_state;
+  wmem_map_t     *conversation_state_map;
   frame_state_t  *packet_state;
   int             leap_state;
   proto_tree     *ti, *ti_id, *ti_len;
   proto_tree     *eap_tree;
   proto_tree     *eap_tls_flags_tree;
   proto_item     *eap_type_item;
-  static address null_address = ADDRESS_INIT_NONE;
-  static uint8_t pae_group_address_mac_addr[6] = { 0x01, 0x80, 0xC2, 0x00, 0x00, 0x03 };
-  static address pae_group_address = ADDRESS_INIT(AT_ETHER, sizeof(pae_group_address_mac_addr), pae_group_address_mac_addr);
+  uint8_t        curr_layer_num = p_get_proto_depth(pinfo, proto_eap);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1831,12 +1830,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   /*
    * Find a conversation to which we belong; create one if we don't find it.
    *
-   * EAP runs over RADIUS (which runs over UDP), EAPOL (802.1X Authentication)
-   * or other transports. In case of RADIUS, a single "session" may consist
-   * of two UDP associations (one for authorization, one for accounting) which
-   * results in two separate conversations. This wastes memory, but won't affect
-   * the use cases below. In case of EAPOL, there are no ports. In any case,
-   * force a new conversation when the EAP-Request/Identity message is found.
+   * EAP runs over RADIUS (which runs over UDP), EAPOL (Ethernet and 802.11,
+   * known as 802.1X), PPP and other transports.
    *
    * Conversation tracking is required for 1) EAP-TLS reassembly and 2) tracking
    * the stage in the LEAP protocol. In both cases, the protocol starts with an
@@ -1844,65 +1839,49 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    * session. Use it as a signal to start a new conversation. This ensures that
    * the TLS dissector associates new TLS messages with a unique TLS session.
    *
-   * For EAPOL frames we need to massage the source/destination addresses into
-   * something stable for the TLS decoder as wireshark typically thinks there
-   * are three conversations occurring when there is only one:
-   *  * src ether = server mac -> dst ether = PAE multicast group address
-   *  * src ether = server mac -> dst ether = client mac
-   *  * src ether = client mac -> dst ether = PAE multicast group address
-   * We set the port so the TLS decoder can figure out which side is the server
+   * For EAPOL frames the destination MAC in both directions can be the PAE
+   * multicast group address which leads up to three conversations being
+   * created instead of the single one so blast away those addresses but
+   * fake the server port to provide something for ssl_packet_from_server
    */
-  address conv_src, conv_dst;
-  uint32_t tls_group = pinfo->curr_proto_layer_num << 16;
-  uint32_t conv_srcport = pinfo->srcport;
-  uint32_t conv_destport = pinfo->destport;
   if (pinfo->src.type == AT_ETHER) {
+    address *conv_src, *conv_dst;
+    uint32_t conv_srcport = 0, conv_destport = 0;
+    static address null_address = ADDRESS_INIT_NONE;
+    static uint8_t pae_group_address_mac_addr[6] = { 0x01, 0x80, 0xC2, 0x00, 0x00, 0x03 };
+    static address pae_group_address = ADDRESS_INIT(AT_ETHER, sizeof(pae_group_address_mac_addr), pae_group_address_mac_addr);
     if (eap_code == EAP_REQUEST) {	/* server -> client */
-      copy_address_shallow(&conv_src, &null_address);
-      copy_address_shallow(&conv_dst, &pae_group_address);
+      conv_src = &pae_group_address;
+      conv_dst = &null_address;
       conv_srcport = 443;
     } else {				/* client -> server */
-      copy_address_shallow(&conv_src, &pae_group_address);
-      copy_address_shallow(&conv_dst, &null_address);
+      conv_src = &null_address;
+      conv_dst = &pae_group_address;
       conv_destport = 443;
     }
-  }
-  else {
-    copy_address_shallow(&conv_src, &pinfo->src);
-    copy_address_shallow(&conv_dst, &pinfo->dst);
+    conversation_set_conv_addr_port_endpoints(pinfo, conv_src, conv_dst,
+      conversation_pt_to_conversation_type(pinfo->ptype), conv_srcport, conv_destport);
   }
 
   /*
-   * To support tunneled EAP-TLS (e.g. {TTLS,PEAP,TEAP,...}/EAP-TLS) we
-   * group our TLS frames by the depth they are found at and use this
-   * as offsets for p_get_proto_data/p_add_proto_data and as done for
-   * EAPOL above we massage the client port using this too
+   * TEAP supports chained authentications so we are unable to forcible
+   * create a new conversation each time we see a EAP-Request/Identity
    */
-
-  if (eap_code == EAP_REQUEST) {	/* server -> client */
-    conv_destport |= tls_group;
-  }
-  else {				/* client -> server */
-    conv_srcport |= tls_group;
-  }
-
-  conversation_set_conv_addr_port_endpoints(pinfo, &conv_src, &conv_dst,
-    conversation_pt_to_conversation_type(pinfo->ptype), conv_srcport, conv_destport);
-
-  if (PINFO_FD_VISITED(pinfo) || !(eap_code == EAP_REQUEST && tvb_get_uint8(tvb, 4) == EAP_TYPE_ID)) {
-    conversation = find_or_create_conversation(pinfo);
-  }
-  if (conversation == NULL) {
-    conversation = conversation_new(pinfo->num, &conv_src,
-		      &conv_dst, conversation_pt_to_conversation_type(pinfo->ptype),
-		      conv_srcport, conv_destport, 0);
-  }
+  conversation = find_or_create_conversation(pinfo);
 
   /*
    * Get the state information for the conversation; attach some if
    * we don't find it.
+   *
+   * EAP can also be nested (such as EAP-TEAP or EAP-TTLS/EAP-MSCHAPv2) so
+   * conversations need to be partitioned by curr_layer_num.
    */
-  conversation_state = (conv_state_t *)conversation_get_proto_data(conversation, proto_eap);
+  conversation_state_map = conversation_get_proto_data(conversation, proto_eap);
+  if (conversation_state_map == NULL) {
+    conversation_state_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    conversation_add_proto_data(conversation, proto_eap, conversation_state_map);
+  }
+  conversation_state = wmem_map_lookup(conversation_state_map, GUINT_TO_POINTER(curr_layer_num));
   if (conversation_state == NULL) {
     /*
      * Attach state information to the conversation.
@@ -1913,8 +1892,19 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     conversation_state->leap_state       = -1;
     conversation_state->last_eap_id_req  = -1;
     conversation_state->last_eap_id_resp = -1;
-    conversation_add_proto_data(conversation, proto_eap, conversation_state);
+    wmem_map_insert(conversation_state_map, GUINT_TO_POINTER(curr_layer_num), conversation_state);
   }
+
+  /*
+   * we could use a wmem_map again here but it is a little excessive for
+   * a few flags, so instead we note that curr_layer_num is
+   * uint8_t and the key for proto_data is at least uint32_t (though only
+   * the bottom 24bits are usable due to PROTO_DEPTH_KEY) whilst our
+   * flag space is small so we partition by curr_layer_num
+   */
+  uint32_t p_proto_data_layer = curr_layer_num << 8;
+
+  p_set_proto_depth(pinfo, proto_eap, curr_layer_num + 1);
 
   /*
    * Set this now, so that it gets remembered even if we throw an exception
@@ -1936,29 +1926,28 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     expert_add_info(pinfo, ti_len, &ei_eap_bad_length);
   }
 
+  bool visited = !!p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_VISITED | p_proto_data_layer);
+
   /* Detect message retransmissions. Since the protocol proceeds in lock-step,
    * reordering is not expected. If retransmissions somehow occur, we would have
    * to detect retransmissions via a bitmap. */
   bool is_duplicate_id = false;
-  if (conversation_state) {
-    if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE ||
-        eap_code == EAP_INITIATE || eap_code == EAP_FINISH) {
-      if (!PINFO_FD_VISITED(pinfo)) {
-        int16_t *last_eap_id = eap_code == EAP_REQUEST || eap_code == EAP_INITIATE ?
-          &conversation_state->last_eap_id_req :
-          &conversation_state->last_eap_id_resp;
-        is_duplicate_id = *last_eap_id == eap_identifier;
-        *last_eap_id = eap_identifier;
-        if (is_duplicate_id) {
-          // Use a dummy value to remember that this packet is a duplicate.
-          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_DUPLICATE_ID | tls_group, GINT_TO_POINTER(1));
-        }
-      } else {
-        is_duplicate_id = !!p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_DUPLICATE_ID | tls_group);
-      }
+  if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE ||
+      eap_code == EAP_INITIATE || eap_code == EAP_FINISH) {
+    if (!visited) {
+      int16_t *last_eap_id = eap_code == EAP_REQUEST || eap_code == EAP_INITIATE ?
+        &conversation_state->last_eap_id_req :
+        &conversation_state->last_eap_id_resp;
+      is_duplicate_id = *last_eap_id == eap_identifier;
+      *last_eap_id = eap_identifier;
       if (is_duplicate_id) {
-        expert_add_info(pinfo, ti_id, &ei_eap_retransmission);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_DUPLICATE_ID | p_proto_data_layer, GINT_TO_POINTER(1));
       }
+    } else {
+      is_duplicate_id = !!p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_DUPLICATE_ID | p_proto_data_layer);
+    }
+    if (is_duplicate_id) {
+      expert_add_info(pinfo, ti_id, &ei_eap_retransmission);
     }
   }
 
@@ -1988,7 +1977,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         if (size > 0) {
           dissect_eap_identity(tvb, pinfo, eap_tree, offset, size);
         }
-        if (conversation_state && !PINFO_FD_VISITED(pinfo)) {
+        if (!visited) {
           conversation_state->leap_state  =  0;
           conversation_state->eap_tls_seq = -1;
         }
@@ -2052,12 +2041,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         int      eap_tls_seq      = -1;
         uint32_t eap_reass_cookie =  0;
         bool needs_reassembly =  false;
-
-        if (!conversation_state) {
-          // XXX expert info? There cannot be another EAP-TTLS message within
-          // the EAP-Message inside EAP-TTLS.
-          break;
-        }
 
         /* Flags field, 1 byte */
         ti = proto_tree_add_item(eap_tree, hf_eap_tls_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2164,12 +2147,12 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             first pass through the capture.
           */
           /* See if we have a remembered defragmentation EAP ID. */
-          packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | tls_group);
+          packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | p_proto_data_layer);
           if (packet_state == NULL) {
             /*
              * We haven't - does this message require reassembly?
              */
-            if (!pinfo->fd->visited) {
+            if (!visited) {
               /*
                * This is the first time we've looked at this frame,
                * so it wouldn't have any remembered information.
@@ -2234,7 +2217,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 packet_state->info = eap_reass_cookie;
                 packet_state->eap_tls_len = eap_tls_len;
                 packet_state->outer_tlvs_length = outer_tlvs_length;
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | tls_group, packet_state);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | p_proto_data_layer, packet_state);
               }
             }
           } else {
@@ -2314,7 +2297,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                  * We're finished reassembling this frame.
                  * Reinitialize the reassembly state.
                  */
-                if (!pinfo->fd->visited)
+                if (!visited)
                   conversation_state->eap_tls_seq = -1;
               } else {
                 ti = proto_tree_add_uint(eap_tree, hf_eap_tls_reassembled_in, tvb,
@@ -2335,7 +2318,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 tls_set_appdata_dissector(tls_handle, pinfo, diameter_avps_handle);
                 break;
               case EAP_TYPE_PEAP:
-                p_add_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB | tls_group, tvb);
+                p_add_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB | p_proto_data_layer, tvb);
                 tls_set_appdata_dissector(tls_handle, pinfo, peap_handle);
                 break;
               case EAP_TYPE_TEAP:
@@ -2389,15 +2372,11 @@ skip_tls_dissector:
         /* Data    (byte*Count) */
         /* This part is state-dependent. */
 
-        if (!conversation_state) {
-          // XXX expert info? LEAP is not expected within the EAP-Message within EAP-TTLS.
-          break;
-        }
         /* XXX - are duplicates possible (is_duplicate_id)?
          * If so, should we stop here to avoid modifying conversation_state? */
 
         /* See if we've already remembered the state. */
-        packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | tls_group);
+        packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | p_proto_data_layer);
         if (packet_state == NULL) {
           /*
            * We haven't - compute the state based on the current
@@ -2418,7 +2397,7 @@ skip_tls_dissector:
            */
           packet_state = wmem_new(wmem_file_scope(), frame_state_t);
           packet_state->info = leap_state;
-          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | tls_group, packet_state);
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | p_proto_data_layer, packet_state);
 
           /*
            * Update the conversation's state.
@@ -2590,6 +2569,11 @@ skip_tls_dissector:
     }
 
   } /* switch (eap_code) */
+
+  if (!visited)
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_VISITED | p_proto_data_layer, GINT_TO_POINTER(1));
+
+  p_set_proto_depth(pinfo, proto_eap, curr_layer_num);
 
   return tvb_captured_length(tvb);
 }
