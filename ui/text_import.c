@@ -82,6 +82,7 @@
 #include <string.h>
 #include <wsutil/file_util.h>
 #include <wsutil/buffer.h>
+#include <wsutil/strtoi.h>
 #include <ws_exit_codes.h>
 
 #include <time.h>
@@ -1144,9 +1145,14 @@ void parse_time(const unsigned char* start_field, const unsigned char* end_field
 }
 
 void parse_seqno(const unsigned char* start_field, const unsigned char* end_field) {
-    char* buf = (char*) g_alloca(end_field - start_field + 1);
-    (void) g_strlcpy(buf, start_field, end_field - start_field + 1);
-    seqno = g_ascii_strtoull(buf, NULL, 10);
+    /* Note the start and end are from g_match_info_fetch_named_pos(); the end
+     * position is the byte after the final byte of the match, so no adding 1.
+     */
+    if (!ws_buftou64(start_field, end_field - start_field, NULL, &seqno)) {
+        const char* errstr = g_strerror(errno);
+        report_warning("seqno parsing failed (%s)", errstr);
+        ws_warning("seqno parsing failed for input packet %d (%s).", info_p->num_packets_read, errstr);
+    }
 }
 
 void flush_packet(void) {
