@@ -412,6 +412,35 @@ load_cap_file(capture_file *cf, int max_packet_count, int64_t max_byte_count)
     return err;
 }
 
+void
+cf_close(capture_file *cf)
+{
+    if (cf->state == FILE_CLOSED || cf->state == FILE_READ_PENDING)
+        return; /* Nothing to do */
+
+    if (cf->provider.wth) {
+        wtap_close(cf->provider.wth);
+        cf->provider.wth = NULL;
+    }
+
+    /* We have no file open... */
+    if (cf->filename != NULL) {
+        /* If it's a temporary file, remove it. */
+        if (cf->is_tempfile)
+            ws_unlink(cf->filename);
+        g_free(cf->filename);
+        cf->filename = NULL;
+    }
+
+    if (cf->provider.frames != NULL) {
+        free_frame_data_sequence(cf->provider.frames);
+        cf->provider.frames = NULL;
+    }
+
+    /* We have no file open. */
+    cf->state = FILE_CLOSED;
+}
+
 cf_status_t
 cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile, int *err)
 {
@@ -422,7 +451,9 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile
     if (wth == NULL)
         goto fail;
 
-    /* The open succeeded.  Fill in the information for this file. */
+    /* The open succeeded.  Close whatever capture file we had open,
+       and fill in the information for this file. */
+    cf_close(cf);
 
     cf->provider.wth = wth;
     cf->f_datalen = 0; /* not used, but set it anyway */
