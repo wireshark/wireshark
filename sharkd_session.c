@@ -454,7 +454,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
         {"load",       "max_packets",    2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
         {"load",       "max_bytes",      2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
         {"setcomment", "frame",          2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
-        {"setcomment", "comment",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"setcomment", "comment",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
         {"setconf",    "name",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
         {"setconf",    "value",          2, JSMN_UNDEFINED,    SHARKD_JSON_ANY,      SHARKD_MANDATORY},
         {"tap",        "tap0",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
@@ -1176,7 +1176,7 @@ static void sharkd_session_print_field(header_field_info* current_header_field_i
     {
         sharkd_json_object_open(NULL);
     }
-    
+
     sharkd_json_value_stringf("id", "%i", current_header_field_info->id);
     sharkd_json_value_stringf("parent_id", "%i", current_header_field_info->parent);
     sharkd_json_value_string("name", current_header_field_info->abbrev);
@@ -5329,7 +5329,7 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
  *
  * Input:
  *   (m) frame - frame number
- *   (o) comment - user comment
+ *   (m) comment - user comment
  *
  * Output object with attributes:
  *   (m) err   - error code: 0 succeed
