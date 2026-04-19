@@ -88,6 +88,76 @@ WS_DLL_PUBLIC bool ws_basestrtou16(const char* str, const char** endptr, uint16_
 WS_DLL_PUBLIC bool ws_basestrtou8 (const char* str, const char** endptr, uint8_t*  cint, int base);
 WS_DLL_PUBLIC bool ws_basestrtou (const char* str, const char** endptr, unsigned*  cint, int base);
 
+/*
+ * @brief Convert a counted string (not necessarily null terminated, of the
+ * given length) in the specified base to an unsigned 64-bit integer, with
+ * error checks.
+ *
+ * @param buf The string buffer to convert
+ * @param len The length of the string
+ * @param endptr A pointer that will store a pointer to the first invalid
+ * character in str, allowing a number to be parsed even if there is trailing
+ * whitespace. If NULL, then the string is assumed to contain only valid
+ * characters (or it will error out).
+ * @param cint The converted integer
+ * @param base The base for the integer; 0 means "if it begins with 0x,
+ * it's hex, otherwise if it begins with 0, it's octal, otherwise it's
+ * decimal".
+ * @return true if the conversion succeeds, false otherwise.
+ * On error, errno is set to EINVAL for unrecognized input and ERANGE
+ * if the resulting number does not fit in the type.
+ *
+ * @note This is useful when a string representation of an integer is not
+ * null-terminated and also cannot be modified to insert a NULL (e.g.,
+ * a const uint8_t* from packet data), avoiding having to copy the string.
+ * This does not allow a sign, neither '+' nor '-', prefixing the string,
+ * unlike strtoull and g_ascii_strtoull. (The latter allow a negative sign
+ * and cast to unsigned in the normal way.)
+ */
+WS_DLL_PUBLIC bool ws_basebuftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uint64_t* cint, int base);
+
+/*
+ * @brief Convert a counted decimal string (not necessarily null terminated,
+ * of the given length) to an unsigned 64-bit integer, with error checks.
+ *
+ * @param buf The string buffer to convert
+ * @param len The length of the string
+ * @param endptr A pointer that will store a pointer to the first invalid
+ * character in str, allowing a number to be parsed even if there is trailing
+ * whitespace. If NULL, then the string is assumed to contain only valid
+ * characters (or it will error out).
+ * @param cint The converted integer
+ * @return true if the conversion succeeds, false otherwise.
+ * On error, errno is set to EINVAL for unrecognized input and ERANGE
+ * if the resulting number does not fit in the type.
+ *
+ * @note This does not allow a sign, neither '+' nor '-', prefixing the string,
+ * unlike strtoull and g_ascii_strtoull. (The latter allow a negative sign
+ * and cast to unsigned in the normal way.)
+ */
+WS_DLL_PUBLIC bool ws_buftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uint64_t* cint);
+
+/*
+ * @brief Convert a counted hexadecimal string (not necessarily null terminated,
+ * of the given length) to an unsigned 64-bit integer, with error checks.
+ *
+ * @param buf The string buffer to convert
+ * @param len The length of the string
+ * @param endptr A pointer that will store a pointer to the first invalid
+ * character in str, allowing a number to be parsed even if there is trailing
+ * whitespace. If NULL, then the string is assumed to contain only valid
+ * characters (or it will error out).
+ * @param cint The converted integer
+ * @return true if the conversion succeeds, false otherwise.
+ * On error, errno is set to EINVAL for unrecognized input and ERANGE
+ * if the resulting number does not fit in the type.
+ *
+ * @note This does not allow a sign, neither '+' nor '-', prefixing the string,
+ * unlike strtoull and g_ascii_strtoull. (The latter allow a negative sign
+ * and cast to unsigned in the normal way.)
+ */
+WS_DLL_PUBLIC bool ws_hexbuftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uint64_t* cint);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

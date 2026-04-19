@@ -124,6 +124,17 @@ extern "C" {
   #define WS_WARN_UNUSED
 #endif
 
+#if __has_attribute(nonstring)
+  #define WS_NONSTRING __attribute__((nonstring))
+#elif defined(_MSC_VER)
+  /*
+   * MSVC.
+   */
+  #define WS_NONSTRING __pragma(warning(suppress:4295))
+#else
+  #define WS_NONSTRING
+#endif
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
