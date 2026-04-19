@@ -6387,7 +6387,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>LearnCardWidget</name>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished">&lt;h2&gt;学习&lt;/h2&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Learn</source>
@@ -13771,10 +13771,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="vanished">&lt;h2&gt;学习&lt;/h2&gt;</translation>
-    </message>
-    <message>
         <source>Show in Finder</source>
         <translation>在 Finder 中显示</translation>
     </message>
@@ -13803,14 +13799,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>
             <numerusform>显示了 %n 个接口，隐藏了 %1 个</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation type="vanished">你正在使用 Wireshark 嗅探互联网的联机</translation>
-    </message>
-    <message>
-        <source>You are running Wireshark </source>
-        <translation type="vanished">正在运行 Wireshark</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>

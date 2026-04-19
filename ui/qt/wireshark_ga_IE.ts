@@ -6468,7 +6468,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <name>LearnCardWidget</name>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished">&lt;h2&gt;Foghlaim&lt;/h2&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Learn</source>
@@ -13933,98 +13933,6 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="vanished">&lt;h2&gt;Foghlaim&lt;/h2&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head&gt;
-&lt;style&gt;
-a:link {
-  color: palette(text);
-  text-decoration: none;
-}
-a:hover {
-  color: palette(text);
-  text-decoration: underline;
-}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table&gt;&lt;tr&gt;
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://gitlab.com/wireshark/wireshark/-/wikis/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://sharkfest.wireshark.org/&quot;&gt;SharkFest&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://discord.com/invite/ts9GZCjGj5&quot;&gt;Wireshark Discord&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://wiresharkfoundation.org/donate/&quot;&gt;Donate&lt;/a&gt;&lt;/th&gt;
-
-&lt;/tr&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head&gt;
-&lt;style&gt;
-a:nasc {
-  dath: pailéad (téacs);
-  maisiú téacs: aon cheann;
-}
-a:hover {
-  dath: pailéad (téacs);
-  maisiú téacs: béim;
-}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table&gt;&lt;tr&gt;
-&lt;th&gt;&lt;a href =&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;Treoir úsáideora&lt;/a&gt;&lt;/th&gt;
-
-&lt; stíl td = &quot;stuáil-chlé: 8px; stuáil-ceart: 8px;&quot;&gt; ·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href =&quot;https://gitlab.com/wireshark/wireshark/-/wikis/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
-
-&lt; stíl td = &quot;stuáil-chlé: 8px; stuáil-ceart: 8px;&quot;&gt; ·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Ceisteanna agus Freagraí&lt;/a&gt;&lt;/th&gt;
-
-&lt; stíl td = &quot;stuáil-chlé: 8px; stuáil-ceart: 8px;&quot;&gt; ·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Liostaí Poist&lt;/a&gt;&lt;/th&gt;
-
-&lt; stíl td = &quot;stuáil-chlé: 8px; stuáil-ceart: 8px;&quot;&gt; ·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href =&quot;https://sharkfest.wireshark.org/&quot;&gt;SharkFest&lt;/a&gt;&lt;/th&gt;
-
-&lt; stíl td = &quot;stuáil-chlé: 8px; stuáil-ceart: 8px;&quot;&gt; ·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href =&quot;https://discord.com/invite/ts9GZCjGj5&quot;&gt;Wireshark Discord&lt;/a&gt;&lt;/th&gt;
-
-&lt; stíl td = &quot;stuáil-chlé: 8px; stuáil-ceart: 8px;&quot;&gt; ·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href =&quot;https://wiresharkfoundation.org/donate/&quot;&gt;Deonaigh&lt;/a&gt;&lt;/th&gt;
-
-&lt;/tr&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Show in Finder</source>
         <translation>Taispeáin san Aimsitheoir</translation>
     </message>
@@ -14055,22 +13963,6 @@ a:hover {
             <numerusform>%n comhéadan taispeánta, %1 i bhfolach</numerusform>
             <numerusform>%n comhéadan taispeánta, %1 i bhfolach</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation type="vanished">Tá tú ag sniffing an gliú go seilbh ar an Idirlíon le chéile ag baint úsáide as Wireshark </translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="vanished">Tá tú ag sniffing an gliú go seilbh do chóras le chéile ag baint úsáide as Stratoshark </translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <translation type="vanished">Tá tú ag rith Stratoshark</translation>
-    </message>
-    <message>
-        <source>You are running Wireshark </source>
-        <translation type="vanished">Tá Wireshark á rith agat </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
