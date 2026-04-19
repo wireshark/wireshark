@@ -1187,6 +1187,10 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
         return;
     }
 
+    /* The open succeded, and any previous file was closed. Remove any filter
+     * results that refer to the previous file. */
+    g_hash_table_remove_all(filter_table);
+
     TRY
     {
         err = sharkd_load_cap_file();
@@ -5975,6 +5979,7 @@ sharkd_session_main(int mode_setting)
 
     dumper.output_file = stdout;
 
+    /* XXX - This could be a wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),...) */
     filter_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, sharkd_session_filter_free);
 
 #ifdef HAVE_MAXMINDDB
