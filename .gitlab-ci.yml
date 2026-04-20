@@ -674,14 +674,12 @@ macOS Universal Package:
       -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/libcloudtrail.so;$FALCO_PLUGIN_DIR/libgcpaudit.so;$FALCO_PLUGIN_DIR/libk8saudit.so"
       -DTEST_EXTRA_ARGS=--enable-release
       ..
-    # Temporary hack to fix "Package 'zlib', required by 'libscap', not found"
-    - sed -i .bak '/Requires.*zlib/d' $WIRESHARK_BASE_DIR/macos-universal-4.6/lib/pkgconfig/libscap.pc
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - for exe in $( find run/{Wire,Strato}shark.app/Contents/MacOS -type f ) ; do
         lipo "$exe" -verify_arch arm64 x86_64 ;
       done
-    - codesign-prep
+    - base64 -d < $MACOS_CODESIGN_PREP_B64 | bash
     - security find-identity -v -s "$CODE_SIGN_IDENTITY"
     - ninja wireshark_dmg
     - ninja stratoshark_dmg
