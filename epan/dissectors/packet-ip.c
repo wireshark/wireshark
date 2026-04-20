@@ -2292,6 +2292,12 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
   copy_address_shallow(&iph->ip_dst, &pinfo->net_dst);
 
+  /* XXX - We do not want pinfo->conv_elements, if set, to be used to find the
+   * default conversation after this, or else subdissectors will set the
+   * wrong dissector. This is a bit of a hack, it should be solved more
+   * generally. */
+  pinfo->conv_elements = NULL;
+
   /* If an IP is destined for an IP address in the Local Network Control Block
    * (e.g. 224.0.0.0/24), the packet should never be routed and the TTL would
    * be expected to be 1.  (see RFC 3171)  Flag a TTL greater than 1.
