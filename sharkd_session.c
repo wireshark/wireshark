@@ -4401,6 +4401,47 @@ struct sharkd_frame_request_data
 };
 
 static void
+sharkd_session_process_add_data_source(struct data_source *src, bool add_description)
+{
+    tvbuff_t *tvb;
+    unsigned length;
+
+    if (add_description) {
+        char *src_description = get_data_source_description(src);
+
+        sharkd_json_value_string("name", src_description);
+        wmem_free(NULL, src_description);
+    }
+
+    tvb = get_data_source_tvb(src);
+
+    TRY {
+        length = tvb_captured_length(tvb);
+
+        if (length != 0)
+        {
+            const unsigned char *cp = tvb_get_ptr(tvb, 0, length);
+
+            /* XXX pi.fd->encoding */
+            sharkd_json_value_base64("bytes", cp, length);
+        }
+        else
+        {
+            sharkd_json_value_base64("bytes", (const uint8_t*)"", 0);
+        }
+    } CATCH_BOUNDS_AND_DISSECTOR_ERRORS {
+        /* tvb_captured_length can throw DissectorError. With an
+         * offset of 0 and a length of the captured length, tvb_get_ptr
+         * can throw DissectorError or various bounds errors. We have
+         * to catch it so that the JSON is valid. */
+        sharkd_json_value_base64("bytes", (const uint8_t*)"", 0);
+    } CATCH_ALL {
+        ws_assert_not_reached();
+    }
+    ENDTRY;
+}
+
+static void
 sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct epan_column_info *cinfo, const GSList *data_src, void *data)
 {
     packet_info *pi = &edt->pi;
@@ -4490,23 +4531,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
         struct data_source *src = (struct data_source *) data_src->data;
         bool ds_open = false;
 
-        tvbuff_t *tvb;
-        unsigned length;
-
-        tvb = get_data_source_tvb(src);
-        length = tvb_captured_length(tvb);
-
-        if (length != 0)
-        {
-            const unsigned char *cp = tvb_get_ptr(tvb, 0, length);
-
-            /* XXX pi.fd->encoding */
-            sharkd_json_value_base64("bytes", cp, length);
-        }
-        else
-        {
-            sharkd_json_value_base64("bytes", "", 0);
-        }
+        sharkd_session_process_add_data_source(src, ds_open);
 
         data_src = data_src->next;
         if (data_src)
@@ -4521,27 +4546,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
             json_dumper_begin_object(&dumper);
 
-            {
-                char *src_description = get_data_source_description(src);
-
-                sharkd_json_value_string("name", src_description);
-                wmem_free(NULL, src_description);
-            }
-
-            tvb = get_data_source_tvb(src);
-            length = tvb_captured_length(tvb);
-
-            if (length != 0)
-            {
-                const unsigned char *cp = tvb_get_ptr(tvb, 0, length);
-
-                /* XXX pi.fd->encoding */
-                sharkd_json_value_base64("bytes", cp, length);
-            }
-            else
-            {
-                sharkd_json_value_base64("bytes", "", 0);
-            }
+            sharkd_session_process_add_data_source(src, ds_open);
 
             json_dumper_end_object(&dumper);
 
