@@ -1113,7 +1113,7 @@ http2_fake_headers_update_cb(void* r, char** err)
     }
 
     g_strstrip(rec->header_value);
-    if (rec->header_name[0] == 0) {
+    if (rec->header_value[0] == 0) {
         *err = g_strdup("Header value can't be empty");
         return false;
     }
