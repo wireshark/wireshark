@@ -636,19 +636,23 @@ Windows Arm64 Package:
     expire_in: 3 days
 
 macOS Universal Package:
+  extends: .build-macos
   stage: build
   rules: !reference [.if-w-w-only-merged]
   variables:
     CODE_SIGN_IDENTITY: "Wireshark Foundation"
-    WIRESHARK_BASE_DIR: "$CI_PROJECT_DIR/../wireshark-third-party"
-    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/macos-universal-4.6/lib/falco/plugins"
   tags:
     - wireshark-macos-universal-package
   environment:
     name: macos-package
   retry: 1
   before_script:
-    - export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH:$HOME/bin"
+    - brew --version
+    - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
+    - brew install ccache cmake ninja python
+    # - ./tools/macos-setup-brew.sh --install-optional --install-test-deps
+    - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
+    - export PATH="/opt/homebrew/bin:$PATH:$HOME/bin"
     - python3 -m venv --clear $CI_PROJECT_DIR/.venv
     - source $CI_PROJECT_DIR/.venv/bin/activate
     - pip3 install dmgbuild pyobjc-framework-Quartz pytest pytest-xdist
