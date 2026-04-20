@@ -4518,7 +4518,7 @@ dissect_tds45_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_con
 static void
 dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
 {
-    unsigned offset, i, j, k, offset2, len, login_hf = 0;
+    unsigned offset, i, j, offset2, len, login_hf = 0;
     proto_tree *login_tree;
     proto_tree *header_tree;
     proto_tree *length_tree;
@@ -4638,7 +4638,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
                 val  = tvb_memdup(pinfo->pool, tvb, offset2, len);
                 val2 = wmem_strbuf_new_sized(pinfo->pool, len/2+1);
 
-                for(j = 0, k = 0; j < len; j += 2, k++) {
+                for(j = 0; j < len; j += 2) {
                     val[j] ^= 0xA5;
 
                     /* Swap the most and least significant bits */

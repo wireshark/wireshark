@@ -3888,10 +3888,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         /* Base 32 Encoding with Extended Hex Alphabet (see RFC 4648 section 7) */
         const char    *base32hex = "0123456789abcdefghijklmnopqrstuv";
         wmem_strbuf_t *hash_value_base32hex = wmem_strbuf_new(pinfo->pool, "");
-        int            group, in_offset, out_offset;
-        for (in_offset = 0, out_offset = 0;
-            in_offset / 8 < hash_len;
-            in_offset += 5, out_offset += 1) {
+        unsigned       group, in_offset;
+        for (in_offset = 0; in_offset / 8 < hash_len; in_offset += 5) {
           group = tvb_get_bits8(tvb, cur_offset * 8 + in_offset, 5);
           wmem_strbuf_append_c(hash_value_base32hex, base32hex[group]);
         }
