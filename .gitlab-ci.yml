@@ -272,10 +272,6 @@ workflow:
     - ninja
     - ninja test-programs
     - pytest --disable-capture --junitxml=../macos_tests.xml
-  after_script:
-    # The cache should be large enough to be useful but it shouldn't take
-    # too long to restore+save each run.
-    - ccache --max-size $( gdu --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
   needs: []
 
 .build-mingw:
@@ -649,7 +645,7 @@ macOS Universal Package:
   before_script:
     - brew --version
     - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
-    - brew install ccache cmake ninja python
+    - brew install awscli ccache cmake ninja python
     # - ./tools/macos-setup-brew.sh --install-optional --install-test-deps
     - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
     - export PATH="/opt/homebrew/bin:$PATH:$HOME/bin"
@@ -980,6 +976,10 @@ Windows Build:
 macOS Build:
   extends: .build-macos
   rules: !reference [.if-w-w-only-merge-request]
+  after_script:
+    # The cache should be large enough to be useful but it shouldn't take
+    # too long to restore+save each run.
+    - ccache --max-size $( gdu --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
   artifacts:
     when: always
     reports:
