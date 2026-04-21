@@ -729,7 +729,7 @@ get_hf_for_header(char* attribute_type)
 {
   int* hf_id = NULL;
 
-  if (attribute_types_hash) {
+  if (attribute_types_hash && attribute_type) {
     hf_id = (int*) g_hash_table_lookup(attribute_types_hash, attribute_type);
   } else {
     hf_id = NULL;
