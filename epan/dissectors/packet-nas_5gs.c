@@ -8706,7 +8706,7 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* 4C    Alternative NSSAI    Alternative NSSAI 9.11.3.97    O    TLV    2-146 */
     ELEM_OPT_TLV(0x4C, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_ALT_NSSAI, NULL);
     /* 7B    S-NSSAI location validity information    S-NSSAI location validity information 9.11.3.100    O    TLV-E    17-38611 */
-    ELEM_OPT_TLV_E(0x7B, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_ALT_NSSAI, NULL);
+    ELEM_OPT_TLV_E(0x7B, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_S_NSSAI_LOC_VALID_INFO, NULL);
     /* 5B    S-NSSAI time validity information    S-NSSAI time validity information 9.11.3.101    O    TLV    23-257 */
     ELEM_OPT_TLV(0x5B, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_S_NSSAI_TIME_VALID_INFO, NULL);
     /* 4F    Maximum time offset    GPRS timer 3 9.11.2.5    O    TLV    3 */
