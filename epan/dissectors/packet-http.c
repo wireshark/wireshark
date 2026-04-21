@@ -3297,7 +3297,7 @@ get_hf_for_header(char* header_name)
 {
 	int* hf_id = NULL;
 
-	if (header_fields_hash) {
+	if (header_fields_hash && header_name) {
 		hf_id = (int*) g_hash_table_lookup(header_fields_hash, header_name);
 	} else {
 		hf_id = NULL;
