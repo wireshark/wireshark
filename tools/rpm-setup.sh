@@ -351,8 +351,10 @@ echo "Optional package sbc-devel is unavailable"
 add_package ADDITIONAL_LIST libsmi-devel ||
 echo "Optional package libsmi-devel is unavailable"
 
-add_package ADDITIONAL_LIST opencore-amr-devel ||
-echo "Optional package opencore-amr-devel is unavailable" >&2
+# opencore-amr-devel: RHEL/CentOS, Fedora
+# libopencore-amr-devel: OpenSUSE
+add_package ADDITIONAL_LIST opencore-amr-devel || add_package ADDITIONAL_LIST libopencore-amr-devel ||
+echo "Optional package opencore-amr-devel|libopencore-amr-devel is unavailable" >&2
 
 ACTUAL_LIST=$BASIC_LIST
 
