@@ -642,7 +642,7 @@ macOS Universal Package:
   variables:
     CODE_SIGN_IDENTITY: "Wireshark Foundation"
   tags:
-    - wireshark-macos-universal-package
+    - wireshark-macos-universal-package-4.6
   environment:
     name: macos-package
   retry: 1
