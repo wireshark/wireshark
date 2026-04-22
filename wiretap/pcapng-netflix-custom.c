@@ -118,7 +118,6 @@ pcapng_read_nflx_custom_block(FILE_T fh, section_info_t *section_info,
             }
             opt_cont_buf_len = wblock->rec->rec_header.custom_block_header.length - MIN_NFLX_CB_SIZE - sizeof(uint32_t);
             wblock->rec->presence_flags = 0;
-            wblock->rec->rec_header.custom_block_header.length = 4;
             mandatory_data->skipped = GUINT32_FROM_LE(skipped);
             wblock->internal = false;
             ws_debug("skipped: %u", mandatory_data->skipped);
@@ -129,6 +128,12 @@ pcapng_read_nflx_custom_block(FILE_T fh, section_info_t *section_info,
             *err_info = g_strdup_printf("pcapng Netflix BBLog block: unknown type %u", type);
             return false;
     }
+
+    /* This is used to set cap_len and pkt_len in the frame_data struct.
+     * The former especially should match ws_buffer_length(&wblock->rec->data).
+     * The only data written to the buffer, and that the BBLog dissector expects,
+     * is the NFLX_OPT_TYPE_TCPINFO.  */
+    wblock->rec->rec_header.custom_block_header.length = 0;
 
     /*
      * Options.
@@ -169,6 +174,8 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
     value += 4;
     length -= 4;
     ws_debug("Handling type = %u, payload of length = %u", type, length);
+    /* XXX - Can any of these options occur more than once? If not, should
+     * there be an error or warning if they do? */
     switch (type) {
     case NFLX_OPT_TYPE_VERSION:
         if (length == sizeof(uint32_t)) {
@@ -189,7 +196,7 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
              * value to the data of the block, and use times from
              * the option to set the time stamp.
              */
-            wblock->rec->rec_header.custom_block_header.length = length + 4;
+            wblock->rec->rec_header.custom_block_header.length += length;
             ws_buffer_append(&wblock->rec->data, value, length);
             memcpy(&temp, value, sizeof(uint64_t));
             temp = GUINT64_FROM_LE(temp);
