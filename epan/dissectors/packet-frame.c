@@ -956,32 +956,32 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
 		if (do_frame_dissection) {
-			/* Check for existences of P2P pseudo header */
+			/* Check for existence of P2P pseudo header */
 			if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
 				proto_tree_add_int(fh_tree, hf_frame_p2p_dir, tvb,
 						   0, 0, pinfo->p2p_dir);
 			}
 
-			/* Check for existences of MTP2 link number */
+			/* Check for existence of MTP2 link number */
 			if ((pinfo->pseudo_header != NULL) &&
 			    (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_MTP2_WITH_PHDR)) {
 				proto_tree_add_uint(fh_tree, hf_frame_link_number, tvb,
 						    0, 0, pinfo->link_number);
 			}
 		}
-
-		/*
-		 * Process custom options.
-		 */
-		struct custom_binary_opt_cb_data cb_data;
-
-		cb_data.pinfo = pinfo;
-		cb_data.tvb = tvb;
-		cb_data.tree = fh_tree;
-		cb_data.data.optval = NULL;
-		wtap_block_foreach_option(fr_data->pkt_block,
-		    handle_packet_option, &cb_data);
 	}
+
+	/*
+	 * Process custom options.
+	 */
+	struct custom_binary_opt_cb_data cb_data;
+
+	cb_data.pinfo = pinfo;
+	cb_data.tvb = tvb;
+	cb_data.tree = fh_tree;
+	cb_data.data.optval = NULL;
+	wtap_block_foreach_option(fr_data->pkt_block,
+	    handle_packet_option, &cb_data);
 
 	/* If there is Darwin data, call the dissector */
 	if (p_get_proto_data(wmem_file_scope(), pinfo, proto_darwin, 0) != NULL) {
