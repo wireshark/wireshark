@@ -143,6 +143,8 @@ ws_buffer_increase_length(Buffer* buffer, size_t bytes)
 {
 	ws_assert(buffer);
 	buffer->first_free += bytes;
+	/* Did the caller remember to call ws_buffer_assure_space first? */
+	ws_assert(buffer->first_free <= buffer->allocated);
 }
 
 size_t
