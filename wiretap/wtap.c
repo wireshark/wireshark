@@ -27,6 +27,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/exported_pdu_tlvs.h>
 #include <wsutil/pint.h>
+#include <wsutil/please_report_bug.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
@@ -1875,6 +1876,49 @@ wtap_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *offset)
 		 */
 		ws_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
 		ws_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_NONE);
+	}
+
+	size_t cap_len;
+	switch (rec->rec_type) {
+
+	case REC_TYPE_PACKET:
+		cap_len = rec->rec_header.packet_header.caplen;
+		break;
+	case REC_TYPE_FT_SPECIFIC_EVENT:
+	case REC_TYPE_FT_SPECIFIC_REPORT:
+		cap_len = rec->rec_header.ft_specific_header.record_len;
+		break;
+	case REC_TYPE_SYSCALL:
+		cap_len = rec->rec_header.syscall_header.event_data_len;
+		break;
+	case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
+		cap_len = rec->rec_header.systemd_journal_export_header.record_len;
+		break;
+	case REC_TYPE_CUSTOM_BLOCK:
+		cap_len = rec->rec_header.custom_block_header.length;
+		break;
+	default:
+		cap_len = 0;
+	}
+
+	if (cap_len > ws_buffer_length(&rec->data)) {
+		/* XXX - fdata->cap_len *should* match ws_buffer_length(&rec->data),
+		 * if the record was set up correctly. Why not just use that? Some
+		 * wiretap modules, including some of the main distribution until
+		 * recently, assure Buffer space and write to it directly, but fail
+		 * to update the length afterwards. */
+		ws_critical("Length of record buffer (%zu) less than claimed captured length (%zu)!\n%s\n"
+			    "This may be from a third-party libwiretap plugin instead.\n"
+			    "In such case, please report it to the plugin developers.",
+			    ws_buffer_length(&rec->data), cap_len, please_report_bug());
+		/* XXX - If the caller copied the data manually but forgot to
+		 * call ws_buffer_increase_length, and there's room at the start,
+		 * i.e., ws_buffer_remove_start was called (why?), this messes up
+		 * dissection. (Too bad, you lose, the module needs to be fixed.)
+		 * Otherwise, this possibly allocates extra data but it's better
+		 * than a buffer overflow. Note this doesn't zero newly allocated
+		 * space. */
+		ws_buffer_assure_space((Buffer *)&rec->data, cap_len - ws_buffer_length(&rec->data));
 	}
 
 	return true;	/* success */
