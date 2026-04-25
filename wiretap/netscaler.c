@@ -1168,8 +1168,7 @@ static bool nstrace_set_start_time(wtap *wth, int file_version, int *err,
             *err_info = g_strdup("nstrace: record crosses page boundary");\
             return false;\
         }\
-        ws_buffer_assure_space(&(rec)->data, (rec)->rec_header.packet_header.caplen);\
-        memcpy(ws_buffer_start_ptr(&(rec)->data), type, (rec)->rec_header.packet_header.caplen);\
+        ws_buffer_append(&(rec)->data, (uint8_t*)(type), (rec)->rec_header.packet_header.caplen);\
         *data_offset = nstrace->current_page_file_offset + nstrace_buf_offset;\
         nstrace->nstrace_buf_offset = nstrace_buf_offset + (rec)->rec_header.packet_header.caplen;\
         nstrace->nstrace_buflen = nstrace_buflen;\
@@ -1355,8 +1354,7 @@ static bool nstrace_read_v10(wtap *wth, wtap_rec *rec,
             *err_info = g_strdup("nstrace: record crosses page boundary");\
             return false;\
         }\
-        ws_buffer_assure_space(&(rec)->data, (rec)->rec_header.packet_header.caplen);\
-        memcpy(ws_buffer_start_ptr(&(rec)->data), fp, (rec)->rec_header.packet_header.caplen);\
+        ws_buffer_append(&(rec)->data, (uint8_t*)(fp), (rec)->rec_header.packet_header.caplen);\
         *data_offset = nstrace->current_page_file_offset + nstrace_buf_offset;\
         nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
         nstrace->nstrace_buflen = nstrace_buflen;\
@@ -1558,7 +1556,6 @@ static bool nstrace_read_v20(wtap *wth, wtap_rec *rec,
             g_free(nstrace_tmpbuff);\
             return false;\
         }\
-        ws_buffer_assure_space(&(rec)->data, (rec)->rec_header.packet_header.caplen);\
         *data_offset = nstrace->current_page_file_offset + nstrace_buf_offset;\
         /* Copy record header */\
         while (nstrace_tmpbuff_off < nspr_##structname##_s) {\
@@ -1599,7 +1596,7 @@ static bool nstrace_read_v20(wtap *wth, wtap_rec *rec,
         while (nstrace_tmpbuff_off < nst_dataSize) {\
             nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
         }\
-        memcpy(ws_buffer_start_ptr(&(rec)->data), nstrace_tmpbuff, (rec)->rec_header.packet_header.caplen);\
+        ws_buffer_append(&(rec)->data, nstrace_tmpbuff, (rec)->rec_header.packet_header.caplen);\
         nstrace->nstrace_buf_offset = nstrace_buf_offset;\
         nstrace->nstrace_buflen = nstrace_buflen;\
         nstrace->nsg_creltime = nsg_creltime;\
@@ -1779,15 +1776,14 @@ static bool nstrace_seek_read_v10(wtap *wth, int64_t seek_off,
     /*
     ** Copy the header to the buffer and read the rest of the record..
     */
-    ws_buffer_assure_space(&rec->data, record_length);
-    pd = ws_buffer_start_ptr(&rec->data);
-    memcpy(pd, (void *)&hdr, sizeof hdr);
+    ws_buffer_append(&rec->data, (uint8_t*)&hdr, sizeof hdr);
     if (record_length > sizeof hdr) {
         bytes_to_read = (unsigned int)(record_length - sizeof hdr);
-        if (!wtap_read_bytes(wth->random_fh, pd + sizeof hdr, bytes_to_read,
+        if (!wtap_read_bytes_buffer(wth->random_fh, &rec->data, bytes_to_read,
                              err, err_info))
             return false;
     }
+    pd = ws_buffer_start_ptr(&rec->data);
 
     /*
     ** Fill in what part of the struct wtap_rec we can.
@@ -1887,15 +1883,14 @@ static bool nstrace_seek_read_v20(wtap *wth, int64_t seek_off,
     /*
     ** Copy the header to the buffer and read the rest of the record..
     */
-    ws_buffer_assure_space(&rec->data, record_length);
-    pd = ws_buffer_start_ptr(&rec->data);
-    memcpy(pd, (void *)&hdr, hdrlen);
+    ws_buffer_append(&rec->data, (uint8_t*)&hdr, hdrlen);
     if (record_length > hdrlen) {
         bytes_to_read = (unsigned int)(record_length - hdrlen);
-        if (!wtap_read_bytes(wth->random_fh, pd + hdrlen, bytes_to_read,
+        if (!wtap_read_bytes_buffer(wth->random_fh, &rec->data, bytes_to_read,
                              err, err_info))
             return false;
     }
+    pd = ws_buffer_start_ptr(&rec->data);
 
 #define GENERATE_CASE_FULL(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
@@ -2014,17 +2009,16 @@ static bool nstrace_seek_read_v30(wtap *wth, int64_t seek_off,
     /*
     ** Copy the header to the buffer and read the rest of the record..
     */
-    ws_buffer_assure_space(&rec->data, record_length);
-    pd = ws_buffer_start_ptr(&rec->data);
-    memcpy(pd, (void *)&hdr, hdrlen);
+    ws_buffer_append(&rec->data, (uint8_t*)&hdr, hdrlen);
     if (record_length > hdrlen) {
         bytes_to_read = (unsigned int)(record_length - hdrlen);
-        if (!wtap_read_bytes(wth->random_fh, pd + hdrlen, bytes_to_read,
+        if (!wtap_read_bytes_buffer(wth->random_fh, &rec->data, bytes_to_read,
                              err, err_info))
             return false;
     }
 
     (rec)->rec_header.packet_header.caplen = (rec)->rec_header.packet_header.len = record_length;
+    pd = ws_buffer_start_ptr(&rec->data);
 
 #define GENERATE_CASE_V30(rec,ver,HEADERVER) \
     case NSPR_PDPKTRACEFULLTX_V##ver:\
