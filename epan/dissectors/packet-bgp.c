@@ -7553,7 +7553,8 @@ static int decode_bgp_mup_nlri_type1_st_route(proto_tree *tree, tvbuff_t *tvb, i
             +-----------------------------------+
         */
         endpoint_address_length = tvb_get_uint8(tvb, reader_offset+5); // should be multiple of 8
-        arch_spec_byte = 7 + endpoint_address_length/8;
+        source_address_length = tvb_get_uint8(tvb, reader_offset + 6 + endpoint_address_length/8); // should be zero or multiple of 8
+        arch_spec_byte = 7 + endpoint_address_length/8 + source_address_length/8;
 
         arch_spec_item = proto_tree_add_item(tree, hf_bgp_mup_nlri_3gpp_5g_type1_st_route, tvb, reader_offset, arch_spec_byte, ENC_NA);
         arch_spec_tree = proto_item_add_subtree(arch_spec_item, ett_bgp_mup_nlri_3gpp_5g_type1_st_route);
@@ -7578,9 +7579,11 @@ static int decode_bgp_mup_nlri_type1_st_route(proto_tree *tree, tvbuff_t *tvb, i
                                    "Invalid length (%u) of Endpoint Address Length", endpoint_address_length);
             return -1;
         }
-        source_address_length = tvb_get_uint8(tvb, reader_offset); // should be zero or multiple of 8
+        proto_tree_add_item(arch_spec_tree, hf_bgp_mup_nlri_3gpp_5g_source_addr_len, tvb, reader_offset, 1, ENC_BIG_ENDIAN);
         reader_offset++;
-        if (source_address_length==32) {
+        if (source_address_length==0) {
+            /* Source Address Length of 0 means the Source Address is not carried within the NLRI. */
+        } else if (source_address_length==32) {
             proto_tree_add_item(arch_spec_tree, hf_bgp_mup_nlri_3gpp_5g_source_ip_addr, tvb, reader_offset, 4, ENC_BIG_ENDIAN);
             reader_offset += 4;
         } else if (source_address_length==128) {
