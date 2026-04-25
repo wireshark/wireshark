@@ -1373,6 +1373,7 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
 
     /* Encap */
     frame_buffer[stub_offset++] = (uint8_t)encap;
+    ws_buffer_increase_length(&rec->data, stub_offset);
 
     if (!is_comment) {
         /***********************************************************/
@@ -1381,13 +1382,12 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
             frame_buffer[stub_offset + n/2] =
                 hex_byte_from_chars(file_externals->linebuff+dollar_offset+n);
         }
+        ws_buffer_increase_length(&rec->data, data_chars/2);
     }
     else {
         /***********************************************************/
         /* Copy packet data into buffer, just copying ascii chars  */
-        for (n=0; n < data_chars; n++) {
-            frame_buffer[stub_offset + n] = file_externals->linebuff[dollar_offset+n];
-        }
+        ws_buffer_append(&rec->data, (uint8_t*)&file_externals->linebuff[dollar_offset], data_chars);
     }
 
     /*****************************************/
@@ -1410,7 +1410,6 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
             /* Other supported types don't need to set anything here... */
             break;
     }
-    ws_buffer_increase_length(&rec->data, file_offset);
 
     return true;
 }
