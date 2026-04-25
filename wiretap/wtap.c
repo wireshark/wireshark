@@ -2211,6 +2211,7 @@ wtap_full_file_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
 			return false;
 		}
 		packet_size += nread;
+		ws_buffer_increase_length(&rec->data, nread);
 		if (packet_size != buffer_size) {
 			/* EOF */
 			break;
