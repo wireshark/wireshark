@@ -889,7 +889,11 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C36,   "Voice Assistant Session Flag" },
     { 0x2C37,   "Voice Assistant Supported Languages" },
     { 0x2C38,   "Voice Assistant Supported Features" },
+    { 0x2C39,   "HID SCI Mode" },
+    { 0x2C3A,   "HID SCI Information" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC37,   "TANlock GmbH" },
+    { 0xFC38,   "SetPoint Medical" },
     { 0xFC39,   "Harman International" },
     { 0xFC3A,   "C.O.B.O. SpA" },
     { 0xFC3B,   "BONX INC." },
@@ -5627,6 +5631,10 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10B0,   "VSC Synapse LLC" },
     { 0x10B1,   "Senops Tracker, LLC" },
     { 0x10B2,   "Shenzhen Xunzong Zhilian Technology Co., Ltd." },
+    { 0x10B3,   "HOSEOTELNET Co., Ltd." },
+    { 0x10B4,   "Solabs Technology (HK) Co., Limited" },
+    { 0x10B5,   "SpartanLync Technologies Corp." },
+    { 0x10B6,   "SHENZHEN CHINA MICRO SEMICON CO.,LIMITED" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6395,7 +6403,11 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c36,   "Bluetooth GATT Attribute Voice Assistant Session Flag (UUID 0x2c36)", "BT GATT Voice Assistant Session Flag (UUID 0x2c36)", "btgatt.uuid0x2c36" },
     { 0x2c37,   "Bluetooth GATT Attribute Voice Assistant Supported Languages (UUID 0x2c37)", "BT GATT Voice Assistant Supported Languages (UUID 0x2c37)", "btgatt.uuid0x2c37" },
     { 0x2c38,   "Bluetooth GATT Attribute Voice Assistant Supported Features (UUID 0x2c38)", "BT GATT Voice Assistant Supported Features (UUID 0x2c38)", "btgatt.uuid0x2c38" },
+    { 0x2c39,   "Bluetooth GATT Attribute HID SCI Mode (UUID 0x2c39)", "BT GATT HID SCI Mode (UUID 0x2c39)", "btgatt.uuid0x2c39" },
+    { 0x2c3a,   "Bluetooth GATT Attribute HID SCI Information (UUID 0x2c3a)", "BT GATT HID SCI Information (UUID 0x2c3a)", "btgatt.uuid0x2c3a" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc37,   "Bluetooth GATT Attribute TANlock GmbH (UUID 0xfc37)", "BT GATT TANlock GmbH (UUID 0xfc37)", "btgatt.uuid0xfc37" },
+    { 0xfc38,   "Bluetooth GATT Attribute SetPoint Medical (UUID 0xfc38)", "BT GATT SetPoint Medical (UUID 0xfc38)", "btgatt.uuid0xfc38" },
     { 0xfc39,   "Bluetooth GATT Attribute Harman International (UUID 0xfc39)", "BT GATT Harman International (UUID 0xfc39)", "btgatt.uuid0xfc39" },
     { 0xfc3a,   "Bluetooth GATT Attribute C.O.B.O. SpA (UUID 0xfc3a)", "BT GATT C.O.B.O. SpA (UUID 0xfc3a)", "btgatt.uuid0xfc3a" },
     { 0xfc3b,   "Bluetooth GATT Attribute BONX INC. (UUID 0xfc3b)", "BT GATT BONX INC. (UUID 0xfc3b)", "btgatt.uuid0xfc3b" },

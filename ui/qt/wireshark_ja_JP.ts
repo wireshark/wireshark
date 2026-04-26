@@ -5299,7 +5299,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>InfoBannerWidget</name>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished"></translation>
+        <translation>TIPSとお知らせ</translation>
     </message>
     <message>
         <source>%1: %2 (%3 of %4)</source>
@@ -13844,7 +13844,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">TIPSとお知らせ</translation>
     </message>
     <message>
         <source>Rotating tips, sponsor acknowledgements, and announcements for Wireshark and Stratoshark conferences.</source>
@@ -13913,7 +13913,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>WelcomePagePreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">フレーム</translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Tips Section</source>
