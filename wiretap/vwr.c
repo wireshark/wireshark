@@ -1827,12 +1827,15 @@ static bool vwr_read_s2_W_rec(wtap *wth, wtap_rec *record,
     phtoleu32(&data_ptr[bytes_written], errors);
     bytes_written += 4;
 
+    /* Update the end of the valid data in the Buffer with what we've written */
+    ws_buffer_increase_length(&record->data, bytes_written);
+
     /* Finally, copy the whole MAC frame to the packet buffer as-is.
      * This does not include the stats header or the PLCP.
      * This also does not include the last 4 bytes, as those don't
      * contain an FCS, they just contain junk.
      */
-    memcpy(&data_ptr[bytes_written], &rec[vwr->MPDU_OFF], actual_octets);
+    ws_buffer_append(&record->data, &rec[vwr->MPDU_OFF], actual_octets);
 
     return true;
 }
@@ -2544,12 +2547,17 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         bytes_written += 4;
         /*** Layer 2-4 Collapsible header Ends ***/
 
+        /* Update the end of the valid data in the Buffer with what we've written */
+        ws_buffer_increase_length(&record->data, bytes_written);
+
         /* Finally, copy the whole MAC frame to the packet buffer as-is.
          * This does not include the stats header or the PLCP.
          * This also does not include the last 4 bytes, as those don't
          * contain an FCS, they just contain junk.
          */
-        memcpy(&data_ptr[bytes_written], &rec[stats_offset+(vwr->MPDU_OFF)], actual_octets);
+        ws_buffer_append(&record->data, &rec[stats_offset+(vwr->MPDU_OFF)], actual_octets);
+    } else {
+        ws_buffer_increase_length(&record->data, bytes_written);
     }
 
     return true;
@@ -2817,12 +2825,15 @@ static bool vwr_read_rec_data_ethernet(wtap *wth, wtap_rec *record,
     phtoleu32(&data_ptr[bytes_written], 0);
     bytes_written += 4;
 
+    /* Update the end of the valid data in the Buffer with what we've written */
+    ws_buffer_increase_length(&record->data, bytes_written);
+
     /*
      * Finally, copy the whole MAC frame to the packet buffer as-is.
      * This also does not include the last 4 bytes, as those don't
      * contain an FCS, they just contain junk.
      */
-    memcpy(&data_ptr[bytes_written], m_ptr, actual_octets);
+    ws_buffer_append(&record->data, m_ptr, actual_octets);
 
     return true;
 }
