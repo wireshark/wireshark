@@ -22,7 +22,7 @@ jobs:
       - name: Build
         run: |
           mkdir build && cd build
-          cmake -G Ninja -DFETCH_lua=Yes ..
+          cmake -G Ninja ..
           ninja
           ninja test
           ninja wireshark_nsis_prep

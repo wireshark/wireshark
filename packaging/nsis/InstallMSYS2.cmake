@@ -65,7 +65,7 @@ if(USE_MSYSTEM)
 		${MINGW_BIN}/libwinpthread-*.dll
 		${MINGW_BIN}/libxml2-*.dll
 		${MINGW_BIN}/libzstd.dll
-		${MINGW_BIN}/lua51.dll
+		${MINGW_BIN}/lua54.dll
 		${MINGW_BIN}/zlib1.dll
 	)
 endif()
