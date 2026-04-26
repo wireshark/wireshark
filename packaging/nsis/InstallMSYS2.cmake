@@ -67,7 +67,7 @@ if(USE_MSYSTEM)
 		${MINGW_BIN}/libxml2-*.dll
 		${MINGW_BIN}/libxxhash.dll
 		${MINGW_BIN}/libzstd.dll
-		${MINGW_BIN}/lua54.dll
+		${MINGW_BIN}/lua5[3-9].dll
 		${MINGW_BIN}/zlib1.dll
 	)
 endif()
