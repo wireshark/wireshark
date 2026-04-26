@@ -16,7 +16,7 @@ jobs:
           update: true
           install: base-devel
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Install dependencies
@@ -30,7 +30,7 @@ jobs:
           ninja wireshark_nsis_prep
           ninja wireshark_nsis
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nsis-installer
           path: build/packaging/nsis/wireshark-*-x64.exe
