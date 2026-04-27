@@ -2069,7 +2069,7 @@ install_libssh() {
         $no_build && echo "Skipping installation" && return
         xzcat libssh-$LIBSSH_VERSION.tar.xz | tar xf -
         cd "libssh-$LIBSSH_VERSION"
-        curl --location --fail https://gitlab.com/wireshark/wireshark-vcpkg-scripts/-/raw/fc459d601b823edf77578d1c58f17edc180c065d/libssh/macos-libssh-werror.patch | patch -p1
+        patch -p1 < "${topdir}/tools/macos-setup-patches/libssh-werror.patch"
         mkdir build
         cd build
         "${DO_CMAKE[@]}" -DWITH_GCRYPT=1 ..
@@ -2587,8 +2587,8 @@ install_falco_libs() {
         tar -xf "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
         mv "libs-$FALCO_LIBS_VERSION" "falco-libs-$FALCO_LIBS_VERSION"
         cd "falco-libs-$FALCO_LIBS_VERSION"
-	patch -p1 < "${topdir}/tools/macos-setup-patches/falco-uthash_h-install.patch"
-	patch -p1 < "${topdir}/tools/macos-setup-patches/falco-include-dirs.patch"
+        patch -p1 < "${topdir}/tools/macos-setup-patches/falco-uthash_h-install.patch"
+        patch -p1 < "${topdir}/tools/macos-setup-patches/falco-include-dirs.patch"
         mkdir build_dir
         cd build_dir
         "${DO_CMAKE[@]}" -DBUILD_SHARED_LIBS=ON -DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF \
