@@ -7,6 +7,7 @@ obj-*/doc/man_pages/mmdbresolve.1
 obj-*/doc/man_pages/randpkt.1
 obj-*/doc/man_pages/rawshark.1
 obj-*/doc/man_pages/reordercap.1
+obj-*/doc/man_pages/sharkd.1
 obj-*/doc/man_pages/text2pcap.1
 obj-*/doc/man_pages/androiddump.1
 obj-*/doc/man_pages/ciscodump.1
