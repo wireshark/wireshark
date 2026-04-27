@@ -79,7 +79,7 @@ XZ_VERSION=5.2.5
 # CMake is required to do the build - and to build some of the
 # dependencies.
 #
-CMAKE_VERSION=${CMAKE_VERSION-3.21.4}
+CMAKE_VERSION=${CMAKE_VERSION-3.31.12}
 
 #
 # Ninja isn't required, as make is provided with Xcode, but it is
@@ -126,7 +126,7 @@ PCRE2_VERSION=10.39
 # "QT_VERSION=5.10.1 ./macos-setup.sh"
 # will build and install with QT 5.10.1.
 #
-QT_VERSION=${QT_VERSION-6.2.4}
+QT_VERSION=${QT_VERSION-6.5.3}
 
 if [ "$QT_VERSION" ]; then
     QT_MAJOR_VERSION="$( expr "$QT_VERSION" : '\([0-9][0-9]*\).*' )"
@@ -142,8 +142,8 @@ fi
 # the optional libraries are required by other optional libraries.
 #
 LIBSMI_VERSION=0.4.8
-GNUTLS_VERSION=3.8.10
-GNUTLS_SHA256=2bea4e154794f3f00180fa2a5c51fe8b005ac7a31cd58bd44cdfa7f36ebc3a9b
+GNUTLS_VERSION=3.8.12
+GNUTLS_SHA256=a7b341421bfd459acf7a374ca4af3b9e06608dcd7bd792b2bf470bea012b8e51
 if [ "$GNUTLS_VERSION" ]; then
     #
     # We'll be building GnuTLS, so we may need some additional libraries.
@@ -1577,8 +1577,18 @@ install_gnutls() {
         $no_build && echo "Skipping installation" && return
         tar -xf gnutls-$GNUTLS_VERSION.tar.xz
         cd gnutls-$GNUTLS_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}" --with-included-unistring --disable-guile
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS -DCRAU_MAYBE_UNUSED=\"__attribute__((__unused__))\"" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
+            ./configure "${CONFIGURE_OPTS[@]}" \
+                --enable-shared --disable-static \
+                --with-included-unistring \
+                --disable-crypto-auditing \
+                --disable-cxx \
+                --disable-doc \
+                --disable-libdane \
+                --disable-manpages \
+                --without-idn \
+                --with-brotli=no \
+                --with-zstd=no
         make "${MAKE_BUILD_OPTS[@]}"
         $DO_MAKE_INSTALL
         cd ..
@@ -2059,6 +2069,7 @@ install_libssh() {
         $no_build && echo "Skipping installation" && return
         xzcat libssh-$LIBSSH_VERSION.tar.xz | tar xf -
         cd "libssh-$LIBSSH_VERSION"
+        curl --location --fail https://gitlab.com/wireshark/wireshark-vcpkg-scripts/-/raw/fc459d601b823edf77578d1c58f17edc180c065d/libssh/macos-libssh-werror.patch | patch -p1
         mkdir build
         cd build
         "${DO_CMAKE[@]}" -DWITH_GCRYPT=1 ..
@@ -2301,6 +2312,8 @@ install_bcg729() {
     if [ "$BCG729_VERSION" -a ! -f bcg729-$BCG729_VERSION-done ] ; then
         echo "Downloading, building, and installing bcg729:"
         [ -f bcg729-$BCG729_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://gitlab.linphone.org/BC/public/bcg729/-/archive/$BCG729_VERSION/bcg729-$BCG729_VERSION.tar.gz
+        # Alternate URL in case gitlab.linphone.org is down.
+        # [ -f bcg729-$BCG729_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://sources.voidlinux.org/bcg729-$BCG729_VERSION/bcg729-$BCG729_VERSION.tar.gz
         $no_build && echo "Skipping installation" && return
         gzcat bcg729-$BCG729_VERSION.tar.gz | tar xf -
         cd bcg729-$BCG729_VERSION
