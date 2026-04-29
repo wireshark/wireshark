@@ -1,0 +1,3198 @@
+commit f4de86aca9
+Author: Roland Knall <rknall@gmail.com>
+Date:   Wed Apr 29 19:02:01 2026 +0000
+
+    slides: Add sponsor slides
+
+    The automatic script failed, so lets do this once manually
+
+    AI-Assisted: no
+
+    (cherry picked from commit a4eff835499dfd5809b9d880795317cf03befcf0)
+
+    Co-authored-by: Roland Knall <rknall@gmail.com>
+
+commit 09b3491a59
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Apr 2 15:33:33 2026 -0700
+
+    Prep for 4.6.5 [skip ci]
+
+commit 48f910a630
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Apr 29 07:56:45 2026 +0000
+
+    RTP-MIDI: point to right octet for quarter frame value
+
+    Fixes #21231
+
+    AI-Assisted: no
+
+    (cherry picked from commit 8f555c58a51956e26b1674e22cfdcd6935109bc1)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 3851b8194d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 27 08:08:13 2026 -0400
+
+    Lua: Make tests pass on Lua 5.5
+
+    The way in which luaL_[un]ref works in order to allow references be
+    reused means that the length operator # does not work in the expected
+    way in Lua 5.4 and 5.5 on arrays that use references instead of
+    consecutive integer keys indexed starting at 1. (Lua arrays are
+    1-indexed by custom, and various functions expect that.)
+
+    There's only an advantage to using luaL_ref if the references are
+    stored, and then used to unreference strict subsets of the table
+    members, which we don't support and have never supported for the
+    field and expert info tables in a wslua Proto. Some of the tests
+    depend on the length operator providing the expected answer. Just
+    use consecutive integer keys for now. (This is what luaL_ref will
+    eventually do, more or less, in a slightly slower manner, if we
+    never remove individual items without clearing the entire table
+    or letting it garbage collect.)
+
+    This fixes the wslua_proto_field test on Lua 5.5
+
+    https://www.lua.org/manual/5.5/manual.html#luaL_ref
+    https://www.lua.org/manual/5.5/manual.html#3.4.7
+    https://www.lua.org/source/5.5/lauxlib.c.html#luaL_ref
+
+    AI-Assisted: no
+
+    (cherry picked from commit 6add14a3f37029a71633dececc0deaf2284a46d2)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit bd86321e68
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 27 07:01:32 2026 -0400
+
+    Lua: Adjust for Lua 5.5 lua_newstate parameter extension
+
+    In Lua 5.5 the lua_newstate function gained a new parameter.
+    Create a conditional compilation to handle the difference.
+
+    Fixes #21060
+
+    AI-Assisted: no
+
+    (cherry picked from commit ec16791d8d68f9045400a0610a5a10b1ea544dfd)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 6ff4ff42d9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Mar 14 14:05:03 2026 -0400
+
+    CMake: Make FindLua work on CMake < 3.25
+
+    The upstream FindLua uses PROPAGATE, which was introduced in
+    CMake 3.25, but we don't need any of its special handling compared
+    to using set.
+
+    https://cmake.org/cmake/help/latest/command/return.html
+
+    Fix #21093
+
+    AI-Assisted: no
+    (cherry picked from commit 102ae9237c6cad049108e0db13a3f4d3f80cc396)
+
+commit 708813e60b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jan 20 09:24:50 2026 -0500
+
+    CMake: Reapply our FindLua changes
+
+    Reapply our changes:
+
+    Get our hints for our library locations on Windows
+    Check the size of lua_Integer
+    (acd72486e8e7697556855e47e76be2db49ed0643)
+    Look for the Lua library with versioned suffixes
+    (59b376dce046eb4f739a70f49c20ac9da9cab794 #19841)
+    Work around a Lua 5.4.5 API botch
+    (1f855f6061f61034bd1cb6da1b96a1c6f5ae52b2)
+
+    We can remove the setting for CMP00012 NEW (as was done upstream) because
+    our cmake_minimum_required is higher than 2.6.4, but other policies were
+    introduced in later CMake than our minimum required.
+
+    We can also remove some other changes that were necessary in order to
+    enforce a maximum so that Lua greater than 5.2 was not used, since we're
+    now targeting 5.3 and later Lua.
+
+    AI-Assisted: no
+    (cherry picked from commit 4a3ff781e244bc9c90e816d799ae5d718e87404e)
+
+commit 827b18329d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jan 20 09:14:32 2026 -0500
+
+    CMake: FindLua update for Lua 5.5 from upstream CMake
+
+    Rebase to the upstream FindLua before reapplying our patches
+
+    AI-Assisted: no
+    (cherry picked from commit 1bf12a13e71a6ec1a79cfc73767d35e815b839dd)
+
+commit f1b260d356
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 26 18:17:46 2026 -0400
+
+    Qt: Fix deprecation from Qt 6.11 (#20965)
+
+    Check `stream->outputState()` for `QAudio::IdleState` instead of
+    checking the error for `QAudio::UnderrunError` as it is deprecated in
+    Qt 6.11. Fixes #20965.
+
+    AI-Assisted: no
+
+    (cherry picked from commit b50a0da9ba17363dad59b35765fcc9aa8d88333c)
+
+    7795e85b Qt: Fix deprecation from Qt 6.11 (#20965)
+    46e8d012 Merge branch wireshark:master into fix2
+    2c112496 Qt: Check Qt version before checking for errors
+
+    Co-authored-by: leonidlednev2 <leonidledn@gmail.com>
+
+commit 7ebd0c42cf
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Nov 27 14:29:36 2025 -0800
+
+    Work around a Lua 5.4.5 API botch.
+
+    Lua 5.4.5 broke the Lua API by adding a second argument to
+    lua_resetthread().
+
+    Fedora, and possibly other Linux distributions, compounded that error by
+    backporting a fix from 5.4.5 that iincluded that API-breaking change,
+    but didn't change LUA_VERSION_RELEASE_NUM, so that checking for
+    LUA_VERSION_RELEASE_NUM == 50404 isn't sufficient to detect the broken
+    version of the API.
+
+    See the thread starting at
+
+    https://lists.wireshark.org/archives/wireshark-dev/202511/msg00031.html
+
+    So we do it the hard way, by checking whether a program that calls the
+    one-argument version compiles.
+
+    (backported from commit 1f855f6061f61034bd1cb6da1b96a1c6f5ae52b2)
+
+    Get rid of some unintended extra comment lines.
+
+    (backported from commit 428ef7c65461a053ec5824a3c34bddfeea3b35c8)
+
+commit b3e2584184
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 26 17:41:47 2026 -0400
+
+    androiddump: Fix a shadowed variable name
+
+    This shows up when compiling with MSYS2, etc.
+
+    (cherry picked from commit e1d130de449b54378820838cd1a86546ee1313b2)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 8f89ef6d2f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 26 14:23:37 2026 -0400
+
+    packaging: MSYS2: Install whatever version of Lua DLL is there
+
+    It might be Lua 5.4, it might be Lua 5.5
+
+    AI-Assisted: no
+
+    (cherry picked from commit d5e913f43d7baf180a89bc25202d88123c20a49f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3a0dff5a51
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Nov 10 14:44:45 2025 -0500
+
+    GitLab CI: Reduce timeout, increase retries on MacOS Build
+
+    Try to workaround GitLab's issue here:
+    https://support.gitlab.com/hc/en-us/articles/20417424085020-GitLab-com-hosted-macOS-runners-stuck-preparing-the-instance
+    by aborting and retrying earlier. These builds don't seem to take as
+    long as the macOS package builds, which have some additional overhead
+    from the packaging, notarizing, etc.
+
+    (backported from commits 373d8521bb71c7e89b57f7336a1cbea3f9501a59
+    db6a5b76d33417aa5bb6ad77876faf4f05f91a8a, &
+    5f0f35ade68087b1c4311bc96b2d09959813db74)
+
+commit 0b86f62eb9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 26 10:54:42 2026 -0400
+
+    VeriWave: Keep Buffer length accurate in other versions
+
+    Keep the Buffer length accurate for VWR files with other header
+    types.
+
+    AI-Assisted: no
+
+    (cherry picked from commit b1a5e9417ddf36a62e554030b6de59b77e532347)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 21e368481d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 26 09:58:35 2026 -0400
+
+    pcapng: fixed format specifier for result of sizeof
+
+    (cherry picked from commit c342f86b484c98cd6fe27cb996900843716721c4)
+
+    Co-authored-by: Omer Shapira <omer_shapira@apple.com>
+
+commit 8868bdd9b6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 26 09:58:19 2026 -0400
+
+    pcapng: fixed UAF when handling pcap block read error
+
+    The issue can happen when the function `pcapng_read_darwin_legacy_block`
+    successfully adds a Darwin PIB block to the `wth->dpibs`, but its
+    caller (`pcapng_read_block`) encounters an unrelated error.
+
+    In this case, the Darwin PIB block will be unreferenced twice:
+    1. By `pcap_open`, upon the failure of `pcapng_read_block`
+    2. By `wtap_block_array_free(wth->dpibs)`, when the wth is closed.
+
+    This fix addresses the issue by incementing the refcount of the Darwin
+    PIB block once it has been added to `wth->dpibs`.
+
+    (cherry picked from commit d35554ab28166d8a2037ed88b3ddd525e3841bfb)
+
+    Co-authored-by: Omer Shapira <omer_shapira@apple.com>
+
+commit 07c51e636c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 26 10:18:03 2026 +0000
+
+    [Automatic update for 2026-04-26]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d55811b046
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 26 08:39:02 2026 -0400
+
+    GitHub: Clear GitHub Actions warnings about Node.js
+
+    Update the version of many GitHub Actions to ones that run on
+    Node.js 24 so GitHub will stop warning about Node.js 20 actions
+    not being supported anymore.
+
+    Switch the MSVC Command Prompt to the currently updated fork,
+    since the original project hasn't seen commits in two or three years.
+
+    AI-Assisted: no
+
+    (cherry picked from commit d43714ee35a91b15ca19f4756c68cb5e84d19229)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3c7d71bf15
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 25 15:58:06 2026 -0400
+
+    netscaler: Keep Buffer length accurate
+
+    Call ws_buffer_append and wtap_read_bytes_buffer.
+
+    AI-Assisted: no
+
+    (cherry picked from commit d3ff88ce96c8d9229c9dd1434bf11696da82607d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3f6e57af3b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 25 12:28:54 2026 -0400
+
+    UDS: Fix infinite loop from invalid addressAndLengthFormatIdentifier
+
+    Table H.1 in ISO 14229-1 clearly indicates that zero is not allowed
+    for these values, and it can cause an infinite loop if ignored.
+
+    Thanks to Jaime Cavero for the PoC.
+
+    Fix #21225
+
+    AI-Assisted: no
+
+    (cherry picked from commit f61f43d21c6df11a21aa64fc2ff8c49a6dd35f30)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3e6de65e05
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 25 13:07:22 2026 -0400
+
+    DCT2000: Fix buffer length in wiretap
+
+    See, for example, the file in #10470
+
+    AI-Assisted: no
+
+    (cherry picked from commit fe58a01310c0dfc566a0b03f3c8c2a2b472bd8ef)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit cc50e0295f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 25 11:52:53 2026 -0400
+
+    catapult_dct2000: Reduce use of static arrays.
+
+    (cherry picked from commit 00a841139e1a8f2708d2c4f7f96c90ebcc0fcc4c)
+
+    61235e95 catapult_dct2000: Reduce use of static arrays.
+
+    Co-authored-by: dariusd0 <darius-gitlab@free-range.com.au>
+
+commit 8059b5538f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 24 21:58:16 2026 -0400
+
+    BGP: Accept zero-length Source Address in MUP Type 1 ST route
+
+    A Source Address Length of 0 means the Source Address is not carried
+    within the NLRI (draft-ietf-bess-mup-safi-00 Section 3.1.3.1).
+
+    Fixes: 85ff46c76b2a ("BGP: fix reader_offset handling for Source Address Length")
+
+    Signed-off-by: Yuya Kusakabe <yuya.kusakabe@gmail.com>
+
+    (cherry picked from commit 5bda590d5598b8a4e0c4ade8dc4cef585db0b619)
+
+    Co-authored-by: Yuya Kusakabe <yuya.kusakabe@gmail.com>
+
+commit 21e0c27b1c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 24 23:08:44 2026 -0400
+
+    wiretap: Increase the buffer length in full file read
+
+    Also increase the buffer length when reading a whole file
+    at once, e.g. the MIME Files wiretap module.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 90bdace9ab3d41c6a7e910f0dedf5a5b8f00952a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6d1d8c0daf
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 23 19:19:34 2026 -0400
+
+    androiddump: Respect ANDROIDDUMP_USE_LIBPCAP option
+
+    This CMakeLists.txt was moved into the subdirectory at some
+    point, so this variable needs to be set in the parent scope
+    to have any effect.
+
+    Also fix a sign conversion issue.
+
+    AI-Assisted: no
+
+    (cherry picked from commit c55f56c5ea60b87c0ab7e1223110cf9bd22ce6a9)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 00ab8c2376
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 23 09:38:13 2026 -0400
+
+    Frame: Check for custom options in all block types
+
+    The pcapng specification says a "Custom Option can be in any block
+    type that can have options."[1] That is most block types (outside of
+    Simple Packet Blocks), just like OPT_COMMENT, so process them for all
+    block types.
+
+    Note that this means that for Netflix custom blocks, the BBLog / TCPInfo
+    struct is parsed twice, once in the frame layer and once in its own
+    layer, but other block types may not do that.
+
+    1 - https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcapng.html#name-custom-options
+
+    AI-Assisted: no
+
+    (cherry picked from commit 4cf7c292d027524c167a9fe9a4f3dea17b59a668)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3ed33517ee
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 23 09:38:59 2026 -0400
+
+    libwiretap: Warn and assure space if cap len is larger than Buffer
+
+    Some libwiretap modules might assure space in the Buffer, manually
+    write data, and fail to update the length afterwards; many did until
+    recently (see b80d283fd6496fef5fb8d1a192a689877360aff6).
+    Others might simply indicate the captured length of the
+    record early on but fail to actually write that much data or even
+    assure space in the Buffer. (See #21133.)
+
+    Issue a critical warning and ensure that the Buffer is large enough
+    so at least there's no buffer overflow. Add the please_report_bug
+    message because this is a bug that needs to be fixed.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 40ccce9bdb3bbe960dc453344252d2b9180491f9)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3a34d77f2b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 23 09:36:17 2026 -0400
+
+    wsutil: Buffer: Add an assertion when increasing length
+
+    The length should not be increased past the allocated space.
+
+    AI-Assisted: no
+
+    (cherry picked from commit ef8327db4992a0c2e851c6cc4363744c71c0bd1f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 06428ab2e2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 22 11:42:56 2026 -0400
+
+    pcapng: Fix Netflix BBLog custom block length
+
+    In a Netflix custom block, wblock->rec->rec_header.custom_block_header.length
+    is initially set to the entire custom block length. However, the only
+    data that is written to the Buffer in the record, and the only data that
+    the BBLog dissector in packet-bblog.c expects, is the custom TCPINFO
+    option. rec_header.custom_block_header.length, and not ws_buffer_length,
+    is what is used to set the frame data's cap_len member, and thus
+    eventually the captured_data length of the frame's main tvb.
+
+    It *might* make sense to write some of the other data to the Buffer
+    instead of (in addition to?) to the wtapng_nflx_custom_mandatory_t,
+    but that doesn't happen yet.
+
+    If a TCPInfo option is written, it sets that length, but if no TCPInfo
+    option exists, the length remains at the original total value; since
+    nothing is written to the buffer, that means that it can contain stale
+    data from a previous frame, uninitialized data, or perhaps in the case
+    of a crafted packet with a length larger than the Buffer's initial 2048
+    byte allocated size, a buffer overflow can occur.
+
+    Also fix an extra 4 bytes being added (for the type of block in the
+    main packet data, perhaps?) to the length, that currently causes
+    spurious data to be included in the example in #20511.
+
+    Fix #21133.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 318ed26c5fbf2ac4d534560de11ec85ca139c6fa)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 43400c52a3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 21 18:22:01 2026 -0700
+
+    GitLab CI: Update a path
+
+    Use the version of Sparkle in our third party archive.
+
+    AI-Assisted: no
+    (cherry picked from commit fb08fe50f2bb876f52d73024b481686890cb4454)
+
+commit 078d79af29
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 20 18:07:36 2026 -0700
+
+    GitLab CI: macOS updates
+
+    Add a prerequisite and only limit ccache on our MR jobs.
+
+    AI-Assisted: no
+    (cherry picked from commit e4c2561a6e8608ea87a1e27e29173d4a446138b9)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit 6c1472f4c2
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 21 15:47:03 2026 +0000
+
+    http: Guard get_hf_for_header() against NULL header_name
+
+    g_str_hash is not NULL-safe, so passing a NULL key would crash
+    g_hash_table_lookup().
+
+    AI-Assisted: no
+
+    (cherry picked from commit a220dfbf1766a8309a48f03ac008fd1f8c2084ed)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 6fec71cdf7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 20 16:26:31 2026 -0700
+
+    CMake: Update libmaxminddb to 1.13.3
+
+    AI-Assisted: no
+    (cherry picked from commit 68570b1eaaf846325ab6f9d039ac706a7ec7a4a4)
+
+commit 7ac03e91f6
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 21 15:47:24 2026 +0000
+
+    ldap: Guard get_hf_for_header() against NULL attribute_type
+
+    g_str_hash is not NULL-safe, so passing a NULL key from
+    dissect_ldap_AttributeValue() (where attr_type can be NULL) would crash
+    g_hash_table_lookup().
+
+    AI-Assisted: no
+
+    (cherry picked from commit 0de94495f8e008dcf36ccd51cc8e82428490b087)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 1ff81dd734
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 21 11:07:57 2026 -0400
+
+    rpm-setup: Add correct OpenCore-AMR for SUSE
+
+    (cherry picked from commit f2da5682bd0860809c40509118db1f660d716c96)
+
+    Co-authored-by: Joakim Karlsson <oakimk@gmail.com>
+
+commit 9c2b115ec9
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Apr 21 09:46:18 2026 +0200
+
+    NAS 5GS: fix S-NSSAI location validity information dissection
+
+    A copy/paste typ prevented the proper IE dissection in the 5GMM
+    configuration update command message. Fixes #21218
+
+    AI-Assisted: no
+
+    (cherry picked from commit 8e66352239792bc296afe0c985bdb155cec656b0)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 8ae02790fc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 19 17:03:22 2026 -0400
+
+    wsutil: Add counted string variant to ws_strtoi
+
+    Add a counted string buffer variant of ws_strtou64. This is
+    useful when we have a string buffer that is not necessarily
+    NUL terminated and possibly has internal NULs and we expect
+    it to contain a string. It allows us to avoid having to copy
+    the buffer and null terminate it (which also might not be
+    right anyway if there are internal '\0'.)
+
+    Add tests for it.
+
+    Use it to fix #21209 by not allocating at all.
+
+    Add an attribute for __attribute__((nonstring)), which clang 21 and
+    higher requires to declare buffers of char (or unsigned char) using
+    string literals and make the buffers exactly the right size not to
+    be null terminated. That's useful in the tests because it's easier
+    to read non-null terminated strings initialized with strings instead
+    of numeric literals. MSVC has something similar (C4295, which we
+    make level 3 by default.)
+
+    AI-Assisted: no
+    (backported from commit a492f2f18944cb7b36b5b33cd3a35b606f39a1ab)
+
+commit 715d0e1483
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 7 11:30:58 2026 -0400
+
+    Qt: Update the Windows installer to 6.10.3, the last 6.10 free release
+
+    Update only Windows because 6.10.3 is compatible with the same versions
+    of Windows as 6.9.3, but in the case of macOS Qt 6.10 does not support
+    macOS 12.
+
+    See #20960, which remains open because it affects macOS
+
+    AI-Assisted: no
+
+commit d9ad3845b8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 20 18:01:58 2026 -0700
+
+    GitLab CI: Update a tag
+
+    AI-Assisted: no
+
+commit 3b74117b80
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 20 16:33:49 2026 -0700
+
+    GitLab CI: macOS Python updates
+
+    AI-Assisted: no
+    (cherry picked from commit d8bee197d910e309bc7e5e7e5967afd3ba024124)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit efd5ef8485
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 20 14:54:53 2026 -0700
+
+    GitLab CI: Install dmgbuild in the macOS Universal Package job
+
+    AI-Assisted: no
+    (cherry picked from commit eb1e65e017e53570d37f0c0afa93fec6dbef07ee)
+
+commit 33e45da6ec
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 20 12:52:55 2026 -0700
+
+    GitLab CI: Update the macOS package build
+
+    AI-Assisted: no
+    (cherry picked from commit 64af6afece98724e011df6c6402a6b663d7b5f5c)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit 8b8d5aa0ea
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 20 09:57:46 2026 -0400
+
+    sharkd: Catch exceptions from tvb_ functions in process_frame_cb
+
+    sharkd_session_process_frame_cb calls tvb_ functions that can throw
+    DissectorBug or Bounds exceptions, and it should not crash in such a case
+    (unless the environment variable WIRESHARK_ABORT_ON_DISSECTOR_BUG=1
+    is set, which makes it crash anyway.)
+
+    Move some common code into a common static function.
+
+    Ping #21133
+
+    AI-Assisted: no
+    (backported from commit 49f45597d1f64c591ce9bc7824fc2b99696eeb6a
+    and from commit b7a37f838e60f5a62938b62de2ce8b3a4f89dfd6)
+
+commit 3e799ec7db
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 20 19:06:59 2026 -0400
+
+    packet-http2.c: Fix copy-paste bug
+
+    AI-Assisted: yes (Claude)
+
+    (cherry picked from commit 6eefcd6b012f7b112e4153106e86ba3eee701578)
+
+    Co-authored-by: Moshe Kaplan <mosheekaplan@gmail.com>
+
+commit cd693e8d51
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 20 07:40:19 2026 -0400
+
+    conversation: Don't use X.25 conversation after dissecting IP on X.25
+
+    The conversation API has several functions that find "the conversation"
+    for a frame using what is currently in the packet_info struct. This is
+    often used by dissectors that did not create that conversation, in order
+    to, e.g., have the TCP dissector call a particular subdissector after
+    heuristics succeed.
+
+    Most of the time, the current source and destination addresses, and
+    ports if set, are used to find this conversation. Conversations using
+    this are generally bidirectional, and there's special support for
+    wildcarding.[1]
+
+    There are some dissectors whose idea of a conversation does not fit
+    into this scheme, and which use "exact" conversation matching. Some
+    of these, such as with circuit-based protocols, also need to set the
+    default conversation so that subdissectors find their conversation
+    instead of the port-and-address based one.[2]
+
+    X.25 is such a dissector. It has a heuristic subdissector list,
+    because X.25 over TCP (TOP) exists, X.25 needs to set its circuit
+    conversation to be the one retrieved by its heuristic subdissectors
+    so that they can set themselves to its converstation, and not the
+    underlying TCP conversation that carries X.25.
+
+    A complication with X.25 is that X.25 can itself carry IP, and it is
+    thus possible to have IP over X.25 over TCP over IP. (See #2341.)[3]
+    In such cases, for the same reason as members of the X.25 heuristic
+    subdissector list want to retrieve the X.25 conversation and not
+    the addresses-and-ports conversation, members of heuristic subdissector
+    lists over IP[4] want to find the addresses-and-ports conversation,
+    not the conversation element based X.25 conversation, so as to set
+    themselves to the proper conversation and not mess up dissection by
+    attempting to skip layers.
+
+    The conv_elements added to pinfo are allocated via pinfo->pool, so
+    as a workaround we can simply set them to NULL once dissecting IP.
+    This fixes #21185 at least temporarily, although it is not the ideal
+    long term solution.[5]
+
+    1 - There are additional conversations with the recently introduced
+    "deinterlacing" conversation functions.
+
+    2 - There's also another category of dissectors that have address-and-ports
+    used for conversations that for some reason do not want to set the source
+    and destination port of the frame itself. Most of these are proxy protocols.
+    They are not further discussed here, but present their own issues. For
+    now, note that once those are set, they prevent the conversation
+    elements based converssation from being found as well.
+
+    3 - This includes IPv6, see https://www.iana.org/assignments/nlpids/nlpids.xhtml
+
+    4 - Including those in further protocol layers often found over IP, such as
+    the TCP, UDP, or SCTP heuristic subdissector lists.
+
+    5 - This ideal long term solution has been pending circa a decade.
+    Cf. 800b26edbe34e135cc9be1d4395db2c13ae1213f
+
+    AI-Assisted: no
+
+    (cherry picked from commit f361a7c8f9f9b3133f5ce72009c79b239831cc2d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit dc5ff58e98
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Apr 20 07:37:04 2026 +0000
+
+    DNS/TDS: drop two unused variables
+
+    AI-Assisted: no
+
+    (cherry picked from commit 710f89f9956a861ded4ce56712f9d046672cfa7b)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit d36a9c743c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 19 11:45:26 2026 -0400
+
+    sharkd: Empty the filter table when loading a new file
+
+    The cached filter results need to be emptied when a new file is loaded,
+    since they are likely not accurate for the new file.
+
+    FIx #21207
+
+    AI-Assisted: no
+
+    (cherry picked from commit a8f60a2a35623166212100ecbd5d63bcfa36c63a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 598f28047d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 19 10:18:39 2026 +0000
+
+    [Automatic update for 2026-04-19]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 66f1d587c2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 18 22:31:25 2026 -0400
+
+    sharkd: A comment is a mandatory parameter for setcomment
+
+    Since the set comment command does not remove nor replace existing
+    comments, the comment field should be mandatory. This removes the
+    need to check if the token is NULL.
+
+    Fix #21206
+
+    AI-Assisted: no
+
+    (cherry picked from commit 7c91ecb9739106b62c1b27a37ce8c0403af6e662)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6df8e3cb24
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 18 21:18:49 2026 -0400
+
+    sharkd: Implement a skeleton of cf_close, and call it
+
+    Implement a cf_close for sharkd.c, and call it when opening a new
+    file in order to free all the old information. I'm not certain if
+    this is everything that sharkd can possibly put in the capture_file
+    struct, but all of this is necessary.
+
+    Fix #21214
+
+    AI-Assisted: no
+
+    (cherry picked from commit 9144a54679a3375f9537f3a61ce68bcd5ba5689b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 8f1a7fb620
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 18 21:19:54 2026 -0400
+
+    RF4CE: Eliminate snprintf call and possible integer overflow
+
+    Use _length_remaining() TVB functions instead of subtracting the offset,
+    particularly when comparing to 0. Don't create an unnecessary buffer to
+    snprintf into, just use proto_tree_add_subtree_format(). Use reported
+    length instead of captured length in a few places. Set the Protocol
+    column before trying to add bitmasks to the tree.
+
+    AI-Assisted: no
+
+    (cherry picked from commit fb29af67c3854437531f4be4f28c8d3f87e0a59a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 82d57be13b
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Apr 18 16:35:43 2026 +0000
+
+    CLI: Show proper -G fields option format
+
+    AI-Assisted: no
+
+    (cherry picked from commit 75725362462b4d9e84c74c34d3fb53d2cc458f5b)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 4e426410bd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 18 12:06:50 2026 -0400
+
+    editcap: Don't try to remove more of a VLAN tag than is present
+
+    We might want a Buffer API function to remove from the middle of
+    a buffer more safely, and/or be able to reduce the data length.
+
+    Fix #21210
+
+    AI-Assisted: no
+
+    (cherry picked from commit a7ff796e9cdf262acd36e13652b142ded4c371e5)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 63b7cc458e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 18 12:05:23 2026 -0400
+
+    RTPS: Check snprintf and g_strlcpy for truncation
+
+    Check for truncation when copying into a fixed sized buffer and fixup the
+    UTF-8 if so.
+
+    Fix #21199
+
+    AI-Assisted: no
+
+    (cherry picked from commit 92b4f171b4d4a5e6983ced28871719ddda403e43)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit face8b58e7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 18 07:26:10 2026 -0400
+
+    text_import: Use a Buffer for the prefix
+
+    Instead of computing the prefix length and memmoving the packet data
+    out of the way to make room, just have a separate Buffer for the
+    prefix and append it to the record first before the packet data.
+    This is considerably simpler and reduces the chance of overflow.
+
+    Fix #21208
+
+    AI-Assisted: no
+
+    (cherry picked from commit 002b18d4e3ff5cc3b196b7cf822d7976fba02616)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f1e59a495f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 17 17:01:56 2026 -0400
+
+    Qt: Conversation Dialog: Fix timeline delegate when first row filtered
+
+    Get the sibling index at the appropriate column (but same row) instead
+    of the index at row 0, which will be invalid if row zero is filtered.
+
+    Fix #21204
+
+    AI-Assisted: no
+
+    (cherry picked from commit 3391ef76a66399c0582e035e9f4ce2d2a8873710)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 17b7c8d5b0
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Apr 16 14:25:47 2026 +0000
+
+    RTPS: Fix PSK flag placement in PID_PARTICIPANT_SECURITY_INFO
+
+    (cherry picked from commit 62b5ee6032157958334fa2ec4c41996d50c0841f)
+
+    b67924ad RTPS: Fix PSK flag placement in PID_PARTICIPANT_SECURITY_INFO
+
+    Co-authored-by: Matt Richards <matt@rti.com>
+
+commit 93e7da7e9c
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Apr 16 14:24:58 2026 +0000
+
+    RTPS: Fix DATA_FRAG reassembly when submessage has multiple fragments
+
+    (cherry picked from commit bedc57eb3c7a5e5b0d3333f5d3d8253293e6812c)
+
+    b8dc7c13 RTPS: Fix DATA_FRAG reassembly when submessage has multiple fragments
+
+    Co-authored-by: Matt Richards <matt@rti.com>
+
+commit ae03cef4b7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 15 06:52:33 2026 -0400
+
+    Release Notes: Note the extcap binary location changes
+
+    The extcap binaries were moved to libexec by default, but while
+    this change was effective in 4.6.0 it was not called out in the
+    release notes, leading to some confusion.
+
+    See #20882
+
+    AI-Assisted: no
+    (backported from commit 1ce89308cf028a9a81cc594a7b98a88430788d90)
+
+commit a9529344f9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 15 10:56:46 2026 -0400
+
+    wsutil: Make xxhash a private library dependency
+
+    Otherwise plugins have to link with xxhash, which they should not
+    have to do.
+
+    AI-Assisted: no
+    (backported from commit aa126dcad36a6fb8d74483ac8adece29b7d54673)
+
+commit 302b676628
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 15 14:54:11 2026 -0700
+
+    CMake: Add a separate Arm64 Asciidoctor bundle for macOS
+
+    Rosetta 2 is being discontinued, so add an Arm64 Asciidoctor bundle.
+
+    AI-Assisted: no
+    (cherry picked from commit 33a4f8081ebb57c02893c5773904cdff6690593b)
+
+commit ac519c07f3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 15 16:20:24 2026 -0400
+
+    wustil: Link wmem_test against wsutil_static
+
+    wmem_test uses several functions not visible in the shared library,
+    but it can link against the static library. That makes it simpler
+    because it doesn't need to specify libraries and includes used by
+    the rest of the code.
+
+    AI-Assisted: no
+    (backported from commit 09a15a97b30b8ee98b2ae3b38b79caf8f50581f3)
+
+commit f6dabaac96
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 15 18:56:22 2026 -0400
+
+    Fix a typo in the diagnostic controls to turn back on cast-qual
+
+    We don't actually build with -Wcast-qual by default so this doesn't
+    have much of an effect in practice.
+
+    (cherry picked from commit 523c6ff8485fae660a81b0eb10868b26646b5182)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 221be0e29b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 15 10:18:51 2026 -0400
+
+    RTPS: Use tvb_memdup instead of tvb_memcpy when possible
+
+    When duplicating a contiguous region of a tvbuffer, especially
+    from a length obtained from packet data then subtracted by a
+    fixed number (so it might have underflowed and wrapped around),
+    prefer tvb_memdup to wmem_allocate-then-tvb_memcpy, as the former
+    doesn't allocate until it does boundary checks.
+
+    Ping #21156
+
+    AI-Assisted: no
+
+    (cherry picked from commit 8bb824dd497721867b0837920a32483aceef44f9)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 9413257453
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 14 20:33:28 2026 -0400
+
+    wslua: Check for failure to convert a literal string into a GUID
+
+    Fixup ec001766f6990cc2b3e92d23b12f937e967fa7ad
+    Fix #21194
+
+    AI-Assisted: no
+    (backported from commit c464c57562035da39958adfb28b7f1a57258a107)
+
+commit 83db9ec417
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 14 20:09:08 2026 -0400
+
+    ICMPv6: Padding issue in NDP Handover Assist Info and Mobile Node ID options
+
+    NDP Handover Assist Info and Mobile Node ID options
+
+    compute padding with absolute offset instead of relative
+
+    AI-Assisted: no
+
+    (cherry picked from commit 770f8a5d8e726c4a027139013e2617f1cd2dfead)
+
+    Co-authored-by: Alexandre de Oliveira <yodresh@gmail.com>
+
+commit 242ad18efe
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 14 11:00:26 2026 -0400
+
+    SMB2: Put bounds on total chained compression
+
+    Stop when the total output of the chained compression is more
+    than our maximum.
+
+    Once we get an error (or give up because it's too long), keep
+    adding fields to the tree but stop wasting cycles decompressing
+    when the results will just get thrown away.
+
+    An unknown compression type is an error.
+
+    Only add to the Info column for one error for the same chained
+    compression.
+
+    Fix #21191
+
+    AI-Assisted: no
+
+    (cherry picked from commit 8e3303b3d2d1697c6255a6f92bcab4e7abcf367d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 774b63cd41
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 14 08:15:16 2026 -0400
+
+    SMB2: Optimize PATTERN_V1 decompression
+
+    This is roughly 50x faster on a large decompression.
+
+    Ping #21191
+
+    AI-Assisted: no
+
+    (cherry picked from commit 0fe4d786017863c9496b7f88098796279dfa59aa)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4715a46762
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 13 16:37:44 2026 -0400
+
+    WebSocket: Put some bounds on zlib decompression
+
+    WebSocket by default saves the state of the decompression sliding
+    window/dictionary, which is why the common functions from tvbuff_zlib
+    aren't used. Put similar bounds on the decompression length. Note
+    that if the message is truncated, zlib probably doesn't update the
+    sliding window when skipping to the end, so subsequent messages probably
+    fail too.
+
+    This is the largest maximum we can possibly support. We could lower it
+    more, if we feel that it is necessary to avoid DoS.
+
+    Fix #21190
+
+    AI-Assisted: no
+
+    (cherry picked from commit d655b4ebc78088a73eb0706b75cc93fe045602bc)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c0af1f864e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 13 16:27:56 2026 -0400
+
+    GSM RP: Don't use a global
+
+    Call proto_tree_get_parent_tree, which does the same thing as currently
+    when the protocol is dissected normally through the RP dissector, but
+    also works properly when rp_data_n_ms is called directly, e.g. by the
+    BSSMAP dissector.
+
+    Fix #21189
+
+    (This is a case where it's actually more likely to crash with the normal
+    wmem than with WIRESHARK_DEBUG_WMEM_OVERRIDE=simple.)
+
+    AI-Assisted: no
+
+    (cherry picked from commit 6fc954bbb3b19f9b49c0905442c81b26611fa202)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 27a108476c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 12 20:12:18 2026 -0400
+
+    OpenFlow v5: Prevent more infinite loops with tvbuffer subsets
+
+    Continue the process started in 92fdf8e04fc471f052f185b59233dbc1f3b7.
+
+    Fix #21188
+
+    AI-Assisted: no
+
+    (cherry picked from commit c15c25919ce538147b2b12254d54b500b06131c8)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 7de45fa20d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 12 13:38:39 2026 -0400
+
+    RPKI RTR: Check for overflow in the unknown PDU type case
+
+    When the PDU type is unknown, since no field is added to the tree,
+    the dissector must check for overflow when adding a 32 bit unsigned
+    integer to the offset and throw the same ReportedBoundsError that
+    would be thrown in the cases where something is added to the tree.
+
+    Fix #21186
+
+    AI-Assisted: no
+
+    (cherry picked from commit 65c4e3e0ea8f6b7cab1e1194f81f685903a47a38)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 568f5e85fa
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 12 08:13:50 2026 -0400
+
+    MBIM: Check for overflow
+
+    The data length is a 32 bit unsigned integer, so check for overflow so
+    that the offset doesn't move backwards.
+
+    Fix #21184
+
+    AI-Assisted: no
+    (backported from commit b46779cd354437dcae306a77dafc20beac854e91)
+
+commit a283139325
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 12 07:17:52 2026 -0400
+
+    Openflow v6: Add a length check for OFPBPT_TIME
+
+    Add a length zero similar to the other types.
+
+    Fix #21181
+
+    AI-Assisted: no
+
+    (cherry picked from commit c8b105293591f7f38944c0f00fd7dd848b4f7ff0)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 51354dff5a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 12 10:18:39 2026 +0000
+
+    [Automatic update for 2026-04-12]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 619df3cce8
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun Apr 12 03:21:59 2026 +0000
+
+    Enabled protocols: Update WSUG image and dialog description
+
+    Update the Enabled Protocols screenshot in the Wireshark User Guide to reflect the Qt version (previously showed GTK version).  Include more information when describing the dialog about how the search functionality works and what heuristic protocols are
+
+    Fixes #20871
+    Ping #21123
+
+    AI-Assisted: no
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+    (cherry picked from commit aec7cf4ded2d6e70fce1ee9821edd9df405b62bf)
+
+    Co-authored-by: Michael Mann <mmann78@netscape.net>
+
+commit 55fba4af74
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 11 21:07:07 2026 -0400
+
+    Openflow v5: Prevent infinite loops
+
+    When looping on an Openflow v5 action, if the length is invalid set the
+    offset to the end of structure containing all the actions (array of
+    action buckets, etc.) rather than the claimed end of the entire message.
+    This prevents an infinite loop in the case that the contained structure
+    length is larger than the containing message.
+
+    Take tvbuffer subsets in more places instead of passing a length around.
+    That is a better approach, particularly when there are various nested
+    lengths; it ensures that ReportedBoundsErrors and ContainedBoundsErrors
+    are produced, and reduces the chance of overflow, infinite loops, and
+    other strange behavior. It could be done even more in this dissector.
+
+    Fix #21182
+
+    AI-Assisted: no
+
+    (cherry picked from commit 92fdf8e04fc471f052f185b59233dbc1f3b7b655)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b0a28c5ae9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 3 20:28:37 2026 -0400
+
+    asn2wrs: Assume that any open type might be in a cyclic dependency
+
+    Type fields and variable-type value [set] fields are open types. If they
+    lack a constraint that limits the types, then they are "one whose set of
+    values is the complete set of all possible values that can be specified
+    using ASN.1." [Rec. ITU-T X.681-2021 14.2]
+
+    Also, see ITU-T X.680-2021 3.8.57 NOTE 2, which says "[ASN.1 encoding rules]
+    do not necessarily provide unambiguous encodings for "open type notation,"
+    which carries values from ASN.1 types that are not normally determined
+    at specification time. Knowledge of the type of the value being encoded
+    in the "open type notation" is needed before the abstract value for that
+    field can be unambigiously determined."
+
+    If we don't know the possible types that can follow, they might be
+    involved in a cycle, as can happen in NGAP along with other ASN.1
+    protocols. To be on the safe side, just indicate that any open type
+    which we do not know the following types is in a dependency cycle with
+    itself, which will force the dissection depth checks.
+
+    Fix #21149
+
+    AI-Assisted: no
+    (backported from commit 4b48d4f5467e8bb2b7776a8874b2157697763fcf)
+
+commit 853782d5f0
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Sat Mar 14 11:20:55 2026 +0100
+
+    packet-charging_ase: Fix coverity report - Structurally dead code
+
+    set offset to tvb_reported_length(tvb); rather than returning it
+    directly.
+
+    AI-Assisted: no
+    (cherry picked from commit b559386202be1368bcc22ef8b325d571b446b3a1)
+
+commit 2d3e580b60
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 4 19:01:46 2026 -0400
+
+    epan: Add increment and decrement dissection depth by n functions
+
+    Add functions that increment and decrement dissection depth by an
+    unsigned number. Check for overflow and underflow.
+
+    Change asn2wrs.py to use the new functions. Note that it was
+    incrementing and decrementing by one too much previously.
+
+    AI-Assisted: no
+    (backported from commit 2cfe98b2d66362dddbd81aa96457763763b6341f)
+
+commit 5e9db05e10
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 10 21:58:50 2026 -0400
+
+    GeoNetworking: catch overflow in packet offset calculation.
+
+    Do a checked add.
+
+    Move common code out of the switch statement while we're at it.
+
+    Fix #21177.
+
+    AI-assisted: no
+
+    (cherry picked from commit dae485a918efe044aff6775f5b8d07860656ac61)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 893ba24af7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 10 10:29:07 2026 -0400
+
+    QUIC: Tighten heuristic by strengthening draft version check
+
+    Since draft-34 was the final draft version, there's 221 possible
+    QUIC version numbers that were not used as draft versions. This
+    is used in the heuristics, and I have a capture file which gives
+    false positives without this.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 8b83d61cee2207f339bfa1b717601b93a8659c65)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 360f7beda0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 9 10:22:31 2026 -0400
+
+    MySQL: Use character_set_client for Bulk Execute Stmt parameters
+
+    In MySQL/MariaDB, parameters, like everything else that comes from
+    the client, use character_set_client. When statements are PREPARED,
+    column information is returned for the columns to which the parameters
+    refer, but while that is of interest to the client, it does not affect
+    the client's subsequent transmissions. The client does not use those
+    encodings. This is already handled correctly in STMT_EXECUTE, but not
+    in STMT_BULK_EXECUTE.
+
+    To reduce the risk of a null pointer dereference, initialize the
+    (unused) array, since the parameter and field metadata use the same
+    type (perhaps they shouldn't.)
+
+    Add some comments.
+
+    Fix #21172
+
+    AI-Assisted: no
+
+    (cherry picked from commit 62a4c4ba07f6ffaea8183a4349aa374fd335de4f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 8c2e1f88a2
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Apr 9 05:57:41 2026 +0000
+
+    OpenVPN: Fix Wrapped Client Key fields
+
+    AI-Assisted: no
+
+    (cherry picked from commit f272041e899ce5a0746387d9c0fa7acbc99c49ec)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit ab627e5467
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 8 18:21:42 2026 -0400
+
+    IEEE 802.11: Add NULL check
+
+    Add a NULL check. This code was substantially changed to introduce
+    new features in the master branch (and the check is not necessary)
+    so this is being committed directly to the 4.6 branch.
+
+    Fix #21008
+
+commit d6f3f0aa6c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 8 15:18:33 2026 -0400
+
+    HTTP: Check strstr() return before incrementing and dereferencing
+
+    Same fix as e5adf89f95f28266d41bc195378d0567273047de but in the other
+    branch.
+
+    Fix #21173
+
+    AI-Assisted: no
+
+    (cherry picked from commit 78311470b0f9309dfd8972c62957d355a638fe63)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 58513506e3
+Author: Roland Knall <rknall@gmail.com>
+Date:   Wed Apr 8 22:23:50 2026 +0200
+
+    Qt: Backport sidebar changes to 4.6
+
+    These are backports from the changes that are already in !23638
+
+    Relates to !23638
+
+    AI-Assisted: no
+
+commit 25fbcb7b96
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 8 11:00:34 2026 -0400
+
+    ISO 8583: Use a wmem_strbuf_t
+
+    Use a wmem_strbuf_t for appending characters to a string buffer instead
+    of having to determine the length beforehand (and possibly making a
+    mistake.)
+
+    Fix #21171
+
+    AI-Assisted: no
+
+    (cherry picked from commit 2841ce28123d5c78fcfcecb541dc4eeb04e13f84)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e3255876ca
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 7 17:59:54 2026 -0400
+
+    snort config: strlcpy is not snprintf
+
+    The last parameter is the destination buffer size, not the number of
+    characters to be copied. This also means it needs NUL bytes temporarily
+    replacing the token delimters so it can know when to stop copying.
+
+    read_token can be passed in a whole line, so static_buffer needs to
+    be large enough for that.
+
+    strndup always add the null terminator, and the last parameter is the
+    number of bytes to be copied.
+
+    Fix #21165
+
+    AI-Assisted: no
+    (cherry picked from commit ea3fcb8e79453d60236ca795e17208758b3966e2)
+
+commit 895925b692
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 6 20:15:00 2026 -0400
+
+    Snort config: Free rule and rule string on error
+
+    Ping #21162
+
+    AI-Assisted: no
+    (cherry picked from commit 694b64b0908ff7dde5383dce124b212c17c3eac4)
+
+commit 52a608889e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Nov 23 10:21:56 2025 -0500
+
+    snort: Get signed or unsigned rule parameter as appropriate
+
+    Some rules take signed numeric parameters of a certain size, some
+    take unsigned. Don't cast willy-nilly between them, and do a bit
+    more range checking. Also restore the ability to allow trailing
+    whitespace in rules, which Snort allows.
+
+    (cherry picked from commit 23f91d6da3d5663fa8e8b82cd5ac3ef399659ee4)
+
+commit 57cba93aa4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 10 16:37:26 2026 -0400
+
+    CMake: Update Npcap to 1.87
+
+    https://github.com/nmap/npcap/releases/tag/v1.87
+
+    Fix #21062
+    Ping #20013
+
+    AI-Assisted: no
+    (backported from commit abe0953feed6737f369c6a2894bb11181e40b9f4)
+
+commit b491746593
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Apr 8 06:15:20 2026 +0000
+
+    IPSec: Check a length before allocating a buffer
+
+    In case of overflow. Also, switch some calls from wmem_alloc plus
+    tvb_memcpy to tvb_memdup - when only one region needs to be copied
+    (instead of stiching together several), this is better, because it
+    does all the offset and length checks *before* allocation, and in
+    the case of this bug would have produced the DissectorError exception
+    warning of a dissector bug before the too large allocation instead
+    of afterwards.
+
+    Fix #21166
+
+    AI-Assisted: no
+
+    (cherry picked from commit 60631b80eda0b6b5470177a1fabb77810d429844)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 45433ab0e8
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Apr 6 18:48:19 2026 +0000
+
+    OpenVPN: Attach the info to the proper proto tree item
+
+    AI-Assisted: no
+
+    (cherry picked from commit d43c4cda81f0f717e13c628dd520b454530db0fd)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit d8cdcf5f17
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 6 10:39:42 2026 -0400
+
+    BT HCI Intel Vendor: Fix read version command lengths
+
+    The length of these single octet fields is 1, not the total length.
+
+    See
+    https://github.com/bluez/bluez/blob/00dfd32af38ac950db32af0acfa4193511f718d9/monitor/intel.c#L386-L389
+
+    AI-Assisted: no
+
+    (cherry picked from commit 5754c8b391726474524dfb68a27839e8aa44f397)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 7a3c76492e
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Apr 6 01:27:09 2026 +0000
+
+    pcapng-sysdig: add some sanity checks.
+
+    Make sure subtractins don't underflow.
+
+    If C23 hadn't said "shall be any integer type other than "plain" char,
+    bool, *a bit-precise integer type*, or an enumerated type" (emphasis
+    mine), I would have used chk_sub() and reported the errors in question
+    if it returned true, but some of the operands have bit-precise integer
+    types, so here we are. (In practice, the bit-precise integer types are
+    probably going to be typedefs for ordinary boring integer types on all
+    platforms we support, so it would probably compile and work, but....)
+
+    Fix #21140.
+
+    (cherry picked from commit 3579cbb7773eeff5b08a96897d26c87a37b70859)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit bb6cadbb9e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 5 18:54:37 2026 -0400
+
+    tls-utils: Revert to using libgcrypt for pre master secret decryption
+
+    GnuTLS 3.8.5 introduced the ability to disable decryption of the RSA
+    encryption padding scheme in PKCS #1 v1.5 at the system level for
+    security[1][2], as many implementations remain vulnerable to
+    Bleichenbacher's attack and variants, such as the Marvin attack (a
+    timing variant)[3].  This is because a system may not want a TLS
+    implementation using GnuTLS to be able to communicate with a remote
+    system using an unknown TLS implementation that may be vulnerable.
+    RedHat Enterprise Linux 10, and possibly other operating systems,
+    disable PKCS #1 v1.5 padding support by default. The use of PKCS #1
+    v1.5 padding is mandatory in TLS 1.2 despite the vulnerabilities being
+    known at the time, for backwards compatibility[4].
+
+    libgcrypt, as a lower-level library, does not disable the scheme
+    (outside of it being disabled when FIPS mode is active in 1.11.0
+    and later, but we disable FIPS mode.) Since we are not engaging in
+    protected communications but decrypting them for analysis, revert
+    to using libgcrypt for the UAT with keys imported from X509 files,
+    and for the newer UAT that also supports hardware tokens, attempt
+    to export and fall back to libgcrypt if GnuTLS returns the error
+    that the padding algorithm has been disabled.
+
+    Some of the key conversion is slightly more inefficient, but this
+    is not a hot path (the key conversion is only done once in a
+    dissection of a file, and only if the key ID matches.)
+
+    [1] https://www.gnutls.org/manual/html_node/Enabling_002fDisabling-RSAES_002dPKCS1_002dv1_005f5.html
+    [2] https://lists.gnupg.org/pipermail/gnutls-help/2024-April/004846.html
+    [3] https://people.redhat.com/~hkario/marvin/
+    [4] https://datatracker.ietf.org/doc/html/rfc5246#section-7.4.7.1
+
+    AI-Assisted: no
+
+    (cherry picked from commit 553f2020a60eb080e77f74057acb4a3b7d05205b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 855d17040f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 5 16:10:42 2026 -0400
+
+    netxray: Don't remove padding that isn't there
+
+    In certain forms of NetXray captures, we expect 4 octets of padding at
+    the end that is junk and we don't add to the record. If the file says
+    that the actual captured length is less than the padding, set the
+    padding to the actual captured length instead of underflowing.
+
+    Fix #21152
+
+    AI-Assisted: no
+
+    (cherry picked from commit 0c8bb485fa2e26b084174c6855d6f53595da4465)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit d68f02aaf1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 5 18:05:49 2026 -0400
+
+    wsutil: Doxygen rsa.h
+
+    (cherry picked from commit 2036c3ca197ec89aabe25a499124a6dcc1e392df)
+
+    Co-authored-by: Moshe Kaplan <mosheekaplan@gmail.com>
+
+commit 78107b64b9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 5 17:32:12 2026 -0400
+
+    HTTP2: Update frame length size
+
+    Frame length is 24-bit, but was being read into 16-bit value, so larger values were truncated.  Use proto_tree_add_item_ret_uint and make the length variable larger
+
+    Fixes #21155
+
+    AI-Assisted: no
+
+    (cherry picked from commit d367d4629315ba72caf522409310d1dcb28c0329)
+
+    Co-authored-by: Michael Mann <mmann78@netscape.net>
+
+commit 81e6576ae6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 5 17:31:12 2026 -0400
+
+    wsgcrypt: Fix leak
+
+    Free the nonce after setting the IV, as gcry_cipher_setiv
+    copies the buffer to internal data structures.
+
+    Coverity CID 1634459
+
+    (cherry picked from commit bfbccddf049f101865beb819f97449dcd489d80f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f1c35f7379
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 5 15:42:34 2026 -0400
+
+    wsutil: Doxygen wsgcrypt.h
+
+    (cherry picked from commit fb674c88ff76cdd35de18dfa0b2181df6e426622)
+
+    Co-authored-by: Moshe Kaplan <mosheekaplan@gmail.com>
+
+commit 7467e13c88
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 5 13:23:18 2026 -0400
+
+    TLS Utils: ECH: Fix possible infinite loop or buffer overflow, comment
+
+    Make sure the offset advances when processing ech_outer_extensions
+    even if it has size zero, to avoid an infinite loop.
+
+    Check for the ech_outer_extensions illegally including
+    encrypted_client_hello, which could make the ClientHelloInner
+    longer than the ClientHelloOuter after copying, and possibly
+    a buffer overflow.
+
+    Copy the session ID from the ClientHelloOuter ahead of time to
+    make it clearer.
+
+    Add comments.
+
+    Fix #21147, #21151
+
+    AI-Assisted: no
+
+    (cherry picked from commit dda15595efe99f445097732a6d04f98b7eacc54a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit cb9d1f439f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 2 08:48:51 2026 -0400
+
+    dumpcap: Ensure the buffer size is large enough for the SHB
+
+    A SHB can have comments and other options, so it is possible (if a
+    bit odd) to have a length larger than the initial 2048 size buffer.
+    Move the "round up a 32 bit integer to the next highest power of 2"
+    function to a static function.
+
+    Check if the SHB block size is less than the minimum.
+
+    Move a block size is a multiple of 4 check for a SHB until after
+    the endianness is determined.
+
+    Add some comments. There probably should be an imposed maximum
+    (but see commit db9ed8844c48326a3a8e3823d1d9f152e6667542).
+
+    Fix #21132
+
+    AI-Assisted: no
+    (backported from commit eeb6f21dba44d9f829aae77f4dda7c32a237b4fb)
+
+commit 98b38b11b1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 5 10:27:04 2026 -0400
+
+    TLS: Take a subset TVB of the Client Hello to prevent overflow
+
+    Instead of passing around an initial offset and a length of the
+    entire Client Hello, take a subset TVB, so that in a while loop we
+    can use tvb_reported_length_remaining(), which does the right thing with
+    overflow. This also means that "initial_offset" is 0 and can be removed
+    from a number of places.
+
+    This also means that a few places where ssl_dissect_hnd_extension
+    was being called with bogus values of 0 for initial_offset and
+    hello_length (because they were known not to be ECH and thus
+    the values wouldn't be used) the bogus values can be removed.
+
+    Related to #21090
+
+    AI-Assisted: no
+
+    (cherry picked from commit a6ad53f8c15026614c6fcd3ab5730f463d947973)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 943fad0de8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 5 10:18:25 2026 +0000
+
+    [Automatic update for 2026-04-05]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 6233febd1f
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun Apr 5 09:50:05 2026 +0200
+
+    dect_nr: Fix MAC IE length handling
+
+    Fix MAC IE length handling in dissect_mac_mux_msg_ie so MAC extension
+    mode 0 IEs without an explicit length use the remaining tvb length
+    instead of ctx->ie_length.
+
+    Update the routing type strings so type 4 is shown as Selective
+    Source Routing and add routing sequence number for local flooding.
+
+    Also free the cipher key buffer on decryption failure and avoid
+    iterating Reconfiguration Request flows when num_flows is reserved.
+
+    AI-Assisted: no
+
+    (cherry picked from commit f20ba0d10b2cd996f6a781f25ada7214f456b19d)
+
+commit c760c5195e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 4 13:20:39 2026 +0000
+
+    Zigbee RF4CE NWK: Take a subset in the unencrypted case
+
+    Instead of a memcpy, take a subset in the unencrypted case. Then we
+    don't need to worry about its size at all.
+    (This is literally the suggestion shown in the WSDG for such cases[1].)
+
+    Also, the dissector doesn't need to "go on a journey of self discovery,"
+    as put 10 years ago.
+
+    1 - https://www.wireshark.org/docs/wsdg_html_chunked/ChDissectTransformed.html
+
+    Fix #21150
+
+    AI-Assisted: no
+
+    (cherry picked from commit ceb930083425cc998c9fc62e89f790017b140c92)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 9d4204868d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 3 13:33:37 2026 +0000
+
+    iLBC codec: Report proper decoded length in multiframe case
+
+    Per RFC 3952, multiple iLBC frames can may be included in a single
+    RTP packet.[1] (Note the error there about octets per frame in the
+    20 ms case, contradicting sections 2 and 3.1; errata has been
+    submitted.) The output length needs to be sized to accommodate the
+    full length, as the iLBC library decodes all the frames.
+
+    1 - https://datatracker.ietf.org/doc/html/rfc3952#section-3.2
+
+    Fix #21145
+
+    AI-Assisted: no
+
+    (cherry picked from commit 7a284824c92fecc6c57d770317919388c33983ac)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6022a8af72
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 3 07:03:40 2026 -0400
+
+    DCP ETSI: Check that all fragments are the same size with R-S
+
+    ETSI TS 102.821 7.3.2 Fragmentation:
+    "Note that when Reed Solomon has been used, all fragments will be
+    of length s."
+
+    Fix #21144
+
+    AI-Assisted: no
+
+    (backported from 2a44f117ad799228bfe51467843b3a01fae3787c)
+
+commit 96535129a9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 3 12:16:39 2026 +0000
+
+    Qt: Follow Stream: Keep the font the same when zooming
+
+    Zooming a Q[Plain]TextEdit, with the a WheelEvent or otherwise,
+    switches from the QTextDocument's default font to that of the
+    text edit. Set both, so that zooming doesn't switch from monospace
+    to proportional fonts.
+
+    Left unanswered - should the default size inherit from the main window?
+
+    Fix #21137
+
+    AI-Assisted: no
+
+    (cherry picked from commit 95cceea6da210538461d9ffebfbed6bf115e3b44)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0bbc56da49
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Fri Apr 3 08:39:44 2026 +0000
+
+    Qt: Do not restore column state on file open
+
+    This will avoid a resized column to be reverted back to the previous
+    width after closing and opening a capture file.
+
+    Do not save column state when applying recent column widths.
+    This save will not be used because a freeze will happen before
+    a thaw (which will restore the column state).
+
+    AI-Assisted: no
+
+    (cherry picked from commit 8452a734cefb703d015cec7cd8bd887745054d9d)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 679f5dd414
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 3 01:49:29 2026 +0000
+
+    Qt: Create RtpStreamTreeWidgetItems with the current Time of Day setting
+
+    This really should be converted to Model/View, but this is a quick fix
+    that's easy to backport.
+
+    Fix #21138
+
+    AI-Assisted: no
+
+    (cherry picked from commit 5730ab7fbdcbd50c34f737af2aa22128c1e5ed8a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit caf17d9460
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 3 01:35:04 2026 +0000
+
+    extcap: Set Windows SSH config location depending on libssh version
+
+    libssh < 0.12.0 treats %d as "%HOME%\.ssh" (or "~/.ssh" on UN*X),
+    which doesn't match ssh_config(5) or openssh.[1] It was fixed in
+    0.12.0.[2] Check the runtime version.
+
+    Also, move setting the log verbosity option and the log callback to
+    before the configuration file is read. As the libssh API says,
+    ssh_options_parse_config should be the last options related call,
+    as the file can override options. This also means that we correctly
+    log messages related to failing to read the configuration file.
+
+    1 - https://gitlab.com/libssh/libssh-mirror/-/work_items/349
+    2 - https://gitlab.com/libssh/libssh-mirror/-/commit/ce0b616bc648e4d510bf8ea20af5572861b412a0
+
+    Fixup 81b24a356cd6e487d8f975c8c93be5817ddfb9c1
+
+    Fix #21114
+
+    AI-Assisted: no
+
+    (cherry picked from commit 1167dc5c8233dba1261c47485485edda9d3bdc2e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 1bd2a52af0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 2 11:19:18 2026 +0000
+
+    SANE: Avoid empty looping on illegal option types
+
+    On option value types that are either illegal or shouldn't have a size,
+    don't spin empty loops, but instead advance the offset by the reported
+    size. It probably wouldn't hurt to have expert info as well.
+
+    Fix #21139.
+
+    AI-Assisted: no
+
+    (cherry picked from commit bd2652a994f5a419bd29071841b671f344084d7b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 93ce422137
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Mar 31 09:21:17 2026 -0400
+
+    kismet: General improvements (and fix Heap-Buffer-Overflow)
+
+    1. use proto_tree_add_item instead of proto_tree_add_string (fixes Heap-Buffer-Overflow and just generally a better approach)
+    2. Use tvb_ascii_isprint to ensure characters are ASCII
+    3. response_is_continuation only checks a single character, not a string, so adjust accordingly
+
+    Fixes #21129
+
+    AI-Assisted: no
+    (backported from commit cd6e74e5d60dbc0a7cdf3c0f038cf22d06a24e7f)
+
+commit 429bbf89f2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 31 15:47:19 2026 +0000
+
+    LZ77 Compression: Sanity check uncompression size
+
+    Uncompression algorithm allows for 32-bit value, which can lead to a "forever" loop with a crafted packet, so limit the size to MAX_INPUT_SIZE
+
+    Fixes #21127
+
+    AI-Assisted: no
+
+    (cherry picked from commit 21e3f89bc9f756c4549a3bfaf678d2a4e5a0b15f)
+
+    Co-authored-by: Michael Mann <mmann78@netscape.net>
+
+commit 4ebf8426d2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 31 11:25:58 2026 +0000
+
+    extcap: Quiet libssh logging about no known_hosts file
+
+    Some recently added logging in libssh is too verbose until the upcoming
+    0.12.1 release[1]. For example, it warns at a high level about all
+    missing configuration files, including optional ones like the known
+    hosts file. Quiet those messages so that they don't appear by default.
+
+    1 - https://gitlab.com/libssh/libssh-mirror/-/commit/a7fd80795e21b8c894b54409496ea6b569f7f4a3
+
+    Fix: #21051
+
+    AI-Assisted: no
+
+    (cherry picked from commit 3392e774cb19d02b952cba0e55aa81d6d0127797)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a9ae0d88c1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 31 11:19:22 2026 +0000
+
+    USB HID: Skip items with a report size of zero
+
+    Items with a report size of zero don't advance the offset and
+    take up no room in the data, so there's nothing to display.
+    It can lead to a very long loop if the report count is extremely
+    long.
+
+    Items with a non zero report size advance the offset, so we'll
+    eventually throw an exception no matter the number of reported
+    items.
+
+    It's not clear from the USB HID spec if a report size of zero is
+    legal, but it doesn't make much sense.
+
+    Fix #21121
+
+    AI-Assisted: no
+
+    (cherry picked from commit 9ed3457896839c66dd9459da6e7b893b0c94502f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit d88536e211
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 31 02:48:49 2026 +0000
+
+    DLMS/COSEM: Make sure the offset advances
+
+    The "compact array" type in DLMS/COSEM is defined in such a way that
+    the contents-description and array-contents can be syntactically valid
+    ASN.1 yet inconsistent with each other, because the array-contents
+    begins with an octet count, not a count of the number of array elements
+    matching the description. In the worst case, the description can contain
+    no non-null scalar values, and thus each contents array matching the
+    description take up zero octets. If the array-contents has a non-zero
+    length, this is not only inconsistent but can lead to infinite loops
+    if not handled carefully.
+
+    Add checks for this. Ensure the offset advances with unknown data
+    types. Use a TVB subset to catch the case where the description is
+    non zero, but the contents array cannot be interpreted as an integer
+    number of copies of the description. (Some description types are
+    variable length, so this can only be done while processing.)
+
+    Credit to bcoles for providing a POC.
+
+    Fix #21065
+
+    AI-Assisted: no
+
+    (cherry picked from commit 3c77728a8f3dd4290f1a420948379be5e15208a1)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 9e979255e6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Mar 30 14:18:35 2026 +0000
+
+    Zigbee Direct: Check the size before decryption
+
+    Check that the encrypted size is not too large nor too small before
+    trying any key, rather than trying each key and failing each time.
+
+    Add some comments about the MTU size (247 is a recommended value,
+    but not the largest that is possible with the Bluetooth attribute
+    protocol, especially with crafted captures.)
+
+    Avoid an extra memcpy to the output buffer; just decrypt into it.
+
+    The decrypted length is always 8 bytes less than the encrypted length
+    (removing a 32-bit counter used for the nonce and the 4 octet MIC), so
+    rather than passing in a pointer (and having to reset that pointer value
+    to the original value on failure), just pass the encrypted length by
+    value and use the known correct decrypted length on success.
+
+    Thanks to Duc Anh Nguyen for the report and POC.
+
+    Fix #21125
+
+    AI-Assisted: no (other than the initial report)
+
+    (cherry picked from commit d5929f8e9382c29194a46e922ad129cd59b02d67)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 23e4a436ee
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Mon Mar 30 15:16:05 2026 +0000
+
+    Backport field size fix from !23352
+
+commit d0435f65e0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Mar 29 17:51:26 2026 -0400
+
+    BEEP: Prevent overflow and/or stack overflow
+
+    Just throw a reported bounds exception if the size is an illegal
+    value rather than trying to figure out what it can be set to that
+    will avoid an infinite loop.
+
+    Most of the values from dissect_beep_int are not used, so allow
+    the value to be NULL. All the values are actually unsigned; some
+    are in the range 0...INT32_MAX and one is 0...UINT32_MAX.
+
+    Also add a recursion check in the other places where recursion
+    happens, but we shouldn't really need one there. (It was an
+    overflow issue really.)
+
+    Fix #21120
+
+    AI-Assisted: no
+    (backported from commit 403b9d269f827e772e5fe1ac8433db723d8b7010)
+
+commit 270ffac2b9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 29 10:48:08 2026 +0000
+
+    [Automatic update for 2026-03-29]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 4ba66993f6
+Author: Roland Knall <rknall@gmail.com>
+Date:   Sun Mar 29 11:17:58 2026 +0200
+
+    doc: Update release notes to include fix for Zip-Slip vulnerability
+
+commit 11e0747bdc
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Mar 28 22:44:29 2026 +0000
+
+    wslua: Fix some tostring formats
+
+    Use %d for integer values.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 903581338379d817a460de38ca96070400591903)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 0939cf989d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Mar 28 02:29:46 2026 +0000
+
+    ETSI DCP: Fix heap buffer overflow
+
+    The technique used to perform Reed-Solomon decoding in place requires
+    that extra space be present at the end of the output frame for the
+    last block's parity bytes and any zeroes (if the code is punctured
+    because the number of data bytes used is less than the maximum).
+
+    Also guard against a few other problems not in the POC; if RSk
+    is less than the maximum, memset the punctured bytes to 0, and
+    if RSk in the packet is greater than the maximum, do not attempt
+    Reed-Solomon decoding (which might have overflows in the calculations.)
+
+    Also fix the names of a couple defines which are swapped.
+
+    Fix #21122
+
+    AI-Assisted: no
+
+    (cherry picked from commit e8ef9df09d5a93352e27f2eef5dbb1b65adee0d7)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b14f85c1f0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Mar 26 23:15:26 2026 -0400
+
+    SSH: Don't memcmp if the MAC size if larger than the maximum supported
+
+    The SSH dissector only attempts to calculate the MAC for certain
+    algorithms, and in several places uses a fixed size buffer set at
+    48 bytes to hold the MAC. If the length of the negotiated MAC is
+    longer than that, it doesn't try to calculate it and returns a
+    buffer of length 48 memset to 0, but tries to memcmp that with
+    the requested length, e.g. 64 if HMAC-SHA2-512 was negotiated,
+    running into other variables in the frame. Don't call memcmp if
+    the negotiated length is longer than DIGEST_MAX_SIZE.
+    (Worse yet is a case of a crafted file with a claim to have
+    negotiated an extraordinarily long MAC.)
+
+    Fix #21117
+
+    AI-Assisted: no
+    (backported from commit 6324bad587891b9f6edf36a61ab0fd8690629977)
+
+commit dc045819cc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Mar 16 16:50:23 2026 -0400
+
+    wiretap: Keep record Buffer length accurate in all formats
+
+    A wiretap record has a Buffer as its data member. When appending new
+    data to the Buffer, the length should be kept accurate so that the
+    functions, e.g. ws_buffer_remote_start, work properly. This can be
+    done by calling the Buffer API functions, which do this automatically,
+    when appending, or by calling ws_buffer_increase_length. This also
+    enables some other checks that make buffer overruns, etc. less likely.
+
+    There are three different groups of file formats here.
+
+    First is a collection of file formats where switching to the Buffer API
+    is very natural, e.g. wtap_read_bytes -> wtap_read_bytes_buffer, or
+    memcpy -> ws_buffer_append: nettl, logcat_text, visual, pppdump, pcapng,
+    systemd_journal.
+
+    Second are a collecton of mostly hexdump formats, where some function,
+    often called parse_single_hex_dump_line is called one or more times.
+    For this, instead of passing in the raw pointer (and current offset),
+    pass in the Buffer, and increase the length at the end. These include
+    vms, toshiba, netscreen, log3gpp, ngsniffter, and dbs etherwatch.
+
+    Last are some formats with generally more complicated parsing. For now,
+    just add a ws_buffer_increase_length call near the end: vwr, mplog,
+    json_log, iseries, eyesdn, catapult_dct2000, and ascend.
+
+    In a few places the return value of ws_buffer_start_ptr can be
+    set to a const uint8_t* instead because the packet data is examined,
+    not modified.
+
+    Also, in a few places where g_strlcpy is used, advance the offset by
+    the minimum of the return value (+1) and the buffer width, since
+    g_strlcpy returns the number of characters that would have been
+    written if truncation occurs. (This probably isn't necessary because
+    the strings are already limited by buffers, but is more correct.)
+
+    Fix #21078
+
+    AI-Assisted: no
+    (backported from commit b80d283fd6496fef5fb8d1a192a689877360aff6)
+
+commit 6b8b8d1609
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Mar 23 13:02:00 2026 +0000
+
+    sbc: Fix Big Endian, Don't byte swap twice on Little Endian
+
+    The SBC codec is always Big Endian when compressed. The endian
+    parameter indicates whether decompressed samples (output when
+    decoding, input when encoding) are Little Endian or Big Endian
+    16-bit integers, and is set by default to the endianness of the
+    machine on which the platform was compiled.
+
+    Don't always set the endianness to Big Endian and then manually byte
+    swap. Using the default the returned frame is correct; this avoids
+    an extra byte swap on Little Endian machines and having Little Endian
+    samples that won't work on Big Endian.
+
+    RTP player produces the same results when tested with the file from #7893.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 157d2fe352aded887dceaebad90958d8cd1464db)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit ca4b7652d6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Mar 23 13:02:29 2026 +0000
+
+    RDP: Check for too long segments on the uncompressed path
+
+    The RDP 8.0 compression limits the maximum number of uncompressed
+    bytes in a single segment to 65,535 [MS-RDPEGFX] 3.1.9.1.2.
+    Check for that in the uncompressed path.
+
+    Fix #21105
+
+    AI-Assisted: no
+
+    (cherry picked from commit 87fb30a03d19bb2a0c8597e10c38f1657310fafd)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6b190f3f73
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Mar 23 13:03:36 2026 +0000
+
+    MP2T: add a wtap_read_bytes_or_eof_buffer() routine and use it.
+
+    Similar to wtap_read_bytes_buffer(); this simplifies the code a bit
+    (wtap_read_bytes_or_eof_buffer() does the work of assuring that there's
+    space in the Buffer) and snsures that the end pointer of the Buffer is
+    updated.
+
+    Clean up some comments while we're at it.
+
+    Ping #21078
+
+    (cherry picked from commit 2f23e64bc32c963147d50f8035cbeeb2a686664e)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 1b590291f5
+Author: Roland Knall <rknall@gmail.com>
+Date:   Mon Mar 23 13:10:19 2026 +0000
+
+    Qt::Guard better when loading zip files
+
+    Prevent traversal attacks using malicously created zip-files
+
+    Closes #21115
+    AI-Assisted: no
+
+    AI-Assisted: no|yes [tool(s)]
+
+    (cherry picked from commit 70c86bd39c74fc0052c9a212afc911b41d612388)
+
+    Co-authored-by: Roland Knall <rknall@gmail.com>
+
+commit 9a2ea7de87
+Author: Eugène Adell <eugene.adell@gmail.com>
+Date:   Mon Mar 23 07:57:47 2026 +0100
+
+    TLS: Regression on EAP, PEAP, with TLS conversations handling
+
+commit 3e2cd2e027
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Mar 23 01:43:18 2026 +0000
+
+    wiretap: Use Buffer functions instead of raw array for some file formats
+
+    See #21078, which this addresses for the poc1 there (CAM Inspector
+    files), but other file formats that call ws_buffer_start_ptr and
+    write to the array without calling ws_buffer_increase_length or
+    similar can also hit this issue.
+
+    Calling API functions that properly increment the first_free member
+    of the Buffer is less prone to this error.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 2e855045422216da09570f7777c89f8619564a7b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 2aaecc647a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Mar 22 23:34:30 2026 +0000
+
+    wsutil: Doxygen buffer.h
+
+    (cherry picked from commit 616e6e6285401033e5024ec803915b0ee75f8e3d)
+
+    Co-authored-by: Moshe Kaplan <mosheekaplan@gmail.com>
+
+commit 5cb9715fc2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Mar 22 23:31:40 2026 +0000
+
+    iLBC codec: Fix double-free
+
+    Fixup d871c6c6afad0e634e5d411debe5d8db75218d6b
+
+    Fix #21113
+
+    AI-Assisted: no
+
+    (cherry picked from commit 24ba8d3ba427b0aeda63ff83e4dbbce363e3ae44)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit bde6c0708a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Mar 22 23:30:12 2026 +0000
+
+    epan: Check appropriate flags are used with a NULL computed_checksum
+
+    Make sure that computed_checksum isn't NULL if the flags are set
+    to a value that would dereference it. (It probably wouldn't crash
+    if the checksum length is zero, though it's UB in one case and still
+    programmer error in the other two.)
+
+    Should hopefully resolve Coverity CID 1686366
+
+    AI-Assisted: no
+
+    (cherry picked from commit 17a5e46949c698fafb04da4b84361a6833a7f188)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 118a80b87e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Mar 22 23:30:39 2026 +0000
+
+    cosine: sscanf with unsigned char length modifier
+
+    When reading bytes, instead of scanning into an array of ints and then
+    casting, scan into an array of unsigned char with the hh length
+    modifier, so we can use memcpy.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 1f5936ee3b57fd4e3da7e1911db2fa235d90383c)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 21b599bb5c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Mar 22 20:01:50 2026 +0000
+
+    SDP: Avoid incorrectly freeing the rtp_dyn_payload mem
+
+    close #21112.
+
+    (cherry picked from commit 52da4caeac334f247c139786730198bbf264f70e)
+
+    Co-authored-by: Huang Qiangxiong <qiangxiong.huang@qq.com>
+
+commit 21b8de63ae
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 22 10:18:35 2026 +0000
+
+    [Automatic update for 2026-03-22]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 10717e2a41
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Mar 22 15:16:40 2026 +0000
+
+    AMR-NB codec: Fix overflow in mode 7 bandwidth-efficient
+
+    When transforming bandwidth-efficient encoded AMR to octet-aligned
+    and the speech bits are not an even number of bytes, write the last
+    bits in the proper place.
+
+    Fix #21111
+
+    AI-Assisted: no
+
+    (cherry picked from commit 11497589e298003ad0f6826e8edf00a57cadb9c7)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit d50df674ca
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Mar 21 15:29:36 2026 +0000
+
+    sbc codec: Fix heap buffer overflow and possible infinite loop
+
+    Check for a 0 or negative return value (error) from sbc_decode and
+    break out of the loop.
+
+    Decrement the remaining size for the input and output buffers to
+    prevent a heap buffer overflow
+
+    Thanks to Duc Anh Nguyen for the report and POC and proposed fix,
+    which I verified manually and tweaked, adding the infinite loop
+    check.
+
+    Fix #21103
+
+    AI-Assisted: probably (the report and POC looks AI-assisted)
+
+    (cherry picked from commit db67edfd7422454472ec9eec14781a1d46835872)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 5d7c6f9608
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Mar 21 12:19:37 2026 +0100
+
+    Test: Always use a defined test environment
+
+    I found a few small bugs in test/suite_decryption.py and
+    test/suite_dissectors/group_zabbix.py, causing some of them to be
+    inconsistent in their outcome. The problem is that they did not use
+    the test_env like most tests do, causing them to use the current
+    user's configuration profile. In my case this configuration had some
+    protocols disabled causing the tests to fail.
+
+    Authored-by: Wesley
+
+commit 425b2e6f21
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sat Mar 21 00:40:34 2026 +0000
+
+    Modbus: Distinguish "RTU over TCP" from "RTU only"
+
+    ModbusRTU over TCP should not have "broadcast messages" (unitID = 0), so if dissecting ModbusRTU over TCP, that should be considered "not a Modbus packet". But when ModbusRTU is over serial or requiring DLT_USER preference, broadcast messages are allowed.
+
+    Create a standalone dissection function for "ModbusRTU over TCP" that will filter out "broadcast messages" and have all other dissection call "regular" ModbusRTU that will allow broadcast messages.
+
+    Fixes #21091
+
+    AI-Assisted: no
+
+    (cherry picked from commit 4be8eb7e2bbf84edede1bd6db58f584ceff757ca)
+
+    Co-authored-by: Michael Mann <mmann78@netscape.net>
+
+commit 8c5d80df97
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Mar 20 19:45:38 2026 +0000
+
+    UDP: fix conversations for RTP/T38
+
+    (cherry picked from commit ca19e392b14aa771ac1d4bc11d9742e37a990e07)
+
+    d6cada47 UDP: fix conversations for RTP/T38
+
+    Co-authored-by: Eugène Adell <eugene.adell@gmail.com>
+
+commit d989f6ee53
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Thu Mar 12 21:51:05 2026 +0100
+
+    Cap File Prop Dialog: show iface name and description
+
+    Show the Interface Name and Interface Description at the same time.
+
+    Closes: #21069
+
+    AI-Assisted: no
+
+commit 920c50897b
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Mar 18 21:10:03 2026 +0000
+
+    toshiba: Fix a possible buffer overrun
+
+    The Toshiba hexdump file format writes in 8 groups of 2 bytes (4 hex
+    each) in network byte order, with a padding zero bytes added to the
+    last group if a packet has an odd number of bytes.
+
+    The implementation of parse_single_hex_dump_line in toshiba.c (different
+    from functions of the same name in other files) always tries to parse
+    all 8 groups. In the case of errors, this can end up parsing bytes
+    read from the file into the fixed line buffer from other lines, or
+    uninitialized data. Extra data past pkt_len are ignored and won't be
+    displayed to the user, but if a packet is shorter than the pkt_len
+    instead of an error incorrect data will be displayed.
+
+    In the worst case, because 'ws_buffer_assure_space' is called with
+    the actual packet len, but the number of bytes written to the buffer
+    is always rounded up to 16, it may be able to write off the end of
+    the Buffer, though the default buffer size and the way it is realloced
+    makes that unlikely.
+
+    Tested with files from #12394 and #1711 to see that they still work.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 50f4026309e35760f663f58d35602d58e0de7a64)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 5072fe9e1d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 17 11:58:34 2026 +0000
+
+    epan: Fix potential overflows in zlib decompression
+
+    Fix a couple of places that might overflow. (In one place, it
+    could lead to using an unusually small buffer.)
+
+    Also fix a potential overflow in format_text_internal when
+    expanding the buffer size.
+
+    Fix #21097, #21098. Cf. #13779, which is worse on processing time
+    even while using less memory, because of the use of x-www-form-urlencoded.
+
+    We could lower the limit more (and also in some of the other
+    compressors; zlib is unusual in having a pathological case of
+    a compression ratio over 1030:1 with, e.g., a buffer of only
+    zeroes.)
+
+    AI-Assisted: no
+
+    (cherry picked from commit db0beded03eea4a71425996e40f9d641305b09ad)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 10f6fcf400
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 15 10:56:20 2026 -0700
+
+    UI: Remove x86 support from our software update code
+
+    Ping #17779
+
+    AI-Assisted: no
+    (cherry picked from commit 08e217add65d670c483b336050c7d3ee4e311a5a)
+
+commit 4b0d8721db
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 15 10:53:52 2026 -0700
+
+    packaging: Update the SUFeedURL architecture on macOS
+
+    Switch the SUFeedURL architecture from x86-64 to arm64. We might want to
+    add a "universal" architecture at some point, but this more accurately
+    reflects the market share of Mac hardware at the present time.
+
+    Ping #21096
+
+    AI-Assisted: no
+    (cherry picked from commit 559345f382b737cb26ef0eb013c388097dab0dcf)
+
+commit 70f4f11b88
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 15 10:20:02 2026 +0000
+
+    [Automatic update for 2026-03-15]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a6200d8899
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Mar 15 02:43:50 2026 +0000
+
+    K12: Fix a possible stack overflow when writing, and print error
+
+    Check the length of a source descriptor record when writing a K12
+    file.
+
+    Convert a function from g_hash_table_foreach to using a GHashTableIter
+    in order to address an concern about error handling already mentioned
+    in a comment.
+
+    Thank to bcoles for the POC
+
+    Fix #21094
+
+    AI-Assisted: yes (Claude found the POC and suggested a solution, which
+    I verified and extended.)
+
+    (backported from commit a79be0f589c945233239aa30b74772fab086cfec)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 07d98ad73b
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Mar 14 08:41:57 2026 +0100
+
+    tls: Fix heap buffer overflow in ECH dissector
+
+    Widen extensions_end, outer_extensions_end, and outer_offset
+    variables from uint8_t/uint16_t to uint32_t to prevent integer
+    overflow when computing offsets.
+
+    Reported by Duc Anh Nguyen
+    Fixes #21090
+
+    AI-Assisted: no
+
+    (cherry picked from commit 6b0d6d3f21935f2be4ace2ece73bcb3482eb4e2e)
+
+commit a7f45110a3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Mar 13 09:29:34 2026 -0400
+
+    IKEv2: Rename Transform Type 2 according to RFC 9370
+
+    RFC 9370 renamed Transform Type 4 from "Diffie-Hellman Group (D-H)"
+    to "Key Exchange Method (KE)" and renamed a field in the Key Exchange
+    Payload from "Diffie-Hellman Group Num" to "Key Exchange Method".
+
+    Update the text description of the fields and variable names in IKEv2.
+
+    This commit intentionally does not change the display filter name for
+    those fields, so that this commit can optionally be backported to 4.6;
+    changing the display filter name will be in a subsequent commit.
+
+    References:
+    https://www.rfc-editor.org/rfc/rfc9370#section-abstract-3
+    https://www.rfc-editor.org/rfc/rfc9395.html
+
+    Ping #21072
+
+    AI-Assisted: no
+    (backported from commit 7f709a4d4a50767ad332fb1318cd818b067e43e5)
+
+commit b9c1170d39
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Mar 13 15:47:58 2026 -0700
+
+    CMake: Update Sparkle to 2.7.3
+
+    AI-Assisted: no
+    (cherry picked from commit bc56f61210ea34cc4e05e075292d12bef698bb05)
+
+commit 39a85d309b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 12 18:30:10 2026 -0700
+
+    GitLab CI + tools: update-appdata.py updates
+
+    We now run update-appdata.py in our weekly update job, so we don't need
+    to run it in the source package job.
+
+    Fix a syntax warning in the script itself.
+
+    (cherry picked from commit 4c4d6cd5797cfc81b43d9d8e2d175caf4804319c)
+
+commit 7d94e6e67a
+Author: Patrik Thunström <patrik.thunstroem@technica-engineering.de>
+Date:   Fri Mar 13 10:43:55 2026 +0100
+
+    BLF: Add forwarded event state values.
+
+    Event states for Forwarded sleep/wakeup
+    events were currently listed as unknown.
+
+    AI-Assisted: no
+
+    (cherry picked from commit e503dd53a45e234b0c164af04895854438313d78)
+
+    Co-authored-by: Patrik Thunström <patrik.thunstroem@technica-engineering.de>
+
+commit 4997207771
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Mar 13 03:48:20 2026 +0000
+
+    AFP Spotlight: Add recursion checks
+
+    AFP is sent over DSI, which is segmented over TCP and has a
+    32-bit PDU length. This can cause stack overflow from the recursive
+    calls in spotlight_dissect_query_loop when there is a NULL tree.
+
+    Thanks to bcoles for the POC.
+
+    Fix #21088
+
+    AI-Assisted: yes (reporter used Claude; I personally verified solution)
+
+    (cherry picked from commit 6abb63feb490a087cd13dd1fa881dddea1104c9c)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 7d658e92ce
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Mar 12 11:09:30 2026 -0400
+
+    ICMPv6: Fix typo in previous commit
+
+    Actually pass in the subset tvb.
+
+    Fixup 941a5458166690756bd09d91e9ad8682bd0d110c
+
+    AI-Assisted: no
+    (backported from commit ac7d2b686673e7ceffdafa207eb248c7531d0ae5)
+
+commit 0a3506581b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Mar 11 14:26:15 2026 -0400
+
+    ICMPv6: Don't parse RA options outside a PvD option when parsing PvD
+
+    The ICMPv6 Router Advertisement PvD option can contain, as a trailer,
+    "zero or more RA options that would otherwise be valid as part of the
+    Router Advertisement main body but are instead included in the PvD
+    Option so as to be ignored by hosts that are not PvD aware."[1]
+
+    When parsing a PvD option, take a subset tvbuffer so that only those
+    options are parsed when parsing the PvD options, and not the remaining
+    options in a message. This avoids processing options more than once,
+    once for each preceding PvD options, which is O(N^2). Use the same
+    technique as for the option Redirected Header (4).
+
+    Thanks to bcoles for providing a POC.
+
+    Fix #21077
+
+    [1] https://datatracker.ietf.org/doc/html/rfc8801#section-3.1-3.24
+    AI-Assisted: no
+
+    (backported from commit 941a5458166690756bd09d91e9ad8682bd0d110c)
+
+commit 1d785ae4ad
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Mar 11 10:11:15 2026 +0000
+
+    fcswils: Add recursion checks
+
+    The Fibre Channel dissector supports reassembly, so we won't necessarily
+    run out of packet before running out of stack.
+
+    Fix #21070
+
+    Thanks to bcoles for reporting this.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 202b29b237151f1ff75ee7664bbeffe9fe46eb97)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 98340697c2
+Author: Patrik Thunström <patrik.thunstroem@technica-engineering.de>
+Date:   Wed Mar 11 07:32:44 2026 +0100
+
+    BLF: blf_add_idb doesn't populate entries (Bugfix)
+
+    Whenever blf_add_idb was called it only expanded
+    the interface list, without populating the new entries.
+    This removed crashing/bugs, but also made all
+    newly added interfaces use channel 0.
+
+    Improves the fix for #20976
+
+    AI-Assisted: no
+
+    (cherry picked from commit cc4e3353a5ad6b6d9a84e860bd4dc34d91589676)
+
+    Co-authored-by: Patrik Thunström <patrik.thunstroem@technica-engineering.de>
+
+commit 7824939bea
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 10 20:18:02 2026 +0000
+
+    Monero: Add recursion checks
+
+    A struct (dictionary) which contains values which are structs
+    adds two tree layers each time. A minimal size key (length 1)
+    means 4 octets per struct level. With a very large reassembly
+    from many TCP segments, this requires recursion checks.
+
+    Fix #21066
+
+    Thanks to bcoles for the POC.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 21984e264a49d548333c302e2062a7d206b7810e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 91c4058016
+Author: Patrik Thunström <patrik.thunstroem@technica-engineering.de>
+Date:   Tue Mar 10 21:53:48 2026 +0100
+
+    BLF: Bugfix in interface mapping from BLF input
+
+    First pass correctly checks for WTAP_OPTTYPE_SUCCESS
+    as return value, while the second pass only assigns the return
+    value directly to the bool. Since WTAP_OPTTYPE_SUCCESS
+    is 0, this negates the actual result.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 38246051e43c7e9cb9667a240ab43fad4c202b41)
+
+    Co-authored-by: Patrik Thunström <patrik.thunstroem@technica-engineering.de>
+
+commit 6ac32b9182
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Mar 9 20:33:41 2026 -0400
+
+    BT DHT: Add recursion checks
+
+    Lists can be as small as two bytes, so in a crafted maximum size UDP
+    datagram the stack can overflow for stack sizes under 1.5 MiB or so.
+
+    Dictionaries are a little bigger, but go ahead and check anyway
+    (dictionaries and lists can be nested within each other.)
+
+    Thanks to bcoles for the POC.
+
+    Fix #21067
+
+    AI-Assisted: no
+
+    (backported from commit 7b2de9d1d129bf78ef45f3610ef0c4dfda9e26eb)
+
+commit c129e07ca4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Mar 9 12:39:04 2026 -0400
+
+    SMB2: Check for offset overflow in two more places
+
+    Use the ckd_add functions (which are available on all currently
+    supported branches) to make it obvious what is going on and avoid
+    technically UB.
+
+    Thanks to bcoles for reporting.
+
+    Fix #21073
+
+    AI-Assisted: no
+    (backported from commit 084392e363f7b7a9d57993e867d6b8bfcf839d06)
+
+commit 3c769f41e8
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Wed Mar 4 10:09:27 2026 -0500
+
+    ASAM CMP: Do not show Ethernet Padding as CMP (Bugfix)
+
+    Detect Ethernet Padding and do not show it as ASAM CMP.
+
+commit 0faf34ab79
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Sun Mar 8 21:04:38 2026 +0100
+
+    packaging: Update OpenCore-AMR for SUSE
+
+    (cherry picked from commit dd9ce53a9f5c15e1e274951775418db6a93e4063)
+
+    Co-authored-by: Joakim Karlsson <oakimk@gmail.com>
+
+commit bec7006f9c
+Author: Patrik Thunström <patrik.thunstroem@technica-engineering.de>
+Date:   Sun Mar 8 10:08:07 2026 +0100
+
+    BLF: Improve compatibility by setting a file start time.
+
+    Tools only showing data generally have no issue, tools visualizing
+    a time line or replaying historical data, have issues if they
+    don't have a reasonable duration of the log file.
+
+    AI-Assisted: no
+
+    (cherry picked from commit c336d0d09416c81d4a3fa1a0dde4e3014f2161df)
+
+    Co-authored-by: Patrik Thunström <patrik.thunstroem@technica-engineering.de>
+
+commit 3ec9f7d690
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 8 10:18:46 2026 +0000
+
+    [Automatic update for 2026-03-08]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit c29159e45e
+Author: Giovanni Musto <giovanni.musto@italdesign.it>
+Date:   Sat Mar 7 21:26:15 2026 +0100
+
+    Plot: Fix plotting without current filter
+
+    (cherry picked from commit 64c6671047bf48f83951d0be4955e8735ccce9d1)
+
+    Co-authored-by: Giovanni Musto <giovanni.musto@italdesign.it>
+
+commit c557b288eb
+Author: Giovanni Musto <giovanni.musto@italdesign.it>
+Date:   Tue Feb 24 11:15:52 2026 +0100
+
+    Plot: Fix automatic range of x axis to fit all data
+
+    (cherry picked from commit 98e4714f7cf6bc134ce1c19a6f70d9db07ecf02e)
+
+commit 20f2978da3
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Fri Mar 6 15:41:27 2026 +0100
+
+    Signal-PDU: Wireshark should not stop on illegal profile (bugfix)
+
+    An illegal profile might configure a Signal PDU list Signal entry
+    as a string type and define in the Signal PDU Signal value.
+    Wireshark should just ignore that instead of exiting.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 7c43b37f313126d036464985dff96c4e9cb40be9)
+
+    Co-authored-by: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+
+commit 4c67c2b505
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Fri Mar 6 07:26:52 2026 +0000
+
+    ieee1722.1: Stream Input Counters do not contain a TX count
+
+    Fixes #21055
+
+    AI-Assisted: no
+
+    (cherry picked from commit e72df4fc3cf0f3abf3c1e134d631a80899d85ae6)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit c6b4e822f8
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Fri Mar 6 07:29:34 2026 +0000
+
+    DMX: Fix: Don't pass start-code to sub dissectors
+
+    (cherry picked from commit e1033766e925762fb9b07788c2f1a90e4c04ba93)
+
+    8b054ade DMX: Fix: Don't pass start-code to sub dissectors
+
+    Co-authored-by: Matt Morris <31448333-mattmdev@users.noreply.gitlab.com>
+
+commit 5017e53452
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 5 12:20:29 2026 -0800
+
+    CMake: Make FetchArtifacts download failures noisy
+
+    AI-Assisted: no
+    (cherry picked from commit a038f9e8a907f18a88e7dd18d2220681cc2e85e6)
+
+commit 4de3594832
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 3 14:14:51 2026 +0000
+
+    BT HCI_ISO: Don't create a TVB with uninitialized data
+
+    When reassembling, set the captured length of the TVB to the number of
+    bytes actually added to the reassembly, not the number of bytes
+    expected.
+
+    Fix #21049
+
+    AI-Assisted: no
+
+    (cherry picked from commit 6202845fe67f7ca40629961ab239fdea4be64717)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 52cddebb9c
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Tue Mar 3 19:04:03 2026 +0000
+
+    darwin: Terminate a generated value_string
+
+    Terminate the value_string in populate_drop_reason_details().
+
+    Fix #21058
+
+    (cherry picked from commit f5f5b9d546ec6bfd7e15e534d2575ffa10e336bc)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 50ab261086
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 2 13:22:12 2026 -0800
+
+    GitLab CI: Assign environments to some jobs
+
+    AI-Assisted: no
+    (cherry picked from commit 0d38f6fdf4a7749227b373ceaf4fb31506512425)
+
+commit a1fb34d5cb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 1 10:18:17 2026 +0000
+
+    [Automatic update for 2026-03-01]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 8c31c4b7eb
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Feb 28 22:03:51 2026 +0000
+
+    wmem: Remove G_GNUC_MALLOC from fns that return a pointer to allocator
+
+    Many of the wmem functions return an object which, among other things,
+    stores a pointer to the wmem_allocator_t used to allocate the memory.
+    These cannot be marked with G_GNUC_MALLOC (i.e. __attribute__ ((malloc)) )
+    because:
+
+            "However, functions like realloc do not have this property, as they may
+            return pointers to storage containing pointers to existing objects"
+
+    The functions that return a newly allocated memory or a newly allocated
+    string only, and do not store a pointer to the wmem_allocator_t (but
+    require being freed appropriately) are fine.
+
+    https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-malloc-function-attribute
+
+    https://gitlab.gnome.org/GNOME/glib/-/issues/1465
+
+    Ping #18216
+
+    AI-Assisted: no
+
+    (cherry picked from commit ab7990da09242449b3e8a86d0216a89c9764c37d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 27fb666729
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Feb 28 15:12:24 2026 +0000
+
+    UAT: Fix parsing empty hexstrings at the end of files
+
+    The END_OF_RECORD state expects to see a newline next, so
+    return it with yyless.
+
+    Do the same work to check if there are enough fields and
+    fill in defaults when a line ends with an empty hexstring
+    (i.e., with a comma) as the other cases of premature
+    termination.
+
+    Also, don't increment the line number in when encountering
+    a newline when expecting a separator (not enough fields),
+    because we put the newline back and the END_OF_RECORD state
+    then increments the line number.
+
+    Fix #21036
+
+    AI-Assisted: no
+
+    (cherry picked from commit 690d01eb62dc720ea60017201657e61fe9ea496d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit d45da55e39
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Feb 27 17:46:59 2026 +0000
+
+    JSON-3GPP: Fix a few GRegex-related memory leaks.
+
+    Release the GMatchInfo using g_match_info_free, and g_free() the matched
+    substrings too.  With the GMatchInfo object now releasing its own reference to
+    the GRegex object, we must no longer "unref" the GRegex: we still hold a
+    reference to it in a static variable for later re-use.  (It was only the leak
+    of the reference held by the GMatchInfo object that was preventing further
+    usage of the GRegex from becoming a use-after-free.)
+
+    (backported from commit 88c9912b496fcbd429fcf0e68eee16b7e6d93736)
+
+    Co-authored-by: Darius Davis <darius-wireshark@free-range.com.au>
+
+commit e066f78cbf
+Author: Patrik Thunström <patrik.thunstroem@technica-engineering.de>
+Date:   Sat Feb 14 19:28:33 2026 +0100
+
+    BLF: Add padding to last log object when closing log container.
+
+    Keeps last object header and its position on disk in the writer data.
+    When log container then is closed the last object can be expanded,
+    to allow the start and end of log containers to be 4 byte aligned.
+
+    Fixes #21017
+
+    AI-Assisted: no
+    (cherry picked from commit 78a1aac7057d31b9b6d06305cdceed4f2469fee3)
+
+commit 7923be86a1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 25 14:12:41 2026 -0800
+
+    Version: 4.6.4 → 4.6.5 [skip ci]
