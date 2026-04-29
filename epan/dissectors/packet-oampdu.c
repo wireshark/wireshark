@@ -1193,6 +1193,7 @@ static int hf_oam_dpoe_user_port_object_result_rr_queue_obj_inst;
 static int hf_oam_dpoe_user_port_object_result_rr_queue_queue_index;
 static int hf_oam_dpoe_user_port_object_result_rr_set_fc;
 static int hf_oam_dpoe_user_port_object_result_rr_set_fi;
+static int hf_oam_dpoe_user_port_object_result_rr_set_value;
 static int hf_oam_dpoe_user_port_object_result_rr_copy;
 static int hf_oam_dpoe_user_port_object_result_rr_delete;
 static int hf_oam_dpoe_user_port_object_result_rr_insert;
@@ -2268,6 +2269,9 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                                 proto_item_append_text(dpoe_opcode_response, " Set output field");
                                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_fc, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_fi, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+                                                if (variable_length > 4) {
+                                                    proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_value, tvb, offset+4, variable_length-4, ENC_NA);
+                                                }
                                                 break;
                                             case 0x05:
                                                 proto_item_append_text(dpoe_opcode_response, " Copy output field");
@@ -3164,6 +3168,11 @@ proto_register_oampdu(void)
         { &hf_oam_dpoe_user_port_object_result_rr_set_fi,
             { "Field Instance", "oampdu.user.port.object.result.rr.set.fi",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_user_port_object_result_rr_set_value,
+            { "Set Value", "oampdu.user.port.object.result.rr.set.value",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_copy,
