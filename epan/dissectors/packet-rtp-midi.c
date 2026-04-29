@@ -4380,7 +4380,7 @@ decode_mtc_quarter_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	command_tree = proto_tree_add_subtree(tree, tvb, offset - 1, 2, ett_rtp_midi_command, NULL, status_str );
 	proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset - 1, 1, ENC_BIG_ENDIAN );
 	proto_tree_add_item( command_tree, hf_rtp_midi_quarter_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-	proto_tree_add_item( command_tree, hf_rtp_midi_quarter_frame_value, tvb, offset + 1, 1, ENC_BIG_ENDIAN );
+	proto_tree_add_item( command_tree, hf_rtp_midi_quarter_frame_value, tvb, offset, 1, ENC_BIG_ENDIAN );
 
 	if ( cmd_count ) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", status_str );
