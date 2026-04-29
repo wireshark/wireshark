@@ -93,14 +93,47 @@
 		},
 		{
 			"type": "sponsorship",
-			"tag": "Sponsors",
-			"title": "Support Wireshark",
-			"description": "Help keep Wireshark free",
-			"description_sub": "and open source",
-			"body_text": "Your sponsorship funds development, infrastructure, and community events.",
-			"button_label": "Become a Sponsor",
-			"url": "https://wiresharkfoundation.org/donate/",
-			"image": "sponsors.png"
+			"tag": "Gold Sponsor",
+			"title": "Endace",
+			"description": "Network recording and packet capture",
+			"description_sub": "High-speed, lossless recording with EndaceProbes",
+			"body_text": "Endace's purpose-built appliances let you capture, store, and investigate every packet at scale",
+			"button_label": "Visit Website",
+			"url": "https://www.endace.com",
+			"image": "sponsors/endace-gold.svg"
+		},
+		{
+			"type": "sponsorship",
+			"tag": "Gold Sponsor",
+			"title": "Google",
+			"description": "The world's #1 search engine",
+			"description_sub": "Thank you for supporting the Wireshark foundation!",
+			"body_text": "Thank you, Google, for supporting the Wireshark foundation and the open source community.",
+			"button_label": "Visit Website",
+			"url": "https://www.google.com",
+			"image": "sponsors/google-gold.svg"
+		},
+		{
+			"type": "sponsorship",
+			"tag": "Gold Sponsor",
+			"title": "Profitap",
+			"description": "Packet capture and network analysis",
+			"description_sub": "Take a look at their IOTA and ProfiSharks",
+			"body_text": "Helping you trust every packet with purpose-built packet capture and analysis solutions",
+			"button_label": "Visit Website",
+			"url": "https://www.profitap.com",
+			"image": "sponsors/profitap-gold.svg"
+		},
+		{
+			"type": "sponsorship",
+			"tag": "Gold Sponsor",
+			"title": "Recall AI",
+			"description": "Meeting intelligence and transcription",
+			"description_sub": "The API to get transcripts, recordings, and metadata from meetings.",
+			"body_text": "The infrastructure behind all your favorite meeting recording products, Recall AI provides a powerful API to get transcripts, recordings, and metadata from meetings.",
+			"button_label": "Visit Website",
+			"url": "https://www.recall.ai",
+			"image": "sponsors/recallai-gold.svg"
 		},
 		{
 			"type": "tips",
