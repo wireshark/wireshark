@@ -5836,7 +5836,7 @@ proto_reg_handoff_ipv6(void)
     dissector_add_uint("ipv6.routing.type", IPv6_RT_HEADER_COMPACT_16, h);
     dissector_add_uint("ipv6.routing.type", IPv6_RT_HEADER_COMPACT_32, h);
 
-    heur_dissector_add("dect_nr.dlc", dissect_ipv6_heur, "IPv6 over DECT NR+", "ipv6_dect_nr", proto_ipv6, HEURISTIC_ENABLE);
+    heur_dissector_add("dect_nr.dlc", dissect_ipv6_heur, "IPv6 over DLC DECT NR+", "ipv6_dect_nr", proto_ipv6, HEURISTIC_ENABLE);
 
     ilnp_handle = find_dissector_add_dependency("ilnp", proto_ipv6_dstopts);
 

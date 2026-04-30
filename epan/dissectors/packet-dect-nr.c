@@ -520,6 +520,37 @@ static int hf_dect_nr_segment_count;
 static int hf_dect_nr_reassembled_in;
 static int hf_dect_nr_reassembled_length;
 
+/* CVG */
+static int hf_dect_nr_cvg_pdu;
+
+/* CVG Header */
+static int hf_dect_nr_cvg_header;
+static int hf_dect_nr_cvg_header_cvg_ext;
+static int hf_dect_nr_cvg_header_mt;
+static int hf_dect_nr_cvg_header_ie_type;
+static int hf_dect_nr_cvg_header_f2c;
+static int hf_dect_nr_cvg_header_mux_tag;
+static int hf_dect_nr_cvg_header_length;
+
+/* CVG IEs */
+static int hf_dect_nr_cvg_ep_mux_ie;
+static int hf_dect_nr_cvg_ep_mux_ie_endpoint;
+static int hf_dect_nr_cvg_data_ie;
+static int hf_dect_nr_cvg_data_ie_si;
+static int hf_dect_nr_cvg_data_ie_sli;
+static int hf_dect_nr_cvg_data_ie_seq_num;
+static int hf_dect_nr_cvg_data_ie_sdu_len;
+static int hf_dect_nr_cvg_data_ie_seg_offset;
+static int hf_dect_nr_cvg_data_ep_ie;
+static int hf_dect_nr_cvg_data_ep_ie_endpoint;
+static int hf_dect_nr_cvg_data_transp_ie;
+static int hf_dect_nr_cvg_security_ie;
+static int hf_dect_nr_cvg_tx_services_conf_ie;
+static int hf_dect_nr_cvg_arq_fb_ie;
+static int hf_dect_nr_cvg_arq_poll_ie;
+static int hf_dect_nr_cvg_flow_status_ie;
+static int hf_dect_nr_cvg_escape;
+
 /* Miscellaneous */
 static int hf_dect_nr_mac_encrypted;
 static int hf_dect_nr_conv_index;
@@ -573,10 +604,22 @@ static int ett_dect_nr_dlc_routing_hdr;
 static int ett_dect_nr_dlc_ext_hdr;
 static int ett_dect_nr_segment;
 static int ett_dect_nr_segments;
+static int ett_dect_nr_cvg;
+static int ett_dect_nr_cvg_header;
+static int ett_dect_nr_cvg_ep_mux_ie;
+static int ett_dect_nr_cvg_data_ep_ie;
+static int ett_dect_nr_cvg_data_ie;
+static int ett_dect_nr_cvg_data_transp_ie;
+static int ett_dect_nr_cvg_security_ie;
+static int ett_dect_nr_cvg_tx__services_conf_ie;
+static int ett_dect_nr_cvg_arq_fb_ie;
+static int ett_dect_nr_cvg_arq_poll_ie;
+static int ett_dect_nr_cvg_flow_status_ie;
 
 static dissector_handle_t dect_nr_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t ipv6_handle;
+static dissector_handle_t sixlowpan_handle;
 
 static dissector_table_t mac_hdr_dissector_table;
 static dissector_table_t ie_dissector_table;
@@ -606,6 +649,7 @@ static const enum_val_t phf_type_pref_vals[] = {
 typedef enum {
 	DLC_DATA_TYPE_AUTO,
 	DLC_DATA_TYPE_BINARY,
+	DLC_DATA_TYPE_CVG,
 	DLC_DATA_TYPE_IPv6,
 } dlc_data_type_t;
 
@@ -613,6 +657,7 @@ static int dlc_data_type_pref = DLC_DATA_TYPE_AUTO;
 static const enum_val_t dlc_data_type_pref_vals[] = {
 	{ "auto", "Automatic", DLC_DATA_TYPE_AUTO },
 	{ "binary", "Binary (data)", DLC_DATA_TYPE_BINARY },
+	{ "cvg", "CVG layer", DLC_DATA_TYPE_CVG },
 	{ "ipv6", "IPv6", DLC_DATA_TYPE_IPv6 },
 	{ NULL, NULL, -1 }
 };
@@ -1786,6 +1831,69 @@ static const value_string dlc_routing_type_vals[] = {
 	{ 0, NULL }
 };
 
+/** ETSI TS 103 636-5 Table 6.3.2-1: CVG Ext coding */
+static const value_string dect_nr_cvg_header_ext_vals[] = {
+	{ 0, "No length field included" },
+	{ 1, "8-bit length included" },
+	{ 2, "16-bit length included" },
+	{ 3, "Reserved" },
+	{ 0, NULL }
+};
+
+/** ETSI TS 103 636-5 Table 6.3.2-2: CVG IE Type coding */
+static const value_string dect_nr_cvg_header_ie_type_vals[] = {
+	{ 0, "EP mux IE" },
+	{ 1, "Data IE" },
+	{ 2, "Data EP IE" },
+	{ 3, "Data Transparent IE" },
+	{ 4, "Security IE" },
+	{ 5, "TX Services Config IE" },
+	{ 6, "ARQ Feedback IE" },
+	{ 7, "ARQ Poll IE" },
+	{ 8, "Flow Status IE" },
+	{ 30, "Escape" },
+	{ 31, "Reserved" },
+	{ 0, NULL }
+};
+
+static const value_string dect_nr_cvg_header_mt_vals[] = {
+	{ 0, "Header Format 1" },
+	{ 1, "Header Format 2" },
+	{ 0, NULL }
+};
+
+/** ETSI TS 103 636-5 Table 6.3.2-3: F2C coding */
+static const value_string dect_nr_cvg_header_f2c_vals[] = {
+	{ 0, "Data IE" },
+	{ 1, "ARQ Feedback IE" },
+	{ 2, "IE coding with CVG IE Type field" },
+	{ 3, "Reserved" },
+	{ 0, NULL }
+};
+
+/** ETSI TS 103 636-5 Table 6.3.4-1: CVG SI Coding */
+static const value_string dect_nr_cvg_si_coding[] = {
+	{ 0, "Payload field contains a complete SDU" },
+	{ 1, "Payload field contains the first segment of an SDU" },
+	{ 2, "Payload field contains the last segment of an SDU" },
+	{ 3, "Payload field contains neither the first nor the last segment of an SDU" },
+	{ 0, NULL }
+};
+
+/** ETSI TS 103 636-5 Table 6.3.4-2: CVG SLI Coding */
+static const value_string dect_nr_cvg_sli_coding[] = {
+	{ 0, "SDU length not included" },
+	{ 1, "SDU length included" },
+	{ 0, NULL }
+};
+
+/** DECT-2020 NR Endpoint Multiplexing Address Allocation: values for public specs */
+static const value_string dect_nr_cvg_ep_mux_values[] = {
+	{ 0x8002, "IETF RFC8200: Internet Protocol, Version 6 (IPv6)" },
+	{ 0x8003, "IETF RFC6282: IPv6 LoWPAN Header Compression" },
+	{ 0, NULL }
+};
+
 /* DLC Reassembly */
 
 static const fragment_items dect_nr_segment_items = {
@@ -2512,6 +2620,308 @@ static int dissect_dlc_routing_header(tvbuff_t *tvb, int offset, packet_info *pi
 	return offset;
 }
 
+static int dissect_dect_nr_cvg_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, uint8_t ie_type, uint32_t offset, uint32_t ie_len)
+{
+	uint16_t ep_mux, seq_num, sdu_len, seg_offset;
+	uint8_t si, sli;
+
+	proto_item *item;
+	proto_item *tree;
+	proto_item *uc_item;
+
+	tvbuff_t *subtvb;
+
+	switch (ie_type) {
+	case 0: /* EP Mux IE */
+		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_ep_mux_ie, tvb, offset, ie_len, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_ep_mux_ie);
+		proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_ep_mux_ie_endpoint, tvb, offset, 2, ENC_NA, &ep_mux);
+		offset += 2;
+		break;
+
+	case 1: /* Data IE */
+		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_data_ie, tvb, offset, ie_len, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_data_ie);
+
+		proto_tree_add_item_ret_uint8(tree, hf_dect_nr_cvg_data_ie_si, tvb, offset, 1, ENC_BIG_ENDIAN, &si);
+		proto_tree_add_item_ret_uint8(tree, hf_dect_nr_cvg_data_ie_sli, tvb, offset, 1, ENC_BIG_ENDIAN, &sli);
+		proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_data_ie_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN, &seq_num);
+		offset += 2;
+
+		if (sli == 1) { /* Length included */
+			proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_data_ie_sdu_len, tvb, offset, 2, ENC_BIG_ENDIAN, &sdu_len);
+			offset += 2;
+		}
+		if (si == 2 || si == 3) { /* The payload field contains an incomplete SDU and is not the first segment */
+			proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_data_ie_seg_offset, tvb, offset, 2, ENC_BIG_ENDIAN, &seg_offset);
+			offset += 2;
+		}
+		subtvb = tvb_new_subset_length(tvb, offset, ie_len);
+
+		/* No COL_INFO updates from the data dissector */
+		col_set_writable(pinfo->cinfo, COL_INFO, false);
+		call_dissector(data_handle, subtvb, pinfo, proto_tree_get_root(tree));
+		col_set_writable(pinfo->cinfo, COL_INFO, true);
+		break;
+
+	case 2: /* Data EP IE */
+		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_data_ep_ie, tvb, offset, ie_len, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_data_ep_ie);
+		proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_data_ep_ie_endpoint, tvb, offset, 2, ENC_NA, &ep_mux);
+		offset += 2;
+
+		proto_tree_add_item_ret_uint8(tree, hf_dect_nr_cvg_data_ie_si, tvb, offset, 1, ENC_BIG_ENDIAN, &si);
+		proto_tree_add_item_ret_uint8(tree, hf_dect_nr_cvg_data_ie_sli, tvb, offset, 1, ENC_BIG_ENDIAN, &sli);
+		proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_data_ie_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN, &seq_num);
+		offset += 2;
+
+		if (sli == 1) { /* Length included */
+			proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_data_ie_sdu_len, tvb, offset, 2, ENC_BIG_ENDIAN, &sdu_len);
+			offset += 2;
+		} else { /* Length not included */
+			sdu_len = ie_len;
+		}
+
+		if (si == 2 || si == 3) { /* The payload field contains an incomplete SDU and is not the first segment */
+			proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_data_ie_seg_offset, tvb, offset, 2, ENC_BIG_ENDIAN, &seg_offset);
+			offset += 2;
+		}
+
+		subtvb = tvb_new_subset_length(tvb, offset, sdu_len);
+
+		/* DECT-2020 NR Endpoint Multiplexing Address Allocation */
+		switch (ep_mux) {
+		case 0x8002:
+			/* No COL_INFO updates from the dect_nr dissector after IPv6 */
+			col_set_writable(pinfo->cinfo, COL_INFO, true);
+			call_dissector(ipv6_handle, subtvb, pinfo, proto_tree_get_root(tree));
+			col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "DECT NR+/");
+			col_set_writable(pinfo->cinfo, COL_INFO, false);
+			break;
+
+		case 0x8003:
+			/* No COL_INFO updates from the dect_nr dissector after 6LoWPAN */
+			col_set_writable(pinfo->cinfo, COL_INFO, true);
+			call_dissector(sixlowpan_handle, subtvb, pinfo, proto_tree_get_root(tree));
+			col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "DECT NR+/");
+			col_set_writable(pinfo->cinfo, COL_INFO, false);
+			break;
+
+		default:
+			/* No COL_INFO updates from the data dissector */
+			col_set_writable(pinfo->cinfo, COL_INFO, false);
+			call_dissector(data_handle, subtvb, pinfo, proto_tree_get_root(tree));
+			col_set_writable(pinfo->cinfo, COL_INFO, true);
+			break;
+		}
+		break;
+
+	case 3: /* Data Transparent IE */
+		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_data_transp_ie, tvb, offset, ie_len, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_data_transp_ie);
+
+		subtvb = tvb_new_subset_length(tvb, offset, ie_len);
+
+		/* No COL_INFO updates from the data dissector */
+		col_set_writable(pinfo->cinfo, COL_INFO, false);
+		call_dissector(data_handle, subtvb, pinfo, tree);
+		col_set_writable(pinfo->cinfo, COL_INFO, true);
+
+		col_add_fstr(pinfo->cinfo, COL_INFO, "CVG: Data Transparent IE, Length: %u", ie_len);
+		break;
+
+	case 4: /* Security IE */
+		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_security_ie, tvb, offset, ie_len, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_security_ie);
+
+		/* TODO: Dissect Security IE */
+		call_dissector(data_handle, tvb, pinfo, tree);
+		break;
+
+	case 5: /* TX Services Config IE */
+		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_tx_services_conf_ie, tvb, offset, ie_len, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_tx__services_conf_ie);
+
+		/* TODO: Dissect TX Services Config IE */
+		call_dissector(data_handle, tvb, pinfo, tree);
+		break;
+
+	case 6: /* ARQ Feedback IE */
+		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_arq_fb_ie, tvb, offset, ie_len, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_arq_fb_ie);
+
+		/* TODO: ARQ Feedback IE */
+		call_dissector(data_handle, tvb, pinfo, tree);
+		break;
+
+	case 7: /* ARQ Poll IE */
+		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_arq_poll_ie, tvb, offset, ie_len, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_arq_poll_ie);
+
+		/* TODO: ARQ Poll IE */
+		call_dissector(data_handle, tvb, pinfo, tree);
+		break;
+
+	case 8: /* Flow Status IE */
+		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_flow_status_ie, tvb, offset, ie_len, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_flow_status_ie);
+
+		/* TODO: Flow Status IE */
+		call_dissector(data_handle, tvb, pinfo, tree);
+		break;
+
+	case 30: /* Escape */
+		proto_tree_add_item(parent_tree, hf_dect_nr_cvg_escape, tvb, offset, ie_len, ENC_NA);
+		break;
+
+	default: /* Reserved */
+		uc_item = proto_tree_add_item(parent_tree, hf_dect_nr_undecoded, tvb, offset, ie_len, ENC_NA);
+		expert_add_info(pinfo, uc_item, &ei_dect_nr_undecoded);
+		return -1;
+	}
+
+	return 0;
+}
+
+static void dissect_cvg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	uint32_t ie_type, cvg_ext, mt, f2c, mux_tag;
+	int cvg_layer_len;
+	proto_item *cvg_header_item;
+	proto_tree *cvg_header_tree;
+	proto_tree *cvg_header_length_item = NULL;
+	uint32_t header_len, ie_len;
+	uint32_t len;
+
+	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_pdu, tvb, 0, -1, ENC_NA);
+	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_cvg);
+
+	cvg_layer_len = tvb_captured_length(tvb);
+	proto_item_set_len(item, cvg_layer_len);
+
+	/* CVG header tree */
+	header_len = 1;
+	cvg_header_item = proto_tree_add_item(tree, hf_dect_nr_cvg_header, tvb, 0, 1, ENC_NA);
+	cvg_header_tree = proto_item_add_subtree(cvg_header_item, ett_dect_nr_cvg_header);
+
+	proto_tree_add_item_ret_uint(cvg_header_tree, hf_dect_nr_cvg_header_cvg_ext, tvb, 0, 1, ENC_BIG_ENDIAN, &cvg_ext);
+	proto_tree_add_item_ret_uint(cvg_header_tree, hf_dect_nr_cvg_header_mt, tvb, 0, 1, ENC_BIG_ENDIAN, &mt);
+
+	if (mt == 0) { /* CVG Header format 1 */
+		proto_tree_add_item_ret_uint(cvg_header_tree, hf_dect_nr_cvg_header_ie_type, tvb, 0, 1, ENC_BIG_ENDIAN, &ie_type);
+		proto_item_append_text(cvg_header_tree, ": IE type: %s", val_to_str_const(ie_type, dect_nr_cvg_header_ie_type_vals, "Unknown"));
+		proto_item_append_text(item, ": %s", val_to_str_const(ie_type, dect_nr_cvg_header_ie_type_vals, "Unknown"));
+	} else { /* CVG Header format 2 */
+		proto_tree_add_item_ret_uint(cvg_header_tree, hf_dect_nr_cvg_header_f2c, tvb, 0, 1, ENC_BIG_ENDIAN, &f2c);
+		proto_item_append_text(cvg_header_tree, ": F2C: %s", val_to_str_const(f2c, dect_nr_cvg_header_f2c_vals, "Unknown"));
+		proto_item_append_text(item, ": %s", val_to_str_const(f2c, dect_nr_cvg_header_f2c_vals, "Unknown"));
+
+		proto_tree_add_item_ret_uint(cvg_header_tree, hf_dect_nr_cvg_header_mux_tag, tvb, 0, 1, ENC_BIG_ENDIAN, &mux_tag);
+		proto_item_append_text(cvg_header_tree, ": Mux Tag: %u", mux_tag);
+		proto_item_append_text(item, ": %u", mux_tag);
+
+		/* TODO: Add Mux Tag checking */
+	}
+
+	/* CVG Ext coding */
+	switch (cvg_ext) {
+	case 0: /* No length field included in CVG header */
+		break;
+
+	case 1: /* 8-bit length included indicating the length of the IE payload.  */
+		header_len += 1;
+		cvg_header_length_item = proto_tree_add_item_ret_uint(cvg_header_tree, hf_dect_nr_cvg_header_length, tvb, 1, 1, ENC_BIG_ENDIAN, &len);
+		proto_item_append_text(cvg_header_tree, ", length: %u", len);
+		break;
+
+	case 2: /* 16-bit length included indicating the length of the IE payload. */
+		header_len += 2;
+		cvg_header_length_item = proto_tree_add_item_ret_uint(cvg_header_tree, hf_dect_nr_cvg_header_length, tvb, 1, 2, ENC_BIG_ENDIAN, &len);
+		proto_item_append_text(cvg_header_tree, ", length: %u", len);
+		break;
+
+	default: /* Reserved */
+		break;
+	}
+
+	if (mt == 1 && f2c == 2) { /* IE coding with CVG IE Type field */
+		proto_tree_add_item_ret_uint(cvg_header_tree, hf_dect_nr_cvg_header_ie_type, tvb, header_len, 1, ENC_BIG_ENDIAN, &ie_type);
+		proto_item_append_text(cvg_header_tree, ": IE type: %s", val_to_str_const(ie_type, dect_nr_cvg_header_ie_type_vals, "Unknown"));
+		proto_item_append_text(item, ": %s", val_to_str_const(ie_type, dect_nr_cvg_header_ie_type_vals, "Unknown"));
+		header_len += 1;
+	}
+
+	proto_item_set_len(cvg_header_item, header_len);
+	if (cvg_header_length_item != NULL) {
+		proto_item_set_len(cvg_header_length_item, header_len - 1);
+	}
+	if (mt == 0 || (mt == 1 && f2c == 2)) {
+		ie_len = cvg_layer_len - header_len;
+		dissect_dect_nr_cvg_ie(tvb, pinfo, tree, ie_type, header_len, ie_len);
+	}
+}
+
+bool dissect_cvg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	uint8_t hdr, cvg_ext, mt, ie_type, f2c;
+
+	/*
+	 * CVG Header Format 1
+	 *
+	 *  0      1      2      3      4      5      6      7
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 * |  CVG Ext   | MT |           CVG IE Type         |
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 *
+	 * CVG Header Format 2
+	 *  0      1      2      3      4      5      6      7
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 * |  CVG Ext   | MT |     F2C     |     Mux Tag     |
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 *
+	 */
+
+	if (tvb_captured_length(tvb) < 1) {
+		return false;
+	}
+
+	hdr = tvb_get_uint8(tvb, 0);
+	cvg_ext = (hdr & 0xc0) >> 6;
+	if (cvg_ext != 0) {
+		uint16_t len = 0;
+		if (cvg_ext == 1) {
+			len = tvb_get_uint8(tvb, 1);
+		} else if (cvg_ext == 2) {
+			len = tvb_get_uint16(tvb, 1, ENC_BIG_ENDIAN);
+		} else if (cvg_ext == 3) {
+			return false;
+		}
+		/* Check that len is valid for an IE and that the data exists */
+		if (len > 0 && tvb_captured_length_remaining(tvb, 1 + cvg_ext) < len) {
+			return false;
+		}
+	}
+
+	/* indicates the header format */
+	mt = (hdr & 0x20);
+
+	if (mt == 0) { /* header format 1 */
+		ie_type = (hdr & 0x1F);
+		if ((ie_type >= 9 && ie_type <= 29) || ie_type == 31) {
+			return false;
+		}
+	} else { /* header format 2 */
+		f2c = (hdr & 0x18) >> 3;
+		if (f2c == 3) {
+			return false;
+		}
+	}
+
+	dissect_cvg_pdu(tvb, pinfo, tree);
+
+	return true;
+}
+
 static void dissect_dlc_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	heur_dtbl_entry_t *hdtbl_entry;
@@ -2521,7 +2931,10 @@ static void dissect_dlc_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pare
 		/* No COL_INFO updates from the dect_nr dissector after heuristic */
 		col_set_writable(pinfo->cinfo, COL_INFO, true);
 		if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, parent_tree, &hdtbl_entry, NULL)) {
-			col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "DECT NR+/");
+			const char *dect_nr_text = col_get_text(pinfo->cinfo, COL_PROTOCOL);
+			if (dect_nr_text && strstr(dect_nr_text, "DECT NR+") == NULL) {
+				col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "DECT NR+/");
+			}
 			col_set_writable(pinfo->cinfo, COL_INFO, false);
 			break;
 		}
@@ -2532,6 +2945,11 @@ static void dissect_dlc_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pare
 		col_set_writable(pinfo->cinfo, COL_INFO, false);
 		call_dissector(data_handle, tvb, pinfo, parent_tree);
 		col_set_writable(pinfo->cinfo, COL_INFO, true);
+		break;
+
+	case DLC_DATA_TYPE_CVG:
+		/* Standard CVG parsing */
+		dissect_cvg_pdu(tvb, pinfo, parent_tree);
 		break;
 
 	case DLC_DATA_TYPE_IPv6:
@@ -6062,6 +6480,110 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0, NULL, HFILL }
 		},
 
+		/* CVG Headers and Messages */
+		{ &hf_dect_nr_cvg_pdu,
+			{ "CVG PDU", "dect_nr.cvg", FT_NONE, BASE_NONE,
+			  NULL, 0x0, "Convergence (layer) PDU", HFILL }
+		},
+		{ &hf_dect_nr_cvg_header,
+			{ "CVG Header", "dect_nr.cvg.header", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_header_cvg_ext,
+			{ "Ext", "dect_nr.cvg.header.ext", FT_UINT8, BASE_HEX,
+			  VALS(dect_nr_cvg_header_ext_vals), 0xC0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_header_mt,
+			{ "MT", "dect_nr.cvg.header.mt", FT_UINT8, BASE_HEX,
+			  VALS(dect_nr_cvg_header_mt_vals), 0x20, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_header_ie_type,
+			{ "IE Type", "dect_nr.cvg.header.ie_type", FT_UINT8, BASE_HEX,
+			  VALS(dect_nr_cvg_header_ie_type_vals), 0x1F, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_header_f2c,
+			{ "F2C", "dect_nr.cvg.header.f2c", FT_UINT8, BASE_HEX,
+			  VALS(dect_nr_cvg_header_f2c_vals), 0x18, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_header_mux_tag,
+			{ "Mux Tag", "dect_nr.cvg.header.mux_tag", FT_UINT8, BASE_HEX,
+			  NULL, 0x07, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_header_length,
+			{ "Length", "dect_nr.cvg.header.length", FT_UINT16, BASE_DEC,
+			  NULL, 0x0, NULL, HFILL }
+		},
+
+		/* CVG IEs */
+		{ &hf_dect_nr_cvg_ep_mux_ie,
+			{ "EP mux IE", "dect_nr.cvg.ep_mux_ie", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_ep_mux_ie_endpoint,
+			{ "Endpoint Mux", "dect_nr.cvg.ep_mux_ie.endpoint", FT_UINT16, BASE_HEX,
+			  VALS(dect_nr_cvg_ep_mux_values), 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_data_ie,
+			{ "Data IE", "dect_nr.cvg.data_ie", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_data_ie_si,
+			{ "Segmentation Indication", "dect_nr.cvg.data_ie.si", FT_UINT8, BASE_DEC,
+			  VALS(dect_nr_cvg_si_coding), 0xC0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_data_ie_sli,
+			{ "SDU Length Indicator", "dect_nr.cvg.data_ie.sli", FT_UINT8, BASE_DEC,
+			  VALS(dect_nr_cvg_sli_coding), 0x20, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_data_ie_seq_num,
+			{ "Sequence number", "dect_nr.cvg.data_ie.seq_num", FT_UINT16, BASE_DEC,
+			  NULL, 0x0FFF, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_data_ie_sdu_len,
+			{ "Payload length", "dect_nr.cvg.data_ie.sdu_len", FT_UINT16, BASE_DEC,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_data_ie_seg_offset,
+			{ "Sequence number", "dect_nr.cvg.data_ie.seg_offset", FT_UINT16, BASE_DEC,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_data_ep_ie,
+			{ "Data EP IE", "dect_nr.cvg.data_ep_ie", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_data_ep_ie_endpoint,
+			{ "Endpoint Mux", "dect_nr.cvg.data_ep_ie.endpoint", FT_UINT16, BASE_HEX,
+			  VALS(dect_nr_cvg_ep_mux_values), 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_data_transp_ie,
+			{ "Data Transparent IE", "dect_nr.cvg.data_transparent_ie", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_security_ie,
+			{ "Security IE", "dect_nr.cvg.security_ie", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_tx_services_conf_ie,
+			{ "TX Services Config IE", "dect_nr.cvg.services_conf_ie", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_arq_fb_ie,
+			{ "ARQ Feedback IE", "dect_nr.cvg.arq_fb_ie", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_arq_poll_ie,
+			{ "ARQ Poll IE", "dect_nr.cvg.arq_poll_ie", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_flow_status_ie,
+			{ "Flow Status IE", "dect_nr.cvg.flow_status_ie", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_cvg_escape,
+			{ "Escape", "dect_nr.cvg.escape", FT_BYTES, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+
 		/* Miscellaneous */
 		{ &hf_dect_nr_mac_encrypted,
 			{ "Encrypted MAC PDUs", "dect_nr.mac.encrypted", FT_NONE, BASE_NONE,
@@ -6159,6 +6681,12 @@ void proto_register_dect_nr(void)
 		&ett_dect_nr_dlc_ext_hdr,
 		&ett_dect_nr_segment,
 		&ett_dect_nr_segments,
+		&ett_dect_nr_cvg,
+		&ett_dect_nr_cvg_header,
+		&ett_dect_nr_cvg_ep_mux_ie,
+		&ett_dect_nr_cvg_data_ep_ie,
+		&ett_dect_nr_cvg_data_ie,
+		&ett_dect_nr_cvg_data_transp_ie,
 	};
 
 	static ei_register_info ei[] = {
@@ -6229,6 +6757,8 @@ void proto_register_dect_nr(void)
 
 	heur_subdissector_list = register_heur_dissector_list("dect_nr.dlc", proto_dect_nr);
 
+	heur_dissector_add("dect_nr.dlc", dissect_cvg_heur, "CVG layer over DLC DECT NR+", "cvg_dect_nr", proto_dect_nr, HEURISTIC_ENABLE);
+
 	rd_id_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
@@ -6236,6 +6766,7 @@ void proto_reg_handoff_dect_nr(void)
 {
 	data_handle = find_dissector("data");
 	ipv6_handle = find_dissector("ipv6");
+	sixlowpan_handle = find_dissector("6lowpan");
 
 	/* Table 6.3.2-2: MAC header type field */
 	dissector_add_uint("dect_nr.mac_hdr", 0, create_dissector_handle(dissect_mac_data_header, proto_dect_nr));
