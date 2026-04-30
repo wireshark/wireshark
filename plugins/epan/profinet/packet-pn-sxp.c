@@ -127,171 +127,12 @@ static int hf_pn_sxp_block_header;
 static int hf_pn_sxp_header_req;
 static int hf_pn_sxp_header_rsp;
 
-/* PNIO block fields for IODConnect dissection */
-static int hf_pn_sxp_pnio_block_header;
-static int hf_pn_sxp_pnio_block_type;
-static int hf_pn_sxp_pnio_block_length;
-static int hf_pn_sxp_pnio_block_version_high;
-static int hf_pn_sxp_pnio_block_version_low;
-static int hf_pn_sxp_pnio_block_data;
-
-/* ARBlockReq fields */
-static int hf_pn_sxp_ar_type;
-static int hf_pn_sxp_ar_uuid;
-static int hf_pn_sxp_session_key;
-static int hf_pn_sxp_cm_mac;
-static int hf_pn_sxp_cm_object_uuid;
-static int hf_pn_sxp_ar_properties;
-static int hf_pn_sxp_ar_properties_state;
-static int hf_pn_sxp_ar_properties_supervisor_takeover_allowed;
-static int hf_pn_sxp_ar_properties_parametrization_server;
-static int hf_pn_sxp_ar_properties_reserved_1;
-static int hf_pn_sxp_ar_properties_device_access;
-static int hf_pn_sxp_ar_properties_companion_ar;
-static int hf_pn_sxp_ar_properties_acknowledge_companion_ar;
-static int hf_pn_sxp_ar_properties_reserved_2;
-static int hf_pn_sxp_ar_properties_reserved_3;
-static int hf_pn_sxp_ar_properties_reject_dcp_set_requests;
-static int hf_pn_sxp_ar_properties_time_aware_system;
-static int hf_pn_sxp_ar_properties_combined_object_container;
-static int hf_pn_sxp_ar_properties_startup_mode;
-static int hf_pn_sxp_ar_properties_pull_module_alarm_allowed;
-static int hf_pn_sxp_timeout_factor;
-static int hf_pn_sxp_udp_rt_port;
-static int hf_pn_sxp_cm_station_name_length;
-static int hf_pn_sxp_cm_station_name;
-
 static int hf_pn_sxp_iodconnect_req;
 static int hf_pn_sxp_iodconnect_rsp;
-
-/* IOCRBlockReq fields */
-static int hf_pn_sxp_iocr_type;
-static int hf_pn_sxp_iocr_reference;
-static int hf_pn_sxp_iocr_lt;
-static int hf_pn_sxp_iocr_properties;
-static int hf_pn_sxp_iocr_data_length;
-static int hf_pn_sxp_iocr_frame_id;
-static int hf_pn_sxp_iocr_send_clock;
-static int hf_pn_sxp_iocr_reduction_ratio;
-static int hf_pn_sxp_iocr_phase;
-static int hf_pn_sxp_iocr_sequence;
-static int hf_pn_sxp_iocr_frame_send_offset;
-static int hf_pn_sxp_iocr_watchdog_factor;
-static int hf_pn_sxp_iocr_data_hold_factor;
-static int hf_pn_sxp_iocr_tag_header;
-static int hf_pn_sxp_iocr_multicast_mac;
-static int hf_pn_sxp_iocr_number_of_apis;
-static int hf_pn_sxp_iocr_api;
-static int hf_pn_sxp_iocr_number_of_io_data_objects;
-static int hf_pn_sxp_iocr_io_data_slot_number;
-static int hf_pn_sxp_iocr_io_data_subslot_number;
-static int hf_pn_sxp_iocr_io_data_frame_offset;
-static int hf_pn_sxp_iocr_number_of_iocs;
-static int hf_pn_sxp_iocr_iocs_slot_number;
-static int hf_pn_sxp_iocr_iocs_subslot_number;
-static int hf_pn_sxp_iocr_iocs_frame_offset;
-
-/* SXPBlockReq fields */
-static int hf_pn_sxp_sxp_usage_flags;
-static int hf_pn_sxp_sxp_usage_flags_use_rta;
-static int hf_pn_sxp_sxp_usage_flags_use_rtc;
-static int hf_pn_sxp_sxp_usage_flags_reserved;
-static int hf_pn_sxp_sxp_capability;
-static int hf_pn_sxp_sxp_capability_reserved0;
-static int hf_pn_sxp_sxp_capability_priority1;
-static int hf_pn_sxp_sxp_capability_priority2;
-static int hf_pn_sxp_sxp_capability_priority3;
-static int hf_pn_sxp_sxp_capability_priority4;
-static int hf_pn_sxp_sxp_capability_priority5;
-static int hf_pn_sxp_sxp_capability_priority6;
-static int hf_pn_sxp_sxp_capability_priority7;
-static int hf_pn_sxp_sxp_capability_priority8;
-static int hf_pn_sxp_sxp_capability_priority9;
-static int hf_pn_sxp_sxp_capability_reserved;
-
-/* CallingHomeAdjust / CallingHomeEntry fields */
-static int hf_pn_sxp_ch_number_of_entries;
-static int hf_pn_sxp_ch_flags;
-static int hf_pn_sxp_ch_flags_use_layer3;
-static int hf_pn_sxp_ch_flags_use_layer2;
-static int hf_pn_sxp_ch_flags_reserved;
-static int hf_pn_sxp_ch_station_name_length;
-static int hf_pn_sxp_ch_station_name;
-static int hf_pn_sxp_ch_station_mac;
-static int hf_pn_sxp_ch_station_ip;
-
-/* AlarmCRBlockReq fields */
-static int hf_pn_sxp_alarmcr_type;
-static int hf_pn_sxp_alarmcr_lt;
-static int hf_pn_sxp_alarmcr_properties;
-static int hf_pn_sxp_alarmcr_rta_timeout_factor;
-static int hf_pn_sxp_alarmcr_rta_retries;
-static int hf_pn_sxp_alarmcr_local_alarm_reference;
-static int hf_pn_sxp_alarmcr_max_alarm_data_length;
-static int hf_pn_sxp_alarmcr_tag_header_high;
-static int hf_pn_sxp_alarmcr_tag_header_low;
-
-/* ExpectedSubmoduleBlockReq fields */
-static int hf_pn_sxp_esb_number_of_apis;
-static int hf_pn_sxp_esb_api;
-static int hf_pn_sxp_esb_slot_number;
-static int hf_pn_sxp_esb_module_ident;
-static int hf_pn_sxp_esb_module_properties;
-static int hf_pn_sxp_esb_number_of_submodules;
-static int hf_pn_sxp_esb_subslot_number;
-static int hf_pn_sxp_esb_submodule_ident;
-static int hf_pn_sxp_esb_submodule_properties;
-static int hf_pn_sxp_esb_data_description;
-static int hf_pn_sxp_esb_submodule_data_length;
-static int hf_pn_sxp_esb_length_iops;
-static int hf_pn_sxp_esb_length_iocs;
-
-static int * const pn_sxp_usage_flags_fields[] = {
-    &hf_pn_sxp_sxp_usage_flags_use_rta,
-    &hf_pn_sxp_sxp_usage_flags_use_rtc,
-    &hf_pn_sxp_sxp_usage_flags_reserved,
-    NULL
-};
-
-static int * const pn_sxp_capability_fields[] = {
-    &hf_pn_sxp_sxp_capability_reserved0,
-    &hf_pn_sxp_sxp_capability_priority1,
-    &hf_pn_sxp_sxp_capability_priority2,
-    &hf_pn_sxp_sxp_capability_priority3,
-    &hf_pn_sxp_sxp_capability_priority4,
-    &hf_pn_sxp_sxp_capability_priority5,
-    &hf_pn_sxp_sxp_capability_priority6,
-    &hf_pn_sxp_sxp_capability_priority7,
-    &hf_pn_sxp_sxp_capability_priority8,
-    &hf_pn_sxp_sxp_capability_priority9,
-    &hf_pn_sxp_sxp_capability_reserved,
-    NULL
-};
-
-static int * const pn_sxp_ch_flags_fields[] = {
-    &hf_pn_sxp_ch_flags_use_layer3,
-    &hf_pn_sxp_ch_flags_use_layer2,
-    &hf_pn_sxp_ch_flags_reserved,
-    NULL
-};
-
-static int * const pn_sxp_ar_properties_fields[] = {
-    &hf_pn_sxp_ar_properties_state,
-    &hf_pn_sxp_ar_properties_supervisor_takeover_allowed,
-    &hf_pn_sxp_ar_properties_parametrization_server,
-    &hf_pn_sxp_ar_properties_reserved_1,
-    &hf_pn_sxp_ar_properties_device_access,
-    &hf_pn_sxp_ar_properties_companion_ar,
-    &hf_pn_sxp_ar_properties_acknowledge_companion_ar,
-    &hf_pn_sxp_ar_properties_reserved_2,
-    &hf_pn_sxp_ar_properties_reserved_3,
-    &hf_pn_sxp_ar_properties_reject_dcp_set_requests,
-    &hf_pn_sxp_ar_properties_time_aware_system,
-    &hf_pn_sxp_ar_properties_combined_object_container,
-    &hf_pn_sxp_ar_properties_startup_mode,
-    &hf_pn_sxp_ar_properties_pull_module_alarm_allowed,
-    NULL
-};
+static int hf_pn_sxp_pnservice_req_pdu;
+static int hf_pn_sxp_pnservice_rsp_pdu;
+static int hf_pn_sxp_alarm_notif_pdu;
+static int hf_pn_sxp_alarm_ack_pdu;
 
 /* protocol subtrees */
 static int ett_pn_sxp;
@@ -310,20 +151,12 @@ static int ett_pn_sxp_segments;
 static int ett_pn_sxp_segment;
 static int ett_pn_sxp_notification_pdu;
 static int ett_pn_sxp_notification_ack_pdu;
-static int ett_pn_sxp_pnio_block;
-static int ett_pn_sxp_pnio_block_header;
 static int ett_pn_sxp_iodconnect_req;
 static int ett_pn_sxp_iodconnect_rsp;
-static int ett_pn_sxp_ar_properties;
-static int ett_pn_sxp_sxp_usage_flags;
-static int ett_pn_sxp_sxp_capability;
-static int ett_pn_sxp_iocr_api;
-static int ett_pn_sxp_iocr_io_data_object;
-static int ett_pn_sxp_iocr_iocs;
-static int ett_pn_sxp_esb_api;
-static int ett_pn_sxp_esb_submodule;
-static int ett_pn_sxp_ch_entry;
-static int ett_pn_sxp_ch_flags;
+static int ett_pn_sxp_pnservice_req_pdu;
+static int ett_pn_sxp_pnservice_rsp_pdu;
+static int ett_pn_sxp_alarm_notif_pdu;
+static int ett_pn_sxp_alarm_ack_pdu;
 
 static expert_field ei_pn_sxp_malformed;
 static expert_field ei_pn_sxp_priority_range;
@@ -393,171 +226,6 @@ static const value_string pn_sxp_endpoint_vals[] = {
     { 0x01, "CIM endpoint" },
     { 0x02, "IOC endpoint" },
     { 0x03, "IOD endpoint" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_pnio_block_type_vals[] = {
-    { 0x0001, "AlarmNotificationHigh" },
-    { 0x0002, "AlarmNotificationLow" },
-    { 0x0008, "IODWriteReqHeader" },
-    { 0x0009, "IODReadReqHeader" },
-    { 0x8001, "AlarmAckHigh" },
-    { 0x8002, "AlarmAckLow" },
-    { 0x0101, "ARBlockReq" },
-    { 0x8101, "ARBlockRes" },
-    { 0x0102, "IOCRBlockReq" },
-    { 0x8102, "IOCRBlockRes" },
-    { 0x0103, "AlarmCRBlockReq" },
-    { 0x8103, "AlarmCRBlockRes" },
-    { 0x0104, "ExpectedSubmoduleBlockReq" },
-    { 0x8104, "ModuleDiffBlock" },
-    { 0x0105, "PrmServerBlockReq" },
-    { 0x8105, "PrmServerBlockRes" },
-    { 0x0106, "MCRBlockReq" },
-    { 0x8106, "ARServerBlockRes" },
-    { 0x0107, "SubFrameBlock" },
-    { 0x8107, "ARRPCBlockRes" },
-    { 0x0108, "ARVendorBlockReq" },
-    { 0x8108, "ARVendorBlockRes" },
-    { 0x0109, "IRInfoBlock" },
-    { 0x010A, "SRInfoBlock" },
-    { 0x010B, "ARFSUBlock" },
-    { 0x010C, "RSInfoBlock" },
-    { 0x010D, "ARSXPBlockReq" },
-    { 0x810D, "ARSXPBlockRsp" },
-    { 0x010E, "SXPBlockReq" },
-    { 0x810E, "SXPBlockRsp" },
-    { 0x010F, "ARCommunicationSecurityInfoBlock" },
-    { 0x0310, "CIMCallingHomeAdjust" },
-    { 0x0311, "CIMCallingHomeReal" },
-    { 0x0110, "IODControlReq" },
-    { 0x8110, "IODControlRes" },
-    { 0x0112, "IOXBlockReq" },
-    { 0x8112, "IOXBlockRes" },
-    { 0x0114, "IODReleaseReq" },
-    { 0x8114, "IODReleaseRes" },
-    { 0x0116, "IOXControlReq" },
-    { 0x8116, "IOXControlRes" },
-    { 0x0118, "PrmBeginReq" },
-    { 0x8118, "PrmBeginRes" },
-    { 0x0119, "SubmoduleListBlock" },
-    { 0x011A, "SecurityRequestBlock" },
-    { 0x811A, "SecurityResponse" },
-    { 0x011B, "ARUUIDBlock" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_type_vals[] = {
-    { 0x0001, "IOC-AR" },
-    { 0x0006, "IOSAR (Supervisor AR)" },
-    { 0x0010, "IOC-AR (RT_CLASS_3)" },
-    { 0x0020, "IOCAR-SR (Redundant AR)" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_properties_state_vals[] = {
-    { 0x00, "Reserved" },
-    { 0x01, "Active" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_properties_supervisor_takeover_vals[] = {
-    { 0x00, "Not allowed" },
-    { 0x01, "Allowed" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_properties_parametrization_server_vals[] = {
-    { 0x00, "External PrmServer" },
-    { 0x01, "CM Initiator" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_properties_device_access_vals[] = {
-    { 0x00, "ExpectedSubmoduleBlock" },
-    { 0x01, "IOSAR" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_properties_companion_ar_vals[] = {
-    { 0x00, "Single AR" },
-    { 0x01, "Reserved" },
-    { 0x02, "Reserved" },
-    { 0x03, "Reserved" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_properties_acknowledge_companion_ar_vals[] = {
-    { 0x00, "No" },
-    { 0x01, "Reserved" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_properties_reject_dcp_vals[] = {
-    { 0x00, "Accepted" },
-    { 0x01, "Rejected" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_properties_time_aware_vals[] = {
-    { 0x00, "NonTimeAware" },
-    { 0x01, "TimeAware" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_properties_coc_vals[] = {
-    { 0x00, "NoCOC" },
-    { 0x01, "COC" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ar_properties_startup_mode_vals[] = {
-    { 0x00, "Reserved" },
-    { 0x01, "Advanced" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_sxp_usage_flags_use_rta_vals[] = {
-    { 0x00, "RTA protocol" },
-    { 0x01, "SXP transport connection" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_sxp_usage_flags_use_rtc_vals[] = {
-    { 0x00, "RTC protocol" },
-    { 0x01, "SXP transport connection" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_sxp_capability_priority_vals[] = {
-    { 0x00, "Not supported" },
-    { 0x01, "Supported" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_sxp_capability_priority9_vals[] = {
-    { 0x00, "Reserved" },
-    { 0x01, "Supported" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ch_flags_use_layer3_vals[] = {
-    { 0x00, "Do not use Layer3 communication" },
-    { 0x01, "Use SXP transport via Layer 3 (TCP/IP)" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_ch_flags_use_layer2_vals[] = {
-    { 0x00, "Do not use Layer2 communication" },
-    { 0x01, "Use SXP transport via Layer 2 (RTAv3)" },
-    { 0, NULL }
-};
-
-static const value_string pn_sxp_iocr_type_vals[] = {
-    { 0x0001, "Input CR" },
-    { 0x0002, "Output CR" },
-    { 0x0003, "Multicast Provider CR" },
-    { 0x0004, "Multicast Consumer CR" },
     { 0, NULL }
 };
 
@@ -786,542 +454,16 @@ dissect_sxp_destination_endpoint(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     return offset + 8;
 }
 
-/*
- * ============================================================================
- * SXP Service-specific Dissection Functions
- * ============================================================================
- */
-
-/* Dissect a single PNIO block: BlockHeader(6) + BlockData */
-static int
-dissect_sxp_pnio_block(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-    uint16_t block_type, block_length;
-    int block_end;
-    proto_item *block_item;
-    proto_tree *block_tree;
-    proto_item *hdr_item;
-    proto_tree *hdr_tree;
-
-    if (tvb_captured_length_remaining(tvb, offset) < 6)
-        return offset;
-
-    block_type   = tvb_get_uint16(tvb, offset,     ENC_BIG_ENDIAN);
-    block_length = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
-    block_end    = offset + 4 + block_length;
-
-    if (block_end > (int)tvb_captured_length(tvb))
-        block_end = tvb_captured_length(tvb);
-
-    block_item = proto_tree_add_subtree_format(tree, tvb, offset, block_end - offset,
-        ett_pn_sxp_pnio_block, NULL, "%s",
-        val_to_str(pinfo->pool, block_type, pn_sxp_pnio_block_type_vals, "Unknown Block (0x%04x)"));
-    block_tree = block_item;
-
-    /* BlockHeader */
-    hdr_item = proto_tree_add_item(block_tree, hf_pn_sxp_pnio_block_header, tvb, offset, 6, ENC_NA);
-    hdr_tree = proto_item_add_subtree(hdr_item, ett_pn_sxp_pnio_block_header);
-    proto_tree_add_item(hdr_tree, hf_pn_sxp_pnio_block_type,         tvb, offset,     2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(hdr_tree, hf_pn_sxp_pnio_block_length,       tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(hdr_tree, hf_pn_sxp_pnio_block_version_high, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(hdr_tree, hf_pn_sxp_pnio_block_version_low,  tvb, offset + 5, 1, ENC_BIG_ENDIAN);
-    offset += 6;
-
-    /* BlockData */
-    switch (block_type) {
-    case 0x0101: /* ARBlockReq */
-        if (tvb_captured_length_remaining(tvb, offset) >= 2)
-            proto_tree_add_item(block_tree, hf_pn_sxp_ar_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 18)
-            proto_tree_add_item(block_tree, hf_pn_sxp_ar_uuid, tvb, offset + 2, 16, ENC_NA);
-        if (tvb_captured_length_remaining(tvb, offset) >= 20)
-            proto_tree_add_item(block_tree, hf_pn_sxp_session_key, tvb, offset + 18, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 26)
-            proto_tree_add_item(block_tree, hf_pn_sxp_cm_mac, tvb, offset + 20, 6, ENC_NA);
-        if (tvb_captured_length_remaining(tvb, offset) >= 42)
-            proto_tree_add_item(block_tree, hf_pn_sxp_cm_object_uuid, tvb, offset + 26, 16, ENC_NA);
-        if (tvb_captured_length_remaining(tvb, offset) >= 46)
-            proto_tree_add_item(block_tree, hf_pn_sxp_ar_properties, tvb, offset + 42, 4, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 48)
-            proto_tree_add_item(block_tree, hf_pn_sxp_timeout_factor, tvb, offset + 46, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 50)
-            proto_tree_add_item(block_tree, hf_pn_sxp_udp_rt_port, tvb, offset + 48, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 52) {
-            uint16_t name_len;
-            proto_tree_add_item_ret_uint16(block_tree, hf_pn_sxp_cm_station_name_length, tvb, offset + 50, 2,
-                ENC_BIG_ENDIAN, &name_len);
-            if (name_len > 0 && tvb_captured_length_remaining(tvb, offset + 52) >= name_len)
-                proto_tree_add_item(block_tree, hf_pn_sxp_cm_station_name, tvb, offset + 52, name_len, ENC_ASCII);
-        }
-        break;
-
-    case 0x0102: /* IOCRBlockReq */
-        if (tvb_captured_length_remaining(tvb, offset) >= 2)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 4)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_reference, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 6)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_lt, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 10)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_properties, tvb, offset + 6, 4, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 12)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_data_length, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 14)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_frame_id, tvb, offset + 12, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 16)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_send_clock, tvb, offset + 14, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 18)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_reduction_ratio, tvb, offset + 16, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 20)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_phase, tvb, offset + 18, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 22)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_sequence, tvb, offset + 20, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 26)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_frame_send_offset, tvb, offset + 22, 4, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 28)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_watchdog_factor, tvb, offset + 26, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 30)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_data_hold_factor, tvb, offset + 28, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 32)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_tag_header, tvb, offset + 30, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 38)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_multicast_mac, tvb, offset + 32, 6, ENC_NA);
-        if (tvb_captured_length_remaining(tvb, offset) >= 40) {
-            uint16_t num_apis;
-            uint16_t api_idx;
-            proto_tree_add_item_ret_uint16(block_tree, hf_pn_sxp_iocr_number_of_apis, tvb, offset + 38, 2,
-                ENC_BIG_ENDIAN, &num_apis);
-            offset += 40;
-            for (api_idx = 0; api_idx < num_apis && offset < block_end; api_idx++) {
-                proto_item *api_item;
-                proto_tree *api_tree;
-                uint16_t num_io_data_objects, num_iocs;
-                uint16_t obj_idx;
-                int api_start = offset;
-
-                if (tvb_captured_length_remaining(tvb, offset) < 6)
-                    break;
-
-                api_item = proto_tree_add_subtree_format(block_tree, tvb, offset, -1,
-                    ett_pn_sxp_iocr_api, NULL, "API 0x%08x",
-                    tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN));
-                api_tree = api_item;
-
-                proto_tree_add_item(api_tree, hf_pn_sxp_iocr_api, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
-
-                proto_tree_add_item_ret_uint16(api_tree, hf_pn_sxp_iocr_number_of_io_data_objects,
-                    tvb, offset, 2, ENC_BIG_ENDIAN, &num_io_data_objects);
-                offset += 2;
-
-                for (obj_idx = 0; obj_idx < num_io_data_objects && offset < block_end; obj_idx++) {
-                    proto_item *io_data_item;
-                    proto_tree *io_data_tree;
-
-                    if (tvb_captured_length_remaining(tvb, offset) < 6)
-                        break;
-
-                    io_data_item = proto_tree_add_subtree_format(api_tree, tvb, offset, 6,
-                        ett_pn_sxp_iocr_io_data_object, NULL, "IODataObject: Slot %u, Subslot 0x%04x",
-                        tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN),
-                        tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN));
-                    io_data_tree = io_data_item;
-
-                    proto_tree_add_item(io_data_tree, hf_pn_sxp_iocr_io_data_slot_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(io_data_tree, hf_pn_sxp_iocr_io_data_subslot_number, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(io_data_tree, hf_pn_sxp_iocr_io_data_frame_offset, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-                    offset += 6;
-                }
-
-                if (tvb_captured_length_remaining(tvb, offset) < 2)
-                    break;
-                proto_tree_add_item_ret_uint16(api_tree, hf_pn_sxp_iocr_number_of_iocs,
-                    tvb, offset, 2, ENC_BIG_ENDIAN, &num_iocs);
-                offset += 2;
-
-                for (obj_idx = 0; obj_idx < num_iocs && offset < block_end; obj_idx++) {
-                    proto_item *iocs_item;
-                    proto_tree *iocs_tree;
-
-                    if (tvb_captured_length_remaining(tvb, offset) < 6)
-                        break;
-
-                    iocs_item = proto_tree_add_subtree_format(api_tree, tvb, offset, 6,
-                        ett_pn_sxp_iocr_iocs, NULL, "IOCS: Slot %u, Subslot 0x%04x",
-                        tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN),
-                        tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN));
-                    iocs_tree = iocs_item;
-
-                    proto_tree_add_item(iocs_tree, hf_pn_sxp_iocr_iocs_slot_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(iocs_tree, hf_pn_sxp_iocr_iocs_subslot_number, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(iocs_tree, hf_pn_sxp_iocr_iocs_frame_offset, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-                    offset += 6;
-                }
-
-                proto_item_set_len(api_item, offset - api_start);
-            }
-        }
-        break;
-
-    case 0x0103: /* AlarmCRBlockReq */
-        if (tvb_captured_length_remaining(tvb, offset) >= 2)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 4)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_lt, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 8)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_properties, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 10)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_rta_timeout_factor, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 12)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_rta_retries, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 14)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_local_alarm_reference, tvb, offset + 12, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 16)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_max_alarm_data_length, tvb, offset + 14, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 18)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_tag_header_high, tvb, offset + 16, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 20)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_tag_header_low, tvb, offset + 18, 2, ENC_BIG_ENDIAN);
-        break;
-
-    case 0x8102: /* IOCRBlockRes */
-        if (tvb_captured_length_remaining(tvb, offset) >= 2)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 4)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_reference, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 6)
-            proto_tree_add_item(block_tree, hf_pn_sxp_iocr_frame_id, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-        break;
-
-    case 0x8103: /* AlarmCRBlockRes */
-        if (tvb_captured_length_remaining(tvb, offset) >= 2)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 4)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_local_alarm_reference, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 6)
-            proto_tree_add_item(block_tree, hf_pn_sxp_alarmcr_max_alarm_data_length, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-        break;
-
-    case 0x0104: /* ExpectedSubmoduleBlockReq */
-        {
-            uint16_t num_apis;
-            uint16_t api_idx;
-
-            if (tvb_captured_length_remaining(tvb, offset) < 2)
-                break;
-
-            proto_tree_add_item_ret_uint16(block_tree, hf_pn_sxp_esb_number_of_apis,
-                tvb, offset, 2, ENC_BIG_ENDIAN, &num_apis);
-            offset += 2;
-
-            for (api_idx = 0; api_idx < num_apis && offset < block_end; api_idx++) {
-                proto_item *api_item;
-                proto_tree *api_tree;
-                uint16_t num_submodules;
-                uint16_t sub_idx;
-                int api_start = offset;
-
-                if (tvb_captured_length_remaining(tvb, offset) < 14)
-                    break;
-
-                api_item = proto_tree_add_subtree_format(block_tree, tvb, offset, -1,
-                    ett_pn_sxp_esb_api, NULL, "API 0x%08x, Slot %u",
-                    tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN),
-                    tvb_get_uint16(tvb, offset + 4, ENC_BIG_ENDIAN));
-                api_tree = api_item;
-
-                proto_tree_add_item(api_tree, hf_pn_sxp_esb_api, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
-                proto_tree_add_item(api_tree, hf_pn_sxp_esb_slot_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                proto_tree_add_item(api_tree, hf_pn_sxp_esb_module_ident, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
-                proto_tree_add_item(api_tree, hf_pn_sxp_esb_module_properties, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-
-                proto_tree_add_item_ret_uint16(api_tree, hf_pn_sxp_esb_number_of_submodules,
-                    tvb, offset, 2, ENC_BIG_ENDIAN, &num_submodules);
-                offset += 2;
-
-                for (sub_idx = 0; sub_idx < num_submodules && offset < block_end; sub_idx++) {
-                    proto_item *sub_item;
-                    proto_tree *sub_tree;
-
-                    if (tvb_captured_length_remaining(tvb, offset) < 14)
-                        break;
-
-                    sub_item = proto_tree_add_subtree_format(api_tree, tvb, offset, 14,
-                        ett_pn_sxp_esb_submodule, NULL, "Subslot 0x%04x",
-                        tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN));
-                    sub_tree = sub_item;
-
-                    proto_tree_add_item(sub_tree, hf_pn_sxp_esb_subslot_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    proto_tree_add_item(sub_tree, hf_pn_sxp_esb_submodule_ident, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    offset += 4;
-                    proto_tree_add_item(sub_tree, hf_pn_sxp_esb_submodule_properties, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    proto_tree_add_item(sub_tree, hf_pn_sxp_esb_data_description, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    proto_tree_add_item(sub_tree, hf_pn_sxp_esb_submodule_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    proto_tree_add_item(sub_tree, hf_pn_sxp_esb_length_iops, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
-                    proto_tree_add_item(sub_tree, hf_pn_sxp_esb_length_iocs, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
-                }
-
-                proto_item_set_len(api_item, offset - api_start);
-            }
-        }
-        break;
-
-    case 0x010E: /* SXPBlockReq */
-        if (tvb_captured_length_remaining(tvb, offset) >= 2) {
-            proto_tree_add_bitmask(block_tree, tvb, offset, hf_pn_sxp_sxp_usage_flags,
-                ett_pn_sxp_sxp_usage_flags, pn_sxp_usage_flags_fields, ENC_BIG_ENDIAN);
-        }
-        if (tvb_captured_length_remaining(tvb, offset) >= 4) {
-            proto_tree_add_bitmask(block_tree, tvb, offset + 2, hf_pn_sxp_sxp_capability,
-                ett_pn_sxp_sxp_capability, pn_sxp_capability_fields, ENC_BIG_ENDIAN);
-        }
-        break;
-
-    case 0x810E: /* SXPBlockRsp */
-        if (tvb_captured_length_remaining(tvb, offset) >= 1)
-            proto_tree_add_item(block_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 2)
-            proto_tree_add_item(block_tree, hf_pn_sxp_reserved, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-        if (tvb_captured_length_remaining(tvb, offset) >= 4) {
-            proto_tree_add_bitmask(block_tree, tvb, offset + 2, hf_pn_sxp_sxp_capability,
-                ett_pn_sxp_sxp_capability, pn_sxp_capability_fields, ENC_BIG_ENDIAN);
-        }
-        break;
-
-    case 0x010D: /* ARSXPBlockReq */
-    {
-        uint16_t name_len;
-        int off = offset;
-
-        if (tvb_captured_length_remaining(tvb, off) < 26)
-            break;
-
-        proto_tree_add_item(block_tree, hf_pn_sxp_ar_type, tvb, off, 2, ENC_BIG_ENDIAN);
-        off += 2;
-        proto_tree_add_item(block_tree, hf_pn_sxp_ar_uuid, tvb, off, 16, ENC_NA);
-        off += 16;
-        proto_tree_add_item(block_tree, hf_pn_sxp_session_key, tvb, off, 2, ENC_BIG_ENDIAN);
-        off += 2;
-        proto_tree_add_item(block_tree, hf_pn_sxp_timeout_factor, tvb, off, 2, ENC_BIG_ENDIAN);
-        off += 2;
-        proto_tree_add_bitmask(block_tree, tvb, off, hf_pn_sxp_ar_properties,
-            ett_pn_sxp_ar_properties, pn_sxp_ar_properties_fields, ENC_BIG_ENDIAN);
-        off += 4;
-
-        /* SXP-Destination-Endpoint (8 bytes) */
-        if (tvb_captured_length_remaining(tvb, off) >= 8)
-            off = dissect_sxp_destination_endpoint(tvb, off, pinfo, block_tree);
-
-        /* CMInitiatorMacAdd (6 bytes) */
-        if (tvb_captured_length_remaining(tvb, off) >= 6) {
-            proto_tree_add_item(block_tree, hf_pn_sxp_cm_mac, tvb, off, 6, ENC_NA);
-            off += 6;
-        }
-
-        /* StationNameLength + CMInitiatorStationName */
-        if (tvb_captured_length_remaining(tvb, off) >= 2) {
-            proto_tree_add_item_ret_uint16(block_tree, hf_pn_sxp_cm_station_name_length,
-                tvb, off, 2, ENC_BIG_ENDIAN, &name_len);
-            off += 2;
-            if (name_len > 0 && tvb_captured_length_remaining(tvb, off) >= name_len) {
-                proto_tree_add_item(block_tree, hf_pn_sxp_cm_station_name,
-                    tvb, off, name_len, ENC_ASCII);
-                off += name_len;
-            }
-        }
-
-        /* Padding to Unsigned32 alignment */
-        if (off < block_end) {
-            int pad = block_end - off;
-            if (pad > 0 && tvb_captured_length_remaining(tvb, off) >= (unsigned)pad)
-                proto_tree_add_item(block_tree, hf_pn_sxp_pnio_block_data, tvb, off, pad, ENC_NA);
-        }
-        break;
-    }
-
-    case 0x0310: /* CIMCallingHomeAdjust (SXP_CallingHomeAdjust) */
-    {
-        uint16_t num_entries;
-        uint16_t entry_idx;
-        int off = offset;
-
-        if (tvb_captured_length_remaining(tvb, off) < 2)
-            break;
-
-        proto_tree_add_item_ret_uint16(block_tree, hf_pn_sxp_ch_number_of_entries,
-            tvb, off, 2, ENC_BIG_ENDIAN, &num_entries);
-        off += 2;
-
-        /* CallingHomeEntry* — each has its own BlockHeader */
-        for (entry_idx = 0; entry_idx < num_entries && off < block_end; entry_idx++) {
-            uint16_t entry_block_length;
-            int entry_end;
-            proto_item *entry_item;
-            proto_tree *entry_tree;
-            uint16_t ch_name_len;
-            uint16_t ch_flags_val;
-
-            if (tvb_captured_length_remaining(tvb, off) < 6)
-                break;
-
-            entry_block_length = tvb_get_uint16(tvb, off + 2, ENC_BIG_ENDIAN);
-            entry_end = off + 4 + entry_block_length;
-            if (entry_end > block_end)
-                entry_end = block_end;
-
-            entry_item = proto_tree_add_subtree_format(block_tree, tvb, off, entry_end - off,
-                ett_pn_sxp_ch_entry, NULL, "CallingHomeEntry %u", entry_idx + 1);
-            entry_tree = entry_item;
-
-            /* Entry BlockHeader */
-            {
-                proto_item *ehdr_item = proto_tree_add_item(entry_tree, hf_pn_sxp_pnio_block_header, tvb, off, 6, ENC_NA);
-                proto_tree *ehdr_tree = proto_item_add_subtree(ehdr_item, ett_pn_sxp_pnio_block_header);
-                proto_tree_add_item(ehdr_tree, hf_pn_sxp_pnio_block_type,         tvb, off,     2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ehdr_tree, hf_pn_sxp_pnio_block_length,       tvb, off + 2, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ehdr_tree, hf_pn_sxp_pnio_block_version_high, tvb, off + 4, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ehdr_tree, hf_pn_sxp_pnio_block_version_low,  tvb, off + 5, 1, ENC_BIG_ENDIAN);
-            }
-            off += 6;
-
-            /* CallingHomeFlags (U16) */
-            if (tvb_captured_length_remaining(tvb, off) < 2)
-                break;
-            ch_flags_val = tvb_get_uint16(tvb, off, ENC_BIG_ENDIAN);
-            proto_tree_add_bitmask(entry_tree, tvb, off, hf_pn_sxp_ch_flags,
-                ett_pn_sxp_ch_flags, pn_sxp_ch_flags_fields, ENC_BIG_ENDIAN);
-            off += 2;
-
-            /* CH_StationNameLength (U16) + CH_StationName */
-            if (tvb_captured_length_remaining(tvb, off) < 2)
-                break;
-            proto_tree_add_item_ret_uint16(entry_tree, hf_pn_sxp_ch_station_name_length,
-                tvb, off, 2, ENC_BIG_ENDIAN, &ch_name_len);
-            off += 2;
-            if (ch_name_len > 0 && tvb_captured_length_remaining(tvb, off) >= ch_name_len) {
-                proto_tree_add_item(entry_tree, hf_pn_sxp_ch_station_name, tvb, off, ch_name_len, ENC_ASCII);
-                off += ch_name_len;
-            }
-
-            /* Padding to align */
-            while (off < entry_end && (off % 4) != 0) {
-                off += 1;
-            }
-
-            /* (CH_StationIP ^ CH_StationMac) — optional, determined by CallingHomeFlags */
-            if (off < entry_end) {
-                if (ch_flags_val & 0x0001) {
-                    /* UseLayer3: CH_StationIP (4 bytes) */
-                    if (tvb_captured_length_remaining(tvb, off) >= 4) {
-                        proto_tree_add_item(entry_tree, hf_pn_sxp_ch_station_ip, tvb, off, 4, ENC_BIG_ENDIAN);
-                        off += 4;
-                    }
-                } else if (ch_flags_val & 0x0002) {
-                    /* UseLayer2: CH_StationMac (6 bytes) */
-                    if (tvb_captured_length_remaining(tvb, off) >= 6) {
-                        proto_tree_add_item(entry_tree, hf_pn_sxp_ch_station_mac, tvb, off, 6, ENC_NA);
-                        off += 6;
-                    }
-                }
-            }
-
-            /* Trailing padding */
-            if (off < entry_end) {
-                int pad = entry_end - off;
-                if (pad > 0 && tvb_captured_length_remaining(tvb, off) >= (unsigned)pad)
-                    proto_tree_add_item(entry_tree, hf_pn_sxp_pnio_block_data, tvb, off, pad, ENC_NA);
-            }
-            off = entry_end;
-        }
-        break;
-    }
-
-    case 0x810D: /* ARSXPBlockRsp */
-    {
-        uint16_t name_len;
-        int off = offset;
-
-        if (tvb_captured_length_remaining(tvb, off) < 22)
-            break;
-
-        proto_tree_add_item(block_tree, hf_pn_sxp_ar_type, tvb, off, 2, ENC_BIG_ENDIAN);
-        off += 2;
-        proto_tree_add_item(block_tree, hf_pn_sxp_ar_uuid, tvb, off, 16, ENC_NA);
-        off += 16;
-        proto_tree_add_item(block_tree, hf_pn_sxp_session_key, tvb, off, 2, ENC_BIG_ENDIAN);
-        off += 2;
-        proto_tree_add_item(block_tree, hf_pn_sxp_reserved, tvb, off, 1, ENC_BIG_ENDIAN);
-        off += 1;
-        proto_tree_add_item(block_tree, hf_pn_sxp_reserved, tvb, off, 1, ENC_BIG_ENDIAN);
-        off += 1;
-
-        /* SXP-Destination-Endpoint (8 bytes) */
-        if (tvb_captured_length_remaining(tvb, off) >= 8)
-            off = dissect_sxp_destination_endpoint(tvb, off, pinfo, block_tree);
-
-        /* CMResponderMacAdd (6 bytes) */
-        if (tvb_captured_length_remaining(tvb, off) >= 6) {
-            proto_tree_add_item(block_tree, hf_pn_sxp_cm_mac, tvb, off, 6, ENC_NA);
-            off += 6;
-        }
-
-        /* StationNameLength + CMResponderStationName */
-        if (tvb_captured_length_remaining(tvb, off) >= 2) {
-            proto_tree_add_item_ret_uint16(block_tree, hf_pn_sxp_cm_station_name_length,
-                tvb, off, 2, ENC_BIG_ENDIAN, &name_len);
-            off += 2;
-            if (name_len > 0 && tvb_captured_length_remaining(tvb, off) >= name_len) {
-                proto_tree_add_item(block_tree, hf_pn_sxp_cm_station_name,
-                    tvb, off, name_len, ENC_ASCII);
-                off += name_len;
-            }
-        }
-
-        /* Padding to Unsigned32 alignment */
-        if (off < block_end) {
-            int pad = block_end - off;
-            if (pad > 0 && tvb_captured_length_remaining(tvb, off) >= (unsigned)pad)
-                proto_tree_add_item(block_tree, hf_pn_sxp_pnio_block_data, tvb, off, pad, ENC_NA);
-        }
-        break;
-    }
-
-    default:
-        /* Generic: show remaining as raw block data */
-        {
-            int data_len = block_end - offset;
-            int remaining = tvb_captured_length_remaining(tvb, offset);
-
-            if (data_len > 0 && remaining > 0)
-                proto_tree_add_item(block_tree, hf_pn_sxp_pnio_block_data, tvb, offset,
-                    MIN(data_len, remaining), ENC_NA);
-        }
-        break;
-    }
-
-    return block_end;
-}
-
-/* Dissect all PNIO blocks in IODConnectReq / IODConnectRsp */
+/* Dissect all PNIO blocks within SXP service PDUs
+ * All PNIO blocks (including SXP-specific) are handled by dissect_blocks() from packet-dcerpc-pn-io.c. */
 static int
 dissect_sxp_pnio_blocks(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    while (tvb_captured_length_remaining(tvb, offset) >= 6) {
-        int prev = offset;
-        offset = dissect_sxp_pnio_block(tvb, offset, pinfo, tree);
-        if (offset <= prev)
-            break;
-    }
+    uint8_t drep[4] = { 0, 0, 0, 0 };
+
+    /* dissect_blocks handles all block types in a loop */
+    offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
+
     return offset;
 }
 
@@ -1379,12 +521,20 @@ dissect_sxp_pnservice_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
     uint16_t block_type, block_length;
     uint32_t max_rsp_len;
+    uint8_t  drep[4] = { 0, 0, 0, 0 }; /* Big-Endian, no DCE/RPC */
+    proto_item *pdu_item;
+    proto_tree *pdu_tree;
+    int start_offset;
 
     offset = dissect_sxp_header_req(tvb, offset, pinfo, tree, &block_type, &block_length, &max_rsp_len);
 
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
-        offset = dissect_pn_user_data(tvb, offset, pinfo, tree,
-            tvb_captured_length_remaining(tvb, offset), "PROFINETIOServiceReqPDU");
+        start_offset = offset;
+        pdu_item = proto_tree_add_item(tree, hf_pn_sxp_pnservice_req_pdu, tvb, offset,
+            tvb_captured_length_remaining(tvb, offset), ENC_NA);
+        pdu_tree = proto_item_add_subtree(pdu_item, ett_pn_sxp_pnservice_req_pdu);
+        offset = dissect_blocks(tvb, offset, pinfo, pdu_tree, drep);
+        proto_item_set_len(pdu_item, offset - start_offset);
     }
 
     return offset;
@@ -1395,12 +545,20 @@ static int
 dissect_sxp_pnservice_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     uint16_t block_type, block_length;
+    uint8_t  drep[4] = { 0, 0, 0, 0 }; /* Big-Endian, no DCE/RPC */
+    proto_item *pdu_item;
+    proto_tree *pdu_tree;
+    int start_offset;
 
     offset = dissect_sxp_header_rsp(tvb, offset, pinfo, tree, &block_type, &block_length);
 
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
-        offset = dissect_pn_user_data(tvb, offset, pinfo, tree,
-            tvb_captured_length_remaining(tvb, offset), "PROFINETIOServiceRspPDU");
+        start_offset = offset;
+        pdu_item = proto_tree_add_item(tree, hf_pn_sxp_pnservice_rsp_pdu, tvb, offset,
+            tvb_captured_length_remaining(tvb, offset), ENC_NA);
+        pdu_tree = proto_item_add_subtree(pdu_item, ett_pn_sxp_pnservice_rsp_pdu);
+        offset = dissect_blocks(tvb, offset, pinfo, pdu_tree, drep);
+        proto_item_set_len(pdu_item, offset - start_offset);
     }
 
     return offset;
@@ -1412,12 +570,20 @@ dissect_sxp_alarm_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
     uint16_t block_type, block_length;
     uint32_t max_rsp_len;
+    uint8_t  drep[4] = { 0, 0, 0, 0 }; /* Big-Endian, no DCE/RPC */
+    proto_item *pdu_item;
+    proto_tree *pdu_tree;
+    int start_offset;
 
     offset = dissect_sxp_header_req(tvb, offset, pinfo, tree, &block_type, &block_length, &max_rsp_len);
 
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
-        offset = dissect_pn_user_data(tvb, offset, pinfo, tree,
-            tvb_captured_length_remaining(tvb, offset), "AlarmNotification-PDU");
+        start_offset = offset;
+        pdu_item = proto_tree_add_item(tree, hf_pn_sxp_alarm_notif_pdu, tvb, offset,
+            tvb_captured_length_remaining(tvb, offset), ENC_NA);
+        pdu_tree = proto_item_add_subtree(pdu_item, ett_pn_sxp_alarm_notif_pdu);
+        offset = dissect_blocks(tvb, offset, pinfo, pdu_tree, drep);
+        proto_item_set_len(pdu_item, offset - start_offset);
     }
 
     return offset;
@@ -1428,12 +594,20 @@ static int
 dissect_sxp_alarm_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     uint16_t block_type, block_length;
+    uint8_t  drep[4] = { 0, 0, 0, 0 }; /* Big-Endian, no DCE/RPC */
+    proto_item *pdu_item;
+    proto_tree *pdu_tree;
+    int start_offset;
 
     offset = dissect_sxp_header_rsp(tvb, offset, pinfo, tree, &block_type, &block_length);
 
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
-        offset = dissect_pn_user_data(tvb, offset, pinfo, tree,
-            tvb_captured_length_remaining(tvb, offset), "AlarmAck-PDU");
+        start_offset = offset;
+        pdu_item = proto_tree_add_item(tree, hf_pn_sxp_alarm_ack_pdu, tvb, offset,
+            tvb_captured_length_remaining(tvb, offset), ENC_NA);
+        pdu_tree = proto_item_add_subtree(pdu_item, ett_pn_sxp_alarm_ack_pdu);
+        offset = dissect_blocks(tvb, offset, pinfo, pdu_tree, drep);
+        proto_item_set_len(pdu_item, offset - start_offset);
     }
 
     return offset;
@@ -1651,7 +825,7 @@ get_sxp_service_name(uint16_t block_type)
 {
     switch (block_type) {
     case 0x0710:
-        return "SXP-Abort-REQ";
+        return "SXP-Abort-AR-REQ";
     case 0x0720:
         return "SXP-Connect-REQ";
     case 0x0721:
@@ -2084,6 +1258,8 @@ dissect_sxp_rta_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (payload_len == 0) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
+            val_to_str_const(pdu_type_type, pn_sxp_rta_pdu_type_vals, "Unknown RTA-PDU"));
         return offset;
     }
 
@@ -2154,12 +1330,12 @@ dissect_pn_sxp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         return false;
     }
 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-SXP");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "SXP over RTAv3");
+
     if (dissect_sxp_rta_pdu(tvb, pinfo, tree) <= 0) {
         return false;
     }
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-SXP");
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "SXP over RTAv3");
 
     return true;
 }
@@ -2587,522 +1763,26 @@ proto_register_pn_sxp(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-        /* PNIO block header fields */
-        { &hf_pn_sxp_pnio_block_header,
-          { "BlockHeader", "pn_sxp.pnio.block_header",
+        { &hf_pn_sxp_pnservice_req_pdu,
+          { "PROFINETIOServiceReqPDU", "pn_sxp.pnservice_req_pdu",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_pn_sxp_pnio_block_type,
-          { "BlockType", "pn_sxp.pnio.block_type",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_pnio_block_type_vals), 0x0,
+        { &hf_pn_sxp_pnservice_rsp_pdu,
+          { "PROFINETIOServiceRspPDU", "pn_sxp.pnservice_rsp_pdu",
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_pn_sxp_pnio_block_length,
-          { "BlockLength", "pn_sxp.pnio.block_length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+        { &hf_pn_sxp_alarm_notif_pdu,
+          { "AlarmNotification-PDU", "pn_sxp.alarm_notif_pdu",
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_pn_sxp_pnio_block_version_high,
-          { "BlockVersionHigh", "pn_sxp.pnio.block_version_high",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+        { &hf_pn_sxp_alarm_ack_pdu,
+          { "AlarmAck-PDU", "pn_sxp.alarm_ack_pdu",
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_pn_sxp_pnio_block_version_low,
-          { "BlockVersionLow", "pn_sxp.pnio.block_version_low",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_pnio_block_data,
-          { "BlockData", "pn_sxp.pnio.block_data",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        /* ARBlockReq fields */
-        { &hf_pn_sxp_ar_type,
-          { "ARType", "pn_sxp.ar.type",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_ar_type_vals), 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_uuid,
-          { "ARUUID", "pn_sxp.ar.uuid",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_session_key,
-          { "SessionKey", "pn_sxp.ar.session_key",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_cm_mac,
-          { "CMInitiatorMACAdd", "pn_sxp.ar.cm_mac",
-            FT_ETHER, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_cm_object_uuid,
-          { "CMInitiatorObjectUUID", "pn_sxp.ar.cm_object_uuid",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties,
-          { "ARProperties", "pn_sxp.ar.properties",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_state,
-          { "State", "pn_sxp.ar.properties.state",
-            FT_UINT32, BASE_HEX, VALS(pn_sxp_ar_properties_state_vals), 0x00000007,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_supervisor_takeover_allowed,
-          { "SupervisorTakeoverAllowed", "pn_sxp.ar.properties.supervisor_takeover_allowed",
-            FT_UINT32, BASE_HEX, VALS(pn_sxp_ar_properties_supervisor_takeover_vals), 0x00000008,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_parametrization_server,
-          { "ParametrizationServer", "pn_sxp.ar.properties.parametrization_server",
-            FT_UINT32, BASE_HEX, VALS(pn_sxp_ar_properties_parametrization_server_vals), 0x00000010,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_reserved_1,
-          { "Reserved_1", "pn_sxp.ar.properties.reserved_1",
-            FT_UINT32, BASE_HEX, NULL, 0x000000E0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_device_access,
-          { "DeviceAccess", "pn_sxp.ar.properties.device_access",
-            FT_UINT32, BASE_HEX, VALS(pn_sxp_ar_properties_device_access_vals), 0x00000100,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_companion_ar,
-          { "CompanionAR", "pn_sxp.ar.properties.companion_ar",
-            FT_UINT32, BASE_HEX, VALS(pn_sxp_ar_properties_companion_ar_vals), 0x00000600,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_acknowledge_companion_ar,
-          { "AcknowledgeCompanionAR", "pn_sxp.ar.properties.acknowledge_companion_ar",
-            FT_UINT32, BASE_HEX, VALS(pn_sxp_ar_properties_acknowledge_companion_ar_vals), 0x00000800,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_reserved_2,
-          { "Reserved_2", "pn_sxp.ar.properties.reserved_2",
-            FT_UINT32, BASE_HEX, NULL, 0x00FFF000,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_reserved_3,
-          { "Reserved_3", "pn_sxp.ar.properties.reserved_3",
-            FT_UINT32, BASE_HEX, NULL, 0x07000000,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_reject_dcp_set_requests,
-          { "RejectDCPsetRequests", "pn_sxp.ar.properties.reject_dcp_set_requests",
-            FT_UINT32, BASE_HEX, VALS(pn_sxp_ar_properties_reject_dcp_vals), 0x08000000,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_time_aware_system,
-          { "TimeAwareSystem", "pn_sxp.ar.properties.time_aware_system",
-            FT_UINT32, BASE_HEX, VALS(pn_sxp_ar_properties_time_aware_vals), 0x10000000,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_combined_object_container,
-          { "CombinedObjectContainer", "pn_sxp.ar.properties.combined_object_container",
-            FT_UINT32, BASE_HEX, VALS(pn_sxp_ar_properties_coc_vals), 0x20000000,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_startup_mode,
-          { "StartupMode", "pn_sxp.ar.properties.startup_mode",
-            FT_UINT32, BASE_HEX, VALS(pn_sxp_ar_properties_startup_mode_vals), 0x40000000,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ar_properties_pull_module_alarm_allowed,
-          { "PullModuleAlarmAllowed", "pn_sxp.ar.properties.pull_module_alarm_allowed",
-            FT_UINT32, BASE_HEX, NULL, 0x80000000,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_timeout_factor,
-          { "CMInitiatorActivityTimeoutFactor", "pn_sxp.ar.timeout_factor",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_udp_rt_port,
-          { "InitiatorUDPRTPort", "pn_sxp.ar.udp_rt_port",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_cm_station_name_length,
-          { "StationNameLength", "pn_sxp.ar.station_name_length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_cm_station_name,
-          { "CMInitiatorStationName", "pn_sxp.ar.station_name",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        /* IOCRBlockReq fields */
-        { &hf_pn_sxp_iocr_type,
-          { "IOCRType", "pn_sxp.iocr.type",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_iocr_type_vals), 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_reference,
-          { "IOCRReference", "pn_sxp.iocr.reference",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_lt,
-          { "LT", "pn_sxp.iocr.lt",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_properties,
-          { "IOCRProperties", "pn_sxp.iocr.properties",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_data_length,
-          { "DataLength", "pn_sxp.iocr.data_length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_frame_id,
-          { "FrameID", "pn_sxp.iocr.frame_id",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_send_clock,
-          { "SendClockFactor", "pn_sxp.iocr.send_clock",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_reduction_ratio,
-          { "ReductionRatio", "pn_sxp.iocr.reduction_ratio",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_phase,
-          { "Phase", "pn_sxp.iocr.phase",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_sequence,
-          { "Sequence", "pn_sxp.iocr.sequence",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_frame_send_offset,
-          { "FrameSendOffset", "pn_sxp.iocr.frame_send_offset",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_watchdog_factor,
-          { "WatchdogFactor", "pn_sxp.iocr.watchdog_factor",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_data_hold_factor,
-          { "DataHoldFactor", "pn_sxp.iocr.data_hold_factor",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_tag_header,
-          { "IOCRTagHeader", "pn_sxp.iocr.tag_header",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_multicast_mac,
-          { "IOCRMulticastMACAdd", "pn_sxp.iocr.multicast_mac",
-            FT_ETHER, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_number_of_apis,
-          { "NumberOfAPIs", "pn_sxp.iocr.number_of_apis",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_api,
-          { "API", "pn_sxp.iocr.api",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_number_of_io_data_objects,
-          { "NumberOfIODataObjects", "pn_sxp.iocr.number_of_io_data_objects",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_io_data_slot_number,
-          { "SlotNumber", "pn_sxp.iocr.io_data.slot_number",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_io_data_subslot_number,
-          { "SubslotNumber", "pn_sxp.iocr.io_data.subslot_number",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_io_data_frame_offset,
-          { "IODataObjectFrameOffset", "pn_sxp.iocr.io_data.frame_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_number_of_iocs,
-          { "NumberOfIOCS", "pn_sxp.iocr.number_of_iocs",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_iocs_slot_number,
-          { "SlotNumber", "pn_sxp.iocr.iocs.slot_number",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_iocs_subslot_number,
-          { "SubslotNumber", "pn_sxp.iocr.iocs.subslot_number",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_iocr_iocs_frame_offset,
-          { "IOCSFrameOffset", "pn_sxp.iocr.iocs.frame_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        /* SXPBlockReq fields */
-        { &hf_pn_sxp_sxp_usage_flags,
-          { "SXP_UsageFlags", "pn_sxp.sxp_usage_flags",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_usage_flags_use_rta,
-          { "UseRTA", "pn_sxp.sxp_usage_flags.use_rta",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_usage_flags_use_rta_vals), 0x0001,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_usage_flags_use_rtc,
-          { "UseRTC", "pn_sxp.sxp_usage_flags.use_rtc",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_usage_flags_use_rtc_vals), 0x0002,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_usage_flags_reserved,
-          { "Reserved", "pn_sxp.sxp_usage_flags.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0xFFFC,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability,
-          { "SXP_Capability", "pn_sxp.sxp_capability",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_reserved0,
-          { "Reserved0", "pn_sxp.sxp_capability.reserved0",
-            FT_UINT16, BASE_HEX, NULL, 0x0001,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_priority1,
-          { "Priority1", "pn_sxp.sxp_capability.priority1",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_capability_priority_vals), 0x0002,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_priority2,
-          { "Priority2", "pn_sxp.sxp_capability.priority2",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_capability_priority_vals), 0x0004,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_priority3,
-          { "Priority3", "pn_sxp.sxp_capability.priority3",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_capability_priority_vals), 0x0008,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_priority4,
-          { "Priority4", "pn_sxp.sxp_capability.priority4",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_capability_priority_vals), 0x0010,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_priority5,
-          { "Priority5", "pn_sxp.sxp_capability.priority5",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_capability_priority_vals), 0x0020,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_priority6,
-          { "Priority6", "pn_sxp.sxp_capability.priority6",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_capability_priority_vals), 0x0040,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_priority7,
-          { "Priority7", "pn_sxp.sxp_capability.priority7",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_capability_priority_vals), 0x0080,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_priority8,
-          { "Priority8", "pn_sxp.sxp_capability.priority8",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_capability_priority_vals), 0x0100,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_priority9,
-          { "Priority9", "pn_sxp.sxp_capability.priority9",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_sxp_capability_priority9_vals), 0x0200,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_sxp_capability_reserved,
-          { "Reserved", "pn_sxp.sxp_capability.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0xFC00,
-            NULL, HFILL }},
-
-        /* AlarmCRBlockReq fields */
-        { &hf_pn_sxp_alarmcr_type,
-          { "AlarmCRType", "pn_sxp.alarmcr.type",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_alarmcr_lt,
-          { "LT", "pn_sxp.alarmcr.lt",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_alarmcr_properties,
-          { "AlarmCRProperties", "pn_sxp.alarmcr.properties",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_alarmcr_rta_timeout_factor,
-          { "RTATimeoutFactor", "pn_sxp.alarmcr.rta_timeout_factor",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_alarmcr_rta_retries,
-          { "RTARetries", "pn_sxp.alarmcr.rta_retries",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_alarmcr_local_alarm_reference,
-          { "LocalAlarmReference", "pn_sxp.alarmcr.local_alarm_reference",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_alarmcr_max_alarm_data_length,
-          { "MaxAlarmDataLength", "pn_sxp.alarmcr.max_alarm_data_length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_alarmcr_tag_header_high,
-          { "AlarmCRTagHeaderHigh", "pn_sxp.alarmcr.tag_header_high",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_alarmcr_tag_header_low,
-          { "AlarmCRTagHeaderLow", "pn_sxp.alarmcr.tag_header_low",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        /* ExpectedSubmoduleBlockReq fields */
-        { &hf_pn_sxp_esb_number_of_apis,
-          { "NumberOfAPIs", "pn_sxp.esb.number_of_apis",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_api,
-          { "API", "pn_sxp.esb.api",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_slot_number,
-          { "SlotNumber", "pn_sxp.esb.slot_number",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_module_ident,
-          { "ModuleIdentNumber", "pn_sxp.esb.module_ident",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_module_properties,
-          { "ModuleProperties", "pn_sxp.esb.module_properties",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_number_of_submodules,
-          { "NumberOfSubmodules", "pn_sxp.esb.number_of_submodules",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_subslot_number,
-          { "SubslotNumber", "pn_sxp.esb.subslot_number",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_submodule_ident,
-          { "SubmoduleIdentNumber", "pn_sxp.esb.submodule_ident",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_submodule_properties,
-          { "SubmoduleProperties", "pn_sxp.esb.submodule_properties",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_data_description,
-          { "DataDescription", "pn_sxp.esb.data_description",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_submodule_data_length,
-          { "SubmoduleDataLength", "pn_sxp.esb.submodule_data_length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_length_iops,
-          { "LengthIOPS", "pn_sxp.esb.length_iops",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_esb_length_iocs,
-          { "LengthIOCS", "pn_sxp.esb.length_iocs",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        /* CallingHomeAdjust / CallingHomeEntry fields */
-        { &hf_pn_sxp_ch_number_of_entries,
-          { "NumberOfEntries", "pn_sxp.ch.number_of_entries",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ch_flags,
-          { "CallingHomeFlags", "pn_sxp.ch.flags",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ch_flags_use_layer3,
-          { "UseLayer3", "pn_sxp.ch.flags.use_layer3",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_ch_flags_use_layer3_vals), 0x0001,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ch_flags_use_layer2,
-          { "UseLayer2", "pn_sxp.ch.flags.use_layer2",
-            FT_UINT16, BASE_HEX, VALS(pn_sxp_ch_flags_use_layer2_vals), 0x0002,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ch_flags_reserved,
-          { "Reserved", "pn_sxp.ch.flags.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0xFFFC,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ch_station_name_length,
-          { "CH_StationNameLength", "pn_sxp.ch.station_name_length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ch_station_name,
-          { "CH_StationName", "pn_sxp.ch.station_name",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ch_station_mac,
-          { "CH_StationMac", "pn_sxp.ch.station_mac",
-            FT_ETHER, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_sxp_ch_station_ip,
-          { "CH_StationIP", "pn_sxp.ch.station_ip",
-            FT_IPv4, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
     };
 
     static int *ett[] = {
@@ -3122,20 +1802,12 @@ proto_register_pn_sxp(void)
         &ett_pn_sxp_segment,
         &ett_pn_sxp_notification_pdu,
         &ett_pn_sxp_notification_ack_pdu,
-        &ett_pn_sxp_pnio_block,
-        &ett_pn_sxp_pnio_block_header,
         &ett_pn_sxp_iodconnect_req,
         &ett_pn_sxp_iodconnect_rsp,
-        &ett_pn_sxp_ar_properties,
-        &ett_pn_sxp_sxp_usage_flags,
-        &ett_pn_sxp_sxp_capability,
-        &ett_pn_sxp_iocr_api,
-        &ett_pn_sxp_iocr_io_data_object,
-        &ett_pn_sxp_iocr_iocs,
-        &ett_pn_sxp_esb_api,
-        &ett_pn_sxp_esb_submodule,
-        &ett_pn_sxp_ch_entry,
-        &ett_pn_sxp_ch_flags
+        &ett_pn_sxp_pnservice_req_pdu,
+        &ett_pn_sxp_pnservice_rsp_pdu,
+        &ett_pn_sxp_alarm_notif_pdu,
+        &ett_pn_sxp_alarm_ack_pdu
     };
 
     static ei_register_info ei[] = {
