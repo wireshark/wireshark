@@ -423,9 +423,7 @@
   <Fragment>
     <ComponentGroup Id="CG.Tools.Sharkd">
       <ComponentRef Id="cmpSharkd_exe" />
-      <!--
       <ComponentRef Id="cmpSharkd_html" />
-      -->
     </ComponentGroup>
   </Fragment>
 
