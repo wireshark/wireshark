@@ -92,6 +92,11 @@ try {
       <ComponentGroup Id=`"CG.QtDependencies`">
 "
     foreach ($entry in $wdqtList) {
+        if ((Split-Path $entry -Leaf) -eq "icuuc.dll") {
+            Write-Host "Skipping system library: $($entry)"
+            continue
+        }
+
         $dir = Split-Path -Parent $entry
         $wix_name = $entry -ireplace "[^a-z0-9]", "_"
 
