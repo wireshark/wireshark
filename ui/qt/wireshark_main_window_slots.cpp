@@ -164,6 +164,7 @@ DIAG_ON(frame-larger-than=)
 #include "supported_protocols_dialog.h"
 #include "theme_debug_dialog.h"
 #include "tap_parameter_dialog.h"
+#include "tcp_dedup_dialog.h"
 #include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
 #include "uat_dialog.h"
@@ -1285,6 +1286,7 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
     main_ui_->actionStatisticsTcpStreamTcptrace->setEnabled(is_tcp);
     main_ui_->actionStatisticsTcpStreamThroughput->setEnabled(is_tcp);
     main_ui_->actionStatisticsTcpStreamWindowScaling->setEnabled(is_tcp);
+    main_ui_->actionStatisticsTcpStreamDedupTable->setEnabled(is_tcp);
 
     main_ui_->actionSCTPAnalyseThisAssociation->setEnabled(is_sctp);
     main_ui_->actionSCTPShowAllAssociations->setEnabled(is_sctp);
@@ -3535,6 +3537,7 @@ void WiresharkMainWindow::connectStatisticsMenuActions()
     connect(main_ui_->actionStatisticsTcpStreamThroughput, &QAction::triggered, this, [=]() { openTcpStreamDialog(GRAPH_THROUGHPUT); });
     connect(main_ui_->actionStatisticsTcpStreamRoundTripTime, &QAction::triggered, this, [=]() { openTcpStreamDialog(GRAPH_RTT); });
     connect(main_ui_->actionStatisticsTcpStreamWindowScaling, &QAction::triggered, this, [=]() { openTcpStreamDialog(GRAPH_WSCALE); });
+    connect(main_ui_->actionStatisticsTcpStreamDedupTable, &QAction::triggered, this, &WiresharkMainWindow::openTcpDedupDialog);
 
     connect(main_ui_->actionStatisticsANCP, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("ancp"); });
 
@@ -3564,6 +3567,26 @@ void WiresharkMainWindow::openTcpStreamDialog(int graph_type)
     if (stream_dialog->result() == QDialog::Accepted) {
         stream_dialog->show();
     }
+}
+
+void WiresharkMainWindow::openTcpDedupDialog()
+{
+    /* Defer construction by one event-loop tick so the right-click context
+     * menu (if that's what triggered this slot) has fully torn down before
+     * any new dialog widgets are created. Avoids a class of crashes where a
+     * mouse event posted to a context-menu child widget gets delivered after
+     * the new dialog has been built, racing the menu teardown. */
+    QTimer::singleShot(0, this, [this]() {
+        TcpDedupDialog *dedup_dialog = new TcpDedupDialog(*this, capture_file_);
+        connect(dedup_dialog, &TcpDedupDialog::goToPacket, this,
+                [=](int packet_num) { packet_list_->goToPacket(packet_num); });
+        if (dedup_dialog->result() == QDialog::Accepted) {
+            dedup_dialog->show();
+        }
+        /* Rejected path: TcpDedupDialog's ctor called done(QDialog::Rejected)
+         * which, combined with WA_DeleteOnClose, has already scheduled
+         * deleteLater(). */
+    });
 }
 
 // -z mcast,stat

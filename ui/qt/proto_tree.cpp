@@ -425,6 +425,21 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     ctx_menu->addMenu(proto_prefs_menu);
 
+    main_menu_item = window()->findChild<QMenu *>("menuTcpStreamGraphs");
+    if (main_menu_item) {
+        QList<QAction *> enabled_actions;
+        foreach (QAction *a, main_menu_item->actions()) {
+            if (!a->isSeparator() && a->isEnabled())
+                enabled_actions << a;
+        }
+        if (!enabled_actions.isEmpty()) {
+            submenu = new QMenu(main_menu_item->title(), ctx_menu);
+            foreach (QAction *a, enabled_actions)
+                submenu->addAction(a);
+            ctx_menu->addMenu(submenu);
+        }
+    }
+
     // Add actions for coloring rule fields
     bool is_color_rule_name = fi && fi->hfinfo &&
         strcmp(fi->hfinfo->abbrev, "frame.coloring_rule.name") == 0;

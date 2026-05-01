@@ -255,6 +255,9 @@ static int hf_tcp_analysis_rto_frame;
 static int hf_tcp_analysis_duplicate_ack;
 static int hf_tcp_analysis_duplicate_ack_num;
 static int hf_tcp_analysis_duplicate_ack_frame;
+static int hf_tcp_analysis_packet_count;
+static int hf_tcp_analysis_dedup_frames;
+static int hf_tcp_analysis_dedup_frame;
 static int hf_tcp_stream_clt_contiguity_count;
 static int hf_tcp_stream_srv_contiguity_count;
 static int hf_tcp_continuation_to;
@@ -455,6 +458,7 @@ static int ett_tcp_option_acc_ecn;
 static int ett_tcp_option_sack_perm;
 static int ett_tcp_analysis;
 static int ett_tcp_analysis_faults;
+static int ett_tcp_analysis_dedup;
 static int ett_tcp_timestamps;
 static int ett_tcp_segments;
 static int ett_tcp_segment;
@@ -501,6 +505,7 @@ static expert_field ei_tcp_analysis_tfo_ack;
 static expert_field ei_tcp_analysis_tfo_ignored;
 static expert_field ei_tcp_analysis_partial_ack;
 static expert_field ei_tcp_analysis_ambiguous_ack;
+static expert_field ei_tcp_analysis_duplicate_packet;
 static expert_field ei_tcp_scps_capable;
 static expert_field ei_tcp_option_sack_dsack;
 static expert_field ei_tcp_option_snack_sequence;
@@ -1013,7 +1018,36 @@ static capture_dissector_handle_t tcp_cap_handle;
 static uint32_t tcp_stream_count;
 static uint32_t mptcp_stream_count;
 
+/* Capture-level duplicate / packet-count detection */
+static bool     tcp_detect_duplicate_packets       = false;
+static uint32_t tcp_dup_detect_window_usec         = 5000;
+static bool     tcp_duplicate_carry_tcp_analysis   = false;
+static wmem_map_t *tcp_dup_packet_map;        /* file-scoped; NULL when feature off */
 
+typedef struct {
+    uint32_t stream;    /* tcpd->stream — conversation identity */
+    uint32_t seglen;    /* th_seglen — payload byte count derived from IP layer */
+    uint32_t seg_hash;  /* wmem_strong_hash of TCP hdr+opts with MSS+checksum zeroed */
+} tcp_dup_key_t;        /* 12 bytes */
+
+typedef struct {
+    nstime_t      first_ts;
+    uint32_t      count;
+    uint32_t      first_frame;   /* frame number of the first occurrence */
+    wmem_array_t *frames;        /* all frame numbers in this dedup group */
+} tcp_dup_entry_t;
+
+static unsigned
+tcp_dup_key_hash(const void *p)
+{
+    return wmem_strong_hash((const uint8_t *)p, sizeof(tcp_dup_key_t));
+}
+
+static gboolean
+tcp_dup_key_equal(const void *a, const void *b)
+{
+    return memcmp(a, b, sizeof(tcp_dup_key_t)) == 0;
+}
 
 /*
  * Maps an MPTCP token to a mptcp_analysis structure
@@ -2640,6 +2674,165 @@ tcp_track_contiguity(uint32_t seq, uint32_t nextseq, struct tcp_analysis *tcpd) 
     tcpd->fwd->tcp_analyze_seq_info->num_contiguous_ranges += array_growth;
 }
 
+/*
+ * Compute the capture-level occurrence count for this TCP segment within the
+ * dedup time window. Stores result in tcpd->ta->dup_count:
+ *   1   = first (or fresh) occurrence
+ *   >1  = capture duplicate; retransmission flags are cleared since the
+ *         repeated appearance is a capture artifact, not a network event.
+ * Called only on the first pass when tcp_detect_duplicate_packets is true.
+ */
+static void
+tcp_detect_duplicate_packet(tvbuff_t *tvb,
+                             packet_info *pinfo,
+                             const struct tcpheader *tcph,
+                             struct tcp_analysis *tcpd)
+{
+    tcp_dup_key_t    key;
+    tcp_dup_entry_t *entry;
+    nstime_t         delta;
+    int64_t          delta_usec;
+
+    if (!tcpd || !tcp_dup_packet_map)
+        return;
+
+    /* Ensure tcp_acked exists for this frame so every packet gets the field */
+    if (!tcpd->ta)
+        tcp_analyze_get_acked_struct(pinfo->num, tcph->th_rawseq, tcph->th_rawack, true, tcpd);
+    if (!tcpd->ta)
+        return;
+
+    /* Hash the TCP header + options bytes (th_hlen*4) so every field is
+     * automatically covered. MSS (kind=2, SYN-only) is the sole exception:
+     * it can be clamped by intermediate devices so its value bytes are zeroed
+     * before hashing. The stream index scopes the hash to one conversation. */
+    {
+        int     hdr_len  = tcph->th_hlen; /* th_hlen is already in bytes */
+        /* TCP options max 40 bytes; fixed header 20 bytes; buf sized for both */
+        uint8_t hdrbuf[64];
+        int     tvb_len  = (int)tvb_reported_length(tvb);
+        int     copy_len = hdr_len;
+        if (copy_len > (int)sizeof(hdrbuf)) copy_len = (int)sizeof(hdrbuf);
+        if (copy_len > tvb_len)             copy_len = tvb_len;
+
+        if (copy_len < 20)
+            return; /* truncated beyond the fixed TCP header — skip */
+
+        tvb_memcpy(tvb, hdrbuf, 0, copy_len);
+
+        /* Zero the TCP checksum (bytes 16-17): any device that modifies a field
+         * (e.g. MSS clamping) must update the checksum, so it would differ
+         * between the original and the modified copy even when all meaningful
+         * content is the same. copy_len >= 20 is guaranteed by the check above. */
+        hdrbuf[16] = 0;
+        hdrbuf[17] = 0;
+
+        if (tcph->th_flags & TH_SYN) {
+            /* Scan options for MSS (kind=2, len=4) and zero its 2-byte value */
+            int opt = 20;
+            while (opt < copy_len) {
+                uint8_t kind = hdrbuf[opt];
+                if (kind == 0) break;               /* EOL */
+                if (kind == 1) { opt++; continue; } /* NOP */
+                if (opt + 1 >= copy_len) break;
+                uint8_t olen = hdrbuf[opt + 1];
+                if (olen < 2 || opt + olen > copy_len) break;
+                if (kind == 2 && olen == 4) {       /* MSS */
+                    hdrbuf[opt + 2] = 0;
+                    hdrbuf[opt + 3] = 0;
+                    break;
+                }
+                opt += olen;
+            }
+        }
+
+        memset(&key, 0, sizeof(key));
+        key.stream   = tcpd->stream;
+        key.seglen   = tcph->th_seglen;
+        key.seg_hash = wmem_strong_hash(hdrbuf, copy_len);
+    }
+
+    entry = (tcp_dup_entry_t *)wmem_map_lookup(tcp_dup_packet_map, &key);
+
+    if (entry == NULL) {
+        tcp_dup_key_t *stored_key = wmem_new(wmem_file_scope(), tcp_dup_key_t);
+        memcpy(stored_key, &key, sizeof(key));
+        entry = wmem_new(wmem_file_scope(), tcp_dup_entry_t);
+        entry->first_ts    = pinfo->abs_ts;
+        entry->count       = 1;
+        entry->first_frame = pinfo->num;
+        entry->frames      = wmem_array_new(wmem_file_scope(), sizeof(uint32_t));
+        wmem_array_append_one(entry->frames, pinfo->num);
+        wmem_map_insert(tcp_dup_packet_map, stored_key, entry);
+        tcpd->ta->dup_count      = 1;
+        tcpd->ta->dup_orig_frame = pinfo->num;
+        tcpd->ta->dup_frame_list = entry->frames;
+    } else {
+        nstime_delta(&delta, &pinfo->abs_ts, &entry->first_ts);
+        delta_usec = (int64_t)delta.secs * 1000000 + (int64_t)(delta.nsecs / 1000);
+        if (delta_usec < 0) delta_usec = -delta_usec;  /* handle mild reordering */
+
+        if ((uint64_t)delta_usec <= (uint64_t)tcp_dup_detect_window_usec) {
+            entry->count++;
+            wmem_array_append_one(entry->frames, pinfo->num);
+            tcpd->ta->dup_count      = entry->count;
+            tcpd->ta->dup_orig_frame = entry->first_frame;
+            tcpd->ta->dup_frame_list = entry->frames;
+            /* The duplicate's own tcp_acked->flags were set by
+             * tcp_analyze_sequence_number() earlier in this same first pass.
+             * Because the duplicate shares (seq, ack) with the original, that
+             * analysis spuriously flags the duplicate as a retransmission /
+             * dup-ACK / "ACKed unseen segment". Always clear those bits —
+             * they are capture artifacts, not network events. */
+            tcpd->ta->flags &= ~(TCP_A_RETRANSMISSION |
+                                 TCP_A_FAST_RETRANSMISSION |
+                                 TCP_A_SPURIOUS_RETRANSMISSION |
+                                 TCP_A_DUPLICATE_ACK |
+                                 TCP_A_ACK_LOST_PACKET);
+
+            /* When the "Duplication detection carry tcp analysis" preference
+             * is enabled, fetch the original frame's tcp_acked and OR its
+             * real analysis flags onto this duplicate so it renders the same
+             * SEQ/ACK annotations as the original. */
+            if (tcp_duplicate_carry_tcp_analysis) {
+                struct tcp_acked *cur_ta = tcpd->ta;
+                tcpd->ta = NULL;
+                tcp_analyze_get_acked_struct(entry->first_frame,
+                                             tcph->th_rawseq, tcph->th_rawack,
+                                             false, tcpd);
+                if (tcpd->ta) {
+                    /* Every bit in tcp_acked.flags is a TCP_A_* analysis flag
+                     * (grep for "#define TCP_A_" in this file). OR them all
+                     * so any annotation the original frame shows —
+                     * Retransmission, Out-Of-Order, Lost segment, Dup ACK,
+                     * Window Update, Keep-Alive, etc. — also appears on
+                     * this duplicate. */
+                    cur_ta->flags |= tcpd->ta->flags;
+                    if (tcpd->ta->flags & TCP_A_DUPLICATE_ACK) {
+                        /* [TCP Dup ACK X#Y] reads these fields */
+                        cur_ta->dupack_frame = tcpd->ta->dupack_frame;
+                        cur_ta->dupack_num   = tcpd->ta->dupack_num;
+                    }
+                }
+                tcpd->ta = cur_ta;
+            }
+        } else {
+            /* Outside the window — treat as a fresh occurrence.
+             * The old entry->frames array is intentionally replaced; the
+             * previous allocation is wmem_file_scope() and will be freed
+             * automatically when the capture file is closed. */
+            entry->first_ts    = pinfo->abs_ts;
+            entry->count       = 1;
+            entry->first_frame = pinfo->num;
+            entry->frames      = wmem_array_new(wmem_file_scope(), sizeof(uint32_t));
+            wmem_array_append_one(entry->frames, pinfo->num);
+            tcpd->ta->dup_count      = 1;
+            tcpd->ta->dup_orig_frame = pinfo->num;
+            tcpd->ta->dup_frame_list = entry->frames;
+        }
+    }
+}
+
 /* fwd contains a list of all segments processed but not yet ACKed in the
  *     same direction as the current segment.
  * rev contains a list of all segments received but not yet ACKed in the
@@ -4175,6 +4368,65 @@ tcp_sequence_number_analysis_print_push_bytes_sent(packet_info * pinfo _U_,
 }
 
 static void
+tcp_sequence_number_analysis_print_packet_count(packet_info *pinfo,
+                                                tvbuff_t *tvb,
+                                                proto_tree *tree,
+                                                struct tcp_acked *ta)
+{
+    proto_item  *item;
+    proto_item  *dedup_item;
+    proto_tree  *dedup_tree;
+    unsigned     nframes;
+
+    if (!tcp_detect_duplicate_packets || ta->dup_count == 0)
+        return;
+
+    item = proto_tree_add_uint(tree, hf_tcp_analysis_packet_count,
+                               tvb, 0, 0, ta->dup_count);
+    proto_item_set_generated(item);
+
+    if (ta->dup_count > 1) {
+        col_prepend_fence_fstr(pinfo->cinfo, COL_INFO,
+                               "[dedup %u#%u] ", ta->dup_orig_frame, ta->dup_count);
+        expert_add_info_format(pinfo, item, &ei_tcp_analysis_duplicate_packet,
+                               "Capture-level duplicate (occurrence #%u)", ta->dup_count);
+    }
+
+    /* Build the [Dedup frames] subtree whenever the group has >1 member.
+     * dup_frame_list is shared across all frames in the group, so by the
+     * display pass it contains every frame number that was appended during
+     * the first pass — including the original. */
+    if (ta->dup_frame_list == NULL)
+        return;
+    nframes = wmem_array_get_count(ta->dup_frame_list);
+    if (nframes < 2)
+        return;
+
+    dedup_item = proto_tree_add_item(tree, hf_tcp_analysis_dedup_frames,
+                                     tvb, 0, 0, ENC_NA);
+    proto_item_set_generated(dedup_item);
+    dedup_tree = proto_item_add_subtree(dedup_item, ett_tcp_analysis_dedup);
+
+    for (unsigned i = 0; i < nframes; i++) {
+        uint32_t fnum = *(uint32_t *)wmem_array_index(ta->dup_frame_list, i);
+        proto_item *fi = proto_tree_add_uint(dedup_tree, hf_tcp_analysis_dedup_frame,
+                                             tvb, 0, 0, fnum);
+        proto_item_set_generated(fi);
+        if (i == 0)
+            proto_item_append_text(fi, " (original)");
+    }
+
+    /* Append frame list to the parent node label for at-a-glance visibility */
+    for (unsigned i = 0; i < nframes; i++) {
+        uint32_t fnum = *(uint32_t *)wmem_array_index(ta->dup_frame_list, i);
+        if (i == 0)
+            proto_item_append_text(dedup_item, ": %u", fnum);
+        else
+            proto_item_append_text(dedup_item, ", %u", fnum);
+    }
+}
+
+static void
 tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
                           struct tcp_analysis *tcpd, uint32_t seq, uint32_t ack)
 {
@@ -4261,6 +4513,13 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
         tcp_sequence_number_analysis_print_zero_window(pinfo, item, ta);
 
     }
+
+    /* Capture-level packet occurrence count — called LAST so that
+     * [dedup X#Y] is the final col_prepend_fence and therefore appears
+     * leftmost in the Info column, before any [TCP Retransmission] /
+     * [TCP Out-Of-Order] / etc. that the analysis flag prints may have
+     * prepended above. */
+    tcp_sequence_number_analysis_print_packet_count(pinfo, tvb, tree, ta);
 
 }
 
@@ -9660,6 +9919,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     }
 
+    /* Capture-level duplicate detection — placed here so tcph->num_sack_ranges
+     * is fully populated by tcp_dissect_options() before we build the key. */
+    if (tcp_analyze_seq && tcph->th_have_seglen &&
+            tcp_detect_duplicate_packets && tcpd && !pinfo->fd->visited) {
+        tcp_detect_duplicate_packet(tvb, pinfo, tcph, tcpd);
+    }
+
     /* Handle default MSS values for IPv4 and IPv6
      * If MSS is still -1 after dissecting the options,
      * apply the default values (as per RFC 9293).
@@ -9703,6 +9969,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
         /* print results for sequence analysis */
         tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd, use_seq, use_ack);
+
+        /* Expose dedup data to tap listeners */
+        if (tcp_detect_duplicate_packets && tcpd->ta) {
+            tcph->th_dup_count      = tcpd->ta->dup_count;
+            tcph->th_dup_orig_frame = tcpd->ta->dup_orig_frame;
+        }
 
         /* print results for contiguity analysis */
         tcp_sequence_number_analysis_print_contiguous_flow(pinfo, tvb, tcp_tree, tcpd);
@@ -9882,6 +10154,15 @@ tcp_init(void)
     /* MPTCP init */
     mptcp_stream_count = 0;
     mptcp_tokens = wmem_tree_new(wmem_file_scope());
+
+    /* Capture-level packet-count detection */
+    if (tcp_detect_duplicate_packets) {
+        tcp_dup_packet_map = wmem_map_new(wmem_file_scope(),
+                                          tcp_dup_key_hash,
+                                          tcp_dup_key_equal);
+    } else {
+        tcp_dup_packet_map = NULL;
+    }
 }
 
 void
@@ -10071,6 +10352,19 @@ proto_register_tcp(void)
         { &hf_tcp_analysis_duplicate_ack_frame,
         { "Duplicate to the ACK in frame",      "tcp.analysis.duplicate_ack_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_DUP_ACK), 0x0,
             "This is a duplicate to the ACK in frame #", HFILL }},
+
+        { &hf_tcp_analysis_packet_count,
+          { "Duplication count",                "tcp.analysis.duplication_count", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Number of times this exact TCP segment has appeared in the capture within the duplicate detection window "
+            "(1 = first occurrence, >1 = capture-level duplicate)", HFILL }},
+
+        { &hf_tcp_analysis_dedup_frames,
+          { "Duplication frames",               "tcp.analysis.duplication_frames", FT_NONE, BASE_NONE, NULL, 0x0,
+            "All frame numbers in this capture-level duplicate group", HFILL }},
+
+        { &hf_tcp_analysis_dedup_frame,
+          { "Frame",                            "tcp.analysis.duplication_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "A frame that is part of this capture-level duplicate group", HFILL }},
 
         { &hf_tcp_continuation_to,
         { "This is a continuation to the PDU in frame",     "tcp.continuation_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -10816,6 +11110,7 @@ proto_register_tcp(void)
         &ett_tcp_opt_qs,
         &ett_tcp_analysis_faults,
         &ett_tcp_analysis,
+        &ett_tcp_analysis_dedup,
         &ett_tcp_timestamps,
         &ett_tcp_segments,
         &ett_tcp_segment,
@@ -10886,6 +11181,7 @@ proto_register_tcp(void)
         { &ei_tcp_analysis_tfo_ignored, { "tcp.analysis.tfo_ignored", PI_SEQUENCE, PI_NOTE, "TCP SYN-ACK ignoring TFO data", EXPFILL }},
         { &ei_tcp_analysis_partial_ack, { "tcp.analysis.partial_ack", PI_SEQUENCE, PI_NOTE, "Partial Acknowledgement of a segment", EXPFILL }},
         { &ei_tcp_analysis_ambiguous_ack, { "tcp.analysis.ambiguous_ack", PI_SEQUENCE, PI_NOTE, "Ambiguous ACK following Karn's definition", EXPFILL }},
+        { &ei_tcp_analysis_duplicate_packet, { "tcp.analysis.duplicate_packet", PI_SEQUENCE, PI_NOTE, "Capture-level duplicate packet detected", EXPFILL }},
         { &ei_tcp_connection_fin_active, { "tcp.connection.fin_active", PI_SEQUENCE, PI_NOTE, "This frame initiates the connection closing", EXPFILL }},
         { &ei_tcp_connection_fin_passive, { "tcp.connection.fin_passive", PI_SEQUENCE, PI_NOTE, "This frame undergoes the connection closing", EXPFILL }},
         { &ei_tcp_scps_capable, { "tcp.analysis.scps_capable", PI_SEQUENCE, PI_NOTE, "Connection establish acknowledge (SYN+ACK): SCPS Capabilities Negotiated", EXPFILL }},
@@ -11071,6 +11367,25 @@ proto_register_tcp(void)
         "Analyze TCP sequence numbers",
         "Make the TCP dissector analyze TCP sequence numbers to find and flag segment retransmissions, missing segments and RTT",
         &tcp_analyze_seq);
+    prefs_register_bool_preference(tcp_module, "detect_duplicate_packets",
+        "Detect duplication (capture-level) packets",
+        "Detect TCP segments captured at multiple monitoring points. Adds a [packet count] field "
+        "to every segment's SEQ/ACK analysis showing how many times the same packet has been seen "
+        "within the time window. Requires \"Analyze TCP sequence numbers\" to be enabled.",
+        &tcp_detect_duplicate_packets);
+    prefs_register_uint_preference(tcp_module, "duplicate_detect_window_usec",
+        "Duplication detection window (microseconds)",
+        "Time window in microseconds within which identical TCP segments are considered "
+        "capture-level duplicates. Default: 5000 us (5 ms).",
+        10,
+        &tcp_dup_detect_window_usec);
+    prefs_register_bool_preference(tcp_module, "duplicate_carry_tcp_analysis",
+        "Duplication detection carry over tcp analysis",
+        "When a packet is identified as a capture-level duplicate, also display "
+        "the original frame's SEQ/ACK analysis flags (Retransmission, Dup ACK, "
+        "Out-Of-Order, etc.) on the duplicate. When disabled, only the [dedup N#M] "
+        "annotation is shown on the duplicate.",
+        &tcp_duplicate_carry_tcp_analysis);
     prefs_register_bool_preference(tcp_module, "relative_sequence_numbers",
         "Relative sequence numbers (Requires \"Analyze TCP sequence numbers\")",
         "Make the TCP dissector use relative sequence numbers instead of absolute ones. "

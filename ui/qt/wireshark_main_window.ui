@@ -521,6 +521,7 @@
      <addaction name="actionStatisticsTcpStreamThroughput"/>
      <addaction name="actionStatisticsTcpStreamRoundTripTime"/>
      <addaction name="actionStatisticsTcpStreamWindowScaling"/>
+     <addaction name="actionStatisticsTcpStreamDedupTable"/>
     </widget>
     <widget class="QMenu" name="menuBACnet">
      <property name="title">
@@ -1866,6 +1867,14 @@
    </property>
    <property name="toolTip">
     <string>TCP time sequence graph (tcptrace)</string>
+   </property>
+  </action>
+  <action name="actionStatisticsTcpStreamDedupTable">
+   <property name="text">
+    <string>Duplication Table</string>
+   </property>
+   <property name="toolTip">
+    <string>TCP capture-level duplicate packet table</string>
    </property>
   </action>
   <action name="actionSCTPAnalyseThisAssociation">

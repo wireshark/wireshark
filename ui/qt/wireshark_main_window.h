@@ -1178,6 +1178,7 @@ private slots:
      * @param graph_type TCP stream graph type constant (e.g. time-sequence, throughput).
      */
     void openTcpStreamDialog(int graph_type);
+    void openTcpDedupDialog();
 
     /** @brief Opens the SCTP All Associations dialog. */
     void openSCTPAllAssocsDialog();

@@ -302,6 +302,7 @@ set(WIRESHARK_QT_HEADERS
 	supported_protocols_dialog.h
 	tabnav_tree_widget.h
 	tap_parameter_dialog.h
+	tcp_dedup_dialog.h
 	tcp_stream_dialog.h
 	theme_debug_dialog.h
 	time_shift_dialog.h
@@ -624,6 +625,7 @@ set(WIRESHARK_QT_SRC
 	supported_protocols_dialog.cpp
 	tabnav_tree_widget.cpp
 	tap_parameter_dialog.cpp
+	tcp_dedup_dialog.cpp
 	tcp_stream_dialog.cpp
 	theme_debug_dialog.cpp
 	time_shift_dialog.cpp

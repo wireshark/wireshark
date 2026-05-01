@@ -107,6 +107,9 @@ typedef struct tcpheader {
 
 	/* header for TCP option Multipath Operation */
 	struct mptcpheader *th_mptcp;
+
+	uint32_t th_dup_count;      /* capture-level duplicate count (0 = not checked) */
+	uint32_t th_dup_orig_frame; /* frame number of first occurrence in dedup group */
 } tcp_info_t;
 
 /*
@@ -183,6 +186,9 @@ struct tcp_acked {
 
 	uint32_t new_data_seq; /* For segments with old data,
 				 where new data starts */
+	uint32_t dup_count;	/* capture-level packet occurrence count; 0 = not yet checked */
+	uint32_t dup_orig_frame; /* frame number of the first occurrence of this packet */
+	wmem_array_t *dup_frame_list; /* shared list of all frame numbers in this dedup group */
 };
 
 /* One instance of this structure is created for each pdu that spans across
