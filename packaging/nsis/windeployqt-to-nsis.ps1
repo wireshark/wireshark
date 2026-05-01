@@ -82,6 +82,7 @@ try {
 
     foreach ($entry in $wdqtList) {
         if ((Split-Path $entry -Leaf) -eq "icuuc.dll") {
+            # Work around a pre Qt 6.11.1 + Windows ICU issue
             Write-Host "Skipping system library: $($entry)"
             continue
         }
