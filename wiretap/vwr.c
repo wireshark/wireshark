@@ -800,7 +800,7 @@ static bool         vwr_read_rec_data_ethernet(wtap *, wtap_rec *,
                                                const uint8_t *, int,
                                                int, int *, char **);
 
-static int          find_signature(const uint8_t *, int, int, register uint32_t, register uint8_t);
+static bool         find_signature(const uint8_t *, int, int, register uint32_t, register uint8_t, int*);
 static uint64_t     get_signature_ts(const uint8_t *, int, int);
 static float        get_legacy_rate(uint8_t);
 static float        get_ht_rate(uint8_t, uint16_t);
@@ -1273,8 +1273,7 @@ static bool vwr_read_s1_W_rec(wtap *wth, wtap_rec *record,
 
     /* extract the 32 LSBs of the signature timestamp field from the data block*/
     pay_off = 42;    /* 24 (MAC) + 8 (SNAP) + IP */
-    sig_off = find_signature(m_ptr, rec_size - 6, pay_off, flow_id, flow_seq);
-    if (m_ptr[sig_off] == 0xdd)
+    if (find_signature(m_ptr, rec_size - 6, pay_off, flow_id, flow_seq, &sig_off))
         sig_ts = get_signature_ts(m_ptr, sig_off, rec_size - v22_W_STATS_LEN);
     else
         sig_ts = 0;
@@ -1679,8 +1678,7 @@ static bool vwr_read_s2_W_rec(wtap *wth, wtap_rec *record,
     /* extract the 32 LSBs of the signature timestamp field */
     m_ptr = &(rec[8+12]);
     pay_off = 42;         /* 24 (MAC) + 8 (SNAP) + IP */
-    sig_off = find_signature(m_ptr, rec_size - 20, pay_off, flow_id, flow_seq);
-    if (m_ptr[sig_off] == 0xdd)
+    if (find_signature(m_ptr, rec_size - 20, pay_off, flow_id, flow_seq, &sig_off))
         sig_ts = get_signature_ts(m_ptr, sig_off, rec_size - vVW510021_W_STATS_TRAILER_LEN);
     else
         sig_ts = 0;
@@ -2185,8 +2183,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         int m_ptr_offset = stats_offset + 8 + 12;
         m_ptr = rec + m_ptr_offset;
         pay_off = 42;         /* 24 (MAC) + 8 (SNAP) + IP */
-        sig_off = find_signature(m_ptr, rec_size - m_ptr_offset, pay_off, flow_id, flow_seq);
-        if (m_ptr[sig_off] == 0xdd)
+        if (find_signature(m_ptr, rec_size - m_ptr_offset, pay_off, flow_id, flow_seq, &sig_off))
             sig_ts = get_signature_ts(m_ptr, sig_off, rec_size - vVW510021_W_STATS_TRAILER_LEN);
         else
             sig_ts = 0;
@@ -2716,8 +2713,7 @@ static bool vwr_read_rec_data_ethernet(wtap *wth, wtap_rec *record,
         pay_off = mac_len + 20;
     }
 
-    sig_off = find_signature(m_ptr, rec_size, pay_off, flow_id, flow_seq);
-    if ((m_ptr[sig_off] == 0xdd) && (f_flow != 0))
+    if ((f_flow != 0) && find_signature(m_ptr, rec_size, pay_off, flow_id, flow_seq, &sig_off))
         sig_ts = get_signature_ts(m_ptr, sig_off, msdu_length);
     else
         sig_ts = 0;
@@ -3215,15 +3211,19 @@ static void setup_defaults(vwr_t *vwr, uint16_t fpga)
 #define SIG_SCAN_RANGE  64                          /* range of signature scanning region */
 
 /* Utility routine: check that signature is at specified location; scan for it if not.     */
-/* If we can't find a signature at all, then simply return the originally supplied offset. */
-int find_signature(const uint8_t *m_ptr, int rec_size, int pay_off, uint32_t flow_id, uint8_t flow_seq)
+bool find_signature(const uint8_t *m_ptr, int rec_size, int pay_off, uint32_t flow_id, uint8_t flow_seq, int *sig_off)
 {
     int     tgt;                /* temps */
     uint32_t fid;
 
+    if (rec_size <= pay_off)
+        return false;
+
     /* initial check is very simple: look for a '0xdd' at the target location */
-    if (m_ptr[pay_off] == 0xdd)                         /* if magic byte is present */
-        return pay_off;                                 /* got right offset, return it */
+    if (m_ptr[pay_off] == 0xdd) {                       /* if magic byte is present */
+        *sig_off = pay_off;                             /* got right offset, set it */
+        return true;                                    /* return success */
+    }
 
     /* Hmmm, signature magic byte is not where it is supposed to be; scan from start of     */
     /*  payload until maximum scan range exhausted to see if we can find it.                */
@@ -3240,29 +3240,31 @@ int find_signature(const uint8_t *m_ptr, int rec_size, int pay_off, uint32_t flo
                 if (fid != flow_id)
                     continue;
 
-                return (tgt);
+                *sig_off = tgt;
+                return true;
             }
             else if (tgt + SIG_FSQ_OFF < rec_size)
             {                                               /* out which one... */
                 if (m_ptr[tgt + SIG_FSQ_OFF] != flow_seq)   /* check sequence number */
                     continue;                               /* if failed, keep scanning */
 
-                fid = pletohu24(&m_ptr[tgt + SIG_FID_OFF]);  /* assemble flow ID from signature */
+                fid = pletohu24(&m_ptr[tgt + SIG_FID_OFF]); /* assemble flow ID from signature */
                 if (fid != flow_id)                         /* check flow ID against expected */
                     continue;                               /* if failed, keep scanning */
 
                 /* matched magic byte, sequence number, flow ID; found the signature */
-                return (tgt);                               /* return offset of signature */
+                *sig_off = tgt;                             /* set offset of signature */
+                return true;                                /* return success */
             }
         }
     }
 
-    /* failed to find the signature, return the original offset as default */
-    return pay_off;
+    /* failed to find the signature, return failure */
+    return false;
 }
 
 /* utility routine: harvest the signature time stamp from the data frame */
-uint64_t get_signature_ts(const uint8_t *m_ptr,int sig_off, int sig_max)
+uint64_t get_signature_ts(const uint8_t *m_ptr, int sig_off, int sig_max)
 {
     int     ts_offset;
     uint64_t sig_ts;
