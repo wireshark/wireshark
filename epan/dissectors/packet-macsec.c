@@ -556,7 +556,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 We have to build the AAD since the incoming TVB payload does not have the Ethernet header. */
             payload_len = frame_len - ETHHDR_LEN;
 
-            if (payload_len <= MAX_PAYLOAD_LEN) {
+            if (frame_len <= MAX_PAYLOAD_LEN) {
                 /* Copy the frame data up to the ICV. */
                 tvb_memcpy(tvb, &aad[ETHHDR_LEN], 0, payload_len);
 
