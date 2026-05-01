@@ -62,7 +62,10 @@ wtap_open_return_val json_open(wtap *wth, int *err, char **err_info)
      * packet-json shows excess unparsed data at the end with the
      * data-text-lines dissector.
      */
-    if (json_parse_len(filebuf, bytes_read, NULL, 0) < 0) {
+    int num_tokens = json_parse_len((const char*)filebuf, bytes_read, NULL, 0);
+    if (num_tokens <= 0) {
+        /* 0 tokens needed is a degenerate case, e.g., nothing but whitespace
+         * until the first NUL. Reject that too. */
         g_free(filebuf);
         return WTAP_OPEN_NOT_MINE;
     }
