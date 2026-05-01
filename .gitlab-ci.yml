@@ -528,6 +528,27 @@ Windows Arm64 Package:
     paths:
       - build/wireshark-release-info-*.ini
 
+Ubuntu Qt5 Build:
+  extends: .build-ubuntu
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      interruptible: true
+      changes:
+        - "ui/**/*"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
+  needs:
+    - job: "Commit Check"
+      optional: true
+  script:
+    - ../tools/debian-setup.sh --install-qt5-deps --yes --no-install-recommends
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -G Ninja -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -DUSE_qt6=OFF ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - ninja
+    - run/wireshark -v
+
 # Fedora doesn't appear to have checks in place to ensure that their MinGW Qt
 # packages work, so disable the MinGW builds for now.
 .Windows MinGW-w64 Package:
