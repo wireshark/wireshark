@@ -13973,7 +13973,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Tip of the Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Dagens tips</translation>
     </message>
     <message>
         <source>Slide display interval</source>

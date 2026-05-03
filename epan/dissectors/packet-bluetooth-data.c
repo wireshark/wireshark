@@ -892,6 +892,8 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C39,   "HID SCI Mode" },
     { 0x2C3A,   "HID SCI Information" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC35,   "Metabowerke GmbH" },
+    { 0xFC36,   "PharmaSens AG" },
     { 0xFC37,   "TANlock GmbH" },
     { 0xFC38,   "SetPoint Medical" },
     { 0xFC39,   "Harman International" },
@@ -5635,6 +5637,11 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10B4,   "Solabs Technology (HK) Co., Limited" },
     { 0x10B5,   "SpartanLync Technologies Corp." },
     { 0x10B6,   "SHENZHEN CHINA MICRO SEMICON CO.,LIMITED" },
+    { 0x10B7,   "Fosilicon Co., Ltd" },
+    { 0x10B8,   "Palarum LLC" },
+    { 0x10B9,   "CYNC Labs, Inc." },
+    { 0x10BA,   "Noble HiFi, LLC" },
+    { 0x10BB,   "VERGESENSE INC" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6406,6 +6413,8 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c39,   "Bluetooth GATT Attribute HID SCI Mode (UUID 0x2c39)", "BT GATT HID SCI Mode (UUID 0x2c39)", "btgatt.uuid0x2c39" },
     { 0x2c3a,   "Bluetooth GATT Attribute HID SCI Information (UUID 0x2c3a)", "BT GATT HID SCI Information (UUID 0x2c3a)", "btgatt.uuid0x2c3a" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc35,   "Bluetooth GATT Attribute Metabowerke GmbH (UUID 0xfc35)", "BT GATT Metabowerke GmbH (UUID 0xfc35)", "btgatt.uuid0xfc35" },
+    { 0xfc36,   "Bluetooth GATT Attribute PharmaSens AG (UUID 0xfc36)", "BT GATT PharmaSens AG (UUID 0xfc36)", "btgatt.uuid0xfc36" },
     { 0xfc37,   "Bluetooth GATT Attribute TANlock GmbH (UUID 0xfc37)", "BT GATT TANlock GmbH (UUID 0xfc37)", "btgatt.uuid0xfc37" },
     { 0xfc38,   "Bluetooth GATT Attribute SetPoint Medical (UUID 0xfc38)", "BT GATT SetPoint Medical (UUID 0xfc38)", "btgatt.uuid0xfc38" },
     { 0xfc39,   "Bluetooth GATT Attribute Harman International (UUID 0xfc39)", "BT GATT Harman International (UUID 0xfc39)", "btgatt.uuid0xfc39" },
