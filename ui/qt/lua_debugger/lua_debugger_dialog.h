@@ -415,6 +415,21 @@ class LuaDebuggerDialog : public GeometryStateDialog
      * which is what made per-packet logpoints freeze the GUI.
      */
     void drainPendingLogs();
+    /**
+     * @brief Drain the silent-bump notification: refresh the
+     *        Breakpoints @em Hits column from engine state.
+     *
+     * Posted as a single queued invocation by the C-side
+     * @ref onBreakpointStateDirty trampoline the first time the line
+     * hook bumps any @c bp->hit_count after the previous drain
+     * cleared the dirty flag. Hot lines therefore funnel through one
+     * event-loop tick instead of one queued lambda per bump.
+     *
+     * No-ops while the dialog is hidden so a hot line doesn't pay for
+     * model rebuilds the user can't see; @ref showEvent re-invokes
+     * this on the next show to catch up the visible counter.
+     */
+    void drainBreakpointStateUpdates();
     /** @brief Handle theme selection changes from the Settings section. */
     void onThemeChanged(int idx);
     /** @brief Show inline find/replace bar. */

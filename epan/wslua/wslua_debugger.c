@@ -467,6 +467,7 @@ static void wslua_debugger_basic_table_counts(lua_State *L, int idx,
                                               int64_t *total,
                                               int64_t *visible);
 static bool wslua_debugger_basic_entry_is_hidden(lua_State *L);
+static inline void notify_breakpoint_state_dirty(void);
 
 /**
  * @brief Per-fire context handed to the logpoint formatter.
@@ -2338,6 +2339,13 @@ static void wslua_debug_hook(lua_State *L, lua_Debug *debug_info)
                     continue;
 
                 bp->hit_count++;
+                /* Wake the UI on every silent bump so the
+                 * Breakpoints @em Hits column ticks live even when
+                 * the row stays below threshold (no pause, no
+                 * logpoint emit). The notification is a single
+                 * atomic CAS in steady state — see
+                 * @ref notify_breakpoint_state_dirty. */
+                notify_breakpoint_state_dirty();
                 new_hit_count = bp->hit_count;
                 hit_target = bp->hit_count_target;
 
@@ -4181,6 +4189,42 @@ static wslua_debugger_reload_callback_t reload_callback = NULL;
  * dialog's destructor sets it back to NULL on the GUI thread, which
  * would otherwise race with the hook on the Lua thread. */
 static gpointer log_emit_callback = NULL;
+
+/* Silent-bump notification: the line hook sets this 0->1 the first
+ * time it advances any breakpoint's @c hit_count in an "epoch" and
+ * (only on that 0->1 transition) dispatches the registered
+ * callback. The UI clears the flag during its drain via
+ * @ref wslua_debugger_clear_breakpoint_state_dirty so the next bump
+ * re-arms the trampoline. The single-bit gate keeps the dispatch
+ * cost on a per-packet hot line to one notification per Qt
+ * event-loop tick — see @ref notify_breakpoint_state_dirty. */
+static gint     breakpoint_state_dirty_atomic   = 0;
+static gpointer breakpoint_state_dirty_callback = NULL;
+
+static inline void notify_breakpoint_state_dirty(void)
+{
+    if (g_atomic_int_compare_and_exchange(
+            &breakpoint_state_dirty_atomic, 0, 1))
+    {
+        wslua_debugger_breakpoint_state_dirty_callback_t cb =
+            (wslua_debugger_breakpoint_state_dirty_callback_t)
+                g_atomic_pointer_get(&breakpoint_state_dirty_callback);
+        if (cb)
+            cb();
+    }
+}
+
+void wslua_debugger_register_breakpoint_state_dirty_callback(
+    wslua_debugger_breakpoint_state_dirty_callback_t callback)
+{
+    g_atomic_pointer_set(&breakpoint_state_dirty_callback,
+                          (gpointer)callback);
+}
+
+void wslua_debugger_clear_breakpoint_state_dirty(void)
+{
+    g_atomic_int_set(&breakpoint_state_dirty_atomic, 0);
+}
 
 /**
  * @brief Register a callback to be notified before Lua plugins are reloaded.

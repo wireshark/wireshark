@@ -908,17 +908,37 @@ interacts with the changed-value cue.
 === Breakpoints
 
 The *Breakpoints* section lists every breakpoint the debugger
-knows about, with two columns:
+knows about, with three columns:
 
 * *Active* — a checkbox. Unchecking disables the breakpoint without
   removing it.
+* *Hits* — a compact summary of the row's hit-count gate plus the
+  running counter, so you can see at a glance "what kind of pause is
+  armed and how close it is to firing" without hovering the row
+  tooltip. The cell uses a tiny grammar that mirrors the inline
+  editor's mode dropdown:
++
+--
+** `≥__N__` — `from` mode: pause from the _N_-th hit onwards.
+** `×__N__` — `every` mode: pause on hits _N_, _2N_, _3N_, ….
+** `@__N__` — `once` mode: pause once on the _N_-th hit, then
+   deactivate the row.
+** The cell starts with the running hit counter; if a gate is set
+   it follows in parentheses, e.g. `3 (≥10)` means "currently at 3
+   hits, armed at ≥10". With no hit gate the cell is just the
+   counter.
+** Hover the column header to see the same grammar in tooltip form.
+   To set or change the gate, edit the *Location* cell — see
+   <<wslua_debugger_breakpoint_extras>>.
+--
 * *Location* — `__source__:__line__` for the line of the
   breakpoint.
 
 Rows whose source file no longer exists on disk are drawn with a
-warning icon, gray text, and a disabled *Active* checkbox; their
-tooltip reads _File not found: <path>_ so you can spot stale
-entries that the loader will never resolve.
+warning icon, gray text in every cell (including *Hits*), and a
+disabled *Active* checkbox; their tooltip reads _File not found:
+<path>_ so you can spot stale entries that the loader will never
+resolve.
 
 Alongside line breakpoints, the debugger can also pause on any
 Lua runtime error — see <<wslua_debugger_break_on_error>>.

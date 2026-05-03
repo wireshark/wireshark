@@ -315,6 +315,22 @@ extern "C" void onScriptLoaded(const char *file_path)
     }
 }
 
+extern "C" void onBreakpointStateDirty()
+{
+    /* Silent-bump trampoline: the Lua-side line hook fires this on
+     * the first @c bp->hit_count++ of an "epoch" (subsequent bumps
+     * stop at a CAS until the GUI thread clears the flag). We just
+     * post a queued drain — all engine reads and model rebuilds
+     * happen on the GUI thread inside @ref drainBreakpointStateUpdates. */
+    LuaDebuggerDialog *dialog = LuaDebuggerDialog::instanceIfExists();
+    if (!dialog)
+    {
+        return;
+    }
+    QMetaObject::invokeMethod(dialog, "drainBreakpointStateUpdates",
+                              Qt::QueuedConnection);
+}
+
 extern "C" void onLogEmit(const char *file_path, int64_t line, const char *message)
 {
     Q_UNUSED(file_path);
@@ -374,6 +390,7 @@ void installDialogCallbacks()
     wslua_debugger_register_post_reload_callback(onLuaPostReload);
     wslua_debugger_register_script_loaded_callback(onScriptLoaded);
     wslua_debugger_register_log_emit_callback(onLogEmit);
+    wslua_debugger_register_breakpoint_state_dirty_callback(onBreakpointStateDirty);
 }
 
 void uninstallDialogCallbacks()
@@ -382,6 +399,7 @@ void uninstallDialogCallbacks()
     wslua_debugger_register_post_reload_callback(NULL);
     wslua_debugger_register_script_loaded_callback(NULL);
     wslua_debugger_register_log_emit_callback(NULL);
+    wslua_debugger_register_breakpoint_state_dirty_callback(NULL);
 
     /* Discard any logpoint messages that arrived after the unregister
      * but before this destructor ran, and reset the drain-scheduled
@@ -988,6 +1006,12 @@ void LuaDebuggerDialog::showEvent(QShowEvent *event)
      * user_explicitly_disabled), turn the core on when breakpoints need it. */
     ensureDebuggerEnabledForActiveBreakpoints();
     updateWidgets();
+    /* Catch up on any silent @c bp->hit_count++ bumps that landed
+     * while the dialog was hidden — @ref drainBreakpointStateUpdates
+     * gates on @c isVisible() so it would have skipped them. Now
+     * that we're visible again, do one refresh and clear the
+     * dirty bit so future bumps re-arm the trampoline normally. */
+    drainBreakpointStateUpdates();
 }
 
 void LuaDebuggerDialog::handleEscapeKey()
@@ -1763,8 +1787,29 @@ void LuaDebuggerDialog::drainPendingLogs()
         return;
     }
     evalController().appendOutputLines(batch);
+    /* Breakpoints @em Hits column refresh is handled by the silent-
+     * bump trampoline (@ref drainBreakpointStateUpdates) — both the
+     * non-pausing logpoint path and the below-threshold no-log path
+     * funnel through it, so we don't repeat the refresh here. */
+}
 
-    /* Update the breakpoints tree to reflect the new hit count. */
+void LuaDebuggerDialog::drainBreakpointStateUpdates()
+{
+    /* Visibility gate: the model rebuild is wasted work when the
+     * dialog isn't on screen. Intentionally leave the C-side dirty
+     * bit set so subsequent bumps don't pay for queueing either —
+     * @ref showEvent re-invokes this drain to catch up the moment
+     * the dialog reopens. */
+    if (!isVisible())
+    {
+        return;
+    }
+    /* Clear BEFORE the refresh: any concurrent @c bp->hit_count++
+     * that lands while we're rebuilding the model will re-arm the
+     * trampoline and be picked up by a follow-up drain on the next
+     * event-loop tick. Clearing after would race the bump and could
+     * lose it. */
+    wslua_debugger_clear_breakpoint_state_dirty();
     breakpointsController_.refreshFromEngine();
 }
 
