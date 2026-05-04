@@ -654,6 +654,19 @@ WS_DLL_PUBLIC bool config_file_exists_with_entries(const char *fname, char comme
 WS_DLL_PUBLIC bool files_identical(const char *fname1, const char *fname2);
 
 /**
+ * @brief Create hash value using same metrics as files_identical()
+ *
+ * Creates a hash value from a file path to help determine if files resolve to
+ * the same file, accounting for both absolute and relative path representations.
+ * This typically involves resolving symbolic links and canonicalizing paths
+ * before comparison.
+ *
+ * @param fname The file path string to hash.
+ * @return 32-bit unsigned hash value
+ */
+WS_DLL_PUBLIC unsigned files_identical_hash(const void* fname);
+
+/**
  * @brief Checks whether a file has been recreated since it was opened.
  *
  * Compares the current metadata of the file at the given pathname with the metadata

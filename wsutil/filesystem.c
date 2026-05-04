@@ -2407,77 +2407,99 @@ bool config_file_exists_with_entries(const char *fname, char comment_char)
  * name and the read file name may be relative (if supplied on
  * the command line), so we can't just compare paths. From Joerg Mayer.
  */
+
+typedef struct {
+#ifdef _WIN32
+    FILE_ID_128 id;
+    ULONGLONG serial_number;
+#else
+    dev_t dev;
+    ino_t ino;
+#endif
+} file_hash_key;
+
 bool
-files_identical(const char *fname1, const char *fname2)
+files_identical_key(const void* fname, file_hash_key *key)
 {
     /* Two different implementations, because st_ino isn't filled in with
      * a meaningful value on Windows. Use the Windows API and FILE_ID_INFO
      * instead.
      */
 #ifdef _WIN32
+     /*
+      * Compare VolumeSerialNumber and FileId.
+      */
 
-    FILE_ID_INFO filestat1, filestat2;
+      /*
+       * "You must set [FILE_FLAG_BACKUP_SEMANTICS] to obtain a handle to a
+       * directory." - Otherwise, CreateFile returns an invalid value.
+       *
+       * "The system ensures that the calling process overrides file security
+       * checks when the process has SE_BACKUP_NAME and SE_RESTORE_NAME
+       * privileges." - That shouldn't have any effect, because we open the
+       * file with neither GENERIC_READ nor GENERIC_WRITE access, only get file
+       * information and then close the handle.
+       *
+       * https://learn.microsoft.com/en-us/windows/win32/fileio/obtaining-a-handle-to-a-directory
+       * https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea
+       */
+    FILE_ID_INFO filestat;
 
-    /*
-     * Compare VolumeSerialNumber and FileId.
-     */
-
-    /*
-     * "You must set [FILE_FLAG_BACKUP_SEMANTICS] to obtain a handle to a
-     * directory." - Otherwise, CreateFile returns an invalid value.
-     *
-     * "The system ensures that the calling process overrides file security
-     * checks when the process has SE_BACKUP_NAME and SE_RESTORE_NAME
-     * privileges." - That shouldn't have any effect, because we open the
-     * file with neither GENERIC_READ nor GENERIC_WRITE access, only get file
-     * information and then close the handle.
-     *
-     * https://learn.microsoft.com/en-us/windows/win32/fileio/obtaining-a-handle-to-a-directory
-     * https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea
-     */
-    HANDLE h1 = CreateFile(utf_8to16(fname1), 0,
+    HANDLE h = CreateFile(utf_8to16((const char*)fname), 0,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
         NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 
-    if (h1 == INVALID_HANDLE_VALUE) {
+    if (h == INVALID_HANDLE_VALUE) {
         return false;
     }
 
-    if (!GetFileInformationByHandleEx(h1, FileIdInfo, &filestat1, sizeof(FILE_ID_INFO))) {
-        CloseHandle(h1);
+    if (!GetFileInformationByHandleEx(h, FileIdInfo, &filestat, sizeof(FILE_ID_INFO))) {
+        CloseHandle(h);
         return false;
     }
-    CloseHandle(h1);
+    CloseHandle(h);
 
-    HANDLE h2 = CreateFile(utf_8to16(fname2), 0,
-        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-
-    if (h2 == INVALID_HANDLE_VALUE) {
-        return false;
-    }
-
-    if (!GetFileInformationByHandleEx(h2, FileIdInfo, &filestat2, sizeof(FILE_ID_INFO))) {
-        CloseHandle(h2);
-        return false;
-    }
-    CloseHandle(h2);
-
-    return ((memcmp(&filestat1.FileId, &filestat2.FileId, sizeof(FILE_ID_128)) == 0) &&
-        filestat1.VolumeSerialNumber == filestat2.VolumeSerialNumber);
+    memcpy(&key->id, &filestat.FileId, sizeof(FILE_ID_128));
+    key->serial_number = filestat.VolumeSerialNumber;
 #else
-    ws_statb64 filestat1, filestat2;
+     /*
+      * Compare st_dev and st_ino.
+      */
+    ws_statb64 filestat;
 
-    /*
-     * Compare st_dev and st_ino.
-     */
-    if (ws_stat64(fname1, &filestat1) == -1)
-        return false;   /* can't get info about the first file */
-    if (ws_stat64(fname2, &filestat2) == -1)
-        return false;   /* can't get info about the second file */
-    return (filestat1.st_dev == filestat2.st_dev &&
-        filestat1.st_ino == filestat2.st_ino);
+    if (ws_stat64((const char*)fname, &filestat) == -1)
+        return false;   /* can't get info about the file */
+
+    key->dev = filestat.st_dev;
+    key->ino = filestat.st_ino;
 #endif
+
+    return true;
+}
+
+unsigned
+files_identical_hash(const void* fname)
+{
+    file_hash_key key;
+    if (!files_identical_key(fname, &key))
+        return 0;
+
+    const uint8_t* p = (const uint8_t*)&key;
+    return wmem_strong_hash(p, sizeof(key));
+}
+
+bool
+files_identical(const char* fname1, const char* fname2)
+{
+    file_hash_key key1, key2;
+
+    /* If we can't get info about a file, say they are different. */
+    if (!files_identical_key(fname1, &key1))
+        return false;
+    if (!files_identical_key(fname2, &key2))
+        return false;
+
+    return memcmp(&key1, &key2, sizeof key1) == 0;
 }
 
 bool

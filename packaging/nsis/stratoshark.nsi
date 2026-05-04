@@ -851,13 +851,10 @@ File "${STAGING_DIR}\plugins\wireshark\${MAJOR_VERSION}.${MINOR_VERSION}\epan\ma
 
 !ifdef SMI_DIR
 ;-------------------------------------------
-SetOutPath '$INSTDIR\snmp\mibs'
-File "${SMI_DIR}\share\mibs\iana\*"
-File "${SMI_DIR}\share\mibs\ietf\*"
-File "${SMI_DIR}\share\mibs\irtf\*"
-File "${SMI_DIR}\share\mibs\tubs\*"
-File "${SMI_DIR}\share\pibs\*"
-File "${SMI_DIR}\share\yang\*.yang"
+SetOutPath '$INSTDIR\snmp'
+File /r "${SMI_DIR}\share\mibs"
+File /r "${SMI_DIR}\share\pibs"
+File /r "${SMI_DIR}\share\yang"
 !include "custom_mibs.txt"
 !endif
 
@@ -1218,6 +1215,8 @@ Delete "$INSTDIR\printsupport\*.*"
 Delete "$INSTDIR\share\glib-2.0\schemas\*.*"
 Delete "$INSTDIR\snmp\*.*"
 Delete "$INSTDIR\snmp\mibs\*.*"
+Delete "$INSTDIR\snmp\pibs\*.*"
+Delete "$INSTDIR\snmp\yang\*.*"
 Delete "$INSTDIR\styles\translations\*.*"
 Delete "$INSTDIR\styles\*.*"
 Delete "$INSTDIR\protobuf\*.*"
@@ -1267,8 +1266,7 @@ RMDir "$INSTDIR\help"
 RMDir "$INSTDIR\generic"
 RMDir /r "$INSTDIR\Wireshark User's Guide"
 RMDir "$INSTDIR\diameter"
-RMDir "$INSTDIR\snmp\mibs"
-RMDir "$INSTDIR\snmp"
+RMDir /r "$INSTDIR\snmp"
 RMDir "$INSTDIR\radius"
 RMDir "$INSTDIR\dtds"
 RMDir "$INSTDIR\protobuf"
