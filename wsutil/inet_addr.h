@@ -172,6 +172,17 @@ WS_DLL_PUBLIC WS_RETNONNULL
 const char *
 ws_inet_ntop4(const void *src, char *dst, size_t dst_size);
 
+/**
+ * @brief Converts a binary IPv6 address to its string representation.
+ *
+ * Parses a 128-bit network byte order IPv6 address from @p src and converts it into
+ * a human-readable format (e.g., "2001:db8::1") stored in @p dst up to @p dst_size characters.
+ *
+ * @param src Pointer to the binary representation of the IPv6 address.
+ * @param dst Buffer to store the string representation of the IPv6 address.
+ * @param dst_size Size of the destination buffer.
+ * @return A pointer to the resulting string, or NULL on failure.
+ */
 WS_DLL_PUBLIC WS_RETNONNULL
 const char *
 ws_inet_ntop6(const void *src, char *dst, size_t dst_size);

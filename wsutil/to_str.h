@@ -399,6 +399,15 @@ WS_DLL_PUBLIC void uint64_to_str_buf(uint64_t u, char *buf, size_t buf_len);
 WS_DEPRECATED_X("Use uint64_to_str_buf instead")
 static inline void guint64_to_str_buf(uint64_t u, char *buf, size_t buf_len) { uint64_to_str_buf(u, buf, buf_len); }
 
+/**
+ * @brief Converts a 32-bit IPv4 address to string format.
+ *
+ * This function takes a pointer to a 32-bit IPv4 address and converts it into a human-readable string representation.
+ *
+ * @param ad Pointer to the 32-bit IPv4 address.
+ * @param buf Buffer to store the resulting string.
+ * @param buf_len Length of the buffer.
+ */
 WS_DEPRECATED_X("Use ip_num_to_str_buf() or ip_addr_to_str() instead")
 WS_DLL_PUBLIC void ip_to_str_buf(const uint8_t *ad, char *buf, const int buf_len);
 

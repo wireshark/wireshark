@@ -20,6 +20,14 @@
 #define ASCEND_MAX_DATA_COLS 16
 #define ASCEND_MAX_PKT_LEN (ASCEND_MAX_DATA_ROWS * ASCEND_MAX_DATA_COLS)
 
+/**
+ * @brief Opens an Ascend text file for reading.
+ *
+ * @param wth Pointer to a wtap structure that will be initialized with the file information.
+ * @param err Pointer to an integer where any error code will be stored.
+ * @param err_info Pointer to a char pointer where any error message will be stored.
+ * @return wtap_open_return_val The result of opening the file, indicating success or failure.
+ */
 wtap_open_return_val ascend_open(wtap *wth, int *err, char **err_info);
 
 #endif

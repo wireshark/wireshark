@@ -67,6 +67,14 @@ struct pcapng_option_header {
     uint16_t value_length;
 };
 
+/**
+ * @brief Opens a pcapng file.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Pointer to an integer that will be set to an error code if an error occurs.
+ * @param err_info Pointer to a string that will be set to an error message if an error occurs.
+ * @return wtap_open_return_val The result of opening the file.
+ */
 wtap_open_return_val pcapng_open(wtap *wth, int *err, char **err_info);
 
 #endif

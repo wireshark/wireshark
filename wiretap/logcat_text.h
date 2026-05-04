@@ -20,6 +20,14 @@
 #define THREADTIME_STRING "(\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}) +(\\d+) +(\\d+) ([IVDWEF]) (.*?): (.*)"
 #define LONG_STRING "\\[ (\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}) +(\\d+): *(\\d+) ([IVDWEF])/(.+) ]\\R(.*)"
 
+/**
+ * @brief Open a Logcat text file for reading.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Error code if an error occurs.
+ * @param err_info Error information if an error occurs.
+ * @return wtap_open_return_val The result of opening the file.
+ */
 wtap_open_return_val logcat_text_open(wtap *wth, int *err, char **err_info);
 
 #endif

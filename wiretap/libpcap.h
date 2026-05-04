@@ -94,6 +94,14 @@ struct pcaprec_nokia_hdr {
 	uint8_t stuff[4];	/* mysterious stuff */
 };
 
+/**
+ * @brief Opens a capture file using libpcap format.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Pointer to an integer that will hold any error code if an error occurs.
+ * @param err_info Pointer to a char pointer that will hold any error information if an error occurs.
+ * @return wtap_open_return_val The result of the open operation, indicating success or failure.
+ */
 wtap_open_return_val libpcap_open(wtap *wth, int *err, char **err_info);
 
 #endif

@@ -14,6 +14,14 @@
 
 #include <wiretap/wtap.h>
 
+/**
+ * @brief Opens a file using the Busmaster log reader.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Pointer to an integer that will hold any error code.
+ * @param err_info Pointer to a string that will hold any error information.
+ * @return int WTAP_OPEN_OK if successful, otherwise an error code.
+ */
 wtap_open_return_val
 busmaster_open(wtap *wth, int *err, char **err_info);
 

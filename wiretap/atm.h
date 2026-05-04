@@ -17,9 +17,19 @@
  * that information).
  */
 
+/**
+ * @brief Guesses the ATM traffic type based on the packet data.
+ *
+ * @param rec Pointer to the wtap_rec structure containing the packet data.
+ */
 extern void
 atm_guess_traffic_type(wtap_rec *rec);
 
+/**
+ * @brief Guesses the lane type based on the packet data.
+ *
+ * @param rec Pointer to the wtap_rec structure containing the packet data.
+ */
 extern void
 atm_guess_lane_type(wtap_rec *rec);
 

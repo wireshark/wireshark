@@ -14,6 +14,14 @@
 
 #include <wiretap/wtap.h>
 
+/**
+ * @brief Opens a candump file.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Error code if an error occurs.
+ * @param err_info Error information if an error occurs.
+ * @return WTAP_OPEN_ERROR if an error occurs, WTAP_OPEN_NOT_MINE if not a candump file.
+ */
 wtap_open_return_val
 candump_open(wtap *wth, int *err, char **err_info);
 

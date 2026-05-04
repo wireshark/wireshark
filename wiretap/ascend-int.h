@@ -50,6 +50,14 @@ typedef struct {
     ascend_token_t token;
 } ascend_state_t;
 
+/**
+ * @brief Runs the Ascend parser on the given packet data.
+ *
+ * @param pd Pointer to the packet data.
+ * @param parser_state Pointer to the parser state structure.
+ * @param err Pointer to an integer where any error code will be stored.
+ * @param err_info Pointer to a string where any error information will be stored.
+*/
 extern bool
 run_ascend_parser(uint8_t *pd, ascend_state_t *parser_state, int *err, char **err_info);
 

@@ -143,6 +143,11 @@ ws_cpuid(uint32_t *CPUInfo _U_, int selector _U_)
 }
 #endif
 
+/**
+ * @brief Checks if the CPU supports SSE4.2 instruction set.
+ *
+ * @return 1 if SSE4.2 is supported, otherwise returns 0.
+ */
 static int
 ws_cpuid_sse42(void)
 {

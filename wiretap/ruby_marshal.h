@@ -15,6 +15,14 @@
 #define RUBY_MARSHAL_MAJOR 4
 #define RUBY_MARSHAL_MINOR 8
 
+/**
+ * @brief Opens a file for reading using Ruby Marshal format.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Pointer to an integer that will hold any error code if an error occurs.
+ * @param err_info Pointer to a character pointer that will hold any error information if an error occurs.
+ * @return wtap_open_return_val The result of opening the file, indicating success or failure.
+ */
 wtap_open_return_val ruby_marshal_open(wtap *wth, int *err, char **err_info);
 
 #endif

@@ -43,6 +43,14 @@ typedef struct procmon_process_t {
     bool is_64_bit      : 1;
 } procmon_process_t;
 
+/**
+ * @brief Opens a procmon file and initializes the wtap structure.
+ *
+ * @param wth Pointer to the wtap structure that will be initialized.
+ * @param err Pointer to an integer where any error code will be stored.
+ * @param err_info Pointer to a char pointer where any error information will be stored.
+ * @return wtap_open_return_val The result of opening the file.
+ */
 wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info);
 
 #endif

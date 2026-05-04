@@ -15,6 +15,14 @@
 
 #include <wiretap/wtap.h>
 
+/**
+ * @brief Opens a CAMINS file for reading.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Error code if an error occurs.
+ * @param err_info Error information if an error occurs.
+ * @return wtap_open_return_val The result of opening the file.
+ */
 wtap_open_return_val camins_open(wtap *wth, int *err, char **err_info _U_);
 
 #endif /* _CAMINS_H */

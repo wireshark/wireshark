@@ -21,6 +21,14 @@
 
 #include "wtap.h"
 
+/**
+ * @brief Open an AUTOSAR DLT file.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Error code if opening fails.
+ * @param err_info Error message if opening fails.
+ * @return wtap_open_return_val indicating whether the file is opened successfully or not.
+ */
 wtap_open_return_val autosar_dlt_open(wtap *wth, int *err, char **err_info);
 
 #endif

@@ -213,6 +213,12 @@ static inline uint16_t pntohu16(const void *p)
            (uint16_t)*((const uint8_t *)(p)+1)<<0;
 }
 
+/**
+ * @brief Convert a network-order 32-bit unsigned integer to host order.
+ *
+ * @param p Pointer to the network-order 32-bit unsigned integer.
+ * @return The host-order 32-bit unsigned integer.
+ */
 static inline uint32_t pntohu32(const void *p)
 {
     return (uint32_t)*((const uint8_t *)(p)+0)<<24|

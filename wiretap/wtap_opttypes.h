@@ -1304,6 +1304,11 @@ wtap_block_set_nth_packet_verdict_option_value(wtap_block_t block, unsigned opti
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_nth_packet_verdict_option_value(wtap_block_t block, unsigned option_id, unsigned idx, packet_verdict_opt_t* value) G_GNUC_WARN_UNUSED_RESULT;
 
+/**
+ * @brief Free a packet verdict option value
+ *
+ * @param[in] verdict Pointer to the packet verdict option to free
+ */
 WS_DLL_PUBLIC void
 wtap_packet_verdict_free(packet_verdict_opt_t* verdict);
 

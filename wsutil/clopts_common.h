@@ -112,6 +112,13 @@ get_positive_int64(const char* string, const char* name, int64_t* number);
 WS_DLL_PUBLIC bool
 get_uint32(const char *string, const char *name, uint32_t* number);
 
+/**
+ * @brief Parses a string as a non-zero unsigned 32-bit integer.
+ *
+ * @param string The string to parse.
+ * @param name The name of the option being parsed (for error messages).
+ * @return uint32_t The parsed non-zero unsigned 32-bit integer.
+ */
 WS_DEPRECATED_X("Use get_uint32 instead")
 static inline uint32_t
 get_guint32(const char *string, const char *name) {
@@ -135,6 +142,13 @@ get_guint32(const char *string, const char *name) {
 WS_DLL_PUBLIC bool
 get_nonzero_uint32(const char *string, const char *name, uint32_t* number);
 
+/**
+ * @brief Parses a string as an unsigned 32-bit integer.
+ *
+ * @param string The string to parse.
+ * @param name The name of the option being parsed, for error messages.
+ * @return uint32_t The parsed unsigned 32-bit integer.
+ */
 WS_DEPRECATED_X("Use get_nonzero_uint32 instead")
 static inline uint32_t
 get_nonzero_guint32(const char *string, const char *name) {

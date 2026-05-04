@@ -119,8 +119,10 @@ typedef struct pcapng_block_type_information_t {
     GHashTable   *option_handlers; /* Hash table of option handlers */
 } pcapng_block_type_information_t;
 
-/*
- * Register a handler for a pcapng block type.
+/**
+ * @brief Register a handler for a pcapng block type.
+ *
+ * @param handler Pointer to a structure containing the block type information and handler functions.
  */
 WS_DLL_PUBLIC
 void register_pcapng_block_type_information(pcapng_block_type_information_t* handler);
@@ -136,15 +138,22 @@ typedef uint32_t (*option_sizer)(unsigned option_id, wtap_optval_t *optval);
 typedef bool (*option_writer)(wtap_dumper *wdh, unsigned option_id,
                               wtap_optval_t *optval, int *err);
 
-/*
- * Create a table of handlers for pcapng option codes.
+/**
+ * @brief Create a table of handlers for pcapng option codes.
+ * @return GHashTable* A hash table of option handlers.
  */
 WS_DLL_PUBLIC
 GHashTable *pcapng_create_option_handler_table(void);
 
-/*
- * Register a handler for a pcapng option code for a particular block
+/**
+ * @brief Register a handler for a pcapng option code for a particular block
  * type.
+ *
+ * @param block_type The block type that this option handler is for.
+ * @param option_code The option code that this handler is for.
+ * @param parser The function to call to parse this option when reading a file.
+ * @param sizer The function to call to determine the size of this option when writing a file.
+ * @param writer The function to call to write this option when writing a file.
  */
 WS_DLL_PUBLIC
 void register_pcapng_option_handler(unsigned block_type, unsigned option_code,
@@ -172,11 +181,18 @@ typedef enum {
     OPT_LITTLE_ENDIAN       /* ditto */
 } pcapng_opt_byte_order_e;
 
-/*
- * Process the options section of a block.  process_option points to
- * a routine that processes all the block-specific options, i.e.
- * options other than the end-of-options, comment, and custom
- * options.
+/**
+ * @brief Process the options section of a block.
+ *
+ * @param fh File handle.
+ * @param wblock Pointer to the pcapng block.
+ * @param section_info Pointer to the section information.
+ * @param opt_cont_buf_len Length of the option content buffer.
+ * @param process_option Function to process each option.
+ * @param byte_order Byte order of the option content.
+ * @param err Pointer to an integer where any error code will be stored on failure.
+ * @param err_info Pointer to a string where error information will be stored on failure.
+ * @return true if the options were processed successfully, false otherwise.
  */
 WS_DLL_PUBLIC
 bool pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
@@ -190,15 +206,30 @@ bool pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                             pcapng_opt_byte_order_e byte_order,
                             int *err, char **err_info);
 
-/*
- * Helper routines to process options with types used in more than one
+/**
+ * @brief Helper routines to process options with types used in more than one
  * block type.
+ *
+ * @param wblock Pointer to the pcapng block containing the option.
+ * @param option_code Code identifying the option.
+ * @param option_length Length of the option content in bytes.
+ * @param option_content Pointer to the content of the option.
  */
 WS_DLL_PUBLIC
 void pcapng_process_uint8_option(wtapng_block_t *wblock,
                                  uint16_t option_code, uint16_t option_length,
                                  const uint8_t *option_content);
 
+/**
+ * @brief Process a 32-bit unsigned integer option in a PCAPNG block.
+ *
+ * @param wblock Pointer to the pcapng block containing the option.
+ * @param section_info Pointer to the section information structure.
+ * @param byte_order Byte order of the option content.
+ * @param option_code Code identifying the option.
+ * @param option_length Length of the option content in bytes.
+ * @param option_content Pointer to the content of the option.
+ */
 WS_DLL_PUBLIC
 void pcapng_process_uint32_option(wtapng_block_t *wblock,
                                   section_info_t *section_info,
@@ -206,6 +237,16 @@ void pcapng_process_uint32_option(wtapng_block_t *wblock,
                                   uint16_t option_code, uint16_t option_length,
                                   const uint8_t *option_content);
 
+/**
+ * @brief Process a timestamp option in a PCAPng block.
+ *
+ * @param wblock Pointer to the PCAPng block.
+ * @param section_info Pointer to the section information.
+ * @param byte_order Byte order of the option content.
+ * @param option_code Code of the option.
+ * @param option_length Length of the option content.
+ * @param option_content Content of the option.
+ */
 WS_DLL_PUBLIC
 void pcapng_process_timestamp_option(wtapng_block_t *wblock,
                                      section_info_t *section_info,
@@ -213,6 +254,16 @@ void pcapng_process_timestamp_option(wtapng_block_t *wblock,
                                      uint16_t option_code, uint16_t option_length,
                                      const uint8_t *option_content);
 
+/**
+ * @brief Process a 64-bit unsigned integer option in a PCAP-NG block.
+ *
+ * @param wblock Pointer to the current PCAP-NG block.
+ * @param section_info Pointer to the section information.
+ * @param byte_order Byte order of the option content.
+ * @param option_code Code identifying the option.
+ * @param option_length Length of the option content in bytes.
+ * @param option_content Pointer to the content of the option.
+ */
 WS_DLL_PUBLIC
 void pcapng_process_uint64_option(wtapng_block_t *wblock,
                                   section_info_t *section_info,
@@ -220,6 +271,16 @@ void pcapng_process_uint64_option(wtapng_block_t *wblock,
                                   uint16_t option_code, uint16_t option_length,
                                   const uint8_t *option_content);
 
+/**
+ * @brief Process a 64-bit integer option in a PCAPNG block.
+ *
+ * @param wblock Pointer to the PCAPNG block.
+ * @param section_info Pointer to the section information.
+ * @param byte_order Byte order of the option content.
+ * @param option_code Code of the option.
+ * @param option_length Length of the option content.
+ * @param option_content Pointer to the option content.
+ */
 WS_DLL_PUBLIC
 void pcapng_process_int64_option(wtapng_block_t *wblock,
                                  section_info_t *section_info,
@@ -227,10 +288,26 @@ void pcapng_process_int64_option(wtapng_block_t *wblock,
                                  uint16_t option_code, uint16_t option_length,
                                  const uint8_t *option_content);
 
+/**
+ * @brief Process a string option in a PCAPNG block.
+ *
+ * @param wblock Pointer to the wtapng_block_t structure.
+ * @param option_code The code of the option.
+ * @param option_length The length of the option content.
+ * @param option_content The content of the option as bytes.
+ */
 WS_DLL_PUBLIC
 void pcapng_process_string_option(wtapng_block_t *wblock, uint16_t option_code,
                                   uint16_t option_length, const uint8_t *option_content);
 
+/**
+ * @brief Processes a bytes option in a PCAPng block.
+ *
+ * @param wblock Pointer to the PCAPng block.
+ * @param option_code The code of the option.
+ * @param option_length The length of the option content.
+ * @param option_content Pointer to the content of the option.
+ */
 WS_DLL_PUBLIC
 void pcapng_process_bytes_option(wtapng_block_t *wblock, uint16_t option_code,
                                  uint16_t option_length, const uint8_t *option_content);
@@ -243,6 +320,13 @@ typedef struct compute_options_size_t
     compute_option_size_func compute_option_size;
 } compute_options_size_t;
 
+/**
+ * @brief Computes the total size of all options in a PCAPNG block.
+ *
+ * @param block The wtap_block_t containing the options to compute.
+ * @param compute_option_size A function pointer to compute the size of each option.
+ * @return uint32_t The total size of all options, including the End-of-options tag if applicable.
+ */
 WS_DLL_PUBLIC
 uint32_t pcapng_compute_options_size(wtap_block_t block, compute_option_size_func compute_option_size);
 
@@ -252,6 +336,17 @@ typedef bool (*write_option_func)(wtap_dumper *wdh, wtap_block_t block,
                                   wtap_optval_t *optval,
                                   int *err, char **err_info);
 
+/**
+ * @brief Writes options to a pcapng file.
+ *
+ * @param wdh Pointer to the wtap_dumper structure.
+ * @param byte_order Byte order of the options.
+ * @param block Block containing the options.
+ * @param write_option Function pointer to write an option.
+ * @param err Error code if an error occurs.
+ * @param err_info Error information if an error occurs.
+ * @return true if successful, false otherwise.
+ */
 WS_DLL_PUBLIC
 bool pcapng_write_options(wtap_dumper *wdh, pcapng_opt_byte_order_e byte_order,
                           wtap_block_t block, write_option_func write_option,
@@ -277,6 +372,12 @@ typedef struct pcapng_custom_block_enterprise_handler_t
 /*
  * Register a handler for a pcapng custom block with an enterprise number.
  */
+/**
+ * @brief Register a handler for a pcapng custom block with an enterprise number.
+ *
+ * @param enterprise_number The enterprise number associated with the custom block.
+ * @param handler Pointer to the custom block enterprise handler structure.
+ */
 WS_DLL_PUBLIC
 void register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number, pcapng_custom_block_enterprise_handler_t const * handler);
 
@@ -287,12 +388,29 @@ void register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number,
 /*
  * Write block header.
  */
+/**
+ * @brief Write a pcapng block header.
+ *
+ * @param wdh Pointer to the wtap_dumper structure.
+ * @param block_type The type of the block.
+ * @param block_content_length Length of the block content.
+ * @param err Pointer to an integer where an error code will be stored if an error occurs.
+ * @return true if successful, false otherwise.
+ */
 WS_DLL_PUBLIC
 bool pcapng_write_block_header(wtap_dumper *wdh, uint32_t block_type,
                                uint32_t block_content_length, int *err);
 
 /*
  * Write padding after a chunk of data.
+ */
+/**
+ * @brief Writes padding to a pcapng file.
+ *
+ * @param wdh Pointer to the wtap_dumper structure.
+ * @param pad The amount of padding to write.
+ * @param err Pointer to an integer where any error code will be stored.
+ * @return true if successful, false otherwise.
  */
 static inline bool
 pcapng_write_padding(wtap_dumper *wdh, size_t pad, int *err)
@@ -308,6 +426,14 @@ pcapng_write_padding(wtap_dumper *wdh, size_t pad, int *err)
 
 /*
  * Write block footer.
+ */
+/**
+ * @brief Writes a block footer for a PCAPNG file.
+ *
+ * @param wdh Pointer to the wtap_dumper structure.
+ * @param block_content_length Length of the block content.
+ * @param err Pointer to an integer that will hold any error code.
+ * @return true if successful, false otherwise.
  */
 WS_DLL_PUBLIC
 bool pcapng_write_block_footer(wtap_dumper *wdh, uint32_t block_content_length,
@@ -326,14 +452,27 @@ typedef struct {
  * Find custom block information from a section_info_t; add a
  * newly-created one and return it if none is found.
  */
+/**
+ * @brief Find local block information from a section_info_t; add a newly-created one and return it if none is found.
+ *
+ * @param section_info Pointer to the section_info_t structure.
+ * @param pen The Pen number for the custom block data.
+ * @param funcs Pointer to the section_info_funcs_t structure containing function pointers for freeing custom block data.
+ * @return Pointer to the custom block data, or NULL if not found and no new data was created.
+ */
 WS_DLL_PUBLIC
 void *pcapng_get_cb_section_info_data(section_info_t *section_info,
                                       uint32_t pen,
                                       const section_info_funcs_t *funcs);
 
-/*
- * Find local block information from a section_info_t; add a
+/**
+ * @brief Find local block information from a section_info_t; add a
  * newly-created one and return it if none is found.
+ *
+ * @param section_info Pointer to the section_info_t structure.
+ * @param block_type The block type for the local block data.
+ * @param funcs Pointer to the section_info_funcs_t structure containing function pointers for freeing local block data.
+ * @return Pointer to the local block data, or NULL if not found and no new data was created.
  */
 WS_DLL_PUBLIC
 void *pcapng_get_lb_section_info_data(section_info_t *section_info,

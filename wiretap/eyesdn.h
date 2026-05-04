@@ -12,6 +12,14 @@
 
 #include "wtap.h"
 
+/**
+ * @brief Open an EyeSDN capture file.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Error code if an error occurs.
+ * @param err_info Error message if an error occurs.
+ * @return wtap_open_return_val The result of opening the file.
+ */
 wtap_open_return_val eyesdn_open(wtap *wth, int *err, char **err_info);
 
 enum EyeSDN_TYPES {

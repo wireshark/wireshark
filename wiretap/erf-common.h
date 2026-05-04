@@ -20,9 +20,31 @@
 
 typedef struct erf_private erf_t;
 
+/**
+ * @brief Create a new erf_priv structure.
+ *
+ * @return Pointer to the newly created erf_priv structure, or NULL on failure.
+ */
 erf_t* erf_priv_create(void);
+
+/**
+ * @brief Frees an erf_t structure and its associated resources.
+ *
+ * @param erf_priv Pointer to the erf_t structure to be freed.
+ * @return Always returns NULL.
+ */
 erf_t* erf_priv_free(erf_t* erf_priv);
 
+/**
+ * @brief Populates interface information from ERF header.
+ *
+ * @param erf_priv Pointer to ERF private data structure.
+ * @param wth Pointer to wtap structure.
+ * @param pseudo_header Pointer to union wtap_pseudo_header containing ERF pseudo-header.
+ * @param err Pointer to integer for error code.
+ * @param err_info Pointer to char pointer for error information.
+ * @return int -1 on failure, 0 on success.
+ */
 int erf_populate_interface_from_header(erf_t* erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, int *err, char **err_info);
 
 #endif /* __W_ERF_COMMON_H__ */

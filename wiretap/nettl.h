@@ -115,6 +115,14 @@
 
 #define NETTL_HDR_PDU_MASK              0x30000000
 
+/**
+ * @brief Open a Nettle trace file.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Error code if an error occurs.
+ * @param err_info Error information if an error occurs.
+ * @return wtap_open_return_val The result of opening the file.
+ */
 wtap_open_return_val nettl_open(wtap *wth, int *err, char **err_info);
 
 #endif

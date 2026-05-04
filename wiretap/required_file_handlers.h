@@ -17,10 +17,16 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- * These are for use within libwiretap only; they are not exported.
+/**
+ * @brief Registers the pcap file type handler.
  */
 extern void register_pcap(void);
+
+/**
+ * @brief Registers the pcapng file type handler.
+ *
+ * @param app_env_var_prefix The application environment variable prefix to check for support.
+ */
 extern void register_pcapng(const char* app_env_var_prefix);
 
 extern int pcap_file_type_subtype;	/* regular pcap */

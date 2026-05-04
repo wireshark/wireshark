@@ -173,11 +173,18 @@ ws_cwstream_write(ws_cwstream* pfile, const uint8_t* data, size_t data_length,
 WS_DLL_PUBLIC bool
 ws_cwstream_flush(ws_cwstream* pfile, int *err);
 
-/* Close open file handles and frees memory associated with pfile.
+/**
+ * Close open file handles and frees memory associated with pfile.
+ *
+ * @brief Closes a file stream and frees associated resources.
  *
  * Return true on success, returns false and sets err (optional) on failure.
  * err can be NULL, e.g. if closing after some other failure that is more
- * relevant to report, or when exiting a program. */
+ * relevant to report, or when exiting a program
+ *
+ * @param pfile Pointer to the ws_cwstream structure representing the file stream.
+ * @param err Pointer to an integer where an error code will be stored if an error occurs.
+ */
 WS_DLL_PUBLIC bool
 ws_cwstream_close(ws_cwstream* pfile, int *err);
 

@@ -16,6 +16,14 @@
 
 #include "wtap.h"
 
+/**
+ * @brief Open a Visual Networks capture file.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Error code if an error occurs.
+ * @param err_info Error information if an error occurs.
+ * @return wtap_open_return_val The result of opening the file.
+ */
 wtap_open_return_val visual_open(wtap *wth, int *err, char **err_info);
 
 #endif

@@ -14,15 +14,89 @@
 #include <stdint.h>
 #include "wtap.h"
 
+/**
+ * @brief Open a TTL file.
+ *
+ * @param wth Pointer to the wtap structure.
+ * @param err Error code if an error occurs.
+ * @param err_info Error information if an error occurs.
+ * @return wtap_open_return_val Return value indicating whether the file is a TTL file or not.
+ */
 wtap_open_return_val ttl_open(wtap* wth, int* err, char** err_info);
 
+/**
+ * @brief Determines the interface type based on the address.
+ *
+ * @param addr The address to analyze.
+ * @return int The interface type, such as WTAP_ENCAP_MOST or WTAP_ENCAP_ETHERNET.
+ */
 WS_DLL_PUBLIC int ttl_get_address_iface_type(uint16_t addr);
+
+/**
+ * @brief Checks if the given address corresponds to a CHB (Channel B) address.
+ *
+ * @param addr The address to check.
+ * @return true if the address is a CHB address, false otherwise.
+ */
 WS_DLL_PUBLIC bool ttl_is_chb_addr(uint16_t addr);
+
+/**
+ * @brief Retrieves the master address corresponding to a given address.
+ *
+ * @param ht Hash table containing address mappings, or NULL if no mappings are available.
+ * @param addr The address for which to retrieve the master address.
+ * @return uint16_t The master address corresponding to the given address.
+ */
 WS_DLL_PUBLIC uint16_t ttl_get_master_address(GHashTable* ht, uint16_t addr);
+
+/**
+ * @brief Retrieves the cascade name corresponding to a given address.
+ *
+ * @param addr The address for which to retrieve the cascade name.
+ * @return const char* The cascade name corresponding to the given address, or NULL if not found.
+ */
 WS_DLL_PUBLIC const char* ttl_get_cascade_name(uint16_t addr);
+
+/**
+ * @brief Retrieves the device name corresponding to a given address.
+ *
+ * @param addr The address for which to retrieve the device name.
+ * @return const char* The device name corresponding to the given address, or "Unknown" if not found.
+ */
 WS_DLL_PUBLIC const char* ttl_get_device_name(uint16_t addr);
+
+/**
+ * @brief Retrieves the function name corresponding to a given address.
+ *
+ * @param addr The address for which to retrieve the function name.
+ * @return const char* The function name corresponding to the given address, or "Unknown" if not found.
+ */
 WS_DLL_PUBLIC const char* ttl_get_function_name(uint16_t addr);
+
+/**
+ * @brief Initialize TTL masters from preference file.
+ *
+ * This function attempts to initialize TTL masters by reading a preference file.
+ * It first tries to read from a user-specific configuration file, and if that fails,
+ * it tries to read from a system-wide configuration file.
+ *
+ * @param ht Hash table to store the parsed master information.
+ * @param app_env_var_prefix Prefix for application environment variables.
+ * @return true if initialization is successful, false otherwise.
+ */
 WS_DLL_PUBLIC bool ttl_init_masters_from_pref_file(GHashTable* ht, const char* app_env_var_prefix);
+
+/**
+ * @brief Initialize TTL names from preference file.
+ *
+ * This function attempts to initialize a hash table with TTL address names
+ * by reading from a preference file. It first tries to read from a user-specific
+ * configuration file, and if that fails, it tries the system-wide configuration file.
+ *
+ * @param ht Hash table to store the TTL address names.
+ * @param app_env_var_prefix Prefix for application environment variables.
+ * @return true if successful, false otherwise.
+ */
 WS_DLL_PUBLIC bool ttl_init_names_from_pref_file(GHashTable* ht, const char* app_env_var_prefix);
 
 #define ttl_addr_get_cascade(x)     (((x) >> 10) & 0x7)

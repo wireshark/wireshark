@@ -31,6 +31,12 @@ extern "C" {
 #define SECRETS_TYPE_OPCUA          0x55414b4c /* OPC UA Key Log */
 #define SECRETS_TYPE_ESP            0x45535053 /* ESP SA Key */
 
+/**
+ * @brief Returns a description for a given secrets type.
+ *
+ * @param type The type of secrets to describe.
+ * @return const char* A string describing the secrets type, or "Unknown" if the type is not recognized.
+ */
 WS_DLL_PUBLIC
 const char* secrets_type_description(uint32_t type);
 

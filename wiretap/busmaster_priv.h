@@ -103,6 +103,13 @@ typedef struct {
     msg_t            msg;
 } busmaster_state_t;
 
+/**
+ * @brief Runs the Busmaster parser to process log entries.
+ *
+ * @param state Pointer to the busmaster state structure.
+ * @param err Pointer to an integer where any error code will be stored.
+ * @param err_info Pointer to a char pointer where any error information will be stored.
+ */
 bool
 run_busmaster_parser(busmaster_state_t *state,
                      int               *err, char **err_info);

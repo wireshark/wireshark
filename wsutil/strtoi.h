@@ -145,7 +145,14 @@ WS_DLL_PUBLIC bool ws_strtou (const char* str, const char** endptr, unsigned*  c
  */
 WS_DLL_PUBLIC bool ws_hexstrtou64(const char* str, const char** endptr, uint64_t* cint);
 
-
+/**
+ * @brief Convert a hexadecimal string to an 32-bit unsigned int, with error checks.
+ *
+ * @param str The hexadecimal string to convert.
+ * @param endptr A pointer that will store a pointer to the first invalid character encountered during conversion.
+ * @return true If the conversion was successful.
+ * @return false If the conversion failed.
+ */
 WS_DLL_PUBLIC bool ws_hexstrtou32(const char* str, const char** endptr, uint32_t* cint);
 
 /**

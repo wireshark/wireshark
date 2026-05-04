@@ -1782,6 +1782,12 @@ typedef enum {
     OPEN_INFO_HEURISTIC = 1 /**< Format identified by heuristic inspection of file contents. */
 } wtap_open_type;
 
+/**
+ * @brief Initialize registered file open routines.
+ *
+ * Registers a set of default file open handlers for wiretap modules.
+ * Typically called during initialization or module loading.
+ */
 WS_DLL_PUBLIC void init_open_routines(void);
 
 /**
@@ -2440,6 +2446,12 @@ WS_DLL_PUBLIC
 wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
 
 
+/**
+ * @brief Gets the DPIB lookup information for the current file.
+ *
+ * @param wth The wiretap session.
+ * @return Pointer to the existing DPIB lookup information, or NULL if none available.
+ */
 WS_DLL_PUBLIC
 wtapng_dpib_lookup_info_t * wtap_file_get_dpib_lookup_info(wtap *wth);
 
@@ -2783,23 +2795,91 @@ wtap_dumper* wtap_dump_open_stdout(int file_type_subtype,
 WS_DLL_PUBLIC
 bool wtap_dump_add_idb(wtap_dumper *wdh, wtap_block_t idb, int *err,
      char **err_info);
+
+/**
+ * @brief Write a record to the dump file.
+ *
+ * @param wdh handle for the file we're writing.
+ * @param rec the record to write.
+ * @param[out] err Will be set to an error code on failure.
+ * @param[out] err_info for some errors, a string giving more details of
+ * the error.
+ * @return true on success, false on failure.
+ */
 WS_DLL_PUBLIC
-bool wtap_dump(wtap_dumper *, const wtap_rec *, int *err, char **err_info);
+bool wtap_dump(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err_info);
+
+/**
+ * @brief Flushes the dump file.
+ *
+ * @param wdh Pointer to the wtap_dumper structure.
+ * @param err Pointer to an integer where any error code will be stored.
+ * @return true if the flush was successful, false otherwise.
+ */
 WS_DLL_PUBLIC
-bool wtap_dump_flush(wtap_dumper *, int *);
+bool wtap_dump_flush(wtap_dumper *wdh, int *err);
+
+/**
+ * @brief Get the file type subtype of a dump file.
+ *
+ * @param wdh Pointer to the wtap_dumper structure.
+ * @return The file type subtype.
+ */
 WS_DLL_PUBLIC
 int wtap_dump_file_type_subtype(const wtap_dumper *wdh);
+
+/**
+ * @brief Get the number of bytes dumped by a packet capture.
+ *
+ * @param wdh Pointer to the wtap_dumper structure.
+ * @return int64_t The number of bytes dumped.
+ */
 WS_DLL_PUBLIC
-int64_t wtap_get_bytes_dumped(const wtap_dumper *);
+int64_t wtap_get_bytes_dumped(const wtap_dumper *wdh);
+
+/**
+ * @brief Set the number of bytes dumped by a capture file.
+ *
+ * @param wdh Pointer to the wtap_dumper structure.
+ * @param bytes_dumped The number of bytes that have been dumped.
+ */
 WS_DLL_PUBLIC
 void wtap_set_bytes_dumped(wtap_dumper *wdh, int64_t bytes_dumped);
+
 struct addrinfo;
+
+/**
+ * @brief Checks if the address information list is empty.
+ *
+ * @param addrinfo_lists The address information lists to check.
+ * @return true if the list is empty, false otherwise.
+ */
 WS_DLL_PUBLIC
 bool wtap_addrinfo_list_empty(const addrinfo_lists_t *addrinfo_lists);
+
+/**
+ * @brief Set the address information list for a dump file.
+ *
+ * @param wdh handle for the file we're writing.
+ * @param addrinfo_lists the address information lists to set
+ * @return true on success, false on failure.
+ */
 WS_DLL_PUBLIC
 bool wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
+
+/**
+ * @brief Discard name resolution information for a dump file.
+ *
+ * @param wdh The wtap_dumper structure representing the dump file.
+ */
 WS_DLL_PUBLIC
 void wtap_dump_discard_name_resolution(wtap_dumper *wdh);
+
+/**
+ * @brief Discard decryption secrets for a dump file.
+ *
+ * @param wdh The wtap_dumper structure representing the dump file.
+ */
 WS_DLL_PUBLIC
 void wtap_dump_discard_decryption_secrets(wtap_dumper *wdh);
 

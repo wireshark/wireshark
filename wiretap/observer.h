@@ -17,6 +17,16 @@
 
 #include "wtap.h"
 
+/**
+ * @brief Opens a capture file using the observer format.
+ *
+ * This function attempts to open and read the header of a capture file in the observer format.
+ *
+ * @param wth Pointer to the wtap structure that will hold the file information.
+ * @param err Pointer to an integer where any error code will be stored if an error occurs.
+ * @param err_info Pointer to a char pointer where any error message will be stored if an error occurs.
+ * @return A value indicating whether the file was successfully opened or not.
+ */
 wtap_open_return_val observer_open(wtap *wth, int *err, char **err_info);
 
 /*
