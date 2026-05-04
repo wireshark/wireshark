@@ -460,10 +460,9 @@ signed_time_msecs_to_str(wmem_allocator_t *scope, int32_t time_val)
 
     if (time_val<0) {
         /* oops we got passed a negative time */
-        time_val= -time_val;
-        msecs = time_val % 1000;
+        /* C99 and C++11 guarantee integer division rounds to zero */
+        msecs = -(time_val % 1000);
         time_val /= 1000;
-        time_val= -time_val;
     } else {
         msecs = time_val % 1000;
         time_val /= 1000;
