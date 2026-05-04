@@ -28,7 +28,10 @@
 #include <winevt.h>
 
 #define MAX_PACKET_SIZE 0xFFFF
+/* Defined at least in GLib 2.88.0 */
+#ifndef G_NSEC_PER_SEC
 #define G_NSEC_PER_SEC 1000000000
+#endif
 #define ADD_OFFSET_TO_POINTER(buffer, offset) (((PBYTE)buffer) + offset)
 #define ROUND_UP_COUNT(Count,Pow2) \
         ( ((Count)+(Pow2)-1) & (~(((int)(Pow2))-1)) )
