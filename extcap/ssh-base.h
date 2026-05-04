@@ -65,10 +65,24 @@ typedef struct _ssh_params {
  */
 void add_libssh_info(extcap_parameters * extcap_conf);
 
-/* Create a ssh connection using all the possible authentication methods */
+/**
+ * @brief Creates an SSH session based on the provided parameters.
+ *
+ * Create a ssh connection using all the possible authentication methods
+ *
+ * @param ssh_params Pointer to the SSH parameters structure containing connection details.
+ * @param err_info Pointer to a string that will hold error information if the function fails.
+ * @return A pointer to the created SSH session, or NULL if an error occurs.
+ */
 ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_info);
 
-/* Write a formatted message in the channel */
+/**
+ * @brief Writes a formatted message to an SSH channel.
+ *
+ * @param channel The SSH channel to write to.
+ * @param fmt The format string for the message.
+ * @return EXIT_SUCCESS if successful, EXIT_FAILURE otherwise.
+ */
 int ssh_channel_printf(ssh_channel channel, const char* fmt, ...);
 
 /* Clean the current ssh session and channel. */

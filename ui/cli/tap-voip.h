@@ -23,6 +23,13 @@ extern "C" {
 
 extern voip_calls_tapinfo_t tapinfo_;
 extern int voip_conv_sel[VOIP_CONV_NUM];
+
+/**
+ * @brief Initializes VoIP statistics tap information.
+ *
+ * This function initializes the tap information structure for VoIP statistics,
+ * setting up necessary data structures and default values.
+ */
 extern void voip_stat_init_tapinfo(void);
 
 #ifdef __cplusplus

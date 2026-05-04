@@ -87,6 +87,17 @@ typedef struct _tap_iax2_stat_t {
 #define STAT_FLAG_WRONG_TIMESTAMP	0x080
 
 /* function for analysing an IAX2 packet. Called from iax2_analysis. */
+
+/**
+ * @brief Analyzes an IAX2 packet and updates statistics.
+ *
+ * This function analyzes an incoming IAX2 packet, updating various statistics
+ * such as payload type changes, time differences, jitter, and delta times.
+ *
+ * @param statinfo Pointer to the statistics structure to be updated.
+ * @param pinfo Pointer to the packet information structure.
+ * @param iax2info Pointer to the IAX2-specific information structure.
+ */
 extern void iax2_packet_analyse(tap_iax2_stat_t *statinfo,
         packet_info *pinfo,
         const struct _iax2_info_t *iax2info);

@@ -105,30 +105,78 @@ typedef enum {
 } range_process_e;
 
 /* init the range structure */
+
+/**
+ * @brief Initialize a packet range structure.
+ *
+ * @param range Pointer to the packet_range_t structure to be initialized.
+ * @param cf Pointer to the capture_file structure associated with the packet range.
+ */
 extern void packet_range_init(packet_range_t *range, capture_file *cf);
 
-/* Cleanup the range structure before the caller frees "range". */
+/**
+ * @brief Cleanup the range structure before the caller frees "range".
+ *
+ * @param range Pointer to the packet_range_t structure to be cleaned up.
+ */
 extern void packet_range_cleanup(packet_range_t *range);
 
-/* check whether the packet range is OK */
+/**
+ * @brief Check whether the packet range is OK.
+ *
+ * @param range Pointer to the packet_range_t structure to be checked.
+ * @return convert_ret_t The result of the check.
+ */
 extern convert_ret_t packet_range_check(packet_range_t *range);
 
-/* init the processing run */
+/**
+ * @brief Initialize the processing run for a packet range.
+ *
+ * @param range Pointer to the packet_range_t structure to initialize.
+ */
 extern void packet_range_process_init(packet_range_t *range);
 
-/* do we have to process all packets? */
+/**
+ * @brief Check if all packets in the range need to be processed.
+ *
+ * @param range Pointer to the packet_range_t structure.
+ * @return bool True if all packets need to be processed, false otherwise.
+ */
 extern bool packet_range_process_all(packet_range_t *range);
+
+ /**
+  * @brief Check if a packet should be processed based on the given range.
+  *
+  * @param range Pointer to the packet range structure.
+  * @return convert_ret_t The result of the check, indicating whether the packet should be processed or not.
+  */
 
 /* do we have to process this packet? */
 extern range_process_e packet_range_process_packet(packet_range_t *range, frame_data *fdata);
 
-/* convert user given string to the internal user specified range representation */
+/**
+ * @brief Convert a user-given string to an internal selection specified range representation.
+ *
+ * @param range Pointer to the packet_range_t structure where the result will be stored.
+ * @param es The user-given string representing the packet range.
+ */
 extern void packet_range_convert_str(packet_range_t *range, const char *es);
 
-/* convert user given string to the internal selection specified range representation */
+/**
+ * @brief Convert a selection string to a packet range.
+ *
+ * This function takes a selection string and converts it into a packet range structure.
+ *
+ * @param range Pointer to the packet_range_t structure where the result will be stored.
+ * @param es The selection string to convert.
+ */
 extern void packet_range_convert_selection_str(packet_range_t *range, const char *es);
 
-/* return the number of packets that will be processed.
+/**
+ * @brief Return the number of packets that will be processed.
+ *
+ * @param range Pointer to the packet_range_t structure.
+ * @return uint32_t The number of packets that will be processed.
  */
 extern uint32_t packet_range_count(const packet_range_t *range);
 #ifdef __cplusplus

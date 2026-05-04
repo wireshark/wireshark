@@ -289,15 +289,45 @@ typedef struct _sctp_allassocs_info {
 
 
 
+/**
+ * @brief Registers a tap listener for SCTP statistics.
+ *
+ * This function registers a tap listener for SCTP statistics, allowing for the collection and display of SCTP-related data in Wireshark.
+ */
 void register_tap_listener_sctp_stat(void);
 
+/**
+ * @brief Gets the SCTP statistics information.
+ * @return Pointer to the SCTP statistics information.
+ */
 const sctp_allassocs_info_t* sctp_stat_get_info(void);
 
+/**
+ * @brief Scans the SCTP statistics.
+ */
 void sctp_stat_scan(void);
 
+/**
+ * @brief Removes the SCTP statistics tap listener.
+ */
 void remove_tap_listener_sctp_stat(void);
 
+/**
+ * @brief Retrieves SCTP association information based on the given association ID.
+ *
+ * @param assoc_id The ID of the SCTP association to retrieve information for.
+ * @return Pointer to the SCTP association information, or NULL if not found.
+ */
 const sctp_assoc_info_t* get_sctp_assoc_info(uint16_t assoc_id);
+
+/**
+ * @brief Retrieves information about the currently selected SCTP association.
+ *
+ * This function returns a pointer to the sctp_assoc_info_t structure representing
+ * the SCTP association that is currently selected in the user interface.
+ *
+ * @return Pointer to the selected SCTP association info, or NULL if none is selected.
+ */
 const sctp_assoc_info_t* get_selected_assoc(void);
 
 #ifdef __cplusplus

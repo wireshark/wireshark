@@ -117,15 +117,33 @@ typedef struct
     unsigned num_packets_written;
 } text_import_info_t;
 
+/**
+ * @brief Import a text file.
+ *
+ * This function imports a text file and writes the SHB and IDB to the wtap_dump_params before opening the wtap dump file.
+ * It initializes various parameters for packet processing, including timestamps and direction.
+ *
+ * @param info Pointer to the text import information structure.
+ * @return Return status of the import operation.
+ */
 int text_import(text_import_info_t * const info);
 
-/* Write the SHB and IDB to the wtap_dump_params before opening the wtap dump
+/**
+ * @brief Prepares the wtap_dump_params with necessary headers before opening the wtap dump file.
+ *
+ * Write the SHB and IDB to the wtap_dump_params before opening the wtap dump
  * file. While dummy headers can be written automatically, this writes out
  * some extra information including an optional interface name.
  *
  * NOTE: The caller will be responsible for freeing params->idb_inf after
  * finished with the wtap_dumper to avoid a memory leak. wtap_dump_close
  * does not free it.
+ *
+ * @param params Pointer to the wtap_dump_params structure.
+ * @param file_type_subtype The type of the file to be opened.
+ * @param input_filename The name of the input file.
+ * @param interface_name The name of the interface.
+ * @return Return status of the preparation operation.
  */
 int
 text_import_pre_open(wtap_dump_params * const params, int file_type_subtype, const char* const input_filename, const char* const interface_name);

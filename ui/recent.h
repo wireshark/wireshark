@@ -216,7 +216,8 @@ extern bool write_profile_recent(void);
  */
 extern bool recent_read_static(char **rf_path_return, int *rf_errno_return);
 
-/** Read profile recent settings file (static part).
+/**
+ * @brief Read profile recent settings file (static part).
  *
  * @param rf_path_return path to recent file if function failed
  * @param rf_errno_return if failed
@@ -224,7 +225,8 @@ extern bool recent_read_static(char **rf_path_return, int *rf_errno_return);
  */
 extern bool recent_read_profile_static(char **rf_path_return, int *rf_errno_return);
 
-/** Read recent settings file (dynamic part).
+/**
+ * @brief Read recent settings file (dynamic part).
  *
  * @param rf_path_return path to recent file if function failed
  * @param rf_errno_return if failed
@@ -243,7 +245,8 @@ extern bool recent_read_dynamic(char **rf_path_return, int *rf_errno_return);
  */
 extern int recent_set_arg(char *prefarg);
 
-/** Free the recent settings list of column width information
+/**
+ * @brief Free the recent settings list of column width information
  *
  * @param rs the recent settings (currently a global)
  */
@@ -265,26 +268,30 @@ extern void recent_insert_column(int col);
  */
 extern void recent_remove_column(int col);
 
-/** Get the column width for the given column
+/**
+ * @brief Get the column width for the given column
  *
  * @param col column number
  */
 extern int recent_get_column_width(int col);
 
-/** Set the column width for the given column
+/**
+ * @brief Set the column width for the given column
  *
  * @param col column number
  * @param width column width
  */
 extern void recent_set_column_width(int col, int width);
 
-/** Get the column xalign for the given column
+/**
+ * @brief Get the column xalign for the given column
  *
  * @param col column number
  */
 extern char recent_get_column_xalign(int col);
 
-/** Set the column xalign for the given column
+/**
+ * @brief Set the column xalign for the given column
  *
  * @param col column number
  * @param xalign column alignment
@@ -292,24 +299,50 @@ extern char recent_get_column_xalign(int col);
 extern void recent_set_column_xalign(int col, char xalign);
 
 /* save the window and its current geometry into the geometry hashtable */
+
+/**
+ * @brief Save the geometry of a window.
+ *
+ * @param name The name of the window.
+ * @param geom Pointer to the window_geometry_t structure containing the geometry data.
+ */
 extern void window_geom_save(const char *name, window_geometry_t *geom);
 
-/* load the desired geometry for this window from the geometry hashtable */
+/**
+ * @brief Load the desired geometry for this window from the geometry hashtable.
+ *
+ * @param name The name of the window.
+ * @param geom Pointer to the window_geometry_t structure to be filled with the geometry data.
+ * @return bool True if the geometry was successfully loaded, false otherwise.
+ */
 extern bool window_geom_load(const char *name, window_geometry_t *geom);
 
+/**
+ * @brief Save the splitter state for a given interface.
+ *
+ * @param name Interface name; NULL refers to the global list.
+ * @param splitter_state The state of the splitter.
+ */
 extern void window_splitter_save(const char *name, const char *splitter_state);
 
+/**
+ * @brief Load the splitter state for a given interface.
+ *
+ * @param name Interface name; NULL refers to the global list.
+ * @return const char* The state of the splitter, or NULL if not found.
+ */
 extern const char * window_splitter_load(const char *name);
 
 /**
- * Returns a list of recent capture filters.
+ * @brief Returns a list of recent capture filters.
  *
  * @param ifname interface name; NULL refers to the global list.
+ * @return A GList containing the recent capture filters, or NULL if none are available.
  */
 extern GList *recent_get_cfilter_list(const char *ifname);
 
 /**
- * Add a capture filter to the global recent capture filter list or
+ * @brief Add a capture filter to the global recent capture filter list or
  * the recent capture filter list for an interface.
  *
  * @param ifname interface name; NULL refers to the global list.
@@ -318,23 +351,22 @@ extern GList *recent_get_cfilter_list(const char *ifname);
 extern void recent_add_cfilter(const char *ifname, const char *s);
 
 /**
- * Get the value of an entry for a remote host from the remote host list.
+ * @brief Get the value of an entry for a remote host from the remote host list.
  *
  * @param host host name for the remote host.
- *
  * @return pointer to the entry for the remote host.
  */
 extern struct remote_host *recent_get_remote_host(const char *host);
 
 /**
- * Get the number of entries of the remote host list.
+ * @brief Get the number of entries of the remote host list.
  *
  * @return number of entries in the list.
  */
 extern int recent_get_remote_host_list_size(void);
 
 /**
- * Iterate over all items in the remote host list, calling a
+ * @brief Iterate over all items in the remote host list, calling a
  * function for each member
  *
  * @param func function to be called
@@ -343,12 +375,12 @@ extern int recent_get_remote_host_list_size(void);
 extern void recent_remote_host_list_foreach(GFunc func, void *user_data);
 
 /**
- * Free all entries of the remote host list.
+ * @brief Free all entries of the remote host list.
  */
 extern void recent_free_remote_host_list(void);
 
 /**
- * Add an entry to the remote_host_list.
+ * @brief Add an entry to the remote_host_list.
  *
  * @param host Key of the entry
  * @param rh Value of the entry

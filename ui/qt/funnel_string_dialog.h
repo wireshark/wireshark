@@ -58,6 +58,12 @@ signals:
 };
 
 extern "C" {
+
+    /**
+     * @brief Closes all string dialogs.
+     *
+     * This function emits a signal to close all dialog windows related to string operations.
+     */
     void string_dialogs_close(void);
 }
 

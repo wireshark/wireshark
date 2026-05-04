@@ -339,20 +339,45 @@ extern void
 capture_opts_init(capture_options *capture_opts, const char* app_name, GList *(*get_iface_list)(int *, char **));
 
 /* clean internal structures */
+
+/**
+ * @brief Clean up capture options.
+ *
+ * @param capture_opts Pointer to the capture options structure to clean up.
+ */
 extern void
 capture_opts_cleanup(capture_options *capture_opts);
 
-/* set a command line option value */
+/**
+ * @brief Set a command line option value.
+ *
+ * @param app_env_var_prefix The prefix for the application environment variables.
+ * @param capture_opts Pointer to the capture options structure.
+ * @param opt The option to set.
+ * @param ws_optarg The argument for the option.
+ * @return 0 on success, non-zero on failure.
+ */
 extern int
 capture_opts_add_opt(const char* app_env_var_prefix, capture_options *capture_opts, int opt, const char *ws_optarg);
 
-/* log content of capture_opts */
+/**
+ * @brief Log the content of capture_opts.
+ *
+ * @param domain The logging domain.
+ * @param level The logging level.
+ * @param capture_opts Pointer to the capture options structure to log.
+ */
 extern void
 capture_opts_log(const char *domain, enum ws_log_level level, capture_options *capture_opts);
 
-/* List supported file types for capturing. This is intentionally smaller
+/**
+ * @brief Lists available file types for capture options.
+ *
+ * List supported file types for capturing. This is intentionally smaller
  * than the list supported by libwiretap (and dumpcap isn't linked with
- * libwiretap.) */
+ * libwiretap.)
+ *
+ */
 extern void
 capture_opts_list_file_types(void);
 
@@ -362,43 +387,103 @@ enum caps_query {
 };
 
 /* print interface capabilities, including link layer types */
+/**
+ * @brief Prints the capabilities of a network interface.
+ *
+ * @param caps Pointer to the interface capabilities structure.
+ * @param interface_opts Pointer to the interface options structure.
+ * @param queries Number of queries related to the interface.
+ */
 extern int
 capture_opts_print_if_capabilities(if_capabilities_t *caps,
                                    const interface_options *interface_opts,
                                    int queries);
 
 /* print list of interfaces */
+/**
+ * @brief Prints a list of available network interfaces.
+ *
+ * @param if_list A GList containing interface options to be printed.
+ */
 extern void
 capture_opts_print_interfaces(GList *if_list);
 
 /* trim the snaplen entry */
+/**
+ * @brief Trims the snapshot length of a capture options structure to ensure it meets a minimum value.
+ *
+ * @param capture_opts Pointer to the capture options structure to be trimmed.
+ * @param snaplen_min The minimum allowed snapshot length.
+ */
 extern void
 capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min);
 
 /* trim the ring_num_files entry */
+/**
+ * @brief Trims the number of ring buffer files to a valid range.
+ *
+ * @param capture_opts Pointer to the capture options structure.
+ */
 extern void
 capture_opts_trim_ring_num_files(capture_options *capture_opts);
 
 /* pick default interface if none was specified */
+/**
+ * @brief Set the default capture interface if necessary.
+ *
+ * @param capture_opts Pointer to the capture options structure.
+ * @param capture_device The name of the capture device to use.
+ */
 extern int
 capture_opts_default_iface_if_necessary(capture_options *capture_opts,
                                         const char *capture_device);
 
+/**
+ * @brief Deletes an interface from the capture options.
+ *
+ * @param capture_opts Pointer to the capture options structure.
+ * @param if_index Index of the interface to be deleted.
+ */
 extern void
 capture_opts_del_iface(capture_options *capture_opts, unsigned if_index);
 
+/**
+ * @brief Free memory allocated for interface options.
+ *
+ * @param interface_opts Pointer to the interface options structure to be freed.
+ */
 extern void
 interface_opts_free(interface_options *interface_opts);
 
+/**
+ * @brief Collects network interfaces based on the provided capture options.
+ *
+ * @param capture_opts Pointer to the capture options structure.
+ */
 extern interface_options*
 interface_opts_from_if_info(capture_options *capture_opts, const if_info_t *if_info);
 
+/**
+ * @brief Collects network interfaces based on the provided capture options.
+ *
+ * @param capture_opts Pointer to the capture options structure.
+ */
 extern void
 collect_ifaces(capture_options *capture_opts);
 
+/**
+ * @brief Frees a link row element.
+ *
+ * @param elem Pointer to the link_row element to be freed.
+ */
 extern void
 capture_opts_free_link_row(void *elem);
 
+/**
+ * @brief Frees an interface_t element.
+ *
+ * @param device Pointer to the interface_t element to be freed.
+ */
 extern void
 capture_opts_free_interface_t(interface_t *device);
 

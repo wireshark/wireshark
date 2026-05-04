@@ -48,6 +48,12 @@ private slots:
     void aggregationToggled(bool checked);
 };
 
+/**
+ * @brief Initialize the endpoint table with a filter.
+ *
+ * @param ct Pointer to the conversation table structure.
+ * @param filter Filter string for the endpoints.
+ */
 void init_endpoint_table(struct register_ct* ct, const char *filter);
 
 #endif // ENDPOINT_DIALOG_H

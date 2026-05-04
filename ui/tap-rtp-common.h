@@ -77,31 +77,74 @@ typedef struct _rtpstream_info_calc {
 /**
  * Functions for init and destroy of rtpstream_info_t and attached structures
  */
+/**
+ * @brief Initializes an rtpstream_info_t structure by setting all its fields to zero or NULL.
+ *
+ * @param info Pointer to the rtpstream_info_t structure to be initialized.
+ */
 void rtpstream_info_init(rtpstream_info_t* info);
+
+/**
+ * @brief Allocates memory for a new RTP stream info and initializes it.
+ *
+ * @return Pointer to the newly allocated and initialized RTP stream info.
+ */
 rtpstream_info_t *rtpstream_info_malloc_and_init(void);
+
+/**
+ * @brief Copies the contents of an RTP stream info structure to another.
+ *
+ * @param dest Pointer to the destination RTP stream info structure.
+ * @param src Pointer to the source RTP stream info structure.
+ */
 void rtpstream_info_copy_deep(rtpstream_info_t *dest, const rtpstream_info_t *src);
+
+/**
+ * @brief Allocates memory for a new RTP stream info and copies data from an existing one.
+ *
+ * @param src Pointer to the source RTP stream info.
+ * @return Pointer to the newly allocated and copied RTP stream info.
+ */
 rtpstream_info_t *rtpstream_info_malloc_and_copy_deep(const rtpstream_info_t *src);
+
+/**
+ * @brief Frees the data associated with an RTP stream info structure.
+ *
+ * @param info Pointer to the rtpstream_info_t structure whose data is to be freed.
+ */
 void rtpstream_info_free_data(rtpstream_info_t* info);
+
+/**
+ * @brief Frees all memory associated with an RTP stream info structure.
+ *
+ * @param info Pointer to the rtpstream_info_t structure whose memory is to be freed.
+ */
 void rtpstream_info_free_all(rtpstream_info_t* info);
 
 /**
- * Compares two RTP stream infos (GCompareFunc style comparison function)
+ * @brief Compares two RTP stream infos (GCompareFunc style comparison function)
  *
+ * @param aa Pointer to the first RTP stream info.
+ * @param bb Pointer to the second RTP stream info.
  * @return -1,0,1
  */
 int rtpstream_info_cmp(const void *aa, const void *bb);
 
 /**
-* Compares the endpoints of two RTP streams.
-*
-* @return true if the
-*/
+ * @brief Compares the endpoints of two RTP streams.
+ *
+ * @param stream_a Pointer to the first RTP stream info.
+ * @param stream_b Pointer to the second RTP stream info.
+ * @return true if the streams are reverse of each other, false otherwise.
+ */
 bool rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_info_t *stream_b);
 
 /**
- * Checks if payload_type is used in rtpstream.
+ * @brief Checks if payload_type is used in rtpstream.
  *
- * @returns true if is used
+ * @param stream_info Pointer to the RTP stream info structure.
+ * @param payload_type The payload type to check.
+ * @return true if the payload type is used, false otherwise.
  */
 bool rtpstream_is_payload_used(const rtpstream_info_t *stream_info, const uint8_t payload_type);
 
@@ -118,57 +161,99 @@ bool rtpstream_is_payload_used(const rtpstream_info_t *stream_info, const uint8_
 void register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstring, rtpstream_tap_error_cb tap_error);
 
 /**
-* Removes the rtp_streams tap listener (if not already done)
-* From that point on, the RTP streams list won't be updated any more.
+* @brief Removes the rtp_streams tap listener (if not already done)
+* @param tapinfo Pointer to the RTP streams tap info structure.
 */
 void remove_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo);
 
 /**
-* Cleans up memory of rtp streams tap.
+* @brief Cleans up memory of rtp streams tap.
+* @param tapinfo Pointer to the RTP streams tap info structure.
 */
 void rtpstream_reset(rtpstream_tapinfo_t *tapinfo);
 
-void rtpstream_reset_cb(void*);
-void rtp_write_header(rtpstream_info_t*, FILE*);
-tap_packet_status rtpstream_packet_cb(void*, packet_info*, epan_dissect_t *, const void *, tap_flags_t);
+/**
+ * @brief Callback function for resetting RTP stream information.
+ * @param arg Pointer to user data.
+ */
+void rtpstream_reset_cb(void *arg);
 
 /**
- * Evaluate rtpstream_info_t calculations
+ * @brief Write the RTP header for a given stream information to a file.
+ *
+ * @param strinfo Pointer to the rtpstream_info_t structure containing the stream information.
+ * @param file File pointer where the RTP header will be written.
+ */
+void rtp_write_header(rtpstream_info_t *strinfo, FILE *file);
+
+/**
+ * @brief Callback function for processing RTP packets.
+ *
+ * @param arg Pointer to user data (not used).
+ * @param pinfo Packet information structure.
+ * @param edt Epan dissector context.
+ * @param arg2 Pointer to additional data (not used).
+ * @param flags Tap flags.
+ * @return Status of the packet processing.
+ */
+tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *arg2, tap_flags_t flags);
+
+/**
+ * @brief Evaluate rtpstream_info_t calculations
+ * @param strinfo Pointer to the RTP stream info structure.
+ * @param calc Pointer to the calculation structure.
  */
 void rtpstream_info_calculate(const rtpstream_info_t *strinfo, rtpstream_info_calc_t *calc);
 
 /**
- * Free rtpstream_info_calc_t structure (internal items)
+ * @brief Free rtpstream_info_calc_t structure (internal items)
+ * @param calc Pointer to the calculation structure.
  */
 void rtpstream_info_calc_free(rtpstream_info_calc_t *calc);
 
 /**
- * Init analyse counters in rtpstream_info_t from pinfo
+ * @brief Init analyse counters in rtpstream_info_t from pinfo
+ * @param stream_info Pointer to the RTP stream info structure.
+ * @param pinfo Pointer to the packet info structure.
+ * @param rtpinfo Pointer to the RTP info structure.
  */
 void rtpstream_info_analyse_init(rtpstream_info_t *stream_info, const packet_info *pinfo, const struct _rtp_info *rtpinfo);
 
 /**
- * Update analyse counters in rtpstream_info_t from pinfo
+ * @brief Update analyse counters in rtpstream_info_t from pinfo
+ * @param stream_info Pointer to the RTP stream info structure.
+ * @param pinfo Pointer to the packet info structure.
+ * @param rtpinfo Pointer to the RTP info structure.
  */
 void rtpstream_info_analyse_process(rtpstream_info_t *stream_info, const packet_info *pinfo, const struct _rtp_info *rtpinfo);
 
 /**
- * Get hash key for rtpstream_info_t
+ * @brief Get hash key for rtpstream_info_t
+ * @param key Pointer to the key.
+ * @return Hash value.
  */
 unsigned rtpstream_to_hash(const void *key);
 
 /**
- * Insert new_stream_info into multihash
+ * @brief Insert new_stream_info into multihash
+ * @param multihash Pointer to the multihash.
+ * @param new_stream_info Pointer to the new RTP stream info structure.
  */
 void rtpstream_info_multihash_insert(GHashTable *multihash, rtpstream_info_t *new_stream_info);
 
 /**
- * Lookup stream_info in stream_info multihash
+ * @brief Lookup stream_info in stream_info multihash
+ * @param multihash Pointer to the multihash.
+ * @param stream_id Pointer to the RTP stream ID.
+ * @return Pointer to the found RTP stream info structure or NULL if not found.
  */
 rtpstream_info_t *rtpstream_info_multihash_lookup(GHashTable *multihash, rtpstream_id_t *stream_id);
 
 /**
- * GHFunc () for destroying GList in multihash
+ * @brief GHFunc () for destroying GList in multihash
+ * @param key Pointer to the key.
+ * @param value Pointer to the value.
+ * @param user_data Pointer to user data.
  */
 void rtpstream_info_multihash_destroy_value(void *key, void *value, void *user_data);
 

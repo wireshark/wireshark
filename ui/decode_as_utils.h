@@ -28,6 +28,12 @@ extern "C" {
 */
 #define DECODE_AS_ARG_TEMPLATE "<layer_type>==<selector>,<decode_as_protocol>"
 
+/**
+ * @brief Parses the command-line parameters for the decode as feature.
+ *
+ * @param cl_param Pointer to the command-line parameter string.
+ * @return true if the command-line parameter is valid and a matching table/dissector is found, false otherwise.
+ */
 bool decode_as_command_option(const char *cl_param);
 
 #ifdef __cplusplus

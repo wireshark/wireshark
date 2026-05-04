@@ -275,8 +275,26 @@ WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_add_entry(
         ext_toolbar_action_cb callback,
         void *user_data);
 
+/**
+ * @brief Adds a new value entry to an existing toolbar.
+ *
+ * @param entries The list of existing toolbar entries.
+ * @param value The value associated with the entry.
+ * @param display The display text for the entry.
+ * @param is_default Indicates if this entry should be set as default.
+ * @return GList* The updated list of toolbar entries with the new value added.
+ */
 WS_DLL_PUBLIC GList * ext_toolbar_add_val(GList * entries, char * value, char * display, bool is_default);
 
+/**
+ * @brief Registers a callback for toolbar updates.
+ *
+ * This function allows you to register a callback that will be called whenever a toolbar entry is updated. The callback will receive the updated entry, the type of update, and any user data associated with the entry.
+ *
+ * @param entry The toolbar entry for which to register the update callback.
+ * @param callback The callback function to be called when the toolbar entry is updated.
+ * @param item_data User data to be passed to the callback function when it is called.
+ */
 WS_DLL_PUBLIC void ext_toolbar_register_update_cb(ext_toolbar_t * entry, ext_toolbar_action_cb callback, void *item_data);
 
 /* Updates the entry values
@@ -390,37 +408,81 @@ typedef enum
 } plugin_if_callback_t;
 
 
+/**
+ * @brief Callback function type for GUI-related actions.
+ *
+ * This function type is used for callbacks that are registered to handle specific GUI-related actions in Wireshark. The callback will receive a GHashTable containing relevant data for the action being performed.
+ *
+ * @param data_set A GHashTable containing data relevant to the GUI action. The specific keys and values in the hash table will depend on the action type for which the callback is registered.
+ */
 typedef void (*plugin_if_gui_cb)(GHashTable * data_set);
 
+/**
+ * @brief Registers a callback function for GUI-related actions.
+ *
+ * @param actionType The type of action to register the callback for.
+ * @param callback The callback function to be called when the action occurs.
+ */
 WS_DLL_PUBLIC void plugin_if_register_gui_cb(plugin_if_callback_t actionType, plugin_if_gui_cb callback);
 
-/* Applies the given filter string as display filter */
+/**
+ * @brief Applies the given filter string as display filter
+ * @param filter_string The filter string to apply
+ * @param force Whether to force the filter application
+ */
 WS_DLL_PUBLIC void plugin_if_apply_filter(const char * filter_string, bool force);
 
-/* Saves the given preference to the main preference storage */
+/**
+ * @brief Saves a preference to the main preference storage.
+ *
+ * @param pref_module The module name of the preference.
+ * @param pref_key The key name of the preference.
+ * @param pref_value The value to save for the preference.
+ */
 WS_DLL_PUBLIC void plugin_if_save_preference(const char * pref_module, const char * pref_key, const char * pref_value);
 
-/* Jumps to the given frame number */
+/**
+ * @brief Jumps to the given frame number.
+ * @param framenr The frame number to jump to.
+ */
 WS_DLL_PUBLIC void plugin_if_goto_frame(uint32_t framenr);
 
-/* Takes a snapshot of status information from Wireshark */
+/**
+ * @brief Takes a snapshot of status information from Wireshark.
+ * @param ws_info Pointer to a ws_info_t structure to store the status information.
+ */
 WS_DLL_PUBLIC void plugin_if_get_ws_info(ws_info_t ** ws_info);
 
 typedef void* (*plugin_if_frame_data_cb)(frame_data*, void*);
-/* Gets frame_data for current packet, data are extracted by extract_cb */
+
+/**
+ * @brief Gets frame_data for current packet, data are extracted by extract_cb.
+ * @param extract_cb The callback function to extract frame data.
+ * @param user_data User-defined data to pass to the callback function.
+ * @return Pointer to the extracted frame data.
+ */
 WS_DLL_PUBLIC void* plugin_if_get_frame_data(plugin_if_frame_data_cb extract_cb, void *user_data);
 
 typedef void* (*plugin_if_capture_file_cb)(capture_file*, void*);
-/* Gets capture_file, data are extracted by extract_cb */
+
+/**
+ * @brief Gets capture_file, data are extracted by extract_cb.
+ * @param extract_cb The callback function to extract capture file data.
+ * @param user_data User-defined data to pass to the callback function.
+ * @return Pointer to the extracted capture file data.
+ */
 WS_DLL_PUBLIC void* plugin_if_get_capture_file(plugin_if_capture_file_cb extract_cb, void* user_data);
 
-/* Private Method for retrieving the menubar entries
+/**
+ * @brief Private Method for retrieving the menubar entries
  *
  * Is only to be used by the UI interfaces to retrieve the menu entries
+ * @return A list of menu entries.
  */
 WS_DLL_PUBLIC GList * ext_menubar_get_entries(void);
 
-/* Private Method for retrieving the toolbar entries
+/**
+ * @brief Private Method for retrieving the toolbar entries
  *
  * Is only to be used by the UI interfaces to retrieve the toolbar entries
  */

@@ -67,13 +67,34 @@ typedef struct _iface_toolbar {
 typedef void (*iface_toolbar_add_cb_t)(const iface_toolbar *);
 typedef void (*iface_toolbar_remove_cb_t)(const char *);
 
+/**
+ * @brief Adds an interface toolbar to the application.
+ *
+ * @param toolbar Pointer to the interface toolbar structure to be added.
+ */
 void iface_toolbar_add(const iface_toolbar *toolbar);
 
+/**
+ * @brief Removes an interface toolbar item from the menu.
+ *
+ * @param menu_title The title of the menu item to remove.
+ */
 void iface_toolbar_remove(const char *menu_title);
 
+/**
+ * @brief Checks if the interface toolbar is in use.
+ *
+ * @return true if an add callback is registered, false otherwise.
+ */
 bool iface_toolbar_use(void);
 
-void iface_toolbar_register_cb(iface_toolbar_add_cb_t, iface_toolbar_remove_cb_t);
+/**
+ * @brief Registers callback functions for interface toolbar operations.
+ *
+ * @param add_cb Callback function to be called when an item is added to the toolbar.
+ * @param remove_cb Callback function to be called when an item is removed from the toolbar.
+ */
+void iface_toolbar_register_cb(iface_toolbar_add_cb_t add_cb, iface_toolbar_remove_cb_t remove_cb);
 
 #ifdef __cplusplus
 }

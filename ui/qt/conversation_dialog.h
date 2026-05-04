@@ -47,6 +47,12 @@ private slots:
     void tabChanged(int idx);
 };
 
+/**
+ * @brief Initializes the conversation table with a filter.
+ *
+ * @param ct Pointer to the register_ct structure.
+ * @param filter The filter string for conversations.
+ */
 void init_conversation_table(struct register_ct* ct, const char *filter);
 
 #endif // CONVERSATION_DIALOG_H

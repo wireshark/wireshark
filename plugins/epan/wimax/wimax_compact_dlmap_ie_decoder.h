@@ -15,6 +15,16 @@
 #ifndef _WIMAX_COMPACT_DLMAP_IE_DECODER_H_
 #define _WIMAX_COMPACT_DLMAP_IE_DECODER_H_
 
+/**
+ * @brief Decodes WiMax Compact DL-MAP Information Elements.
+ *
+ * @param tree Protocol tree to add decoded information to.
+ * @param pinfo Packet information structure.
+ * @param tvb Buffer containing the packet data.
+ * @param offset Current offset within the buffer.
+ * @param nibble_offset Nibble offset for decoding.
+ * @return unsigned Length of the decoded information.
+ */
 extern unsigned wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned nibble_offset);
 
 #endif /* _WIMAX_COMPACT_DLMAP_IE_DECODER_H_ */

@@ -227,30 +227,45 @@ typedef struct _voip_calls_tapinfo {
 /* INTERFACE */
 
 /**
- * Registers the voip_calls tap listeners (if not already done).
+ * @brief Registers the voip_calls tap listeners (if not already done).
+ *
  * From that point on, the calls list will be updated with every redissection.
  * This function is also the entry point for the initialization routine of the tap system.
  * So whenever voip_calls.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
  * If not, it will be registered on demand by the voip_calls functions that need it.
+ *
+ * @param tap_id_base Pointer to the base tap information structure for VoIP calls.
  */
 void voip_calls_init_all_taps(voip_calls_tapinfo_t *tap_id_base);
 
 /**
- * Removes the voip_calls tap listener (if not already done)
+ * @brief Removes the voip_calls tap listener (if not already done).
+ *
  * From that point on, the voip calls list won't be updated any more.
+ *
+ * @param tap_id_base Pointer to the base tap information structure for VoIP calls.
  */
 void voip_calls_remove_all_tap_listeners(voip_calls_tapinfo_t *tap_id_base);
 
 /**
- * Cleans up memory of voip calls tap.
+ * @brief Cleans up memory of voip calls tap.
+ *
+ * @param tapinfo Pointer to the VoIP calls tap information structure.
  */
 void voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo);
 
+/**
+ * @brief Sets whether to apply display filter for VoIP calls.
+ *
+ * @param tapinfo Pointer to the VoIP calls tap information structure.
+ * @param apply Boolean indicating whether to apply the display filter.
+ */
 void
 voip_calls_set_apply_display_filter(voip_calls_tapinfo_t *tapinfo, bool apply);
 
 /**
- * Frees one callsinfo
+ * @brief Frees one callsinfo
+ * @param callsinfo Pointer to the callsinfo structure to free.
  */
 void
 voip_calls_free_callsinfo(voip_calls_info_t *callsinfo);

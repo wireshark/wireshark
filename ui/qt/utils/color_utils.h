@@ -93,6 +93,12 @@ private:
     static QList<QRgb> sequence_colors_;
 };
 
+/**
+ * @brief Adds a color filter callback to the specified color filter.
+ *
+ * @param colorf Pointer to the color filter structure.
+ * @param user_data User data to be passed to the callback function.
+ */
 void color_filter_qt_add_cb(color_filter_t *colorf, void *user_data);
 
 #endif // COLOR_UTILS_H

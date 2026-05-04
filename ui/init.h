@@ -18,10 +18,16 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Initialize the UI "helper" components */
+/**
+ * @brief Initialize the UI "helper" components.
+ *
+ * @param app_env_var_prefix A prefix for environment variables related to the application.
+ */
 extern void ui_init(const char* app_env_var_prefix);
 
-/* Cleanup the UI "helper" components */
+/**
+ * @brief Cleanup the UI "helper" components.
+ */
 extern void ui_cleanup(void);
 
 /**

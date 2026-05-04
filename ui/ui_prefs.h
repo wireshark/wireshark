@@ -20,15 +20,26 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* Initialize the UI preferences component */
+
+/**
+ * @brief Initialize the UI preferences component.
+ *
+ * This function initializes the necessary data structures and resources for managing UI preferences.
+ */
 void ui_prefs_init(void);
 
-/* Cleanup the UI preferences component */
+/**
+ * @brief Cleanup the UI preferences component.
+ *
+ * This function cleans up the resources used by the UI preferences component.
+ */
 void ui_prefs_cleanup(void);
 
 typedef pref_t* (*ui_pref_deprecated_cb)(module_t* module, const char* name);
 
-/*
- * Register a UI component that will have preferences.
+/**
+ * @brief Register a UI component that will have preferences.
+ *
  * Specify the module under which to register it, the name used for the
  * module in the preferences file, the title used in the tab for it
  * in a preferences dialog box, and a routine to call back when the
@@ -52,9 +63,10 @@ ui_prefs_register_module(const char* name, const char* title,
                          const char* description, const char* help,
                          void (*apply_cb)(void), ui_pref_deprecated_cb depr_callback);
 
-/*
- * Unregister a UI component that will have preferences.  Done when the component
- * is removed
+/**
+ * @brief Unregister a UI component that will have preferences.
+ *
+ * Done when the component is removed.
  *
  * @param module Module to deregister
  */
@@ -65,16 +77,28 @@ typedef struct {
     FILE* pf;
 } ui_prefs_write_pref_arg_t;
 
-/*
- * Write out all preferences for a UI module.
+/**
+ * @brief Write out all preferences for a UI module
  *
  * @param module Module containing preferences
  * @param user_data ui_prefs_write_pref_arg_t pointer
+ * @return 0 on success, non-zero on failure
  */
 unsigned
 ui_prefs_write_module(module_t* module, void* user_data);
 
 
+/**
+ * @brief Read a preference value from the UI.
+ *
+ * This function reads a preference value from the user interface and stores it in the provided buffer.
+ *
+ * @param pref_name The name of the preference to read.
+ * @param value A pointer to a buffer where the preference value will be stored.
+ * @param private_data User-defined data passed to the callback function.
+ * @param return_range_errors If true, return an error if the value is out of range.
+ * @return void
+ */
 prefs_set_pref_e
 ui_prefs_read_pref(char* pref_name, const char* value, void* private_data, bool return_range_errors);
 

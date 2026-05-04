@@ -20,6 +20,16 @@
 class QGraphicsOpacityEffect;
 class QPropertyAnimation;
 
+/**
+ * @brief Updates the splash overlay with a new action and message.
+ *
+ * This function is called to update the state of the splash overlay,
+ * which could be used to display different actions or messages to the user.
+ *
+ * @param action The type of action to perform on the splash overlay.
+ * @param message A string message to display along with the action.
+ * @param dummy A dummy parameter that is not used and can be ignored.
+ */
 void splash_update(register_action_e action, const char *message, void *dummy);
 
 class SplashOverlay : public QWidget

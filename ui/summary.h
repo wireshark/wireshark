@@ -73,10 +73,23 @@ typedef struct _summary_tally {
     bool                  legacy;
 } summary_tally;
 
+/**
+ * @brief Fills in summary information for a capture file.
+ *
+ * @param cf Pointer to the capture file structure.
+ * @param st Pointer to the summary tally structure where the results will be stored.
+ */
 extern void
 summary_fill_in(capture_file *cf, summary_tally *st);
 
 #ifdef HAVE_LIBPCAP
+/**
+ * @brief Fills in capture-specific summary information for a capture file.
+ *
+ * @param cf Pointer to the capture file structure.
+ * @param capture_opts Pointer to the capture options structure.
+ * @param st Pointer to the summary tally structure where the results will be stored.
+ */
 extern void
 summary_fill_in_capture(capture_file *cf, capture_options *capture_opts, summary_tally *st);
 #endif

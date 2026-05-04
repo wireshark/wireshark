@@ -40,7 +40,9 @@ typedef struct window_geometry_s {
     char*       qt_geom;        /**< hex bytestring from Qt's saveGeometry() */
 } window_geometry_t;
 
-/* update the main window */
+/**
+ * @brief Update the main window.
+ */
 extern void main_window_update(void);
 
 /* Exit routine provided by UI-specific code. */
@@ -51,7 +53,13 @@ WS_NORETURN extern void exit_application(int status);
          header file, file_dlg_win32.c complains about all of the GTK structures also in the header
          files
          Function names make it clear where they are coming from
-*/
+ */
+/**
+ * @brief Adds a callback function for color filtering.
+ *
+ * @param colorf Pointer to the color filter structure.
+ * @param user_data User data to be passed to the callback function.
+ */
 void color_filter_add_cb(color_filter_t *colorf, void *user_data);
 
 #ifdef __cplusplus

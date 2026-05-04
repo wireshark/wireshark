@@ -14,11 +14,26 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief List all available object types for export.
+ *
+ * This function iterates through all registered export object tables and prints their names.
+ */
 void eo_list_object_types(void);
 
-/* will be called by main each time a --export-objects option is found */
+/**
+ * @brief Adds an export object option.
+ *
+ * This function is called by main each time a --export-objects option is found.
+ *
+ * @param ws_optarg The argument for the export objects option.
+ * @return true if the option was successfully added, false otherwise.
+ */
 bool eo_tap_opt_add(const char *ws_optarg);
 
+/**
+ * @brief Starts exporting objects based on the current options.
+ */
 void start_exportobjects(void);
 
 #ifdef __cplusplus

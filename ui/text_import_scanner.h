@@ -41,6 +41,12 @@ import_status_t parse_token(token_t token, char *str);
 
 extern FILE *text_importin;
 
+/**
+ * @brief Scans an input file for text import data
+ *
+ * @param input_file The file to be scanned
+ * @return The status of the scan operation
+ */
 import_status_t text_import_scan(FILE *input_file);
 
 #ifdef __cplusplus

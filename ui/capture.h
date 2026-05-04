@@ -42,9 +42,19 @@ typedef enum {
 typedef void (*capture_callback_t) (int event, capture_session *cap_session,
                                     void *user_data);
 
+/**
+ * @brief Add a capture callback.
+ * @param func The callback function.
+ * @param user_data User data to pass to the callback.
+ */
 extern void
 capture_callback_add(capture_callback_t func, void *user_data);
 
+/**
+ * @brief Remove a capture callback.
+ * @param func The callback function.
+ * @param user_data User data to pass to the callback.
+ */
 extern void
 capture_callback_remove(capture_callback_t func, void *user_data);
 
@@ -73,11 +83,17 @@ capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
               capture_session *cap_session, info_data_t* cap_data,
               void(*update_cb)(void));
 
-/** Stop a capture session (usually from a menu item). */
+/**
+ * @brief Stop a capture session (usually from a menu item).
+ * @param cap_session The handle for the capture session.
+ */
 extern void
 capture_stop(capture_session *cap_session);
 
-/** Terminate the capture child cleanly when exiting. */
+/**
+ * @brief Terminate the capture child cleanly when exiting.
+ * @param cap_session The handle for the capture session.
+ */
 extern void
 capture_kill_child(capture_session *cap_session);
 
@@ -85,15 +101,17 @@ struct if_stat_cache_s;
 typedef struct if_stat_cache_s if_stat_cache_t;
 
 /**
- * Start gathering capture statistics for the interfaces specified.
+ * @brief Start gathering capture statistics for the interfaces specified.
+ *
  * @param capture_opts A structure containing options for the capture.
  * @return A pointer to the statistics state data.
  */
 extern WS_RETNONNULL if_stat_cache_t * capture_stat_start(capture_options *capture_opts);
 
 /**
- * Retrieve the list of interfaces and their capabilities, and start
+ * @brief Retrieve the list of interfaces and their capabilities, and start
  * gathering capture statistics for the interfaces.
+ *
  * @param capture_opts A structure containing options for the capture.
  * @param[out] if_list A pointer that will store a GList of if_info_t.
  * @return A pointer to the statistics state data.
@@ -107,7 +125,8 @@ struct pcap_stat; /* Stub in case we don't or haven't yet included pcap.h */
 extern bool capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_stat *ps);
 
 /**
- * Stop gathering capture statistics.
+ * @brief Stop gathering capture statistics.
+ * @param sc A pointer to the statistics state data.
  */
 void capture_stat_stop(if_stat_cache_t *sc);
 

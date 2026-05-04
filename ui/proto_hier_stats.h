@@ -40,8 +40,23 @@ typedef struct {
     double	last_time;	/* seconds (msec resolution) of last packet  */
 } ph_stats_t;
 
+/**
+ * @brief Create a new protocol hierarchy statistics object.
+ *
+ * @param cf Pointer to the capture file structure.
+ * @return ph_stats_t* Pointer to the newly created protocol hierarchy statistics object, or NULL if an error occurred.
+ */
 ph_stats_t *ph_stats_new(capture_file *cf);
 
+/**
+ * @brief Frees memory allocated for a protocol hierarchy statistics structure.
+ *
+ * This function releases all resources associated with the given protocol
+ * hierarchy statistics structure, including its tree and any dynamically
+ * allocated data.
+ *
+ * @param ps Pointer to the protocol hierarchy statistics structure to be freed.
+ */
 void ph_stats_free(ph_stats_t *ps);
 
 #ifdef __cplusplus

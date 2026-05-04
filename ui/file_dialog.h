@@ -47,6 +47,14 @@ typedef enum {
     PREVIEW_READ_ERROR
 } ws_file_preview_stats_status;
 
+/**
+ * @brief Retrieves statistics for file preview.
+ *
+ * @param wth Pointer to the wtap structure representing the capture file.
+ * @param stats Pointer to the ws_file_preview_stats structure where the statistics will be stored.
+ * @param err Pointer to an integer that will hold any error code if an error occurs.
+ * @param err_info Pointer to a char pointer that will hold any error information if an error occurs.
+ */
 extern ws_file_preview_stats_status
 get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
                       int *err, char **err_info);

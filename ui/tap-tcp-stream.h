@@ -86,7 +86,8 @@ struct tcp_graph {
     struct segment  *last;
 };
 
-/** Fill in the segment list for a TCP graph
+/**
+ * @brief Fill in the segment list for a TCP graph
  *
  * @param cf Capture file to scan
  * @param tg TCP graph. A valid stream must be set. If either the source or
@@ -95,19 +96,61 @@ struct tcp_graph {
  *        specified stream.
  */
 void graph_segment_list_get(capture_file *cf, struct tcp_graph *tg);
-void graph_segment_list_free(struct tcp_graph * );
+
+/**
+ * @brief Frees the memory allocated for a TCP graph segment list.
+ *
+ * This function releases all resources associated with the given TCP graph,
+ * including freeing memory for addresses and segments.
+ *
+ * @param tg Pointer to the TCP graph structure to be freed.
+ */
+void graph_segment_list_free(struct tcp_graph *tg);
 
 /* for compare_headers() */
 /* segment went the same direction as the currently selected one */
 #define COMPARE_CURR_DIR    0
 #define COMPARE_ANY_DIR     1
 
+/**
+ * @brief Compares the headers of two TCP segments.
+ * @param saddr1 Source address of the first segment.
+ * @param daddr1 Destination address of the first segment.
+ * @param sport1 Source port of the first segment.
+ * @param dport1 Destination port of the first segment.
+ * @param saddr2 Source address of the second segment.
+ * @param daddr2 Destination address of the second segment.
+ * @param sport2 Source port of the second segment.
+ * @param dport2 Destination port of the second segment.
+ * @param dir Direction flag for comparison.
+ * @return The result of the comparison.
+ */
 int compare_headers(address *saddr1, address *daddr1, uint16_t sport1, uint16_t dport1, const address *saddr2, const address *daddr2, uint16_t sport2, uint16_t dport2, int dir);
 
-int get_num_dsegs(struct tcp_graph * );
-int get_num_acks(struct tcp_graph *, int * );
+/**
+ * @brief Gets the number of data segments in a TCP graph.
+ * @param tg Pointer to the TCP graph structure.
+ * @return The count of data segments.
+ */
+int get_num_dsegs(struct tcp_graph *tg);
 
-uint32_t select_tcpip_session(capture_file *);
+/**
+ * @brief Gets the number of ACKs in a TCP graph.
+ * @param tg Pointer to the TCP graph structure.
+ * @param num_sack_ranges Pointer to an integer where the sum of SACK ranges will be stored.
+ * @return The count of ACKs.
+ */
+int get_num_acks(struct tcp_graph *tg, int *num_sack_ranges);
+
+/**
+ * @brief Selects a TCP/IP session based on capture file.
+ *
+ * This function is used to select a TCP/IP session from a capture file.
+ *
+ * @param cf Pointer to the capture file containing the sessions.
+ * @return The selected TCP/IP session ID.
+ */
+uint32_t select_tcpip_session(capture_file *cf);
 
 /* This is used by rtt module only */
 struct rtt_unack {
@@ -129,31 +172,95 @@ struct rtt_unack {
  */
 bool rtt_is_retrans(struct rtt_unack *list, unsigned int seqno);
 
-struct rtt_unack *rtt_get_new_unack(double , unsigned int , unsigned int );
-void rtt_put_unack_on_list(struct rtt_unack ** , struct rtt_unack * );
-void rtt_delete_unack_from_list(struct rtt_unack ** , struct rtt_unack * );
-void rtt_destroy_unack_list(struct rtt_unack ** );
+/**
+ * @brief Creates a new RTT unacknowledged packet structure.
+ *
+ * @param time_val The timestamp of the packet.
+ * @param seqno The sequence number of the packet.
+ * @param seglen The length of the segment.
+ * @return A pointer to the newly created rtt_unack structure.
+ */
+struct rtt_unack *rtt_get_new_unack(double time_val, unsigned int seqno, unsigned int seglen);
 
+/**
+ * @brief Adds a new unacknowledged packet to the list.
+ *
+ * @param l Pointer to the head of the unacknowledged packet list.
+ * @param new_unack The new unacknowledged packet to add.
+ */
+void rtt_put_unack_on_list(struct rtt_unack **l, struct rtt_unack *new_unack);
+
+/**
+ * @brief Removes a specific RTT unacknowledged packet from the list.
+ *
+ * @param l Pointer to the head of the RTT unacknowledged packet list.
+ * @param dead The RTT unacknowledged packet to be removed.
+ */
+void rtt_delete_unack_from_list(struct rtt_unack **l, struct rtt_unack *dead);
+
+/**
+ * @brief Destroys the unacknowledged list of TCP sequences.
+ *
+ * @param l Pointer to the pointer of the head of the unacknowledged list.
+ */
+void rtt_destroy_unack_list(struct rtt_unack **l);
+
+/**
+ * @brief Compares two TCP sequence numbers for equality.
+ *
+ * @param s1 The first sequence number.
+ * @param s2 The second sequence number.
+ * @return int 0 if the sequence numbers are equal, non-zero otherwise.
+ */
 static inline int
 tcp_seq_eq(uint32_t s1, uint32_t s2) {
     return (int32_t)(s1 - s2) == 0;
 }
 
+/**
+ * @brief Determines if one TCP sequence number is before another.
+ *
+ * @param s1 The first sequence number.
+ * @param s2 The second sequence number.
+ * @return int Returns 1 if s1 is before s2, otherwise 0.
+ */
 static inline int
 tcp_seq_before(uint32_t s1, uint32_t s2) {
     return (int32_t)(s1 - s2) < 0;
 }
 
+/**
+ * @brief Checks if one TCP sequence number is equal to or after another.
+ *
+ * @param s1 The first TCP sequence number.
+ * @param s2 The second TCP sequence number.
+ * @return int True if s1 is equal to or after s2, false otherwise.
+ */
 static inline int
 tcp_seq_eq_or_after(uint32_t s1, uint32_t s2) {
     return !tcp_seq_before(s1, s2);
 }
 
+/**
+ * @brief Determines if sequence number s1 is after sequence number s2.
+ *
+ * @param s1 The first sequence number.
+ * @param s2 The second sequence number.
+ * @return int Returns 1 if s1 is after s2, otherwise returns 0.
+ */
 static inline int
 tcp_seq_after(uint32_t s1, uint32_t s2) {
     return (int32_t)(s1 - s2) > 0;
 }
 
+/**
+ * @brief Checks if one TCP sequence number is before or equal to another.
+ *
+ * @param s1 The first TCP sequence number.
+ * @param s2 The second TCP sequence number.
+ * @return true If s1 is before or equal to s2.
+ * @return false Otherwise.
+ */
 static inline int
 tcp_seq_before_or_eq(uint32_t s1, uint32_t s2) {
     return !tcp_seq_after(s1, s2);

@@ -170,8 +170,28 @@ typedef struct _HF_OF_INTEREST_INFO
 
 extern HF_OF_INTEREST_INFO hf_of_interest[HF_INTEREST_END_OF_LIST];
 
+/**
+ * @brief Adds a detected TCP service to the map.
+ *
+ * @param port The port number of the detected TCP service.
+ */
 void add_detected_tcp_svc(uint16_t port);
+
+/**
+ * @brief Checks if a given packet type is in the set of zeroed DCERPC contexts.
+ *
+ * @param pkt_type The packet type to check.
+ * @return true If the packet type is found in the zeroed DCERPC context map.
+ * @return false If the packet type is not found in the zeroed DCERPC context map.
+ */
 extern bool is_dcerpc_context_zero(uint32_t pkt_type);
+
+/**
+ * @brief Checks if the given packet type is a DCE/RPC request packet type.
+ *
+ * @param pkt_type The packet type to check.
+ * @return true if the packet type is a DCE/RPC request, false otherwise.
+ */
 extern bool is_dcerpc_req_pkt_type(uint32_t pkt_type);
 
 

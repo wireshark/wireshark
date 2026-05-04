@@ -110,6 +110,14 @@ typedef struct _tap_rtp_save_data_t {
 struct _rtp_info;
 
 /* function for analysing an RTP packet. Called from rtp_analysis and rtp_streams */
+
+/**
+ * @brief Analyzes an RTP packet and updates statistics.
+ *
+ * @param statinfo Pointer to the RTP statistics structure.
+ * @param pinfo Pointer to the packet information structure.
+ * @param rtpinfo Pointer to the RTP information structure.
+ */
 extern void rtppacket_analyse(tap_rtp_stat_t *statinfo,
                               const packet_info *pinfo,
                               const struct _rtp_info *rtpinfo);

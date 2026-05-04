@@ -118,8 +118,24 @@ private:
 };
 
 extern "C" {
+
+    /**
+     * @brief Reloads the menus for funnel statistics.
+     *
+     * This function reloads the menus by deregistering and registering them using the provided callbacks.
+     */
     void funnel_statistics_reload_menus(void);
+
+    /**
+     * @brief Loads the packet menus for funnel statistics.
+     */
     void funnel_statistics_load_packet_menus(void);
+
+    /**
+     * @brief Checks if the packet menus for funnel statistics have been modified.
+     *
+     * @return true if the packet menus have been modified, false otherwise.
+     */
     bool funnel_statistics_packet_menus_modified(void);
 } // extern "C"
 
