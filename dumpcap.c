@@ -228,8 +228,6 @@ static bool infoprint;      /* if true, print capture info after clearing infode
 
 /** Stop a low-level capture (stops the capture child). */
 static void capture_loop_stop(void);
-/** Close a pipe, or socket if \a from_socket is true */
-static void cap_pipe_close(int pipe_fd, bool from_socket);
 
 #if defined (__linux__)
 /* whatever the deal with pcap_breakloop, linux doesn't support timeouts
@@ -298,7 +296,6 @@ typedef struct _capture_src {
     bool                         ts_nsec;                /**< true if we're using nanosecond precision. */
                                                          /**< capture pipe (unix only "input file") */
     bool                         from_cap_pipe;          /**< true if we are capturing data from a capture pipe */
-    bool                         from_cap_socket;        /**< true if we're capturing from socket */
     bool                         from_pcapng;            /**< true if we're capturing from pcapng format */
     union {
         pcap_pipe_info_t         pcap;                   /**< Pcap info when capturing from a pipe */
@@ -453,12 +450,10 @@ print_usage(FILE *output)
     fprintf(output, "  -i <interface>, --interface <interface>\n");
     fprintf(output, "                           name or idx of interface (def: first non-loopback)\n"
 #ifdef HAVE_PCAP_REMOTE
-                    "                           or for remote capturing, use one of these formats:\n"
+                    "                           or for remote capturing, use this formats:\n"
                     "                               rpcap://<host>/<interface>\n"
-#else
-                    "                           or for remote capturing, use this format:\n"
 #endif
-                    "                               TCP@<host>:<port>\n");
+                                                );
     fprintf(output, "  --ifname <name>          name to use in the capture file for a pipe from which\n");
     fprintf(output, "                           we're capturing\n");
     fprintf(output, "  --ifdescr <description>\n");
@@ -1539,14 +1534,10 @@ cap_pipe_adjust_pcap_header(bool byte_swapped, struct pcap_hdr *hdr, struct pcap
  * or just read().
  */
 static ssize_t
-cap_pipe_read(int pipe_fd, uint8_t *buf, size_t sz, bool from_socket _U_)
+cap_pipe_read(int pipe_fd _U_, uint8_t *buf _U_, size_t sz _U_)
 {
 #ifdef _WIN32
-    if (from_socket) {
-        return recv(pipe_fd, (char*)buf, (int)sz, 0);
-    } else {
-        return -1;
-    }
+    return -1;
 #else
     return ws_read(pipe_fd, buf, sz);
 #endif
@@ -1585,60 +1576,51 @@ static void *cap_thread_read(void *arg)
         g_mutex_lock(pcap_src->cap_pipe_read_mtx);
         bytes_read = 0;
         while (bytes_read < pcap_src->cap_pipe_bytes_to_read) {
-           if ((pcap_src->from_cap_socket)
 #ifndef _WIN32
-              || 1
-#endif
-              )
-           {
-               ssize_t b;
-               b = cap_pipe_read(pcap_src->cap_pipe_fd, pcap_src->cap_pipe_buf+bytes_read,
-                        pcap_src->cap_pipe_bytes_to_read - bytes_read, pcap_src->from_cap_socket);
-               if (b <= 0) {
-                   if (b == 0) {
-                       pcap_src->cap_pipe_err = PIPEOF;
-                       bytes_read = 0;
-                       break;
-                   } else {
-                       pcap_src->cap_pipe_err = PIPERR;
-                       bytes_read = -1;
-                       break;
-                   }
-               } else {
-                   bytes_read += (DWORD)b;
-               }
-           }
-#ifdef _WIN32
-           else
-           {
-               /* If we try to use read() on a named pipe on Windows with partial
-                * data it appears to return EOF.
-                */
-               DWORD b;
-               res = ReadFile(pcap_src->cap_pipe_h, pcap_src->cap_pipe_buf+bytes_read,
-                              pcap_src->cap_pipe_bytes_to_read - bytes_read,
-                              &b, NULL);
+            ssize_t b;
+            b = cap_pipe_read(pcap_src->cap_pipe_fd, pcap_src->cap_pipe_buf+bytes_read,
+                    pcap_src->cap_pipe_bytes_to_read - bytes_read);
+            if (b <= 0) {
+                if (b == 0) {
+                    pcap_src->cap_pipe_err = PIPEOF;
+                    bytes_read = 0;
+                    break;
+                } else {
+                    pcap_src->cap_pipe_err = PIPERR;
+                    bytes_read = -1;
+                    break;
+                }
+            } else {
+                bytes_read += (DWORD)b;
+            }
+#else
+            /* If we try to use read() on a named pipe on Windows with partial
+            * data it appears to return EOF.
+            */
+            DWORD b;
+            res = ReadFile(pcap_src->cap_pipe_h, pcap_src->cap_pipe_buf+bytes_read,
+                            pcap_src->cap_pipe_bytes_to_read - bytes_read,
+                            &b, NULL);
 
-               bytes_read += b;
-               if (!res) {
-                   last_err = GetLastError();
-                   if (last_err == ERROR_MORE_DATA) {
-                       continue;
-                   } else if (last_err == ERROR_HANDLE_EOF || last_err == ERROR_BROKEN_PIPE || last_err == ERROR_PIPE_NOT_CONNECTED) {
-                       pcap_src->cap_pipe_err = PIPEOF;
-                       bytes_read = 0;
-                       break;
-                   }
-                   pcap_src->cap_pipe_err = PIPERR;
-                   bytes_read = -1;
-                   break;
-               } else if (b == 0 && pcap_src->cap_pipe_bytes_to_read > 0) {
-                   pcap_src->cap_pipe_err = PIPEOF;
-                   bytes_read = 0;
-                   break;
-               }
-           }
-#endif /*_WIN32 */
+            bytes_read += b;
+            if (!res) {
+                last_err = GetLastError();
+                if (last_err == ERROR_MORE_DATA) {
+                    continue;
+                } else if (last_err == ERROR_HANDLE_EOF || last_err == ERROR_BROKEN_PIPE || last_err == ERROR_PIPE_NOT_CONNECTED) {
+                    pcap_src->cap_pipe_err = PIPEOF;
+                    bytes_read = 0;
+                    break;
+                }
+                pcap_src->cap_pipe_err = PIPERR;
+                bytes_read = -1;
+                break;
+            } else if (b == 0 && pcap_src->cap_pipe_bytes_to_read > 0) {
+                pcap_src->cap_pipe_err = PIPEOF;
+                bytes_read = 0;
+                break;
+            }
+#endif /* ifndef _WIN32 */
         }
         pcap_src->cap_pipe_bytes_read = bytes_read;
         if (pcap_src->cap_pipe_bytes_read >= pcap_src->cap_pipe_bytes_to_read) {
@@ -1697,72 +1679,13 @@ cap_pipe_select(int pipe_fd)
     return select(pipe_fd+1, &rfds, NULL, NULL, &timeout);
 }
 
-#define DEF_TCP_PORT 19000
-
-static int
-cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errmsgl)
-{
-    struct sockaddr_storage sa;
-    socklen_t sa_len;
-    int fd;
-
-    /* Skip the initial "TCP@" in the pipename. */
-    if (ws_socket_ptoa(&sa, pipename + 4, DEF_TCP_PORT) < 0) {
-        snprintf(errmsg, errmsgl,
-                "The capture session could not be initiated because"
-                "\"%s\" is not a valid socket specification", pipename);
-        pcap_src->cap_pipe_err = PIPERR;
-        return -1;
-    }
-
-    if ((fd = (int)socket(sa.ss_family, SOCK_STREAM, 0)) < 0) {
-        snprintf(errmsg, errmsgl,
-            "The capture session could not be initiated because"
-            " the socket couldn't be created due to the socket error: \n"
-#ifdef _WIN32
-            "         %s", win32strerror(WSAGetLastError()));
-#else
-            "         %d: %s", errno, g_strerror(errno));
-#endif
-        pcap_src->cap_pipe_err = PIPERR;
-        return -1;
-    }
-
-    if (sa.ss_family == AF_INET6)
-        sa_len = sizeof(struct sockaddr_in6);
-    else
-        sa_len = sizeof(struct sockaddr_in);
-    if (connect(fd, (struct sockaddr *)&sa, sa_len) < 0) {
-        snprintf(errmsg, errmsgl,
-            "The capture session could not be initiated because"
-            " the socket couldn't be connected due to the socket error: \n"
-#ifdef _WIN32
-            "         %s", win32strerror(WSAGetLastError()));
-#else
-            "         %d: %s", errno, g_strerror(errno));
-#endif
-        pcap_src->cap_pipe_err = PIPERR;
-
-        cap_pipe_close(fd, true);
-        return -1;
-    }
-
-    pcap_src->from_cap_socket = true;
-    return fd;
-}
-
 /* Wrapper: distinguish between closesocket on Windows; use ws_close
  * otherwise.
  */
 static void
-cap_pipe_close(int pipe_fd, bool from_socket)
+cap_pipe_close(int pipe_fd _U_)
 {
-#ifdef _WIN32
-    if (from_socket) {
-        closesocket(pipe_fd);
-    }
-#else
-    (void) from_socket; /* Mark unused, similar to Q_UNUSED */
+#ifndef _WIN32
     ws_close(pipe_fd);
 #endif
 }
@@ -1804,8 +1727,7 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
             pcap_src->cap_pipe_err = PIPERR;
             return -1;
         } else if (sel_ret > 0) {
-            b = cap_pipe_read(fd, pcap_src->cap_pipe_databuf+pcap_src->cap_pipe_bytes_read+bytes_read,
-                              sz-bytes_read, pcap_src->from_cap_socket);
+            b = cap_pipe_read(fd, pcap_src->cap_pipe_databuf+pcap_src->cap_pipe_bytes_read+bytes_read, sz-bytes_read);
             if (b <= 0) {
                 if (b == 0) {
                     snprintf(errmsg, errmsgl,
@@ -1876,13 +1798,14 @@ cap_pipe_open_live(char *pipename,
 #ifndef _WIN32
     ws_statb64         pipe_stat;
     struct sockaddr_un sa;
+    ssize_t  b;
+    int      sel_ret;
+    size_t   bytes_read;
 #else /* _WIN32 */
     uintptr_t extcap_pipe_handle;
 #endif
     bool extcap_pipe = false;
-    ssize_t  b;
-    int      fd = -1, sel_ret;
-    size_t   bytes_read;
+    int      fd = -1;
     uint32_t magic = 0;
     pcap_src->cap_pipe_fd = -1;
 #ifdef _WIN32
@@ -1901,10 +1824,6 @@ cap_pipe_open_live(char *pipename,
 #else /* _WIN32 */
         pcap_src->cap_pipe_h = GetStdHandle(STD_INPUT_HANDLE);
 #endif  /* _WIN32 */
-    } else if (!strncmp(pipename, "TCP@", 4)) {
-       if ((fd = cap_open_socket(pipename, pcap_src, errmsg, errmsgl)) < 0) {
-          return;
-       }
     } else {
 #ifndef _WIN32
         if ( g_strrstr(pipename, EXTCAP_PIPE_PREFIX) != NULL )
@@ -2065,7 +1984,7 @@ cap_pipe_open_live(char *pipename,
      * If a pcapng file is being written to it, that will be
      * the block type of the initial SHB.
      */
-#ifdef _WIN32
+#ifndef _WIN32
     /*
      * On UN*X, we can use select() on pipes or sockets.
      *
@@ -2074,59 +1993,52 @@ cap_pipe_open_live(char *pipename,
      * and use GLib asynchronous queues from the main thread to start
      * read operations and to wait for them to complete.
      */
-    if (pcap_src->from_cap_socket)
-#endif
-    {
-        bytes_read = 0;
-        while (bytes_read < sizeof magic) {
-            sel_ret = cap_pipe_select(fd);
-            if (sel_ret < 0) {
-                snprintf(errmsg, errmsgl,
-                           "Unexpected error from select: %s.",
-                           g_strerror(errno));
+    bytes_read = 0;
+    while (bytes_read < sizeof magic) {
+        sel_ret = cap_pipe_select(fd);
+        if (sel_ret < 0) {
+            snprintf(errmsg, errmsgl,
+                        "Unexpected error from select: %s.",
+                        g_strerror(errno));
+            goto error;
+        } else if (sel_ret > 0) {
+            b = cap_pipe_read(fd, ((uint8_t*)&magic)+bytes_read,
+                                sizeof magic-bytes_read);
+            /* jump messaging, if extcap had an error, stderr will provide the correct message */
+            if (extcap_pipe && b <= 0)
                 goto error;
-            } else if (sel_ret > 0) {
-                b = cap_pipe_read(fd, ((uint8_t*)&magic)+bytes_read,
-                                  sizeof magic-bytes_read,
-                                  pcap_src->from_cap_socket);
-                /* jump messaging, if extcap had an error, stderr will provide the correct message */
-                if (extcap_pipe && b <= 0)
-                    goto error;
 
-                if (b <= 0) {
-                    if (b == 0)
-                        snprintf(errmsg, errmsgl,
-                                   "End of file on pipe magic during open.");
-                    else
-                        snprintf(errmsg, errmsgl,
-                                   "Error on pipe magic during open: %s.",
-                                   g_strerror(errno));
-                    goto error;
-                }
-                bytes_read += b;
+            if (b <= 0) {
+                if (b == 0)
+                    snprintf(errmsg, errmsgl,
+                                "End of file on pipe magic during open.");
+                else
+                    snprintf(errmsg, errmsgl,
+                                "Error on pipe magic during open: %s.",
+                                g_strerror(errno));
+                goto error;
             }
+            bytes_read += b;
         }
     }
-#ifdef _WIN32
-    else {
-        /* Create a thread to read from this pipe */
-        g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
+#else
+    /* Create a thread to read from this pipe */
+    g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
 
-        pipe_read_sync(pcap_src, &magic, sizeof(magic));
-        /* jump messaging, if extcap had an error, stderr will provide the correct message */
-        if (pcap_src->cap_pipe_bytes_read <= 0 && extcap_pipe)
-            goto error;
+    pipe_read_sync(pcap_src, &magic, sizeof(magic));
+    /* jump messaging, if extcap had an error, stderr will provide the correct message */
+    if (pcap_src->cap_pipe_bytes_read <= 0 && extcap_pipe)
+        goto error;
 
-        if (pcap_src->cap_pipe_bytes_read <= 0) {
-            if (pcap_src->cap_pipe_bytes_read == 0)
-                snprintf(errmsg, errmsgl,
-                           "End of file on pipe magic during open.");
-            else
-                snprintf(errmsg, errmsgl,
-                           "Error on pipe magic during open: %s.",
-                           g_strerror(errno));
-            goto error;
-        }
+    if (pcap_src->cap_pipe_bytes_read <= 0) {
+        if (pcap_src->cap_pipe_bytes_read == 0)
+            snprintf(errmsg, errmsgl,
+                        "End of file on pipe magic during open.");
+        else
+            snprintf(errmsg, errmsgl,
+                        "Error on pipe magic during open: %s.",
+                        g_strerror(errno));
+        goto error;
     }
 #endif
 
@@ -2193,7 +2105,7 @@ cap_pipe_open_live(char *pipename,
 error:
     ws_debug("cap_pipe_open_live: error %s", errmsg);
     pcap_src->cap_pipe_err = PIPERR;
-    cap_pipe_close(fd, pcap_src->from_cap_socket);
+    cap_pipe_close(fd);
     pcap_src->cap_pipe_fd = -1;
 #ifdef _WIN32
     pcap_src->cap_pipe_h = INVALID_HANDLE_VALUE;
@@ -2211,6 +2123,7 @@ pcap_pipe_open_live(int fd,
                     char *errmsg, size_t errmsgl,
                     char *secondary_errmsg, size_t secondary_errmsgl)
 {
+#ifndef _WIN32
     size_t   bytes_read;
     ssize_t  b;
     int      sel_ret;
@@ -2223,54 +2136,47 @@ pcap_pipe_open_live(int fd,
      * pcap file header *following the magic number*; it does not
      * include the magic number itself.)
      */
-#ifdef _WIN32
-    if (pcap_src->from_cap_socket)
-#endif
-    {
-        /* Keep reading until we get the rest of the header. */
-        bytes_read = 0;
-        while (bytes_read < sizeof(struct pcap_hdr)) {
-            sel_ret = cap_pipe_select(fd);
-            if (sel_ret < 0) {
-                snprintf(errmsg, errmsgl,
-                           "Unexpected error from select: %s.",
-                           g_strerror(errno));
+
+    /* Keep reading until we get the rest of the header. */
+    bytes_read = 0;
+    while (bytes_read < sizeof(struct pcap_hdr)) {
+        sel_ret = cap_pipe_select(fd);
+        if (sel_ret < 0) {
+            snprintf(errmsg, errmsgl,
+                        "Unexpected error from select: %s.",
+                        g_strerror(errno));
+            goto error;
+        } else if (sel_ret > 0) {
+            b = cap_pipe_read(fd, ((uint8_t*)hdr)+bytes_read,
+                                sizeof(struct pcap_hdr) - bytes_read);
+            if (b <= 0) {
+                if (b == 0)
+                    snprintf(errmsg, errmsgl,
+                                "End of file on pipe header during open.");
+                else
+                    snprintf(errmsg, errmsgl,
+                                "Error on pipe header during open: %s.",
+                                g_strerror(errno));
+                snprintf(secondary_errmsg, secondary_errmsgl,
+                            "%s", not_our_bug);
                 goto error;
-            } else if (sel_ret > 0) {
-                b = cap_pipe_read(fd, ((uint8_t*)hdr)+bytes_read,
-                                  sizeof(struct pcap_hdr) - bytes_read,
-                                  pcap_src->from_cap_socket);
-                if (b <= 0) {
-                    if (b == 0)
-                        snprintf(errmsg, errmsgl,
-                                   "End of file on pipe header during open.");
-                    else
-                        snprintf(errmsg, errmsgl,
-                                   "Error on pipe header during open: %s.",
-                                   g_strerror(errno));
-                    snprintf(secondary_errmsg, secondary_errmsgl,
-                               "%s", not_our_bug);
-                    goto error;
-                }
-                bytes_read += b;
             }
+            bytes_read += b;
         }
     }
-#ifdef _WIN32
-    else {
-        pipe_read_sync(pcap_src, hdr, sizeof(struct pcap_hdr));
-        if (pcap_src->cap_pipe_bytes_read <= 0) {
-            if (pcap_src->cap_pipe_bytes_read == 0)
-                snprintf(errmsg, errmsgl,
-                           "End of file on pipe header during open.");
-            else
-                snprintf(errmsg, errmsgl,
-                           "Error on pipe header header during open: %s.",
-                           g_strerror(errno));
-            snprintf(secondary_errmsg, secondary_errmsgl, "%s",
-                       not_our_bug);
-            goto error;
-        }
+#else
+    pipe_read_sync(pcap_src, hdr, sizeof(struct pcap_hdr));
+    if (pcap_src->cap_pipe_bytes_read <= 0) {
+        if (pcap_src->cap_pipe_bytes_read == 0)
+            snprintf(errmsg, errmsgl,
+                        "End of file on pipe header during open.");
+        else
+            snprintf(errmsg, errmsgl,
+                        "Error on pipe header header during open: %s.",
+                        g_strerror(errno));
+        snprintf(secondary_errmsg, secondary_errmsgl, "%s",
+                    not_our_bug);
+        goto error;
     }
 #endif
 
@@ -2335,7 +2241,7 @@ pcap_pipe_open_live(int fd,
 error:
     ws_debug("pcap_pipe_open_live: error %s", errmsg);
     pcap_src->cap_pipe_err = PIPERR;
-    cap_pipe_close(fd, pcap_src->from_cap_socket);
+    cap_pipe_close(fd);
     pcap_src->cap_pipe_fd = -1;
 #ifdef _WIN32
     pcap_src->cap_pipe_h = INVALID_HANDLE_VALUE;
@@ -2354,32 +2260,26 @@ pcapng_read_shb(capture_src *pcap_src,
     pcapng_section_header_block_t shb;
     pcapng_block_header_t *bh = &pcap_src->cap_pipe_info.pcapng.bh;
 
-#ifdef _WIN32
-    if (pcap_src->from_cap_socket)
-#endif
-    {
-        pcap_src->cap_pipe_bytes_to_read = sizeof(pcapng_block_header_t) + sizeof(pcapng_section_header_block_t);
-        if (cap_pipe_read_data_bytes(pcap_src, errmsg, errmsgl) < 0) {
-            return -1;
-        }
+#ifndef _WIN32
+    pcap_src->cap_pipe_bytes_to_read = sizeof(pcapng_block_header_t) + sizeof(pcapng_section_header_block_t);
+    if (cap_pipe_read_data_bytes(pcap_src, errmsg, errmsgl) < 0) {
+        return -1;
     }
-#ifdef _WIN32
-    else {
-        pipe_read_sync(pcap_src, pcap_src->cap_pipe_databuf + sizeof(pcapng_block_header_t),
-            sizeof(pcapng_section_header_block_t));
-        if (pcap_src->cap_pipe_bytes_read <= 0) {
-            if (pcap_src->cap_pipe_bytes_read == 0)
-                snprintf(errmsg, errmsgl,
-                           "End of file reading from pipe or socket.");
-            else
-                snprintf(errmsg, errmsgl,
-                           "Error reading from pipe or socket: %s.",
-                           g_strerror(errno));
-            return -1;
-        }
-        /* Continuing with STATE_EXPECT_DATA requires reading into cap_pipe_databuf at offset cap_pipe_bytes_read */
-        pcap_src->cap_pipe_bytes_read = sizeof(pcapng_block_header_t) + sizeof(pcapng_section_header_block_t);
+#else
+    pipe_read_sync(pcap_src, pcap_src->cap_pipe_databuf + sizeof(pcapng_block_header_t),
+        sizeof(pcapng_section_header_block_t));
+    if (pcap_src->cap_pipe_bytes_read <= 0) {
+        if (pcap_src->cap_pipe_bytes_read == 0)
+            snprintf(errmsg, errmsgl,
+                        "End of file reading from pipe or socket.");
+        else
+            snprintf(errmsg, errmsgl,
+                        "Error reading from pipe or socket: %s.",
+                        g_strerror(errno));
+        return -1;
     }
+    /* Continuing with STATE_EXPECT_DATA requires reading into cap_pipe_databuf at offset cap_pipe_bytes_read */
+    pcap_src->cap_pipe_bytes_read = sizeof(pcapng_block_header_t) + sizeof(pcapng_section_header_block_t);
 #endif
     memcpy(&shb, pcap_src->cap_pipe_databuf + sizeof(pcapng_block_header_t), sizeof(pcapng_section_header_block_t));
     switch (shb.magic)
@@ -2605,7 +2505,7 @@ pcapng_pipe_open_live(int fd,
      * total length; we've already read the block type, now read the
      * block length.
      */
-#ifdef _WIN32
+#ifndef _WIN32
     /*
      * On UN*X, we can use select() on pipes or sockets.
      *
@@ -2614,39 +2514,33 @@ pcapng_pipe_open_live(int fd,
      * and use GLib asynchronous queues from the main thread to start
      * read operations and to wait for them to complete.
      */
-    if (pcap_src->from_cap_socket)
-#endif
-    {
-        memcpy(pcap_src->cap_pipe_databuf, &type, sizeof(uint32_t));
-        pcap_src->cap_pipe_bytes_read = sizeof(uint32_t);
-        pcap_src->cap_pipe_bytes_to_read = sizeof(pcapng_block_header_t);
-        pcap_src->cap_pipe_fd = fd;
-        if (cap_pipe_read_data_bytes(pcap_src, errmsg, errmsgl) < 0) {
-            goto error;
-        }
-        memcpy(bh, pcap_src->cap_pipe_databuf, sizeof(pcapng_block_header_t));
+    memcpy(pcap_src->cap_pipe_databuf, &type, sizeof(uint32_t));
+    pcap_src->cap_pipe_bytes_read = sizeof(uint32_t);
+    pcap_src->cap_pipe_bytes_to_read = sizeof(pcapng_block_header_t);
+    pcap_src->cap_pipe_fd = fd;
+    if (cap_pipe_read_data_bytes(pcap_src, errmsg, errmsgl) < 0) {
+        goto error;
     }
-#ifdef _WIN32
-    else {
-        g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
+    memcpy(bh, pcap_src->cap_pipe_databuf, sizeof(pcapng_block_header_t));
+#else
+    g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
 
-        bh->block_type = type;
-        pipe_read_sync(pcap_src, &bh->block_total_length,
-            sizeof(bh->block_total_length));
-        if (pcap_src->cap_pipe_bytes_read <= 0) {
-            if (pcap_src->cap_pipe_bytes_read == 0)
-                snprintf(errmsg, errmsgl,
-                           "End of file reading from pipe or socket.");
-            else
-                snprintf(errmsg, errmsgl,
-                           "Error reading from pipe or socket: %s.",
-                           g_strerror(errno));
-            goto error;
-        }
-        pcap_src->cap_pipe_bytes_read = sizeof(pcapng_block_header_t);
-        memcpy(pcap_src->cap_pipe_databuf, bh, sizeof(pcapng_block_header_t));
-        pcap_src->cap_pipe_fd = fd;
+    bh->block_type = type;
+    pipe_read_sync(pcap_src, &bh->block_total_length,
+        sizeof(bh->block_total_length));
+    if (pcap_src->cap_pipe_bytes_read <= 0) {
+        if (pcap_src->cap_pipe_bytes_read == 0)
+            snprintf(errmsg, errmsgl,
+                        "End of file reading from pipe or socket.");
+        else
+            snprintf(errmsg, errmsgl,
+                        "Error reading from pipe or socket: %s.",
+                        g_strerror(errno));
+        goto error;
     }
+    pcap_src->cap_pipe_bytes_read = sizeof(pcapng_block_header_t);
+    memcpy(pcap_src->cap_pipe_databuf, bh, sizeof(pcapng_block_header_t));
+    pcap_src->cap_pipe_fd = fd;
 #endif
     if (pcapng_read_shb(pcap_src, errmsg, errmsgl)) {
         goto error;
@@ -2657,7 +2551,7 @@ pcapng_pipe_open_live(int fd,
 error:
     ws_debug("pcapng_pipe_open_live: error %s", errmsg);
     pcap_src->cap_pipe_err = PIPERR;
-    cap_pipe_close(fd, pcap_src->from_cap_socket);
+    cap_pipe_close(fd);
     pcap_src->cap_pipe_fd = -1;
 #ifdef _WIN32
     pcap_src->cap_pipe_h = INVALID_HANDLE_VALUE;
@@ -2674,8 +2568,9 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
            PD_ERR } result;
 #ifdef _WIN32
     void *    q_status;
-#endif
+#else
     ssize_t   b;
+#endif
     pcap_pipe_info_t *pcap_info = &pcap_src->cap_pipe_info.pcap;
 
 #ifdef LOG_CAPTURE_VERBOSE
@@ -2703,38 +2598,28 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
         /* Fall through */
 
     case STATE_READ_REC_HDR:
-#ifdef _WIN32
-        if (pcap_src->from_cap_socket)
-#endif
-        {
-            b = cap_pipe_read(pcap_src->cap_pipe_fd, ((uint8_t*)&pcap_info->rechdr)+pcap_src->cap_pipe_bytes_read,
-                 pcap_src->cap_pipe_bytes_to_read - pcap_src->cap_pipe_bytes_read, pcap_src->from_cap_socket);
-            if (b <= 0) {
-                if (b == 0)
-                    result = PD_PIPE_EOF;
-                else
-                    result = PD_PIPE_ERR;
-                break;
-            }
-#ifdef _WIN32
-            pcap_src->cap_pipe_bytes_read += (DWORD)b;
-#else
-            pcap_src->cap_pipe_bytes_read += b;
-#endif
-        }
-#ifdef _WIN32
-        else {
-            q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
-            if (pcap_src->cap_pipe_err == PIPEOF) {
+#ifndef _WIN32
+        b = cap_pipe_read(pcap_src->cap_pipe_fd, ((uint8_t*)&pcap_info->rechdr)+pcap_src->cap_pipe_bytes_read,
+                pcap_src->cap_pipe_bytes_to_read - pcap_src->cap_pipe_bytes_read);
+        if (b <= 0) {
+            if (b == 0)
                 result = PD_PIPE_EOF;
-                break;
-            } else if (pcap_src->cap_pipe_err == PIPERR) {
+            else
                 result = PD_PIPE_ERR;
-                break;
-            }
-            if (!q_status) {
-                return 0;
-            }
+            break;
+        }
+        pcap_src->cap_pipe_bytes_read += b;
+#else
+        q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
+        if (pcap_src->cap_pipe_err == PIPEOF) {
+            result = PD_PIPE_EOF;
+            break;
+        } else if (pcap_src->cap_pipe_err == PIPERR) {
+            result = PD_PIPE_ERR;
+            break;
+        }
+        if (!q_status) {
+            return 0;
         }
 #endif
         if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
@@ -2762,41 +2647,29 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
         /* Fall through */
 
     case STATE_READ_DATA:
-#ifdef _WIN32
-        if (pcap_src->from_cap_socket)
-#endif
-        {
-            b = cap_pipe_read(pcap_src->cap_pipe_fd,
-                              pcap_src->cap_pipe_databuf+pcap_src->cap_pipe_bytes_read,
-                              pcap_src->cap_pipe_bytes_to_read - pcap_src->cap_pipe_bytes_read,
-                              pcap_src->from_cap_socket);
-            if (b <= 0) {
-                if (b == 0)
-                    result = PD_PIPE_EOF;
-                else
-                    result = PD_PIPE_ERR;
-                break;
-            }
-#ifdef _WIN32
-            pcap_src->cap_pipe_bytes_read += (DWORD)b;
-#else
-            pcap_src->cap_pipe_bytes_read += b;
-#endif
-        }
-#ifdef _WIN32
-        else {
-
-            q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
-            if (pcap_src->cap_pipe_err == PIPEOF) {
+#ifndef _WIN32
+        b = cap_pipe_read(pcap_src->cap_pipe_fd,
+                            pcap_src->cap_pipe_databuf+pcap_src->cap_pipe_bytes_read,
+                            pcap_src->cap_pipe_bytes_to_read - pcap_src->cap_pipe_bytes_read);
+        if (b <= 0) {
+            if (b == 0)
                 result = PD_PIPE_EOF;
-                break;
-            } else if (pcap_src->cap_pipe_err == PIPERR) {
+            else
                 result = PD_PIPE_ERR;
-                break;
-            }
-            if (!q_status) {
-                return 0;
-            }
+            break;
+        }
+        pcap_src->cap_pipe_bytes_read += b;
+#else
+        q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
+        if (pcap_src->cap_pipe_err == PIPEOF) {
+            result = PD_PIPE_EOF;
+            break;
+        } else if (pcap_src->cap_pipe_err == PIPERR) {
+            result = PD_PIPE_ERR;
+            break;
+        }
+        if (!q_status) {
+            return 0;
         }
 #endif /* _WIN32 */
         if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
@@ -2926,10 +2799,8 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
             pcap_src->cap_pipe_bytes_read = 0;
 
 #ifdef _WIN32
-            if (!pcap_src->from_cap_socket) {
-                pcap_src->cap_pipe_buf = pcap_src->cap_pipe_databuf;
-                g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
-            }
+            pcap_src->cap_pipe_buf = pcap_src->cap_pipe_databuf;
+            g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
             g_mutex_unlock(pcap_src->cap_pipe_read_mtx);
         }
 #endif
@@ -2939,25 +2810,21 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
 #ifdef LOG_CAPTURE_VERBOSE
         ws_debug("pcapng_pipe_dispatch STATE_READ_REC_HDR");
 #endif
-#ifdef _WIN32
-        if (pcap_src->from_cap_socket) {
-#endif
-            if (cap_pipe_read_data_bytes(pcap_src, errmsg, errmsgl) < 0) {
-                return -1;
-            }
-#ifdef _WIN32
-        } else {
-            q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
-            if (pcap_src->cap_pipe_err == PIPEOF) {
-                result = PD_PIPE_EOF;
-                break;
-            } else if (pcap_src->cap_pipe_err == PIPERR) {
-                result = PD_PIPE_ERR;
-                break;
-            }
-            if (!q_status) {
-                return 0;
-            }
+#ifndef _WIN32
+        if (cap_pipe_read_data_bytes(pcap_src, errmsg, errmsgl) < 0) {
+            return -1;
+        }
+#else
+        q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
+        if (pcap_src->cap_pipe_err == PIPEOF) {
+            result = PD_PIPE_EOF;
+            break;
+        } else if (pcap_src->cap_pipe_err == PIPERR) {
+            result = PD_PIPE_ERR;
+            break;
+        }
+        if (!q_status) {
+            return 0;
         }
 #endif
         if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
@@ -2979,12 +2846,10 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
             pcap_src->cap_pipe_bytes_to_read = bh->block_total_length;
 
 #ifdef _WIN32
-            if (!pcap_src->from_cap_socket) {
-                pcap_src->cap_pipe_bytes_to_read -= pcap_src->cap_pipe_bytes_read;
-                pcap_src->cap_pipe_buf = pcap_src->cap_pipe_databuf + pcap_src->cap_pipe_bytes_read;
-                pcap_src->cap_pipe_bytes_read = 0;
-                g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
-            }
+            pcap_src->cap_pipe_bytes_to_read -= pcap_src->cap_pipe_bytes_read;
+            pcap_src->cap_pipe_buf = pcap_src->cap_pipe_databuf + pcap_src->cap_pipe_bytes_read;
+            pcap_src->cap_pipe_bytes_read = 0;
+            g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
             g_mutex_unlock(pcap_src->cap_pipe_read_mtx);
         }
 #endif
@@ -2994,26 +2859,21 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
 #ifdef LOG_CAPTURE_VERBOSE
         ws_debug("pcapng_pipe_dispatch STATE_READ_DATA");
 #endif
-#ifdef _WIN32
-        if (pcap_src->from_cap_socket) {
-#endif
-            if (cap_pipe_read_data_bytes(pcap_src, errmsg, errmsgl) < 0) {
-                return -1;
-            }
-#ifdef _WIN32
-        } else {
-
-            q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
-            if (pcap_src->cap_pipe_err == PIPEOF) {
-                result = PD_PIPE_EOF;
-                break;
-            } else if (pcap_src->cap_pipe_err == PIPERR) {
-                result = PD_PIPE_ERR;
-                break;
-            }
-            if (!q_status) {
-                return 0;
-            }
+#ifndef _WIN32
+        if (cap_pipe_read_data_bytes(pcap_src, errmsg, errmsgl) < 0) {
+            return -1;
+        }
+#else
+        q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
+        if (pcap_src->cap_pipe_err == PIPEOF) {
+            result = PD_PIPE_EOF;
+            break;
+        } else if (pcap_src->cap_pipe_err == PIPERR) {
+            result = PD_PIPE_ERR;
+            break;
+        }
+        if (!q_status) {
+            return 0;
         }
 #endif /* _WIN32 */
         if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
@@ -3250,17 +3110,13 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                                errmsg, errmsg_len,
                                secondary_errmsg, secondary_errmsg_len);
 
-#ifdef _WIN32
-            if (pcap_src->from_cap_socket) {
-#endif
-                if (pcap_src->cap_pipe_fd == -1) {
-                    pipe_err = true;
-                }
-#ifdef _WIN32
-            } else {
-                if (pcap_src->cap_pipe_h == INVALID_HANDLE_VALUE) {
-                    pipe_err = true;
-                }
+#ifndef _WIN32
+            if (pcap_src->cap_pipe_fd == -1) {
+                pipe_err = true;
+            }
+#else
+            if (pcap_src->cap_pipe_h == INVALID_HANDLE_VALUE) {
+                pipe_err = true;
             }
 #endif
 
@@ -3381,7 +3237,7 @@ static void capture_loop_close_input(loop_data *ld)
         if (pcap_src->from_cap_pipe) {
             /* Pipe. If open, close the capture pipe "input file". */
             if (pcap_src->cap_pipe_fd >= 0) {
-                cap_pipe_close(pcap_src->cap_pipe_fd, pcap_src->from_cap_socket);
+                cap_pipe_close(pcap_src->cap_pipe_fd);
                 pcap_src->cap_pipe_fd = -1;
             }
 #ifdef _WIN32
@@ -3693,26 +3549,22 @@ capture_loop_dispatch(loop_data *ld,
 #ifdef LOG_CAPTURE_VERBOSE
         ws_debug("capture_loop_dispatch: from capture pipe");
 #endif
-#ifdef _WIN32
-        if (pcap_src->from_cap_socket) {
-#endif
-            sel_ret = cap_pipe_select(pcap_src->cap_pipe_fd);
-            if (sel_ret <= 0) {
-                if (sel_ret < 0 && errno != EINTR) {
-                    snprintf(errmsg, errmsg_len,
-                            "Unexpected error from select: %s", g_strerror(errno));
-                    report_capture_error(errmsg, please_report_bug());
-                    ld->go = false;
-                }
+#ifndef _WIN32
+        sel_ret = cap_pipe_select(pcap_src->cap_pipe_fd);
+        if (sel_ret <= 0) {
+            if (sel_ret < 0 && errno != EINTR) {
+                snprintf(errmsg, errmsg_len,
+                        "Unexpected error from select: %s", g_strerror(errno));
+                report_capture_error(errmsg, please_report_bug());
+                ld->go = false;
             }
-#ifdef _WIN32
-        } else {
-            /* Windows does not have select() for pipes. */
-            /* Proceed with _dispatch() which waits for cap_pipe_done_q
-             * notification from cap_thread_read() when ReadFile() on
-             * the pipe has read enough bytes. */
-            sel_ret = 1;
         }
+#else
+        /* Windows does not have select() for pipes. */
+        /* Proceed with _dispatch() which waits for cap_pipe_done_q
+            * notification from cap_thread_read() when ReadFile() on
+            * the pipe has read enough bytes. */
+        sel_ret = 1;
 #endif
         if (sel_ret > 0) {
             /*

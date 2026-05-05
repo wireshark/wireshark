@@ -122,6 +122,7 @@ Stratoshark can capture system calls locally on Linux and a variety of log sourc
 
 // === Removed Features and Support
 
+dumpcap's TCP@host:port interface has been removed
 
 // === Removed Dissectors
 

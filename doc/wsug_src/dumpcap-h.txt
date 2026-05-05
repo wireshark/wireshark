@@ -7,8 +7,6 @@ Usage: dumpcap [options] ...
 Capture interface:
   -i <interface>, --interface <interface>
                            name or idx of interface (def: first non-loopback)
-                           or for remote capturing, use this format:
-                               TCP@<host>:<port>
   --ifname <name>          name to use in the capture file for a pipe from which
                            we're capturing
   --ifdescr <description>

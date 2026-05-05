@@ -65,6 +65,8 @@ The following features are either new or have been significantly updated since v
 
 // === Removed Features and Support
 
+dumpcap's TCP@host:port interface has been removed
+
 // === Removed Dissectors
 
 
