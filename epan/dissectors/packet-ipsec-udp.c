@@ -22,7 +22,7 @@ static int ett_udpencap;
 
 static dissector_handle_t udpencap_handle;
 static dissector_handle_t esp_handle;
-static dissector_handle_t isakmp_handle;
+static dissector_handle_t ike_handle;
 
 /*
  * UDP Encapsulation of IPsec Packets
@@ -54,7 +54,7 @@ dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
       proto_tree_add_item(udpencap_tree, hf_non_esp_marker, tvb, 0, 4, ENC_NA);
       proto_item_set_len(ti, 4);
       next_tvb = tvb_new_subset_remaining(tvb, 4);
-      call_dissector(isakmp_handle, next_tvb, pinfo, tree);
+      call_dissector(ike_handle, next_tvb, pinfo, tree);
     } else {
       col_set_str(pinfo->cinfo, COL_INFO, "ESP");
       proto_item_set_len(ti, 0);
@@ -90,7 +90,7 @@ proto_reg_handoff_udpencap(void)
 {
 
   esp_handle = find_dissector_add_dependency("esp", proto_udpencap);
-  isakmp_handle = find_dissector_add_dependency("isakmp", proto_udpencap);
+  ike_handle = find_dissector_add_dependency("ike", proto_udpencap);
 
   dissector_add_uint_with_preference("udp.port", UDPENCAP_PORT, udpencap_handle);
 }

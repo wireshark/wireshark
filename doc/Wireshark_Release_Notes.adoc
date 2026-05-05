@@ -107,6 +107,12 @@ Qualcomm Diagnostic (QCDIAG)
 
 Too many protocol updates have been made to list them all here.
 
+Of particular note, "ike" is now preferred to "isakmp" for filtering the
+Internet Key Exchange (IKE) protocol and its fields (both IKEv1 and IKEv2),
+including fields primarily associated with RFC 2408, Internet Security
+Association and Key Management Protocol (ISAKMP) though "isakmp" remains as
+an alias for the protocol and all its fields.
+
 == New and Updated Capture File Support
 
 [commaize]

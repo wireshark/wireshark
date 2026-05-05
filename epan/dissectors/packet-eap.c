@@ -200,7 +200,7 @@ static dissector_handle_t diameter_avps_handle;
 static dissector_handle_t peap_handle;
 static dissector_handle_t teap_handle;
 
-static dissector_handle_t isakmp_handle;
+static dissector_handle_t ike_handle;
 
 const value_string eap_code_vals[] = {
   { EAP_REQUEST,  "Request" },
@@ -2557,7 +2557,7 @@ skip_tls_dissector:
              */
           } else {
             next_tvb = tvb_new_subset_length(tvb, offset, size);
-            unsigned tmp = call_dissector(isakmp_handle, next_tvb, pinfo, eap_tree);
+            unsigned tmp = call_dissector(ike_handle, next_tvb, pinfo, eap_tree);
             size -= tmp;
             offset += tmp;
 
@@ -3446,7 +3446,7 @@ proto_reg_handoff_eap(void)
   peap_handle = find_dissector_add_dependency("peap", proto_eap);
   teap_handle = find_dissector_add_dependency("teap", proto_eap);
 
-  isakmp_handle = find_dissector_add_dependency("isakmp", proto_eap);
+  ike_handle = find_dissector_add_dependency("ike", proto_eap);
 
   dissector_add_uint("ppp.protocol", PPP_EAP, eap_handle);
   dissector_add_uint("eapol.type", EAPOL_EAP, eap_handle);
