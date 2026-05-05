@@ -325,10 +325,18 @@ Source Package:
     # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
     - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
     - if [ -n "$SCHEDULE_TYPE" ] ; then exit 0 ; fi
+    - rclone config create wireshark s3
+      provider=AWS
+      region=us-east-2
+      env_auth=true
+      endpoint=$S3_ENDPOINT_WIRESHARK
+      acl=private
+      --non-interactive --obscure
+    # --no-output
     - stat --format="%n %s bytes" wireshark-*.tar.*
     - for digest in sha512 sha256 sha1 ; do openssl $digest wireshark-*.tar.* ; done
-    - if [ -n "$MC_DESTINATION_DIST" ] ; then mc --quiet cp wireshark-*.tar.* "$MC_DESTINATION_DIST/" ; fi
-    - if [ -n "$MC_DESTINATION_RELEASE" ] ; then mc --quiet cp {wire,strato}shark-release-notes-*.{txt,html} "$MC_DESTINATION_RELEASE/" ; fi
+    - if [ -n "$S3_DESTINATION_DIST" ] ; then rclone copy . "wireshark:$S3_DESTINATION_DIST" --include "wireshark-*.tar.*" ; fi
+    - if [ -n "$S3_DESTINATION_RELEASE" ] ; then rclone copy . "wireshark:$S3_DESTINATION_RELEASE" --include "{wire,strato}shark-release-notes-*.{txt,html}" ; fi
   artifacts:
     paths:
       - wireshark-*.tar.*
@@ -730,10 +738,10 @@ macOS Universal Package:
     - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$STRATOSHARK_SPARKLE_SIGNATURE" "$STRATOSHARK_DMG_SHA256" > stratoshark-release-info-${STRATOSHARK_VERSION}-macos-arm64.ini
     - cp stratoshark-release-info-${STRATOSHARK_VERSION}-macos-arm64.ini stratoshark-release-info-${STRATOSHARK_VERSION}-macos-intel64.ini
     - if [ -n "$S3_DESTINATION_RELEASE" ] ; then
-        aws s3 cp wireshark-release-info-*-macos-arm64.ini "$S3_DESTINATION_RELEASE/" ;
-        aws s3 cp wireshark-release-info-*-macos-intel64.ini "$S3_DESTINATION_RELEASE/" ;
-        aws s3 cp stratoshark-release-info-*-macos-arm64.ini "$S3_DESTINATION_RELEASE/" ;
-        aws s3 cp stratoshark-release-info-*-macos-intel64.ini "$S3_DESTINATION_RELEASE/" ;
+        aws s3 cp wireshark-release-info-*-macos-arm64.ini "s3://$S3_DESTINATION_RELEASE/" ;
+        aws s3 cp wireshark-release-info-*-macos-intel64.ini "s3://$S3_DESTINATION_RELEASE/" ;
+        aws s3 cp stratoshark-release-info-*-macos-arm64.ini "s3://$S3_DESTINATION_RELEASE/" ;
+        aws s3 cp stratoshark-release-info-*-macos-intel64.ini "s3://$S3_DESTINATION_RELEASE/" ;
       fi
     - cd ..
     - ninja test
