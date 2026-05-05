@@ -190,6 +190,12 @@ g_memdup2(const void *mem, size_t byte_size)
 #endif
 #endif
 
+#if !GLIB_CHECK_VERSION(2, 88, 0)
+#ifndef G_NSEC_PER_SEC
+#define G_NSEC_PER_SEC 1000000000
+#endif
+#endif
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
