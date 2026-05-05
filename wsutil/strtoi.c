@@ -16,6 +16,7 @@
 
 #include <glib.h>
 
+#include <jtckdint.h>
 #include "strtoi.h"
 #include <wsutil/ws_assert.h>
 
@@ -292,6 +293,108 @@ bool ws_hexstrtou(const char* str, const char** endptr, unsigned* cint)
 	return ws_basestrtou(str, endptr, cint, 16);
 }
 
+static int
+ws_parse_long_long(const uint8_t *buf, size_t len, const uint8_t **endptr, uint64_t *cint, int base)
+{
+	/* This code is dervied from the g_parse_long_long code from GLib
+	 * which itself is derived from the strtol(3) code from GNU libc
+	 * (and, thus, GNUlib), both released under the GNU Lesser General
+	 * Public License v 2.1, opting to apply the terms of the ordinarly
+	 * GNU General Public License, version 2, as allowed under section
+	 * 3 of that license.
+	 *
+	 * Copyright (C) 1995-1997  Peter Mattis, Spencer Kimball and Josh MacDonald
+	 * Copyright (C) 1991,92,94,95,96,97,98,99,2000,01,02
+	 *        Free Software Foundation, Inc.
+	 */
+
+	const uint8_t *save;
+	const uint8_t *hex_x = NULL;
+	uint64_t val, cutoff, cutlim;
+	unsigned char c;
+	bool overflow = false;
+
+	if (*buf == '0') {
+		if ((len > 1) && (base == 0 || base == 16) && g_ascii_toupper(buf[1]) == 'X') {
+			hex_x = &buf[1];
+			buf += 2;
+			len -= 2;
+			base = 16;
+		} else if (base == 0) {
+			base = 8;
+		}
+	} else if (base == 0) {
+		base = 10;
+	}
+
+	save = buf;
+	cutoff = UINT64_MAX / base;
+	cutlim = UINT64_MAX % base;
+
+	val = 0;
+	for (; len; --len) {
+		c = *buf;
+		if (c >= '0' && c <= '9') {
+			c -= '0';
+		} else if (g_ascii_isalpha(c)) {
+			c = g_ascii_toupper(c) - 'A' + 10;
+		} else {
+			break;
+		}
+		if (c >= base) {
+			break;
+		}
+		buf++;
+		/* Check for overflow */
+		if (val > cutoff || (val == cutoff && c > cutlim)) {
+			overflow = true;
+			if (endptr == NULL) {
+				/* If we don't care about the end, just stop */
+				*cint = UINT64_MAX;
+				return ERANGE;
+			}
+		} else {
+			val *= base;
+			val += c;
+		}
+	}
+
+	if (buf == save) {
+		/* no conversion. We call that failure, except for the
+		 * corner case of base 0 or 16 and starting with "0x",
+		 * which converts to 0 and first invalid is the "x". */
+		*cint = 0;
+		if (endptr != NULL) {
+			if (hex_x) {
+				*endptr = hex_x;
+				return 0;
+			}
+			*endptr = buf;
+		}
+		return EINVAL;
+	}
+
+        if (len && endptr == NULL) {
+		*cint = 0;
+		return EINVAL;
+        }
+
+	if (endptr != NULL) {
+		/* This can point one past the end if fully converted; that is legal
+		 * in C, but cannot be dereferenced. The caller should have enough
+		 * information to know not to dereference it in that case. */
+		*endptr = buf;
+	}
+
+	if (G_UNLIKELY(overflow)) {
+		*cint = UINT64_MAX;
+		return ERANGE;
+	}
+
+	*cint = val;
+	return 0;
+}
+
 bool ws_basebuftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uint64_t* cint, int base)
 {
 	/* This code is dervied from the g_parse_long_long code from GLib
@@ -305,12 +408,8 @@ bool ws_basebuftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uin
 	 * Copyright (C) 1991,92,94,95,96,97,98,99,2000,01,02
 	 *        Free Software Foundation, Inc.
 	 */
-	const uint8_t *save;
 	const uint8_t *end = buf;
-	const uint8_t *hex_x = NULL;
-	uint64_t val, cutoff, cutlim;
-	unsigned char c;
-	bool overflow = false;
+        int err;
 
 	ws_assert(cint);
 
@@ -353,89 +452,9 @@ bool ws_basebuftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uin
 		}
 	}
 
-	if (*end == '0') {
-		if ((len > 1) && (base == 0 || base == 16) && g_ascii_toupper(end[1]) == 'X') {
-			hex_x = &end[1];
-			end += 2;
-			len -= 2;
-			base = 16;
-		} else if (base == 0) {
-			base = 8;
-		}
-	} else if (base == 0) {
-		base = 10;
-	}
-
-	save = end;
-	cutoff = UINT64_MAX / base;
-	cutlim = UINT64_MAX % base;
-
-	val = 0;
-	for (; len; --len) {
-		c = *end;
-		if (c >= '0' && c <= '9') {
-			c -= '0';
-		} else if (g_ascii_isalpha(c)) {
-			c = g_ascii_toupper(c) - 'A' + 10;
-		} else {
-			break;
-		}
-		if (c >= base) {
-			break;
-		}
-		end++;
-		/* Check for overflow */
-		if (val > cutoff || (val == cutoff && c > cutlim)) {
-			overflow = true;
-			if (endptr == NULL) {
-				/* If we don't care about the end, just stop */
-				*cint = UINT64_MAX;
-				errno = ERANGE;
-				return false;
-			}
-		} else {
-			val *= base;
-			val += c;
-		}
-	}
-
-	if (end == save) {
-		/* no conversion. We call that failure, except for the
-		 * corner case of base 0 or 16 and starting with "0x",
-		 * which converts to 0 and first invalid is the "x". */
-		*cint = 0;
-		if (endptr != NULL) {
-			if (hex_x) {
-				*endptr = hex_x;
-				return true;
-			}
-			*endptr = buf;
-		}
-		errno = EINVAL;
-		return false;
-	}
-
-        if (len && endptr == NULL) {
-		*cint = 0;
-		errno = EINVAL;
-		return false;
-        }
-
-	if (endptr != NULL) {
-		/* This can point one past the end if fully converted; that is legal
-		 * in C, but cannot be dereferenced. The caller should have enough
-		 * information to know not to dereference it in that case. */
-		*endptr = end;
-	}
-
-	if (G_UNLIKELY(overflow)) {
-		*cint = UINT64_MAX;
-		errno = ERANGE;
-		return false;
-	}
-
-	*cint = val;
-	return true;
+	err = ws_parse_long_long(end, len, endptr, cint, base);
+        errno = err;
+	return !err;
 }
 
 bool ws_buftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uint64_t* cint)
@@ -492,6 +511,153 @@ bool ws_hexbuftou##bits(const uint8_t* buf, size_t len, const uint8_t** endptr, 
 DEFINE_WS_BUFTOU_BITS(32)
 DEFINE_WS_BUFTOU_BITS(16)
 DEFINE_WS_BUFTOU_BITS(8)
+
+bool ws_basebuftoi64(const uint8_t* buf, size_t len, const uint8_t** endptr, int64_t* cint, int base)
+{
+	const uint8_t *end = buf;
+	uint64_t val;
+        bool negative = false;
+        int err;
+
+	ws_assert(cint);
+
+	if (!buf) {
+#ifdef WS_ASSERT_ENABLED
+		ws_warn_badarg("!buf");
+#endif
+		errno = EINVAL;
+		return false;
+	}
+
+	if (buf[0] == '\0') {
+		*cint = 0;
+		if (endptr != NULL)
+			*endptr = buf;
+		errno = EINVAL;
+		return false;
+	}
+
+	if (len == 0 || base == 1 || base > 36) {
+		*cint = 0;
+		if (endptr != NULL)
+			*endptr = buf;
+		errno = EINVAL;
+		return false;
+	}
+
+	/* Skip white space (we could not) */
+	while (g_ascii_isspace(*end)) {
+		++end;
+		if (--len == 0) {
+			*cint = 0;
+			if (endptr != NULL)
+				*endptr = buf;
+			errno = EINVAL;
+			return false;
+		}
+	}
+
+	if (*end == '+') {
+                ++end;
+		--len;
+        } else if (*end == '-') {
+                negative = true;
+                ++end;
+		--len;
+	}
+
+	err = ws_parse_long_long(end, len, endptr, &val, base);
+        if (err == EINVAL) {
+            *cint = 0;
+            errno = EINVAL;
+            return false;
+        }
+
+        if (negative) {
+            if (ckd_mul(cint, val, -1)) {
+                *cint = INT64_MIN;
+                errno = ERANGE;
+                return false;
+            }
+        } else {
+            if (ckd_mul(cint, val, 1)) {
+                *cint = INT64_MAX;
+                errno = ERANGE;
+                return false;
+            }
+        }
+
+	return true;
+}
+
+bool ws_buftoi64(const uint8_t* buf, size_t len, const uint8_t** endptr, int64_t* cint)
+{
+	return ws_basebuftoi64(buf, len, endptr, cint, 10);
+}
+
+bool ws_hexbuftoi64(const uint8_t* buf, size_t len, const uint8_t** endptr, int64_t* cint)
+{
+	return ws_basebuftoi64(buf, len, endptr, cint, 16);
+}
+
+#define DEFINE_WS_BUFTOI_BITS(bits) \
+bool ws_basebuftoi##bits(const uint8_t* buf, size_t len, const uint8_t** endptr, int##bits##_t* cint, int base) \
+{ \
+	int64_t val = 0; \
+	if (!ws_basebuftoi64(buf, len, endptr, &val, base)) { \
+		/* \
+		 * For ERANGE, return either INT##bits##_MIN or \
+		 * INT##bits##_MAX so our caller knows whether \
+		 * to report the value as "too small" or "too \
+		 * large". \
+		 * \
+		 * For other errors, return 0, for parallelism \
+		 * with ws_strtoi64(). \
+		 */ \
+		if (errno == ERANGE) { \
+			if (val < 0) \
+				*cint = INT##bits##_MIN; \
+			else \
+				*cint = INT##bits##_MAX; \
+		} else \
+			*cint = 0; \
+		return false; \
+	} \
+	if (val < INT##bits##_MIN) { \
+		/* \
+		 * Return INT##bits##_MIN so our caller knows whether to \
+		 * report the value as "too small" or "too large". \
+		 */ \
+		*cint = INT##bits##_MIN; \
+		errno = ERANGE; \
+		return false; \
+	} \
+	if (val > INT##bits##_MAX) { \
+		/* \
+		 * Return INT##bits##_MAX so our caller knows whether to \
+		 * report the value as "too small" or "too large". \
+		 */ \
+		*cint = INT##bits##_MAX; \
+		errno = ERANGE; \
+		return false; \
+	} \
+	*cint = (int##bits##_t)val; \
+	return true; \
+} \
+\
+bool ws_buftoi##bits(const uint8_t* buf, size_t len, const uint8_t** endptr, int##bits##_t* cint) \
+{ \
+	return ws_basebuftoi##bits(buf, len, endptr, cint, 10); \
+} \
+\
+bool ws_hexbuftoi##bits(const uint8_t* buf, size_t len, const uint8_t** endptr, int##bits##_t* cint) \
+{ \
+	return ws_basebuftoi##bits(buf, len, endptr, cint, 16); \
+}
+
+DEFINE_WS_BUFTOI_BITS(32)
+DEFINE_WS_BUFTOI_BITS(16)
+DEFINE_WS_BUFTOI_BITS(8)
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

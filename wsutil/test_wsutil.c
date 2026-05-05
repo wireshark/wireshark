@@ -1031,6 +1031,153 @@ static void test_ws_hexbuftou64(void)
     test_uint64(hexstr, 2, &hexstr[1], 0, true, 0, 0);
 }
 
+static void
+test_int64(const uint8_t *str, size_t len, const uint8_t *end, int base, bool result, int64_t value, int err)
+{
+    int64_t cint;
+    const uint8_t *endp;
+    int error;
+
+    errno = 0;
+    bool res = ws_basebuftoi64(str, len, end ? &endp : NULL, &cint, base);
+    error = errno;
+
+    g_assert_true(res == result);
+    g_assert_cmpstr(g_strerror(error), ==, g_strerror(err));
+    if (base == 16) {
+        g_assert_cmphex(cint, ==, value);
+    } else {
+        g_assert_cmpint(cint, ==, value);
+    }
+    if (end) {
+        g_assert_true(endp == end);
+    }
+}
+
+static void test_ws_basebuftoi64(void)
+{
+    WS_NONSTRING const uint8_t teststr[7] = "00123\0004";
+
+    /* Leading zeroes are fine when base 10 or 16 is specified. */
+    test_int64(teststr, 5, NULL, 10, true, 123, 0);
+    test_int64(teststr, 5, NULL, 16, true, 0x123, 0);
+
+    /* But means octal when base 0 is specified. */
+    test_int64(teststr, 5, NULL, 8, true, 83, 0);
+    test_int64(teststr, 5, NULL, 0, true, 83, 0);
+
+    /* Truncating before the NULL truncates. */
+    test_int64(teststr, 4, NULL, 10, true, 12, 0);
+
+    /* Including the NULL or later results in false. */
+    test_int64(teststr, 6, NULL, 10, false, 0, EINVAL);
+    test_int64(teststr, 7, NULL, 10, false, 0, EINVAL);
+
+    /* UINT64_MAX is too large for an int64_t. */
+    WS_NONSTRING uint8_t uintmaxstr[20] = "18446744073709551615";
+    test_int64(uintmaxstr, 20, NULL, 10, false, INT64_MAX, ERANGE);
+    uintmaxstr[19]++;
+    test_int64(uintmaxstr, 20, NULL, 10, false, INT64_MAX, ERANGE);
+
+    /* INT64_MIN is the smallest int64_t. */
+    WS_NONSTRING uint8_t intminstr[20] = "-9223372036854775808";
+    test_int64(intminstr, 20, NULL, 10, true, INT64_MIN, 0);
+    /* Two's complement isn't symmetric. */
+    test_int64(&intminstr[1], 19, NULL, 10, false, INT64_MAX, ERANGE);
+    intminstr[19]--;
+    test_int64(&intminstr[1], 19, NULL, 10, true, INT64_MAX, 0);
+
+    /* No trailing whitespace when end is NULL. */
+    uintmaxstr[19] = ' ';
+    test_int64(uintmaxstr, 20, NULL, 10, false, 0, EINVAL);
+
+    /* No signs allowed. */
+    test_int64((const uint8_t*)"-1", 2, NULL, 10, true, -1, 0);
+    test_int64((const uint8_t*)"+1", 2, NULL, 10, true, 1, 0);
+
+    /* This is allowed to break early when end is NULL */
+    WS_NONSTRING const uint8_t longstr[30] = "123456789012345678901234567890";
+    test_int64(longstr, 30, NULL, 10, false, INT64_MAX, ERANGE);
+}
+
+static void test_ws_basebuftoi64_end(void)
+{
+    WS_NONSTRING const uint8_t teststr[7] = "00123\0004";
+
+    /* Leading zeroes are fine when base 10 or 16 is specified. */
+    test_int64(teststr, 5, &teststr[5], 10, true, 123, 0);
+    test_int64(teststr, 5, &teststr[5], 16, true, 0x123, 0);
+
+    /* But means octal when base 0 is specified. */
+    test_int64(teststr, 5, &teststr[5], 8, true, 83, 0);
+    test_int64(teststr, 5, &teststr[5], 0, true, 83, 0);
+
+    /* Truncating before the NULL truncates. */
+    test_int64(teststr, 4, &teststr[4], 10, true, 12, 0);
+
+    /* Including the NULL or later results in true, pointing to it. */
+    test_int64(teststr, 6, &teststr[5], 10, true, 123, 0);
+    test_int64(teststr, 7, &teststr[5], 10, true, 123, 0);
+
+    /* UINT64_MAX is too large for an int64_t. */
+    WS_NONSTRING uint8_t uintmaxstr[20] = "18446744073709551615";
+    /* Yes, we can point to this address (C standard 6.5.6), so long as
+     * we don't dereference. &uintmaxstr[20] should be legal (6.5.3.2),
+     * though Coverity has sometimes complained. */
+    test_int64(uintmaxstr, 20, uintmaxstr + 20, 10, false, INT64_MAX, ERANGE);
+    uintmaxstr[19]++;
+    test_int64(uintmaxstr, 20, uintmaxstr + 20, 10, false, INT64_MAX, ERANGE);
+
+    /* INT64_MIN is the smallest int64_t. */
+    WS_NONSTRING uint8_t intminstr[20] = "-9223372036854775808";
+    test_int64(intminstr, 20, intminstr + 20, 10, true, INT64_MIN, 0);
+    /* Two's complement isn't symmetric. */
+    test_int64(&intminstr[1], 19, intminstr + 20, 10, false, INT64_MAX, ERANGE);
+    intminstr[19]--;
+    test_int64(&intminstr[1], 19, intminstr + 20, 10, true, INT64_MAX, 0);
+
+    /* Trailing whitespace is OK when end is specified. */
+    uintmaxstr[19] = ' ';
+    test_int64(uintmaxstr, 20, &uintmaxstr[19], 10, true, UINT64_MAX/10, 0);
+
+    /* Signs are ok. */
+    test_int64((const uint8_t*)"-1", 2, NULL, 10, true, -1, 0);
+    test_int64((const uint8_t*)"+1", 2, NULL, 10, true, 1, 0);
+
+    /* Go all the way to the end for very long strings when end != NULL */
+    WS_NONSTRING const uint8_t longstr[30] = "123456789012345678901234567890";
+    test_int64(longstr, 30, longstr + 30, 10, false, INT64_MAX, ERANGE);
+}
+
+static void test_ws_hexbuftoi64(void)
+{
+    WS_NONSTRING uint8_t hexstr[13] = "0x1234abcdefg";
+
+    /* Not decimal */
+    test_int64(hexstr, 8, NULL, 10, false, 0, EINVAL);
+    test_int64(&hexstr[2], 8, NULL, 10, false, 0, EINVAL);
+
+    /* Specifying base 16 works with or without the 0x */
+    test_int64(hexstr, 12, NULL, 16, true, 0x1234abcdef, 0);
+    test_int64(&hexstr[2], 10, NULL, 16, true, 0x1234abcdef, 0);
+
+    /* But base 0 only works with the prefix. */
+    test_int64(hexstr, 12, NULL, 0, true, 0x1234abcdef, 0);
+    test_int64(&hexstr[2], 12, NULL, 0, false, 0, EINVAL);
+
+    /* Upper case is also fine. */
+    hexstr[1] = 'X';
+    hexstr[6] = 'A';
+    test_int64(hexstr, 12, NULL, 16, true, 0x1234abcdef, 0);
+
+    /* The tricky edge case "0X" doesn't work with a NULL end. */
+    test_int64(hexstr, 2, NULL, 16, false, 0, EINVAL);
+    test_int64(hexstr, 2, NULL, 0, false, 0, EINVAL);
+
+    /* But it does with a non-NULL end, returning 0 and pointing end to x. */
+    test_int64(hexstr, 2, &hexstr[1], 16, true, 0, 0);
+    test_int64(hexstr, 2, &hexstr[1], 0, true, 0, 0);
+}
 int main(int argc, char **argv)
 {
     int ret;
@@ -1088,6 +1235,9 @@ int main(int argc, char **argv)
     g_test_add_func("/strtoi/basebuftou64", test_ws_basebuftou64);
     g_test_add_func("/strtoi/basebuftou64_end", test_ws_basebuftou64_end);
     g_test_add_func("/strtoi/hexbuftou64", test_ws_hexbuftou64);
+    g_test_add_func("/strtoi/basebuftoi64", test_ws_basebuftoi64);
+    g_test_add_func("/strtoi/basebuftoi64_end", test_ws_basebuftoi64_end);
+    g_test_add_func("/strtoi/hexbuftoi64", test_ws_hexbuftoi64);
 
     ret = g_test_run();
 

@@ -356,6 +356,94 @@ WS_DLL_PUBLIC bool ws_buftou8(const uint8_t* buf, size_t len, const uint8_t** en
 
 WS_DLL_PUBLIC bool ws_hexbuftou8(const uint8_t* buf, size_t len, const uint8_t** endptr, uint8_t* cint);
 
+/*
+ * @brief Convert a counted string (not necessarily null terminated, of the
+ * given length) in the specified base to a signed 64-bit integer, with
+ * error checks.
+ *
+ * @param buf The string buffer to convert
+ * @param len The length of the string
+ * @param endptr A pointer that will store a pointer to the first invalid
+ * character in str, allowing a number to be parsed even if there is trailing
+ * whitespace. If NULL, then the string is assumed to contain only valid
+ * characters (or it will error out).
+ * @param cint The converted integer
+ * @param base The base for the integer; 0 means "if it begins with 0x,
+ * it's hex, otherwise if it begins with 0, it's octal, otherwise it's
+ * decimal".
+ * @return true if the conversion succeeds, false otherwise.
+ * On error, errno is set to EINVAL for unrecognized input and ERANGE
+ * if the resulting number does not fit in the type.
+ *
+ * @note This is useful when a string representation of an integer is not
+ * null-terminated and also cannot be modified to insert a NULL (e.g.,
+ * a const uint8_t* from packet data), avoiding having to copy the string.
+ * This allows a sign, either '+' or '-', to prefix the string.
+ */
+WS_DLL_PUBLIC bool ws_basebuftoi64(const uint8_t* buf, size_t len, const uint8_t** endptr, int64_t* cint, int base);
+
+/*
+ * @brief Convert a counted decimal string (not necessarily null terminated,
+ * of the given length) to a signed 64-bit integer, with error checks.
+ *
+ * @param buf The string buffer to convert
+ * @param len The length of the string
+ * @param endptr A pointer that will store a pointer to the first invalid
+ * character in str, allowing a number to be parsed even if there is trailing
+ * whitespace. If NULL, then the string is assumed to contain only valid
+ * characters (or it will error out).
+ * @param cint The converted integer
+ * @return true if the conversion succeeds, false otherwise.
+ * On error, errno is set to EINVAL for unrecognized input and ERANGE
+ * if the resulting number does not fit in the type.
+ *
+ * @note This is useful when a string representation of an integer is not
+ * null-terminated and also cannot be modified to insert a NULL (e.g.,
+ * a const uint8_t* from packet data), avoiding having to copy the string.
+ * This allows a sign, either '+' or '-', to prefix the string.
+ */
+WS_DLL_PUBLIC bool ws_buftoi64(const uint8_t* buf, size_t len, const uint8_t** endptr, int64_t* cint);
+
+/*
+ * @brief Convert a counted hexadecimal string (not necessarily null terminated,
+ * of the given length) to a signed 64-bit integer, with error checks.
+ *
+ * @param buf The string buffer to convert
+ * @param len The length of the string
+ * @param endptr A pointer that will store a pointer to the first invalid
+ * character in str, allowing a number to be parsed even if there is trailing
+ * whitespace. If NULL, then the string is assumed to contain only valid
+ * characters (or it will error out).
+ * @param cint The converted integer
+ * @return true if the conversion succeeds, false otherwise.
+ * On error, errno is set to EINVAL for unrecognized input and ERANGE
+ * if the resulting number does not fit in the type.
+ *
+ * @note This is useful when a string representation of an integer is not
+ * null-terminated and also cannot be modified to insert a NULL (e.g.,
+ * a const uint8_t* from packet data), avoiding having to copy the string.
+ * This allows a sign, either '+' or '-', to prefix the string.
+ */
+WS_DLL_PUBLIC bool ws_hexbuftoi64(const uint8_t* buf, size_t len, const uint8_t** endptr, int64_t* cint);
+
+WS_DLL_PUBLIC bool ws_basebuftoi32(const uint8_t* buf, size_t len, const uint8_t** endptr, int32_t* cint, int base);
+
+WS_DLL_PUBLIC bool ws_buftoi32(const uint8_t* buf, size_t len, const uint8_t** endptr, int32_t* cint);
+
+WS_DLL_PUBLIC bool ws_hexbuftoi32(const uint8_t* buf, size_t len, const uint8_t** endptr, int32_t* cint);
+
+WS_DLL_PUBLIC bool ws_basebuftoi16(const uint8_t* buf, size_t len, const uint8_t** endptr, int16_t* cint, int base);
+
+WS_DLL_PUBLIC bool ws_buftoi16(const uint8_t* buf, size_t len, const uint8_t** endptr, int16_t* cint);
+
+WS_DLL_PUBLIC bool ws_hexbuftoi16(const uint8_t* buf, size_t len, const uint8_t** endptr, int16_t* cint);
+
+WS_DLL_PUBLIC bool ws_basebuftoi8(const uint8_t* buf, size_t len, const uint8_t** endptr, int8_t* cint, int base);
+
+WS_DLL_PUBLIC bool ws_buftoi8(const uint8_t* buf, size_t len, const uint8_t** endptr, int8_t* cint);
+
+WS_DLL_PUBLIC bool ws_hexbuftoi8(const uint8_t* buf, size_t len, const uint8_t** endptr, int8_t* cint);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
