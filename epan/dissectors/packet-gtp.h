@@ -212,9 +212,9 @@ bool is_cause_accepted(uint8_t cause, uint32_t version);
 void gtp_add_teid_imsi(uint32_t teid, const char* imsi);
 
 WS_DLL_PUBLIC
-int decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * qos_str, uint8_t type);
+unsigned decode_qos_umts(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, const char * qos_str, uint8_t type);
 
 WS_DLL_PUBLIC
-void dissect_gtp_uli(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+void dissect_gtp_uli(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 
 #endif /* __PACKET_GTP_H*/
