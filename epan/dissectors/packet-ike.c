@@ -1,4 +1,4 @@
-/* packet-isakmp.c
+/* packet-ike.c
  * Routines for the Internet Security Association and Key Management Protocol
  * (ISAKMP) (RFC 2408) and the Internet IP Security Domain of Interpretation
  * for ISAKMP (RFC 2407)
@@ -25,8 +25,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References:
+ * IKEv2 https://datatracker.ietf.org/doc/html/rfc7296
+ * IKEv2 https://tools.ietf.org/html/rfc5996
  * IKEv2 https://tools.ietf.org/html/rfc4306
- * IKEv2bis https://tools.ietf.org/html/rfc5996
  *
  * http://www.iana.org/assignments/isakmp-registry (last updated 2011-11-07)
  * http://www.iana.org/assignments/ipsec-registry (last updated 2011-03-14)
@@ -48,7 +49,7 @@
 #include "packet-x509if.h"
 #include "packet-x509af.h"
 #include "packet-gsm_a_common.h"
-#include "packet-isakmp.h"
+#include "packet-ike.h"
 #include "packet-ber.h"
 
 #include <wsutil/wsgcrypt.h>

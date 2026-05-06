@@ -18,7 +18,7 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
-#include "packet-isakmp.h"
+#include "packet-ike.h"
 
 void proto_register_kink(void);
 void proto_reg_handoff_kink(void);
