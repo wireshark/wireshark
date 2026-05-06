@@ -156,8 +156,7 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
     /* Get the text port */
     offset = slash + 1;
-    str = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, eol-offset, ENC_ASCII);
-    if (ws_strtou16(str, NULL, &txt_port)) {
+    if (tvb_get_string_uint16(tvb, offset, eol-offset, ENC_STR_DEC, &txt_port, NULL)) {
         proto_tree_add_uint(subtree, hf_rtpdump_txt_port, tvb, offset, eol-offset, txt_port);
     }
     else {

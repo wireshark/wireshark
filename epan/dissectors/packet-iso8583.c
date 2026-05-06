@@ -26,8 +26,6 @@
 #include <epan/wmem_scopes.h>
 #include "packet-tcp.h"
 
-#include <wsutil/strtoi.h>
-
 /* bitmap length */
 #define BM_LEN 8
 
@@ -593,12 +591,10 @@ static char *get_bit(const struct iso_type *data_type, int hf, packet_info *pinf
     {
       case ASCII_CHARSET:
       {
-        const char* sizestr;
         checksize(len);
 
-        sizestr = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len , ENC_ASCII);
         offset += len;
-        if (!ws_strtou32(sizestr, NULL, &len))
+        if (!tvb_get_string_uint(tvb, offset, len, ENC_STR_DEC, &len, NULL))
           return NULL;
         break;
       }

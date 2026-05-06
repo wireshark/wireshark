@@ -23,8 +23,6 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 
-#include <wsutil/strtoi.h>
-
 void proto_register_epmd(void);
 void proto_reg_handoff_epmd(void);
 
@@ -216,8 +214,7 @@ dissect_epmd_response_names(packet_info *pinfo _U_, tvbuff_t *tvb, unsigned offs
             continue;
         }
         uint16_t portnum;
-        char *port_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, pos_port, port_len, ENC_ASCII);
-        if (!ws_strtou16(port_str, NULL, &portnum)){
+        if (!tvb_get_string_uint16(tvb, pos_port, port_len, ENC_STR_DEC, &portnum, NULL)){
             expert_add_info_format(pinfo, node_tree, &ei_epmd_malformed_names_line, "Invalid or missing port number");
             continue;
         }

@@ -19,7 +19,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <wsutil/strtoi.h>
 #include "packet-tcp.h"
 
 void proto_register_git(void);
@@ -70,12 +69,10 @@ static const value_string sideband_vals[] = {
 /* desegmentation of Git over TCP */
 static bool git_desegment = true;
 
-static bool get_packet_length(tvbuff_t *tvb, packet_info* pinfo, unsigned offset,
+static bool get_packet_length(tvbuff_t *tvb, packet_info* pinfo _U_, unsigned offset,
                                   uint16_t *length)
 {
-  char *lenstr = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
-
-  return ws_hexstrtou16(lenstr, NULL, length);
+  return tvb_get_string_uint16(tvb, offset, 4, ENC_STR_HEX, length, NULL);
 }
 
 static unsigned

@@ -43,8 +43,6 @@
 #include <epan/expert.h>
 #include <epan/tfs.h>
 
-#include <wsutil/strtoi.h>
-
 void proto_register_dpnss(void);
 
 /* Initialize the protocol and registered fields */
@@ -1125,8 +1123,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                 has_par = false;
             }
             sup_inf_str_len = sup_inf_str_end_offset - offset;
-            ws_strtou32(tvb_format_text(pinfo->pool, tvb, offset, sup_inf_str_len), NULL, &sup_str_num);
-            if ((sup_str_num != 0) && (sup_str_num < array_length(dpnns_sup_serv_set))) {
+            if (tvb_get_string_uint(tvb, offset, sup_inf_str_len, ENC_STR_DEC, &sup_str_num, NULL) && (sup_str_num < array_length(dpnns_sup_serv_set))) {
                 proto_tree_add_string(sup_str_tree, hf_dpnss_sup_str, tvb, offset, sup_inf_str_len,
                                     dpnns_sup_serv_set[sup_str_num].compact_name);
                 offset = sup_inf_str_end_offset+1;

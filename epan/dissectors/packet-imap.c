@@ -16,7 +16,6 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <wsutil/strtoi.h>
 #include "packet-tls.h"
 #include "packet-tls-utils.h"
 #include <epan/credentials.h>
@@ -220,8 +219,7 @@ dissect_imap_fetch(tvbuff_t *tvb, packet_info *pinfo,
         {
           //Have a size field, convert it to an integer to see how long the contents are
           uint32_t size = 0;
-          const char* size_str = (const char *)tvb_get_string_enc(pinfo->pool, tvb, size_start + 1, size_end - size_start - 1, ENC_ASCII);
-          if (ws_strtou32(size_str, NULL, &size))
+          if (tvb_get_string_uint(tvb, size_start + 1, size_end - size_start - 1, ENC_STR_DEC, &size, NULL))
           {
             unsigned remaining = tvb_reported_length_remaining(tvb, size_end + size);
             if (remaining > 0)
