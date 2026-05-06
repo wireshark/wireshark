@@ -17,10 +17,12 @@
 
 #include "config.h"
 
+#include <epan/conversation.h>
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
 #include "packet-windows-common.h"
+#include "packet-tcp.h"
 
 #define MAX_SMALL_BUFFER 4
 
@@ -56,6 +58,9 @@ static int hf_etw_provider_id;
 static int hf_etw_buffer_context_processor_number;
 static int hf_etw_buffer_context_alignment;
 static int hf_etw_buffer_context_logger_id;
+static int hf_etw_src;
+static int hf_etw_dst;
+static int hf_etw_sessid;
 static int hf_etw_properties_count;
 static int hf_etw_provider_name;
 static int hf_etw_message;
@@ -123,8 +128,17 @@ static int ett_etw_tlvs;
 static int ett_etw_tlv;
 
 static dissector_handle_t mbim_dissector;
-
 static e_guid_t mbim_net_providerid = { 0xA42FE227, 0xA7BF, 0x4483, {0xA5, 0x02, 0x6B, 0xCD, 0xA4, 0x28, 0xCD, 0x96} };
+
+static dissector_handle_t nbss_dissector;
+static e_guid_t smbclient_providerid = { 0x988C59C5, 0x0A1C, 0x45B6, {0xA5, 0x55, 0x0C, 0x62, 0x27, 0x6E, 0x32, 0x7D} };
+static e_guid_t smbserver_providerid = { 0xD48CE617, 0x33A2, 0x4BC3, {0xA5, 0xC7, 0x11, 0xAA, 0x4F, 0x29, 0x61, 0x9E} };
+
+static dissector_handle_t http_dissector;
+static e_guid_t wininet_providerid = { 0xA70FF94F, 0x570B, 0x4979, { 0xBA, 0x5C, 0xE5, 0x9C, 0x9F, 0xEA, 0xB6, 0x1B} };
+
+static dissector_handle_t ldap_dissector;
+static e_guid_t ldapclient_providerid = { 0x099614A5, 0x5DD7, 0x4788, { 0x8B, 0xC9, 0xE2, 0x9F, 0x43, 0xDB, 0x28, 0xFC } };
 
 static const value_string etw_edata_types[] = {
     { 0x0001, "RELATED_ACTIVITYID" },
@@ -152,6 +166,9 @@ static const value_string etw_tlv_types[] = {
     { 0x0000, "USER_DATA" },
     { 0x0001, "MESSAGE" },
     { 0x0002, "PROVIDER_NAME" },
+    { 0x0003, "SRC_ADDR" },
+    { 0x0004, "DST_ADDR" },
+    { 0x0005, "SESSION_ID" },
     { 0, NULL }
 };
 
@@ -428,7 +445,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
 
     proto_tree* etw_header, * etw_descriptor, * etw_buffer_context, * edata_tree, * etw_data, * etw_tlvs;
     proto_item* ti;
-    tvbuff_t* mbim_tvb;
+    tvbuff_t* subproto_tvb;
     char* provider_name;
     uint32_t message_offset = 0, message_length = 0, provider_name_offset = 0, provider_name_length = 0, user_data_offset = 0, user_data_length = 0;
     uint32_t properties_offset, properties_count;
@@ -437,10 +454,11 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
     wmem_array_t* propArray = NULL;
     bool is_tl = false;
     e_guid_t provider_id;
+    uint16_t event_id;
     nstime_t timestamp;
     uint64_t ts;
     int offset = 0;
-    static int * const etw_header_flags[] = {
+    static int* const etw_header_flags[] = {
         &hf_etw_header_flag_extended_info,
         &hf_etw_header_flag_private_session,
         &hf_etw_header_flag_string_only,
@@ -454,13 +472,16 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
         NULL
     };
 
-    static int * const etw_event_property_opt[] = {
+    static int* const etw_event_property_opt[] = {
         &hf_etw_event_property_xml,
         &hf_etw_event_property_forwarded_xml,
         &hf_etw_event_property_legacy_eventlog,
         &hf_etw_event_property_legacy_reloggable,
         NULL
     };
+
+    col_set_str(pinfo->cinfo, COL_DEF_SRC, "windows");
+    col_set_str(pinfo->cinfo, COL_DEF_DST, "windows");
 
     // Header
 
@@ -470,10 +491,10 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
     proto_tree_add_item(etw_header, hf_etw_header_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_bitmask_ret_uint64(etw_header, tvb, offset, hf_etw_flags,
-			ett_etw_header_flags, etw_header_flags, ENC_LITTLE_ENDIAN, &flags);
+        ett_etw_header_flags, etw_header_flags, ENC_LITTLE_ENDIAN, &flags);
     offset += 2;
     proto_tree_add_bitmask(etw_header, tvb, offset, hf_etw_event_property,
-            ett_etw_event_property_types, etw_event_property_opt, ENC_LITTLE_ENDIAN);
+        ett_etw_event_property_types, etw_event_property_opt, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(etw_header, hf_etw_thread_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -489,7 +510,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
     offset += 16;
 
     etw_descriptor = proto_tree_add_subtree(etw_header, tvb, 40, 16, ett_etw_descriptor, NULL, "Descriptor");
-    proto_tree_add_item(etw_descriptor, hf_etw_descriptor_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(etw_descriptor, hf_etw_descriptor_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &event_id);
     offset += 2;
     proto_tree_add_item(etw_descriptor, hf_etw_descriptor_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -592,6 +613,32 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
                 provider_name_offset = tlv_offset;
                 provider_name_length = tlv_length;
             }
+            else if (tlv_type == 3)
+            {
+                // TLV_SRC_ADDR
+                char* src_addr;
+                proto_item_set_text(etw_tlv, "Extra Information Item (SRC_ADDR)");
+                proto_tree_add_item_ret_string(etw_tlv, hf_etw_src, tvb, tlv_offset, tlv_length, ENC_NA | ENC_ASCII, pinfo->pool, (const uint8_t**)&src_addr);
+                col_set_str(pinfo->cinfo, COL_DEF_SRC, src_addr);
+            }
+            else if (tlv_type == 4)
+            {
+                // TLV_DST_ADDR
+                char* dst_addr;
+                proto_item_set_text(etw_tlv, "Extra Information Item (DST_ADDR)");
+                proto_tree_add_item_ret_string(etw_tlv, hf_etw_dst, tvb, tlv_offset, tlv_length, ENC_NA | ENC_ASCII, pinfo->pool, (const uint8_t**)&dst_addr);
+                col_set_str(pinfo->cinfo, COL_DEF_DST, dst_addr);
+            }
+            else if (tlv_type == 5)
+            {
+                // TLV_SESSION_ID
+                uint64_t session_id;
+                proto_item_set_text(etw_tlv, "Extra Information Item (SESSION_ID)");
+                proto_tree_add_item_ret_uint64(etw_tlv, hf_etw_sessid, tvb, tlv_offset, tlv_length, ENC_LITTLE_ENDIAN, &session_id);
+
+                pinfo->use_conv_addr_port_endpoints = false;
+                conversation_set_elements_by_id(pinfo, CONVERSATION_TCP, session_id & 0xFFFFFFFF);
+            }
         }
     }
 
@@ -603,31 +650,73 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
 
     if (provider_name_length) {
         // Specifically for the provider name, we keep it in the "Data" header to handle the MBIM case
-        proto_tree_add_item_ret_string(etw_header, hf_etw_provider_name, tvb, provider_name_offset, provider_name_length, ENC_LITTLE_ENDIAN | ENC_UTF_16, pinfo->pool, (const uint8_t **) & provider_name);
+        proto_tree_add_item_ret_string(etw_header, hf_etw_provider_name, tvb, provider_name_offset, provider_name_length, ENC_LITTLE_ENDIAN | ENC_UTF_16, pinfo->pool, (const uint8_t**)&provider_name);
     }
 
-    // User data + set columns
+    // Depending on the provider ID, we might have special dissections available
 
-    col_set_str(pinfo->cinfo, COL_DEF_SRC, "windows");
-    col_set_str(pinfo->cinfo, COL_DEF_DST, "windows");
-    if (memcmp(&mbim_net_providerid, &provider_id, sizeof(e_guid_t)) == 0) {
-        // Special case for MBIM
+    if (user_data_length && memcmp(&mbim_net_providerid, &provider_id, sizeof(e_guid_t)) == 0)
+    {
+        // MBIM
+
         uint32_t pack_flags;
 
         if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(pinfo->rec->block, OPT_PKT_FLAGS, &pack_flags)) {
-            switch(PACK_FLAGS_DIRECTION(pack_flags)) {
-                case PACK_FLAGS_DIRECTION_INBOUND:
-                    col_set_str(pinfo->cinfo, COL_DEF_SRC, "device");
-                    col_set_str(pinfo->cinfo, COL_DEF_DST, "host");
-                    break;
-                case PACK_FLAGS_DIRECTION_OUTBOUND:
-                    col_set_str(pinfo->cinfo, COL_DEF_SRC, "host");
-                    col_set_str(pinfo->cinfo, COL_DEF_DST, "device");
-                    break;
+            switch (PACK_FLAGS_DIRECTION(pack_flags)) {
+            case PACK_FLAGS_DIRECTION_INBOUND:
+                col_set_str(pinfo->cinfo, COL_DEF_SRC, "device");
+                col_set_str(pinfo->cinfo, COL_DEF_DST, "host");
+                break;
+            case PACK_FLAGS_DIRECTION_OUTBOUND:
+                col_set_str(pinfo->cinfo, COL_DEF_SRC, "host");
+                col_set_str(pinfo->cinfo, COL_DEF_DST, "device");
+                break;
             }
         }
-        mbim_tvb = tvb_new_subset_remaining(tvb, user_data_offset);
-        call_dissector_only(mbim_dissector, mbim_tvb, pinfo, tree, data);
+        subproto_tvb = tvb_new_subset_length(tvb, user_data_offset, user_data_length);
+        call_dissector_only(mbim_dissector, subproto_tvb, pinfo, tree, data);
+    }
+    else if (user_data_length &&
+        (memcmp(&smbclient_providerid, &provider_id, sizeof(e_guid_t)) == 0 ||
+            memcmp(&smbserver_providerid, &provider_id, sizeof(e_guid_t)) == 0) &&
+        (event_id == 40000 || event_id == 2000))
+    {
+        // SMB "Packet" event
+
+        subproto_tvb = tvb_new_subset_length(tvb, user_data_offset, user_data_length);
+        call_dissector_only(nbss_dissector, subproto_tvb, pinfo, tree, data);
+    }
+    else if (user_data_length &&
+        memcmp(&wininet_providerid, &provider_id, sizeof(e_guid_t)) == 0 &&
+        (event_id == 2001 || event_id == 2002 || event_id == 2003 || event_id == 2004))
+    {
+        // WinInet "HTTP" event
+
+        // Emulate direction
+        if (event_id == 2001 || event_id == 2002)
+        {
+            pinfo->srcport = 50000;
+            pinfo->destport = 80;
+        }
+        else
+        {
+            pinfo->srcport = 80;
+            pinfo->destport = 50000;
+        }
+
+        // TODO: figure out how to make reassembly work :(
+        subproto_tvb = tvb_new_subset_length(tvb, user_data_offset, user_data_length);
+        call_dissector_only(http_dissector, subproto_tvb, pinfo, tree, NULL);
+    }
+    else if (user_data_length &&
+        memcmp(&ldapclient_providerid, &provider_id, sizeof(e_guid_t)) == 0 &&
+        (event_id == 12 || event_id == 17))
+    {
+        // LDAP events
+
+        // TODO: figure out how to make reassembly work :(
+        subproto_tvb = tvb_new_subset_length(tvb, user_data_offset, user_data_length);
+        call_dissector_only(ldap_dissector, subproto_tvb, pinfo, tree, NULL);
     }
     else
     {
@@ -816,6 +905,21 @@ proto_register_etw(void)
         { &hf_etw_tlv_type,
             { "Type", "etw.tlv.type",
                FT_UINT32, BASE_DEC, VALS(etw_tlv_types), 0,
+              NULL, HFILL }
+        },
+        { &hf_etw_src,
+            { "Source Address", "etw.src",
+               FT_STRINGZ, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_etw_dst,
+            { "Destination Address", "etw.dst",
+               FT_STRINGZ, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_etw_sessid,
+            { "Session Id", "etw.sessid",
+               FT_UINT64, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_etw_properties_count,
@@ -1071,6 +1175,9 @@ proto_reg_handoff_etw(void)
     dissector_add_uint("wtap_encap", WTAP_ENCAP_ETW, etw_handle);
 
     mbim_dissector = find_dissector("mbim.control");
+    nbss_dissector = find_dissector("nbss");
+    http_dissector = find_dissector("http-over-tcp");
+    ldap_dissector = find_dissector("ldap");
 }
 
 /*

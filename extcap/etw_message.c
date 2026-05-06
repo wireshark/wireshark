@@ -158,7 +158,16 @@ PBYTE extract_property(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD Poin
 
     do
     {
+        /* Set the property key */
         StringCbCopy(pExtract->key, sizeof(pExtract->key), (PWCHAR)((PBYTE)(pInfo)+pInfo->EventPropertyInfoArray[i].NameOffset));
+
+        /* If pUserData is NULL, it means a previous property has failed to resolve. Skip */
+        if (pUserData == NULL)
+        {
+            StringCbPrintf(pExtract->value, sizeof(pExtract->value), L"%s: UNKNOWN", pExtract->key);
+            break;
+        }
+
         /* Get the length of the property. */
         status = GetPropertyLength(pEvent, pInfo, i, &PropertyLength);
         if (ERROR_SUCCESS != status)

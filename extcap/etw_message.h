@@ -20,6 +20,9 @@
 #include <evntcons.h>
 #include <tdh.h>
 #include <stdlib.h>
+#include <ws2def.h>
+#include <ws2ipdef.h>
+
 
 #define MAX_LOG_LINE_LENGTH 1024
 #define MAX_KEY_LENGTH 64
@@ -31,19 +34,6 @@ typedef struct Property_Key_Value
     WCHAR key[MAX_KEY_LENGTH];
     WCHAR value[MAX_LOG_LINE_LENGTH];
 } PROPERTY_KEY_VALUE;
-
-/**
- * @brief Represents an IPv6 address in binary format.
- *
- * This structure provides access to the 128-bit IPv6 address either as
- * an array of 16 bytes or as 8 16-bit words.
- */
-typedef struct in6_addr {
-    union {
-        UCHAR  Byte[16]; /**< IPv6 address as an array of 16 bytes. */
-        USHORT Word[8];  /**< IPv6 address as an array of 8 16-bit words. */
-    } u;
-} IN6_ADDR, *PIN6_ADDR, FAR* LPIN6_ADDR;
 
 /**
  * @brief Formats a message using property key-value pairs.

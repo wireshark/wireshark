@@ -32,6 +32,20 @@ typedef struct
     char padding[64];
 } SUPER_EVENT_TRACE_PROPERTIES;
 
+typedef struct _PROVIDER_FILTER {
+    GUID ProviderId;
+    ULONG64 Keyword;
+    UCHAR Level;
+} PROVIDER_FILTER;
+
+typedef struct _SCENARIO {
+    const WCHAR* name;
+    const PROVIDER_FILTER ProviderFilter;
+} SCENARIO;
+
+#define SCENARIO_KEY L"Scenario-"
+extern const struct _SCENARIO g_scenarios[];
+
 /**
  * @brief Dumps ETL data to a PCAPNG file.
  *
