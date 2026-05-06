@@ -2273,7 +2273,7 @@ dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 			tv.secs = 0;
 			tv.nsecs = 0;
 			item = proto_tree_add_time_format_value(parent_tree, hf_date, tvb, offset, 4,
-			    &tv, "Invalid time (0x%08x)", ((dos_date << 16) | dos_time));
+			    &tv, "Invalid time (0x%08x)", (((uint32_t)dos_date << 16) | dos_time));
 			tree = proto_item_add_subtree(item, ett_smb_time_date);
 			if (time_first) {
 				proto_tree_add_uint_format(tree, hf_dos_time, tvb, offset, 2, dos_time, "DOS Time: %02d:%02d:%02d (0x%04x)", tm.tm_hour, tm.tm_min, tm.tm_sec, dos_time);
