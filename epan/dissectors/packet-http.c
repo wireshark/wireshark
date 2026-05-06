@@ -4571,16 +4571,7 @@ static bool
 dissect_http_heur_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	unsigned offset = 0, next_offset, linelen;
-	conversation_t  *conversation;
-	http_conv_t	*conv_data;
-
-	conversation = find_or_create_conversation(pinfo);
-	conv_data = (http_conv_t *)conversation_get_proto_data(conversation, proto_http);
-	/* A http conversation was previously started, assume it is still active */
-	if (conv_data) {
-		dissect_http_tls(tvb, pinfo, tree, data);
-		return true;
-	}
+	struct tlsinfo *tlsinfo = (struct tlsinfo *)data;
 
 	/* Check if we have a line terminated by CRLF
 	 * Return the length of the line (not counting the line terminator at
@@ -4599,6 +4590,7 @@ dissect_http_heur_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		return false;
 	}
 
+	*(tlsinfo->app_handle) = http_tls_handle;
 	dissect_http_tls(tvb, pinfo, tree, data);
 	return true;
 }
