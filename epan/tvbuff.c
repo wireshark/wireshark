@@ -2129,6 +2129,170 @@ tvb_get_string_uint8(tvbuff_t *tvb, const unsigned offset, const unsigned length
 	return success;
 }
 
+bool
+tvb_get_string_int64(tvbuff_t *tvb, const unsigned offset, const unsigned length,
+		     const unsigned encoding, int64_t *value, unsigned *endoff)
+{
+	const uint8_t *ptr;
+	const uint8_t *endptr;
+	const uint8_t **endptrptr = endoff ? &endptr : NULL;
+	bool success;
+
+	validate_single_byte_ascii_encoding(encoding);
+
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
+
+	if (ptr == NULL) {
+		*value = 0;
+		if (endoff) {
+			*endoff = offset;
+		}
+		return false;
+	}
+
+	switch (encoding & ENC_STRING) {
+	case ENC_STR_HEX:
+		success = ws_hexbuftoi64(ptr, length, endptrptr, value);
+		break;
+	case ENC_STR_DEC:
+		success = ws_buftoi64(ptr, length, endptrptr, value);
+		break;
+	case ENC_STR_NUM:
+	default:
+		success = ws_basebuftoi64(ptr, length, endptrptr, value, 0);
+	}
+
+	if (endoff) {
+		// 0 <= endptr - ptr <= length
+		*endoff = offset + (uint32_t)(endptr - ptr);
+	}
+
+	return success;
+}
+
+bool
+tvb_get_string_int(tvbuff_t *tvb, const unsigned offset, const unsigned length,
+		   const unsigned encoding, int32_t *value, unsigned *endoff)
+{
+	const uint8_t *ptr;
+	const uint8_t *endptr;
+	const uint8_t **endptrptr = endoff ? &endptr : NULL;
+	bool success;
+
+	validate_single_byte_ascii_encoding(encoding);
+
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
+
+	if (ptr == NULL) {
+		*value = 0;
+		if (endoff) {
+			*endoff = offset;
+		}
+		return false;
+	}
+
+	switch (encoding & ENC_STRING) {
+	case ENC_STR_HEX:
+		success = ws_hexbuftoi32(ptr, length, endptrptr, value);
+		break;
+	case ENC_STR_DEC:
+		success = ws_buftoi32(ptr, length, endptrptr, value);
+		break;
+	case ENC_STR_NUM:
+	default:
+		success = ws_basebuftoi32(ptr, length, endptrptr, value, 0);
+	}
+
+	if (endoff) {
+		// 0 <= endptr - ptr <= length
+		*endoff = offset + (uint32_t)(endptr - ptr);
+	}
+
+	return success;
+}
+
+bool
+tvb_get_string_int16(tvbuff_t *tvb, const unsigned offset, const unsigned length,
+		    const unsigned encoding, int16_t *value, unsigned *endoff)
+{
+	const uint8_t *ptr;
+	const uint8_t *endptr;
+	const uint8_t **endptrptr = endoff ? &endptr : NULL;
+	bool success;
+
+	validate_single_byte_ascii_encoding(encoding);
+
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
+
+	if (ptr == NULL) {
+		*value = 0;
+		if (endoff) {
+			*endoff = offset;
+		}
+		return false;
+	}
+
+	switch (encoding & ENC_STRING) {
+	case ENC_STR_HEX:
+		success = ws_hexbuftoi16(ptr, length, endptrptr, value);
+		break;
+	case ENC_STR_DEC:
+		success = ws_buftoi16(ptr, length, endptrptr, value);
+		break;
+	case ENC_STR_NUM:
+	default:
+		success = ws_basebuftoi16(ptr, length, endptrptr, value, 0);
+	}
+
+	if (endoff) {
+		// 0 <= endptr - ptr <= length
+		*endoff = offset + (uint32_t)(endptr - ptr);
+	}
+
+	return success;
+}
+
+bool
+tvb_get_string_int8(tvbuff_t *tvb, const unsigned offset, const unsigned length,
+		    const unsigned encoding, int8_t *value, unsigned *endoff)
+{
+	const uint8_t *ptr;
+	const uint8_t *endptr;
+	const uint8_t **endptrptr = endoff ? &endptr : NULL;
+	bool success;
+
+	validate_single_byte_ascii_encoding(encoding);
+
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
+
+	if (ptr == NULL) {
+		*value = 0;
+		if (endoff) {
+			*endoff = offset;
+		}
+		return false;
+	}
+
+	switch (encoding & ENC_STRING) {
+	case ENC_STR_HEX:
+		success = ws_hexbuftoi8(ptr, length, endptrptr, value);
+		break;
+	case ENC_STR_DEC:
+		success = ws_buftoi8(ptr, length, endptrptr, value);
+		break;
+	case ENC_STR_NUM:
+	default:
+		success = ws_basebuftoi8(ptr, length, endptrptr, value, 0);
+	}
+
+	if (endoff) {
+		// 0 <= endptr - ptr <= length
+		*endoff = offset + (uint32_t)(endptr - ptr);
+	}
+
+	return success;
+}
+
 /*
  * Is the character a WSP character, as per RFC 5234?  (space or tab).
  */
