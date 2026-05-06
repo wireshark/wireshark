@@ -124,6 +124,11 @@ extern "C" {
   #define WS_WARN_UNUSED
 #endif
 
+/*
+ * WS_NONSTRING is used to mark arrays of character data types that
+ * do *not* contain null-terminated strings, so as to suppress warnihs
+ * about missing null terminators.
+ */
 #if __has_attribute(nonstring)
   #define WS_NONSTRING __attribute__((nonstring))
 #elif defined(_MSC_VER)
