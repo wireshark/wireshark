@@ -455,8 +455,7 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, i
 
 	if (len == 0)
 		return;
-	aal_type = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_q2931_aal_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_q2931_aal_type, tvb, offset, 1, ENC_BIG_ENDIAN, &aal_type);
 	offset += 1;
 	len -= 1;
 
@@ -474,8 +473,7 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, i
 	}
 
 	while (len >= 0) {
-		identifier = tvb_get_uint8(tvb, offset);
-		ti = proto_tree_add_item(tree, hf_q2931_aal_parameter_identifier, tvb, offset, 1, ENC_NA);
+		ti = proto_tree_add_item_ret_uint8(tree, hf_q2931_aal_parameter_identifier, tvb, offset, 1, ENC_NA, &identifier);
 		offset++;
 		len--;
 		switch (identifier) {
@@ -635,8 +633,7 @@ dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, in
 	proto_item* ti;
 
 	while (len >= 0) {
-		identifier = tvb_get_uint8(tvb, offset);
-		ti = proto_tree_add_item(tree, hf_q2931_atm_identifier, tvb, offset, 1, ENC_NA);
+		ti = proto_tree_add_item_ret_uint8(tree, hf_q2931_atm_identifier, tvb, offset, 1, ENC_NA, &identifier);
 
 		switch (identifier) {
 
@@ -1462,8 +1459,7 @@ dissect_q2931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info* pinfo, int offset
 	proto_item* ti;
 
 	while (len >= 3) {
-		ti = proto_tree_add_item(tree, hf_q2931_e2e_transit_delay_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
-		identifier = tvb_get_uint8(tvb, offset);
+		ti = proto_tree_add_item_ret_uint8(tree, hf_q2931_e2e_transit_delay_identifier, tvb, offset, 1, ENC_BIG_ENDIAN, &identifier);
 		offset++;
 		value = tvb_get_ntohs(tvb, offset);
 		len -=3;

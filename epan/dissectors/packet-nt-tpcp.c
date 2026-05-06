@@ -123,15 +123,13 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	tpcp_tree = proto_item_add_subtree(ti, ett_tpcp);
 
 	proto_tree_add_item(tpcp_tree, hf_tpcp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
-	type = tvb_get_uint8(tvb, 1);
-	proto_tree_add_item(tpcp_tree, hf_tpcp_type, tvb, 1, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(tpcp_tree, hf_tpcp_type, tvb, 1, 1, ENC_BIG_ENDIAN, &type);
 
 	proto_tree_add_bitmask(tpcp_tree, tvb, 2, hf_tpcp_flags, ett_tpcp_flags, tpcp_flags, ENC_BIG_ENDIAN);
 
 	/* N.B., flags are 8 bits, so byte at offset 3 skipped.. */
 
-	id = tvb_get_ntohs(tvb, 4);
-	proto_tree_add_item(tpcp_tree, hf_tpcp_id, tvb, 4, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint16(tpcp_tree, hf_tpcp_id, tvb, 4, 2, ENC_BIG_ENDIAN, &id);
 
 	cport = tvb_get_ntohs(tvb, 6);
 	proto_tree_add_uint_format_value(tpcp_tree, hf_tpcp_cport, tvb, 6, 2, cport,

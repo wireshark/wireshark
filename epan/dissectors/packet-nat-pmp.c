@@ -481,8 +481,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uin
       proto_tree_add_item(option_sub_tree, hf_option_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
-      proto_tree_add_item(option_sub_tree, hf_option_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-      option_length = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_item_ret_uint16(option_sub_tree, hf_option_length, tvb, offset, 2, ENC_BIG_ENDIAN, &option_length);
       offset+=2;
 
       mod_option_length = option_length % 4;

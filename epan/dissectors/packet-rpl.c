@@ -91,11 +91,9 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int ett_type;
 	int reported_length;
 
-	len = tvb_get_ntohs(tvb, 0);
-	proto_tree_add_item(tree, hf_rpl_len, tvb, 0, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_rpl_len, tvb, 0, 2, ENC_BIG_ENDIAN, &len);
 
-	type = tvb_get_ntohs(tvb, 2);
-	proto_tree_add_item(tree, hf_rpl_type, tvb, 2, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_rpl_type, tvb, 2, 2, ENC_BIG_ENDIAN, &type);
 	offset = 4;
 
 	switch (type) {

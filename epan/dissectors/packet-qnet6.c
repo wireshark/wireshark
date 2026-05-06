@@ -1687,8 +1687,7 @@ dissect_qnet6_nr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * p
   /*
    * type
    */
-  type = tvb_get_uint8(tvb, *poffset);
-  proto_tree_add_item(stree, hf_qnet6_nr_type, tvb, (*poffset)++, 1, ENC_NA);
+  proto_tree_add_item_ret_uint8(stree, hf_qnet6_nr_type, tvb, (*poffset)++, 1, ENC_NA, &type);
   switch (type)
     {
     case QNX_NR_PING_REQ:
@@ -2864,8 +2863,7 @@ dissect_qnet6_kif_msgsend_msg_notify(tvbuff_t * tvb, packet_info * pinfo _U_, pr
   *poffset += 4;
   proto_tree_add_item(tree, hf_qnet6_kif_msg_io_notify_flags_exten, tvb, *poffset, 4, encoding);
   *poffset += 4;
-  nfds = tvb_get_uint32(tvb, *poffset, encoding);
-  proto_tree_add_item(tree, hf_qnet6_kif_msg_io_notify_nfds, tvb, *poffset, 4, encoding);
+  proto_tree_add_item_ret_uint(tree, hf_qnet6_kif_msg_io_notify_nfds, tvb, *poffset, 4, encoding, &nfds);
   *poffset += 4;
   proto_tree_add_item(tree, hf_qnet6_kif_msg_io_notify_fd_first, tvb, *poffset, 4, encoding);
   *poffset += 4;
@@ -3629,7 +3627,7 @@ dissect_qnet6_kif(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * 
        * server chid
        */
       chid = tvb_get_uint32(tvb, *poffset, encoding);
-      ti = proto_tree_add_item(stree1, hf_qnet6_kif_connect_server_chid, tvb, *poffset, 4, encoding);
+      ti = proto_tree_add_item_ret_uint(stree1, hf_qnet6_kif_connect_server_chid, tvb, *poffset, 4, encoding, &chid);
       display_channel_id(chid, ti);
       *poffset += 4;
       /*
@@ -3769,8 +3767,7 @@ dissect_qnet6_kif(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * 
        */
       proto_tree_add_item(sstree, hf_qnet6_kif_vtid_info_tid, tvb, *poffset, 4, encoding);
       *poffset += 4;
-      coid = tvb_get_uint32(tvb, *poffset, encoding);
-      ti = proto_tree_add_item(sstree, hf_qnet6_kif_vtid_info_coid, tvb, *poffset, 4, encoding);
+      ti = proto_tree_add_item_ret_uint(sstree, hf_qnet6_kif_vtid_info_coid, tvb, *poffset, 4, encoding, &coid);
       display_coid(coid, ti);
       *poffset += 4;
       proto_tree_add_item(sstree, hf_qnet6_kif_vtid_info_priority, tvb, *poffset, 4, encoding);

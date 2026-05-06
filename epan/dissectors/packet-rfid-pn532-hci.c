@@ -112,8 +112,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     } else if (packet_code == 0xFFFF) { /* Extended Information Frame */
         col_set_str(pinfo->cinfo, COL_INFO, "Extended Information Frame");
 
-        proto_tree_add_item(main_tree, hf_extended_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-        length = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item_ret_uint16(main_tree, hf_extended_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
         offset += 2;
 
         checksum = (length >> 8) + (length & 0xFF) + tvb_get_uint8(tvb, offset);
@@ -136,8 +135,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     } else { /* Normal Information Frame */
         col_set_str(pinfo->cinfo, COL_INFO, "Normal Information Frame");
 
-        proto_tree_add_item(main_tree, hf_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-        length = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint16(main_tree, hf_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
         offset += 1;
 
         checksum = length + tvb_get_uint8(tvb, offset);
@@ -149,8 +147,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, urb);
         offset += length;
 
-        proto_tree_add_item(main_tree, hf_data_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
-        checksum = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_data_checksum, tvb, offset, 1, ENC_BIG_ENDIAN, &checksum);
         while (length) {
             checksum += tvb_get_uint8(tvb, offset - length);
             length -= 1;

@@ -773,8 +773,7 @@ static int dissect_rf4ce_nwk_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     if (frame_type == RF4CE_NWK_FCF_FRAME_TYPE_DATA || frame_type == RF4CE_NWK_FCF_FRAME_TYPE_VENDOR_SPECIFIC)
     {
-        proto_tree_add_item(rf4ce_nwk_tree, hf_rf4ce_nwk_profile_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        profile_id = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(rf4ce_nwk_tree, hf_rf4ce_nwk_profile_id, tvb, offset, 1, ENC_LITTLE_ENDIAN, &profile_id);
         offset += 1;
     }
 
@@ -1075,12 +1074,10 @@ static void dissect_rf4ce_nwk_cmd_pair_rsp(tvbuff_t *tvb, packet_info *pinfo, pr
     proto_tree_add_item(tree, hf_rf4ce_nwk_pair_rsp_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
-    proto_tree_add_item(tree, hf_rf4ce_nwk_pair_rsp_allocated_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-    allocated_nwk_addr = tvb_get_uint16(tvb, *offset, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_rf4ce_nwk_pair_rsp_allocated_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN, &allocated_nwk_addr);
     *offset += 2;
 
-    proto_tree_add_item(tree, hf_rf4ce_nwk_pair_rsp_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-    nwk_addr = tvb_get_uint16(tvb, *offset, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_rf4ce_nwk_pair_rsp_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN, &nwk_addr);
     *offset += 2;
 
     dissect_rf4ce_nwk_common_node_capabilities(tvb, tree, offset);
@@ -1096,8 +1093,7 @@ static void dissect_rf4ce_nwk_cmd_key_seed(tvbuff_t *tvb, proto_tree *tree, int 
     uint8_t seed_data[RF4CE_NWK_KEY_SEED_DATA_LENGTH] = {0};
     uint8_t seed_seq_num = 0;
 
-    proto_tree_add_item(tree, hf_rf4ce_nwk_seed_seq_num, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-    seed_seq_num = tvb_get_uint8(tvb, *offset);
+    proto_tree_add_item_ret_uint8(tree, hf_rf4ce_nwk_seed_seq_num, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &seed_seq_num);
     *offset += 1;
 
     proto_tree_add_item(tree, hf_rf4ce_nwk_seed_data, tvb, *offset, RF4CE_NWK_KEY_SEED_DATA_LENGTH, ENC_NA);

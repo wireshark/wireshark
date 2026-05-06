@@ -1746,8 +1746,7 @@ static bool dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree, uns
             &hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_reserved,
             NULL};
 
-        proto_tree_add_item(tree, hf_rf4ce_profile_gdp_poll_constraints_methods_num, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-        methods_num = tvb_get_uint8(tvb, *offset);
+        proto_tree_add_item_ret_uint8(tree, hf_rf4ce_profile_gdp_poll_constraints_methods_num, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &methods_num);
         *offset += 1;
 
         for (methods_index = 1; methods_index <= methods_num; methods_index++)
@@ -1892,8 +1891,7 @@ static bool dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tree, u
             proto_tree_add_bitmask(rf_desc_subtree, tvb, *offset, hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts, ett_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts, tx_opts_bits, ENC_LITTLE_ENDIAN);
             *offset += 1;
 
-            proto_tree_add_item(rf_desc_subtree, hf_rf4ce_profile_zrc20_action_mappings_rf_descr_action_data_len, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-            action_data_len = tvb_get_uint8(tvb, *offset);
+            proto_tree_add_item_ret_uint8(rf_desc_subtree, hf_rf4ce_profile_zrc20_action_mappings_rf_descr_action_data_len, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &action_data_len);
             *offset += 1;
 
             if (action_data_len > 0)
@@ -1925,8 +1923,7 @@ static bool dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tree, u
                 *offset += 2;
             }
 
-            proto_tree_add_item(ir_desc_subtree, hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_code_len, tvb, *offset, 1, ENC_NA);
-            ir_code_len = tvb_get_uint8(tvb, *offset);
+            proto_tree_add_item_ret_uint8(ir_desc_subtree, hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_code_len, tvb, *offset, 1, ENC_NA, &ir_code_len);
             *offset += 1;
 
             if (ir_code_len > 0)
@@ -1991,15 +1988,13 @@ static void dissect_rf4ce_profile_attrs(tvbuff_t *tvb, proto_tree *tree, unsigne
 
         if (dissection_mask & RF4CE_PROFILE_ATTR_DISSECT_ATTR_STATUS_MASK)
         {
-            proto_tree_add_item(attrs_subtree, hf_rf4ce_profile_attr_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-            attr_status = tvb_get_uint8(tvb, *offset);
+            proto_tree_add_item_ret_uint8(attrs_subtree, hf_rf4ce_profile_attr_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &attr_status);
             *offset += 1;
         }
 
         if (attr_status == RF4CE_PROFILE_ATTR_STATUS_ATTRIBUTE_SUCCESSFULLY_READ_AND_INCLUDED && dissection_mask & RF4CE_PROFILE_ATTR_DISSECT_ATTR_LENGTH_MASK)
         {
-            proto_tree_add_item(attrs_subtree, hf_rf4ce_profile_attr_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-            attr_length = tvb_get_uint8(tvb, *offset);
+            proto_tree_add_item_ret_uint8(attrs_subtree, hf_rf4ce_profile_attr_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &attr_length);
             *offset += 1;
         }
 
@@ -2318,8 +2313,7 @@ static void dissect_rf4ce_profile_zrc20_action_data(tvbuff_t *tvb, proto_tree *t
         *offset += 1;
     }
 
-    proto_tree_add_item(record_tree, hf_rf4ce_zrc20_cmd_actions_action_data_payload_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-    payload_length = tvb_get_uint8(tvb, *offset);
+    proto_tree_add_item_ret_uint8(record_tree, hf_rf4ce_zrc20_cmd_actions_action_data_payload_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &payload_length);
     *offset += 1;
 
     proto_tree_add_item(record_tree, hf_rf4ce_zrc20_cmd_actions_action_data_action_bank, tvb, *offset, 1, ENC_LITTLE_ENDIAN);

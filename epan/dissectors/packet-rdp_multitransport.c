@@ -76,8 +76,7 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 	item = proto_tree_add_item(parent_tree, proto_rdpmt, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rdpmt);
 
-	action = tvb_get_uint8(tvb, offset) & 0x0f;
-	proto_tree_add_item(tree, hf_rdpmt_action, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint8(tree, hf_rdpmt_action, tvb, offset, 1, ENC_NA, &action);
 	proto_tree_add_item(tree, hf_rdpmt_flags, tvb, offset, 1, ENC_NA);
 	offset++;
 
@@ -107,8 +106,7 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 		col_set_str(pinfo->cinfo, COL_INFO, "TunnelCreateRequest");
 
 		subtree = proto_tree_add_subtree(tree, tvb, offset, payload_len, ett_rdpmt_create_req, NULL, "TunnelCreateRequest");
-		proto_tree_add_item(subtree, hf_rdpmt_createreq_reqId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		reqId = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(subtree, hf_rdpmt_createreq_reqId, tvb, offset, 4, ENC_LITTLE_ENDIAN, &reqId);
 		offset += 4;
 
 		proto_tree_add_item(subtree, hf_rdpmt_createreq_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);

@@ -1652,8 +1652,7 @@ dissect_sipregistration(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, uint
   ti_local = proto_tree_add_item(tree, hf_reload_sipregistration, tvb, offset, length, ENC_NA);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_sipregistration);
 
-  type = tvb_get_uint8(tvb, offset + local_offset);
-  proto_tree_add_item(local_tree, hf_reload_sipregistration_type, tvb,offset+local_offset,1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(local_tree, hf_reload_sipregistration_type, tvb,offset+local_offset,1, ENC_BIG_ENDIAN, &type);
   local_offset += 1;
   length_field = tvb_get_ntohs(tvb, offset+local_offset);
   proto_tree_add_item(local_tree, hf_reload_length_uint16, tvb,offset+local_offset,2, ENC_BIG_ENDIAN);
@@ -3817,8 +3816,7 @@ static int dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pro
       }
       ti_extension = proto_tree_add_item(extensions_tree, hf_reload_message_extension, tvb, offset+ extension_offset, 3 + 4 + extension_content_length, ENC_NA);
       extension_tree = proto_item_add_subtree(ti_extension, ett_reload_message_extension);
-      type = tvb_get_ntohs(tvb, offset+ extension_offset);
-      proto_tree_add_item(extension_tree, hf_reload_message_extension_type, tvb, offset+ extension_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint16(extension_tree, hf_reload_message_extension_type, tvb, offset+ extension_offset, 2, ENC_BIG_ENDIAN, &type);
       proto_tree_add_item(extension_tree, hf_reload_message_extension_critical, tvb, offset+ extension_offset + 2, 1, ENC_BIG_ENDIAN);
       switch(type) {
 

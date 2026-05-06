@@ -1036,10 +1036,8 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             }
 
         } else { /* not JAPAN */
-            proto_tree_add_item(mtp3mg_tree, hf_mtp3test_h0, tvb, 0, H0H1_LENGTH, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint8(mtp3mg_tree, hf_mtp3test_h0, tvb, 0, H0H1_LENGTH, ENC_LITTLE_ENDIAN, &h0);
             /* H1 is added below */
-
-            h0 = tvb_get_uint8(tvb, 0) & H0_MASK;
             h1 = (tvb_get_uint8(tvb, 0) & H1_MASK) >> H1_SHIFT;
 
             payload_tvb = tvb_new_subset_remaining(tvb, H0H1_LENGTH);
