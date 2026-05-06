@@ -2912,19 +2912,34 @@ start_over:
 
     /* Call IP for uncompressed profile */
     if (rohc_cid_context->profile==ROHC_PROFILE_UNCOMPRESSED) {
+        /*
+         *   0   1   2   3   4   5   6   7
+         *  --- --- --- --- --- --- --- ---
+         * :         Add-CID octet         : if for small CIDs and (CID != 0)
+         * +---+---+---+---+---+---+---+---+
+         * |   first octet of IP packet    |
+         * +---+---+---+---+---+---+---+---+
+         * :                               :
+         * /    0-2 octets of CID info     / 1-2 octets if for large CIDs
+         * :                               :
+         * +---+---+---+---+---+---+---+---+
+         * |                               |
+         * /       rest of IP packet       / variable length
+         * |                               |
+         * +---+---+---+---+---+---+---+---+
+         */
         if (rohc_cid_context->large_cid_present) {
-            /* How long does packet say it is? */
+            /* How long does the CID info say it is? */
             get_self_describing_var_len_val(tvb, rohc_tree, offset+1, hf_rohc_large_cid, &val_len);
             /* How many bytes do we actually have? */
-            int len = tvb_captured_length_remaining(tvb, offset);
-            if (len >= val_len) {
-                len -= val_len;
-                uint8_t *payload_data = (uint8_t *)wmem_alloc(pinfo->pool, len);
-                tvb_memcpy(tvb, payload_data, offset, 1);
-                tvb_memcpy(tvb, &payload_data[1], offset+1+val_len, len-1);
-                next_tvb = tvb_new_child_real_data(tvb, payload_data, len, len);
-                add_new_data_source(pinfo, next_tvb, "Payload");
-            }
+            unsigned len = tvb_captured_length_remaining(tvb, offset + val_len);
+            /* Composite TVBs don't handle the case if the captured length
+             * is less than the reported length. */
+            uint8_t *payload_data = (uint8_t *)wmem_alloc(pinfo->pool, len + 1);
+            tvb_memcpy(tvb, payload_data, offset, 1);
+            tvb_memcpy(tvb, &payload_data[1], offset+1+val_len, len);
+            next_tvb = tvb_new_child_real_data(tvb, payload_data, len, 1 + tvb_reported_length_remaining(tvb, offset + val_len));
+            add_new_data_source(pinfo, next_tvb, "Payload");
         }
         else {
             next_tvb = tvb_new_subset_remaining(tvb, offset);
