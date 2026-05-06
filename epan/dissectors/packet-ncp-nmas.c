@@ -168,12 +168,11 @@ nmas_string(packet_info *pinfo, tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree
 {
     int     foffset = offset;
     uint32_t str_length;
-    char    *buffer;
+    wmem_strbuf_t *buffer;
     uint32_t i;
-    uint16_t c_char;
+    uint8_t c_char;
     uint32_t length_remaining = 0;
 
-    buffer = (char *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH+1);
     if (little) {
         str_length = tvb_get_letohl(tvb, foffset);
     } else {
@@ -181,6 +180,7 @@ nmas_string(packet_info *pinfo, tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree
     }
     foffset += 4;
     if (str_length >= ITEM_LABEL_LENGTH) {
+        length_remaining = tvb_reported_length_remaining(tvb, foffset);
         proto_tree_add_string(nmas_tree, hfinfo, tvb, foffset,
             length_remaining + 4, "<String too long to process>");
         foffset += length_remaining;
@@ -191,6 +191,7 @@ nmas_string(packet_info *pinfo, tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree
             "<Not Specified>");
         return foffset;
     }
+    buffer = wmem_strbuf_create(pinfo->pool);
     /*
      * XXX - other than the special-casing of null bytes,
      * we could just use "proto_tree_add_item()", as for
@@ -200,34 +201,16 @@ nmas_string(packet_info *pinfo, tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree
      * characters.
      */
     for ( i = 0; i < str_length; i++ ) {
-        c_char = tvb_get_uint8(tvb, foffset );
-        if (c_char<0x20 || c_char>0x7e) {
-            if (c_char != 0x00) {
-                c_char = 0x2e;
-                buffer[i] = c_char & 0xff;
-            } else {
-                i--;
-                str_length--;
-            }
+        c_char = tvb_get_uint8(tvb, foffset++);
+        if (c_char == 0x00) {
+            // skip
+        } else if (!g_ascii_isprint(c_char)) {
+            wmem_strbuf_append_c(buffer, '.');
         } else {
-            buffer[i] = c_char & 0xff;
-        }
-        foffset++;
-        length_remaining--;
-
-        if (length_remaining==1) {
-            i++;
-            break;
+            wmem_strbuf_append_c(buffer, c_char);
         }
     }
-    buffer[i] = '\0';
-
-    if (little) {
-        str_length = tvb_get_letohl(tvb, offset);
-    } else {
-        str_length = tvb_get_ntohl(tvb, offset);
-    }
-    proto_tree_add_string(nmas_tree, hfinfo, tvb, offset+4, str_length, buffer);
+    proto_tree_add_string(nmas_tree, hfinfo, tvb, offset+4, str_length, wmem_strbuf_finalize(buffer));
     return foffset;
 }
 
