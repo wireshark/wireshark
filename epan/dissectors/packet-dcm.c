@@ -2704,7 +2704,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
             at_elm = tvb_get_uint16(tvb, offset+ i*vm_item_len+2, encoding);
 
             proto_tree_add_uint_format_value(tree, hf_dcm_tag_value_32u, tvb, offset + i*vm_item_len, vm_item_len,
-                (at_grp << 16) | at_elm, "%04x,%04x", at_grp, at_elm);
+                ((unsigned)at_grp << 16) | at_elm, "%04x,%04x", at_grp, at_elm);
 
             at_value = wmem_strdup_printf(pinfo->pool,"%s(%04x,%04x)", at_value, at_grp, at_elm);
 
@@ -3200,7 +3200,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     */
 
     proto_tree_add_uint_format_value(tag_ptree, hf_dcm_tag, tvb, offset_tag, 4,
-        (grp << 16) | elm, "%04x,%04x (%s)", grp, elm, tag_def->description);
+        ((unsigned)grp << 16) | elm, "%04x,%04x (%s)", grp, elm, tag_def->description);
 
     /* Add VR to tag detail, except for sequence items */
     if (!is_item)  {
