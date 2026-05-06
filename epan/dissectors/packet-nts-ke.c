@@ -248,8 +248,8 @@ nts_cookie_t*
 nts_new_cookie(tvbuff_t *tvb, uint16_t aead, packet_info *pinfo)
 {
     unsigned int cookie_len = tvb_reported_length(tvb);
-    uint8_t *key_c2s = (uint8_t *)wmem_alloc0(pinfo->pool, NTS_KE_TLS13_KEY_MAX_LEN);
-    uint8_t *key_s2c = (uint8_t *)wmem_alloc0(pinfo->pool, NTS_KE_TLS13_KEY_MAX_LEN);
+    uint8_t *key_c2s = NULL;
+    uint8_t *key_s2c = NULL;
     uint8_t *tvb_bytes;
     nts_cookie_t *cookie;
     uint32_t strong_hash;
@@ -329,6 +329,8 @@ nts_new_cookie(tvbuff_t *tvb, uint16_t aead, packet_info *pinfo)
         } else {
             cookie->keys_present = false;
         }
+        wmem_free(NULL, key_c2s);
+        wmem_free(NULL, key_s2c);
 
         wmem_map_insert(nts_cookies, GUINT_TO_POINTER(strong_hash), cookie);
     }
