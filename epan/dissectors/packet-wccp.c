@@ -2675,7 +2675,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   proto_item *wccp_tree_item;
   uint32_t wccp_message_type;
   uint16_t length;
-  int wccp2_length;
+  unsigned wccp2_length;
   proto_item *length_item;
   uint32_t cache_count;
   uint32_t ipaddr;
@@ -2786,10 +2786,10 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
       /* Is the length plus the length of the data preceding it longer than
          the length of our packet? */
       wccp2_length = tvb_reported_length_remaining(tvb, offset);
-      if (length > (unsigned)wccp2_length) {
+      if (length > wccp2_length) {
         expert_add_info_format(pinfo, length_item, &ei_wccp_length_bad,
                                "The length as specified by the length field is bigger than the length of the packet");
-        length = wccp2_length - offset;
+        length = wccp2_length;
       } else {
         /* Truncate the packet to the specified length. */
         tvb_set_reported_length(tvb, offset + length);
