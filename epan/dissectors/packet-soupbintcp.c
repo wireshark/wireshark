@@ -47,8 +47,6 @@
 #include <epan/proto_data.h>
 #include <epan/expert.h>
 
-#include <wsutil/strtoi.h>
-
 /* For tcp_dissect_pdus() */
 #include "packet-tcp.h"
 
@@ -192,8 +190,7 @@ dissect_soupbintcp_common(
 
     /* If first dissection of Login Accept, save sequence number */
     if (pkt_type == 'A' && !PINFO_FD_VISITED(pinfo)) {
-        ws_strtou32((char*)tvb_get_string_enc(pinfo->pool, tvb, 13, 20, ENC_ASCII),
-            NULL, &next_seq);
+        tvb_get_string_uint(tvb, 13, 20, ENC_STR_DEC, &next_seq, NULL);
 
         /* Create new conversation for this session */
         conv = conversation_new(pinfo->num,
@@ -278,8 +275,7 @@ dissect_soupbintcp_common(
                                 tvb, offset, 10, ENC_ASCII);
             offset += 10;
 
-            seq_num_valid = ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool,
-                tvb, offset, 20, ENC_ASCII), NULL, &seq_num);
+            seq_num_valid = tvb_get_string_int(tvb, offset, 20, ENC_STR_DEC, &seq_num, NULL);
             pi = proto_tree_add_string_format_value(soupbintcp_tree,
                                                hf_soupbintcp_next_seq_num,
                                                tvb, offset, 20,
@@ -327,8 +323,7 @@ dissect_soupbintcp_common(
                                 tvb, offset, 10, ENC_ASCII);
             offset += 10;
 
-            seq_num_valid = ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool,
-                tvb, offset, 20, ENC_ASCII), NULL, &seq_num);
+            seq_num_valid = tvb_get_string_int(tvb, offset, 20, ENC_STR_DEC, &seq_num, NULL);
             pi = proto_tree_add_string_format_value(soupbintcp_tree,
                                                hf_soupbintcp_req_seq_num,
                                                tvb, offset, 20,

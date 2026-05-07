@@ -15,7 +15,6 @@
 #include <range.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <wsutil/strtoi.h>
 
 #define INDIGOCARE_ICALL_SOH			0x01
 #define INDIGOCARE_ICALL_STX			0x02
@@ -95,7 +94,7 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 
 	/* Read header */
 	tvb_find_uint8_remaining(tvb, current_offset, INDIGOCARE_ICALL_STX, &header_offset);
-	ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset, header_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &header);
+	tvb_get_string_int(tvb, current_offset, header_offset - current_offset, ENC_STR_DEC, &header, NULL);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str(pinfo->pool, header, icall_headertypenames, "Unknown (%d)"));
 	switch(header) {
 		case INDIGOCARE_ICALL_CALL:
@@ -114,7 +113,7 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 	while (tvb_get_uint8(tvb, current_offset) != INDIGOCARE_ICALL_ETX) {
 		identifier_start = current_offset;
 		tvb_find_uint8_remaining(tvb, current_offset, INDIGOCARE_ICALL_US, &identifier_offset);
-		ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset, identifier_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &record_identifier);
+		tvb_get_string_int(tvb, current_offset, identifier_offset - current_offset, ENC_STR_DEC, &record_identifier, NULL);
 		current_offset = identifier_offset + 1;
 
 		data_start = current_offset;

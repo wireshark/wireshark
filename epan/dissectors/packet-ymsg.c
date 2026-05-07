@@ -1206,7 +1206,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 /* Get the length of the key */
                 key_len = get_content_item_length(tvb, offset);
                 /* Extract the key */
-                key_valid = ws_strtoi32(tvb_format_text(pinfo->pool, tvb, offset, key_len), NULL, &key);
+                key_valid = tvb_get_string_int(tvb, offset, key_len, ENC_STR_DEC, &key, NULL);
                 if (!key_valid) {
                     key = -1;
                 }

@@ -310,8 +310,9 @@ dissect_sjle_uint(proto_tree *tree, packet_info* pinfo _U_, int hf_idx, tvbuff_t
 }
 
 static void
-dissect_sjle_int(proto_tree *tree, packet_info* pinfo, int hf_idx, tvbuff_t *tvb, int offset, int len) {
-    int32_t int_val = (int32_t) strtol(tvb_format_text(pinfo->pool, tvb, offset, len), NULL, 10);
+dissect_sjle_int(proto_tree *tree, packet_info* pinfo _U_, int hf_idx, tvbuff_t *tvb, int offset, int len) {
+    int32_t int_val;
+    tvb_get_string_int(tvb, offset, len, ENC_STR_DEC, &int_val, NULL);
     proto_tree_add_int(tree, hf_idx, tvb, offset, len, int_val);
 }
 

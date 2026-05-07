@@ -39,7 +39,6 @@
 #include <epan/unit_strings.h>
 
 #include <wsutil/array.h>
-#include <wsutil/strtoi.h>
 #include "packet-ber.h"
 #include "packet-tpkt.h"
 #include "packet-h245.h"
@@ -2464,9 +2463,8 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_
     bool        found;
     bool        more_params = true;
     proto_item* item;
-    int         reason;
+    unsigned    reason;
     bool        reason_valid;
-    uint8_t     ServiceChangeReason_str[4];
 
     tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_RBRKT, '{', &tvb_LBRKT);
     /*
@@ -2512,8 +2510,7 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_
             if ( found == false)
                 break;
 
-            tvb_get_raw_bytes_as_stringz(tvb,tvb_current_offset,4,ServiceChangeReason_str);
-            reason_valid = ws_strtoi32((char*)ServiceChangeReason_str, NULL, &reason);
+            reason_valid = tvb_get_string_uint(tvb, tvb_current_offset, 3, ENC_STR_DEC, &reason, NULL);
             proto_item_append_text(item,"[ %s ]", val_to_str(pinfo->pool, reason, MEGACO_ServiceChangeReasons_vals,"Unknown (%u)"));
             if (!reason_valid)
                 expert_add_info(pinfo, item, &ei_megaco_reason_invalid);
@@ -2930,8 +2927,7 @@ dissect_megaco_errordescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_tree *me
 {
 
     unsigned            tokenlen;
-    int                 error_code;
-    uint8_t             error[4];
+    unsigned            error_code;
     unsigned            tvb_current_offset;
     proto_item*         item;
     proto_tree*         error_tree;
@@ -2947,8 +2943,7 @@ dissect_megaco_errordescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_tree *me
     error_tree = proto_item_add_subtree(item, ett_megaco_error_descriptor);
 
     /* Get the error code */
-    tvb_get_raw_bytes_as_stringz(tvb,tvb_current_offset,4,error);
-    error_code_valid = ws_strtoi32((char*)error, NULL, &error_code);
+    error_code_valid = tvb_get_string_uint(tvb, tvb_current_offset, 3, ENC_STR_DEC, &error_code, NULL);
     item = proto_tree_add_uint(error_tree, hf_megaco_error_code, tvb, tvb_current_offset, 3, error_code);
     if (!error_code_valid)
         expert_add_info(pinfo, item, &ei_megaco_error_code_invalid);
@@ -3321,7 +3316,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
             bool sdr_valid;
             proto_item* pi;
 
-            sdr_valid = ws_strtoi32(tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen), NULL, &sdr);
+            sdr_valid = tvb_get_string_int(tvb, tvb_current_offset, tokenlen, ENC_STR_DEC, &sdr, NULL);
             pi =proto_tree_add_int(megaco_LocalControl_tree, hf_megaco_tman_sdr, tvb, tvb_help_offset,
                 tvb_offset - tvb_help_offset, sdr);
             proto_item_append_text(pi, " [%i b/s]", sdr*8);

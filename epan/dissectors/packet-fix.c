@@ -167,8 +167,7 @@ fix_header_len(tvbuff_t *tvb, packet_info* pinfo, unsigned offset)
         return fix_next_header(tvb, pinfo, offset);
     }
 
-    if (!ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, tag->value_offset,
-            tag->value_len, ENC_ASCII), NULL, &value))
+    if (!tvb_get_string_int(tvb, tag->value_offset, tag->value_len, ENC_STR_DEC, &value, NULL))
         return fix_next_header(tvb, pinfo, base_offset +MARKER_LEN)  +MARKER_LEN;
     /* Fix version, msg type, length and checksum aren't in body length.
      * If the packet is big enough find the checksum
@@ -262,8 +261,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             continue;
         }
 
-        if (!ws_strtou32((char*)tvb_get_string_enc(pinfo->pool, tvb, field_offset, tag->tag_len, ENC_ASCII),
-                NULL, &tag_value)) {
+        if (!tvb_get_string_uint(tvb, field_offset, tag->tag_len, ENC_STR_DEC, &tag_value, NULL)) {
             proto_tree_add_expert(fix_tree, pinfo, &ei_fix_tag_invalid, tvb, field_offset, tag->tag_len);
             break;
         }
