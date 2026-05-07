@@ -711,7 +711,7 @@ void LuaDebuggerCodeView::lineNumberAreaPaintEvent(QPaintEvent *event)
             if (canonical)
             {
                 bool hasExtras = false;
-                const int32_t state = wslua_debugger_get_breakpoint_state_canonical_ex(canonical, lineNo, &hasExtras);
+                const int32_t state = wslua_debugger_get_breakpoint_state_canonical(canonical, lineNo, &hasExtras);
                 if (state != -1)
                 {
                     /* Match the toolbar state-indicator palette used
@@ -852,7 +852,7 @@ void LineNumberArea::mousePressEvent(QMouseEvent *event)
         if (canonical)
         {
             bool hasExtras = false;
-            const int32_t state = wslua_debugger_get_breakpoint_state_canonical_ex(canonical, lineNo, &hasExtras);
+            const int32_t state = wslua_debugger_get_breakpoint_state_canonical(canonical, lineNo, &hasExtras);
             g_free(canonical);
             if (state != -1 && hasExtras)
             {
@@ -910,7 +910,7 @@ void LineNumberArea::contextMenuEvent(QContextMenuEvent *event)
         QWidget::contextMenuEvent(event);
         return;
     }
-    const int32_t state = wslua_debugger_get_breakpoint_state_canonical_ex(canonical, lineNo, /*has_extras=*/nullptr);
+    const int32_t state = wslua_debugger_get_breakpoint_state_canonical(canonical, lineNo, /*has_extras=*/nullptr);
     g_free(canonical);
     if (state == -1)
     {

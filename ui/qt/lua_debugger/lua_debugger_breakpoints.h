@@ -273,8 +273,8 @@ class LuaDebuggerBreakpointsController : public QObject
 
     /** @brief Bind the section-header strip and its shortcut action.
      *  Wires button clicks; safe to call before or after @ref attach. */
-    void attachHeaderButtons(QToolButton *toggleAll, QToolButton *remove, QToolButton *removeAll, QToolButton *edit,
-                             QAction *removeAllAction);
+    void attachHeaderButtons(QToolButton *breakOnError, QToolButton *toggleAll, QToolButton *remove,
+                             QToolButton *removeAll, QToolButton *edit, QAction *removeAllAction);
 
     void configureColumns() const;
 
@@ -382,6 +382,7 @@ class LuaDebuggerBreakpointsController : public QObject
     QTreeView *tree_ = nullptr;
     QStandardItemModel *model_ = nullptr;
 
+    QToolButton *breakOnErrorButton_ = nullptr;
     QToolButton *toggleAllButton_ = nullptr;
     QToolButton *removeButton_ = nullptr;
     QToolButton *removeAllButton_ = nullptr;

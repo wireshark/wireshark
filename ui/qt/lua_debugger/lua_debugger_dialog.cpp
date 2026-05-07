@@ -64,6 +64,7 @@
 #include <QPersistentModelIndex>
 #include <QPlainTextEdit>
 #include <QPointer>
+#include <QRegularExpression>
 #include <QResizeEvent>
 #include <QSet>
 #include <QShowEvent>
@@ -91,6 +92,7 @@
 #include "app/application_flavor.h"
 #include "lua_debugger.h"
 #include "lua_debugger_code_editor.h"
+#include "lua_debugger_error_frame.h"
 #include "lua_debugger_find_frame.h"
 #include "lua_debugger_goto_line_frame.h"
 #include "lua_debugger_utils.h"
@@ -519,6 +521,7 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
 
     ui->luaDebuggerFindFrame->hide();
     ui->luaDebuggerGoToLineFrame->hide();
+    ui->luaDebuggerErrorFrame->hide();
 
     variablesController_.configureColumns();
     watchController_.configureColumns();
@@ -645,6 +648,8 @@ void LuaDebuggerDialog::handlePause(const char *file_path, int64_t line)
      * never carries forward a stale cue across pauses. */
     pausedFile_ = normalizedPath;
     pausedLine_ = static_cast<qlonglong>(line);
+
+    updatePausedErrorFrame();
 
     /* Cancel any deferred "Watch column shows —" placeholder still pending
      * from the previous resume (typical for runDebuggerStep): we are
@@ -1100,6 +1105,74 @@ void LuaDebuggerDialog::updateLuaEditorAuxFrames()
     ui->luaDebuggerGoToLineFrame->setTargetEditor(ed);
 }
 
+void LuaDebuggerDialog::updatePausedErrorFrame()
+{
+    if (!ui->luaDebuggerErrorFrame)
+    {
+        return;
+    }
+
+    const char *lastError = wslua_debugger_consume_error_text();
+    if (!lastError)
+    {
+        scheduleErrorFrameHide(120);
+        return;
+    }
+
+    /* New break-on-error pause supersedes any pending delayed hide from the
+     * immediately preceding resume/non-break-on-error pause. */
+    cancelErrorFrameHide();
+
+    QString errorMessage = QString::fromUtf8(lastError);
+
+    /* Strip leading file:line prefixes so the frame displays message-only text. */
+    static const QRegularExpression kLuaErrPrefixRegex(
+        QStringLiteral(R"(^\s*(?:@?[^:\n]+(?:\:[^:\n]+)*)\:\d+\:\s*)"));
+    errorMessage.remove(kLuaErrPrefixRegex);
+    if (errorMessage.trimmed().isEmpty())
+    {
+        errorMessage = tr("(runtime error)");
+    }
+
+    if (QPlainTextEdit *ed = codeTabsController_.currentCodeView())
+    {
+        ui->luaDebuggerErrorFrame->setEditorStyleFont(ed->font());
+    }
+
+    ui->luaDebuggerErrorFrame->setErrorMessage(errorMessage);
+    ui->luaDebuggerErrorFrame->show();
+}
+
+void LuaDebuggerDialog::cancelErrorFrameHide()
+{
+    ++errorFrameHideEpoch_;
+}
+
+void LuaDebuggerDialog::scheduleErrorFrameHide(int delayMs)
+{
+    if (!ui || !ui->luaDebuggerErrorFrame)
+    {
+        return;
+    }
+
+    const int hideEpoch = ++errorFrameHideEpoch_;
+    QTimer::singleShot(
+        delayMs, this,
+        [this, hideEpoch]()
+        {
+            if (!ui || !ui->luaDebuggerErrorFrame)
+            {
+                return;
+            }
+            if (errorFrameHideEpoch_ != hideEpoch)
+            {
+                return;
+            }
+            ui->luaDebuggerErrorFrame->clearErrorContent();
+            ui->luaDebuggerErrorFrame->hide();
+        });
+}
+
 void LuaDebuggerDialog::onEditorFind()
 {
     updateLuaEditorAuxFrames();
@@ -1351,6 +1424,11 @@ void LuaDebuggerDialog::clearPausedStateUi()
     {
         breakpointsController_.refreshFromEngine();
     }
+
+    if (ui->luaDebuggerErrorFrame)
+    {
+        scheduleErrorFrameHide(120);
+    }
 }
 
 void LuaDebuggerDialog::resumeDebuggerAndExitLoop()
@@ -1376,14 +1454,6 @@ void LuaDebuggerDialog::syncDebuggerToggleWithCore()
     {
         return;
     }
-    if (reloadCoordinator_.reloadUiActive())
-    {
-        bool previousState = enabledCheckBox->blockSignals(true);
-        enabledCheckBox->setChecked(true);
-        enabledCheckBox->setEnabled(false);
-        enabledCheckBox->blockSignals(previousState);
-        return;
-    }
     const bool debuggerEnabled = wslua_debugger_is_enabled();
     bool previousState = enabledCheckBox->blockSignals(true);
     enabledCheckBox->setChecked(debuggerEnabled);
@@ -1404,10 +1474,6 @@ void LuaDebuggerDialog::refreshDebuggerStateUi()
 
 LuaDebuggerDialog::DebuggerUiStatus LuaDebuggerDialog::currentDebuggerUiStatus() const
 {
-    if (reloadCoordinator_.reloadUiActive())
-    {
-        return DebuggerUiStatus::Running;
-    }
     const bool debuggerEnabled = wslua_debugger_is_enabled();
     const bool showPausedChrome = wslua_debugger_is_paused() || (debuggerEnabled && debuggerPaused);
     if (showPausedChrome)
@@ -1575,28 +1641,30 @@ void LuaDebuggerDialog::ensureDebuggerEnabledForActiveBreakpoints()
 {
     /* wslua_debugger owns enable *policy*; live capture gating is owned by
      * LuaDebuggerCaptureSuppression: epan has no knowledge of the capture path. */
-    if (!wslua_debugger_may_auto_enable_for_breakpoints())
-    {
-        refreshDebuggerStateUi();
-        return;
-    }
+    const bool shouldBeEnabled = wslua_debugger_may_auto_enable_for_breakpoints();
     if (LuaDebuggerCaptureSuppression::isActive())
     {
-        /* A breakpoint was just (re)armed during a live capture.
-         * Record the intent so the debugger comes back enabled when
-         * the capture stops, but do not flip the core flag now —
-         * pausing the dissector with the dumpcap pipe still feeding
-         * us packets is exactly what the suppression exists to
-         * prevent. */
-        LuaDebuggerCaptureSuppression::setPrevEnabled(true);
+        /* During live capture, snapshot desired post-capture state but do not
+         * flip the core debugger immediately. */
+        LuaDebuggerCaptureSuppression::setPrevEnabled(shouldBeEnabled);
         refreshDebuggerStateUi();
         return;
     }
-    if (!wslua_debugger_is_enabled())
+
+    const bool currentlyEnabled = wslua_debugger_is_enabled();
+    if (shouldBeEnabled && !currentlyEnabled)
     {
         wslua_debugger_set_enabled(true);
-        refreshDebuggerStateUi();
     }
+    else if (!shouldBeEnabled && currentlyEnabled)
+    {
+        if (debuggerPaused)
+        {
+            resumeDebuggerAndExitLoop();
+        }
+        wslua_debugger_set_enabled(false);
+    }
+    refreshDebuggerStateUi();
 }
 
 void LuaDebuggerDialog::onOpenFile()
@@ -1891,14 +1959,7 @@ void LuaDebuggerLuaReloadCoordinator::enterReloadUiStateIfEnabled()
         return;
     }
 
-    reloadUiSavedCheckboxChecked_ = host_->enabledToggle()->isChecked();
-    reloadUiSavedCheckboxEnabled_ = host_->enabledToggle()->isEnabled();
     reloadUiActive_ = true;
-
-    bool previousState = host_->enabledToggle()->blockSignals(true);
-    host_->enabledToggle()->setChecked(true);
-    host_->enabledToggle()->setEnabled(false);
-    host_->enabledToggle()->blockSignals(previousState);
 
     host_->updateWidgets();
 }
@@ -1910,11 +1971,6 @@ void LuaDebuggerLuaReloadCoordinator::exitReloadUiState()
     {
         return;
     }
-
-    bool previousState = host_->enabledToggle()->blockSignals(true);
-    host_->enabledToggle()->setChecked(reloadUiSavedCheckboxChecked_);
-    host_->enabledToggle()->setEnabled(reloadUiSavedCheckboxEnabled_);
-    host_->enabledToggle()->blockSignals(previousState);
 
     reloadUiActive_ = false;
     host_->refreshDebuggerStateUi();

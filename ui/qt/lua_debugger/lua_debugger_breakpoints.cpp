@@ -1178,16 +1178,24 @@ void LuaDebuggerBreakpointsController::attach(QTreeView *tree, QStandardItemMode
     updateHeaderButtonState();
 }
 
-void LuaDebuggerBreakpointsController::attachHeaderButtons(QToolButton *toggleAll, QToolButton *remove,
-                                                           QToolButton *removeAll, QToolButton *edit,
-                                                           QAction *removeAllAction)
+void LuaDebuggerBreakpointsController::attachHeaderButtons(QToolButton *breakOnError, QToolButton *toggleAll,
+                                                           QToolButton *remove, QToolButton *removeAll,
+                                                           QToolButton *edit, QAction *removeAllAction)
 {
+    breakOnErrorButton_ = breakOnError;
     toggleAllButton_ = toggleAll;
     removeButton_ = remove;
     removeAllButton_ = removeAll;
     editButton_ = edit;
     removeAllAction_ = removeAllAction;
 
+    if (breakOnErrorButton_)
+    {
+        connect(breakOnErrorButton_, &QToolButton::toggled, this, [this](bool checked) {
+            wslua_debugger_set_error_break_enabled(checked);
+            host_->ensureDebuggerEnabledForActiveBreakpoints();
+        });
+    }
     if (toggleAllButton_)
     {
         connect(toggleAllButton_, &QToolButton::clicked, this, &LuaDebuggerBreakpointsController::toggleAllActive);
@@ -1486,7 +1494,6 @@ void LuaDebuggerBreakpointsController::refreshFromEngine()
     model_->removeRows(0, model_->rowCount());
     model_->setHeaderData(BreakpointColumn::Location, Qt::Horizontal, host_->tr("Location"));
     unsigned count = wslua_debugger_get_breakpoint_count();
-    bool hasActiveBreakpoint = false;
     const bool collectInitialFiles = !tabsPrimed_;
     QVector<QString> initialBreakpointFiles;
     QSet<QString> seenInitialFiles;
@@ -1672,11 +1679,6 @@ void LuaDebuggerBreakpointsController::refreshFromEngine()
         lineItem->setToolTip(tooltipText);
         locationItem->setToolTip(tooltipText);
 
-        if (active && fileExists)
-        {
-            hasActiveBreakpoint = true;
-        }
-
         model_->appendRow({activeItem, lineItem, locationItem});
 
         /* Highlight the breakpoint row that matches the current pause
@@ -1710,11 +1712,7 @@ void LuaDebuggerBreakpointsController::refreshFromEngine()
         }
     }
 
-    if (hasActiveBreakpoint)
-    {
-        host_->ensureDebuggerEnabledForActiveBreakpoints();
-    }
-    host_->refreshDebuggerStateUi();
+    host_->ensureDebuggerEnabledForActiveBreakpoints();
 
     if (collectInitialFiles)
     {
@@ -1723,6 +1721,10 @@ void LuaDebuggerBreakpointsController::refreshFromEngine()
     }
 
     updateHeaderButtonState();
+    if (breakOnErrorButton_)
+    {
+        breakOnErrorButton_->setChecked(wslua_debugger_get_error_break_enabled());
+    }
     suppressItemChanged_ = prevSuppress;
 }
 
@@ -1743,17 +1745,15 @@ void LuaDebuggerBreakpointsController::onItemChanged(QStandardItem *item)
     {
         return;
     }
+
     const QString file = item->data(BreakpointFileRole).toString();
     const int64_t lineNumber = item->data(BreakpointLineRole).toLongLong();
     const bool active = item->checkState() == Qt::Checked;
     wslua_debugger_set_breakpoint_active(file.toUtf8().constData(), lineNumber, active);
-    /* Activating or deactivating a breakpoint must never change the
-     * debugger's enabled state. This is especially important during a live
-     * capture, where debugging is suppressed and any flip (direct or
-     * deferred via LuaDebuggerCaptureSuppression's prev-enabled snapshot)
-     * would silently re-enable the debugger when the capture ends. Just
-     * refresh the UI to mirror the (unchanged) core state. */
-    host_->refreshDebuggerStateUi();
+    /* Reconcile debugger enabled state against the current trigger set
+     * (active breakpoints + Break on Error). Live-capture suppression is
+     * handled inside ensureDebuggerEnabledForActiveBreakpoints(). */
+    host_->ensureDebuggerEnabledForActiveBreakpoints();
 
     refreshOpenTabMarkers({file});
 
@@ -2349,10 +2349,14 @@ void LuaDebuggerBreakpointsController::serializeTo(QVariantMap &settingsMap) con
         list.append(bp.toVariantMap());
     }
     settingsMap[LuaDebuggerSettingsKeys::Breakpoints] = list;
+    settingsMap[LuaDebuggerSettingsKeys::BreakOnError] = wslua_debugger_get_error_break_enabled();
 }
 
 void LuaDebuggerBreakpointsController::restoreFrom(const QVariantMap &settingsMap)
 {
+    const bool breakOnError = settingsMap.value(LuaDebuggerSettingsKeys::BreakOnError, false).toBool();
+    wslua_debugger_set_error_break_enabled(breakOnError);
+
     QJsonArray breakpointsArray = LuaDebuggerSettingsStore::jsonArrayAt(settingsMap, LuaDebuggerSettingsKeys::Breakpoints);
     for (const QJsonValue &val : breakpointsArray)
     {
@@ -2462,6 +2466,31 @@ CollapsibleSection *LuaDebuggerDialog::createBreakpointsSection(QWidget *parent)
         bpHeaderBtnLayout->setContentsMargins(0, 0, 0, 0);
         bpHeaderBtnLayout->setSpacing(4);
         bpHeaderBtnLayout->setAlignment(Qt::AlignVCenter);
+        QToolButton *const bpErrBreakBtn = new QToolButton(bpHeaderBtnRow);
+        breakpointHeaderBreakOnErrorButton_ = bpErrBreakBtn;
+
+        /* Refresh the icon and tooltip to reflect the current checked state. */
+        auto updateErrBreakChrome = [this, hdrH, hdrTitleFont]() {
+            if (!breakpointHeaderBreakOnErrorButton_)
+                return;
+            bool checked = breakpointHeaderBreakOnErrorButton_->isChecked();
+            QIcon icon = luaDbgErrorBreakHeaderIcon(checked, hdrH, devicePixelRatioF(),
+                                                    hdrTitleFont, palette());
+            breakpointHeaderBreakOnErrorButton_->setIcon(icon);
+            breakpointHeaderBreakOnErrorButton_->setToolTip(
+                checked ? tr("ON \u2014 Break on Lua errors")
+                        : tr("OFF \u2014 Break on Lua errors"));
+        };
+
+        bpErrBreakBtn->setCheckable(true);
+        bpErrBreakBtn->setChecked(wslua_debugger_get_error_break_enabled());
+
+        styleLuaDebuggerHeaderIconOnlyButton(bpErrBreakBtn, hdrH);
+        bpErrBreakBtn->setAutoRaise(true);
+        bpErrBreakBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
+        updateErrBreakChrome();  /* Seed icon and tooltip from the initial state. */
+
+        connect(bpErrBreakBtn, &QToolButton::toggled, this, updateErrBreakChrome);
         QToolButton *const bpTglBtn = new QToolButton(bpHeaderBtnRow);
         breakpointHeaderToggleButton_ = bpTglBtn;
         styleLuaDebuggerHeaderBreakpointToggleButton(bpTglBtn, hdrH);
@@ -2509,6 +2538,7 @@ CollapsibleSection *LuaDebuggerDialog::createBreakpointsSection(QWidget *parent)
         bpRemAllBtn->setEnabled(false);
         bpRemAllBtn->setToolTip(
             tr("Remove All Breakpoints (%1)").arg(kLuaDbgCtxRemoveAllBreakpoints.toString(QKeySequence::NativeText)));
+        bpHeaderBtnLayout->addWidget(bpErrBreakBtn);
         bpHeaderBtnLayout->addWidget(bpTglBtn);
         bpHeaderBtnLayout->addWidget(bpRemBtn);
         bpHeaderBtnLayout->addWidget(bpEditBtn);
@@ -2533,7 +2563,7 @@ void LuaDebuggerDialog::wireBreakpointsPanel()
     actionRemoveAllBreakpoints_->setEnabled(false);
     addAction(actionRemoveAllBreakpoints_);
 
-    breakpointsController_.attachHeaderButtons(breakpointHeaderToggleButton_, breakpointHeaderRemoveButton_,
-                                               breakpointHeaderRemoveAllButton_, breakpointHeaderEditButton_,
-                                               actionRemoveAllBreakpoints_);
+    breakpointsController_.attachHeaderButtons(breakpointHeaderBreakOnErrorButton_, breakpointHeaderToggleButton_,
+                                               breakpointHeaderRemoveButton_, breakpointHeaderRemoveAllButton_,
+                                               breakpointHeaderEditButton_, actionRemoveAllBreakpoints_);
 }

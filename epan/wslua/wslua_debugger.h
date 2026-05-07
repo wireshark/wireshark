@@ -132,10 +132,29 @@ extern "C"
     wslua_debugger_set_user_explicitly_disabled(bool user_wants_debugger_stay_off);
 
     /**
-     * @brief True if the UI may enable the debugger for active breakpoints
-     *        and similar (false when the user has asked the debugger to stay
-     *        off). Does not consider capture; the UI may combine this with
-     *        e.g. live-capture gating.
+     * @brief True if the user has explicitly asked to keep the debugger off.
+     *
+     * Tracks the @c user_explicitly_disabled intent flag (set via
+     * @ref wslua_debugger_set_user_explicitly_disabled). The visible
+     * "Debugger enabled" core flag can be off without this being true
+     * (for example, no active breakpoints and Break on Error off — the
+     * line hook is simply uninstalled). The UI persists this intent so
+     * a close/reopen cycle does not turn an automatic-off into an
+     * explicit-off.
+     */
+    WS_DLL_PUBLIC bool
+    wslua_debugger_get_user_explicitly_disabled(void);
+
+    /**
+     * @brief True if the UI may auto-enable the debugger for breakpoint-like
+     *        triggers.
+     *
+     * Returns true only when the user has not explicitly disabled the
+     * debugger and at least one auto-break trigger exists (an active
+     * breakpoint or Break on Error).
+     *
+     * Does not consider capture; the UI may combine this with live-capture
+     * gating.
      */
     WS_DLL_PUBLIC bool
     wslua_debugger_may_auto_enable_for_breakpoints(void);
@@ -200,23 +219,6 @@ extern "C"
      * value is still stored for the next pause.
      */
     WS_DLL_PUBLIC void wslua_debugger_set_variable_stack_level(int32_t level);
-
-    /**
-     * @brief Current variable-inspection stack level (see
-     *        wslua_debugger_set_variable_stack_level()).
-     */
-    WS_DLL_PUBLIC int32_t wslua_debugger_get_variable_stack_level(void);
-
-    /**
-     * @brief Suggest a stack frame index for a path-style watch (same indices as
-     *        wslua_debugger_set_variable_stack_level / lua_getstack: 0 = innermost).
-     *
-     * @c Globals.… and section-only specs return -1. @c Locals.… searches locals
-     * only; @c Upvalues.… searches upvalues only; unqualified specs try locals
-     * (innermost first) then upvalues. Returns -1 when not paused or no match.
-     */
-    WS_DLL_PUBLIC int32_t wslua_debugger_find_stack_level_for_watch_spec(
-        const char *spec);
 
     /**
      * @brief Run execution until a specific line is reached.
@@ -393,21 +395,6 @@ extern "C"
     wslua_debugger_get_breakpoint_state(const char *file_path, int64_t line);
 
     /**
-     * @brief Get breakpoint state using an already-canonical path.
-     *
-     * Like wslua_debugger_get_breakpoint_state() but skips path
-     * canonicalization. Use with wslua_debugger_canonical_path() to
-     * avoid repeated allocations when checking many lines in one file.
-     *
-     * @param canonical_path A canonical file path.
-     * @param line The line number.
-     * @return 1 if active, 0 if inactive, -1 if not found.
-     */
-    WS_DLL_PUBLIC int32_t
-    wslua_debugger_get_breakpoint_state_canonical(
-        const char *canonical_path, int64_t line);
-
-    /**
      * @brief Return a newly allocated canonical path.
      * @param file_path The raw file path.
      * @return Canonical path (caller must g_free), or NULL on failure.
@@ -546,9 +533,9 @@ extern "C"
      * @return -1 if no breakpoint exists, 0 if inactive, 1 if active.
      */
     WS_DLL_PUBLIC int32_t
-    wslua_debugger_get_breakpoint_state_canonical_ex(const char *canonical_path,
-                                                     int64_t line,
-                                                     bool *has_extras);
+    wslua_debugger_get_breakpoint_state_canonical(const char *canonical_path,
+                                                  int64_t line,
+                                                  bool *has_extras);
 
     /**
      * @brief Callback type for logpoint output.
@@ -671,6 +658,24 @@ extern "C"
     WS_DLL_PUBLIC bool wslua_debugger_is_paused(void);
 
     /**
+     * @brief True when Lua dissector entry should be blocked.
+     *
+     * This is true while deferred reload is in progress, or while the debugger
+     * is paused in a nested UI loop and Lua re-entry would be unsafe.
+     */
+    WS_DLL_PUBLIC bool wslua_debugger_should_block_dissector_entry(void);
+
+    /**
+     * @brief Drop references to a Lua coroutine that is about to be reset/freed.
+     *
+     * The Lua dissection path runs each call in a temporary coroutine. If one
+     * of those coroutines is being destroyed, any debugger pointer to it
+     * (paused state or runtime-error snapshot state) must be invalidated first
+     * to avoid later dereferences of freed Lua state.
+     */
+    WS_DLL_PUBLIC void wslua_debugger_forget_lua_thread(lua_State *L);
+
+    /**
      * @brief Callback type for script-loaded notification.
      *
      * This callback is invoked each time a Lua script file is loaded
@@ -728,6 +733,62 @@ extern "C"
      */
     WS_DLL_PUBLIC void wslua_debugger_foreach_loaded_script(
         wslua_debugger_loaded_script_callback_t callback, void *user_data);
+
+    /**
+     * @brief Enable or disable break-on-error mode.
+     *
+     * When enabled, any Lua error (from error(), assert(), or uncaught errors)
+     * will pause the debugger. The error message and location are captured and
+     * made available for inspection.
+     *
+     * @param enabled true to enable, false to disable.
+     */
+    WS_DLL_PUBLIC void wslua_debugger_set_error_break_enabled(bool enabled);
+
+    /**
+     * @brief Check if break-on-error is enabled.
+     * @return true if enabled, false otherwise.
+     */
+    WS_DLL_PUBLIC bool wslua_debugger_get_error_break_enabled(void);
+
+    /**
+     * @brief Capture runtime-error location and stack while Lua is still in
+     *        the message-handler phase.
+     *
+     * This records file/line/message and a stack snapshot, but does not pause.
+     * Callers typically invoke this from an error handler and then call
+     * @ref wslua_debugger_after_pcall_failure after @c lua_pcall returns to
+     * trigger the deferred break-on-error pause path with this snapshot in hand.
+     * @param L   The Lua state.
+     * @param msg The error message (may be NULL).
+     * @return true if debugger and break-on-error enabled, false otherwise.
+     */
+    WS_DLL_PUBLIC bool wslua_debugger_capture_runtime_error(lua_State *L,
+                                                            const char *msg);
+
+    /**
+     * @brief Standard pcall-failure handling.
+     *
+     * Convenience wrapper that triggers the deferred runtime-error pause
+     * path so break-on-error pauses fire from the post-pcall path.  Use this directly
+     * after a non-OK @c lua_pcall return.
+     *
+     * @param L The Lua state whose top-of-stack holds the error message.
+     */
+    WS_DLL_PUBLIC void wslua_debugger_after_pcall_failure(lua_State *L);
+
+    /**
+     * @brief Consume the most recent break-on-error message, if any.
+     *
+     * Returns the captured error text (file/line prefix included as Lua
+     * produced it) and clears the "an error pause occurred" flag, so the
+     * next call returns @c NULL until another break-on-error fires.
+     * Returns @c NULL when no pending error pause is present.
+     *
+     * The returned pointer is owned by the debugger and remains valid
+     * until the next break-on-error capture.
+     */
+    WS_DLL_PUBLIC const char *wslua_debugger_consume_error_text(void);
 
     /*
      * Watch path APIs (below) take @c debugger.mutex when they touch the
@@ -850,21 +911,6 @@ extern "C"
         bool *can_expand_out, char **error_msg);
 
     /**
-     * @brief Evaluate @a spec, walk @a subpath on the result, and report
-     *        the resolved descendant's Value/Type/expand bit.
-     *
-     * @a subpath uses the same syntax as the tail of a path watch
-     * (e.g. @c "[1].name"). An empty / NULL @a subpath returns the same
-     * data as @ref wslua_debugger_watch_expr_read_root.
-     *
-     * The expression is re-evaluated on every call; the same instruction
-     * and call-depth caps as @ref wslua_debugger_evaluate apply.
-     */
-    WS_DLL_PUBLIC bool wslua_debugger_watch_expr_read_subpath(
-        const char *spec, const char *subpath, char **value_out,
-        char **type_out, bool *can_expand_out, char **error_msg);
-
-    /**
      * @brief Evaluate @a spec, walk @a subpath, and enumerate the
      *        descendant's children into @c wslua_variable_t records.
      *
@@ -886,11 +932,11 @@ extern "C"
      * @brief Read the full untruncated stringified value of an expression
      *        watch (root or sub-element) for the Copy Value action.
      *
-     * @a subpath uses the same syntax as
-     * @ref wslua_debugger_watch_expr_read_subpath; an empty / NULL subpath
-     * targets the root expression result. Tables still summarise as
-     * @c "table[N]"; binary string values (e.g. @c Tvb @c __tostring) are
-     * preserved verbatim including embedded NULs.
+     * @a subpath uses the same path-tail syntax as
+     * @ref wslua_debugger_watch_expr_get_variables (e.g. @c "[1].name");
+     * an empty / NULL subpath targets the root expression result. Tables
+     * still summarise as @c "table[N]"; binary string values (e.g. @c Tvb
+     * @c __tostring) are preserved verbatim including embedded NULs.
      */
     WS_DLL_PUBLIC bool wslua_debugger_watch_expr_read_full(
         const char *spec, const char *subpath, char **value_out,

@@ -20,6 +20,7 @@
 /* WSLUA_MODULE Listener Post-Dissection Packet Analysis */
 
 #include "wslua.h"
+#include "wslua_debugger.h"
 
 WSLUA_CLASS_DEFINE(Listener,FAIL_ON_NULL("Listener"));
 /*
@@ -35,6 +36,11 @@ static int tap_packet_cb_error_handler(lua_State* L) {
     char* where =  (lua_pinfo) ?
         wmem_strdup_printf(NULL, "Lua: on packet %i Error during execution of Listener packet callback",lua_pinfo->num) :
         wmem_strdup_printf(NULL, "Lua: Error during execution of Listener packet callback") ;
+
+    if (wslua_debugger_capture_runtime_error(L, error)) {
+        ws_warning("%s:\n%s",where,error);
+        return 0;
+    }
 
     /* show the error the 1st, 3rd, 5th, 9th, 17th, 33th... time it appears to avoid window flooding */
     /* XXX the last series of identical errors won't be shown (the user however gets at least one message) */
@@ -72,6 +78,7 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
     Listener tap = (Listener)tapdata;
     tap_packet_status retval = TAP_PACKET_DONT_REDRAW;
     TreeItem lua_tree_tap;
+    int status;
 
     if (tap->packet_ref == LUA_NOREF) return TAP_PACKET_DONT_REDRAW; /* XXX - report error and return TAP_PACKET_FAILED? */
 
@@ -93,11 +100,13 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
     lua_tree_tap = create_TreeItem(edt->tree, NULL);
     lua_tree = lua_tree_tap;
 
-    switch ( lua_pcall(tap->L,3,1,1) ) {
-        case 0:
-            /* XXX - treat 2 as TAP_PACKET_FAILED? */
-            retval = luaL_optinteger(tap->L,-1,1) == 0 ? TAP_PACKET_DONT_REDRAW : TAP_PACKET_REDRAW;
-            break;
+    status = lua_pcall(tap->L, 3, 1, 1);
+    if (status == LUA_OK) {
+        /* XXX - treat 2 as TAP_PACKET_FAILED? */
+        retval = luaL_optinteger(tap->L,-1,1) == 0 ? TAP_PACKET_DONT_REDRAW : TAP_PACKET_REDRAW;
+    } else {
+        wslua_debugger_after_pcall_failure(tap->L);
+        switch (status) {
         case LUA_ERRRUN:
             /* XXX - TAP_PACKET_FAILED? */
             break;
@@ -111,6 +120,7 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
         default:
             ws_assert_not_reached();
             break;
+        }
     }
 
     clear_outstanding_Pinfo();
@@ -126,21 +136,27 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
 
 static int tap_reset_cb_error_handler(lua_State* L) {
     const char* error = lua_tostring(L,1);
-    report_failure("Lua: Error during execution of Listener reset callback:\n %s",error);
+    if (wslua_debugger_capture_runtime_error(L, error)) {
+        ws_warning("Lua: Error during execution of Listener reset callback:\n %s",error);
+    } else {
+        report_failure("Lua: Error during execution of Listener reset callback:\n %s",error);
+    }
     return 0;
 }
 
 static void lua_tap_reset(void *tapdata) {
     Listener tap = (Listener)tapdata;
+    int status;
 
     if (tap->reset_ref == LUA_NOREF) return;
 
     lua_pushcfunction(tap->L,tap_reset_cb_error_handler);
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->reset_ref);
 
-    switch ( lua_pcall(tap->L,0,0,lua_gettop(tap->L)-1) ) {
-        case 0:
-            break;
+    status = lua_pcall(tap->L, 0, 0, lua_gettop(tap->L)-1);
+    if (status != LUA_OK) {
+        wslua_debugger_after_pcall_failure(tap->L);
+        switch (status) {
         case LUA_ERRRUN:
             ws_warning("Runtime error while calling a listener's init()");
             break;
@@ -153,28 +169,34 @@ static void lua_tap_reset(void *tapdata) {
         default:
             ws_assert_not_reached();
             break;
+        }
     }
 }
 
 static int tap_draw_cb_error_handler(lua_State* L) {
     const char* error = lua_tostring(L,1);
-    report_failure("Lua: Error during execution of Listener draw callback:\n %s",error);
+    if (wslua_debugger_capture_runtime_error(L, error)) {
+        ws_warning("Lua: Error during execution of Listener draw callback:\n %s",error);
+    } else {
+        report_failure("Lua: Error during execution of Listener draw callback:\n %s",error);
+    }
     return 0;
 }
 
 static void lua_tap_draw(void *tapdata) {
     Listener tap = (Listener)tapdata;
     const char* error;
+    int status;
 
     if (tap->draw_ref == LUA_NOREF) return;
 
     lua_pushcfunction(tap->L,tap_draw_cb_error_handler);
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->draw_ref);
 
-    switch ( lua_pcall(tap->L,0,0,lua_gettop(tap->L)-1) ) {
-        case 0:
-            /* OK */
-            break;
+    status = lua_pcall(tap->L, 0, 0, lua_gettop(tap->L)-1);
+    if (status != LUA_OK) {
+        wslua_debugger_after_pcall_failure(tap->L);
+        switch (status) {
         case LUA_ERRRUN:
             error = lua_tostring(tap->L,-1);
             ws_warning("Runtime error while calling a listener's draw(): %s",error);
@@ -188,6 +210,7 @@ static void lua_tap_draw(void *tapdata) {
         default:
             ws_assert_not_reached();
             break;
+        }
     }
 }
 

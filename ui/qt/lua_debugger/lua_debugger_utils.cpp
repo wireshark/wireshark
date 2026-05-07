@@ -159,6 +159,14 @@ using namespace LuaDebuggerItems;
 namespace LuaDebuggerPath
 {
 
+LuaDbgInvalidFilterColors invalidFilterColors()
+{
+    LuaDbgInvalidFilterColors colors;
+    colors.fg = ColorUtils::fromColorT(&prefs.gui_filter_invalid_fg);
+    colors.bg = ColorUtils::fromColorT(&prefs.gui_filter_invalid_bg);
+    return colors;
+}
+
 bool watchSpecIsGlobalScoped(const QString &spec)
 {
     const QString t = spec.trimmed();
@@ -579,12 +587,11 @@ void applyWatchFilterErrorChrome(QStandardItem *specItem, QTreeView *tree)
     {
         return;
     }
-    QColor fg = ColorUtils::fromColorT(&prefs.gui_filter_invalid_fg);
-    QColor bg = ColorUtils::fromColorT(&prefs.gui_filter_invalid_bg);
-    setForeground(wm, specItem, WatchColumn::Spec, fg);
-    setForeground(wm, specItem, WatchColumn::Value, fg);
-    setBackground(wm, specItem, WatchColumn::Spec, bg);
-    setBackground(wm, specItem, WatchColumn::Value, bg);
+    const LuaDbgInvalidFilterColors colors = invalidFilterColors();
+    setForeground(wm, specItem, WatchColumn::Spec, colors.fg);
+    setForeground(wm, specItem, WatchColumn::Value, colors.fg);
+    setBackground(wm, specItem, WatchColumn::Spec, colors.bg);
+    setBackground(wm, specItem, WatchColumn::Value, colors.bg);
 }
 
 void setupWatchRootItemFromSpec(QStandardItem *specItem, QStandardItem *valueItem, const QString &spec)
@@ -857,6 +864,39 @@ void styleLuaDebuggerHeaderIconOnlyButton(QToolButton *btn, int side)
     btn->setFixedSize(btnSide, btnSide);
     btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     btn->setText(QString());
+}
+
+QIcon luaDbgErrorBreakHeaderIcon(bool checked, int side, qreal dpr,
+                                 const QFont &titleFont, const QPalette &palette)
+{
+    /* Paint a warning-sign glyph (U+26A0 + U+FE0E text-presentation
+     * selector for monochrome rendering across platforms), red when
+     * checked (active), gray when unchecked. Matches the red color
+     * (#DC3545) used in the Toggle All button when active. */
+    QColor glyphColor = checked ? QColor(QStringLiteral("#DC3545"))
+                                : palette.color(QPalette::Disabled, QPalette::Text);
+
+    QIcon icon = luaDbgPaintedGlyphButtonIcon(
+        QString::fromUtf8("\xe2\x9a\xa0\xef\xb8\x8e"),
+        side, dpr, titleFont, palette, /*margin=*/2);
+    QPixmap pixmap = icon.pixmap(side, side, checked ? QIcon::Normal : QIcon::Disabled);
+
+    if (!pixmap.isNull()) {
+        QImage img = pixmap.toImage();
+        for (int y = 0; y < img.height(); ++y) {
+            for (int x = 0; x < img.width(); ++x) {
+                QColor c = img.pixelColor(x, y);
+                if (c.alpha() > 0) {
+                    c.setRed(glyphColor.red());
+                    c.setGreen(glyphColor.green());
+                    c.setBlue(glyphColor.blue());
+                    img.setPixelColor(x, y, c);
+                }
+            }
+        }
+        icon = QIcon(QPixmap::fromImage(img));
+    }
+    return icon;
 }
 
 QIcon luaDbgMakeSelectionAwareIcon(const QIcon &base, const QPalette &palette)

@@ -88,8 +88,6 @@ class LuaDebuggerLuaReloadCoordinator : public QObject
     void handlePreReload();
     void handlePostReload();
 
-    bool reloadUiActive() const { return reloadUiActive_; }
-
     /** @brief If @ref reloadDeferred_ was set, clear it and return true. */
     bool takeDeferredReload();
 
@@ -104,8 +102,6 @@ class LuaDebuggerLuaReloadCoordinator : public QObject
     LuaDebuggerDialog *host_ = nullptr;
     bool reloadDeferred_ = false;
     bool reloadUiActive_ = false;
-    bool reloadUiSavedCheckboxChecked_ = false;
-    bool reloadUiSavedCheckboxEnabled_ = true;
     bool reloadUiRequestWasEnabled_ = false;
 };
 
@@ -323,6 +319,15 @@ class LuaDebuggerDialog : public GeometryStateDialog
     /** @brief Point find / goto bars at the active code tab. */
     void updateLuaEditorAuxFrames();
 
+    /** @brief Populate/hide the inline error frame for paused break-on-error states. */
+    void updatePausedErrorFrame();
+
+    /** @brief Schedule a delayed hide to avoid hide/show flicker on rapid re-pauses. */
+    void scheduleErrorFrameHide(int delayMs);
+
+    /** @brief Cancel any pending delayed hide token. */
+    void cancelErrorFrameHide();
+
     /** @brief Enable or disable the Continue action based on debugger state. */
     void updateContinueActionState();
 
@@ -523,6 +528,8 @@ class LuaDebuggerDialog : public GeometryStateDialog
     /** @brief Breakpoints section header: remove selected breakpoint row(s). */
     QToolButton *breakpointHeaderRemoveButton_ = nullptr;
     QToolButton *breakpointHeaderRemoveAllButton_ = nullptr;
+    /** @brief Breakpoints section header: toggle break-on-error mode. */
+    QToolButton *breakpointHeaderBreakOnErrorButton_ = nullptr;
     /**
      * @brief Breakpoints section header: open the inline condition /
      *        hit count / log message editor on the focused row. Enabled
@@ -621,6 +628,9 @@ class LuaDebuggerDialog : public GeometryStateDialog
     /** @brief Line number of the pause; see @ref pausedFile_. Zero when
      *  the debugger is not paused. */
     qlonglong pausedLine_ = 0;
+
+    /** @brief Monotonic token used to debounce delayed error-frame hides. */
+    int errorFrameHideEpoch_ = 0;
 
     void refreshChangedValueBrushes() { changeHighlight_.refreshChangedValueBrushes(watchTree, this); }
 

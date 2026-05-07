@@ -17,6 +17,7 @@
 
 #include <QBrush>
 #include <QChar>
+#include <QColor>
 #include <QFont>
 #include <QHash>
 #include <QIcon>
@@ -103,6 +104,7 @@ constexpr const char *SectionSettings = "sectionSettings";
 constexpr const char *SectionWatch = "sectionWatch";
 constexpr const char *Breakpoints = "breakpoints";
 constexpr const char *Watches = "watches";
+constexpr const char *BreakOnError = "breakOnError";
 } // namespace LuaDebuggerSettingsKeys
 
 // Tree widget UserRoles (must stay stable for persisted settings / model code).
@@ -299,6 +301,14 @@ inline void setExpanded(QTreeView *tree, QStandardItemModel *model, QStandardIte
 namespace LuaDebuggerPath
 {
 
+struct LuaDbgInvalidFilterColors
+{
+    QColor fg;
+    QColor bg;
+};
+
+LuaDbgInvalidFilterColors invalidFilterColors();
+
 bool watchSpecIsGlobalScoped(const QString &spec);
 
 bool variablesPathIsGlobalScoped(const QString &path);
@@ -443,6 +453,23 @@ void styleLuaDebuggerHeaderFittedTextButton(QToolButton *btn, int side, const QF
 void styleLuaDebuggerHeaderPlusMinusButton(QToolButton *btn, int side, const QFont &titleFont);
 
 void styleLuaDebuggerHeaderIconOnlyButton(QToolButton *btn, int side);
+
+/**
+ * @brief Build a colored Break-on-Error toggle icon for the breakpoints
+ *        section header.
+ *
+ * Paints a warning-sign glyph, red (#DC3545) when checked (active),
+ * gray (disabled text color) when unchecked.
+ *
+ * @param checked   true to paint yellow, false to paint gray
+ * @param side      icon size in pixels
+ * @param dpr       device pixel ratio
+ * @param titleFont font to use for glyph rendering
+ * @param palette   palette for disabled text color
+ * @return colored warning-sign icon
+ */
+QIcon luaDbgErrorBreakHeaderIcon(bool checked, int side, qreal dpr,
+                                 const QFont &titleFont, const QPalette &palette);
 
 /* ===== from key_router ===== */
 

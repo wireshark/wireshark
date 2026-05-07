@@ -16,6 +16,7 @@
 #include <epan/wmem_scopes.h>
 
 #include "wslua.h"
+#include "wslua_debugger.h"
 
 /* WSLUA_MODULE Gui GUI Support */
 struct _lua_menu_data {
@@ -24,8 +25,12 @@ struct _lua_menu_data {
 };
 
 static int menu_cb_error_handler(lua_State* L) {
-    const char* error =  lua_tostring(L,1);
-    report_failure("Lua: Error during execution of Menu callback:\n %s",error);
+    const char* error = lua_tostring(L,1);
+    if (wslua_debugger_capture_runtime_error(L, error)) {
+        ws_warning("Lua: Error during execution of Menu callback:\n %s",error);
+    } else {
+        report_failure("Lua: Error during execution of Menu callback:\n %s",error);
+    }
     return 0;
 }
 
@@ -38,14 +43,16 @@ WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks if we're running insi
 static void lua_menu_callback(void *data) {
     struct _lua_menu_data* md = (struct _lua_menu_data *)data;
     lua_State* L = md->L;
+    int status;
 
     lua_settop(L,0);
     lua_pushcfunction(L,menu_cb_error_handler);
     lua_rawgeti(L, LUA_REGISTRYINDEX, md->cb_ref);
 
-    switch ( lua_pcall(L,0,0,1) ) {
-        case 0:
-            break;
+    status = lua_pcall(L, 0, 0, 1);
+    if (status != LUA_OK) {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
         case LUA_ERRRUN:
             ws_warning("Runtime error while calling menu callback");
             break;
@@ -58,6 +65,7 @@ static void lua_menu_callback(void *data) {
         default:
             ws_assert_not_reached();
             break;
+        }
     }
 
     return;
@@ -148,8 +156,12 @@ void wslua_deregister_menus(void) {
  * @return Always returns 0
  */
 static int packet_menu_cb_error_handler(lua_State* L) {
-    const char* error =  lua_tostring(L,1);
-    report_failure("Lua: Error During execution of Packet Menu Callback:\n %s",error);
+    const char* error = lua_tostring(L,1);
+    if (wslua_debugger_capture_runtime_error(L, error)) {
+        ws_warning("Lua: Error During execution of Packet Menu Callback:\n %s",error);
+    } else {
+        report_failure("Lua: Error During execution of Packet Menu Callback:\n %s",error);
+    }
     return 0;
 }
 
@@ -164,6 +176,7 @@ static void lua_custom_packet_menu_callback(void *data, GPtrArray *finfo_array) 
     // _lua_menu_data is State + the integer index of a callback.
     struct _lua_menu_data* md = (struct _lua_menu_data *)data;
     lua_State* L = md->L;
+    int status;
 
     lua_settop(L,0);
     lua_pushcfunction(L,packet_menu_cb_error_handler);
@@ -177,9 +190,10 @@ static void lua_custom_packet_menu_callback(void *data, GPtrArray *finfo_array) 
         items_found++;
     }
 
-    switch ( lua_pcall(L,items_found,0,1) ) {
-        case 0:
-            break;
+    status = lua_pcall(L, items_found, 0, 1);
+    if (status != LUA_OK) {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
         case LUA_ERRRUN:
             g_warning("Runtime error while calling custom_packet_menu callback");
             break;
@@ -189,6 +203,7 @@ static void lua_custom_packet_menu_callback(void *data, GPtrArray *finfo_array) 
         default:
             g_assert_not_reached();
             break;
+        }
     }
 
     return;
@@ -235,7 +250,11 @@ struct _dlg_cb_data {
 
 static int dlg_cb_error_handler(lua_State* L) {
     const char* error =  lua_tostring(L,1);
-    report_failure("Lua: Error during execution of Dialog callback:\n %s",error);
+    if (wslua_debugger_capture_runtime_error(L, error)) {
+        ws_warning("Lua: Error during execution of Dialog callback:\n %s",error);
+    } else {
+        report_failure("Lua: Error during execution of Dialog callback:\n %s",error);
+    }
     return 0;
 }
 
@@ -244,6 +263,7 @@ static void lua_dialog_cb(char** user_input, void* data) {
     int i = 0;
     char* input;
     lua_State* L = dcbd->L;
+    int status;
 
     lua_settop(L,0);
     lua_pushcfunction(L,dlg_cb_error_handler);
@@ -256,9 +276,10 @@ static void lua_dialog_cb(char** user_input, void* data) {
 
     g_free(user_input);
 
-    switch ( lua_pcall(L,i,0,1) ) {
-        case 0:
-            break;
+    status = lua_pcall(L, i, 0, 1);
+    if (status != LUA_OK) {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
         case LUA_ERRRUN:
             ws_warning("Runtime error while calling dialog callback");
             break;
@@ -271,6 +292,7 @@ static void lua_dialog_cb(char** user_input, void* data) {
         default:
             ws_assert_not_reached();
             break;
+        }
     }
 
 }
@@ -284,13 +306,18 @@ struct _close_cb_data {
 
 static int text_win_close_cb_error_handler(lua_State* L) {
     const char* error =  lua_tostring(L,1);
-    report_failure("Lua: Error during execution of TextWindow close callback:\n %s",error);
+    if (wslua_debugger_capture_runtime_error(L, error)) {
+        ws_warning("Lua: Error during execution of TextWindow close callback:\n %s",error);
+    } else {
+        report_failure("Lua: Error during execution of TextWindow close callback:\n %s",error);
+    }
     return 0;
 }
 
 static void text_win_close_cb(void* data) {
     struct _close_cb_data* cbd = (struct _close_cb_data *)data;
     lua_State* L = cbd->L;
+    int status;
 
     if (cbd->L) { /* close function is set */
 
@@ -298,9 +325,10 @@ static void text_win_close_cb(void* data) {
         lua_pushcfunction(L,text_win_close_cb_error_handler);
         lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
 
-        switch ( lua_pcall(L,0,0,1) ) {
-            case 0:
-                break;
+        status = lua_pcall(L, 0, 0, 1);
+        wslua_debugger_after_pcall_failure(L);
+        if (status != LUA_OK) {
+            switch (status) {
             case LUA_ERRRUN:
                 ws_warning("Runtime error during execution of TextWindow close callback");
                 break;
@@ -312,6 +340,7 @@ static void text_win_close_cb(void* data) {
                 break;
             default:
                 break;
+            }
         }
     }
 
@@ -925,19 +954,20 @@ typedef struct _wslua_bt_cb_t {
     int wslua_tw_ref;
 } wslua_bt_cb_t;
 
-static bool wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
+static bool wslua_button_callback(funnel_text_window_t* ws_tw _U_, void* data) {
     wslua_bt_cb_t* cbd = (wslua_bt_cb_t *)data;
     lua_State* L = cbd->L;
-    (void) ws_tw; /* ws_tw is unused since we need wslua_tw_ref and it is stored in cbd */
+    int status;
 
     lua_settop(L,0);
     lua_pushcfunction(L,dlg_cb_error_handler);
     lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
     lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->wslua_tw_ref);
 
-    switch ( lua_pcall(L,1,0,1) ) {
-        case 0:
-            break;
+    status = lua_pcall(L, 1, 0, 1);
+    if (status != LUA_OK) {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
         case LUA_ERRRUN:
             ws_warning("Runtime error while calling button callback");
             break;
@@ -950,6 +980,7 @@ static bool wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
         default:
             ws_assert_not_reached();
             break;
+        }
     }
 
     return true;

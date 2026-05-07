@@ -109,6 +109,9 @@
          </property>
         </widget>
        </item>
+      <item>
+       <widget class="LuaDebuggerErrorFrame" name="luaDebuggerErrorFrame" native="true"/>
+      </item>
       </layout>
      </widget>
     </widget>
@@ -265,6 +268,11 @@
    <class>LuaDebuggerGoToLineFrame</class>
    <extends>QFrame</extends>
    <header>lua_debugger_goto_line_frame.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LuaDebuggerErrorFrame</class>
+   <extends>QFrame</extends>
+   <header>lua_debugger_error_frame.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

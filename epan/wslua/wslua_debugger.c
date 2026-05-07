@@ -26,6 +26,38 @@ typedef enum
     WSLUA_STEP_KIND_OUT   /**< Pause when returning to an outer frame */
 } wslua_step_kind_t;
 
+/*
+ * One captured (name, value_ref) pair for a single local or upvalue of an
+ * activation that was alive at the moment the runtime error fired.
+ *
+ * @c value_ref is a strong @c luaL_ref into the captured @c lua_State's
+ * registry; it keeps the original Lua value reachable across the
+ * @c lua_pcall unwind that destroys the activation. Pushing it back with
+ * @c lua_rawgeti yields the same value the live frame held, so the
+ * normal Watch / Variables machinery (path walker, child enumerator,
+ * value formatter) can run unchanged against either a live pause or a
+ * post-unwind error pause.
+ *
+ * Nothing else is cached here: type, value preview, full value, and
+ * @c can_expand are recomputed on demand from the pushed value, exactly
+ * the way the live pause path computes them. That guarantees the user
+ * sees the same string for the same value in both modes and avoids
+ * paying for a deep pre-capture at error time.
+ */
+typedef struct
+{
+    char *name;
+    int   value_ref;
+} wslua_runtime_error_binding_t;
+
+typedef struct
+{
+    wslua_runtime_error_binding_t *locals;
+    int32_t locals_count;
+    wslua_runtime_error_binding_t *upvalues;
+    int32_t upvalues_count;
+} wslua_runtime_error_frame_snapshot_t;
+
 /* debugger context */
 typedef struct
 {
@@ -70,6 +102,32 @@ typedef struct
      * was_enabled_before_reload.
      */
     bool user_explicitly_disabled;
+    /*
+     * Set only in wslua_debugger_notify_reload() to copy
+     * debugger.error_break_enabled before the reload path forces it false.
+     * Used by wslua_debugger_restore_after_reload() to turn break-on-error
+     * back on after cf_reload / redissect, mirroring the
+     * was_enabled_before_reload snapshot for the main enabled flag. Cleared
+     * on consume, on renounce, when the user sets user_explicitly_disabled,
+     * or when the user manually toggles break-on-error during the reload window so a
+     * pending restore does not fight that intent.
+     */
+    bool error_break_was_enabled_before_reload;
+
+    /* Break-on-error fields */
+    bool error_break_enabled;        /**< User toggle for break-on-error */
+    char *last_error_text;           /**< Error message from last caught error */
+    int64_t last_error_line;         /**< Line number where error occurred */
+    char *last_error_file;           /**< File path where error occurred */
+    bool error_break_occurred;       /**< Flag set when an error break fired (any error type) */
+    bool explicit_error_break_recent;/**< One-shot marker set by error()/assert() wrapper pauses */
+    wslua_stack_frame_t *runtime_error_stack; /**< Captured pre-unwind stack */
+    int32_t runtime_error_stack_count; /**< Number of captured stack frames */
+    wslua_runtime_error_frame_snapshot_t *runtime_error_frame_snapshots; /**< Captured pre-unwind Locals/Upvalues per frame */
+    lua_State *runtime_error_stack_L; /**< Lua state used when snapshot was taken */
+    bool runtime_error_pause_active; /**< True while a deferred runtime-error pause is active */
+    int original_error_ref;          /**< LUA_REGISTRYINDEX ref to original error() function */
+    int original_assert_ref;         /**< LUA_REGISTRYINDEX ref to original assert() function */
 } wslua_debugger_t;
 
 static wslua_debugger_t debugger = {
@@ -87,6 +145,20 @@ static wslua_debugger_t debugger = {
     false,                /* was_enabled_before_reload */
     false,                /* reload_in_progress */
     false,                /* user_explicitly_disabled */
+    false,                /* error_break_was_enabled_before_reload */
+    false,                /* error_break_enabled */
+    NULL,                 /* last_error_text */
+    0,                    /* last_error_line */
+    NULL,                 /* last_error_file */
+    false,                /* error_break_occurred */
+    false,                /* explicit_error_break_recent */
+    NULL,                 /* runtime_error_stack */
+    0,                    /* runtime_error_stack_count */
+    NULL,                 /* runtime_error_frame_snapshots */
+    NULL,                 /* runtime_error_stack_L */
+    false,                /* runtime_error_pause_active */
+    LUA_NOREF,            /* original_error_ref */
+    LUA_NOREF,            /* original_assert_ref */
 };
 
 /* Breakpoints (in-memory, persisted by Qt side) */
@@ -103,6 +175,29 @@ static int64_t debugger_start_us = 0;
 
 static GHashTable *canonical_path_cache = NULL;
 static GRWLock canonical_path_cache_lock;
+
+/* Caller must hold debugger.mutex. */
+static bool debugger_has_auto_break_triggers_locked(void)
+{
+    if (debugger.error_break_enabled)
+    {
+        return true;
+    }
+    if (!breakpoints_array)
+    {
+        return false;
+    }
+    for (unsigned i = 0; i < breakpoints_array->len; i++)
+    {
+        wslua_breakpoint_t *bp =
+            &g_array_index(breakpoints_array, wslua_breakpoint_t, i);
+        if (bp->active)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 /**
  * @brief Ensure the canonical path cache is initialized exactly once.
@@ -352,6 +447,26 @@ static bool wslua_debugger_eval_bool_at_level0(lua_State *L,
                                                 const char *expr,
                                                 bool *out_truthy,
                                                 char **error_msg);
+static bool wslua_debugger_first_lua_location(lua_State *L,
+                                              int32_t start_level,
+                                              const char **out_file_src,
+                                              int64_t *out_line);
+static void wslua_debugger_free_stack_frames(wslua_stack_frame_t *stack,
+                                             int32_t frame_count);
+static wslua_stack_frame_t *
+wslua_debugger_dup_stack_frames(const wslua_stack_frame_t *stack,
+                                int32_t frame_count);
+static bool wslua_debugger_push_function_for_ar(lua_State *L, lua_Debug *ar);
+static char *wslua_debugger_format_value_type(lua_State *L, int idx);
+static void wslua_debugger_clear_runtime_error_snapshot_locked(void);
+static char *wslua_debugger_describe_value_ex(lua_State *L, int idx,
+                                              bool truncate);
+static bool wslua_debugger_value_can_expand(lua_State *L, int idx);
+static int wslua_debugger_abs_index(lua_State *L, int idx);
+static void wslua_debugger_basic_table_counts(lua_State *L, int idx,
+                                              int64_t *total,
+                                              int64_t *visible);
+static bool wslua_debugger_basic_entry_is_hidden(lua_State *L);
 
 /**
  * @brief Per-fire context handed to the logpoint formatter.
@@ -494,20 +609,11 @@ void wslua_debugger_init(lua_State *L)
         return;
     }
 
-    /* Check if we should auto-enable based on active breakpoints */
-    bool has_active = false;
+    /* Check if we should auto-enable based on active breakpoints or break-on-error. */
+    bool has_auto_triggers = false;
     ensure_breakpoints_initialized();
     g_mutex_lock(&debugger.mutex);
-    for (unsigned i = 0; i < breakpoints_array->len; i++)
-    {
-        wslua_breakpoint_t *bp =
-            &g_array_index(breakpoints_array, wslua_breakpoint_t, i);
-        if (bp->active)
-        {
-            has_active = true;
-            break;
-        }
-    }
+    has_auto_triggers = debugger_has_auto_break_triggers_locked();
     g_mutex_unlock(&debugger.mutex);
 
     bool user_wants_debugger_off = false;
@@ -515,7 +621,7 @@ void wslua_debugger_init(lua_State *L)
     user_wants_debugger_off = debugger.user_explicitly_disabled;
     g_mutex_unlock(&debugger.mutex);
 
-    if (has_active && !user_wants_debugger_off)
+    if (has_auto_triggers && !user_wants_debugger_off)
     {
         wslua_debugger_set_enabled(true);
     }
@@ -538,6 +644,845 @@ bool wslua_debugger_is_enabled(void)
     return enabled;
 }
 
+static void wslua_debugger_free_stack_frames(wslua_stack_frame_t *stack,
+                                             int32_t frame_count)
+{
+    if (!stack || frame_count <= 0)
+    {
+        g_free(stack);
+        return;
+    }
+    for (int32_t i = 0; i < frame_count; i++)
+    {
+        g_free(stack[i].source);
+        g_free(stack[i].name);
+    }
+    g_free(stack);
+}
+
+static wslua_stack_frame_t *
+wslua_debugger_dup_stack_frames(const wslua_stack_frame_t *stack,
+                                int32_t frame_count)
+{
+    if (!stack || frame_count <= 0)
+    {
+        return NULL;
+    }
+
+    wslua_stack_frame_t *copy = g_new0(wslua_stack_frame_t, frame_count);
+    for (int32_t i = 0; i < frame_count; i++)
+    {
+        copy[i].source = g_strdup(stack[i].source ? stack[i].source : "?");
+        copy[i].line = stack[i].line;
+        copy[i].linedefined = stack[i].linedefined;
+        copy[i].name = g_strdup(stack[i].name ? stack[i].name : "?");
+    }
+    return copy;
+}
+
+static void wslua_debugger_free_variable_records(wslua_variable_t *variables,
+                                                 int32_t variable_count)
+{
+    if (!variables)
+    {
+        return;
+    }
+
+    for (int32_t variable_index = 0; variable_index < variable_count;
+         variable_index++)
+    {
+        g_free(variables[variable_index].name);
+        g_free(variables[variable_index].value);
+        g_free(variables[variable_index].type);
+    }
+    g_free(variables);
+}
+
+/*
+ * The break-on-error snapshot keeps just (name, value_ref) pairs per
+ * frame. Children, type strings, value previews, and the @c can_expand
+ * bit are computed on demand from the pushed Lua value via the live
+ * Watch helpers (@ref wslua_debugger_describe_value,
+ * @ref wslua_debugger_format_value_type,
+ * @ref wslua_debugger_value_can_expand,
+ * @ref wslua_debugger_append_children_of_value), so the visible result
+ * is byte-identical to a regular pause on the same value.
+ */
+
+/*
+ * Snapshot bindings own a @c LUA_REGISTRYINDEX ref. We deliberately
+ * anchor every ref on the persistent main state @c debugger.L instead
+ * of the activation's @c lua_State. The capture path runs on a
+ * dissector coroutine (@c L1 = @c lua_newthread() from
+ * @ref dissect_lua); that coroutine is closed and garbage-collected as
+ * soon as the dissector returns, but the snapshot must outlive the
+ * pause loop and remain inspectable until the user disables the
+ * debugger or a fresh error fires. Calling @c luaL_unref on a freed
+ * coroutine pointer is use-after-free (lua_rawgeti dereferences @c L
+ * to push to its stack), which manifests as an ASAN deadly-signal
+ * crash inside @c clear_runtime_error_snapshot_locked. The Lua
+ * registry table itself lives in the shared @c global_State, so a ref
+ * created on any thread of that family can be safely released through
+ * @c debugger.L — which is durable from @ref wslua_debugger_init until
+ * a reload (and during a reload the snapshot has already been cleared
+ * before @c debugger.L is nulled).
+ */
+
+/* Caller must hold debugger.mutex. */
+static void
+wslua_debugger_free_runtime_error_bindings(
+    wslua_runtime_error_binding_t *bindings, int32_t binding_count)
+{
+    if (!bindings)
+    {
+        return;
+    }
+    lua_State *anchor_L = debugger.L;
+    for (int32_t i = 0; i < binding_count; i++)
+    {
+        g_free(bindings[i].name);
+        if (anchor_L && bindings[i].value_ref != LUA_NOREF)
+        {
+            luaL_unref(anchor_L, LUA_REGISTRYINDEX, bindings[i].value_ref);
+        }
+    }
+    g_free(bindings);
+}
+
+/* Caller must hold debugger.mutex. */
+static void wslua_debugger_free_runtime_error_frame_snapshots(
+    wslua_runtime_error_frame_snapshot_t *frames, int32_t frame_count)
+{
+    if (!frames || frame_count <= 0)
+    {
+        g_free(frames);
+        return;
+    }
+
+    for (int32_t frame_index = 0; frame_index < frame_count; frame_index++)
+    {
+        wslua_debugger_free_runtime_error_bindings(
+            frames[frame_index].locals, frames[frame_index].locals_count);
+        wslua_debugger_free_runtime_error_bindings(
+            frames[frame_index].upvalues, frames[frame_index].upvalues_count);
+    }
+    g_free(frames);
+}
+
+/*
+ * Capture a single (name, registry-ref) pair for the value at the top of
+ * @a L. Pops the value. Lives on its own so the locals/upvalues capture
+ * loops below stay readable. The value is moved to @c debugger.L's stack
+ * via @c lua_xmove before being ref'd so the resulting ref is owned by
+ * the persistent main state and survives @a L's eventual GC; see the
+ * comment block above @ref wslua_debugger_free_runtime_error_bindings.
+ */
+static void
+wslua_debugger_capture_runtime_error_binding(
+    lua_State *L, const char *name, GArray *bindings_array)
+{
+    wslua_runtime_error_binding_t binding;
+    binding.name = g_strdup(name ? name : "");
+    lua_State *anchor_L = debugger.L;
+    if (anchor_L && anchor_L != L)
+    {
+        /* Move from the (possibly transient) coroutine stack onto the
+         * durable main state, then ref there. Both states share a
+         * single global_State so the registry table is the same. */
+        lua_xmove(L, anchor_L, 1);
+        binding.value_ref = luaL_ref(anchor_L, LUA_REGISTRYINDEX);
+    }
+    else if (anchor_L)
+    {
+        binding.value_ref = luaL_ref(anchor_L, LUA_REGISTRYINDEX);
+    }
+    else
+    {
+        /* No anchor available (debugger torn down mid-capture); drop
+         * the value to keep the stack balanced and skip the ref. */
+        lua_pop(L, 1);
+        binding.value_ref = LUA_NOREF;
+    }
+    g_array_append_val(bindings_array, binding);
+}
+
+static wslua_runtime_error_binding_t *
+wslua_debugger_capture_locals_for_activation(lua_State *L, lua_Debug *ar,
+                                             int32_t *count_out)
+{
+    GArray *bindings_array =
+        g_array_new(false, false, sizeof(wslua_runtime_error_binding_t));
+
+    int32_t local_index = 1;
+    const char *name;
+    while ((name = lua_getlocal(L, ar, local_index++)))
+    {
+        /* Skip Lua's internal slots ("(temporary)", "(for index)", …)
+         * the same way the live Locals enumerator does in
+         * wslua_debugger_get_variables(). */
+        if (g_str_has_prefix(name, "("))
+        {
+            lua_pop(L, 1);
+            continue;
+        }
+        wslua_debugger_capture_runtime_error_binding(L, name, bindings_array);
+    }
+
+    *count_out = (int32_t)bindings_array->len;
+    return (wslua_runtime_error_binding_t *)
+        g_array_free(bindings_array, false);
+}
+
+static wslua_runtime_error_binding_t *
+wslua_debugger_capture_upvalues_for_activation(lua_State *L, lua_Debug *ar,
+                                               int32_t *count_out)
+{
+    GArray *bindings_array =
+        g_array_new(false, false, sizeof(wslua_runtime_error_binding_t));
+
+    if (wslua_debugger_push_function_for_ar(L, ar))
+    {
+        int32_t upvalue_index = 1;
+        const char *name;
+        while ((name = lua_getupvalue(L, -1, upvalue_index)))
+        {
+            /* C closures use "" as the upvalue name; mirror the live
+             * Upvalues enumerator's "(closure #N)" label so the path
+             * "Upvalues.(closure #N)" round-trips identically in both
+             * pause modes. */
+            char *display_name = NULL;
+            if (name[0] == '\0')
+            {
+                display_name =
+                    g_strdup_printf("(closure #%d)", upvalue_index);
+            }
+            else
+            {
+                display_name = g_strdup(name);
+            }
+            wslua_debugger_capture_runtime_error_binding(L, display_name,
+                                                         bindings_array);
+            g_free(display_name);
+            upvalue_index++;
+        }
+        lua_pop(L, 1); /* function */
+    }
+
+    *count_out = (int32_t)bindings_array->len;
+    return (wslua_runtime_error_binding_t *)
+        g_array_free(bindings_array, false);
+}
+
+/* Find a binding by name. Caller must hold debugger.mutex. */
+static const wslua_runtime_error_binding_t *
+wslua_debugger_find_runtime_error_binding(
+    const wslua_runtime_error_binding_t *bindings, int32_t binding_count,
+    const char *name)
+{
+    if (!bindings || binding_count <= 0 || !name || !*name)
+    {
+        return NULL;
+    }
+    for (int32_t i = 0; i < binding_count; i++)
+    {
+        if (g_strcmp0(bindings[i].name, name) == 0)
+        {
+            return &bindings[i];
+        }
+    }
+    return NULL;
+}
+
+/* Push a captured binding's value onto @a target_L on hit; leave the
+ * stack unchanged on miss. @a lookup_mode is 1 for Locals-only, 2 for
+ * Upvalues-only, 0 for "Locals first then Upvalues" (matches the
+ * WSLUA_LOOKUP_FIRST_AUTO ordering used by the live walker). When
+ * @a search_all_frames is true the helper sweeps every captured frame
+ * starting at @a stack_level; this is what the env_index / section_index
+ * proxies use so a bare identifier in an expression watch resolves the
+ * same way it would on a regular pause. Caller must hold debugger.mutex.
+ */
+static bool
+wslua_debugger_push_runtime_error_snapshot_binding_locked(
+    lua_State *target_L, int32_t stack_level, const char *name,
+    int lookup_mode, bool search_all_frames)
+{
+    if (!debugger.runtime_error_frame_snapshots ||
+        stack_level < 0 || stack_level >= debugger.runtime_error_stack_count ||
+        !name || !*name)
+    {
+        return false;
+    }
+
+    int32_t level_start = stack_level;
+    int32_t level_end   = stack_level + 1;
+    if (search_all_frames)
+    {
+        level_start = 0;
+        level_end   = debugger.runtime_error_stack_count;
+    }
+
+    const wslua_runtime_error_binding_t *binding = NULL;
+    for (int32_t level = level_start; level < level_end && !binding; level++)
+    {
+        const wslua_runtime_error_frame_snapshot_t *frame =
+            &debugger.runtime_error_frame_snapshots[level];
+
+        if (lookup_mode == 1)
+        {
+            binding = wslua_debugger_find_runtime_error_binding(
+                frame->locals, frame->locals_count, name);
+        }
+        else if (lookup_mode == 2)
+        {
+            binding = wslua_debugger_find_runtime_error_binding(
+                frame->upvalues, frame->upvalues_count, name);
+        }
+        else
+        {
+            binding = wslua_debugger_find_runtime_error_binding(
+                frame->locals, frame->locals_count, name);
+            if (!binding)
+            {
+                binding = wslua_debugger_find_runtime_error_binding(
+                    frame->upvalues, frame->upvalues_count, name);
+            }
+        }
+    }
+
+    if (!binding || binding->value_ref == LUA_NOREF)
+    {
+        return false;
+    }
+
+    lua_rawgeti(target_L, LUA_REGISTRYINDEX, binding->value_ref);
+    return true;
+}
+
+/*
+ * Push the captured chunk @c _ENV (Wireshark's per-script sandbox table)
+ * for frame @a stack_level onto @a target_L, so a Globals.foo lookup at a
+ * break-on-error pause sees the same script-defined globals that
+ * @ref wslua_debugger_get_global_or_env_field would surface at a regular
+ * breakpoint via @c lua_getupvalue(_, "_ENV"). Returns false (stack
+ * unchanged) when no _ENV upvalue was captured for that frame (e.g. Lua
+ * 5.1, or a frame with no Lua function).
+ *
+ * Caller must hold debugger.mutex.
+ */
+static bool
+wslua_debugger_push_runtime_error_env_locked(lua_State *target_L,
+                                             int32_t stack_level)
+{
+    if (!debugger.runtime_error_frame_snapshots ||
+        stack_level < 0 || stack_level >= debugger.runtime_error_stack_count)
+    {
+        return false;
+    }
+
+    const wslua_runtime_error_frame_snapshot_t *frame =
+        &debugger.runtime_error_frame_snapshots[stack_level];
+    const wslua_runtime_error_binding_t *binding =
+        wslua_debugger_find_runtime_error_binding(frame->upvalues,
+                                                  frame->upvalues_count,
+                                                  "_ENV");
+    if (!binding || binding->value_ref == LUA_NOREF)
+    {
+        return false;
+    }
+    lua_rawgeti(target_L, LUA_REGISTRYINDEX, binding->value_ref);
+    return true;
+}
+
+/*
+ * Append rows for every (name, value_ref) pair in @a bindings to
+ * @a variables_array, formatted exactly the way the live Locals /
+ * Upvalues enumerator would format them. The pushed value is consumed
+ * for each row, so the caller's stack is balanced on exit.
+ *
+ * Caller must hold debugger.mutex.
+ */
+static void
+wslua_debugger_append_runtime_error_bindings_locked(
+    lua_State *target_L,
+    const wslua_runtime_error_binding_t *bindings, int32_t binding_count,
+    GArray *variables_array)
+{
+    if (!bindings || binding_count <= 0 || !variables_array)
+    {
+        return;
+    }
+    for (int32_t i = 0; i < binding_count; i++)
+    {
+        if (bindings[i].value_ref == LUA_NOREF)
+        {
+            continue;
+        }
+        lua_rawgeti(target_L, LUA_REGISTRYINDEX, bindings[i].value_ref);
+
+        wslua_variable_t variable;
+        variable.name = g_strdup(bindings[i].name ? bindings[i].name : "");
+        variable.type = wslua_debugger_format_value_type(target_L, -1);
+        variable.value = wslua_debugger_describe_value(target_L, -1);
+        variable.can_expand = wslua_debugger_value_can_expand(target_L, -1);
+
+        g_array_append_val(variables_array, variable);
+        lua_pop(target_L, 1);
+    }
+}
+
+static void wslua_debugger_clear_runtime_error_snapshot_locked(void)
+{
+    wslua_debugger_free_stack_frames(debugger.runtime_error_stack,
+                                     debugger.runtime_error_stack_count);
+    wslua_debugger_free_runtime_error_frame_snapshots(
+        debugger.runtime_error_frame_snapshots,
+        debugger.runtime_error_stack_count);
+    debugger.runtime_error_stack = NULL;
+    debugger.runtime_error_stack_count = 0;
+    debugger.runtime_error_frame_snapshots = NULL;
+    debugger.runtime_error_stack_L = NULL;
+}
+
+static void wslua_debugger_clear_temporary_breakpoint_locked(void)
+{
+    if (debugger.temporary_breakpoint.file_path)
+    {
+        g_free(debugger.temporary_breakpoint.file_path);
+        debugger.temporary_breakpoint.file_path = NULL;
+    }
+    debugger.temporary_breakpoint.active = false;
+}
+
+static void wslua_debugger_clear_transient_state_locked(
+    bool clear_runtime_error_snapshot)
+{
+    debugger.paused_L = NULL;
+    debugger.runtime_error_pause_active = false;
+    debugger.step_kind = WSLUA_STEP_KIND_NONE;
+    debugger.step_stack_depth = 0;
+    wslua_debugger_clear_temporary_breakpoint_locked();
+
+    if (clear_runtime_error_snapshot)
+    {
+        wslua_debugger_clear_runtime_error_snapshot_locked();
+    }
+}
+
+static bool wslua_debugger_should_install_hook_locked(void)
+{
+    if (!debugger.enabled)
+    {
+        return false;
+    }
+
+    if (breakpoints_array)
+    {
+        for (unsigned i = 0; i < breakpoints_array->len; i++)
+        {
+            wslua_breakpoint_t *bp =
+                &g_array_index(breakpoints_array, wslua_breakpoint_t, i);
+            if (bp->active)
+            {
+                return true;
+            }
+        }
+    }
+
+    return debugger.temporary_breakpoint.active ||
+           debugger.step_kind != WSLUA_STEP_KIND_NONE;
+}
+
+static bool wslua_debugger_first_lua_location(lua_State *L,
+                                              int32_t start_level,
+                                              const char **out_file_src,
+                                              int64_t *out_line)
+{
+    if (!out_file_src || !out_line)
+    {
+        return false;
+    }
+
+    *out_file_src = "?";
+    *out_line = -1;
+
+    lua_Debug ar;
+    memset(&ar, 0, sizeof(ar));
+    for (int32_t level = start_level; lua_getstack(L, level, &ar); level++)
+    {
+        if (lua_getinfo(L, "Sln", &ar) == 0)
+        {
+            continue;
+        }
+
+        const bool is_c_frame = ar.what && strcmp(ar.what, "C") == 0;
+        const bool is_c_source = ar.source && strcmp(ar.source, "=[C]") == 0;
+        if (is_c_frame || is_c_source || !ar.source)
+        {
+            continue;
+        }
+
+        if (ar.currentline <= 0)
+        {
+            continue;
+        }
+
+        *out_file_src = (ar.source[0] == '@') ? ar.source + 1 : ar.source;
+        *out_line = (int64_t)ar.currentline;
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @brief Snapshot the "break-on-error pause is active" predicate under the lock.
+ *
+ * Returns true iff break-on-error is enabled and the debugger itself
+ * is enabled (the AND is what every break-on-error entry point cares about).
+ * Centralises the policy so future tweaks live in one place.
+ *
+ * Caller must not hold @c debugger.mutex.
+ */
+static bool wslua_debugger_should_break_on_error(void)
+{
+    g_mutex_lock(&debugger.mutex);
+    const bool should_break = debugger.error_break_enabled && debugger.enabled;
+    g_mutex_unlock(&debugger.mutex);
+    return should_break;
+}
+
+/**
+ * @brief Walk @a L starting at level 0 and append one
+ *        @ref wslua_stack_frame_t per Lua activation to @a out.
+ *
+ * Each frame's @c source / @c line / @c linedefined / @c name strings
+ * are heap-allocated copies; ownership transfers to the caller (use
+ * @ref wslua_debugger_free_stack_frames or @c g_array_free to release).
+ * Shared by the live @ref wslua_debugger_get_stack and the break-on-error
+ * @ref wslua_debugger_capture_runtime_error snapshot paths so the two
+ * stay structurally identical.
+ */
+static void wslua_debugger_collect_stack_frames(lua_State *L, GArray *out)
+{
+    lua_Debug debug_info;
+    int32_t level = 0;
+    while (lua_getstack(L, level, &debug_info))
+    {
+        lua_getinfo(L, "nSl", &debug_info);
+        wslua_stack_frame_t frame;
+        frame.source = g_strdup(debug_info.source ? debug_info.source : "?");
+        frame.line = (int64_t)debug_info.currentline;
+        frame.linedefined = (int64_t)debug_info.linedefined;
+        frame.name = g_strdup(debug_info.name ? debug_info.name : "?");
+        g_array_append_val(out, frame);
+        level++;
+    }
+}
+
+bool wslua_debugger_capture_runtime_error(lua_State *L, const char *msg)
+{
+    if (!wslua_debugger_should_break_on_error())
+    {
+        return false;
+    }
+
+    const char *file_src = "?";
+    int64_t current_line = -1;
+    (void)wslua_debugger_first_lua_location(L, 1, &file_src, &current_line);
+
+    GArray *stack_array =
+        g_array_new(false, false, sizeof(wslua_stack_frame_t));
+    wslua_debugger_collect_stack_frames(L, stack_array);
+    const int32_t captured_count = (int32_t)stack_array->len;
+
+    /* Walk the captured frame list a second time to fetch a fresh
+     * lua_Debug per level (lua_getlocal / lua_getupvalue need an
+     * activation record, which isn't safe to retain across the first
+     * loop) and snapshot per-frame locals + upvalues. */
+    GArray *frame_snapshot_array =
+        g_array_new(false, false,
+                    sizeof(wslua_runtime_error_frame_snapshot_t));
+    for (int32_t level = 0; level < captured_count; level++)
+    {
+        lua_Debug debug_info;
+        if (!lua_getstack(L, level, &debug_info))
+        {
+            break;
+        }
+        lua_getinfo(L, "nSl", &debug_info);
+
+        wslua_runtime_error_frame_snapshot_t frame_snapshot = {0};
+        frame_snapshot.locals =
+            wslua_debugger_capture_locals_for_activation(
+                L, &debug_info, &frame_snapshot.locals_count);
+        frame_snapshot.upvalues =
+            wslua_debugger_capture_upvalues_for_activation(
+                L, &debug_info, &frame_snapshot.upvalues_count);
+        g_array_append_val(frame_snapshot_array, frame_snapshot);
+    }
+
+    wslua_stack_frame_t *captured_stack =
+        (wslua_stack_frame_t *)g_array_free(stack_array, false);
+    wslua_runtime_error_frame_snapshot_t *captured_frame_snapshots =
+        (wslua_runtime_error_frame_snapshot_t *)g_array_free(
+            frame_snapshot_array, false);
+
+    g_mutex_lock(&debugger.mutex);
+    g_free(debugger.last_error_text);
+    debugger.last_error_text = g_strdup(msg ? msg : "(runtime error)");
+    g_free(debugger.last_error_file);
+    debugger.last_error_file = g_strdup(file_src);
+    debugger.last_error_line = current_line;
+    wslua_debugger_clear_runtime_error_snapshot_locked();
+    debugger.runtime_error_stack = captured_stack;
+    debugger.runtime_error_stack_count = captured_count;
+    debugger.runtime_error_frame_snapshots = captured_frame_snapshots;
+    debugger.runtime_error_stack_L = L;
+    g_mutex_unlock(&debugger.mutex);
+
+    return true;
+}
+
+/**
+ * @brief Common pause-entry tail used by every direct caller of the UI
+ *        pause callback.
+ *
+ * Disables the line hook on @a pause_L (so the nested Qt event loop
+ * the UI callback enters does not re-fire the line hook), invokes
+ * @c debugger.ui_update_callback if installed, then re-arms the main
+ * debugger hook via @ref wslua_debugger_update_hook unless a reload is
+ * in progress (in which case the deferred reload routine restores it).
+ *
+ * @a file_src must remain valid for the duration of this call; the
+ * helper does not copy it. Caller must not hold @c debugger.mutex.
+ *
+ * @ref wslua_debug_hook intentionally stays inline because it may run
+ * on a coroutine thread and re-installs its line hook thread-locally,
+ * a path the main-state @c wslua_debugger_update_hook does not cover.
+ */
+static void wslua_debugger_enter_pause_event_loop(lua_State *pause_L,
+                                                  const char *file_src,
+                                                  int64_t line)
+{
+    lua_sethook(pause_L, NULL, 0, 0);
+
+    if (debugger.ui_update_callback)
+    {
+        debugger.ui_update_callback(file_src, line);
+    }
+
+    g_mutex_lock(&debugger.mutex);
+    const bool restore_hook = !debugger.reload_in_progress;
+    g_mutex_unlock(&debugger.mutex);
+    if (restore_hook)
+    {
+        wslua_debugger_update_hook();
+    }
+}
+
+/**
+ * @brief Pause handling for runtime errors.
+ *
+ * Uses a pre-unwind snapshot captured by
+ * wslua_debugger_capture_runtime_error() when available. Internal: callers
+ * outside this translation unit should use
+ * @ref wslua_debugger_after_pcall_failure instead.
+ */
+static void wslua_debugger_on_runtime_error(lua_State *L, const char *msg)
+{
+    if (!wslua_debugger_should_break_on_error())
+    {
+        return;
+    }
+
+    g_mutex_lock(&debugger.mutex);
+    const bool has_snapshot = debugger.runtime_error_stack_count > 0;
+    g_mutex_unlock(&debugger.mutex);
+    if (!has_snapshot)
+    {
+        wslua_debugger_capture_runtime_error(L, msg);
+    }
+
+    g_mutex_lock(&debugger.mutex);
+    /* Copy file_src out from under the mutex: another thread could
+     * replace debugger.last_error_file once we release. */
+    char *file_src_copy = g_strdup(
+        (debugger.last_error_file && debugger.last_error_file[0])
+            ? debugger.last_error_file
+            : "?");
+    const int64_t current_line = debugger.last_error_line;
+    lua_State *pause_L = debugger.runtime_error_stack_L ? debugger.runtime_error_stack_L : L;
+    debugger.error_break_occurred = true;
+    debugger.runtime_error_pause_active = true;
+    debugger.state = WSLUA_DEBUGGER_PAUSED;
+    debugger.paused_L = pause_L;
+    g_mutex_unlock(&debugger.mutex);
+
+    wslua_debugger_enter_pause_event_loop(pause_L, file_src_copy,
+                                          current_line);
+    g_free(file_src_copy);
+}
+
+/**
+ * @brief Record the explicit error() / assert() break state under the lock.
+ *
+ * Stores the message, file, and line for the upcoming pause; marks the
+ * pause as explicit (so the deferred pcall-failure path knows the
+ * debugger is already handling this error); and transitions the
+ * debugger to PAUSED with @a L as the paused state. Caller must not
+ * hold @c debugger.mutex.
+ */
+static void wslua_debugger_record_explicit_error_break_locked(
+    lua_State *L,
+    const char *msg,
+    const char *file_src,
+    int64_t line)
+{
+    g_mutex_lock(&debugger.mutex);
+    g_free(debugger.last_error_text);
+    debugger.last_error_text = g_strdup(msg ? msg : "(error)");
+    g_free(debugger.last_error_file);
+    debugger.last_error_file = g_strdup(file_src);
+    debugger.last_error_line = line;
+    debugger.error_break_occurred = true;
+    debugger.explicit_error_break_recent = true;
+    debugger.state = WSLUA_DEBUGGER_PAUSED;
+    debugger.paused_L = L;
+    g_mutex_unlock(&debugger.mutex);
+}
+
+/**
+ * @brief Re-invoke a saved original global function via its registry ref.
+ *
+ * Pushes the function stored at @a registry_ref, moves it underneath
+ * the current arguments on the stack, and calls it with @a nresults
+ * results.  Used by the @c error() and @c assert() wrappers to delegate
+ * to the original Lua functions after the pause loop returns.  Returns
+ * the number of results left on the stack (caller should @c return this
+ * value from its @c lua_CFunction).
+ */
+static int wslua_debugger_call_original_global_via_ref(lua_State *L,
+                                                       int registry_ref,
+                                                       int nresults)
+{
+    lua_rawgeti(L, LUA_REGISTRYINDEX, registry_ref);
+    lua_insert(L, 1);
+    lua_call(L, lua_gettop(L) - 1, nresults);
+    return (nresults == LUA_MULTRET) ? lua_gettop(L) : nresults;
+}
+
+/**
+ * @brief Replacement for Lua's global error() when break-on-error is active.
+ *
+ * Installed over the global @c error function while the debugger is enabled.
+ * When invoked and @c error_break_enabled is set, the wrapper captures the
+ * call-site location, records the error message, triggers a debugger pause,
+ * and then re-invokes the original @c error() so the error propagates
+ * normally after the user clicks Continue.
+ */
+static int wslua_error_break_wrapper(lua_State *L)
+{
+    if (wslua_debugger_should_break_on_error())
+    {
+        const char *file_src = "?";
+        int64_t current_line = -1;
+        (void)wslua_debugger_first_lua_location(L, 1, &file_src, &current_line);
+
+        const char *raw_msg = lua_tostring(L, 1);
+        wslua_debugger_record_explicit_error_break_locked(
+            L, raw_msg ? raw_msg : "(error)", file_src, current_line);
+
+        wslua_debugger_enter_pause_event_loop(L, file_src, current_line);
+    }
+
+    /* Re-raise via the saved original error() to preserve level/message
+     * semantics.  error() never returns — it longjmps past lua_call back to
+     * the nearest lua_pcall. */
+    return wslua_debugger_call_original_global_via_ref(
+        L, debugger.original_error_ref, 0);
+}
+
+/**
+ * @brief Replacement for Lua's global assert() when break-on-error is active.
+ *
+ * Mirrors the error() wrapper behavior: if break-on-error is enabled and the
+ * assert condition is false/nil, pause at the caller frame before delegating to
+ * the original assert() so Lua error semantics are preserved.
+ */
+static int wslua_assert_break_wrapper(lua_State *L)
+{
+    if (wslua_debugger_should_break_on_error() && !lua_toboolean(L, 1))
+    {
+        const char *file_src = "?";
+        int64_t current_line = -1;
+        (void)wslua_debugger_first_lua_location(L, 1, &file_src, &current_line);
+
+        const char *raw_msg = lua_tostring(L, 2);
+        wslua_debugger_record_explicit_error_break_locked(
+            L, raw_msg ? raw_msg : "assertion failed!", file_src, current_line);
+
+        wslua_debugger_enter_pause_event_loop(L, file_src, current_line);
+    }
+
+    return wslua_debugger_call_original_global_via_ref(
+        L, debugger.original_assert_ref, LUA_MULTRET);
+}
+
+/**
+ * @brief Swap a global Lua function for our @a wrapper, idempotently.
+ *
+ * If <tt>*ref_inout == LUA_NOREF</tt>, saves the current value of
+ * @a global_name into the registry (storing the registry key in
+ * @c *ref_inout) and replaces the global with @a wrapper. If the slot
+ * is already swapped, this is a no-op so repeated update_hook() calls
+ * stay safe.
+ *
+ * The caller is responsible for serialising swap/restore against the
+ * Lua state; the @c _locked suffix matches the convention used for
+ * other state-mutating helpers in this file even though no mutex is
+ * acquired here (the refs are touched only from @ref
+ * wslua_debugger_update_hook on the main state's thread).
+ */
+static void wslua_debugger_swap_global_with_wrapper_locked(
+    lua_State *L,
+    const char *global_name,
+    lua_CFunction wrapper,
+    int *ref_inout)
+{
+    if (*ref_inout != LUA_NOREF)
+    {
+        return;
+    }
+    lua_getglobal(L, global_name);
+    *ref_inout = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pushcfunction(L, wrapper);
+    lua_setglobal(L, global_name);
+}
+
+/**
+ * @brief Restore the original global from the registry, idempotently.
+ *
+ * If <tt>*ref_inout != LUA_NOREF</tt>, replaces @a global_name with the
+ * function stored at that registry slot, releases the slot, and resets
+ * the ref to @c LUA_NOREF. If the slot is already restored this is a
+ * no-op. Pairs with @ref wslua_debugger_swap_global_with_wrapper_locked.
+ */
+static void wslua_debugger_restore_global_from_wrapper_locked(
+    lua_State *L,
+    const char *global_name,
+    int *ref_inout)
+{
+    if (*ref_inout == LUA_NOREF)
+    {
+        return;
+    }
+    lua_rawgeti(L, LUA_REGISTRYINDEX, *ref_inout);
+    lua_setglobal(L, global_name);
+    luaL_unref(L, LUA_REGISTRYINDEX, *ref_inout);
+    *ref_inout = LUA_NOREF;
+}
+
 /**
  * @brief Update the Lua debug hook based on state.
  */
@@ -548,32 +1493,7 @@ static void wslua_debugger_update_hook(void)
 
     bool should_hook = false;
     g_mutex_lock(&debugger.mutex);
-    if (debugger.enabled)
-    {
-        if (breakpoints_array)
-        {
-            for (unsigned i = 0; i < breakpoints_array->len; i++)
-            {
-                wslua_breakpoint_t *bp =
-                    &g_array_index(breakpoints_array, wslua_breakpoint_t, i);
-                if (bp->active)
-                {
-                    should_hook = true;
-                    break;
-                }
-            }
-        }
-
-        if (!should_hook && debugger.temporary_breakpoint.active)
-        {
-            should_hook = true;
-        }
-
-        if (!should_hook && debugger.step_kind != WSLUA_STEP_KIND_NONE)
-        {
-            should_hook = true;
-        }
-    }
+    should_hook = wslua_debugger_should_install_hook_locked();
     g_mutex_unlock(&debugger.mutex);
 
     if (should_hook)
@@ -583,6 +1503,28 @@ static void wslua_debugger_update_hook(void)
     else
     {
         lua_sethook(debugger.L, NULL, 0, 0);
+    }
+
+    /* Install or uninstall wrappers for global error()/assert(). */
+    g_mutex_lock(&debugger.mutex);
+    const bool enabled_now = debugger.enabled;
+    g_mutex_unlock(&debugger.mutex);
+
+    if (enabled_now)
+    {
+        wslua_debugger_swap_global_with_wrapper_locked(
+            debugger.L, "error", wslua_error_break_wrapper,
+            &debugger.original_error_ref);
+        wslua_debugger_swap_global_with_wrapper_locked(
+            debugger.L, "assert", wslua_assert_break_wrapper,
+            &debugger.original_assert_ref);
+    }
+    else
+    {
+        wslua_debugger_restore_global_from_wrapper_locked(
+            debugger.L, "error", &debugger.original_error_ref);
+        wslua_debugger_restore_global_from_wrapper_locked(
+            debugger.L, "assert", &debugger.original_assert_ref);
     }
 }
 
@@ -612,8 +1554,13 @@ void wslua_debugger_set_enabled(bool enabled)
     }
     else if (was_enabled)
     {
+        wslua_debugger_clear_transient_state_locked(true);
         /* On detach, drop the reference so a re-attach reseeds. */
         debugger_start_us = 0;
+    }
+    else if (!enabled)
+    {
+        wslua_debugger_clear_transient_state_locked(true);
     }
     g_mutex_unlock(&debugger.mutex);
     wslua_debugger_update_hook();
@@ -627,22 +1574,34 @@ void wslua_debugger_set_user_explicitly_disabled(
     if (user_wants_debugger_stay_off)
     {
         debugger.was_enabled_before_reload = false;
+        debugger.error_break_was_enabled_before_reload = false;
     }
     g_mutex_unlock(&debugger.mutex);
 }
 
 bool wslua_debugger_may_auto_enable_for_breakpoints(void)
 {
+    ensure_breakpoints_initialized();
     g_mutex_lock(&debugger.mutex);
-    const bool may = !debugger.user_explicitly_disabled;
+    const bool may = !debugger.user_explicitly_disabled &&
+                     debugger_has_auto_break_triggers_locked();
     g_mutex_unlock(&debugger.mutex);
     return may;
+}
+
+bool wslua_debugger_get_user_explicitly_disabled(void)
+{
+    g_mutex_lock(&debugger.mutex);
+    const bool disabled = debugger.user_explicitly_disabled;
+    g_mutex_unlock(&debugger.mutex);
+    return disabled;
 }
 
 void wslua_debugger_renounce_restore_after_reload(void)
 {
     g_mutex_lock(&debugger.mutex);
     debugger.was_enabled_before_reload = false;
+    debugger.error_break_was_enabled_before_reload = false;
     g_mutex_unlock(&debugger.mutex);
 }
 
@@ -662,15 +1621,7 @@ void wslua_debugger_continue(void)
 {
     g_mutex_lock(&debugger.mutex);
     debugger.state = WSLUA_DEBUGGER_RUNNING;
-    debugger.step_kind = WSLUA_STEP_KIND_NONE;
-    /* Clear temp breakpoint */
-    if (debugger.temporary_breakpoint.file_path)
-    {
-        g_free(debugger.temporary_breakpoint.file_path);
-        debugger.temporary_breakpoint.file_path = NULL;
-    }
-    debugger.temporary_breakpoint.active = false;
-    debugger.paused_L = NULL;
+    wslua_debugger_clear_transient_state_locked(false);
     g_mutex_unlock(&debugger.mutex);
     wslua_debugger_update_hook();
 }
@@ -797,14 +1748,6 @@ void wslua_debugger_set_variable_stack_level(int32_t level)
     g_mutex_lock(&debugger.mutex);
     debugger.variable_stack_level = level < 0 ? 0 : level;
     g_mutex_unlock(&debugger.mutex);
-}
-
-int32_t wslua_debugger_get_variable_stack_level(void)
-{
-    g_mutex_lock(&debugger.mutex);
-    const int32_t level = debugger.variable_stack_level;
-    g_mutex_unlock(&debugger.mutex);
-    return level;
 }
 
 /**
@@ -1212,13 +2155,7 @@ int32_t wslua_debugger_get_breakpoint_state(const char *file_path, int64_t line)
     return result;
 }
 
-int32_t wslua_debugger_get_breakpoint_state_canonical(const char *canonical_path,
-                                                      int64_t line)
-{
-    return get_breakpoint_state_for_canonical(canonical_path, line);
-}
-
-int32_t wslua_debugger_get_breakpoint_state_canonical_ex(
+int32_t wslua_debugger_get_breakpoint_state_canonical(
     const char *canonical_path, int64_t line, bool *has_extras)
 {
     if (has_extras)
@@ -1609,7 +2546,7 @@ static void wslua_debug_hook(lua_State *L, lua_Debug *debug_info)
             if (eval_invoked && !pause_for_bp)
             {
                 g_mutex_lock(&debugger.mutex);
-                const bool reinstall = debugger.enabled;
+                const bool reinstall = wslua_debugger_should_install_hook_locked();
                 g_mutex_unlock(&debugger.mutex);
                 if (reinstall)
                 {
@@ -1642,6 +2579,12 @@ static void wslua_debug_hook(lua_State *L, lua_Debug *debug_info)
 
     if (hit)
     {
+        const char *pause_source = source;
+        int64_t pause_line = (int64_t)debug_info->currentline;
+        (void)wslua_debugger_first_lua_location(L, 0,
+                                                &pause_source,
+                                                &pause_line);
+
         g_mutex_lock(&debugger.mutex);
         debugger.state = WSLUA_DEBUGGER_PAUSED;
         debugger.paused_L = L;
@@ -1657,8 +2600,7 @@ static void wslua_debug_hook(lua_State *L, lua_Debug *debug_info)
              * that time can lead to re-entrancy and crashes.
              */
             lua_sethook(L, NULL, 0, 0);
-            debugger.ui_update_callback(source,
-                                        (int64_t)debug_info->currentline);
+            debugger.ui_update_callback(pause_source, pause_line);
         }
 
         /*
@@ -1681,8 +2623,11 @@ static void wslua_debug_hook(lua_State *L, lua_Debug *debug_info)
          * distinct from debugger.L (the main state).
          */
         g_mutex_lock(&debugger.mutex);
-        bool reinstall_hook = debugger.enabled;
+        bool reinstall_hook = wslua_debugger_should_install_hook_locked() &&
+                              !debugger.reload_in_progress;
         g_mutex_unlock(&debugger.mutex);
+        /* During deferred reload, keep this thread hook disabled so we don't
+         * pause again on subsequent packets before reload restarts dissection. */
         if (reinstall_hook)
         {
             lua_sethook(L, wslua_debug_hook, LUA_MASKLINE, 0);
@@ -1698,6 +2643,16 @@ static void wslua_debug_hook(lua_State *L, lua_Debug *debug_info)
 wslua_stack_frame_t *wslua_debugger_get_stack(int32_t *frame_count)
 {
     g_mutex_lock(&debugger.mutex);
+    if (debugger.runtime_error_pause_active &&
+        debugger.runtime_error_stack_count > 0)
+    {
+        wslua_stack_frame_t *snapshot =
+            wslua_debugger_dup_stack_frames(debugger.runtime_error_stack,
+                                            debugger.runtime_error_stack_count);
+        *frame_count = debugger.runtime_error_stack_count;
+        g_mutex_unlock(&debugger.mutex);
+        return snapshot;
+    }
     lua_State *target_L = debugger.paused_L ? debugger.paused_L : debugger.L;
     g_mutex_unlock(&debugger.mutex);
     if (!target_L)
@@ -1706,24 +2661,10 @@ wslua_stack_frame_t *wslua_debugger_get_stack(int32_t *frame_count)
         return NULL;
     }
 
-    lua_Debug debug_info;
-    int32_t level = 0;
     GArray *stack_array =
         g_array_new(false, false, sizeof(wslua_stack_frame_t));
-
-    while (lua_getstack(target_L, level, &debug_info))
-    {
-        lua_getinfo(target_L, "nSl", &debug_info);
-        wslua_stack_frame_t frame;
-        frame.source = g_strdup(debug_info.source ? debug_info.source : "?");
-        frame.line = (int64_t)debug_info.currentline;
-        frame.linedefined = (int64_t)debug_info.linedefined;
-        frame.name = g_strdup(debug_info.name ? debug_info.name : "?");
-        g_array_append_val(stack_array, frame);
-        level++;
-    }
-
-    *frame_count = level;
+    wslua_debugger_collect_stack_frames(target_L, stack_array);
+    *frame_count = (int32_t)stack_array->len;
     return (wslua_stack_frame_t *)g_array_free(stack_array, false);
 }
 
@@ -1734,12 +2675,7 @@ wslua_stack_frame_t *wslua_debugger_get_stack(int32_t *frame_count)
  */
 void wslua_debugger_free_stack(wslua_stack_frame_t *stack, int32_t frame_count)
 {
-    for (int32_t frame_index = 0; frame_index < frame_count; frame_index++)
-    {
-        g_free(stack[frame_index].source);
-        g_free(stack[frame_index].name);
-    }
-    g_free(stack);
+    wslua_debugger_free_stack_frames(stack, frame_count);
 }
 
 /**
@@ -1861,6 +2797,16 @@ static bool wslua_debugger_index_by_string(lua_State *L, const char *key)
  * a file environment that stores top-level bindings in _ENV while
  * lua_getglobal() only sees raw _G, so Globals.foo paths must fall back to
  * _ENV to match what Lua code actually resolves.
+ *
+ * Under a break-on-error pause the activation that ran the script no
+ * longer exists on the live stack, so the @c lua_getupvalue path can't
+ * find the chunk's @c _ENV. The captured snapshot already keeps a strong
+ * registry ref to that _ENV upvalue (it is upvalue #1 of every Lua 5.2+
+ * Wireshark-loaded chunk and is captured by
+ * @ref wslua_debugger_capture_upvalues_for_activation), so we substitute
+ * it here. This is what makes @c Globals.foo behave identically at a
+ * regular pause and at a break-on-error pause.
+ *
  * On success leaves one value on the stack; on failure leaves the stack clean.
  */
 static bool
@@ -1880,6 +2826,45 @@ wslua_debugger_get_global_or_env_field(lua_State *L, int32_t stack_level,
     lua_pop(L, 1);
 
 #if LUA_VERSION_NUM >= 502
+    /* Break-on-error path: the live frame is gone, but the snapshot
+     * holds the function's _ENV upvalue. Same lookup, different source. */
+    g_mutex_lock(&debugger.mutex);
+    const bool snapshot_active =
+        debugger.runtime_error_pause_active &&
+        debugger.runtime_error_frame_snapshots != NULL;
+    bool pushed_env_from_snapshot = false;
+    if (snapshot_active)
+    {
+        pushed_env_from_snapshot =
+            wslua_debugger_push_runtime_error_env_locked(L, stack_level);
+    }
+    g_mutex_unlock(&debugger.mutex);
+
+    if (pushed_env_from_snapshot)
+    {
+        if (lua_type(L, -1) == LUA_TTABLE)
+        {
+            lua_getfield(L, -1, name);
+            lua_remove(L, -2); /* _ENV table */
+            if (!lua_isnil(L, -1))
+            {
+                return true;
+            }
+            lua_pop(L, 1);
+            return false;
+        }
+        lua_pop(L, 1); /* non-table _ENV (defensive) */
+        return false;
+    }
+
+    if (snapshot_active)
+    {
+        /* Snapshot active but no _ENV captured (e.g. C frame): no further
+         * fallback is possible because the live activation does not exist
+         * either. */
+        return false;
+    }
+
     {
         lua_Debug ar;
         if (!wslua_debugger_fill_activation(L, stack_level, &ar))
@@ -2022,72 +3007,102 @@ wslua_debugger_traverse_subpath_on_top(lua_State *L, const char *path_ptr)
 }
 
 /**
- * @brief Lookup a variable path in Lua state.
- * @param L The Lua state.
- * @param path The path to lookup (e.g. "a.b"), without Locals./Upvalues./Globals. prefix.
- * @param first_kind Where the first segment must be resolved (AUTO = legacy order).
- * @return true if found (value on stack), false otherwise.
+ * @brief Push @a name onto @a L resolved as the first segment of a watch
+ *        path against the paused frame's bindings.
+ *
+ * Honors the break-on-error snapshot when active: at a runtime-error
+ * pause the original activation has been unwound, so @c lua_getstack /
+ * @c lua_getlocal / @c lua_getupvalue cannot reach it; the captured
+ * @c (name, value_ref) pairs are consulted instead. @c Globals.… still
+ * uses @ref wslua_debugger_get_global_or_env_field, which itself
+ * substitutes the snapshot's @c _ENV upvalue when paused on an error.
+ *
+ * On hit returns true with the resolved value at the top of @a L; on
+ * miss returns false and leaves the stack unchanged.
  */
-static bool wslua_debugger_lookup_path(lua_State *L, const char *path,
-                                       int32_t stack_level,
+static bool
+wslua_debugger_push_first_path_segment(lua_State *L, int32_t stack_level,
+                                       const char *first_component,
                                        wslua_lookup_first_kind_t first_kind)
 {
-    if (!path || !*path)
+    if (!first_component || !*first_component)
+    {
         return false;
-
-    /* Parse first component */
-    const char *path_ptr = path;
-    const char *end_ptr = path_ptr;
-    while (*end_ptr && *end_ptr != '.' && *end_ptr != '[')
-        end_ptr++;
-
-    char *first_component = g_strndup(path_ptr, end_ptr - path_ptr);
-    path_ptr = end_ptr;
+    }
 
     if (first_kind == WSLUA_LOOKUP_FIRST_GLOBAL_ONLY)
     {
-        if (!wslua_debugger_get_global_or_env_field(L, stack_level,
-                                                    first_component))
-        {
-            g_free(first_component);
-            return false;
-        }
-        g_free(first_component);
-        goto traverse_rest;
+        return wslua_debugger_get_global_or_env_field(L, stack_level,
+                                                      first_component);
     }
 
-    lua_Debug debug_info;
-    if (!wslua_debugger_fill_activation(L, stack_level, &debug_info))
+    /* Locals/Upvalues/AUTO under a runtime-error pause: source of truth
+     * is the captured per-frame bindings. The original activation is
+     * gone, so the live lua_getstack path below would fail anyway. */
+    g_mutex_lock(&debugger.mutex);
+    const bool snapshot_active =
+        debugger.runtime_error_pause_active &&
+        debugger.runtime_error_frame_snapshots != NULL;
+    bool found_in_snapshot = false;
+    if (snapshot_active)
     {
-        g_free(first_component);
+        const int lookup_mode =
+            (first_kind == WSLUA_LOOKUP_FIRST_LOCAL_ONLY) ? 1 :
+            (first_kind == WSLUA_LOOKUP_FIRST_UPVALUE_ONLY) ? 2 : 0;
+        found_in_snapshot =
+            wslua_debugger_push_runtime_error_snapshot_binding_locked(
+                L, stack_level, first_component, lookup_mode,
+                /*search_all_frames=*/false);
+    }
+    g_mutex_unlock(&debugger.mutex);
+
+    if (found_in_snapshot)
+    {
+        return true;
+    }
+    if (snapshot_active)
+    {
+        /* AUTO can still fall through to globals at a regular pause; do
+         * the same here so Globals.string.format etc. work uniformly. */
+        if (first_kind == WSLUA_LOOKUP_FIRST_AUTO)
+        {
+            return wslua_debugger_get_global_or_env_field(L, stack_level,
+                                                          first_component);
+        }
+        /* LOCAL_ONLY / UPVALUE_ONLY at break-on-error: snapshot is authoritative,
+         * a miss is a miss. */
         return false;
     }
 
-    if (first_kind == WSLUA_LOOKUP_FIRST_LOCAL_ONLY)
+    /* Live pause: walk the actual frame. */
+    lua_Debug debug_info;
+    if (!wslua_debugger_fill_activation(L, stack_level, &debug_info))
+    {
+        return false;
+    }
+
+    if (first_kind == WSLUA_LOOKUP_FIRST_LOCAL_ONLY ||
+        first_kind == WSLUA_LOOKUP_FIRST_AUTO)
     {
         int32_t local_index = 1;
         const char *name;
-        bool found = false;
         while ((name = lua_getlocal(L, &debug_info, local_index++)))
         {
             if (g_strcmp0(name, first_component) == 0)
             {
-                found = true;
-                break;
+                return true;
             }
             lua_pop(L, 1);
         }
-        g_free(first_component);
-        if (!found)
+        if (first_kind == WSLUA_LOOKUP_FIRST_LOCAL_ONLY)
         {
             return false;
         }
-        goto traverse_rest;
     }
 
-    if (first_kind == WSLUA_LOOKUP_FIRST_UPVALUE_ONLY)
+    if (first_kind == WSLUA_LOOKUP_FIRST_UPVALUE_ONLY ||
+        first_kind == WSLUA_LOOKUP_FIRST_AUTO)
     {
-        bool found = false;
         if (wslua_debugger_push_function_for_ar(L, &debug_info))
         {
             int32_t uv = 1;
@@ -2096,75 +3111,59 @@ static bool wslua_debugger_lookup_path(lua_State *L, const char *path,
             {
                 if (g_strcmp0(nm, first_component) == 0)
                 {
-                    found = true;
                     lua_remove(L, -2); /* function */
-                    break;
+                    return true;
                 }
                 lua_pop(L, 1);
             }
-            if (!found)
-            {
-                lua_pop(L, 1); /* function */
-            }
+            lua_pop(L, 1); /* function */
         }
-        g_free(first_component);
-        if (!found)
+        if (first_kind == WSLUA_LOOKUP_FIRST_UPVALUE_ONLY)
         {
             return false;
         }
-        goto traverse_rest;
     }
 
-    /* WSLUA_LOOKUP_FIRST_AUTO — locals, then upvalues, then globals */
+    /* AUTO fall-through: globals (raw _G) or chunk _ENV. */
+    return wslua_debugger_get_global_or_env_field(L, stack_level,
+                                                  first_component);
+}
+
+/**
+ * @brief Lookup a variable path in Lua state.
+ * @param L The Lua state.
+ * @param path The path to lookup (e.g. "a.b"), without Locals./Upvalues./Globals. prefix.
+ * @param first_kind Where the first segment must be resolved (AUTO = legacy order).
+ * @return true if found (value on stack), false otherwise.
+ *
+ * Uniform across regular and break-on-error pauses: the first segment
+ * is resolved by @ref wslua_debugger_push_first_path_segment (which
+ * honors the runtime-error snapshot transparently); the rest of the
+ * walk is the same @ref wslua_debugger_traverse_subpath_on_top used by
+ * expression watches and by the Variables tree.
+ */
+static bool wslua_debugger_lookup_path(lua_State *L, const char *path,
+                                       int32_t stack_level,
+                                       wslua_lookup_first_kind_t first_kind)
+{
+    if (!path || !*path)
+        return false;
+
+    const char *path_ptr = path;
+    const char *end_ptr = path_ptr;
+    while (*end_ptr && *end_ptr != '.' && *end_ptr != '[')
+        end_ptr++;
+
+    char *first_component = g_strndup(path_ptr, end_ptr - path_ptr);
+    path_ptr = end_ptr;
+
+    const bool ok = wslua_debugger_push_first_path_segment(
+        L, stack_level, first_component, first_kind);
+    g_free(first_component);
+    if (!ok)
     {
-        int32_t local_index = 1;
-        const char *name;
-        bool found = false;
-        while ((name = lua_getlocal(L, &debug_info, local_index++)))
-        {
-            if (g_strcmp0(name, first_component) == 0)
-            {
-                found = true;
-                break;
-            }
-            lua_pop(L, 1);
-        }
-
-        if (!found)
-        {
-            /* Look in upvalues */
-            if (wslua_debugger_push_function_for_ar(L, &debug_info))
-            {
-                local_index = 1;
-                while ((name = lua_getupvalue(L, -1, local_index++)))
-                {
-                    if (g_strcmp0(name, first_component) == 0)
-                    {
-                        found = true;
-                        lua_remove(L, -2); /* Remove function */
-                        break;
-                    }
-                    lua_pop(L, 1);
-                }
-                if (!found)
-                    lua_pop(L, 1); /* Remove function */
-            }
-
-            if (!found)
-            {
-                /* Globals (raw _G) or chunk _ENV (Wireshark file sandbox). */
-                if (!wslua_debugger_get_global_or_env_field(L, stack_level,
-                                                            first_component))
-                {
-                    g_free(first_component);
-                    return false;
-                }
-            }
-        }
-        g_free(first_component);
+        return false;
     }
-
-traverse_rest:
     return wslua_debugger_traverse_subpath_on_top(L, path_ptr);
 }
 
@@ -2820,7 +3819,13 @@ wslua_variable_t *wslua_debugger_get_variables(const char *path,
     g_mutex_lock(&debugger.mutex);
     lua_State *target_L = debugger.paused_L ? debugger.paused_L : debugger.L;
     const int32_t variable_stack_level = debugger.variable_stack_level;
+    const bool runtime_error_snapshot_active =
+        debugger.runtime_error_pause_active &&
+        debugger.runtime_error_frame_snapshots != NULL &&
+        variable_stack_level >= 0 &&
+        variable_stack_level < debugger.runtime_error_stack_count;
     g_mutex_unlock(&debugger.mutex);
+
     if (!target_L)
     {
         *variable_count = 0;
@@ -2855,69 +3860,109 @@ wslua_variable_t *wslua_debugger_get_variables(const char *path,
     }
     else if (g_strcmp0(path, "Locals") == 0)
     {
-        /* Locals */
-        lua_Debug debug_info;
-        if (wslua_debugger_fill_activation(target_L, variable_stack_level,
-                                           &debug_info))
+        if (runtime_error_snapshot_active)
         {
-            int32_t local_index = 1;
-            const char *name;
-            while ((name = lua_getlocal(target_L, &debug_info, local_index++)))
+            /* Frame is unwound; iterate the captured (name, ref) pairs
+             * and feed each pushed value through the same row formatter
+             * used by the live branch. Visible result is identical. */
+            g_mutex_lock(&debugger.mutex);
+            if (variable_stack_level >= 0 &&
+                variable_stack_level < debugger.runtime_error_stack_count)
             {
-                if (g_str_has_prefix(name, "("))
+                const wslua_runtime_error_frame_snapshot_t *frame =
+                    &debugger.runtime_error_frame_snapshots[
+                        variable_stack_level];
+                wslua_debugger_append_runtime_error_bindings_locked(
+                    target_L, frame->locals, frame->locals_count,
+                    variables_array);
+            }
+            g_mutex_unlock(&debugger.mutex);
+        }
+        else
+        {
+            lua_Debug debug_info;
+            if (wslua_debugger_fill_activation(target_L, variable_stack_level,
+                                               &debug_info))
+            {
+                int32_t local_index = 1;
+                const char *name;
+                while ((name = lua_getlocal(target_L, &debug_info,
+                                            local_index++)))
                 {
+                    if (g_str_has_prefix(name, "("))
+                    {
+                        lua_pop(target_L, 1);
+                        continue;
+                    }
+
+                    wslua_variable_t variable;
+                    variable.name = g_strdup(name);
+                    variable.type =
+                        wslua_debugger_format_value_type(target_L, -1);
+                    variable.value =
+                        wslua_debugger_describe_value(target_L, -1);
+                    variable.can_expand =
+                        wslua_debugger_value_can_expand(target_L, -1);
+
+                    g_array_append_val(variables_array, variable);
                     lua_pop(target_L, 1);
-                    continue;
                 }
-
-                wslua_variable_t variable;
-                variable.name = g_strdup(name);
-                variable.type =
-                    wslua_debugger_format_value_type(target_L, -1);
-                variable.value = wslua_debugger_describe_value(target_L, -1);
-                variable.can_expand =
-                    wslua_debugger_value_can_expand(target_L, -1);
-
-                g_array_append_val(variables_array, variable);
-                lua_pop(target_L, 1);
             }
         }
     }
     else if (g_strcmp0(path, "Upvalues") == 0)
     {
-        /* Upvalues */
-        lua_Debug debug_info;
-        if (wslua_debugger_fill_activation(target_L, variable_stack_level,
-                                           &debug_info) &&
-            wslua_debugger_push_function_for_ar(target_L, &debug_info))
+        if (runtime_error_snapshot_active)
         {
-            int32_t upvalue_index = 1;
-            const char *name;
-            while ((name = lua_getupvalue(target_L, -1, upvalue_index)))
+            g_mutex_lock(&debugger.mutex);
+            if (variable_stack_level >= 0 &&
+                variable_stack_level < debugger.runtime_error_stack_count)
             {
-                wslua_variable_t variable;
-                /* C closures use "" as the name for each slot; use a label so
-                 * the UI path is valid for expansion. */
-                if (name[0] == '\0')
-                {
-                    variable.name =
-                        g_strdup_printf("(closure #%d)", upvalue_index);
-                }
-                else
-                {
-                    variable.name = g_strdup(name);
-                }
-                variable.type =
-                    wslua_debugger_format_value_type(target_L, -1);
-                variable.value = wslua_debugger_describe_value(target_L, -1);
-                variable.can_expand =
-                    wslua_debugger_value_can_expand(target_L, -1);
-
-                g_array_append_val(variables_array, variable);
-                lua_pop(target_L, 1);
-                upvalue_index++;
+                const wslua_runtime_error_frame_snapshot_t *frame =
+                    &debugger.runtime_error_frame_snapshots[
+                        variable_stack_level];
+                wslua_debugger_append_runtime_error_bindings_locked(
+                    target_L, frame->upvalues, frame->upvalues_count,
+                    variables_array);
             }
-            lua_pop(target_L, 1); /* Function */
+            g_mutex_unlock(&debugger.mutex);
+        }
+        else
+        {
+            lua_Debug debug_info;
+            if (wslua_debugger_fill_activation(target_L, variable_stack_level,
+                                               &debug_info) &&
+                wslua_debugger_push_function_for_ar(target_L, &debug_info))
+            {
+                int32_t upvalue_index = 1;
+                const char *name;
+                while ((name = lua_getupvalue(target_L, -1, upvalue_index)))
+                {
+                    wslua_variable_t variable;
+                    /* C closures use "" as the name for each slot; use a
+                     * label so the UI path is valid for expansion. */
+                    if (name[0] == '\0')
+                    {
+                        variable.name =
+                            g_strdup_printf("(closure #%d)", upvalue_index);
+                    }
+                    else
+                    {
+                        variable.name = g_strdup(name);
+                    }
+                    variable.type =
+                        wslua_debugger_format_value_type(target_L, -1);
+                    variable.value =
+                        wslua_debugger_describe_value(target_L, -1);
+                    variable.can_expand =
+                        wslua_debugger_value_can_expand(target_L, -1);
+
+                    g_array_append_val(variables_array, variable);
+                    lua_pop(target_L, 1);
+                    upvalue_index++;
+                }
+                lua_pop(target_L, 1); /* Function */
+            }
         }
     }
     else if (g_strcmp0(path, "Globals") == 0)
@@ -3036,14 +4081,7 @@ wslua_variable_t *wslua_debugger_get_variables(const char *path,
 void wslua_debugger_free_variables(wslua_variable_t *variables,
                                    int32_t variable_count)
 {
-    for (int32_t variable_index = 0; variable_index < variable_count;
-         variable_index++)
-    {
-        g_free(variables[variable_index].name);
-        g_free(variables[variable_index].value);
-        g_free(variables[variable_index].type);
-    }
-    g_free(variables);
+    wslua_debugger_free_variable_records(variables, variable_count);
 }
 
 /**
@@ -3059,14 +4097,6 @@ unsigned wslua_debugger_get_breakpoint_count(void)
     return len;
 }
 
-/**
- * @brief Get breakpoint at index.
- * @param idx The index.
- * @param file_path Output file path.
- * @param line Output line.
- * @param active Output active state.
- * @return true if found.
- */
 bool wslua_debugger_get_breakpoint(unsigned idx, const char **file_path,
                                    int64_t *line, bool *active)
 {
@@ -3186,14 +4216,32 @@ void wslua_debugger_register_log_emit_callback(
 bool wslua_debugger_notify_reload(void)
 {
     bool should_disable = false;
+    bool was_paused = false;
+    bool is_first_notify = false;
 
     g_mutex_lock(&debugger.mutex);
     if (!debugger.reload_in_progress)
     {
         debugger.reload_in_progress = true;
         debugger.was_enabled_before_reload = debugger.enabled;
+        debugger.error_break_was_enabled_before_reload =
+            debugger.error_break_enabled;
+        debugger.error_break_enabled = false;
+        is_first_notify = true;
     }
+    /* Reload starts with a fresh Lua state; clear stale one-shot error markers
+     * so they don't leak across reload boundaries and desynchronize pause UI. */
+    debugger.error_break_occurred = false;
+    debugger.explicit_error_break_recent = false;
     should_disable = debugger.enabled;
+    was_paused = debugger.state == WSLUA_DEBUGGER_PAUSED;
+
+    if (was_paused)
+    {
+        debugger.state = WSLUA_DEBUGGER_RUNNING;
+        wslua_debugger_clear_transient_state_locked(true);
+    }
+
     g_mutex_unlock(&debugger.mutex);
 
     if (should_disable)
@@ -3203,12 +4251,13 @@ bool wslua_debugger_notify_reload(void)
 
     debugger.L = NULL;
 
-    if (reload_callback)
+    /* Only fire callback on first notify to avoid duplicate UI reloads. */
+    if (is_first_notify && reload_callback)
     {
         reload_callback();
     }
 
-    return !wslua_debugger_is_paused();
+    return !was_paused;
 }
 
 /**
@@ -3238,10 +4287,34 @@ void wslua_debugger_register_post_reload_callback(
  * wslua_debugger_restore_after_reload() once cf_reload / redissect
  * has finished, to avoid the debug hook firing while packets are
  * still being re-read.
+ *
+ * Break-on-error IS restored here (before the post-reload UI callback)
+ * because break-on-error state has no dissection-reentrancy concern: the line hook
+ * stays uninstalled until restore_after_reload runs, and the error/assert
+ * wrappers are not installed until enabled is flipped back on. Restoring
+ * break-on-error early keeps the UI's break-on-error button in sync when the post-reload
+ * callback chain refreshes it from the core state.
  */
 void wslua_debugger_notify_post_reload(void)
 {
+    bool restore_break_on_error = false;
+
+    g_mutex_lock(&debugger.mutex);
     debugger.reload_in_progress = false;
+    /* Restore break-on-error if we snapshotted it in notify_reload, unless the user
+     * has since turned the whole debugger off on purpose. */
+    if (debugger.error_break_was_enabled_before_reload &&
+        !debugger.user_explicitly_disabled)
+    {
+        restore_break_on_error = true;
+    }
+    debugger.error_break_was_enabled_before_reload = false;
+    g_mutex_unlock(&debugger.mutex);
+
+    if (restore_break_on_error)
+    {
+        wslua_debugger_set_error_break_enabled(true);
+    }
 
     if (post_reload_callback)
     {
@@ -3323,6 +4396,55 @@ bool wslua_debugger_is_paused(void)
                   debugger.paused_L != NULL;
     g_mutex_unlock(&debugger.mutex);
     return paused;
+}
+
+bool wslua_debugger_should_block_dissector_entry(void)
+{
+    bool should_block;
+
+    g_mutex_lock(&debugger.mutex);
+    should_block = debugger.reload_in_progress ||
+                   (debugger.state == WSLUA_DEBUGGER_PAUSED &&
+                    debugger.paused_L != NULL);
+    g_mutex_unlock(&debugger.mutex);
+
+    return should_block;
+}
+
+void wslua_debugger_forget_lua_thread(lua_State *L)
+{
+    if (L == NULL)
+    {
+        return;
+    }
+
+    bool need_hook_update = false;
+
+    g_mutex_lock(&debugger.mutex);
+
+    if (debugger.paused_L == L)
+    {
+        debugger.paused_L = NULL;
+        debugger.runtime_error_pause_active = false;
+        if (debugger.state == WSLUA_DEBUGGER_PAUSED)
+        {
+            debugger.state = WSLUA_DEBUGGER_RUNNING;
+            debugger.step_kind = WSLUA_STEP_KIND_NONE;
+            need_hook_update = debugger.enabled;
+        }
+    }
+
+    if (debugger.runtime_error_stack_L == L)
+    {
+        wslua_debugger_clear_runtime_error_snapshot_locked();
+    }
+
+    g_mutex_unlock(&debugger.mutex);
+
+    if (need_hook_update)
+    {
+        wslua_debugger_update_hook();
+    }
 }
 
 /**
@@ -3662,15 +4784,33 @@ wslua_debugger_section_name(int section_kind)
 /**
  * @brief Recompute the live stack level inside an env / section metamethod.
  *
- * The chunk and any callees the chunk has entered all sit on top of the
- * originally paused frames in the call stack, so the user-selected
- * "paused" level needs the live call-depth delta added back in to refer
- * to the same activation record.
+ * At a regular pause the chunk and any callees the chunk has entered all
+ * sit on top of the originally paused frames in the call stack, so the
+ * user-selected "paused" level needs the live call-depth delta added
+ * back in to refer to the same activation record.
+ *
+ * At a break-on-error pause the original frame has already been unwound,
+ * so all snapshot-aware lookups (locals/upvalues bindings and the
+ * captured @c _ENV) treat @a paused_level as a frame index into
+ * @c runtime_error_frame_snapshots — independent of the chunk's
+ * recursion depth on the live stack. Returning @a paused_level unchanged
+ * here keeps Globals/Upvalues/Locals lookups pointed at the correct
+ * captured frame.
  */
 static int32_t
 wslua_debugger_effective_paused_level(lua_State *L, int32_t paused_level,
                                       int32_t baseline_depth)
 {
+    g_mutex_lock(&debugger.mutex);
+    const bool snapshot_active =
+        debugger.runtime_error_pause_active &&
+        debugger.runtime_error_frame_snapshots != NULL;
+    g_mutex_unlock(&debugger.mutex);
+    if (snapshot_active)
+    {
+        return paused_level;
+    }
+
     int32_t now_depth = 0;
     lua_Debug ar;
     while (lua_getstack(L, now_depth, &ar))
@@ -3714,11 +4854,48 @@ static int wslua_debugger_section_index(lua_State *L)
         return 1;
     }
 
-    const int32_t effective_level = wslua_debugger_effective_paused_level(
-        L, paused_level, baseline_depth);
-
     const wslua_lookup_first_kind_t lk =
         wslua_debugger_section_lookup_kind(section_kind);
+
+    /* Locals/Upvalues at a runtime-error pause: the live frame is gone,
+     * so we resolve straight from the captured per-frame bindings rather
+     * than walk a stack that no longer contains the original activation.
+     * Globals is intentionally excluded here — globals don't live on a
+     * frame, and the lookup_path call below is snapshot-aware via
+     * wslua_debugger_get_global_or_env_field, which handles _ENV
+     * fallback against the captured chunk environment. */
+    if (lk == WSLUA_LOOKUP_FIRST_LOCAL_ONLY ||
+        lk == WSLUA_LOOKUP_FIRST_UPVALUE_ONLY)
+    {
+        g_mutex_lock(&debugger.mutex);
+        const bool snapshot_active =
+            debugger.runtime_error_pause_active &&
+            debugger.runtime_error_frame_snapshots != NULL;
+        bool found_in_snapshot = false;
+        if (snapshot_active)
+        {
+            found_in_snapshot =
+                wslua_debugger_push_runtime_error_snapshot_binding_locked(
+                    L, paused_level, key,
+                    (lk == WSLUA_LOOKUP_FIRST_LOCAL_ONLY) ? 1 : 2,
+                    false);
+        }
+        g_mutex_unlock(&debugger.mutex);
+
+        if (found_in_snapshot)
+        {
+            return 1;
+        }
+        if (snapshot_active)
+        {
+            /* Section is authoritative: a miss is a miss. */
+            lua_pushnil(L);
+            return 1;
+        }
+    }
+
+    const int32_t effective_level = wslua_debugger_effective_paused_level(
+        L, paused_level, baseline_depth);
     if (wslua_debugger_lookup_path(L, key, effective_level, lk))
     {
         return 1;
@@ -3853,6 +5030,32 @@ static int wslua_debugger_env_index(lua_State *L)
         return 1;
     }
 
+    g_mutex_lock(&debugger.mutex);
+    const bool snapshot_active =
+        debugger.runtime_error_pause_active &&
+        debugger.runtime_error_frame_snapshots != NULL;
+    bool found_in_snapshot = false;
+    if (snapshot_active)
+    {
+        found_in_snapshot =
+            wslua_debugger_push_runtime_error_snapshot_binding_locked(
+                L, paused_level, key, 0, false);
+    }
+    g_mutex_unlock(&debugger.mutex);
+
+    if (found_in_snapshot)
+    {
+        return 1;
+    }
+
+    if (snapshot_active)
+    {
+        if (wslua_debugger_get_global_or_env_field(L, paused_level, key))
+        {
+            return 1;
+        }
+    }
+
     /* Translate @a paused_level to the level visible from this metamethod:
      * the chunk and any callees the chunk has entered all sit on top of the
      * originally paused frames in the call stack. */
@@ -3864,6 +5067,7 @@ static int wslua_debugger_env_index(lua_State *L)
     {
         return 1;
     }
+
     lua_pushnil(L);
     return 1;
 }
@@ -4979,6 +6183,11 @@ wslua_debugger_watch_variable_path_for_spec(const char *spec)
 /**
  * @return 0 if @a first_component matches a local, 1 upvalue, 2 global, -1 not found.
  *         Clears transient values from the Lua stack.
+ *
+ * Honors the runtime-error snapshot when active, so a bare watch like
+ * @c "foo" canonicalises to @c "Locals.foo" / @c "Upvalues.foo" /
+ * @c "Globals.foo" identically at a regular pause and at a
+ * break-on-error pause.
  */
 static int
 wslua_debugger_first_segment_binding_kind(lua_State *L, int32_t stack_level,
@@ -4986,6 +6195,49 @@ wslua_debugger_first_segment_binding_kind(lua_State *L, int32_t stack_level,
 {
     if (!first_component || !*first_component)
     {
+        return -1;
+    }
+
+    g_mutex_lock(&debugger.mutex);
+    const bool snapshot_active =
+        debugger.runtime_error_pause_active &&
+        debugger.runtime_error_frame_snapshots != NULL &&
+        stack_level >= 0 &&
+        stack_level < debugger.runtime_error_stack_count;
+    int snapshot_kind = -1;
+    if (snapshot_active)
+    {
+        const wslua_runtime_error_frame_snapshot_t *frame =
+            &debugger.runtime_error_frame_snapshots[stack_level];
+        if (wslua_debugger_find_runtime_error_binding(
+                frame->locals, frame->locals_count, first_component))
+        {
+            snapshot_kind = 0;
+        }
+        else if (wslua_debugger_find_runtime_error_binding(
+                     frame->upvalues, frame->upvalues_count, first_component))
+        {
+            snapshot_kind = 1;
+        }
+    }
+    g_mutex_unlock(&debugger.mutex);
+
+    if (snapshot_kind >= 0)
+    {
+        return snapshot_kind;
+    }
+
+    if (snapshot_active)
+    {
+        /* Snapshot wins for Locals/Upvalues at break-on-error: the live frame is
+         * gone and lua_getlocal would just return nothing. Fall through
+         * to globals via the snapshot-aware get_global_or_env_field. */
+        if (wslua_debugger_get_global_or_env_field(L, stack_level,
+                                                   first_component))
+        {
+            lua_pop(L, 1);
+            return 2;
+        }
         return -1;
     }
 
@@ -5078,9 +6330,11 @@ wslua_debugger_watch_resolved_variable_path_for_spec(const char *spec)
         return canon;
     }
 
-    const int kind = wslua_debugger_first_segment_binding_kind(
-        L, variable_stack_level, first_component);
     g_mutex_unlock(&debugger.mutex);
+    /* wslua_debugger_first_segment_binding_kind is snapshot-aware, so a
+     * single call covers both regular and break-on-error pauses. */
+    int kind = wslua_debugger_first_segment_binding_kind(
+        L, variable_stack_level, first_component);
     g_free(first_component);
 
     const char *section = "Locals";
@@ -5093,154 +6347,6 @@ wslua_debugger_watch_resolved_variable_path_for_spec(const char *spec)
     char *out = g_strdup_printf("%s.%s", section, canon);
     g_free(canon);
     return out;
-}
-
-/** @return level or -1 */
-static int32_t
-wslua_debugger_find_frame_with_local(lua_State *L, const char *name)
-{
-    if (!name || !*name)
-    {
-        return -1;
-    }
-    for (int32_t level = 0;; level++)
-    {
-        lua_Debug ar;
-        if (!lua_getstack(L, level, &ar))
-        {
-            break;
-        }
-        int32_t i = 1;
-        const char *ln;
-        while ((ln = lua_getlocal(L, &ar, i++)))
-        {
-            if (ln[0] == '(')
-            {
-                lua_pop(L, 1);
-                continue;
-            }
-            if (g_strcmp0(ln, name) == 0)
-            {
-                lua_pop(L, 1);
-                return level;
-            }
-            lua_pop(L, 1);
-        }
-    }
-    return -1;
-}
-
-/** @return level or -1 */
-static int32_t
-wslua_debugger_find_frame_with_upvalue(lua_State *L, const char *name)
-{
-    if (!name || !*name)
-    {
-        return -1;
-    }
-    for (int32_t level = 0;; level++)
-    {
-        lua_Debug ar;
-        if (!lua_getstack(L, level, &ar))
-        {
-            break;
-        }
-        if (!wslua_debugger_push_function_for_ar(L, &ar))
-        {
-            continue;
-        }
-        int32_t uv = 1;
-        const char *un;
-        while ((un = lua_getupvalue(L, -1, uv++)))
-        {
-            if (g_strcmp0(un, name) == 0)
-            {
-                lua_pop(L, 2); /* upvalue + function */
-                return level;
-            }
-            lua_pop(L, 1);
-        }
-        lua_pop(L, 1); /* function */
-    }
-    return -1;
-}
-
-int32_t
-wslua_debugger_find_stack_level_for_watch_spec(const char *spec)
-{
-    char *canon = wslua_debugger_watch_canonical_path(spec);
-    if (!canon)
-        return -1;
-
-    if (g_strcmp0(canon, "Locals") == 0 || g_strcmp0(canon, "Upvalues") == 0 ||
-        g_strcmp0(canon, "Globals") == 0 ||
-        g_str_has_prefix(canon, "Globals."))
-    {
-        g_free(canon);
-        return -1;
-    }
-
-    enum
-    {
-        WATCH_STACK_LOCAL,
-        WATCH_STACK_UPVALUE,
-        WATCH_STACK_UNQUAL
-    } mode = WATCH_STACK_UNQUAL;
-
-    const char *walk = canon;
-    if (g_str_has_prefix(canon, "Locals."))
-    {
-        mode = WATCH_STACK_LOCAL;
-        walk = canon + 7;
-    }
-    else if (g_str_has_prefix(canon, "Upvalues."))
-    {
-        mode = WATCH_STACK_UPVALUE;
-        walk = canon + 9;
-    }
-
-    const char *end = walk;
-    while (*end && *end != '.' && *end != '[')
-        end++;
-    if (end == walk)
-    {
-        g_free(canon);
-        return -1;
-    }
-
-    char *first_seg = g_strndup(walk, (size_t)(end - walk));
-
-    g_mutex_lock(&debugger.mutex);
-    const bool paused =
-        debugger.state == WSLUA_DEBUGGER_PAUSED && debugger.paused_L != NULL;
-    lua_State *L = debugger.paused_L;
-    if (!paused || !L)
-    {
-        g_mutex_unlock(&debugger.mutex);
-        g_free(first_seg);
-        g_free(canon);
-        return -1;
-    }
-
-    int32_t found = -1;
-    if (mode == WATCH_STACK_LOCAL)
-    {
-        found = wslua_debugger_find_frame_with_local(L, first_seg);
-    }
-    else if (mode == WATCH_STACK_UPVALUE)
-    {
-        found = wslua_debugger_find_frame_with_upvalue(L, first_seg);
-    }
-    else
-    {
-        found = wslua_debugger_find_frame_with_local(L, first_seg);
-        if (found < 0)
-            found = wslua_debugger_find_frame_with_upvalue(L, first_seg);
-    }
-    g_mutex_unlock(&debugger.mutex);
-    g_free(first_seg);
-    g_free(canon);
-    return found;
 }
 
 bool wslua_debugger_watch_read_root(const char *spec,
@@ -5308,11 +6414,14 @@ bool wslua_debugger_watch_read_root(const char *spec,
         return false;
     }
 
+    const int32_t watch_stack_level = variable_stack_level;
+
     /* Section-only specs ("Locals" / "Upvalues" / "Globals") have no root
      * value to look up: they are purely container rows whose children are
      * produced by wslua_debugger_get_variables(section). Report them as an
      * empty, expandable "section" entry so the Qt layer shows the expansion
-     * indicator and lazy-fills children on demand. */
+     * indicator and lazy-fills children on demand. Same in regular and
+     * break-on-error pause modes. */
     if (g_strcmp0(varpath, "Locals") == 0 ||
         g_strcmp0(varpath, "Upvalues") == 0 ||
         g_strcmp0(varpath, "Globals") == 0)
@@ -5333,7 +6442,10 @@ bool wslua_debugger_watch_read_root(const char *spec,
         return true;
     }
 
-    /* Strip Locals./Upvalues./Globals. prefix and pick first-segment resolver. */
+    /* Strip Locals./Upvalues./Globals. prefix and pick first-segment
+     * resolver. wslua_debugger_lookup_path is snapshot-aware (see
+     * wslua_debugger_push_first_path_segment), so the same call resolves
+     * both regular and break-on-error pause paths. */
     const char *lookup_path = varpath;
     wslua_lookup_first_kind_t lk_first = WSLUA_LOOKUP_FIRST_AUTO;
     if (g_str_has_prefix(varpath, "Locals."))
@@ -5352,7 +6464,7 @@ bool wslua_debugger_watch_read_root(const char *spec,
         lk_first = WSLUA_LOOKUP_FIRST_GLOBAL_ONLY;
     }
 
-    if (!wslua_debugger_lookup_path(L, lookup_path, variable_stack_level,
+    if (!wslua_debugger_lookup_path(L, lookup_path, watch_stack_level,
                                     lk_first))
     {
         g_free(varpath);
@@ -5441,7 +6553,9 @@ bool wslua_debugger_read_variable_value_full(const char *variable_path,
 
     /* Mirror wslua_debugger_watch_read_root's first-segment resolver so
      * "Locals.x", "Upvalues.y" and "Globals.z" resolve from the intended
-     * section even when a local shadows a global. */
+     * section even when a local shadows a global. wslua_debugger_lookup_path
+     * is snapshot-aware (see wslua_debugger_push_first_path_segment) so this
+     * call resolves both regular and break-on-error pauses identically. */
     const char *lookup_path = variable_path;
     wslua_lookup_first_kind_t lk_first = WSLUA_LOOKUP_FIRST_AUTO;
     if (g_str_has_prefix(variable_path, "Locals."))
@@ -5484,6 +6598,65 @@ bool wslua_debugger_read_variable_value_full(const char *variable_path,
     }
     lua_pop(L, 1);
     return true;
+}
+
+/* Break-on-error APIs */
+
+void wslua_debugger_set_error_break_enabled(bool enabled)
+{
+    g_mutex_lock(&debugger.mutex);
+    debugger.error_break_enabled = enabled;
+    g_mutex_unlock(&debugger.mutex);
+}
+
+bool wslua_debugger_get_error_break_enabled(void)
+{
+    g_mutex_lock(&debugger.mutex);
+    bool enabled = debugger.error_break_enabled;
+    g_mutex_unlock(&debugger.mutex);
+    return enabled;
+}
+
+/**
+ * @brief Consume one pending explicit break-on-error marker from the
+ *        global error()/assert() wrappers.
+ *
+ * Used by the post-pcall path to avoid a duplicate pause for the same
+ * underlying failure. Internal: external callers should use
+ * @ref wslua_debugger_after_pcall_failure which folds this in.
+ *
+ * @return true if an explicit wrapper break was pending and has now
+ *         been consumed; false otherwise.
+ */
+static bool wslua_debugger_consume_explicit_error_break(void)
+{
+    g_mutex_lock(&debugger.mutex);
+    bool occurred = debugger.explicit_error_break_recent;
+    debugger.explicit_error_break_recent = false;
+    g_mutex_unlock(&debugger.mutex);
+    return occurred;
+}
+
+void wslua_debugger_after_pcall_failure(lua_State *L)
+{
+    if (wslua_debugger_consume_explicit_error_break())
+    {
+        return;
+    }
+    wslua_debugger_on_runtime_error(L, lua_tostring(L, -1));
+}
+
+const char *wslua_debugger_consume_error_text(void)
+{
+    g_mutex_lock(&debugger.mutex);
+    const char *text = NULL;
+    if (debugger.error_break_occurred)
+    {
+        debugger.error_break_occurred = false;
+        text = debugger.last_error_text;
+    }
+    g_mutex_unlock(&debugger.mutex);
+    return text;
 }
 
 /**
@@ -5642,6 +6815,28 @@ wslua_debugger_watch_expr_resolve_value(const char *spec, const char *subpath,
     return L;
 }
 
+/**
+ * @brief Evaluate @a spec, walk @a subpath on the result, and report
+ *        the resolved descendant's Value/Type/expand bit.
+ *
+ * @a subpath uses the same syntax as the tail of a path watch
+ * (e.g. @c "[1].name"). An empty / NULL @a subpath returns the same
+ * data as @ref wslua_debugger_watch_expr_read_root. The expression is
+ * re-evaluated on every call; the same instruction and call-depth
+ * caps as @ref wslua_debugger_evaluate apply.
+ *
+ * Internal: external callers funnel through
+ * @ref wslua_debugger_watch_expr_read_root or
+ * @ref wslua_debugger_watch_expr_get_variables, which both delegate to
+ * this helper.
+ */
+static bool wslua_debugger_watch_expr_read_subpath(const char *spec,
+                                                   const char *subpath,
+                                                   char **value_out,
+                                                   char **type_out,
+                                                   bool *can_expand_out,
+                                                   char **error_msg);
+
 bool wslua_debugger_watch_expr_read_root(const char *spec, char **value_out,
                                          char **type_out,
                                          bool *can_expand_out,
@@ -5664,11 +6859,12 @@ bool wslua_debugger_watch_expr_read_root(const char *spec, char **value_out,
                                                   error_msg);
 }
 
-bool wslua_debugger_watch_expr_read_subpath(const char *spec,
-                                            const char *subpath,
-                                            char **value_out, char **type_out,
-                                            bool *can_expand_out,
-                                            char **error_msg)
+static bool wslua_debugger_watch_expr_read_subpath(const char *spec,
+                                                   const char *subpath,
+                                                   char **value_out,
+                                                   char **type_out,
+                                                   bool *can_expand_out,
+                                                   char **error_msg)
 {
     if (value_out)
     {

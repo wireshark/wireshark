@@ -2039,25 +2039,6 @@ void LuaDebuggerDialog::onWatchCurrentItemChanged(const QModelIndex &current, co
     {
         return;
     }
-    QStandardItem *rowItem = watchModel->itemFromIndex(current.sibling(current.row(), 0));
-    const QString spec =
-        (rowItem && rowItem->parent() == nullptr) ? rowItem->data(WatchSpecRole).toString() : QString();
-
-    if (!spec.isEmpty())
-    {
-        const bool live = wslua_debugger_is_enabled() && debuggerPaused && wslua_debugger_is_paused();
-        if (live)
-        {
-            const int32_t desired = wslua_debugger_find_stack_level_for_watch_spec(spec.toUtf8().constData());
-            if (desired >= 0 && desired != stackController_.selectionLevel())
-            {
-                stackController_.setSelectionLevel(static_cast<int>(desired));
-                wslua_debugger_set_variable_stack_level(desired);
-                refreshVariablesForCurrentStackFrame();
-                stackController_.updateFromEngine();
-            }
-        }
-    }
 
     /* Always sync: when the current watch has no resolvable path, the
      * helper clears the stale Variables selection. */

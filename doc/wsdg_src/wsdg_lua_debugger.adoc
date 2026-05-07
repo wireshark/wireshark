@@ -920,6 +920,9 @@ warning icon, gray text, and a disabled *Active* checkbox; their
 tooltip reads _File not found: <path>_ so you can spot stale
 entries that the loader will never resolve.
 
+Alongside line breakpoints, the debugger can also pause on any
+Lua runtime error — see <<wslua_debugger_break_on_error>>.
+
 Breakpoints are created and removed in several ways:
 
 * Click the gutter of the editor next to a line to toggle a
@@ -951,9 +954,12 @@ any of those — see <<wslua_debugger_breakpoint_extras>>.
 Double-clicking a row in the Breakpoints table opens the
 corresponding file in the editor and jumps to the line.
 
-The section header carries four small controls to the right of
+The section header carries five small controls to the right of
 the title rule, in left-to-right order:
 
+* `⚠` — *Break on Error* toggle. Gray when off, red when on.
+  Click to flip; the setting is remembered across Wireshark
+  restarts. See <<wslua_debugger_break_on_error>>.
 * a colored dot — the aggregate-active toggle. The dot mirrors the
   gutter convention: gray when every breakpoint is inactive, red
   when any breakpoint is active. Clicking it flips the aggregate
@@ -997,6 +1003,36 @@ the cursor, then the actions that target the whole table:
 Breakpoints survive Wireshark restarts. Adding a breakpoint
 automatically turns the debugger on if it was off — running with
 no line hook cannot trigger a pause.
+
+[#wslua_debugger_break_on_error]
+
+==== Break on Error
+
+In addition to line breakpoints, the debugger can pause whenever
+your Lua code raises a runtime error — a failing `assert`, an
+explicit `error("...")`, or an unhandled error such as `attempt
+to index a nil value`. *Break on Error* is a single switch that
+applies to every Lua callback the debugger sees; nothing is
+attached per script or per line.
+
+Toggle it from the *Breakpoints* section header. The setting is
+remembered across Wireshark restarts. Turning the button on
+automatically enables the debugger if it was off — a pause cannot
+fire while the line hook is not installed.
+
+When Lua raises an error and *Break on Error* is on, the
+debugger pauses on the failing line. The pause behaves like a
+regular breakpoint: the editor jumps to that line, *Variables*,
+*Watch*, and *Stack Trace* repopulate against the paused frame,
+and the rest of Wireshark grays out (see
+<<wslua_debugger_pause>>). An inline bar under the editor shows
+the error message.
+
+Live-capture suppression still applies: while a live capture is
+running the debugger is forcibly off, so *Break on Error* does
+not fire (see <<wslua_debugger_live_capture>>). To debug an
+error you can only reproduce on live traffic, save the capture
+and reload it offline.
 
 [#wslua_debugger_breakpoint_extras]
 

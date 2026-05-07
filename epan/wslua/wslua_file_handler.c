@@ -16,6 +16,7 @@
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSLUA
 
 #include "wslua_file_common.h"
+#include "wslua_debugger.h"
 
 #include <errno.h>
 #include <wiretap/file_wrappers.h>
@@ -33,7 +34,11 @@ WSLUA_CLASS_DEFINE(FileHandler,NOP);
 static int filehandler_cb_error_handler(lua_State* L) {
     const char* error =  lua_tostring(L,1);
     const char* functype = luaL_optstring(L, lua_upvalueindex(1), "UNKNOWN");
-    report_failure("Lua: Error During execution of FileHandler %s callback:\n %s",functype,error);
+    if (wslua_debugger_capture_runtime_error(L, error)) {
+        ws_warning("Lua: Error During execution of FileHandler %s callback:\n %s",functype,error);
+    } else {
+        report_failure("Lua: Error During execution of FileHandler %s callback:\n %s",functype,error);
+    }
     lua_pop(L, 1);
     return 0;
 }
@@ -162,6 +167,7 @@ wslua_filehandler_open(wtap *wth, int *err, char **err_info)
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfo *fc = NULL;
+    int status;
 
     INIT_FILEHANDLER_ROUTINE(read_open,WTAP_OPEN_ERROR,err,err_info);
 
@@ -171,11 +177,14 @@ wslua_filehandler_open(wtap *wth, int *err, char **err_info)
     fc = push_CaptureInfo(L, wth, true);
 
     errno = WTAP_ERR_CANT_OPEN;
-    switch ( lua_pcall(L,2,1,1) ) {
-        case 0:
-            retval = (wtap_open_return_val)wslua_optboolint(L,-1,0);
-            break;
-        CASE_ERROR("read_open",err,err_info)
+    status = lua_pcall(L, 2, 1, 1);
+    if (status == LUA_OK) {
+        retval = (wtap_open_return_val)wslua_optboolint(L, -1, 0);
+    } else {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
+            CASE_ERROR("read_open", err, err_info)
+        }
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -244,6 +253,7 @@ wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec,
     File *fp = NULL;
     CaptureInfo *fc = NULL;
     FrameInfo *fi = NULL;
+    int status;
 
     INIT_FILEHANDLER_ROUTINE(read,false,err,err_info);
 
@@ -261,23 +271,26 @@ wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec,
     fc = push_CaptureInfo(L, wth, false);
     fi = push_FrameInfo(L, rec);
 
-    switch ( lua_pcall(L,3,1,1) ) {
-        case 0:
-            /*
-             * Return values for FileHandler:read():
-             * Integer is the number of read bytes.
-             * Boolean false indicates an error.
-             * XXX handling of boolean true is not documented. Currently it will
-             * succeed without advancing data offset. Should it fail instead?
-             */
-            if (lua_type(L, -1) == LUA_TNUMBER) {
-                *offset = wslua_toint64(L, -1);
-                retval = 1;
-                break;
-            }
-            retval = wslua_optboolint(L,-1,0);
-            break;
-        CASE_ERROR("read",err,err_info)
+    status = lua_pcall(L, 3, 1, 1);
+    if (status == LUA_OK) {
+        /*
+         * Return values for FileHandler:read():
+         * Integer is the number of read bytes.
+         * Boolean false indicates an error.
+         * XXX handling of boolean true is not documented. Currently it will
+         * succeed without advancing data offset. Should it fail instead?
+         */
+        if (lua_type(L, -1) == LUA_TNUMBER) {
+            *offset = wslua_toint64(L, -1);
+            retval = 1;
+        } else {
+            retval = wslua_optboolint(L, -1, 0);
+        }
+    } else {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
+            CASE_ERROR("read", err, err_info)
+        }
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -315,6 +328,7 @@ wslua_filehandler_seek_read_packet(wtap *wth, int64_t seek_off, wtap_rec *rec,
     FrameInfo *fi = NULL;
     bool reentrant = in_routine;
     int reentrant_ref = LUA_NOREF;
+    int status;
 
     if (reentrant) {
         /*
@@ -366,19 +380,24 @@ wslua_filehandler_seek_read_packet(wtap *wth, int64_t seek_off, wtap_rec *rec,
     fi = push_FrameInfo(L, rec);
     lua_pushinteger(L, (lua_Integer)seek_off);
 
-    switch ( lua_pcall(L,4,1,1) ) {
-        case 0:
-            /*
-             * Return values for FileHandler:seek_read():
-             * Boolean true for successful parsing, false/nil on error.
-             * Numbers (including zero) are interpreted as success for
-             * compatibility to match FileHandler:seek semantics.
-             * (Other values are unspecified/undocumented, but happen to be
-             * treated as success.)
-             */
-            retval = lua_toboolean(L, -1);
-            break;
-        CASE_ERROR("seek_read",err,err_info)
+    status = lua_pcall(L, 4, 1, 1);
+    if (status == LUA_OK) {
+        /*
+         * Return values for FileHandler:seek_read():
+         * Boolean true for successful parsing, false/nil on error.
+         * Numbers (including zero) are interpreted as success for
+         * compatibility to match FileHandler:seek semantics.
+         * (Other values are unspecified/undocumented, but happen to be
+         * treated as success.)
+         */
+        retval = lua_toboolean(L, -1);
+    } else {
+        if (!reentrant) {
+            wslua_debugger_after_pcall_failure(L);
+        }
+        switch (status) {
+            CASE_ERROR("seek_read", err, err_info)
+        }
     }
 
     if (reentrant) {
@@ -441,16 +460,19 @@ wslua_filehandler_close(wtap *wth)
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfo *fc = NULL;
+    int status;
 
     INIT_FILEHANDLER_ROUTINE(read_close,,NULL,NULL);
 
     fp = push_File(L, wth->fh);
     fc = push_CaptureInfo(L, wth, false);
 
-    switch ( lua_pcall(L,2,1,1) ) {
-        case 0:
-            break;
-        CASE_ERROR("read_close",NULL,NULL)
+    status = lua_pcall(L, 2, 1, 1);
+    if (status != LUA_OK) {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
+            CASE_ERROR("read_close", NULL, NULL)
+        }
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -473,16 +495,19 @@ wslua_filehandler_sequential_close(wtap *wth)
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfo *fc = NULL;
+    int status;
 
     INIT_FILEHANDLER_ROUTINE(seq_read_close,,NULL,NULL);
 
     fp = push_File(L, wth->fh);
     fc = push_CaptureInfo(L, wth, false);
 
-    switch ( lua_pcall(L,2,1,1) ) {
-        case 0:
-            break;
-        CASE_ERROR("seq_read_close",NULL,NULL)
+    status = lua_pcall(L, 2, 1, 1);
+    if (status != LUA_OK) {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
+            CASE_ERROR("seq_read_close", NULL, NULL)
+        }
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -513,16 +538,20 @@ wslua_filehandler_can_write_encap(int encap, void* data)
     FileHandler fh = (FileHandler)(data);
     int retval = WTAP_ERR_UNWRITABLE_ENCAP;
     lua_State* L = NULL;
+    int status;
 
     INIT_FILEHANDLER_ROUTINE(can_write_encap,WTAP_ERR_UNWRITABLE_ENCAP,NULL,NULL);
 
     lua_pushinteger(L, encap);
 
-    switch ( lua_pcall(L,1,1,1) ) {
-        case 0:
-            retval = wslua_optboolint(L,-1,WTAP_ERR_UNWRITABLE_ENCAP);
-            break;
-        CASE_ERROR("can_write_encap",NULL,NULL)
+    status = lua_pcall(L, 1, 1, 1);
+    if (status == LUA_OK) {
+        retval = wslua_optboolint(L, -1, WTAP_ERR_UNWRITABLE_ENCAP);
+    } else {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
+            CASE_ERROR("can_write_encap", NULL, NULL)
+        }
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -557,6 +586,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err, char **err_info)
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfoConst *fc = NULL;
+    int status;
 
     INIT_FILEHANDLER_ROUTINE(write_open,0,err,err_info);
 
@@ -570,11 +600,14 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err, char **err_info)
         *err = 0;
     }
 
-    switch ( lua_pcall(L,2,1,1) ) {
-        case 0:
-            retval = wslua_optboolint(L,-1,0);
-            break;
-        CASE_ERROR("write_open",err,err_info)
+    status = lua_pcall(L, 2, 1, 1);
+    if (status == LUA_OK) {
+        retval = wslua_optboolint(L, -1, 0);
+    } else {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
+            CASE_ERROR("write_open", err, err_info)
+        }
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -620,6 +653,7 @@ wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
     File *fp = NULL;
     CaptureInfoConst *fc = NULL;
     FrameInfoConst *fi = NULL;
+    int status;
 
     INIT_FILEHANDLER_ROUTINE(write,false,err,err_info);
 
@@ -633,11 +667,14 @@ wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
     fi = push_FrameInfoConst(L, rec, ws_buffer_start_ptr(&rec->data));
 
     errno = WTAP_ERR_CANT_WRITE;
-    switch ( lua_pcall(L,3,1,1) ) {
-        case 0:
-            retval = wslua_optboolint(L,-1,0);
-            break;
-        CASE_ERROR("write",err,err_info)
+    status = lua_pcall(L, 3, 1, 1);
+    if (status == LUA_OK) {
+        retval = wslua_optboolint(L, -1, 0);
+    } else {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
+            CASE_ERROR("write", err, err_info)
+        }
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -660,6 +697,7 @@ wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err, char **err_info)
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfoConst *fc = NULL;
+    int status;
 
     INIT_FILEHANDLER_ROUTINE(write_close,false,err,err_info);
 
@@ -672,11 +710,14 @@ wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err, char **err_info)
     fc = push_CaptureInfoConst(L,wdh);
 
     errno = WTAP_ERR_CANT_CLOSE;
-    switch ( lua_pcall(L,2,1,1) ) {
-        case 0:
-            retval = wslua_optboolint(L,-1,0);
-            break;
-        CASE_ERROR("write_close",err,err_info)
+    status = lua_pcall(L, 2, 1, 1);
+    if (status == LUA_OK) {
+        retval = wslua_optboolint(L, -1, 0);
+    } else {
+        wslua_debugger_after_pcall_failure(L);
+        switch (status) {
+            CASE_ERROR("write_close", err, err_info)
+        }
     }
 
     END_FILEHANDLER_ROUTINE();

@@ -192,10 +192,13 @@ void LuaDebuggerDialog::applyDialogSettings()
      * the final restored expansion state regardless of signal-ordering. */
     updateLeftPanelStretch();
 
-    /* Toolbar enable preference is persisted from the checkbox via
-     * storeDialogSettings(); closeEvent() turns the core off and sets
-     * user_explicitly_disabled until we run here, so the checkbox cannot be
-     * seeded from wslua_debugger_is_enabled() alone. */
+    /* Toolbar enable preference is persisted from the user's explicit
+     * intent (storeDialogSettings() saves @c !user_explicitly_disabled).
+     * closeEvent() turns the core off and forces user_explicitly_disabled
+     * true until we run here, so the checkbox cannot be seeded from
+     * wslua_debugger_is_enabled() alone. The visible checkbox is then
+     * resynced to the actual core state below by
+     * ensureDebuggerEnabledForActiveBreakpoints. */
     const bool debuggerEnabledPref =
         settingsStore_.map().value(QString::fromUtf8(LuaDebuggerSettingsKeys::DebuggerEnabled), true).toBool();
     if (enabledCheckBox)
@@ -261,8 +264,16 @@ void LuaDebuggerDialog::storeDialogSettings()
         settingsSection ? settingsSection->isExpanded() : false;
     settingsStore_.map()[LuaDebuggerSettingsKeys::SectionWatch] = watchSection ? watchSection->isExpanded() : true;
 
+    /* Persist the user's intent (i.e. whether they have explicitly disabled
+     * the debugger), not the currently-visible checkbox state. The toolbar
+     * checkbox mirrors the live core "is enabled" flag, which the new
+     * ensure-down semantics auto-clear whenever no breakpoint and no
+     * Break-on-Error trigger is armed. Saving that auto-cleared state would
+     * promote a transient "no triggers, debugger off" snapshot into a
+     * persisted explicit-disable on reopen, which then blocks the
+     * "adding a breakpoint auto-enables the debugger" affordance. */
     settingsStore_.map()[QString::fromUtf8(LuaDebuggerSettingsKeys::DebuggerEnabled)] =
-        enabledCheckBox && enabledCheckBox->isChecked();
+        !wslua_debugger_get_user_explicitly_disabled();
 
     watchController_.serializeTo(settingsStore_.map());
 }
