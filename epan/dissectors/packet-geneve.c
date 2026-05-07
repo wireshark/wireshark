@@ -81,6 +81,9 @@ static const range_string class_id_names[] = {
 #define GENEVE_GCP_VNID     0x013201
 #define GENEVE_GCP_ENDPOINT 0x013202
 #define GENEVE_GCP_PROFILE  0x013203
+#define GENEVE_GCP_TIMESTAMP 0x01320F
+#define GENEVE_GCP_NETWORK_STABLE_ID 0x013210
+#define GENEVE_GCP_PRIMARY_IP4 0x013211
 #define GENEVE_CILIUM_SERVICE   0x014B81
 #define GENEVE_CPACKET_METADATA  0x016400
 
@@ -88,6 +91,9 @@ static const val64_string option_names[] = {
   { GENEVE_GCP_VNID,     "GCP Virtual Network ID" },
   { GENEVE_GCP_ENDPOINT, "GCP Endpoint ID" },
   { GENEVE_GCP_PROFILE,  "GCP Profile ID" },
+  { GENEVE_GCP_TIMESTAMP, "GCP Timestamp" },
+  { GENEVE_GCP_NETWORK_STABLE_ID, "GCP Network Stable ID" },
+  { GENEVE_GCP_PRIMARY_IP4, "GCP Primary IPv4 Address" },
   { GENEVE_CILIUM_SERVICE,    "Cilium Service IP" },
   { GENEVE_CPACKET_METADATA,  "cPacket Meta-data" },
   { 0, NULL }
@@ -121,6 +127,10 @@ static int hf_geneve_opt_gcp_reserved;
 static int hf_geneve_opt_gcp_direction;
 static int hf_geneve_opt_gcp_endpoint;
 static int hf_geneve_opt_gcp_profile;
+static int hf_geneve_opt_gcp_timestamp;
+static int hf_geneve_opt_gcp_project_number;
+static int hf_geneve_opt_gcp_network_id;
+static int hf_geneve_opt_gcp_primary_ip4;
 static int hf_geneve_opt_cilium_service_ipv4;
 static int hf_geneve_opt_cilium_service_ipv6;
 static int hf_geneve_opt_cilium_service_port;
@@ -236,6 +246,25 @@ dissect_option(packet_info *pinfo, tvbuff_t *tvb, proto_tree *opts_tree, int off
           case GENEVE_GCP_PROFILE:
               proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_profile, tvb, offset,
                                   geneve_option->opt_len - 4, ENC_BIG_ENDIAN);
+              break;
+          case GENEVE_GCP_TIMESTAMP:
+              {
+                  uint64_t ns = tvb_get_ntoh64(tvb, offset);
+                  nstime_t ts;
+                  ts.secs = (time_t)(ns / 1000000000);
+                  ts.nsecs = (int)(ns % 1000000000);
+                  proto_tree_add_time(opt_tree, hf_geneve_opt_gcp_timestamp, tvb, offset, 8, &ts);
+              }
+              break;
+          case GENEVE_GCP_NETWORK_STABLE_ID:
+              proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_project_number, tvb, offset,
+                                  8, ENC_BIG_ENDIAN);
+              proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_network_id, tvb, offset + 8,
+                                  8, ENC_BIG_ENDIAN);
+              break;
+          case GENEVE_GCP_PRIMARY_IP4:
+              proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_primary_ip4, tvb, offset,
+                                  4, ENC_BIG_ENDIAN);
               break;
           case GENEVE_CILIUM_SERVICE:
               switch (geneve_option->opt_len) {
@@ -541,6 +570,26 @@ proto_register_geneve(void)
         { &hf_geneve_opt_gcp_profile,
           { "GCP Profile ID", "geneve.option.gcp.profile",
             FT_UINT64, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_geneve_opt_gcp_timestamp,
+          { "GCP Timestamp", "geneve.option.gcp.timestamp",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x00,
+            "Timestamp in nanoseconds since epoch", HFILL }
+        },
+        { &hf_geneve_opt_gcp_project_number,
+          { "GCP Project Number", "geneve.option.gcp.project_number",
+            FT_UINT64, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_geneve_opt_gcp_network_id,
+          { "GCP Network ID", "geneve.option.gcp.network_id",
+            FT_UINT64, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_geneve_opt_gcp_primary_ip4,
+          { "GCP Primary IPv4 Address", "geneve.option.gcp.primary_ip4",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_geneve_opt_cilium_service_ipv4,
