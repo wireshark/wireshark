@@ -520,7 +520,7 @@ static int hf_oran_uplane;
 static int hf_oran_bf;      /* to match frames that configure beamforming in any way */
 static int hf_oran_zero_prb;
 static int hf_oran_nonzero_prb;
-
+static int hf_oran_bundle_weights_all_zero;
 
 static int hf_oran_ul_cplane_ud_comp_hdr_frame;
 
@@ -2463,6 +2463,8 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
         num_weights_per_bundle = num_trx_entries;
     }
 
+    bool non_zero_weights_seen = false;
+    int bit_offset_before_weights = bit_offset;
     for (unsigned w=0; w < num_weights_per_bundle; w++) {
 
         uint16_t trx_index = (num_trx_entries) ? trx_entries[w] : w+1;
@@ -2478,6 +2480,9 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
         /* I */
         /* Get bits, and convert to float. */
         uint32_t bits = tvb_get_bits32(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
+        if (bits) {
+            non_zero_weights_seen = true;
+        }
         float value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width,
                                        exponent, mod_compr_params, 0 /* RE */);
         /* Add to tree. */
@@ -2488,12 +2493,21 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
         /* Q */
         /* Get bits, and convert to float. */
         bits = tvb_get_bits32(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
+        if (bits) {
+            non_zero_weights_seen = true;
+        }
+
         value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width,
                                  exponent, mod_compr_params, 0 /* RE */);
         /* Add to tree. */
         proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", w, value);
         bit_offset += iq_width;
         proto_item_append_text(bfw_ti, "Q%u=%f)", w, value);
+    }
+
+    if (!non_zero_weights_seen) {
+        proto_tree_add_item(bundle_tree, hf_oran_bundle_weights_all_zero, tvb,
+                            bit_offset_before_weights, (bit_offset+7)/8 - (bit_offset_before_weights/8), ENC_NA);
     }
 
     /* Set extent of bundle */
@@ -9470,6 +9484,12 @@ proto_register_oran(void)
             FT_NONE, BASE_NONE,
             NULL, 0x0,
             "Not all of the REs in this PRB are zero", HFILL}
+        },
+        { &hf_oran_bundle_weights_all_zero,
+          { "Bundle Weights all zero", "oran_fh_cus.zero-bundle",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            "All of the weights in a bundle are zero", HFILL}
         },
 
 
