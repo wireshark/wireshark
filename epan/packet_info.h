@@ -1,4 +1,4 @@
-/* packet_info.h
+﻿/* packet_info.h
  * Definitions for packet info structures and routines
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __PACKET_INFO_H__
-#define __PACKET_INFO_H__
-
+#pragma once
 #include "frame_data.h"
 #include "address.h"
 
@@ -176,8 +173,6 @@ typedef struct _packet_info {
 } packet_info;
 
 /** @} */
-
-#endif /* __PACKET_INFO_H__ */
 
 /*
  * Editor modelines

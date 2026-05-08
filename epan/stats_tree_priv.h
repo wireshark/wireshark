@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * implementor's API for stats_tree
  * 2005, Luis E. G. Ontanon
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __STATS_TREE_PRIV_H
-#define  __STATS_TREE_PRIV_H
-
+#pragma once
 #include "stats_tree.h"
 #include "ws_symbol_export.h"
 
@@ -293,5 +290,3 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __STATS_TREE_PRIV_H */

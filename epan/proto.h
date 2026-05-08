@@ -1,4 +1,4 @@
-/* proto.h
+﻿/* proto.h
  * Definitions for protocol display
  *
  * Wireshark - Network traffic analyzer
@@ -19,10 +19,7 @@
     The "dynamic" information is added to the protocol tree by calling one of the proto_tree_add_...() functions,
     e.g. proto_tree_add_bytes(). In most cases, you'll want to use proto_tree_add_item().
 */
-
-#ifndef __PROTO_H__
-#define __PROTO_H__
-
+#pragma once
 #include "wsutil/nstime.h"
 #include "tvbuff.h"
 #include <wsutil/value_string.h>
@@ -3643,8 +3640,6 @@ proto_custom_get_filter(struct epan_dissect *edt, GSList *field_id, int occurren
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* proto.h */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

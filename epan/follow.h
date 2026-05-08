@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -9,10 +9,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  */
-
-#ifndef __FOLLOW_H__
-#define __FOLLOW_H__
-
+#pragma once
 #include <epan/epan.h>
 #include <epan/packet.h>
 #include <wsutil/inet_cidr.h>
@@ -261,5 +258,3 @@ WS_DLL_PUBLIC void follow_info_free(follow_info_t* follow_info);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif

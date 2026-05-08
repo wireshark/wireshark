@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * A counter tree API for Wireshark dissectors
  * 2005, Luis E. G. Ontanon
  *
@@ -8,9 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-#ifndef __STATS_TREE_H
-#define __STATS_TREE_H
-
+#pragma once
 #include <epan/epan.h>
 #include <epan/packet_info.h>
 #include <epan/tap.h>
@@ -369,8 +367,6 @@ WS_DLL_PUBLIC int stats_tree_manip_node_float(manip_node_mode mode,
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __STATS_TREE_H */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

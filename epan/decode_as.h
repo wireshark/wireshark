@@ -1,4 +1,4 @@
-/* decode_as.h
+﻿/* decode_as.h
  * Routines for dissector Decode As handlers
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __DECODE_AS_H__
-#define __DECODE_AS_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #include "ftypes/ftypes.h"
@@ -182,5 +179,3 @@ WS_DLL_PUBLIC void decode_build_reset_list (const char *table_name, ftenum_t sel
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* decode_as.h */

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Declarations of routines to register UI information for stats
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __STAT_TAP_UI_H__
-#define __STAT_TAP_UI_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #include <epan/params.h>
@@ -250,8 +247,6 @@ WS_DLL_PUBLIC bool start_requested_stats(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif
 
 /*
  * Editor modelines

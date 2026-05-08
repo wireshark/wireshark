@@ -1,4 +1,4 @@
-/* capture_dissectors.h
+﻿/* capture_dissectors.h
  * Routines for handling capture dissectors
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __CAPTURE_DISSECTORS_H__
-#define __CAPTURE_DISSECTORS_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 #include <wiretap/wtap.h>
 
@@ -114,5 +111,3 @@ extern void capture_dissector_cleanup(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* capture_dissectors.h */

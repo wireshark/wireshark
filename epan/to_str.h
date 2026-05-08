@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for utilities to convert various other types to strings.
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __TO_STR_H__
-#define __TO_STR_H__
-
+#pragma once
 #include "wsutil/nstime.h"
 #include <wsutil/inet_cidr.h>
 #include <epan/proto.h>
@@ -291,5 +288,3 @@ WS_DLL_PUBLIC char *decode_bits_in_field(wmem_allocator_t *scope, const unsigned
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __TO_STR_H__  */

@@ -1,4 +1,4 @@
-/** @file prefs.h
+﻿/** @file prefs.h
  * Definitions for preference handling routines
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __PREFS_H__
-#define __PREFS_H__
-
+#pragma once
 #include <glib.h>
 
 #include <epan/params.h>
@@ -1255,8 +1252,6 @@ WS_DLL_PUBLIC bool prefs_has_layout_pane_content (layout_pane_content_e layout_p
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* prefs.h */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

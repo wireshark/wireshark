@@ -1,4 +1,4 @@
-/* tfs.h
+﻿/* tfs.h
  * true_false strings
  * Copyright 2007, Jaap Keuter <jaap.keuter@xs4all.nl>
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __TFS_H__
-#define __TFS_H__
-
+#pragma once
 #include <stdbool.h>
 #include "ws_symbol_export.h"
 
@@ -136,8 +133,6 @@ WS_DLL_PUBLIC const true_false_string tfs_data_pdu_control_pdu;
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __TFS_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

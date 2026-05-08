@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Testy, Virtual(-izable) Buffer of uint8_t*'s
  *
@@ -17,10 +17,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __TVBUFF_H__
-#define __TVBUFF_H__
-
+#pragma once
 #include <ws_symbol_export.h>
 #include <ws_attributes.h>
 
@@ -4196,8 +4193,6 @@ WS_DLL_PUBLIC unsigned tvb_get_varint(tvbuff_t *tvb, unsigned offset, unsigned m
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __TVBUFF_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

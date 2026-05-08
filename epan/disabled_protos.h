@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Declarations of routines for reading and writing protocols file that determine
  * enabling and disabling of protocols.
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef DISABLED_PROTOS_H
-#define DISABLED_PROTOS_H
-
+#pragma once
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -85,5 +82,3 @@ cleanup_enabled_and_disabled_lists(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* DISABLED_PROTOS_H */

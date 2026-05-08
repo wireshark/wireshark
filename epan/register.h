@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Definitions for protocol registration
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __REGISTER_H__
-#define __REGISTER_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -98,8 +95,6 @@ void register_all_event_dissectors_handoffs(register_cb cb, void* client_data);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __REGISTER_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Flow sequence analysis
  *
  * Copied from gtk/graph_analysis.h
@@ -15,10 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __EPAN_SEQUENCE_ANALYSIS_H__
-#define __EPAN_SEQUENCE_ANALYSIS_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #include <glib.h>
@@ -211,8 +208,6 @@ WS_DLL_PUBLIC void sequence_analysis_dump_to_file(FILE *of, seq_analysis_info_t 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __EPAN_SEQUENCE_ANALYSIS_H__ */
 
 /*
  * Editor modelines

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for structures storing addresses, and for the type of
  * variables holding port-type values
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __ADDRESS_H__
-#define __ADDRESS_H__
-
+#pragma once
 #include <string.h>     /* for memcmp */
 
 #include "tvbuff.h"
@@ -432,8 +429,6 @@ typedef enum {
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __ADDRESS_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

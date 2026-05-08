@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Routines to put exception information into the protocol tree
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __SHOW_EXCEPTION_H__
-#define __SHOW_EXCEPTION_H__
-
+#pragma once
 #include <epan/proto.h>
 
 /*
@@ -32,5 +29,3 @@ void show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 WS_DLL_PUBLIC void
 show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-#endif /* __SHOW_EXCEPTION_H__ */

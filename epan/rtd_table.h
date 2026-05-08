@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * GUI independent helper routines common to all Response Time Delay (RTD) taps.
  * Based on srt_table.h
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __RTD_TABLE_H__
-#define __RTD_TABLE_H__
-
+#pragma once
 #include "tap.h"
 #include "timestats.h"
 #include <wsutil/value_string.h>
@@ -159,8 +156,6 @@ WS_DLL_PUBLIC char* rtd_table_get_tap_string(register_rtd_t* rtd);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __RTD_TABLE_H__ */
 
 /*
  * Editor modelines

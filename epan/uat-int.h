@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  *  User Accessible Tables
  *  Maintain an array of user accessible data structures
@@ -13,9 +13,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  */
-#ifndef __UAT_INT_H__
-#define __UAT_INT_H__
-
+#pragma once
 #include <glib.h>
 
 #include "uat.h"
@@ -171,8 +169,6 @@ char *uat_record_tostr(const uat_t *uat, void *rec);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __UAT_INT_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

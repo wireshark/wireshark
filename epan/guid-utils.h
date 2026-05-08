@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for GUID handling
  *
  * Wireshark - Network traffic analyzer
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __GUID_UTILS_H__
-#define __GUID_UTILS_H__
-
+#pragma once
 #include <stdint.h>
 #include "ws_symbol_export.h"
 #include <epan/wmem_scopes.h>
@@ -107,5 +104,3 @@ WS_DLL_PUBLIC unsigned guid_hash(const e_guid_t *guid);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __GUID_UTILS_H__ */

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Definitions of OUIs
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __OUI_H__
-#define __OUI_H__
-
+#pragma once
 /*
  * See
  *
@@ -104,8 +101,6 @@
 #define OUI_AVAYA_EXTREME2  0xD88466    /* Avaya Extreme Fabric */
 #define OUI_ALCATEL_LUCENT  0xDC0856    /* Alcatel-Lucent */
 #define OUI_THREAD          0xEAB89B    /* Thread */
-
-#endif
 
 /*
  * Editor modelines

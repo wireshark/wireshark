@@ -1,4 +1,4 @@
-/* range.h
+﻿/* range.h
  * Range routines
  *
  * Dick Gooris <gooris@lucent.com>
@@ -10,10 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __RANGE_H__
-#define __RANGE_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 #include <epan/wmem_scopes.h>
 
@@ -163,5 +160,3 @@ WS_DLL_PUBLIC range_t *range_copy(wmem_allocator_t *scope, const range_t *src);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __RANGE_H__ */

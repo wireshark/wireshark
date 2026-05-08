@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * an API for text tvb parsers
  *
@@ -47,10 +47,7 @@
 
  The element's data is destroyed before the next packet is dissected.
  */
-
-#ifndef _TVB_PARSE_H_
-#define _TVB_PARSE_H_
-
+#pragma once
 #include <epan/tvbuff.h>
 #include "ws_symbol_export.h"
 
@@ -545,5 +542,3 @@ tvbparse_elem_t* tvbparse_find(tvbparse_t* tt,
  */
 WS_DLL_PUBLIC
 void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr);
-
-#endif

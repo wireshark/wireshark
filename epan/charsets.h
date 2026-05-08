@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Routines for handling character sets
  *
  * Wireshark - Network traffic analyzer
@@ -7,9 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-#ifndef __CHARSETS_H__
-#define __CHARSETS_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -351,8 +349,6 @@ get_dect_standard_8bits_string(wmem_allocator_t *scope, const uint8_t *ptr, size
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __CHARSETS_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

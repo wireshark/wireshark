@@ -1,4 +1,4 @@
-/* oids.h
+﻿/* oids.h
  * Object IDentifier Support
  *
  * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
@@ -9,10 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __OIDS_H__
-#define __OIDS_H__
-
+#pragma once
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 #include <epan/wmem_scopes.h>
@@ -297,8 +294,6 @@ extern void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif  /* __OIDS_H__ */
 
 /*
  * Editor modelines

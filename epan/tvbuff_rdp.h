@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  *	Various decompression routines used by RDP
  *
@@ -10,10 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __TVBUFF_RDP_H__
-#define __TVBUFF_RDP_H__
-
+#pragma once
 #include <epan/wmem_scopes.h>
 #include <epan/tvbuff.h>
 
@@ -37,6 +34,3 @@ WS_DLL_PUBLIC zgfx_context_t *zgfx_context_new(wmem_allocator_t *allocator);
  * @return Pointer to the decompressed tvbuff, or NULL on failure.
  */
 WS_DLL_PUBLIC tvbuff_t *rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb, unsigned offset);
-
-
-#endif /* __TVBUFF_RDP_H__ */

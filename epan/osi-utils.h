@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -6,10 +6,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __OSI_UTILS_H__
-#define __OSI_UTILS_H__
-
+#pragma once
 /* OSI Global defines, common for all OSI protocols */
 
 #define MAX_NSAP_LEN          30
@@ -167,8 +164,6 @@ WS_DLL_PUBLIC int get_osi_address_type(void);
  * If the OSI address type is already registered, it does nothing.
  */
 WS_DLL_PUBLIC void register_osi_address_type(void);
-
-#endif /* __OSI_UTILS_H__ */
 
 /*
  * Editor modelines

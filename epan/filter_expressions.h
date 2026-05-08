@@ -1,4 +1,4 @@
-/* filter_expressions.h
+﻿/* filter_expressions.h
  * Submitted by Edwin Groothuis <wireshark@mavetju.org>
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __FILTER_EXPRESSIONS_H__
-#define __FILTER_EXPRESSIONS_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #include <epan/prefs.h>
@@ -64,5 +61,3 @@ void filter_expression_register_uat(module_t* pref_module);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __FILTER_EXPRESSIONS_H__ */

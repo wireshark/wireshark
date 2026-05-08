@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * EPAN's GUI mini-API
  *
@@ -10,9 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-#ifndef __FUNNEL_H__
-#define __FUNNEL_H__
-
+#pragma once
 #include <wireshark.h>
 #include <epan/stat_groups.h>
 
@@ -246,5 +244,3 @@ WS_DLL_PUBLIC void funnel_ops_init(const funnel_ops_t* ops, funnel_registration_
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __FUNNEL_H__ */

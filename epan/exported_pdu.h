@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Routines for exported_pdu dissection
  * Copyright 2013, Anders Broman <anders-broman@ericsson.com>
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef EXPORTED_PDU_H
-#define EXPORTED_PDU_H
-
+#pragma once
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
 
@@ -149,5 +146,3 @@ extern void export_pdu_cleanup(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* EXPORTED_PDU_H */

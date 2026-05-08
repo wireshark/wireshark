@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Routines and definitions for time statistics
  * Copyright 2003 Lars Roland
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __TIMESTATS_H__
-#define __TIMESTATS_H__
-
+#pragma once
 #include "epan/packet_info.h"
 #include "wsutil/nstime.h"
 
@@ -62,5 +59,3 @@ WS_DLL_PUBLIC double get_average(const nstime_t *sum, uint32_t num);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __TIMESTATS_H__ */

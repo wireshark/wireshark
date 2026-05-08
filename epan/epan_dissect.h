@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Wireshark Protocol Analyzer Library
  *
@@ -6,10 +6,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef EPAN_DISSECT_H
-#define EPAN_DISSECT_H
-
+#pragma once
 #include "epan.h"
 #include "tvbuff.h"
 #include "proto.h"
@@ -35,8 +32,6 @@ struct epan_dissect {
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* EPAN_DISSECT_H */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for address types
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __ADDRESS_TYPES_H__
-#define __ADDRESS_TYPES_H__
-
+#pragma once
 #include "address.h"
 
 #ifdef __cplusplus
@@ -161,8 +158,6 @@ const char* address_type_column_filter_string(const address* addr, bool src);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __ADDRESS_TYPES_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for "next tvb" list
  *
  * Wireshark - Network traffic analyzer
@@ -14,10 +14,7 @@
  * If you need the buffer to remain for a longer scope than packet lifetime
  * you must copy the content to an wmem_file_scope() buffer.
  */
-
-#ifndef __NEXT_TVB_H__
-#define __NEXT_TVB_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 #include <epan/packet.h>
 
@@ -100,5 +97,3 @@ WS_DLL_PUBLIC void next_tvb_add_string(next_tvb_list_t *list, tvbuff_t *tvb, pro
  * @param data_handle The dissector_handle_t for the data dissector.
  */
 WS_DLL_PUBLIC void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle);
-
-#endif /* __NEXT_TVB_H__ */

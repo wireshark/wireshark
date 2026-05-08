@@ -8,8 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __UUID_TYPES_H__
-#define __UUID_TYPES_H__
+#pragma once
 
 #include "ws_symbol_export.h"
 #include <epan/wmem_scopes.h>
@@ -130,5 +129,3 @@ WS_DLL_PUBLIC const char* uuid_type_get_uuid_name(const char* name, void* uuid, 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __UUID_TYPES_H__ */

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for network object lookup
  *
  * Laurent Deniel <laurent.deniel@free.fr>
@@ -16,10 +16,7 @@
  * If you need the buffer to remain for a longer scope than packet lifetime
  * you must copy the content to an wmem_file_scope() buffer.
  */
-
-#ifndef __RESOLV_H__
-#define __RESOLV_H__
-
+#pragma once
 #include <epan/address.h>
 #include <epan/tvbuff.h>
 #include <wsutil/inet_cidr.h>
@@ -1012,5 +1009,3 @@ WS_DLL_PUBLIC const char *tac_name_lookup(const unsigned addr);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __RESOLV_H__ */

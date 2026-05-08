@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Declaration of CRC-10 tvbuff routines
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
 */
-
-#ifndef __CRC10_TVB_H__
-#define __CRC10_TVB_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -31,5 +28,3 @@ WS_DLL_PUBLIC uint16_t update_crc10_by_bytes_tvb(uint16_t crc10, tvbuff_t *tvb, 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* crc10-tvb.h */

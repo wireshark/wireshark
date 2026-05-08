@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Declaration of CRC-32 tvbuff routines
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __CRC32_TVB_H__
-#define __CRC32_TVB_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -122,5 +119,3 @@ WS_DLL_PUBLIC uint32_t crc32_sc32_tvb_offset_seed(tvbuff_t *tvb, unsigned offset
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* crc32-tvb.h */

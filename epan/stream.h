@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Definitions for handling circuit-switched protocols
  * which are handled as streams, and don't have lengths
@@ -10,10 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef STREAM_H
-#define STREAM_H
-
+#pragma once
 #include <epan/tvbuff.h>
 #include <epan/reassemble.h>
 #include "ws_symbol_export.h"
@@ -133,5 +130,3 @@ void stream_init( void );
  * @brief Cleans up stream-related data structures and reassembly tables.
  */
 void stream_cleanup( void );
-
-#endif /* STREAM_H */

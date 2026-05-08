@@ -1,4 +1,4 @@
-/* color_filters.h
+﻿/* color_filters.h
  * Definitions for color filters
  *
  * Wireshark - Network traffic analyzer
@@ -7,9 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-#ifndef  __COLOR_FILTERS_H__
-#define  __COLOR_FILTERS_H__
-
+#pragma once
 #include <glib.h>
 
 #include "ws_symbol_export.h"
@@ -276,8 +274,6 @@ WS_DLL_PUBLIC void color_filter_list_delete(GSList **cfl);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

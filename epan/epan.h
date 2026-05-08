@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Wireshark Protocol Analyzer Library
  *
@@ -6,10 +6,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __EPAN_H__
-#define __EPAN_H__
-
+#pragma once
 #include <wsutil/feature_list.h>
 #include <epan/tvbuff.h>
 #include <epan/prefs.h>
@@ -856,5 +853,3 @@ epan_gather_runtime_info(feature_list l);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __EPAN_H__ */

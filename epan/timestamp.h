@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Defines for packet timestamps
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __TIMESTAMP_H__
-#define __TIMESTAMP_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #include <wsutil/nstime.h>
@@ -118,5 +115,3 @@ WS_DLL_PUBLIC void timestamp_set_seconds_type(ts_seconds_type ts_t);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* timestamp.h */

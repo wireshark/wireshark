@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * eXtension command line options
  *
@@ -10,10 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef _EX_OPT_H
-#define _EX_OPT_H
-
+#pragma once
 #include <stdbool.h>
 
 #include "ws_symbol_export.h"
@@ -61,5 +58,3 @@ WS_DLL_PUBLIC char* ex_opt_get_next(const char* key);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* _EX_OPT_H */

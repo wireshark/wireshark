@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __ETYPES_H__
-#define __ETYPES_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #include <wsutil/value_string.h>
@@ -703,8 +700,6 @@ WS_DLL_PUBLIC const value_string etype_vals[];
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __ETYPES_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

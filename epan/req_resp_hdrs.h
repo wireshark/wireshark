@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Declarations of routines handling protocols with a request/response line,
  * headers, a blank line, and an optional body.
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __REQ_RESP_HDRS_H__
-#define __REQ_RESP_HDRS_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 #include <epan/packet.h>
 #include <wsutil/strtoi.h>
@@ -73,5 +70,3 @@ starts_with_chunk_size(tvbuff_t* tvb, const int offset, packet_info* pinfo)
 	}
 	return true;
 }
-
-#endif

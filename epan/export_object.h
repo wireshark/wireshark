@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * GUI independent helper routines common to all export object taps.
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __EXPORT_OBJECT_H__
-#define __EXPORT_OBJECT_H__
-
+#pragma once
 #include "tap.h"
 #include <epan/wmem_scopes.h>
 
@@ -133,8 +130,6 @@ WS_DLL_PUBLIC void eo_free_entry(export_object_entry_t *entry);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __EXPORT_OBJECT_H__ */
 
 /*
  * Editor modelines

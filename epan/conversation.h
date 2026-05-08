@@ -1,4 +1,4 @@
-/* conversation.h
+﻿/* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __CONVERSATION_H__
-#define __CONVERSATION_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #include <epan/packet.h>			/* for conversation dissector type */
@@ -771,5 +768,3 @@ WS_DLL_PUBLIC endpoint_type conversation_pt_to_endpoint_type(port_type pt);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* conversation.h */

@@ -1,4 +1,4 @@
-/* conversation_table.h
+﻿/* conversation_table.h
  * GUI independent helper routines common to all conversations taps.
  * Refactored original conversations_table by Ronnie Sahlberg
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __CONVERSATION_TABLE_H__
-#define __CONVERSATION_TABLE_H__
-
+#pragma once
 #include "tap.h"
 #include "conversation.h"
 #include <epan/wmem_scopes.h>
@@ -485,8 +482,6 @@ WS_DLL_PUBLIC void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __CONVERSATION_TABLE_H__ */
 
 /*
  * Editor modelines

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Declarations of routines for {fragment,segment} reassembly
  *
  * Wireshark - Network traffic analyzer
@@ -11,10 +11,7 @@
 /* make sure that all flags that are set in a fragment entry is also set for
  * the flags field of fd_head !!!
  */
-
-#ifndef REASSEMBLE_H
-#define REASSEMBLE_H
-
+#pragma once
 #include <epan/packet_info.h>
 #include <epan/proto.h>
 #include "ws_symbol_export.h"
@@ -1302,6 +1299,4 @@ additional_bytes_expected_to_complete_reassembly(streaming_reassembly_info_t* re
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

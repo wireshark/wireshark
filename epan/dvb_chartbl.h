@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Routines for handling DVB-SI character tables (as defined in EN 300 468)
  *
  * Wireshark - Network traffic analyzer
@@ -7,9 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-#ifndef __DVB_CHARTBL_H__
-#define __DVB_CHARTBL_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #include <epan/proto.h>
@@ -94,8 +92,6 @@ void dvb_add_chartbl(proto_tree *tree, int hf,
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __DVB_CHARTBL_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * GUI independent helper routines common to all service response time (SRT) taps.
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __SRT_TABLE_H__
-#define __SRT_TABLE_H__
-
+#pragma once
 #include "tap.h"
 #include "timestats.h"
 #include <epan/wmem_scopes.h>
@@ -212,8 +209,6 @@ WS_DLL_PUBLIC void add_srt_table_data(srt_stat_table *rst, int proc_index, const
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __SRT_TABLE_H__ */
 
 /*
  * Editor modelines

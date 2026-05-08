@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Proto Tree TVBuff cursor
  * Gilbert Ramirez <gram@alumni.rice.edu>
@@ -9,10 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __PTVCURSOR_H__
-#define __PTVCURSOR_H__
-
+#pragma once
 #include <epan/packet.h>
 #include "ws_symbol_export.h"
 
@@ -271,5 +268,3 @@ ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, int ett_subtree);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __PTVCURSOR_H__ */

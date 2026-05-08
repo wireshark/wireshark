@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Collecting of Expert information.
  *
  * For further info, see WSDG: 9.3. How to add an expert item:
@@ -10,10 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __EXPERT_H__
-#define __EXPERT_H__
-
+#pragma once
 #include <epan/proto.h>
 #include <epan/packet_info.h>
 #include <wsutil/value_string.h>
@@ -280,8 +277,6 @@ WS_DLL_PUBLIC const value_string expert_checksum_vals[];
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __EXPERT_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

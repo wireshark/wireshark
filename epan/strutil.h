@@ -1,4 +1,4 @@
-/* strutil.h
+﻿/* strutil.h
  * String utility definitions
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __STRUTIL_H__
-#define __STRUTIL_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #include <epan/wmem_scopes.h>
@@ -249,5 +246,3 @@ module_check_valid_name(const char *name, bool lower_only);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __STRUTIL_H__ */

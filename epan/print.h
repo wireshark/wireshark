@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for printing packet analysis trees.
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
@@ -9,10 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __PRINT_H__
-#define __PRINT_H__
-
+#pragma once
 #include <stdio.h>
 
 #include <epan/epan.h>
@@ -358,5 +355,3 @@ extern void print_cache_field_handles(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* print.h */

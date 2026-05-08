@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for packet disassembly structures and routines
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __PACKET_H__
-#define __PACKET_H__
-
+#pragma once
 #include <wsutil/array.h>
 #include "proto.h"
 #include "range.h"
@@ -1084,5 +1081,3 @@ WS_DLL_PUBLIC void decrement_dissection_depth_by_n(packet_info *pinfo, unsigned 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* packet.h */

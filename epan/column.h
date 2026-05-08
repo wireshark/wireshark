@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for column handling routines
  * Column preference and format settings.
  *
@@ -10,10 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __COLUMN_H__
-#define __COLUMN_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 #include <epan/column-utils.h>
 
@@ -324,5 +321,3 @@ void column_register_fields(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* column.h */

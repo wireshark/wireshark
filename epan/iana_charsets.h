@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Declarations for IANA-registered character sets
  *
@@ -14,10 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __IANA_CHARSETS_H__
-#define __IANA_CHARSETS_H__
-
+#pragma once
 /**
  * @brief Map a MIBenum code for a charset to a Wireshark string encoding.
  *
@@ -361,5 +358,3 @@ VS_LIST_TO_ENUM_VAL_T_ARRAY_GLOBAL_DCL(mibenum_vals_character_sets_ev_array);
 
 /* declare an short and Wireshark supported iana charset enum_val_t array */
 VS_LIST_TO_ENUM_VAL_T_ARRAY_GLOBAL_DCL(ws_supported_mibenum_vals_character_sets_ev_array);
-
-#endif /* iana_charsets.h */

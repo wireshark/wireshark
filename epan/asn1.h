@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Common data for ASN.1
  * 2007  Anders Broman
@@ -9,10 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __ASN1_H__
-#define __ASN1_H__
-
+#pragma once
 #include <epan/packet.h>
 #include "ws_symbol_export.h"
 
@@ -201,6 +198,3 @@ WS_DLL_PUBLIC double asn1_get_real(const uint8_t *real_ptr, int len, int *err);
 #define ASN1_DFLT     0x08
 
 #define ASN1_HAS_EXT(f) ((f)&(ASN1_EXT_ROOT|ASN1_EXT_EXT))
-
-
-#endif  /* __ASN1_H__ */

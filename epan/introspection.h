@@ -1,5 +1,5 @@
-/** @file
- * Copyright 2021, João Valverde <j@v6e.pt>
+﻿/** @file
+ * Copyright 2021, JoÃ£o Valverde <j@v6e.pt>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef _EPAN_INTROSPECTION_H_
-#define _EPAN_INTROSPECTION_H_
-
+#pragma once
 #include <stddef.h>
 #include <ws_symbol_export.h>
 #include <wsutil/introspection.h>
@@ -32,5 +29,3 @@ size_t epan_inspect_enums_count(void);
 /** Performs a binary search for the magic constant "needle". */
 WS_DLL_PUBLIC
 const ws_enum_t *epan_inspect_enums_bsearch(const char *needle);
-
-#endif

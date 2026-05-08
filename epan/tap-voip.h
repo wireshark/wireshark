@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * VoIP packet tap interface   2007 Tomas Kukosa
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef _TAP_VOIP_H_
-#define _TAP_VOIP_H_
-
+#pragma once
 /* defines voip call state */
 typedef enum _voip_call_state {
         VOIP_NO_STATE,
@@ -42,5 +39,3 @@ typedef struct _voip_packet_info_t
 	char *frame_label;
 	char *frame_comment;
 } voip_packet_info_t;
-
-#endif  /* _TAP_VOIP_H_ */

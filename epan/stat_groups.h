@@ -1,4 +1,4 @@
-/* stat_groups.h
+﻿/* stat_groups.h
  * Definitions of groups for statistics
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __STAT_GROUPS_H__
-#define __STAT_GROUPS_H__
-
+#pragma once
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -62,5 +59,3 @@ typedef enum _st_format_type {
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __STAT_GROUPS_H__ */

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Wireshark's exceptions.
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __EXCEPTIONS_H__
-#define __EXCEPTIONS_H__
-
+#pragma once
 #include "except.h"
 #include <wsutil/ws_assert.h>
 
@@ -493,10 +490,6 @@
 #define CLEANUP_PUSH_PFX(pfx,f,a)	except_cleanup_push_pfx(pfx,(f),(a))
 #define CLEANUP_POP_PFX(pfx)		except_cleanup_pop_pfx(pfx,0)
 #define CLEANUP_CALL_AND_POP_PFX(pfx)	except_cleanup_pop_pfx(pfx,1)
-
-
-
-#endif /* __EXCEPTIONS_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

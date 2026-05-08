@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for field types
  *
  * Wireshark - Network traffic analyzer
@@ -7,11 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-
-#ifndef __FTYPES_H__
-#define __FTYPES_H__
-
+#pragma once
 #include <wireshark.h>
 
 #include <wsutil/regex.h>
@@ -1320,8 +1316,6 @@ fvalue_equal(const fvalue_t *a, const fvalue_t *b);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __FTYPES_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

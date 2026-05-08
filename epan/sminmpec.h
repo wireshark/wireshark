@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * SMI Network Management Private Enterprise Codes for organizations
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __SMINMPEC_H__
-#define __SMINMPEC_H__
-
+#pragma once
 /*
  * These are SMI Network Management Private Enterprise Codes for
  * organizations; see
@@ -88,5 +85,3 @@
 #define VENDOR_ERICSSON_CANADA_INC  46098u
 #define VENDOR_NIAGARA_NETWORKS     47729u
 #define VENDOR_CISCO_WIFI           4232704
-
-#endif /* __SMINMPEC_H__ */

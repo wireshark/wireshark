@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for the Wireshark CBOR item decoding API.
  * References:
  *     RFC 8949: https://tools.ietf.org/html/rfc8949
@@ -11,10 +11,7 @@
  *
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
-
-#ifndef __WSCBOR_H__
-#define __WSCBOR_H__
-
+#pragma once
 #include <ws_symbol_export.h>
 #include <epan/tvbuff.h>
 #include <epan/proto.h>
@@ -389,5 +386,3 @@ proto_item * proto_tree_add_cbor_strlen(proto_tree *tree, int hfindex, packet_in
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __WSCBOR_H__ */

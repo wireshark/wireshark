@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Declaration of Internet checksum routine.
  *
  * Copyright (c) 1988, 1992, 1993
@@ -6,10 +6,7 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-
-#ifndef __IN_CKSUM_H__
-#define __IN_CKSUM_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 typedef struct {
@@ -83,5 +80,3 @@ WS_DLL_PUBLIC int in_cksum(const vec_t *vec, int veclen);
  * @return The expected checksum value that should be in the packet's header for it to be considered valid.
  */
 WS_DLL_PUBLIC uint16_t in_cksum_shouldbe(uint16_t sum, uint16_t computed_sum);
-
-#endif /* __IN_CKSUM_H__ */

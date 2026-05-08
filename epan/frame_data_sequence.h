@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Implements a sequence of frame_data structures
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __FRAME_DATA_SEQUENCE_H__
-#define __FRAME_DATA_SEQUENCE_H__
-
+#pragma once
 #include <epan/frame_data.h>
 
 #ifdef __cplusplus
@@ -72,5 +69,3 @@ WS_DLL_PUBLIC void find_and_mark_frame_depended_upon(void *key, void *value, voi
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __FRAME_DATA_SEQUENCE_H__ */

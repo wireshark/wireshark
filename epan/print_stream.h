@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Definitions for print streams.
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
@@ -9,10 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __PRINT_STREAM_H__
-#define __PRINT_STREAM_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #include <wsutil/color.h>
@@ -135,5 +132,3 @@ WS_DLL_PUBLIC bool destroy_print_stream(print_stream_t *self);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* print_stream.h */

@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  * Maxmind database support
  *
  * Copyright 2018, Gerald Combs <gerald@wireshark.org>
@@ -9,10 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __MAXMIND_DB_H__
-#define __MAXMIND_DB_H__
-
+#pragma once
 #include <epan/prefs.h>
 #include <wsutil/inet_addr.h>
 #include "ws_symbol_export.h"
@@ -102,8 +99,6 @@ WS_DLL_PUBLIC void maxmind_db_set_synchrony(bool synchronous);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __MAXMIND_DB_H__ */
 
 /*
  * Editor modelines

@@ -1,4 +1,4 @@
-/* proto_data.h
+﻿/* proto_data.h
  * Definitions for protocol-specific data
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __PROTO_DATA_H__
-#define __PROTO_DATA_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -110,8 +107,6 @@ WS_DLL_PUBLIC unsigned p_get_proto_depth(struct _packet_info* pinfo, int proto);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif  /* __PROTO_DATA__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

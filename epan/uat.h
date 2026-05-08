@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  *  User Accessible Tables
  *  Maintain an array of user accessible data structures
@@ -11,10 +11,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __UAT_H__
-#define __UAT_H__
-
+#pragma once
 #include <stdlib.h>
 
 #include "ws_symbol_export.h"
@@ -1078,8 +1075,6 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __UAT_H__ */
 
 /*
  * Editor modelines

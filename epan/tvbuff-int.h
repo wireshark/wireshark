@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Structures that most TVB users should not be accessing directly.
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __TVBUFF_INT_H__
-#define __TVBUFF_INT_H__
-
+#pragma once
 struct tvbuff;
 
 struct tvb_ops {
@@ -122,4 +119,3 @@ void tvb_validate_offset_and_remaining(const tvbuff_t *tvb, const unsigned offse
  * @param length_ptr Pointer to store the adjusted length (if needed).
  */
 void tvb_check_offset_length(const tvbuff_t *tvb, const int offset, int const length_val, unsigned *offset_ptr, unsigned *length_ptr);
-#endif

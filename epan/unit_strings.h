@@ -1,4 +1,4 @@
-/* unit_strings.h
+﻿/* unit_strings.h
  * Units to append to field values
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __UNIT_STRINGS_H__
-#define __UNIT_STRINGS_H__
-
+#pragma once
 #include <stdint.h>
 #include "ws_symbol_export.h"
 
@@ -141,8 +138,6 @@ WS_DLL_PUBLIC const unit_name_string units_ppm;
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __UNIT_STRINGS_H__ */
 
 /*
  * Editor modelines

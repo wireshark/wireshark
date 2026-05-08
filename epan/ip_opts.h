@@ -1,4 +1,4 @@
-/* ip_opts.h
+﻿/* ip_opts.h
  * Definitions of structures and routines for dissection of options that
  * work like IPv4 options
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __IP_OPTS_H__
-#define __IP_OPTS_H__
-
+#pragma once
 #include "ws_symbol_export.h"
 
 /** @file
@@ -41,5 +38,3 @@ WS_DLL_PUBLIC value_string_ext qs_rate_vals_ext;
 
 WS_DLL_PUBLIC const value_string ipopt_type_class_vals[];
 WS_DLL_PUBLIC const value_string ipopt_type_number_vals[];
-
-#endif

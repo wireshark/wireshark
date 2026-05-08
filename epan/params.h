@@ -1,4 +1,4 @@
-/** @file
+﻿/** @file
  *
  * Definitions for parameter handling routines
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __PARAMS_H__
-#define __PARAMS_H__
-
+#pragma once
 /*
  * Definition of a value for an enumerated type.
  *
@@ -172,6 +169,3 @@ enum { \
 #define _VS_ARRAY_ENTRY_FROM_EV(enum_name, value, name, description) { value, name }
 #define _VS_ARRAY_ENTRY_FROM_EV2(enum_name, value, name, description) { value, #enum_name }
 #define _VS_ARRAY_ENTRY_FROM_EV3(enum_name, value, name, description) { value, description }
-
-#endif /* params.h */
-

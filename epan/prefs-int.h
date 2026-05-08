@@ -1,4 +1,4 @@
-/* prefs-int.h
+﻿/* prefs-int.h
  * Definitions for implementation of preference handling routines;
  * used by "friends" of the preferences type.
  *
@@ -8,10 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __PREFS_INT_H__
-#define __PREFS_INT_H__
-
+#pragma once
 #include <stdio.h>
 #include "ws_symbol_export.h"
 #include <epan/wmem_scopes.h>
@@ -698,5 +695,3 @@ prefs_sanitize_string(const char* str);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* prefs-int.h */

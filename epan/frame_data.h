@@ -1,4 +1,4 @@
-/* frame_data.h
+﻿/* frame_data.h
  * Definitions for frame_data structures and routines
  *
  * Wireshark - Network traffic analyzer
@@ -7,10 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __FRAME_DATA_H__
-#define __FRAME_DATA_H__
-
+#pragma once
 #include <ws_diag_control.h>
 #include <ws_symbol_export.h>
 #include <wsutil/nstime.h>
@@ -158,8 +155,6 @@ WS_DLL_PUBLIC void frame_data_set_after_dissect(frame_data *fdata,
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif  /* __FRAME_DATA__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

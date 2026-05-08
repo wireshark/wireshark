@@ -1,4 +1,4 @@
-/* column-info.h
+﻿/* column-info.h
  * Definitions for internal column structures and routines
  *
  * For internal Wireshark use only. Don't include this header in dissectors!
@@ -9,10 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#ifndef __COLUMN_INFO_H__
-#define __COLUMN_INFO_H__
-
+#pragma once
 #include <epan/column-utils.h>
 
 #ifdef __cplusplus
@@ -202,5 +199,3 @@ void col_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* __COLUMN_INFO_H__ */
