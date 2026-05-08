@@ -18348,10 +18348,19 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       nature = (pinfo->destport % 10);
     } else {
       domain_id = get_domain_id_from_tcp_discovered_participants(discovered_participants_domain_ids, &guid);
+      /* DomainId_t is a 32-bit unsigned integer across the wire, but values
+       * outside this range are inconsistent with the scheme. */
       if (pinfo->ptype != PT_TCP && pinfo->destport >= PORT_BASE && domain_id == RTPS_UNKNOWN_DOMAIN_ID_VAL) {
         domain_id = (pinfo->destport - PORT_BASE) / DOMAIN_GAIN;
         is_domain_id_calculated = true;
       }
+      if (domain_id > 232 || domain_id < 0) {
+        domain_id = RTPS_UNKNOWN_DOMAIN_ID_VAL;
+      }
+      /* XXX - Is there a point in calculating doffset when the domain_id
+       * is RTPS_UNKNOWN_DOMAIN_ID_VAL (i.e., -1)? What about if the
+       * port is less than the base port, should such frames just be
+       * rejected even if they have the magic number at start? */
       doffset = (pinfo->destport - PORT_BASE - domain_id * DOMAIN_GAIN);
       /* RTPX messages are always sent to PORT_BASE regardless of the
        * domain_id propagated via PID_DOMAIN_ID, so the destination port
@@ -18375,9 +18384,6 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         else {
           nature = PORT_USERTRAFFIC_UNICAST;
         }
-      }
-      if (domain_id > 232 || domain_id < 0) {
-        domain_id = RTPS_UNKNOWN_DOMAIN_ID_VAL;
       }
     }
     /* Used string for the domain participant to show Unknown if the domainId is not known when using TCP*/
