@@ -369,7 +369,8 @@ dissect_edata_tlvs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* edata_tree, ui
 
         case 0x000B:  // EVENT_SCHEMA_TL
         {
-            uint8_t schema_size = 0, item_size = 0;
+            uint8_t schema_size = 0;
+            int item_size = 0;
 
             *is_tl = true;
             proto_item_set_text(ti, "Data (EVENT_SCHEMA_TL)");
@@ -378,7 +379,7 @@ dissect_edata_tlvs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* edata_tree, ui
             edata_off_int += 1;
             proto_tree_add_item(edata_item_data_tree, hf_etw_edata_schematl_reserved1, tvb, edata_off_int, 2, ENC_LITTLE_ENDIAN);
             edata_off_int += 2;
-            proto_tree_add_item_ret_length(edata_item_data_tree, hf_etw_edata_schematl_name, tvb, edata_off_int, -1, ENC_LITTLE_ENDIAN, (int*)&item_size);
+            proto_tree_add_item_ret_length(edata_item_data_tree, hf_etw_edata_schematl_name, tvb, edata_off_int, -1, ENC_LITTLE_ENDIAN, &item_size);
             edata_off_int += item_size;
 
             while (edata_off_int < edata_off + schema_size)
@@ -386,7 +387,7 @@ dissect_edata_tlvs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* edata_tree, ui
                 ti = proto_tree_add_item(edata_item_data_tree, hf_etw_edata_schematl_field, tvb, edata_off_int, 0, ENC_NA);
                 edata_schematl_schema = proto_item_add_subtree(ti, ett_etw_edata_schematl_schema);
 
-                proto_tree_add_item_ret_length(edata_schematl_schema, hf_etw_edata_schematl_field_key, tvb, edata_off_int, -1, ENC_LITTLE_ENDIAN, (int*)&item_size);
+                proto_tree_add_item_ret_length(edata_schematl_schema, hf_etw_edata_schematl_field_key, tvb, edata_off_int, -1, ENC_LITTLE_ENDIAN, &item_size);
                 edata_off_int += item_size;
                 proto_tree_add_bitmask(edata_schematl_schema, tvb, edata_off_int, hf_etw_edata_schematl_field_flags,
                     ett_etw_schematl_flags, etw_schematl_flags, ENC_LITTLE_ENDIAN);
