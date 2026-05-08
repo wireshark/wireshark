@@ -50160,7 +50160,7 @@ proto_register_ieee80211(void)
 
      {&hf_ieee80211_tbtt_bssid,
       {"BSSID", "wlan.rnr.tbtt_info.bssid",
-       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+       FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tbtt_short_ssid,
       {"Short SSID", "wlan.rnr.tbtt_info.sh_ssid",
