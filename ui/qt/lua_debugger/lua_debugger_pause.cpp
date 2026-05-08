@@ -17,6 +17,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QDialog>
 #include <QEvent>
 #include <QEventLoop>
 #include <QPainter>
@@ -30,6 +31,51 @@
 #include "main_application.h"
 #include "main_window.h"
 #include <ui/qt/utils/color_utils.h>
+
+namespace
+{
+bool isPauseAllowedWindow(const QWidget *w,
+                          const QWidget *debugger_dialog,
+                          const QWidget *main_window)
+{
+    if (!w)
+    {
+        return false;
+    }
+
+    if (main_window && w == main_window)
+    {
+        return true;
+    }
+
+    for (const QObject *o = w; o; o = o->parent())
+    {
+        if (o == debugger_dialog)
+        {
+            return true;
+        }
+
+        const QWidget *as_widget = qobject_cast<const QWidget *>(o);
+        if (!as_widget || !as_widget->isWindow())
+        {
+            continue;
+        }
+
+        if (as_widget->windowModality() != Qt::NonModal)
+        {
+            return true;
+        }
+
+        const QDialog *as_dialog = qobject_cast<const QDialog *>(as_widget);
+        if (as_dialog && as_dialog->isModal())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+} // namespace
 
 /* ===== pause_controller ===== */
 
@@ -63,10 +109,13 @@ void LuaDebuggerPauseController::beginOuterFreeze()
         ancestors.insert(p);
     }
 
+    MainWindow *mw = mainApp ? mainApp->mainWindow() : nullptr;
+
     const QList<QWidget *> top_level_widgets = QApplication::topLevelWidgets();
     for (QWidget *w : top_level_widgets)
     {
-        if (!w || ancestors.contains(w))
+        if (!w || ancestors.contains(w) ||
+            isPauseAllowedWindow(w, host_, mw))
         {
             continue;
         }
@@ -77,8 +126,6 @@ void LuaDebuggerPauseController::beginOuterFreeze()
         w->setEnabled(false);
         frozenTopLevels_.append(QPointer<QWidget>(w));
     }
-
-    MainWindow *mw = mainApp ? mainApp->mainWindow() : nullptr;
 
     frozenActions_.clear();
     const QList<QAction *> debugger_actions = host_->findChildren<QAction *>();
@@ -93,7 +140,8 @@ void LuaDebuggerPauseController::beginOuterFreeze()
     }
     for (QWidget *tlw : top_level_widgets)
     {
-        if (!tlw || tlw == host_)
+        if (!tlw || tlw == host_ ||
+            isPauseAllowedWindow(tlw, host_, mw))
         {
             continue;
         }
@@ -376,11 +424,7 @@ bool LuaDebuggerPauseInputFilter::eventFilter(QObject *watched, QEvent *event)
         {
             return QObject::eventFilter(watched, event);
         }
-        if (main_window_ && w == main_window_)
-        {
-            return QObject::eventFilter(watched, event);
-        }
-        if (isOwnedByDebugger(w))
+        if (isAllowedDuringPause(w))
         {
             return QObject::eventFilter(watched, event);
         }
@@ -414,7 +458,7 @@ bool LuaDebuggerPauseInputFilter::eventFilter(QObject *watched, QEvent *event)
         return QObject::eventFilter(watched, event);
     }
 
-    if (isOwnedByDebugger(w))
+    if (isAllowedDuringPause(w))
     {
         return QObject::eventFilter(watched, event);
     }
@@ -423,18 +467,7 @@ bool LuaDebuggerPauseInputFilter::eventFilter(QObject *watched, QEvent *event)
     return true;
 }
 
-bool LuaDebuggerPauseInputFilter::isOwnedByDebugger(const QWidget *w) const
+bool LuaDebuggerPauseInputFilter::isAllowedDuringPause(const QWidget *w) const
 {
-    if (!debugger_dialog_ || !w)
-    {
-        return false;
-    }
-    for (const QObject *o = w; o; o = o->parent())
-    {
-        if (o == debugger_dialog_)
-        {
-            return true;
-        }
-    }
-    return false;
+    return isPauseAllowedWindow(w, debugger_dialog_, main_window_);
 }

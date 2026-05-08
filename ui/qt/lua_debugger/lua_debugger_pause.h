@@ -127,7 +127,7 @@ class LuaDebuggerPauseInputFilter : public QObject
     bool eventFilter(QObject *watched, QEvent *event) override;
 
   private:
-    bool isOwnedByDebugger(const QWidget *w) const;
+    bool isAllowedDuringPause(const QWidget *w) const;
 
     QWidget *debugger_dialog_;
     QWidget *main_window_;
