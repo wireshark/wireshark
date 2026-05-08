@@ -149,7 +149,7 @@
 				"url": {
 					"type": "string",
 					"format": "uri",
-					"description": "Target URL opened when the slide or button is clicked."
+					"description": "Target URL opened when the button is clicked."
 				},
 				"image": {
 					"type": "string",

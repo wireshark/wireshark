@@ -1385,7 +1385,7 @@ read_set_recent_common_pair_static(char *key, const char *value,
         if (p == value || *p != '\0')
             return PREFS_SET_SYNTAX_ERR;
         if (num < 1)
-            num = 1;
+            num = 8; // Default value
         recent.gui_welcome_page_sidebar_tips_interval = (unsigned)num;
     }
 
