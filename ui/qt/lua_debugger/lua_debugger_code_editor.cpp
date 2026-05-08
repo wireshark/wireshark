@@ -16,6 +16,7 @@
 #include "lua_debugger_code_editor.h"
 
 #include <QAction>
+#include <QApplication>
 #include <QColor>
 #include <QContextMenuEvent>
 #include <QDir>
@@ -48,6 +49,7 @@
 #include <QtGlobal>
 
 #include <algorithm>
+#include <climits>
 
 #include "epan/wslua/wslua_debugger.h"
 #include "lua_debugger_breakpoints.h"
@@ -370,6 +372,7 @@ LuaDebuggerCodeView::LuaDebuggerCodeView(QWidget *parent)
     /* Gutter tooltip surfaces both click affordances; the Shift+click
      * behavior is otherwise non-discoverable. */
     lineNumberArea->setToolTip(tr("Click: add or remove breakpoint\n"
+                                  "Drag existing breakpoint: move to nearest free visible line\n"
                                   "Shift+click: on an empty line, add a disabled breakpoint;\n"
                                   "on an existing breakpoint, toggle its active state"));
     syntaxHighlighter = new LuaSyntaxHighlighter(document(), luaDebuggerThemeIsDark());
@@ -679,6 +682,22 @@ void LuaDebuggerCodeView::lineNumberAreaPaintEvent(QPaintEvent *event)
 
     painter.fillRect(event->rect(), colors.gutterBackground);
 
+    /* Highlight the drag target line if a breakpoint move is in progress. */
+    LineNumberArea *gutter = static_cast<LineNumberArea *>(lineNumberArea);
+    if (gutter && gutter->isDraggingBreakpoint() && gutter->dragTargetLine() > 0)
+    {
+        const qint32 targetLine = gutter->dragTargetLine();
+        QTextBlock targetBlock = document()->findBlockByNumber(static_cast<int>(targetLine - 1));
+        if (targetBlock.isValid())
+        {
+            qint32 targetTop = static_cast<qint32>(blockBoundingGeometry(targetBlock).translated(contentOffset()).top());
+            qint32 targetHeight = static_cast<qint32>(blockBoundingRect(targetBlock).height());
+            QColor dragHighlight = colors.selection;
+            dragHighlight.setAlpha(80);
+            painter.fillRect(0, targetTop, lineNumberArea->width(), targetHeight, dragHighlight);
+        }
+    }
+
     /* Canonicalize the filename once for all visible lines. */
     char *canonical = nullptr;
     if (!filename.isEmpty())
@@ -707,54 +726,20 @@ void LuaDebuggerCodeView::lineNumberAreaPaintEvent(QPaintEvent *event)
              * yellow right-pointing triangle is visually dominant while
              * the breakpoint itself stays recognizable underneath.
              * Gray (disabled) circles are not dimmed — the yellow
-             * arrow is the only indicator that is never dimmed. */
-            if (canonical)
+             * arrow is the only indicator that is never dimmed.
+             * During a breakpoint drag, skip drawing the source line's
+             * breakpoint so the preview at the target is visually distinct. */
+            const bool isDragSource = (gutter && gutter->isDraggingBreakpoint() && lineNo == gutter->dragSourceLine());
+            if (canonical && !isDragSource)
             {
                 bool hasExtras = false;
                 const int32_t state = wslua_debugger_get_breakpoint_state_canonical(canonical, lineNo, &hasExtras);
                 if (state != -1)
                 {
-                    /* Match the toolbar state-indicator palette used
-                     * in updateEnabledCheckboxIcon(): red #DC3545 for
-                     * enabled breakpoints, gray #808080 for disabled
-                     * ones. The yellow paused-arrow triangle below
-                     * uses the same palette's #FFC107. */
-                    QColor circleColor = (state == 1) ? QColor("#DC3545") : QColor("#808080");
-                    painter.setBrush(circleColor);
-                    /* 1px darker rim matches the Enable-checkbox state
-                     * indicator in the toolbar
-                     * (updateEnabledCheckboxIcon()); alpha is
-                     * preserved by QColor::darker(), so the dimmed
-                     * paused-red variant also gets a proportionally
-                     * dimmed rim. */
-                    painter.setPen(QPen(circleColor.darker(140), 1));
                     const qint32 radius = fontMetrics().height() / 2 - 2;
                     const qint32 cx = lineNumberArea->width() - 15;
-                    const qint32 cy = top + 2;
-                    painter.drawEllipse(cx, cy, radius * 2, radius * 2);
-
-                    /* Conditional / hit-count / logpoint indicator: a
-                     * white core inside the breakpoint dot. Mirrors the
-                     * Breakpoints-list italic Location text and tooltip
-                     * so users can see at a glance which lines have
-                     * extras attached to them without hovering. The
-                     * core is drawn with alpha matched to the outer
-                     * dot so the dimmed paused-line variant still reads
-                     * correctly. */
-                    if (hasExtras)
-                    {
-                        QColor coreColor(Qt::white);
-                        coreColor.setAlpha(circleColor.alpha());
-                        painter.setBrush(coreColor);
-                        painter.setPen(Qt::NoPen);
-                        /* Half-radius core, centred. Reads well at the
-                         * 12–14 px sizes typical for editor fonts;
-                         * scales naturally with the line height. */
-                        const qint32 coreRadius = std::max(2, radius / 2);
-                        const qint32 coreX = cx + radius - coreRadius;
-                        const qint32 coreY = cy + radius - coreRadius;
-                        painter.drawEllipse(coreX, coreY, coreRadius * 2, coreRadius * 2);
-                    }
+                    const qint32 cy = top + 3;
+                    luaDbgDrawBreakpointDot(painter, cx, cy, radius, (state == 1), hasExtras);
                 }
             }
 
@@ -786,6 +771,35 @@ void LuaDebuggerCodeView::lineNumberAreaPaintEvent(QPaintEvent *event)
         ++blockNumber;
     }
 
+    /* Draw semi-transparent preview breakpoint at the drag target line.
+     * Uses the same color and indicators (white core for extras) as the
+     * source breakpoint, with reduced alpha for visual distinction. */
+    if (gutter && gutter->isDraggingBreakpoint() && gutter->dragTargetLine() > 0)
+    {
+        const qint32 targetLine = gutter->dragTargetLine();
+        const qint32 sourceLine = gutter->dragSourceLine();
+        QTextBlock targetBlock = document()->findBlockByNumber(static_cast<int>(targetLine - 1));
+        if (targetBlock.isValid() && canonical && sourceLine > 0)
+        {
+            /* Query the source breakpoint to get its state and extras info. */
+            bool hasExtras = false;
+            const int32_t state = wslua_debugger_get_breakpoint_state_canonical(canonical, sourceLine, &hasExtras);
+            if (state != -1)
+            {
+                qint32 targetTop = static_cast<qint32>(blockBoundingGeometry(targetBlock).translated(contentOffset()).top());
+                qint32 targetBottom = targetTop + static_cast<qint32>(blockBoundingRect(targetBlock).height());
+
+                if (targetTop <= event->rect().bottom() && targetBottom >= event->rect().top())
+                {
+                    const qint32 radius = fontMetrics().height() / 2 - 2;
+                    const qint32 cx = lineNumberArea->width() - 15;
+                    const qint32 cy = targetTop + 3;
+                    luaDbgDrawBreakpointDot(painter, cx, cy, radius, (state == 1), hasExtras, 120);
+                }
+            }
+        }
+    }
+
     g_free(canonical);
 }
 
@@ -810,8 +824,88 @@ qint32 LineNumberArea::lineAtY(qint32 yPx) const
     return -1;
 }
 
+bool LineNumberArea::hasBreakpointAtLine(qint32 line) const
+{
+    if (!codeEditor || codeEditor->filename.isEmpty() || line < 1)
+    {
+        return false;
+    }
+
+    char *canonical = wslua_debugger_canonical_path(codeEditor->filename.toUtf8().constData());
+    if (!canonical)
+    {
+        return false;
+    }
+    const int32_t state = wslua_debugger_get_breakpoint_state_canonical(canonical, line, /*has_extras=*/nullptr);
+    g_free(canonical);
+    return state != -1;
+}
+
+qint32 LineNumberArea::nearestVisibleDropLine(qint32 yPx, qint32 sourceLine) const
+{
+    struct Candidate
+    {
+        qint32 line;
+        qint32 centerY;
+    };
+
+    QVector<Candidate> candidates;
+    QTextBlock block = codeEditor->firstVisibleBlock();
+    qint32 top =
+        static_cast<qint32>(codeEditor->blockBoundingGeometry(block).translated(codeEditor->contentOffset()).top());
+    qint32 bottom = top + static_cast<qint32>(codeEditor->blockBoundingRect(block).height());
+    qint32 blockNumber = block.blockNumber();
+    const qint32 viewportBottom = codeEditor->viewport()->height();
+
+    while (block.isValid() && top <= viewportBottom)
+    {
+        if (block.isVisible() && bottom >= 0)
+        {
+            const qint32 line = blockNumber + 1;
+            const bool occupied = hasBreakpointAtLine(line);
+            if (!occupied || line == sourceLine)
+            {
+                candidates.append({line, top + (bottom - top) / 2});
+            }
+        }
+
+        block = block.next();
+        top = bottom;
+        bottom = top + static_cast<qint32>(codeEditor->blockBoundingRect(block).height());
+        ++blockNumber;
+    }
+
+    if (candidates.isEmpty())
+    {
+        return -1;
+    }
+
+    qint32 bestLine = -1;
+    qint32 bestDist = INT_MAX;
+    qint32 bestLineDelta = INT_MAX;
+    for (const Candidate &candidate : candidates)
+    {
+        const qint32 yDist = qAbs(candidate.centerY - yPx);
+        const qint32 lineDelta = qAbs(candidate.line - sourceLine);
+        if (bestLine == -1 || yDist < bestDist || (yDist == bestDist && lineDelta < bestLineDelta))
+        {
+            bestLine = candidate.line;
+            bestDist = yDist;
+            bestLineDelta = lineDelta;
+        }
+    }
+    return bestLine;
+}
+
 void LineNumberArea::mousePressEvent(QMouseEvent *event)
 {
+    leftPressArmed_ = false;
+    draggingBreakpoint_ = false;
+    pressedLine_ = -1;
+    dragTargetLine_ = -1;
+    pressShiftToggle_ = false;
+    pressHadBreakpoint_ = false;
+
     /* Only the primary button drives add / remove / toggle here. The
      * secondary button (right-click on Win/Linux, Ctrl-click or
      * two-finger trackpad tap on macOS) is handled by
@@ -820,22 +914,103 @@ void LineNumberArea::mousePressEvent(QMouseEvent *event)
      * with the toggle path. */
     if (event->button() != Qt::LeftButton)
     {
+        QWidget::mousePressEvent(event);
         return;
     }
 
     const QPoint click_pos = event->pos();
     if (click_pos.x() <= width() - 20)
     {
+        QWidget::mousePressEvent(event);
         return;
     }
 
     const qint32 lineNo = lineAtY(click_pos.y());
     if (lineNo < 1)
     {
+        QWidget::mousePressEvent(event);
         return;
     }
 
-    const bool toggleActive = (event->modifiers() & Qt::ShiftModifier) != 0;
+    leftPressArmed_ = true;
+    pressPos_ = click_pos;
+    pressedLine_ = lineNo;
+    dragTargetLine_ = lineNo;
+    pressShiftToggle_ = (event->modifiers() & Qt::ShiftModifier) != 0;
+    pressHadBreakpoint_ = hasBreakpointAtLine(lineNo);
+    event->accept();
+}
+
+void LineNumberArea::mouseMoveEvent(QMouseEvent *event)
+{
+    if (!leftPressArmed_ || !pressHadBreakpoint_)
+    {
+        QWidget::mouseMoveEvent(event);
+        return;
+    }
+
+    if (!draggingBreakpoint_)
+    {
+        const qint32 dragDistance = (event->pos() - pressPos_).manhattanLength();
+        if (dragDistance < QApplication::startDragDistance())
+        {
+            return;
+        }
+        draggingBreakpoint_ = true;
+        setCursor(Qt::ClosedHandCursor);
+    }
+
+    const qint32 prevTarget = dragTargetLine_;
+    dragTargetLine_ = nearestVisibleDropLine(event->pos().y(), pressedLine_);
+
+    /* Repaint gutter to show updated drag target highlight. */
+    if (dragTargetLine_ != prevTarget)
+    {
+        update();
+    }
+    event->accept();
+}
+
+void LineNumberArea::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() != Qt::LeftButton)
+    {
+        QWidget::mouseReleaseEvent(event);
+        return;
+    }
+
+    const bool armed = leftPressArmed_;
+    const bool wasDragging = draggingBreakpoint_;
+    const bool sourceHasBreakpoint = pressHadBreakpoint_;
+    const bool toggleActive = pressShiftToggle_;
+    const qint32 lineNo = pressedLine_;
+    const qint32 dropLine = (dragTargetLine_ > 0) ? dragTargetLine_ : nearestVisibleDropLine(event->pos().y(), lineNo);
+
+    leftPressArmed_ = false;
+    draggingBreakpoint_ = false;
+    pressedLine_ = -1;
+    dragTargetLine_ = -1;
+    pressShiftToggle_ = false;
+    pressHadBreakpoint_ = false;
+    unsetCursor();
+
+    if (!armed || lineNo < 1)
+    {
+        QWidget::mouseReleaseEvent(event);
+        return;
+    }
+
+    if (wasDragging && sourceHasBreakpoint)
+    {
+        if (dropLine > 0 && dropLine != lineNo)
+        {
+            emit codeEditor->breakpointMoveRequested(codeEditor->filename, lineNo, dropLine);
+            codeEditor->viewport()->update();
+            update();
+        }
+        event->accept();
+        return;
+    }
 
     /* Plain left-click on a "rich" breakpoint (one carrying a
      * condition, a hit-count target, or a log message) opens the
@@ -877,6 +1052,8 @@ void LineNumberArea::mousePressEvent(QMouseEvent *event)
         codeEditor->viewport()->update();
         update();
     }
+
+    event->accept();
 }
 
 void LineNumberArea::contextMenuEvent(QContextMenuEvent *event)
@@ -1170,6 +1347,9 @@ LuaDebuggerCodeView *LuaDebuggerCodeTabsController::loadFile(const QString &file
 
     connect(codeView, &LuaDebuggerCodeView::breakpointToggled, this,
             &LuaDebuggerCodeTabsController::onCodeViewBreakpointToggled);
+
+        connect(codeView, &LuaDebuggerCodeView::breakpointMoveRequested, &host_->breakpointsController(),
+            &LuaDebuggerBreakpointsController::moveAtLine, Qt::QueuedConnection);
 
     connect(codeView->document(), &QTextDocument::modificationChanged, this,
             [this, codeView]()

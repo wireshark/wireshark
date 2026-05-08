@@ -2255,6 +2255,100 @@ void LuaDebuggerBreakpointsController::removeAtLine(const QString &file, qint32 
     refreshAllOpenTabMarkers();
 }
 
+void LuaDebuggerBreakpointsController::moveAtLine(const QString &file, qint32 fromLine, qint32 toLine)
+{
+    if (file.isEmpty() || fromLine < 1 || toLine < 1 || fromLine == toLine)
+    {
+        return;
+    }
+
+    const QByteArray fileUtf8 = file.toUtf8();
+    if (wslua_debugger_get_breakpoint_state(fileUtf8.constData(), fromLine) == -1)
+    {
+        return;
+    }
+    if (wslua_debugger_get_breakpoint_state(fileUtf8.constData(), toLine) != -1)
+    {
+        return;
+    }
+
+    bool isActive = true;
+    int64_t hitTarget = 0;
+    wslua_hit_count_mode_t hitMode = WSLUA_HIT_COUNT_MODE_FROM;
+    bool logAlsoPause = false;
+    QString condition;
+    QString logMessage;
+    bool found = false;
+
+    const unsigned count = wslua_debugger_get_breakpoint_count();
+    for (unsigned i = 0; i < count; ++i)
+    {
+        const char *file_path = nullptr;
+        int64_t line = 0;
+        bool active = false;
+        const char *condition_c = nullptr;
+        int64_t hit_target = 0;
+        int64_t hit_count = 0;
+        bool cond_err = false;
+        const char *log_message = nullptr;
+        wslua_hit_count_mode_t hit_mode = WSLUA_HIT_COUNT_MODE_FROM;
+        bool log_also_pause = false;
+
+        if (!wslua_debugger_get_breakpoint_extended(i, &file_path, &line, &active, &condition_c, &hit_target,
+                                                    &hit_count, &cond_err, &log_message, &hit_mode,
+                                                    &log_also_pause))
+        {
+            continue;
+        }
+        if (line != fromLine)
+        {
+            continue;
+        }
+        QString normalizedPath = host_->normalizedFilePath(QString::fromUtf8(file_path));
+        if (normalizedPath != file)
+        {
+            continue;
+        }
+
+        isActive = active;
+        hitTarget = hit_target;
+        hitMode = hit_mode;
+        logAlsoPause = log_also_pause;
+        condition = QString::fromUtf8(condition_c ? condition_c : "");
+        logMessage = QString::fromUtf8(log_message ? log_message : "");
+        found = true;
+        break;
+    }
+
+    if (!found)
+    {
+        return;
+    }
+
+    wslua_debugger_add_breakpoint(fileUtf8.constData(), toLine);
+    wslua_debugger_set_breakpoint_active(fileUtf8.constData(), toLine, isActive);
+    if (!condition.isEmpty())
+    {
+        const QByteArray conditionUtf8 = condition.toUtf8();
+        wslua_debugger_set_breakpoint_condition(fileUtf8.constData(), toLine, conditionUtf8.constData());
+    }
+    if (hitTarget > 0)
+    {
+        wslua_debugger_set_breakpoint_hit_count_target(fileUtf8.constData(), toLine, hitTarget);
+        wslua_debugger_set_breakpoint_hit_count_mode(fileUtf8.constData(), toLine, hitMode);
+    }
+    if (!logMessage.isEmpty())
+    {
+        const QByteArray logMessageUtf8 = logMessage.toUtf8();
+        wslua_debugger_set_breakpoint_log_message(fileUtf8.constData(), toLine, logMessageUtf8.constData());
+        wslua_debugger_set_breakpoint_log_also_pause(fileUtf8.constData(), toLine, logAlsoPause);
+    }
+
+    wslua_debugger_remove_breakpoint(fileUtf8.constData(), fromLine);
+    refreshFromEngine();
+    refreshAllOpenTabMarkers();
+}
+
 void LuaDebuggerBreakpointsController::refreshAllOpenTabMarkers() const
 {
     if (!host_)

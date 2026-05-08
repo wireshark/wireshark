@@ -39,6 +39,7 @@ class QFont;
 class QKeyEvent;
 class QObject;
 class QPalette;
+class QPainter;
 class QToolButton;
 class QTreeView;
 class QWidget;
@@ -434,6 +435,8 @@ extern const QString kLuaDbgRowExtras;
  *  buttons (Watch and Breakpoints). */
 extern const QString kLuaDbgHeaderRemoveAll;
 extern const QString kLuaDbgHeaderToolButtonStyle;
+void luaDbgDrawBreakpointDot(QPainter &painter, qreal dotLeft, qreal dotTop, qreal radius, bool enabled,
+                             bool hasExtras = false, int alpha = 255);
 
 enum class LuaDbgBpHeaderIconMode
 {

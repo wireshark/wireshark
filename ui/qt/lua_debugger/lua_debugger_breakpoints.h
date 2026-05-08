@@ -350,6 +350,13 @@ class LuaDebuggerBreakpointsController : public QObject
      */
     void removeAtLine(const QString &file, qint32 line);
 
+    /**
+     * @brief Move a breakpoint in @p file from @p fromLine to @p toLine,
+     *        preserving metadata. No-op if either line is invalid, unchanged,
+     *        source is absent, or destination is occupied.
+     */
+    void moveAtLine(const QString &file, qint32 fromLine, qint32 toLine);
+
     /** @brief Activate-all / deactivate-all toggle (header). */
     void toggleAllActive();
 

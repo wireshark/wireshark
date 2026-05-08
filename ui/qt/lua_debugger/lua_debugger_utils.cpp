@@ -662,6 +662,39 @@ const QString kLuaDbgRowExtras{QStringLiteral("\u2699")};
 
 const QString kLuaDbgHeaderToolButtonStyle{QStringLiteral("QToolButton { border: none; padding: 0px; margin: 0px; }")};
 
+void luaDbgDrawBreakpointDot(QPainter &painter, qreal dotLeft, qreal dotTop, qreal radius, bool enabled,
+                             bool hasExtras, int alpha)
+{
+    if (radius <= 0.0)
+    {
+        return;
+    }
+
+    const int clampedAlpha = qBound(0, alpha, 255);
+
+    QColor fill = enabled ? QColor(QStringLiteral("#DC3545")) : QColor(QStringLiteral("#808080"));
+    fill.setAlpha(clampedAlpha);
+
+    QColor rim = fill.darker(140);
+    rim.setAlpha(clampedAlpha);
+
+    painter.setBrush(fill);
+    painter.setPen(QPen(rim, 1.0));
+    painter.drawEllipse(QRectF(dotLeft, dotTop, radius * 2.0, radius * 2.0));
+
+    if (hasExtras)
+    {
+        QColor core(Qt::white);
+        core.setAlpha(clampedAlpha);
+        painter.setBrush(core);
+        painter.setPen(Qt::NoPen);
+        const qreal coreRadius = std::max<qreal>(2.0, radius / 2.0);
+        const qreal coreX = dotLeft + radius - coreRadius;
+        const qreal coreY = dotTop + radius - coreRadius;
+        painter.drawEllipse(QRectF(coreX, coreY, coreRadius * 2.0, coreRadius * 2.0));
+    }
+}
+
 QIcon luaDbgBreakpointHeaderIconForMode(const QFont *editorFont, LuaDbgBpHeaderIconMode mode, int headerSide, qreal dpr)
 {
     if (headerSide < 4)
@@ -687,20 +720,18 @@ QIcon luaDbgBreakpointHeaderIconForMode(const QFont *editorFont, LuaDbgBpHeaderI
     {
         QPainter p(&pm);
         p.setRenderHint(QPainter::Antialiasing, true);
-        QColor fill;
+        bool enabled = false;
         switch (mode)
         {
         case LuaDbgBpHeaderIconMode::NoBreakpoints:
         case LuaDbgBpHeaderIconMode::ActivateAll:
-            fill = QColor(QStringLiteral("#808080"));
+            enabled = false;
             break;
         case LuaDbgBpHeaderIconMode::DeactivateAll:
-            fill = QColor(QStringLiteral("#DC3545"));
+            enabled = true;
             break;
         }
-        p.setBrush(fill);
-        p.setPen(QPen(fill.darker(140), 1.0));
-        p.drawEllipse(circleRect);
+        luaDbgDrawBreakpointDot(p, circleRect.left(), circleRect.top(), circleRect.width() / 2.0, enabled);
     }
     return QIcon(pm);
 }

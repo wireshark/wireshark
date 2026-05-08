@@ -20,6 +20,7 @@
 #include <QFont>
 #include <QObject>
 #include <QPlainTextEdit>
+#include <QPoint>
 #include <QRegularExpression>
 #include <QString>
 #include <QSyntaxHighlighter>
@@ -192,6 +193,12 @@ class LuaDebuggerCodeView : public QPlainTextEdit
     void breakpointToggled(const QString &filename, qint32 line, bool toggleActive);
 
     /**
+     * @brief Request moving a breakpoint in @a filename from @a fromLine
+     *        to @a toLine after a gutter drag-and-drop gesture.
+     */
+    void breakpointMoveRequested(const QString &filename, qint32 fromLine, qint32 toLine);
+
+    /**
      * @brief Request an Edit / Disable (Enable) / Remove popup for the
      *        breakpoint at @a filename:@a line, anchored at
      *        @a globalPos.
@@ -249,12 +256,27 @@ class LineNumberArea : public QWidget
     /** @brief Size the gutter according to the editor's width requirements. */
     QSize sizeHint() const override { return QSize(codeEditor->lineNumberAreaWidth(), 0); }
 
+    /** @brief True if a breakpoint drag-and-drop is currently in progress. */
+    bool isDraggingBreakpoint() const { return draggingBreakpoint_; }
+
+    /** @brief Current drag target line, or -1 if not dragging. */
+    qint32 dragTargetLine() const { return dragTargetLine_; }
+
+    /** @brief Source line being dragged, or -1 if not dragging. */
+    qint32 dragSourceLine() const { return pressedLine_; }
+
   protected:
     /** @brief Delegate painting back to the code view. */
     void paintEvent(QPaintEvent *event) override { codeEditor->lineNumberAreaPaintEvent(event); }
 
     /** @brief Toggle breakpoints when the gutter is clicked. */
     void mousePressEvent(QMouseEvent *event) override;
+
+    /** @brief Track drag gestures in the breakpoint gutter. */
+    void mouseMoveEvent(QMouseEvent *event) override;
+
+    /** @brief Commit click vs drag-drop action on mouse release. */
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
     /**
      * @brief Right-click / Ctrl-click / two-finger trackpad tap on
@@ -279,6 +301,16 @@ class LineNumberArea : public QWidget
      * @ref LuaDebuggerCodeView).
      */
     qint32 lineAtY(qint32 yPx) const;
+    bool hasBreakpointAtLine(qint32 line) const;
+    qint32 nearestVisibleDropLine(qint32 yPx, qint32 sourceLine) const;
+
+    QPoint pressPos_;
+    qint32 pressedLine_ = -1;
+    qint32 dragTargetLine_ = -1;
+    bool leftPressArmed_ = false;
+    bool draggingBreakpoint_ = false;
+    bool pressShiftToggle_ = false;
+    bool pressHadBreakpoint_ = false;
 };
 
 /* ===== font_policy ===== */
