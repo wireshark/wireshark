@@ -74,6 +74,7 @@
 #include <QWidget>
 
 #include <climits>
+#include <utility>
 #include <glib.h>
 
 #include "lua_debugger_code_editor.h"
@@ -766,7 +767,8 @@ QWidget *LuaDbgBreakpointConditionDelegate::createEditor(QWidget *parent, const 
      * combo popup view (which Qt may parent via a top-level
      * Qt::Popup window — so isAncestorOf isn't reliable across
      * platforms). */
-    auto stillInside = [editorGuard, modeGuard, popupGuard](QWidget *w)
+    auto stillInside = [editorGuard, modeGuard = std::move(modeGuard),
+                        popupGuard = std::move(popupGuard)](QWidget *w)
     {
         if (!w)
         {
@@ -787,7 +789,8 @@ QWidget *LuaDbgBreakpointConditionDelegate::createEditor(QWidget *parent, const 
         return false;
     };
     QObject::connect(qApp, &QApplication::focusChanged, editor,
-                     [self, editorGuard, popupOpen, stillInside](QWidget *old, QWidget *now)
+                     [self, editorGuard = std::move(editorGuard), popupOpen = std::move(popupOpen),
+                      stillInside = std::move(stillInside)](QWidget *old, QWidget *now)
                      {
                          if (!editorGuard)
                          {
@@ -819,7 +822,9 @@ QWidget *LuaDbgBreakpointConditionDelegate::createEditor(QWidget *parent, const 
                              if (stillInside(old))
                              {
                                  QTimer::singleShot(0, editorGuard.data(),
-                                                    [editorGuard, popupOpen, stillInside, self]()
+                                                    [editorGuard = std::move(editorGuard),
+                                                     popupOpen = std::move(popupOpen),
+                                                     stillInside = std::move(stillInside), self]()
                                                     {
                                                         if (!editorGuard)
                                                         {
@@ -1405,7 +1410,7 @@ void LuaDebuggerBreakpointsController::showContextMenu(const QPoint &pos)
     }
     if (chosen == resetHitsAct)
     {
-        QSet<int> rows = selRowsSet;
+        QSet<int> rows = std::move(selRowsSet);
         if (rows.isEmpty() && ix.isValid())
         {
             rows.insert(ix.row());
@@ -1869,7 +1874,7 @@ void LuaDebuggerBreakpointsController::onModelDataChanged(const QModelIndex &top
          * prevents this path from looping back into either slot. */
         QPointer<LuaDebuggerBreakpointsController> self(this);
         QTimer::singleShot(0, this,
-                           [self]()
+                           [self = std::move(self)]()
                            {
                                if (self)
                                {

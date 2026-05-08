@@ -52,6 +52,7 @@
 #include <QVector>
 
 #include <algorithm>
+#include <utility>
 #include <glib.h>
 
 #include "lua_debugger_code_editor.h"
@@ -1751,7 +1752,7 @@ void LuaDebuggerWatchController::scheduleDeferredPlaceholder()
     QPointer<LuaDebuggerDialog> guard(host_);
     QPointer<LuaDebuggerWatchController> self(this);
     QTimer::singleShot(WATCH_PLACEHOLDER_DEFER_MS, this,
-                       [guard, self, epoch]()
+                       [guard = std::move(guard), self = std::move(self), epoch]()
                        {
                            if (!guard || !self || guard->isDebuggerPaused() || self->placeholderEpoch_ != epoch)
                            {

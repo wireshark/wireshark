@@ -27,6 +27,8 @@
 #include <QTimer>
 #include <QWidget>
 
+#include <utility>
+
 #include "lua_debugger_dialog.h"
 #include "main_application.h"
 #include "main_window.h"
@@ -237,7 +239,7 @@ void LuaDebuggerPauseController::endFreeze()
     {
         QPointer<QWidget> mw_p(mw);
         QTimer::singleShot(0, mw,
-                           [mw_p]()
+                           [mw_p = std::move(mw_p)]()
                            {
                                if (mw_p)
                                {
