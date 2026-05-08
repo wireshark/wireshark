@@ -284,7 +284,7 @@ dissect_properties(tvbuff_t* tvb, packet_info* pinfo, proto_tree* edata_tree, ui
     uint16_t item_key_length = 0, item_value_length = 0;
 
     PROPERTY_KEY_VALUE prop;
-    *propArray = wmem_array_sized_new(allocator, sizeof(PROPERTY_KEY_VALUE), count);
+    *propArray = wmem_array_new(allocator, sizeof(PROPERTY_KEY_VALUE));
 
     for (i = 0; i < count; i++)
     {
