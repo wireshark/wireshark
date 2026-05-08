@@ -6606,6 +6606,45 @@ static int hf_ieee80211_tag_wnm_sleep_mode_interval;
 
 static int hf_ieee80211_wnm_sub_elt_id;
 static int hf_ieee80211_wnm_sub_elt_len;
+static int hf_ieee80211_wnm_sleep_subelem_id;
+static int hf_ieee80211_wnm_sleep_subelem_len;
+static int hf_ieee80211_wnm_sleep_subelem_data;
+static int hf_ieee80211_wnm_sleep_subelem_gtk_key_info;
+static int hf_ieee80211_wnm_sleep_subelem_gtk_key_id;
+static int hf_ieee80211_wnm_sleep_subelem_gtk_key_length;
+static int hf_ieee80211_wnm_sleep_subelem_gtk_rsc;
+static int hf_ieee80211_wnm_sleep_subelem_gtk_key;
+static int hf_ieee80211_wnm_sleep_subelem_igtk_key_id;
+static int hf_ieee80211_wnm_sleep_subelem_igtk_ipn;
+static int hf_ieee80211_wnm_sleep_subelem_igtk_key;
+static int hf_ieee80211_wnm_sleep_subelem_bigtk_key_id;
+static int hf_ieee80211_wnm_sleep_subelem_bigtk_bipn;
+static int hf_ieee80211_wnm_sleep_subelem_bigtk_key;
+static int hf_ieee80211_wnm_sleep_subelem_cigtk_key_info;
+static int hf_ieee80211_wnm_sleep_subelem_cigtk_cipn;
+static int hf_ieee80211_wnm_sleep_subelem_cigtk_key;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_info;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_id;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_gtk_link_id_info;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_gtk_link_id;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_length;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_gtk_rsc;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_igtk_key_id;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_igtk_ipn;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_igtk_link_id_info;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_igtk_link_id;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_igtk_key;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_key_id;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_bipn;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_link_id_info;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_link_id;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_key;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_key_id;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_cipn;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_link_id_info;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_link_id;
+static int hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_key;
 
 /* IEEE Std 802.11v-2011 7.3.2.87 */
 static int hf_ieee80211_tag_time_zone;
@@ -14726,6 +14765,36 @@ wnm_sleep_mode_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offs
   return offset - start;
 }
 
+#define WNM_SLEEP_MODE_SUBID_GTK       0
+#define WNM_SLEEP_MODE_SUBID_IGTK      1
+#define WNM_SLEEP_MODE_SUBID_BIGTK     2
+#define WNM_SLEEP_MODE_SUBID_MLO_GTK   3
+#define WNM_SLEEP_MODE_SUBID_MLO_IGTK  4
+#define WNM_SLEEP_MODE_SUBID_MLO_BIGTK 5
+#define WNM_SLEEP_MODE_SUBID_CIGTK     7
+#define WNM_SLEEP_MODE_SUBID_MLO_CIGTK 8
+
+static const range_string wnm_sleep_subelem_id_rvals[] = {
+  { WNM_SLEEP_MODE_SUBID_GTK, WNM_SLEEP_MODE_SUBID_GTK,
+    "GTK" },
+  { WNM_SLEEP_MODE_SUBID_IGTK, WNM_SLEEP_MODE_SUBID_IGTK,
+    "IGTK" },
+  { WNM_SLEEP_MODE_SUBID_BIGTK, WNM_SLEEP_MODE_SUBID_BIGTK,
+    "BIGTK" },
+  { WNM_SLEEP_MODE_SUBID_MLO_GTK, WNM_SLEEP_MODE_SUBID_MLO_GTK,
+    "MLO GTK" },
+  { WNM_SLEEP_MODE_SUBID_MLO_IGTK, WNM_SLEEP_MODE_SUBID_MLO_IGTK,
+    "MLO IGTK" },
+  { WNM_SLEEP_MODE_SUBID_MLO_BIGTK, WNM_SLEEP_MODE_SUBID_MLO_BIGTK,
+    "MLO BIGTK" },
+  { WNM_SLEEP_MODE_SUBID_CIGTK, WNM_SLEEP_MODE_SUBID_CIGTK,
+    "CIGTK" },
+  { WNM_SLEEP_MODE_SUBID_MLO_CIGTK, WNM_SLEEP_MODE_SUBID_MLO_CIGTK,
+    "MLO CIGTK" },
+  { WNM_SLEEP_MODE_SUBID_MLO_CIGTK + 1, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
 static unsigned
 wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
@@ -14741,9 +14810,184 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
     expert_add_info(pinfo, tree, &ei_ieee80211_tag_wnm_sleep_mode_no_key_data);
     return offset - start;
   }
-  proto_tree_add_item(tree, hf_ieee80211_ff_key_data, tvb, offset,
-                      key_data_len, ENC_NA);
-  offset += key_data_len;
+
+  while (offset - (start + 3) < key_data_len) {
+    uint8_t id, len;
+    int s_end;
+
+    proto_tree_add_item_ret_uint8(tree, hf_ieee80211_wnm_sleep_subelem_id,
+                                  tvb, offset, 1, ENC_LITTLE_ENDIAN, &id);
+    offset += 1;
+
+    proto_tree_add_item_ret_uint8(tree, hf_ieee80211_wnm_sleep_subelem_len,
+                                  tvb, offset, 1, ENC_LITTLE_ENDIAN, &len);
+    offset += 1;
+
+    s_end = offset + len;
+    switch (id) {
+    case WNM_SLEEP_MODE_SUBID_GTK:
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_gtk_key_info,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_gtk_key_id,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_gtk_key_length,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_gtk_rsc,
+                          tvb, offset, 8, ENC_NA);
+      offset += 8;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_gtk_key,
+                          tvb, offset, s_end - offset, ENC_NA);
+      break;
+    case WNM_SLEEP_MODE_SUBID_IGTK:
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_igtk_key_id,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_igtk_ipn,
+                          tvb, offset, 6, ENC_LITTLE_ENDIAN);
+      offset += 6;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_igtk_key,
+                          tvb, offset, s_end - offset, ENC_NA);
+      break;
+    case WNM_SLEEP_MODE_SUBID_BIGTK:
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_bigtk_key_id,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_bigtk_bipn,
+                          tvb, offset, 6, ENC_LITTLE_ENDIAN);
+      offset += 6;
+      if (offset > s_end)
+        break;
+
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_bigtk_key,
+                          tvb, offset, s_end - offset, ENC_NA);
+      break;
+    case WNM_SLEEP_MODE_SUBID_CIGTK:
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_cigtk_key_info,
+                          tvb, offset, 1, ENC_NA);
+      offset += 1;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_cigtk_cipn,
+                          tvb, offset, 6, ENC_LITTLE_ENDIAN);
+      offset += 6;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_cigtk_key,
+                          tvb, offset, s_end - offset, ENC_NA);
+      break;
+    case WNM_SLEEP_MODE_SUBID_MLO_GTK:
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_link_id_info,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_link_id,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_info,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_id,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_length,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_rsc,
+                          tvb, offset, 8, ENC_NA);
+      offset += 8;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key,
+                          tvb, offset, s_end - offset, ENC_NA);
+      break;
+    case WNM_SLEEP_MODE_SUBID_MLO_IGTK:
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_igtk_link_id_info,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_igtk_link_id,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_igtk_key_id,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_igtk_ipn,
+                          tvb, offset, 6, ENC_LITTLE_ENDIAN);
+      offset += 6;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_igtk_key,
+                          tvb, offset, s_end - offset, ENC_NA);
+      break;
+    case WNM_SLEEP_MODE_SUBID_MLO_BIGTK:
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_link_id_info,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_link_id,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_key_id,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_bipn,
+                          tvb, offset, 6, ENC_LITTLE_ENDIAN);
+      offset += 6;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_key,
+                          tvb, offset, s_end - offset, ENC_NA);
+      break;
+    case WNM_SLEEP_MODE_SUBID_MLO_CIGTK:
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_link_id_info,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_link_id,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_key_id,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_cipn,
+                          tvb, offset, 6, ENC_LITTLE_ENDIAN);
+      offset += 6;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_key,
+                          tvb, offset, s_end - offset, ENC_NA);
+      break;
+    default:
+      proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_data,
+                          tvb, offset, len, ENC_NA);
+      break;
+    }
+    offset = s_end;
+  }
+
   return offset - start;
 }
 
@@ -57948,6 +58192,195 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_wnm_sub_elt_len,
      {"Subelement len", "wlan.wnm_subelt.len",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_id,
+     {"Subelement ID", "wlan.wnm_sleep.subelem.id",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(wnm_sleep_subelem_id_rvals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_len,
+     {"Length", "wlan.wnm_sleep.subelem.len",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_data,
+     {"Data", "wlan.wnm_sleep.subelem.data",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_gtk_key_info,
+     {"Key Info", "wlan.wnm_sleep.subelem.gtk.key_info",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_gtk_key_id,
+     {"Key ID", "wlan.wnm_sleep.subelem.gtk.key_id",
+      FT_UINT16, BASE_DEC, NULL, 0x0003,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_gtk_key_length,
+     {"Key Length", "wlan.wnm_sleep.subelem.gtk.key_length",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_gtk_rsc,
+     {"RSC", "wlan.wnm_sleep.subelem.gtk.rsc",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_gtk_key,
+     {"Key (GTK)", "wlan.wnm_sleep.subelem.gtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_igtk_key_id,
+     {"Key ID", "wlan.wnm_sleep.subelem.igtk.key_id",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_igtk_ipn,
+     {"IPN", "wlan.wnm_sleep.subelem.igtk.ipn",
+      FT_UINT48, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_igtk_key,
+     {"Key (IGTK)", "wlan.wnm_sleep.subelem.igtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_bigtk_key_id,
+     {"Key ID", "wlan.wnm_sleep.subelem.bigtk.key_id",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_bigtk_bipn,
+     {"BIPN", "wlan.wnm_sleep.subelem.bigtk.bipn",
+      FT_UINT48, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_bigtk_key,
+     {"Key (BIGTK)", "wlan.wnm_sleep.subelem.bigtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_cigtk_key_info,
+     {"Key Info", "wlan.wnm_sleep.subelem.cigtk.key_info",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_cigtk_cipn,
+     {"CIPN", "wlan.wnm_sleep.subelem.cigtk.cipn",
+      FT_UINT48, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_cigtk_key,
+     {"Key (CIGTK)", "wlan.wnm_sleep.subelem.cigtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_info,
+     {"Key Info", "wlan.wnm_sleep.subelem.mlo_gtk.key_info",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_id,
+     {"Key ID", "wlan.wnm_sleep.subelem.mlo_gtk.key_id",
+      FT_UINT16, BASE_DEC, NULL, 0x0003,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_gtk_link_id_info,
+     {"Link ID Info", "wlan.wnm_sleep.subelem.mlo_gtk.link_id_info",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_gtk_link_id,
+     {"Link ID", "wlan.wnm_sleep.subelem.mlo_gtk.link_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0f,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_length,
+     {"Key Length", "wlan.wnm_sleep.subelem.mlo_gtk.key_length",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_gtk_rsc,
+     {"RSC", "wlan.wnm_sleep.subelem.mlo_gtk.rsc",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key,
+     {"Key (MLO GTK)", "wlan.wnm_sleep.subelem.mlo_gtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_igtk_key_id,
+     {"Key ID", "wlan.wnm_sleep.subelem.mlo_igtk.key_id",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_igtk_ipn,
+     {"IPN", "wlan.wnm_sleep.subelem.mlo_igtk.ipn",
+      FT_UINT48, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_igtk_link_id_info,
+     {"Link ID Info", "wlan.wnm_sleep.subelem.mlo_igtk.link_id_info",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_igtk_link_id,
+     {"Link ID", "wlan.wnm_sleep.subelem.mlo_igtk.link_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0f,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_igtk_key,
+     {"Key (MLO IGTK)", "wlan.wnm_sleep.subelem.mlo_igtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_key_id,
+     {"Key ID", "wlan.wnm_sleep.subelem.mlo_bigtk.key_id",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_bipn,
+     {"BIPN", "wlan.wnm_sleep.subelem.mlo_bigtk.bipn",
+      FT_UINT48, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_link_id,
+     {"Link ID", "wlan.wnm_sleep.subelem.mlo_bigtk.link_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0f,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_link_id_info,
+     {"Link ID Info", "wlan.wnm_sleep.subelem.mlo_bigtk.link_id_info",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_key,
+     {"Key (MLO BIGTK)", "wlan.wnm_sleep.subelem.mlo_bigtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_key_id,
+     {"Key ID", "wlan.wnm_sleep.subelem.mlo_cigtk.key_id",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_cipn,
+     {"CIPN", "wlan.wnm_sleep.subelem.mlo_cigtk.cipn",
+      FT_UINT48, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_link_id,
+     {"Link ID", "wlan.wnm_sleep.subelem.mlo_cigtk.link_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0f,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_link_id_info,
+     {"Link ID Info", "wlan.wnm_sleep.subelem.mlo_cigtk.link_id_info",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_key,
+     {"Key (MLO CIGTK)", "wlan.wnm_sleep.subelem.mlo_cigtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     /* Time Advertisement */
     {&hf_ieee80211_tag_time_adv_timing_capab,
