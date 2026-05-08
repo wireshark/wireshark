@@ -5481,10 +5481,10 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned lengt
               line_len = line_len - offset;
           }
 
-          gchar *line = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, line_len, ENC_ASCII);
+          char *line = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, line_len, ENC_ASCII);
 
           /* Parse KEY=VALUE */
-          gchar **tokens = g_strsplit(line, "=", 2);
+          char **tokens = wmem_strsplit(pinfo->pool, line, "=", 2);
 
           item_tree = proto_tree_add_string(tree,
                                             hf_isakmp_notify_data_fortinet_forticlient_connect_item,
@@ -5560,8 +5560,6 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned lengt
                                         tokens[1]);
               }
           }
-
-          g_strfreev(tokens);
 
           offset += line_len + 1; /* +1 pour le LF */
           }
