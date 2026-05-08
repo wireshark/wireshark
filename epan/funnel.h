@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * EPAN's GUI mini-API
  *

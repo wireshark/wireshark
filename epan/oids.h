@@ -1,4 +1,4 @@
-﻿/* oids.h
+/* oids.h
  * Object IDentifier Support
  *
  * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>

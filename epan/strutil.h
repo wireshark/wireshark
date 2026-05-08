@@ -1,4 +1,4 @@
-﻿/* strutil.h
+/* strutil.h
  * String utility definitions
  *
  * Wireshark - Network traffic analyzer

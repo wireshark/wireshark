@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Definitions for the Wireshark CBOR item encoding API.
  * References:
  *     RFC 8949: https://tools.ietf.org/html/rfc8949

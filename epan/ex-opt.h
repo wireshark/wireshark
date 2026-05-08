@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * eXtension command line options
  *

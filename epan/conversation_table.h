@@ -1,4 +1,4 @@
-﻿/* conversation_table.h
+/* conversation_table.h
  * GUI independent helper routines common to all conversations taps.
  * Refactored original conversations_table by Ronnie Sahlberg
  *

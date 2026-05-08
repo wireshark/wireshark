@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Definitions for address types
  *
  * Wireshark - Network traffic analyzer

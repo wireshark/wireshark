@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Declarations of routines handling protocols with a request/response line,
  * headers, a blank line, and an optional body.
  *

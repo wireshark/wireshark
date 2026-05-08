@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Definitions for utilities to convert various other types to strings.
  *
  * Wireshark - Network traffic analyzer

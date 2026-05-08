@@ -1,4 +1,4 @@
-﻿/* unit_strings.h
+/* unit_strings.h
  * Units to append to field values
  *
  * Wireshark - Network traffic analyzer

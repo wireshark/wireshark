@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Wireshark's exceptions.
  *

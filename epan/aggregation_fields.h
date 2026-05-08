@@ -1,4 +1,4 @@
-﻿/* aggregation_fields.h
+/* aggregation_fields.h
  * Definitions and functions for aggregation fields
  * By Hamdi Miladi <hamdi.miladi@technica-engineering.de>
  * Copyright 2025 Hamdi Miladi

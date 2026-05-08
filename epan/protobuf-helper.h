@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * C Wrapper Layer of Protocol Buffers Language library.
  * Copyright 2019, Huang Qiangxiong <qiangxiong.huang@qq.com>

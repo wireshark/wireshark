@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Flow sequence analysis
  *
  * Copied from gtk/graph_analysis.h

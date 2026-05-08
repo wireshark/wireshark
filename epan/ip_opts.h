@@ -1,4 +1,4 @@
-﻿/* ip_opts.h
+/* ip_opts.h
  * Definitions of structures and routines for dissection of options that
  * work like IPv4 options
  *

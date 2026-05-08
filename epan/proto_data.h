@@ -1,4 +1,4 @@
-﻿/* proto_data.h
+/* proto_data.h
  * Definitions for protocol-specific data
  *
  * Wireshark - Network traffic analyzer

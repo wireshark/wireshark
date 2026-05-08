@@ -1,4 +1,4 @@
-﻿/* filter_expressions.h
+/* filter_expressions.h
  * Submitted by Edwin Groothuis <wireshark@mavetju.org>
  *
  * Wireshark - Network traffic analyzer

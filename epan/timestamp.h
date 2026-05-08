@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Defines for packet timestamps
  *
  * Wireshark - Network traffic analyzer

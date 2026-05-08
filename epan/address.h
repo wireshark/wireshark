@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Definitions for structures storing addresses, and for the type of
  * variables holding port-type values
  *

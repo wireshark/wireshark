@@ -1,4 +1,4 @@
-﻿/* capture_dissectors.h
+/* capture_dissectors.h
  * Routines for handling capture dissectors
  *
  * Wireshark - Network traffic analyzer

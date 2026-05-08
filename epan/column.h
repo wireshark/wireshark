@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Definitions for column handling routines
  * Column preference and format settings.
  *

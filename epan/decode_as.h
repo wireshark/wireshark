@@ -1,4 +1,4 @@
-﻿/* decode_as.h
+/* decode_as.h
  * Routines for dissector Decode As handlers
  *
  * Wireshark - Network traffic analyzer

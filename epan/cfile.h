@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * capture_file definition & GUI-independent manipulation
  *

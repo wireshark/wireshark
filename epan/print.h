@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Definitions for printing packet analysis trees.
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>

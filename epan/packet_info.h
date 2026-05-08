@@ -1,4 +1,4 @@
-﻿/* packet_info.h
+/* packet_info.h
  * Definitions for packet info structures and routines
  *
  * Wireshark - Network traffic analyzer

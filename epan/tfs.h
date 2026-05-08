@@ -1,4 +1,4 @@
-﻿/* tfs.h
+/* tfs.h
  * true_false strings
  * Copyright 2007, Jaap Keuter <jaap.keuter@xs4all.nl>
  *

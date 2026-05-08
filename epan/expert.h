@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Collecting of Expert information.
  *
  * For further info, see WSDG: 9.3. How to add an expert item:

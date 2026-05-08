@@ -1,4 +1,4 @@
-﻿/* frame_data.h
+/* frame_data.h
  * Definitions for frame_data structures and routines
  *
  * Wireshark - Network traffic analyzer

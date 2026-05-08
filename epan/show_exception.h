@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Routines to put exception information into the protocol tree
  *

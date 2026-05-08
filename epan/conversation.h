@@ -1,4 +1,4 @@
-﻿/* conversation.h
+/* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * SMI Network Management Private Enterprise Codes for organizations
  *

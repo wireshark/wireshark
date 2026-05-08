@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * implementor's API for stats_tree
  * 2005, Luis E. G. Ontanon
  *

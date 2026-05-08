@@ -934,6 +934,24 @@ sub check_try_catch($$)
         return $errorCount;
 }
 
+# Check for UTF-8 BOM at start of file, which can cause problems with some tools and compilers.
+sub has_utf8_bom {
+    my ($filename) = @_;
+
+    # Open file in raw/binary mode
+    open(my $fh, '<:raw', $filename) or die "Could not open '$filename': $!";
+    
+    my $bytes;
+    read($fh, $bytes, 3);
+    close($fh);
+
+    # Check if bytes match the UTF-8 BOM: EF BB BF
+    if (defined $bytes && $bytes eq "\xEF\xBB\xBF") {
+        return 1;
+    }
+    return 0;
+}
+
 sub print_usage
 {
         print "Usage: checkAPIs.pl [-M] [-h] [-g group1[:count]] [-g group2] ... \n";
@@ -1142,6 +1160,12 @@ while ($_ = pop @filelist)
         unless (-f $filename) {
                 print STDERR "Warning: $filename is not of type file - skipping.\n";
                 next;
+        }
+
+        if (has_utf8_bom($filename))
+        {
+            print STDERR RED, "Error: Found UTF-8 BOM at start of file $filename\n", RESET;
+            next;
         }
 
         # Read in the file (ouch, but it's easier that way)

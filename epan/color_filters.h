@@ -1,4 +1,4 @@
-﻿/* color_filters.h
+/* color_filters.h
  * Definitions for color filters
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Declarations of routines for {fragment,segment} reassembly
  *
  * Wireshark - Network traffic analyzer

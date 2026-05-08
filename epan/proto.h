@@ -1,4 +1,4 @@
-﻿/* proto.h
+/* proto.h
  * Definitions for protocol display
  *
  * Wireshark - Network traffic analyzer

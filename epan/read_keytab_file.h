@@ -1,4 +1,4 @@
-﻿/* read_keytab_file.h
+/* read_keytab_file.h
  * Routines for reading Kerberos keytab files
  * Copyright 2007, Anders Broman <anders.broman@ericsson.com>
  *

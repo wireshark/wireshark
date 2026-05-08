@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Declaration of CRC-16 tvbuff routines
  *
  * 2004 Richard van der Hoff <richardv@mxtelecom.com>

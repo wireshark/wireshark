@@ -1,5 +1,5 @@
-﻿/** @file
- * Copyright 2021, JoÃ£o Valverde <j@v6e.pt>
+/** @file
+ * Copyright 2021, João Valverde <j@v6e.pt>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

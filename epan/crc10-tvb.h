@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Declaration of CRC-10 tvbuff routines
  *
  * Wireshark - Network traffic analyzer

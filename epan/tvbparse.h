@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * an API for text tvb parsers
  *

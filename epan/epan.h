@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Wireshark Protocol Analyzer Library
  *

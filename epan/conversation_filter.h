@@ -1,4 +1,4 @@
-﻿/* conversation_filter.h
+/* conversation_filter.h
  * Routines for dissector-generated conversation filters for use as
  * display and color filters
  *

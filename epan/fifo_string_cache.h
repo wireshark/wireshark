@@ -1,4 +1,4 @@
-﻿/* fifo_string_cache.h
+/* fifo_string_cache.h
  * A string cache, possibly with a bounded size, using FIFO order to control
  * the size.
  *

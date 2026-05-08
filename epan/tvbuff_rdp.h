@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  *	Various decompression routines used by RDP
  *

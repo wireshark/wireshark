@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Definitions for handling circuit-switched protocols
  * which are handled as streams, and don't have lengths

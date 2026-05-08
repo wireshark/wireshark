@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Implements a sequence of frame_data structures
  *
  * Wireshark - Network traffic analyzer

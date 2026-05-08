@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Routines of building and reading Protocol Buffers Language grammar tree.
  * Copyright 2019, Huang Qiangxiong <qiangxiong.huang@qq.com>

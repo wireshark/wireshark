@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Definitions for GUID handling
  *
  * Wireshark - Network traffic analyzer

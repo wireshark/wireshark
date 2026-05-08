@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Declarations of ARP address types.
  *

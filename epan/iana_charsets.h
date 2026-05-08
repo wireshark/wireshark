@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Declarations for IANA-registered character sets
  *

@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Declarations of routines to register UI information for stats
  *
  * Wireshark - Network traffic analyzer

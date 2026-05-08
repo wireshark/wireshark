@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Definitions for network object lookup
  *
  * Laurent Deniel <laurent.deniel@free.fr>
@@ -29,7 +29,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifndef MAXNAMELEN
-#define MAXNAMELEN  	64	/* max name length (most names: DNS labels, services, eth) */
+#define MAXNAMELEN  	64	    /* max name length (most names: DNS labels, services, eth) */
 #endif
 
 #ifndef MAXVLANNAMELEN

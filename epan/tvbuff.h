@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Testy, Virtual(-izable) Buffer of uint8_t*'s
  *

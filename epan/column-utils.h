@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Definitions for column utility structures and routines
  * Utility routines used by packet*.c
  *

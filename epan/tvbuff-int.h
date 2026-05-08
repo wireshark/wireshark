@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Structures that most TVB users should not be accessing directly.
  *

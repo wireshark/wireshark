@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Routines for exported_pdu dissection
  * Copyright 2013, Anders Broman <anders-broman@ericsson.com>
  *

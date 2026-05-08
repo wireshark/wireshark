@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  * Definitions for "next tvb" list
  *
  * Wireshark - Network traffic analyzer

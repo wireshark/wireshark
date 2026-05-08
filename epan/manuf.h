@@ -1,4 +1,4 @@
-﻿/* manuf.h
+/* manuf.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

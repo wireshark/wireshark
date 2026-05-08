@@ -1,4 +1,4 @@
-﻿/** @file prefs.h
+/** @file prefs.h
  * Definitions for preference handling routines
  *
  * Wireshark - Network traffic analyzer

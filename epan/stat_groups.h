@@ -1,4 +1,4 @@
-﻿/* stat_groups.h
+/* stat_groups.h
  * Definitions of groups for statistics
  *
  * Wireshark - Network traffic analyzer

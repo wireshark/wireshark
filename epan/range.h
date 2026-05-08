@@ -1,4 +1,4 @@
-﻿/* range.h
+/* range.h
  * Range routines
  *
  * Dick Gooris <gooris@lucent.com>

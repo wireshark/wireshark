@@ -1,4 +1,4 @@
-﻿/* column-info.h
+/* column-info.h
  * Definitions for internal column structures and routines
  *
  * For internal Wireshark use only. Don't include this header in dissectors!

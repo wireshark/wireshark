@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -7,6 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 #pragma once
+
 #include "ftypes.h"
 #include <epan/proto.h>
 #include <epan/packet.h>

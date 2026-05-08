@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * Definitions for protocol registration
  *

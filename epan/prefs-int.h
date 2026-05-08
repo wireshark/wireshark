@@ -1,4 +1,4 @@
-﻿/* prefs-int.h
+/* prefs-int.h
  * Definitions for implementation of preference handling routines;
  * used by "friends" of the preferences type.
  *

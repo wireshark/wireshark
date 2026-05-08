@@ -1,4 +1,4 @@
-﻿/** @file
+/** @file
  *
  * VoIP packet tap interface   2007 Tomas Kukosa
  *
