@@ -50,10 +50,8 @@ See <<JSON-RPC METHODS>> below for a complete list of method calls.
 For full details on the JSON-RPC API, see
 https://wiki.wireshark.org/Development/sharkd.
 
-WARNING: *Sharkd* should not be directly exposed to the public Internet.
-Instead, have a separate backend service to interact with *sharkd*.
-Unfiltered access to *sharkd* could potentially result in arbitrary command
-execution.
+WARNING: *Sharkd* should not be exposed to untrusted users.
+Unfiltered access to *sharkd* could potentially result in information disclosure or arbitrary command execution.
 
 == OPTIONS
 
