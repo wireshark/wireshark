@@ -3470,7 +3470,7 @@ BACnetConfirmedServiceChoice[] = {
     { 31, "confirmedCovNotificationMultiple"},
     { 32, "confirmedAuditNotification"},
     { 33, "auditLogQuery"},
-    { 34, "aurthRequest" },
+    { 34, "authRequest" },
     { 0,  NULL}
 };
 
