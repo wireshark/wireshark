@@ -6026,7 +6026,14 @@ static char *sip_follow_conv_filter(epan_dissect_t *edt, packet_info *pinfo _U_,
     char *filter = NULL;
 
     /* Extract si.Call-ID from decoded tree in edt */
-    if (edt != NULL) {
+    /* edt should be non-NULL (pinfo has the same lifetime, so the edt should
+     * be available to pass in), but there could be a NULL tree. That can be
+     * the case in sharkd, despite 9778cc82207520547e22c39f11ca3c1ac52c8aea.
+     * XXX - Should sharkd guarantee a non-NULL tree before calling this, or
+     * is the approach added in e75e1fb580f3a496309ae1d65c1865fa98262ec5 a
+     * mistake, and SIP should use proto data? A non-NULL tree would slow
+     * dissection. */
+    if (edt && edt->tree) {
         int hfid = proto_registrar_get_id_byname("sip.Call-ID");
         GPtrArray *gp = proto_find_first_finfo(edt->tree, hfid);
         if (gp != NULL && gp->len != 0) {
